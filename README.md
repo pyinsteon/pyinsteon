@@ -1,0 +1,1 @@
+This is a placeholder repository for a future pyinsteon module.
