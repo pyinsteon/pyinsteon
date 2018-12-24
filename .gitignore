@@ -96,3 +96,4 @@ ENV/
 /.mypy_cache/3.6
 /.pytest_cache/v/cache
 /.pypirc
+/settings.json
