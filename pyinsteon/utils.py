@@ -69,7 +69,7 @@ def set_bit(bitmask:int, bit: int, is_on: bool) -> int:
         return bitmask | (1 << bit)
     return bitmask & (0xff & ~(1 << bit))
 
-def bytes_from_vars(vars: Iterable) -> bytes:
+def vars_to_bytes(vars: Iterable) -> bytes:
     """Create a byte string from a set of values."""
     from .address import Address
     from .messages.message_flags import MessageFlags
@@ -82,7 +82,7 @@ def bytes_from_vars(vars: Iterable) -> bytes:
         elif isinstance(val, int):
             msg.append(val)
         elif isinstance(val, Address):
-            if val.addr is None:
+            if val.address is None:
                 pass
             else:
                 msg.extend(val.bytes)
@@ -94,3 +94,5 @@ def bytes_from_vars(vars: Iterable) -> bytes:
             msg.extend(val)
         elif isinstance(val, UserData):
             msg.extend(val.bytes)
+
+    return bytes(msg)

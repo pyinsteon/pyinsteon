@@ -8,7 +8,7 @@ _LOGGER = logging.getLogger(__name__)
 class UserData():
     """Extended Message User Data Type."""
 
-    def __init__(self, userdata=None):
+    def __init__(self, userdata):
         """Init the Userdata Class."""
         self._userdata = self.normalize(self.create_empty(0x00), userdata)
 
