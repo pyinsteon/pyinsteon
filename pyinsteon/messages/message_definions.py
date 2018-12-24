@@ -3,7 +3,7 @@
 from collections import namedtuple
 
 from ..address import Address
-from ..constants import MessageCode
+from ..constants import MessageId
 from .message_flags import MessageFlags
 from .user_data import UserData
 
@@ -25,4 +25,4 @@ FLD_EXT_REC.append(MessageDataField('userdata', 14, UserData))
 
 
 INBOUND_MESSAGE_DEFINITIONS = [
-    MessageDefinition(MessageCode.STANDARD_RECEIVED, FLD_STD_REC)]
+    MessageDefinition(MessageId.STANDARD_RECEIVED, FLD_STD_REC)]

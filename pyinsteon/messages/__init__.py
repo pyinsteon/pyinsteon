@@ -2,7 +2,7 @@
 import logging
 
 from ..address import Address
-from ..constants import MessageCode
+from ..constants import MessageId
 from .inbound_message import InboundMessage
 from .message_definions import INBOUND_MESSAGE_DEFINITIONS
 from .message_flags import MessageFlags

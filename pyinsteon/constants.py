@@ -29,7 +29,7 @@ class DeviceCategory(Enum):
     HOLIDAY = 0x16
 
 
-class MessageCode(Enum):
+class MessageId(Enum):
     """Message type definitions."""
 
     STANDARD_RECEIVED = 0x50
