@@ -13,8 +13,8 @@ class InboundMessage():
         """Init the InboundMessage class."""
         self._fields = fields
         _slices = self._create_slices(fields)
-        self.start_code = data[_slices[0]]
-        self.id = data[_slices[1]]
+        self.start_code = data[0]
+        self.id = data[1]
         self._len = 2
         curr_slice = 2
         for field in fields:
