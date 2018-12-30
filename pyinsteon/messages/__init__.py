@@ -24,11 +24,11 @@ def create_from_raw_data(raw_data: bytearray) -> InboundMessage:
         return None
 
     def _standard_message(raw_data):
-        from .message_definions import FLD_STD_REC, FLD_EXT_REC
-        msg = _create_message(FLD_STD_REC, raw_data)
+        from .message_definions import FLD_STD_SEND_ACK, FLD_EXT_SEND_ACK
+        msg = _create_message(FLD_STD_SEND_ACK, raw_data)
         # pylint: disable=E1101
         if msg.flags.is_extended:
-            msg = _create_message(FLD_EXT_REC, raw_data)
+            msg = _create_message(FLD_EXT_SEND_ACK, raw_data)
         return msg
 
     _LOGGER.info("Starting create")
@@ -38,7 +38,7 @@ def create_from_raw_data(raw_data: bytearray) -> InboundMessage:
 
     for msg_def in INBOUND_MESSAGE_DEFINITIONS:
         if msg_def.type.value == raw_data[1]:
-            if msg_def.type.value == 0x50:
+            if msg_def.type.value == MessageId.SEND_STANDARD.value:
                 return _standard_message(raw_data)
             return _create_message(msg_def.fields, raw_data)
 
