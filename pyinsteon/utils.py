@@ -71,6 +71,7 @@ def set_bit(bitmask:int, bit: int, is_on: bool) -> int:
 
 def vars_to_bytes(vars: Iterable) -> bytes:
     """Create a byte string from a set of values."""
+    from enum import Enum
     from .address import Address
     from .messages.message_flags import MessageFlags
     from .messages.user_data import UserData
@@ -94,5 +95,7 @@ def vars_to_bytes(vars: Iterable) -> bytes:
             msg.extend(val)
         elif isinstance(val, UserData):
             msg.extend(val.bytes)
+        elif isinstance(val, Enum):
+            msg.extend(val.value)
 
     return bytes(msg)
