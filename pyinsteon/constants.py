@@ -59,12 +59,12 @@ class MessageId(Enum):
 class MessageFlagType(Enum):
     """Message flag mesage type."""
 
-    DIRECT_MESSAGE = 0
-    DIRECT_MESSAGE_ACK = 1
+    DIRECT = 0
+    DIRECT_ACK = 1
     ALL_LINK_CLEANUP = 2
     ALL_LINK_CLEANUP_ACK = 3
-    BROADCAST_MESSAGE = 4
-    DIRECT_MESSAGE_NAK = 5
+    BROADCAST = 4
+    DIRECT_NAK = 5
     ALL_LINK_BROADCAST = 6
     ALL_LINK_CLEANUP_NAK = 7
 
@@ -114,6 +114,26 @@ class X10Commands(Enum):
     STATUS_IS_OFF = 0x0C
     STATUS_REQUEST = 0x0D
 
+
+class ImButtonEvents(Enum):
+
+    SET_TAPPED = 0x02
+    SET_HELD = 0x03
+    SET_RELEASED_AFTER_HOLD = 0x04
+    SET_2_TAPPED = 0x12
+    SET_2_HELD = 0x13
+    SET_2_RELEASED_AFTER_HOLD = 0x14
+    SET_3_TAPPED = 0x22
+    SET_3_HELD = 0x23
+    SET_3_RELEASED_AFTER_HOLD = 0x24
+
+
+class AllLinkMode(Enum):
+
+    RESPONDER = 0x00
+    CONTROLLER = 0x01
+    EITHER = 0x03
+    DELETE = 0xFF
 
 MESSAGE_START_CODE_0X02 = 0x02
 MESSAGE_ACK = 0x06
