@@ -1,6 +1,7 @@
 from binascii import unhexlify
 import logging
 import unittest
+import sys
 
 from pyinsteon.address import Address
 from pyinsteon.messages import create_from_raw_data
@@ -13,10 +14,11 @@ _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
-class TestExtendedReceived(unittest.TestCase):
+class TestExtendedSendAck(unittest.TestCase):
 
     def setUp(self):
-        self.hex_data = '0250112233445566778899a1a2a3a4a5a6a7a8a9aaabacadae'
+        self.hex_data = '0251112233445566778899a1a2a3a4a5a6a7a8a9aaabacadae'
+        self.id = 0x51
         self.bytes_data = bytearray(unhexlify(self.hex_data))
         self.address = Address('112233')
         self.target = Address('445566')
@@ -26,6 +28,12 @@ class TestExtendedReceived(unittest.TestCase):
         self.userdata = UserData(unhexlify('a1a2a3a4a5a6a7a8a9aaabacadae'))
 
         self.msg = create_from_raw_data(self.bytes_data)
+        
+        stream_handler = logging.StreamHandler(sys.stdout)
+        _LOGGER.addHandler(stream_handler)
+
+    def test_id(self):
+        assert self.msg.id == self.id
 
     def test_address(self):
         assert self.msg.address == self.address

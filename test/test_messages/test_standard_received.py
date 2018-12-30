@@ -17,6 +17,7 @@ class TestStandardReceived(unittest.TestCase):
     def setUp(self):
         self.hex_data = '0250010203040506070809'
         self.bytes_data = bytearray(unhexlify(self.hex_data))
+        self.id = 0x50
         self.address = Address('010203')
         self.target = Address('040506')
         self.flags = MessageFlags(0x07)
@@ -24,6 +25,9 @@ class TestStandardReceived(unittest.TestCase):
         self.cmd2 = int(0x09)
 
         self.msg = create_from_raw_data(self.bytes_data)
+
+    def test_id(self):
+        assert self.msg.id == self.id
 
     def test_address(self):
         assert self.msg.address == self.address
