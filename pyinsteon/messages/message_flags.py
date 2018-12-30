@@ -45,11 +45,11 @@ class MessageFlags():
     def matches_pattern(self, other):
         """Test if current message match a patterns or template."""
         if hasattr(other, 'message_type'):
-            message_typeIsEqual = False
+            messageTypeIsEqual = False
             if self.message_type is None or other.message_type is None:
                 messageTypeIsEqual = True
             else:
-                message_typeIsEqual = (self.message_type == other.message_type)
+                messageTypeIsEqual = (self.message_type == other.message_type)
             extendedIsEqual = False
             if self.extended is None or other.extended is None:
                 extendedIsEqual = True
@@ -69,13 +69,11 @@ class MessageFlags():
     @property
     def is_broadcast(self):
         """Test if the message is a broadcast message type."""
-        return (self._message_type & MessageFlagType.BROADCAST_MESSAGE ==
-                MessageFlagType.BROADCAST_MESSAGE)
-
+        return self._message_type == MessageFlagType.BROADCAST
     @property
     def is_direct(self):
         """Test if the message is a direct message type."""
-        direct = (self._message_type == 0x00)
+        direct = (self._message_type == MessageFlagType.DIRECT)
         if self.is_direct_ack or self.is_direct_nak:
             direct = True
         return direct
@@ -83,12 +81,12 @@ class MessageFlags():
     @property
     def is_direct_ack(self):
         """Test if the message is a direct ACK message type."""
-        return self._message_type == MessageFlagType.DIRECT_MESSAGE_ACK
+        return self._message_type == MessageFlagType.DIRECT_ACK
 
     @property
     def is_direct_nak(self):
         """Test if the message is a direct NAK message type."""
-        return self._message_type == MessageFlagType.DIRECT_MESSAGE_NAK
+        return self._message_type == MessageFlagType.DIRECT_NAK
 
     @property
     def is_all_link_broadcast(self):
@@ -138,8 +136,10 @@ class MessageFlags():
     @message_type.setter
     def message_type(self, val):
         """Set the message type."""
-        if val in range(0, 8):
+        if isinstance(val, MessageFlagType):
             self._message_type = val
+        elif val in range(0, 8):
+            self._message_type = MessageFlagType(val)
         else:
             raise ValueError
 
@@ -238,7 +238,7 @@ class MessageFlags():
         flagByte = 0x00
         message_type = 0
         if self._message_type is not None:
-            message_type = self._message_type << 5
+            message_type = self._message_type.value << 5
         extendedBit = 0 if self._extended is None else self._extended << 4
         hopsMax = 0 if self._max_hops is None else self._max_hops
         hopsLeft = 0 if self._hops_left is None else (self._hops_left << 2)
@@ -277,7 +277,7 @@ class MessageFlags():
         flagByte = self._normalize(flags)
 
         if flagByte is not None:
-            self._message_type = (flagByte[0] & 0xe0) >> 5
+            self._message_type = MessageFlagType((flagByte[0] & 0xe0) >> 5)
             self._extended = (flagByte[0] & _EXTENDED_MESSAGE) >> 4
             self._hops_left = (flagByte[0] & 0x0c) >> 2
             self._max_hops = flagByte[0] & 0x03
