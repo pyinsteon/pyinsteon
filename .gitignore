@@ -97,3 +97,4 @@ ENV/
 /.pytest_cache/v/cache
 /.pypirc
 /settings.json
+/.vscode
