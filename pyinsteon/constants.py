@@ -1,9 +1,9 @@
 """INSTEON PLM constants for reuse across the module."""
 
-from enum import Enum
+from enum import IntEnum
 
 
-class DeviceCategory(Enum):
+class DeviceCategory(IntEnum):
     """Device categories."""
 
     GENERALIZED_CONTROLLERS = 0x00
@@ -29,7 +29,7 @@ class DeviceCategory(Enum):
     HOLIDAY = 0x16
 
 
-class MessageId(Enum):
+class MessageId(IntEnum):
     """Message type definitions."""
 
     STANDARD_RECEIVED = 0x50
@@ -56,7 +56,7 @@ class MessageId(Enum):
     GET_IM_CONFIGURATION = 0x73
 
 
-class MessageFlagType(Enum):
+class MessageFlagType(IntEnum):
     """Message flag mesage type."""
 
     DIRECT = 0
@@ -69,14 +69,14 @@ class MessageFlagType(Enum):
     ALL_LINK_CLEANUP_NAK = 7
 
 
-class X10CommandType(Enum):
+class X10CommandType(IntEnum):
     """X10 command types."""
 
     DIRECT = 0
     BROADCAST = 1
 
 
-class ThermostatMode(Enum):
+class ThermostatMode(IntEnum):
     """Thermostat system modes."""
 
     OFF = 0x00
@@ -87,7 +87,7 @@ class ThermostatMode(Enum):
     FAN_ALWAYS_ON = 0x8
 
 
-class FanSpeed(Enum):
+class FanSpeed(IntEnum):
     """Fan speeds."""
 
     OFF = 0x00
@@ -96,7 +96,7 @@ class FanSpeed(Enum):
     HIGH = 0xff
 
 
-class X10Commands(Enum):
+class X10Commands(IntEnum):
     """X10 Commands."""
 
     ALL_UNITS_OFF = 0x00
@@ -115,7 +115,7 @@ class X10Commands(Enum):
     STATUS_REQUEST = 0x0D
 
 
-class ImButtonEvents(Enum):
+class ImButtonEvents(IntEnum):
 
     SET_TAPPED = 0x02
     SET_HELD = 0x03
@@ -128,7 +128,7 @@ class ImButtonEvents(Enum):
     SET_3_RELEASED_AFTER_HOLD = 0x24
 
 
-class AllLinkMode(Enum):
+class AllLinkMode(IntEnum):
 
     RESPONDER = 0x00
     CONTROLLER = 0x01
