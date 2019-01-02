@@ -4,8 +4,9 @@ import unittest
 import sys
 
 from binascii import hexlify, unhexlify
-from pyinsteon.all_link_record_flags import AllLinkRecordFlags
+from pyinsteon.messages.all_link_record_flags import AllLinkRecordFlags
 from pyinsteon.constants import AllLinkMode
+
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
@@ -102,6 +103,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
 
     def _check_hex(self, flags, hex):
         assert flags.hex == hex.lower()
+
 
 if __name__ == '__main__':
     _INSTEON_LOGGER.setLevel(logging.DEBUG)
