@@ -5,8 +5,7 @@ import sys
 
 from pyinsteon.address import Address
 from pyinsteon.messages.message_flags import MessageFlags
-from pyinsteon.messages import create_from_raw_data
-from pyinsteon.messages.inbound_message import InboundMessage
+from pyinsteon.messages.inbound_message import InboundMessage, create
 from pyinsteon.constants import MessageId, MESSAGE_ACK, MESSAGE_NAK
 
 
@@ -27,7 +26,7 @@ class TestStandardSendAck(unittest.TestCase):
         self.cmd2 = int(0x06)
         self.ack = MESSAGE_NAK
 
-        self.msg = create_from_raw_data(self.bytes_data)
+        self.msg = create(self.bytes_data)
         
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)

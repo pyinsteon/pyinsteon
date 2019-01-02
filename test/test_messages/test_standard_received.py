@@ -4,8 +4,7 @@ import unittest
 
 from pyinsteon.address import Address
 from pyinsteon.messages.message_flags import MessageFlags
-from pyinsteon.messages import create_from_raw_data
-from pyinsteon.messages.inbound_message import InboundMessage
+from pyinsteon.messages.inbound_message import InboundMessage, create
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -24,7 +23,7 @@ class TestStandardReceived(unittest.TestCase):
         self.cmd1 = int(0x08)
         self.cmd2 = int(0x09)
 
-        self.msg = create_from_raw_data(self.bytes_data)
+        self.msg = create(self.bytes_data)
 
     def test_id(self):
         assert self.msg.id == self.id

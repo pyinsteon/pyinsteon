@@ -4,8 +4,7 @@ import unittest
 
 from pyinsteon.address import Address
 from pyinsteon.messages.message_flags import MessageFlags
-from pyinsteon.messages import create_from_raw_data
-from pyinsteon.messages.inbound_message import InboundMessage
+from pyinsteon.messages.inbound_message import InboundMessage, create
 from pyinsteon.constants import MessageId, MESSAGE_ACK, MESSAGE_NAK
 from pyinsteon.messages.user_data import UserData
 
@@ -28,7 +27,7 @@ class TestExtendedSendAck(unittest.TestCase):
         self.userdata = UserData(unhexlify('a1a2a3a4a5a6a7a8a9aaabacadae'))
         self.ack = MESSAGE_ACK
 
-        self.msg = create_from_raw_data(self.bytes_data)
+        self.msg = create(self.bytes_data)
 
     def test_id(self):
         assert self.msg.id == self.id
