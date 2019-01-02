@@ -3,14 +3,15 @@ import logging
 import unittest
 import sys
 
-from pyinsteon.constants import MessageId, MESSAGE_ACK, MESSAGE_NAK
-from pyinsteon.messages.message_flags import MessageFlags
+from pyinsteon.constants import (MessageId, MESSAGE_ACK, MESSAGE_NAK,
+                                 MessageFlagType)
+from pyinsteon.messages.message_flags import MessageFlags, create, create_template
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
-class TestStandardSendAck(unittest.TestCase):
+class TestMessageFlags(unittest.TestCase):
 
     def setUp(self):
         self.direct = MessageFlags(0x00)
@@ -24,6 +25,20 @@ class TestStandardSendAck(unittest.TestCase):
 
         self.extended = MessageFlags(0x10)
         self.hops = MessageFlags(0x07)  # Hops left 1, max hops 3
+
+        self.complex = MessageFlags(0x77)  # All Link Cleanup, extended, 1, 3
+        self.assigned_message_flag = MessageFlags(0x00)
+        self.assigned_message_flag.message_type = MessageFlagType.ALL_LINK_CLEANUP_NAK
+
+        self.assigned_extended = MessageFlags(0x00)
+        self.assigned_extended.extended = True
+
+        self.assigned_hops = MessageFlags(0x00)
+        self.assigned_hops.hops_left = 2
+        self.assigned_hops.max_hops = 3
+
+        self.create = create(MessageFlagType.ALL_LINK_CLEANUP, True, 3, 2)
+        self.template = create_template()
 
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)
@@ -62,11 +77,45 @@ class TestStandardSendAck(unittest.TestCase):
     def test_direct_not_extended(self):
         assert not self.direct.is_extended
 
-    # def test_bytes(self):
-    #     assert self.msg.bytes == self.bytes_data
+    def test_bytes(self):
+        assert bytes(self.complex) == bytes([0x77])
 
-    # def test_hex(self):
-    #     assert self.msg.hex == self.hex_data
+    def test_hex(self):
+        assert str(self.complex) == '77'
+
+    def test_assign_message_flags(self):
+        test_val = MessageFlagType.ALL_LINK_CLEANUP_NAK
+        assert self.assigned_message_flag.message_type == test_val
+
+    def test_assign_extended(self):
+        assert self.assigned_extended.extended == True
+
+    def test_assign_hops_left(self):
+        assert self.assigned_hops.hops_left == 2
+
+    def test_assign_max_hops(self):
+        assert self.assigned_hops.max_hops == 3
+
+    def test_created(self):
+        assert str(self.create) == '5e'
+
+    def test_template_message_type(self):
+        assert self.template.message_type == None
+
+    def test_template_extended(self):
+        assert self.template.extended == None
+
+    def test_template_hops_left(self):
+        assert self.template.hops_left == None
+
+    def test_template_max_hops(self):
+        assert self.template.max_hops == None
+
+    def test_complex_template_eq(self):
+        assert self.complex == self.template
+
+    def test_complex_direct_ne(self):
+        assert self.complex != self.direct
 
 
 if __name__ == '__main__':
