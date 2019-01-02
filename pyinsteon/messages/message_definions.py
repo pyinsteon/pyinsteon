@@ -3,7 +3,7 @@
 from collections import namedtuple
 
 from ..address import Address
-from ..all_link_record_flags import AllLinkRecordFlags
+from .all_link_record_flags import AllLinkRecordFlags
 from ..constants import MessageId, ImButtonEvents, AllLinkMode, DeviceCategory
 from .message_flags import MessageFlags
 from .user_data import UserData
