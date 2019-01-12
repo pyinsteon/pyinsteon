@@ -48,11 +48,19 @@ class MessageId(IntEnum):
     X10_SEND = 0x63
     START_ALL_LINKING = 0x64
     CANCEL_ALL_LINKING = 0x65
+    SET_HOST_DEV_CAT = 0x66
     RESET_IM = 0x67
+    SET_ACK_MESSAGE_BYTE = 0x68
     GET_FIRST_ALL_LINK_RECORD = 0x69
     GET_NEXT_ALL_LINK_RECORD = 0x6a
     SET_IM_CONFIGURATION = 0x6b
+    GET_ALL_LINK_RECORD_FOR_SENDER = 0x6c
+    LED_ON = 0x6d
+    LED_OFF = 0x6e
     MANAGE_ALL_LINK_RECORD = 0x6f
+    SET_NAK_MESSAGE_BYTE = 0x70
+    SET_ACK_MESSAGE_TWO_BYTES = 0x71
+    RF_SLEEP = 0x72
     GET_IM_CONFIGURATION = 0x73
 
 
@@ -67,6 +75,12 @@ class MessageFlagType(IntEnum):
     DIRECT_NAK = 5
     ALL_LINK_BROADCAST = 6
     ALL_LINK_CLEANUP_NAK = 7
+
+
+class AckNak(IntEnum):
+
+    ACK = 0x06
+    NAK = 0x15
 
 
 class X10CommandType(IntEnum):
@@ -134,6 +148,17 @@ class AllLinkMode(IntEnum):
     CONTROLLER = 0x01
     EITHER = 0x03
     DELETE = 0xFF
+
+
+class ManageAlLinkRecordAction(IntEnum):
+
+    FIND_FIRST = 0x00
+    FIND_NEXT = 0x01
+    MOD_FIRST_OR_ADD = 0x20
+    MOD_FIRST_CTRL_OR_ADD = 0x40
+    MOD_FIRST_RESP_OR_ADD = 0x41
+    DELETE_FIRST = 0x80
+
 
 MESSAGE_START_CODE_0X02 = 0x02
 MESSAGE_ACK = 0x06

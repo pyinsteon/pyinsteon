@@ -80,9 +80,6 @@ class TestMessageFlags(unittest.TestCase):
     def test_bytes(self):
         assert bytes(self.complex) == bytes([0x77])
 
-    def test_hex(self):
-        assert str(self.complex) == '77'
-
     def test_assign_message_flags(self):
         test_val = MessageFlagType.ALL_LINK_CLEANUP_NAK
         assert self.assigned_message_flag.message_type == test_val

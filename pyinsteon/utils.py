@@ -80,22 +80,8 @@ def vars_to_bytes(vars: Iterable) -> bytes:
     for val in vars:
         if val is None:
             pass
-        elif isinstance(val, int):
-            msg.append(val)
-        elif isinstance(val, Address):
-            if val.address is None:
-                pass
-            else:
-                msg.extend(val.bytes)
-        elif isinstance(val, MessageFlags):
-            msg.extend(val.bytes)
-        elif isinstance(val, bytearray):
-            msg.extend(val)
-        elif isinstance(val, bytes):
-            msg.extend(val)
-        elif isinstance(val, UserData):
-            msg.extend(val.bytes)
-        elif isinstance(val, Enum):
-            msg.extend(val.value)
-
+        elif isinstance(val, (int, bytes)):
+            msg.extend(bytes([val]))
+        else:
+            msg.extend(bytes(val))
     return bytes(msg)

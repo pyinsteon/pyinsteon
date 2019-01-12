@@ -22,7 +22,7 @@ def create(raw_data: bytearray):
         for field in msg_def.fields:
             msg_len += field.length
         if len(raw_data) >= msg_len:
-            return InboundMessage(fields, raw_data)
+            return Inbound(fields, raw_data)
         _LOGGER.debug("Message too short")
         return None
 
@@ -49,15 +49,15 @@ def create(raw_data: bytearray):
     return None
 
 
-class InboundMessage():
+class Inbound():
     """Insteon inbound message data definition."""
 
     def __init__(self, fields, data):
-        """Init the InboundMessage class."""
+        """Init the Inbound message class."""
         self._fields = fields
         _slices = self._create_slices(fields)
         self.start_code = data[0]
-        self.id = data[1]
+        self.id = MessageId(data[1])
         self._len = 2
         curr_slice = 2
         for field in fields:

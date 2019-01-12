@@ -72,7 +72,6 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         self._check_flags_hwm(flags, hwm)
         self._check_flags_bit_0(flags, bit0)
         self._check_bytes(flags, unhexlify(hex))
-        self._check_hex(flags, hex)
 
     def _check_flags_in_use(self, flags, in_use):
         assert flags.is_in_use == in_use
@@ -99,10 +98,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         assert flags.is_bit_0_set == is_bit_0_set
 
     def _check_bytes(self, flags, val):
-        assert flags.bytes == val
-
-    def _check_hex(self, flags, hex):
-        assert flags.hex == hex.lower()
+        assert bytes(flags) == val
 
 
 if __name__ == '__main__':

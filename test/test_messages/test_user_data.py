@@ -22,7 +22,7 @@ class TestUserData(unittest.TestCase):
         self.values_userdata = create_empty()
         self.dict_userdata = UserData({'d1': 0xb1,
                                        'd2': 0xb2,
-                                       'b3': 0xb3,
+                                       'd3': 0xb3,
                                        'd4': 0xb4,
                                        'd5': 0xb5,
                                        'd6': 0xb6,
@@ -36,7 +36,7 @@ class TestUserData(unittest.TestCase):
                                        'd14': 0xbe})
         for itm in range(1, 15):
             key = 'd{}'.format(itm)
-            self.values_userdata = itm + 0xa0
+            self.values_userdata[key] = itm + 0xa0
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)
         _LOGGER.setLevel(logging.DEBUG)
@@ -51,21 +51,17 @@ class TestUserData(unittest.TestCase):
         """Test the bytes representation of UserData."""
         assert bytes(self.userdata) == self.bytes_userdata
 
-    def test_userdata_hex(self):
-        """Test the hex representation of UserData."""
-        assert str(self.userdata) == self.hex_userdata
-
     def test_empty(self):
         """Test creating an empty UserData element."""
         for itm in range(1, 15):
             key = 'd{}'.format(itm)
-            assert self.userdata[key] == 0x00
+            assert self.empty_userdata[key] == 0x00
 
     def test_empty_none(self):
         """Test creating an empty Userdata element set to None."""
         for itm in range(1, 15):
             key = 'd{}'.format(itm)
-            assert self.userdata[key] == None
+            assert self.emtpy_none_userdata[key] == None
 
     def test_set_value(self):
         """Test setting UserData values."""
@@ -77,7 +73,7 @@ class TestUserData(unittest.TestCase):
         """Test create from dict."""
         for itm in range(1, 15):
             key = 'd{}'.format(itm)
-            assert self.dict_userdata[key] == (itm + 0xa0)
+            assert self.dict_userdata[key] == (itm + 0xb0)
 
 
 if __name__ == '__main__':

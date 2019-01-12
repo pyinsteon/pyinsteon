@@ -4,7 +4,7 @@ import unittest
 
 from pyinsteon.address import Address
 from pyinsteon.messages.message_flags import MessageFlags
-from pyinsteon.messages.inbound_message import InboundMessage, create
+from pyinsteon.messages.inbound import Inbound, create
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,10 +44,7 @@ class TestStandardReceived(unittest.TestCase):
         assert self.msg.cmd2 == self.cmd2
 
     def test_bytes(self):
-        assert self.msg.bytes == self.bytes_data
-
-    def test_hex(self):
-        assert self.msg.hex == self.hex_data
+        assert bytes(self.msg) == self.bytes_data
 
     def test_len(self):
         assert len(self.msg) == 11

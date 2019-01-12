@@ -5,7 +5,7 @@ import sys
 
 from pyinsteon.address import Address
 from pyinsteon.messages.message_flags import MessageFlags
-from pyinsteon.messages.inbound_message import InboundMessage, create
+from pyinsteon.messages.inbound import Inbound, create
 from pyinsteon.constants import MessageId, MESSAGE_ACK, MESSAGE_NAK
 
 
@@ -18,7 +18,7 @@ class TestStandardSendAck(unittest.TestCase):
     def setUp(self):
         self.buffer = False
         self.hex_data = '026201020304050615'
-        self.bytes_data = bytearray(unhexlify(self.hex_data))
+        self.bytes_data = unhexlify(self.hex_data)
         self.id = MessageId.SEND_STANDARD.value
         self.address = Address('010203')
         self.flags = MessageFlags(0x04)
@@ -51,10 +51,7 @@ class TestStandardSendAck(unittest.TestCase):
         assert self.msg.ack == self.ack
 
     def test_bytes(self):
-        assert self.msg.bytes == self.bytes_data
-
-    def test_hex(self):
-        assert self.msg.hex == self.hex_data
+        assert bytes(self.msg) == self.bytes_data
 
     def test_len(self):
         assert len(self.msg) == 9
