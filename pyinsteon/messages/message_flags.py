@@ -225,6 +225,7 @@ class MessageFlags():
     def is_broadcast(self):
         """Test if the message is a broadcast message type."""
         return self._type == MessageFlagType.BROADCAST
+        
     @property
     def is_direct(self):
         """Test if the message is a direct message type."""
@@ -273,7 +274,7 @@ class MessageFlags():
         """Take any format of flags and turn it into a hex string."""
         norm = None
         if isinstance(flags, MessageFlags):
-            norm = flags.bytes
+            norm = bytes(flags)
         elif isinstance(flags, bytearray):
             norm = binascii.hexlify(flags)
         elif isinstance(flags, int):

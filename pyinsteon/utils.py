@@ -60,11 +60,15 @@ def bit_is_set(bitmask: int, bit: int) -> bool:
     return bool(bitmask & (1 << bit))
 
 
-def set_bit(bitmask:int, bit: int, is_on: bool) -> int:
+def set_bit(data:int, bit: int, is_on: bool) -> int:
     """Set the value of a bit in a bitmask on or off.
 
     Uses the low bit is 0 and the high bit is 7.
     """
+    if isinstance(data, bytes):
+        bitmask = int.from_bytes(data, byteorder='big')
+    else:
+        bitmask = data
     if is_on:
         return bitmask | (1 << bit)
     return bitmask & (0xff & ~(1 << bit))

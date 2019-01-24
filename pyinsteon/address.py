@@ -88,7 +88,9 @@ class Address():
 
     def __getitem__(self, byte):
         """Return a btye within the Address object."""
-        return self._addr[byte]
+        if byte in [0, 1, 2]:
+            return self._addr[byte]
+        raise ValueError('Item index must be 0, 1 or 2')
 
     @property
     def id(self):

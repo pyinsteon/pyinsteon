@@ -20,11 +20,17 @@ def create(in_use: bool, mode: AllLinkMode, hwm: bool,
     flags = set_bit(flags, 0, bit0)
     return AllLinkRecordFlags(flags)
 
+def _normalize(data):
+    if isinstance(data, AllLinkRecordFlags):
+        return bytes(data)
+    return data
+
 class AllLinkRecordFlags():
     """All-Link Record Flags."""
 
     def __init__(self, data: int):
         """Init the AllLinkRecordFlags class."""
+        data = _normalize(data)
         if isinstance(data, bytes):
             data = int.from_bytes(data, byteorder="big")
         self._in_use = bit_is_set(data, 7)

@@ -10,45 +10,45 @@ def create_empty(val=0x00):
 
     val: value to fill the empty user data fields with (default is 0x00)
     """
-    userdata_dict = {}
+    user_data_dict = {}
     for i in range(1, 15):
         key = 'd{}'.format(i)
-        userdata_dict.update({key: val})
-    return userdata_dict
+        user_data_dict.update({key: val})
+    return user_data_dict
 
 
-def _dict_to_dict(empty, userdata):
-    if isinstance(userdata, dict):
-        for key in userdata:
+def _dict_to_dict(empty, user_data):
+    if isinstance(user_data, dict):
+        for key in user_data:
             if key in ['d1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7',
-                        'd8', 'd9', 'd10', 'd11', 'd12', 'd13', 'd14']:
-                empty[key] = userdata[key]
+                       'd8', 'd9', 'd10', 'd11', 'd12', 'd13', 'd14']:
+                empty[key] = user_data[key]
     return empty
 
 
-def _bytes_to_dict(empty, userdata):
-    if len(userdata) == 14:
+def _bytes_to_dict(empty, user_data):
+    if len(user_data) == 14:
         for i in range(1, 15):
             key = 'd{}'.format(i)
-            empty[key] = userdata[i - 1]
+            empty[key] = user_data[i - 1]
     else:
         raise ValueError
     return empty
 
 
-def _normalize(empty, userdata):
+def _normalize(empty, user_data):
     """Return normalized user data as a dictionary.
 
     empty: an empty dictionary
-    userdata: data in the form of Userdata, dict or None
+    user_data: data in the form of Userdata, dict or None
     """
-    if isinstance(userdata, UserData):
-        return userdata.to_dict()
-    if isinstance(userdata, dict):
-        return _dict_to_dict(empty, userdata)
-    if isinstance(userdata, (bytes, bytearray)):
-        return _bytes_to_dict(empty, userdata)
-    if userdata is None:
+    if isinstance(user_data, UserData):
+        return user_data.to_dict()
+    if isinstance(user_data, dict):
+        return _dict_to_dict(empty, user_data)
+    if isinstance(user_data, (bytes, bytearray)):
+        return _bytes_to_dict(empty, user_data)
+    if user_data is None:
         return empty
     raise ValueError
 
@@ -56,33 +56,33 @@ def _normalize(empty, userdata):
 class UserData():
     """Extended Message User Data Type."""
 
-    def __init__(self, userdata=bytearray(bytes(14))):
+    def __init__(self, user_data=bytearray(bytes(14))):
         """Init the Userdata Class."""
-        self._userdata = _normalize(create_empty(0x00), userdata)
+        self._user_data = _normalize(create_empty(0x00), user_data)
 
     def __len__(self):
         """Init Userdata Class."""
-        return len(self._userdata)
+        return len(self._user_data)
 
     def __iter__(self):
         """Iterate through the user data bytes."""
-        for itm in self._userdata:
+        for itm in self._user_data:
             yield itm
 
     def __getitem__(self, key):
         """Return a single byte of the user data."""
-        return self._userdata.get(key)
+        return self._user_data.get(key)
 
     def __setitem__(self, key, val):
         """Set a user data element."""
-        self._userdata[key] = val
+        self._user_data[key] = val
 
     def __eq__(self, other):
         """Test if the current user data equals another user data instance."""
         isequal = False
         if isinstance(other, UserData):
-            for key in self._userdata:
-                if self._userdata[key] == other[key]:
+            for key in self._user_data:
+                if self._user_data[key] == other[key]:
                     isequal = True
                 else:
                     isequal = False
@@ -111,16 +111,16 @@ class UserData():
         byteout = bytearray()
         for i in range(1, 15):
             key = 'd' + str(i)
-            if self._userdata[key] is not None:
-                byteout.append(self._userdata[key])
+            if self._user_data[key] is not None:
+                byteout.append(self._user_data[key])
             else:
                 byteout.append(0x00)
         return bytes(byteout)
 
     def get(self, key):
         """Return a single byte of the user data."""
-        return self._userdata.get(key)
+        return self._user_data.get(key)
 
     def to_dict(self):
-        """Return userdata as a dict object."""
-        return self._userdata
+        """Return user_data as a dict object."""
+        return self._user_data

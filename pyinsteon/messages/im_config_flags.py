@@ -12,11 +12,19 @@ def create(auto_link: bool, monitor_mode: bool, auto_led: bool,
     flags = set_bit(flags, 4, disable_deadman)
     return IMConfigurationFlags(flags)
 
+
+def _normalize(data):
+    if isinstance(data, IMConfigurationFlags):
+        return bytes(data)
+    return data
+
+
 class IMConfigurationFlags():
     """IM Configuration Flags."""
 
     def __init__(self, data: int):
         """Init the IMConfigurationFlags class."""
+        data = _normalize(data)
         if isinstance(data, bytes):
             data = int.from_bytes(data, byteorder="big")
         self._auto_link = bit_is_set(data, 7)

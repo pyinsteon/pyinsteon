@@ -60,9 +60,25 @@ class X10Address():
         str_rep = {'housecode': self.housecode, 'unitcode': self.unitcode}
         return str(str_rep)
 
-    def __byte__(self):
+    def __bytes__(self):
         """Return the byte representation of an X10 address."""
-        return bytes(bytearray([self.housecode_byte, self.unitcode_byte]))
+        return bytes(bytearray([self._housecode_byte, self._unitcode_byte]))
+    
+    def __eq__(self, other):
+        """Test if two X10 addresses are equal."""
+        if isinstance(other, X10Address):
+            return bytes(self) == bytes(other)
+        return False
+
+    def __getitem__(self, byte):
+        """Return the housecode or unitcode bytes."""
+        if byte == 0:
+            return self.housecode_byte
+        elif byte == 1:
+            return self.unitcode_byte
+        _LOGGER.debug(byte)
+        err = 'Item index must be 0 or 1: {}'.format(byte)
+        raise ValueError(err)
 
     def _check_housecode_unitcode(self):
         """Check to confirm housecode and unitcode are valid."""
