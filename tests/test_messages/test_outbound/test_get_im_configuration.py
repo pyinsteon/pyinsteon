@@ -3,6 +3,7 @@ import logging
 import unittest
 import sys
 
+from pyinsteon.constants import MessageId
 from pyinsteon.messages.outbound import get_im_configuration
 
 from .outbound_base import TestOutboundBase
