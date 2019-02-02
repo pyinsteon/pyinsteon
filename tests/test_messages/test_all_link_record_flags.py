@@ -102,5 +102,5 @@ class TestAllLinkRecordFlags(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    _INSTEON_LOGGER.setLevel(logging.DEBUG)
+    # _INSTEON_LOGGER.setLevel(logging.DEBUG)
     unittest.main()

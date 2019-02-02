@@ -1,38 +1,37 @@
 """Insteon device address class."""
 import logging
-import binascii
 
 from .utils import byte_to_housecode, byte_to_unitcode, housecode_to_byte, unitcode_to_byte
 
 
-_LOGGER = logging.getLogger(__name__)    
+_LOGGER = logging.getLogger(__name__)
 
 
 def create(housecode: str, unitcode: int):
-        """Create an X10 device address."""
-        if housecode.lower() in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
-                                 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p']:
-            byte_housecode = housecode_to_byte(housecode)
+    """Create an X10 device address."""
+    if housecode.lower() in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
+                             'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p']:
+        byte_housecode = housecode_to_byte(housecode)
+    else:
+        if isinstance(housecode, str):
+            str_error = 'X10 house code invalid: {}'.format(housecode)
         else:
-            if isinstance(housecode, str):
-                str_error = 'X10 house code invalid: {}'.format(housecode)
-            else:
-                str_error = 'X10 house code is not a string'
+            str_error = 'X10 house code is not a string'
             raise ValueError(str_error)
 
-        # 20, 21 and 22 for All Units Off, All Lights On and All Lights Off
-        # 'fake' units
-        if unitcode in range(1, 17) or unitcode in range(20, 23):
-            byte_unitcode = unitcode_to_byte(unitcode)
+    # 20, 21 and 22 for All Units Off, All Lights On and All Lights Off
+    # 'fake' units
+    if unitcode in range(1, 17) or unitcode in range(20, 23):
+        byte_unitcode = unitcode_to_byte(unitcode)
+    else:
+        if isinstance(unitcode, int):
+            str_error = 'X10 unit code error: {}'.format(unitcode)
         else:
-            if isinstance(unitcode, int):
-                str_error = 'X10 unit code error: {}'.format(unitcode)
-            else:
-                str_error = 'X10 unit code is not an integer 1 - 16'
+            str_error = 'X10 unit code is not an integer 1 - 16'
             raise ValueError(str_error)
 
-        addr = X10Address(bytearray([byte_housecode, byte_unitcode]))
-        return addr
+    addr = X10Address(bytearray([byte_housecode, byte_unitcode]))
+    return addr
 
 
 class X10Address():
@@ -63,7 +62,7 @@ class X10Address():
     def __bytes__(self):
         """Return the byte representation of an X10 address."""
         return bytes(bytearray([self._housecode_byte, self._unitcode_byte]))
-    
+
     def __eq__(self, other):
         """Test if two X10 addresses are equal."""
         if isinstance(other, X10Address):
@@ -74,7 +73,7 @@ class X10Address():
         """Return the housecode or unitcode bytes."""
         if byte == 0:
             return self.housecode_byte
-        elif byte == 1:
+        if byte == 1:
             return self.unitcode_byte
         _LOGGER.debug(byte)
         err = 'Item index must be 0 or 1: {}'.format(byte)

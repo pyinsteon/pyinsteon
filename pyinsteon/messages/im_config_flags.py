@@ -3,14 +3,27 @@
 from binascii import hexlify
 from ..utils import bit_is_set, set_bit
 
+
 def create(auto_link: bool, monitor_mode: bool, auto_led: bool,
            disable_deadman: bool):
     """Create an IM Configuration Flag entity."""
-    flags = set_bit(0x00, 7, auto_link)
-    flags = set_bit(flags, 6, monitor_mode)
-    flags = set_bit(flags, 5, auto_led)
-    flags = set_bit(flags, 4, disable_deadman)
-    return IMConfigurationFlags(flags)
+    flags = IMConfigurationFlags(0x00)
+    flags.is_auto_link = auto_link
+    flags.is_monitor_mode = monitor_mode
+    flags.is_auto_led = auto_led
+    flags.is_disable_deadman = disable_deadman
+    return flags
+
+
+def create_template(auto_link: bool = None, monitor_mode: bool = None,
+                    auto_led: bool = None, disable_deadman: bool = None):
+    """Create an IM Configuration Flag entity."""
+    flags = IMConfigurationFlags(0x00)
+    flags.is_auto_link = auto_link
+    flags.is_monitor_mode = monitor_mode
+    flags.is_auto_led = auto_led
+    flags.is_disable_deadman = disable_deadman
+    return flags
 
 
 def _normalize(data):
@@ -52,22 +65,63 @@ class IMConfigurationFlags():
         """Return the hex representation of the flags."""
         return hexlify(bytes(self)).decode()
 
+    def __eq__(self, other):
+        """Check if this is equal to other."""
+        if not isinstance(other, IMConfigurationFlags):
+            return False
+        return (self.is_auto_link == other.is_auto_link and
+                self.is_monitor_mode == other.is_monitor_mode and
+                self.is_auto_led == other.is_auto_led and
+                self.is_disable_deadman == other.is_disable_deadman)
+
     @property
     def is_auto_link(self):
         """Return if record is in use."""
         return self._auto_link
+
+    @is_auto_link.setter
+    def is_auto_link(self, val: bool):
+        """Set the auto link value."""
+        if val is None:
+            self._auto_link = None
+        else:
+            self._auto_link = bool(val)
 
     @property
     def is_monitor_mode(self):
         """Return if the record is a responder or controller."""
         return self._monitor_mode
 
+    @is_monitor_mode.setter
+    def is_monitor_mode(self, val: bool):
+        """Set the monitoring mode value."""
+        if val is None:
+            self._monitor_mode = None
+        else:
+            self._monitor_mode = bool(val)
+
     @property
     def is_auto_led(self):
         """Return if the record is the high water mark."""
         return self._auto_led
 
+    @is_auto_led.setter
+    def is_auto_led(self, val: bool):
+        """Set the auto LED value."""
+        if val is None:
+            self._auto_led = None
+        else:
+            self._auto_led = bool(val)
+
     @property
     def is_disable_deadman(self):
-        """Return if bit 5 is set."""
+        """Return if disable deadman is set."""
         return self._disable_deadman
+
+    @is_disable_deadman.setter
+    def is_disable_deadman(self, val: bool):
+        """Set the disable deadman value."""
+        if val is None:
+            self._disable_deadman = None
+        else:
+            self._disable_deadman = bool(val)

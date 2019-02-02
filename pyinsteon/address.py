@@ -35,7 +35,7 @@ def _normalize(addr):
         _LOGGER.warning('Address class init with unknown type %s: %r',
                         type(addr), addr)
     return normalize
-  
+
 
 class Address():
     """Datatype definition for INSTEON device address handling."""

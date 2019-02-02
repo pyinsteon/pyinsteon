@@ -60,7 +60,7 @@ def bit_is_set(bitmask: int, bit: int) -> bool:
     return bool(bitmask & (1 << bit))
 
 
-def set_bit(data:int, bit: int, is_on: bool) -> int:
+def set_bit(data: int, bit: int, is_on: bool) -> int:
     """Set the value of a bit in a bitmask on or off.
 
     Uses the low bit is 0 and the high bit is 7.
@@ -73,15 +73,11 @@ def set_bit(data:int, bit: int, is_on: bool) -> int:
         return bitmask | (1 << bit)
     return bitmask & (0xff & ~(1 << bit))
 
-def vars_to_bytes(vars: Iterable) -> bytes:
-    """Create a byte string from a set of values."""
-    from enum import Enum
-    from .address import Address
-    from .messages.message_flags import MessageFlags
-    from .messages.user_data import UserData
 
+def vars_to_bytes(vals: Iterable) -> bytes:
+    """Create a byte string from a set of values."""
     msg = bytearray()
-    for val in vars:
+    for val in vals:
         if val is None:
             pass
         elif isinstance(val, (int, bytes)):
@@ -89,3 +85,13 @@ def vars_to_bytes(vars: Iterable) -> bytes:
         else:
             msg.extend(bytes(val))
     return bytes(msg)
+
+
+def test_values_eq(val1, val2) -> bool:
+    """Test if val1 eq val2 for template management."""
+    if val1 is None or val2 is None:
+        return True
+    if val1 == val2:
+        return True
+    return False
+

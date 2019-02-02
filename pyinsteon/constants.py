@@ -38,7 +38,7 @@ class MessageId(IntEnum):
     ALL_LINKING_COMPLETED = 0x53
     BUTTON_EVENT_REPORT = 0x54
     USER_RESET_DETECTED = 0x55
-    ALL_LINK_CEANUP_FAILURE_REPORT = 0x56
+    ALL_LINK_CLEANUP_FAILURE_REPORT = 0x56
     ALL_LINK_RECORD_RESPONSE = 0x57
     ALL_LINK_CLEANUP_STATUS_REPORT = 0x58
     GET_IM_INFO = 0x60
@@ -78,6 +78,7 @@ class MessageFlagType(IntEnum):
 
 
 class AckNak(IntEnum):
+    """ACK/NAK values."""
 
     ACK = 0x06
     NAK = 0x15
@@ -130,6 +131,7 @@ class X10Commands(IntEnum):
 
 
 class ImButtonEvents(IntEnum):
+    """IM Button Events values."""
 
     SET_TAPPED = 0x02
     SET_HELD = 0x03
@@ -143,6 +145,7 @@ class ImButtonEvents(IntEnum):
 
 
 class AllLinkMode(IntEnum):
+    """All Link Mode values."""
 
     RESPONDER = 0x00
     CONTROLLER = 0x01
@@ -150,7 +153,8 @@ class AllLinkMode(IntEnum):
     DELETE = 0xFF
 
 
-class ManageAlLinkRecordAction(IntEnum):
+class ManageAllLinkRecordAction(IntEnum):
+    """Manage All Link Record Action values."""
 
     FIND_FIRST = 0x00
     FIND_NEXT = 0x01

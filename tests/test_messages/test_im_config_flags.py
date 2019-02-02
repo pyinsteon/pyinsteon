@@ -28,7 +28,7 @@ class TestIMConfigFlags(unittest.TestCase):
         self.disable_deadman_create = create(False, False, False, True)
         
         stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.setLevel(logging.DEBUG)
+        # _LOGGER.setLevel(logging.DEBUG)
         _LOGGER.addHandler(stream_handler)
 
     def test_all_on_create_bytes(self):

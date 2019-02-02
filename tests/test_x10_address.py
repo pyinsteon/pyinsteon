@@ -20,7 +20,7 @@ class TestX10Address(unittest.TestCase):
                                              self.unitcode_byte]))
         self.address_create = create(self.housecode, self.unitcode)
         
-        _LOGGER.setLevel(logging.DEBUG)
+        # _LOGGER.setLevel(logging.DEBUG)
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)
 

@@ -16,53 +16,6 @@ from .user_data import UserData
 _LOGGER = logging.getLogger(__name__)
 
 
-def create(raw_data: bytearray):
-    """Create a message from a raw byte array."""
-
-    def _remaining_data(msg, raw_data):
-        if msg is not None:
-            return raw_data[len(msg):]
-        return raw_data
-
-    def _create_message(msg_def, raw_data):
-        msg_len = 2
-        for field in msg_def.fields:
-            msg_len += field.length
-        if len(raw_data) >= msg_len:
-            msg = Inbound(msg_def, raw_data)
-            return msg, _remaining_data(msg, raw_data)
-        _LOGGER.debug("Message too short")
-        return None, raw_data
-
-    def _standard_message(raw_data):
-        from .message_definitions import FLD_STD_SEND_ACK, FLD_EXT_SEND_ACK
-        msg_def = MessageDefinition(MessageId.SEND_STANDARD, FLD_STD_SEND_ACK)
-        msg, remaining_data = _create_message(msg_def, raw_data)
-        # pylint: disable=E1101
-        if msg.flags.is_extended:
-            msg_def = MessageDefinition(MessageId.SEND_STANDARD,
-                                        FLD_EXT_SEND_ACK)
-            msg, remaining_data = _create_message(msg_def, raw_data)
-        return msg, remaining_data
-
-    _LOGGER.info("Starting create")
-    if len(raw_data) < 2:
-        _LOGGER.debug('Message less than 2 bytes')
-        return None, raw_data
-
-    msg_id = MessageId(raw_data[1])
-    msg_def = INBOUND_MSG_DEF.get(msg_id)
-    if msg_def is not None:
-        if msg_def.message_id == MessageId.SEND_STANDARD:
-            msg, remaining_data = _standard_message(raw_data)
-        else:
-            msg, remaining_data = _create_message(msg_def, raw_data)
-        return msg, remaining_data
-
-    _LOGGER.debug("Message ID not found")
-    return None, raw_data
-
-
 class Inbound(MessageBase):
     """Insteon inbound message data definition."""
 
@@ -109,7 +62,7 @@ class Inbound(MessageBase):
                 slices.append(start)
             start = stop
         return slices
-        
+
     def _slice_data(self, slices, raw_data):
         curr_slice = 2
         field_vals = {}
@@ -121,16 +74,53 @@ class Inbound(MessageBase):
             curr_slice += 1
         return field_vals
 
-    def __bytes__(self):
-        """Emit the message bytes."""
-        from ..utils import vars_to_bytes
-        data = []
-        data.append(self.start_code)
-        data.append(self.message_id)
-        for field in self._fields:
-            data.append(getattr(self, field.name))
-        return vars_to_bytes(data)
-
     def __str__(self):
         """Emit the message in hex."""
         return hexlify(bytes(self)).decode()
+
+
+def create(raw_data: bytearray) -> Inbound:
+    """Create a message from a raw byte array."""
+
+    def _remaining_data(msg, raw_data):
+        if msg is not None:
+            return raw_data[len(msg):]
+        return raw_data
+
+    def _create_message(msg_def, raw_data):
+        msg_len = 2
+        for field in msg_def.fields:
+            msg_len += field.length
+        if len(raw_data) >= msg_len:
+            msg = Inbound(msg_def, raw_data)
+            return msg, _remaining_data(msg, raw_data)
+        _LOGGER.debug("Message too short")
+        return None, raw_data
+
+    def _standard_message(raw_data):
+        from .message_definitions import FLD_STD_SEND_ACK, FLD_EXT_SEND_ACK
+        msg_def = MessageDefinition(MessageId.SEND_STANDARD, FLD_STD_SEND_ACK)
+        msg, remaining_data = _create_message(msg_def, raw_data)
+
+        if msg.flags.is_extended:
+            msg_def = MessageDefinition(MessageId.SEND_STANDARD,
+                                        FLD_EXT_SEND_ACK)
+            msg, remaining_data = _create_message(msg_def, raw_data)
+        return msg, remaining_data
+
+    _LOGGER.info("Starting create")
+    if len(raw_data) < 2:
+        _LOGGER.debug('Message less than 2 bytes')
+        return None, raw_data
+
+    msg_id = MessageId(raw_data[1])
+    msg_def = INBOUND_MSG_DEF.get(msg_id)
+    if msg_def is not None:
+        if msg_def.message_id == MessageId.SEND_STANDARD:
+            msg, remaining_data = _standard_message(raw_data)
+        else:
+            msg, remaining_data = _create_message(msg_def, raw_data)
+        return msg, remaining_data
+
+    _LOGGER.debug("Message ID not found")
+    return None, raw_data

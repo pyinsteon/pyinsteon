@@ -39,7 +39,7 @@ class TestUserData(unittest.TestCase):
             self.values_user_data[key] = itm + 0xa0
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)
-        _LOGGER.setLevel(logging.DEBUG)
+        # _LOGGER.setLevel(logging.DEBUG)
 
     def test_user_data_items(self):
         """Test each UserData item for proper mapping."""

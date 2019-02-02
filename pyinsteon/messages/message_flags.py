@@ -3,15 +3,15 @@
 import logging
 import binascii
 from ..constants import MessageFlagType
-from ..utils import set_bit
+from ..utils import test_values_eq
 
 
 _LOGGER = logging.getLogger(__name__)
 _EXTENDED_MESSAGE = 0x10
 
 
-def create(message_flag_type: MessageFlagType, extended:bool=False,
-           hops_left:int=0, max_hops:int=0):
+def create(message_flag_type: MessageFlagType, extended: bool = False,
+           hops_left: int = 0, max_hops: int = 0):
     """Create message flags.
 
     message_flag_type: MessageFlagType 0 to 7:
@@ -27,31 +27,19 @@ def create(message_flag_type: MessageFlagType, extended:bool=False,
     hops_left: int  0 - 3
     max_hops:  int  0 - 3
     """
-    flags = 0
-    type_bits = 0
-    if isinstance(message_flag_type, MessageFlagType):
-        type_bits =  message_flag_type.value
-    elif message_flag_type in range(0, 8):
-        type_bits = message_flag_type
-    else:
-        raise ValueError("message_flag_type is not in range 0 - 7")
-
-    ext_bit = 1 if bool(extended) else 0
-    hops_left_bits = min(3, max(0, hops_left))
-    max_hops_bits = min(3, max(0, max_hops))
-
-    flags = ((type_bits << 5) +
-                (ext_bit << 4) + 
-                (hops_left_bits << 2) +
-                max_hops_bits)
-
-    return MessageFlags(flags)
+    flags = MessageFlags(0x00)
+    flags.message_type = message_flag_type
+    flags.extended = extended
+    flags.hops_left = hops_left
+    flags.max_hops = max_hops
+    return flags
 
 
-
-def create_template(message_type=None, extended=None,
-                    hopsleft=None, hopsmax=None):
-    """Create message flags template.
+def create_template(message_flag_type: MessageFlagType = None,
+                    extended: bool = None,
+                    hops_left: int = None,
+                    max_hops: int = None):
+    """Create message flags.
 
     message_flag_type: MessageFlagType 0 to 7:
         DIRECT = 0
@@ -66,24 +54,11 @@ def create_template(message_type=None, extended=None,
     hops_left: int  0 - 3
     max_hops:  int  0 - 3
     """
-    flags = MessageFlags(None)
-    if message_type is None:
-        flags.message_type = None
-    elif message_type < 8:
-        flags.message_type = MessageFlagType(message_type)
-    elif (message_type & 0xe0) in [0xe0, 0xc0, 0xa0, 0x80,
-                                   0x60, 0x40, 0x20, 0x00]:
-        flags.message_type = MessageFlagType(message_type >> 5)
-    else:
-        raise ValueError('message_type must be a MessageFlagType or in [1:7]')
-    if extended is None:
-        flags._extended = None
-    elif bool(extended):
-        flags.extended = 1
-    else:
-        flags.extended = 0
-    flags.hops_left = hopsleft
-    flags.max_hops = hopsmax
+    flags = MessageFlags(0x00)
+    flags.message_type = message_flag_type
+    flags.extended = extended
+    flags.hops_left = hops_left
+    flags.max_hops = max_hops
     return flags
 
 
@@ -123,36 +98,29 @@ class MessageFlags():
 
     def __eq__(self, other):
         """Test for equality.
-        
+
         Test only message type and extended bit. Ignore hops remaining and
         max hops.
         """
-        if isinstance(other, MessageFlags):
-            if (self.message_type is None or other.message_type is None or
-                self.message_type == other.message_type):
-                messageTypeIsEqual = True
-            else:
-                messageTypeIsEqual = False
-            if (self.extended is None or other.extended is None or
-                self.extended == other.extended):
-                extendedIsEqual = True
-            else:
-                extendedIsEqual = False
-            return messageTypeIsEqual and extendedIsEqual
-        return False
+        if not isinstance(other, MessageFlags):
+            return False
+
+        match = True
+        match = match & test_values_eq(self.message_type,
+                                       other.message_type)
+        match = match & test_values_eq(self.extended, other.extended)
+        return match
 
     def __ne__(self, other):
         """Test for inequality.
-        
+
         Test only message type and extended bit. Ignore hops remaining and
         max hops.
         """
-        if hasattr(other, 'message_type'):
-            return not self.__eq__(other)
-        return True
+        return not self.__eq__(other)
 
     @property
-    def message_type(self):
+    def message_type(self) -> MessageFlagType:
         """Return the message type."""
         return self._type
 
@@ -167,7 +135,7 @@ class MessageFlags():
             raise ValueError("message_type property must be a MessageFlagType.")
 
     @property
-    def hops_left(self):
+    def hops_left(self) -> int:
         """Return the number of hops left in message the trasport."""
         return self._hops_left
 
@@ -186,14 +154,13 @@ class MessageFlags():
         self._hops_left = min(3, max(val_int, 0))
 
     @property
-    def max_hops(self):
+    def max_hops(self) -> int:
         """Return the maximum number of hops allowed for this message."""
         return self._max_hops
 
     @max_hops.setter
     def max_hops(self, val: int):
         """Set the maximum number of hops allowed for this message."""
-        """Set the number of hops left for this message."""
         if isinstance(val, int):
             val_int = val
         elif isinstance(val, bytes):
@@ -206,7 +173,7 @@ class MessageFlags():
         self._max_hops = min(3, max(val_int, 0))
 
     @property
-    def extended(self):
+    def extended(self) ->MessageFlagType:
         """Return the extended flag."""
         return self._extended
 
@@ -222,12 +189,12 @@ class MessageFlags():
                 raise ValueError('extended property must be True, False or None.')
 
     @property
-    def is_broadcast(self):
+    def is_broadcast(self) -> bool:
         """Test if the message is a broadcast message type."""
         return self._type == MessageFlagType.BROADCAST
-        
+
     @property
-    def is_direct(self):
+    def is_direct(self) -> bool:
         """Test if the message is a direct message type."""
         direct = (self._type == MessageFlagType.DIRECT)
         if self.is_direct_ack or self.is_direct_nak:
@@ -235,42 +202,42 @@ class MessageFlags():
         return direct
 
     @property
-    def is_direct_ack(self):
+    def is_direct_ack(self) -> bool:
         """Test if the message is a direct ACK message type."""
         return self._type == MessageFlagType.DIRECT_ACK
 
     @property
-    def is_direct_nak(self):
+    def is_direct_nak(self) -> bool:
         """Test if the message is a direct NAK message type."""
         return self._type == MessageFlagType.DIRECT_NAK
 
     @property
-    def is_all_link_broadcast(self):
+    def is_all_link_broadcast(self) -> bool:
         """Test if the message is an ALl-Link broadcast message type."""
         return self._type == MessageFlagType.ALL_LINK_BROADCAST
 
     @property
-    def is_all_link_cleanup(self):
+    def is_all_link_cleanup(self) -> bool:
         """Test if the message is a All-Link cleanup message type."""
         return self._type == MessageFlagType.ALL_LINK_CLEANUP
 
     @property
-    def is_all_link_cleanup_ack(self):
+    def is_all_link_cleanup_ack(self) -> bool:
         """Test if the message is a All-LInk cleanup ACK message type."""
         return self._type == MessageFlagType.ALL_LINK_CLEANUP_ACK
 
     @property
-    def is_all_link_cleanup_nak(self):
+    def is_all_link_cleanup_nak(self) -> bool:
         """Test if the message is a All-Link cleanup NAK message type."""
         return self._type == MessageFlagType.ALL_LINK_CLEANUP_NAK
 
     @property
-    def is_extended(self):
+    def is_extended(self) -> bool:
         """Test if the message is an extended message type."""
         return self._extended == 1
 
     # pylint: disable=no-self-use
-    def _normalize(self, flags):
+    def _normalize(self, flags) -> bytes:
         """Take any format of flags and turn it into a hex string."""
         norm = None
         if isinstance(flags, MessageFlags):

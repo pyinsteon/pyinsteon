@@ -42,7 +42,7 @@ class TestMessageFlags(unittest.TestCase):
 
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)
-        _LOGGER.setLevel(logging.DEBUG)
+        # _LOGGER.setLevel(logging.DEBUG)
 
     def test_direct(self):
         assert self.direct.is_direct
@@ -116,5 +116,5 @@ class TestMessageFlags(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    _INSTEON_LOGGER.setLevel(logging.DEBUG)
+    # _INSTEON_LOGGER.setLevel(logging.DEBUG)
     unittest.main(buffer=False)

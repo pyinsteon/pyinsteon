@@ -3,9 +3,7 @@
 
 def monitor():
     """Monitor inbound Insteon messages."""
-    pass
 
 
 def interactive():
     """Interactive insteon command line."""
-    pass
