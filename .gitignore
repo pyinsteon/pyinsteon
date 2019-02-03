@@ -98,4 +98,4 @@ ENV/
 /.pypirc
 /settings.json
 /.vscode
-.vscode/settings.json
+/.vscode/settings.json
