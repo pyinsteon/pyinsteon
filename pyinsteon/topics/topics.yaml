@@ -1,0 +1,1564 @@
+ROOT_TOPIC:
+  description: Insteon pub/sub topics
+  topics:
+  - topic: command
+    description: Device command.
+    topics:
+    - topic: assign_to_all_link_group
+      description: Device Assign to ALL-Link Group command.
+      topics:
+      - topic: direct
+        description: Device Assign to ALL-Link Group direct command.
+      - topic: direct_ack
+        description: Device Assign to ALL-Link Group direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Assign to ALL-Link Group all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Assign to ALL-Link Group all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Assign to ALL-Link Group broadcast command.
+      - topic: direct_nak
+        description: Device Assign to ALL-Link Group direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Assign to ALL-Link Group all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Assign to ALL-Link Group all_link_cleanup_nak command.
+    - topic: delete_from_all_link_group
+      description: Device Delete from ALL-Link Group command.
+      topics:
+      - topic: direct
+        description: Device Delete from ALL-Link Group direct command.
+      - topic: direct_ack
+        description: Device Delete from ALL-Link Group direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Delete from ALL-Link Group all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Delete from ALL-Link Group all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Delete from ALL-Link Group broadcast command.
+      - topic: direct_nak
+        description: Device Delete from ALL-Link Group direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Delete from ALL-Link Group all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Delete from ALL-Link Group all_link_cleanup_nak command.
+    - topic: device_text_string_request
+      description: Device Device Text String Request command.
+      topics:
+      - topic: direct
+        description: Device Device Text String Request direct command.
+      - topic: direct_ack
+        description: Device Device Text String Request direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Device Text String Request all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Device Text String Request all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Device Text String Request broadcast command.
+      - topic: direct_nak
+        description: Device Device Text String Request direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Device Text String Request all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Device Text String Request all_link_cleanup_nak command.
+    - topic: fx_username
+      description: Device FX Username command.
+      topics:
+      - topic: direct
+        description: Device FX Username direct command.
+      - topic: direct_ack
+        description: Device FX Username direct_ack command.
+      - topic: all_link_cleanup
+        description: Device FX Username all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device FX Username all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device FX Username broadcast command.
+      - topic: direct_nak
+        description: Device FX Username direct_nak command.
+      - topic: all_link_broadcast
+        description: Device FX Username all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device FX Username all_link_cleanup_nak command.
+    - topic: product_data_request
+      description: Device Product Data Request command.
+      topics:
+      - topic: direct
+        description: Device Product Data Request direct command.
+      - topic: direct_ack
+        description: Device Product Data Request direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Product Data Request all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Product Data Request all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Product Data Request broadcast command.
+      - topic: direct_nak
+        description: Device Product Data Request direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Product Data Request all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Product Data Request all_link_cleanup_nak command.
+    - topic: set_all_link
+      description: Device Set ALL-Link command.
+      topics:
+      - topic: direct
+        description: Device Set ALL-Link direct command.
+      - topic: direct_ack
+        description: Device Set ALL-Link direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Set ALL-Link all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Set ALL-Link all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Set ALL-Link broadcast command.
+      - topic: direct_nak
+        description: Device Set ALL-Link direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Set ALL-Link all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Set ALL-Link all_link_cleanup_nak command.
+    - topic: set_all_link_command_alias
+      description: Device Set ALL-Link Command Alias command.
+      topics:
+      - topic: direct
+        description: Device Set ALL-Link Command Alias direct command.
+      - topic: direct_ack
+        description: Device Set ALL-Link Command Alias direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Set ALL-Link Command Alias all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Set ALL-Link Command Alias all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Set ALL-Link Command Alias broadcast command.
+      - topic: direct_nak
+        description: Device Set ALL-Link Command Alias direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Set ALL-Link Command Alias all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Set ALL-Link Command Alias all_link_cleanup_nak command.
+    - topic: set_device_text_string
+      description: Device Set Device Text String command.
+      topics:
+      - topic: direct
+        description: Device Set Device Text String direct command.
+      - topic: direct_ack
+        description: Device Set Device Text String direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Set Device Text String all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Set Device Text String all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Set Device Text String broadcast command.
+      - topic: direct_nak
+        description: Device Set Device Text String direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Set Device Text String all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Set Device Text String all_link_cleanup_nak command.
+    - topic: enter_linking_mode
+      description: Device Enter Linking Mode command.
+      topics:
+      - topic: direct
+        description: Device Enter Linking Mode direct command.
+      - topic: direct_ack
+        description: Device Enter Linking Mode direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Enter Linking Mode all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Enter Linking Mode all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Enter Linking Mode broadcast command.
+      - topic: direct_nak
+        description: Device Enter Linking Mode direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Enter Linking Mode all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Enter Linking Mode all_link_cleanup_nak command.
+    - topic: enter_unlinking_mode
+      description: Device Enter Unlinking Mode command.
+      topics:
+      - topic: direct
+        description: Device Enter Unlinking Mode direct command.
+      - topic: direct_ack
+        description: Device Enter Unlinking Mode direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Enter Unlinking Mode all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Enter Unlinking Mode all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Enter Unlinking Mode broadcast command.
+      - topic: direct_nak
+        description: Device Enter Unlinking Mode direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Enter Unlinking Mode all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Enter Unlinking Mode all_link_cleanup_nak command.
+    - topic: get_insteon_engine_version
+      description: Device Get INSTEON Engine Version command.
+      topics:
+      - topic: direct
+        description: Device Get INSTEON Engine Version direct command.
+      - topic: direct_ack
+        description: Device Get INSTEON Engine Version direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Get INSTEON Engine Version all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Get INSTEON Engine Version all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Get INSTEON Engine Version broadcast command.
+      - topic: direct_nak
+        description: Device Get INSTEON Engine Version direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Get INSTEON Engine Version all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Get INSTEON Engine Version all_link_cleanup_nak command.
+    - topic: ping
+      description: Device Ping command.
+      topics:
+      - topic: direct
+        description: Device Ping direct command.
+      - topic: direct_ack
+        description: Device Ping direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Ping all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Ping all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Ping broadcast command.
+      - topic: direct_nak
+        description: Device Ping direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Ping all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Ping all_link_cleanup_nak command.
+    - topic: id_request
+      description: Device ID Request command.
+      topics:
+      - topic: direct
+        description: Device ID Request direct command.
+      - topic: direct_ack
+        description: Device ID Request direct_ack command.
+      - topic: all_link_cleanup
+        description: Device ID Request all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device ID Request all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device ID Request broadcast command.
+      - topic: direct_nak
+        description: Device ID Request direct_nak command.
+      - topic: all_link_broadcast
+        description: Device ID Request all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device ID Request all_link_cleanup_nak command.
+    - topic: on
+      description: Device ON command.
+      topics:
+      - topic: direct
+        description: Device ON direct command.
+      - topic: direct_ack
+        description: Device ON direct_ack command.
+      - topic: all_link_cleanup
+        description: Device ON all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device ON all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device ON broadcast command.
+      - topic: direct_nak
+        description: Device ON direct_nak command.
+      - topic: all_link_broadcast
+        description: Device ON all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device ON all_link_cleanup_nak command.
+    - topic: on_fast
+      description: Device On Fast command.
+      topics:
+      - topic: direct
+        description: Device On Fast direct command.
+      - topic: direct_ack
+        description: Device On Fast direct_ack command.
+      - topic: all_link_cleanup
+        description: Device On Fast all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device On Fast all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device On Fast broadcast command.
+      - topic: direct_nak
+        description: Device On Fast direct_nak command.
+      - topic: all_link_broadcast
+        description: Device On Fast all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device On Fast all_link_cleanup_nak command.
+    - topic: off
+      description: Device Off command.
+      topics:
+      - topic: direct
+        description: Device Off direct command.
+      - topic: direct_ack
+        description: Device Off direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Off all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Off all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Off broadcast command.
+      - topic: direct_nak
+        description: Device Off direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Off all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Off all_link_cleanup_nak command.
+    - topic: off_fast
+      description: Device Off Fast command.
+      topics:
+      - topic: direct
+        description: Device Off Fast direct command.
+      - topic: direct_ack
+        description: Device Off Fast direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Off Fast all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Off Fast all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Off Fast broadcast command.
+      - topic: direct_nak
+        description: Device Off Fast direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Off Fast all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Off Fast all_link_cleanup_nak command.
+    - topic: brighten_one_step
+      description: Device Brighten One Step  command.
+      topics:
+      - topic: direct
+        description: Device Brighten One Step  direct command.
+      - topic: direct_ack
+        description: Device Brighten One Step  direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Brighten One Step  all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Brighten One Step  all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Brighten One Step  broadcast command.
+      - topic: direct_nak
+        description: Device Brighten One Step  direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Brighten One Step  all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Brighten One Step  all_link_cleanup_nak command.
+    - topic: dim_one_step
+      description: Device Dim One Step command.
+      topics:
+      - topic: direct
+        description: Device Dim One Step direct command.
+      - topic: direct_ack
+        description: Device Dim One Step direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Dim One Step all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Dim One Step all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Dim One Step broadcast command.
+      - topic: direct_nak
+        description: Device Dim One Step direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Dim One Step all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Dim One Step all_link_cleanup_nak command.
+    - topic: start_manual_change
+      description: Device Start Manual Change command.
+      topics:
+      - topic: direct
+        description: Device Start Manual Change direct command.
+      - topic: direct_ack
+        description: Device Start Manual Change direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Start Manual Change all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Start Manual Change all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Start Manual Change broadcast command.
+      - topic: direct_nak
+        description: Device Start Manual Change direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Start Manual Change all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Start Manual Change all_link_cleanup_nak command.
+    - topic: stop_manual_change
+      description: Device Stop Manual Change command.
+      topics:
+      - topic: direct
+        description: Device Stop Manual Change direct command.
+      - topic: direct_ack
+        description: Device Stop Manual Change direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Stop Manual Change all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Stop Manual Change all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Stop Manual Change broadcast command.
+      - topic: direct_nak
+        description: Device Stop Manual Change direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Stop Manual Change all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Stop Manual Change all_link_cleanup_nak command.
+    - topic: status_request
+      description: Device Status Request command.
+      topics:
+      - topic: direct
+        description: Device Status Request direct command.
+      - topic: direct_ack
+        description: Device Status Request direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Status Request all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Status Request all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Status Request broadcast command.
+      - topic: direct_nak
+        description: Device Status Request direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Status Request all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Status Request all_link_cleanup_nak command.
+    - topic: get_operating_flags
+      description: Device Get Operating Flags command.
+      topics:
+      - topic: direct
+        description: Device Get Operating Flags direct command.
+      - topic: direct_ack
+        description: Device Get Operating Flags direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Get Operating Flags all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Get Operating Flags all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Get Operating Flags broadcast command.
+      - topic: direct_nak
+        description: Device Get Operating Flags direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Get Operating Flags all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Get Operating Flags all_link_cleanup_nak command.
+    - topic: set_operating_flags
+      description: Device Set Operating Flags command.
+      topics:
+      - topic: direct
+        description: Device Set Operating Flags direct command.
+      - topic: direct_ack
+        description: Device Set Operating Flags direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Set Operating Flags all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Set Operating Flags all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Set Operating Flags broadcast command.
+      - topic: direct_nak
+        description: Device Set Operating Flags direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Set Operating Flags all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Set Operating Flags all_link_cleanup_nak command.
+    - topic: light_instant_change
+      description: Device Light Instant Change command.
+      topics:
+      - topic: direct
+        description: Device Light Instant Change direct command.
+      - topic: direct_ack
+        description: Device Light Instant Change direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Light Instant Change all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Light Instant Change all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Light Instant Change broadcast command.
+      - topic: direct_nak
+        description: Device Light Instant Change direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Light Instant Change all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Light Instant Change all_link_cleanup_nak command.
+    - topic: light_manually_turned_off
+      description: Device Light Manually Turned Off command.
+      topics:
+      - topic: direct
+        description: Device Light Manually Turned Off direct command.
+      - topic: direct_ack
+        description: Device Light Manually Turned Off direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Light Manually Turned Off all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Light Manually Turned Off all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Light Manually Turned Off broadcast command.
+      - topic: direct_nak
+        description: Device Light Manually Turned Off direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Light Manually Turned Off all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Light Manually Turned Off all_link_cleanup_nak command.
+    - topic: reread_init_values
+      description: Device Reread Init Values command.
+      topics:
+      - topic: direct
+        description: Device Reread Init Values direct command.
+      - topic: direct_ack
+        description: Device Reread Init Values direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Reread Init Values all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Reread Init Values all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Reread Init Values broadcast command.
+      - topic: direct_nak
+        description: Device Reread Init Values direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Reread Init Values all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Reread Init Values all_link_cleanup_nak command.
+    - topic: remote_set_button_tap
+      description: Device Remote SET Button Tap command.
+      topics:
+      - topic: direct
+        description: Device Remote SET Button Tap direct command.
+      - topic: direct_ack
+        description: Device Remote SET Button Tap direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Remote SET Button Tap all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Remote SET Button Tap all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Remote SET Button Tap broadcast command.
+      - topic: direct_nak
+        description: Device Remote SET Button Tap direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Remote SET Button Tap all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Remote SET Button Tap all_link_cleanup_nak command.
+    - topic: light_set_status
+      description: Device Light Set Status command.
+      topics:
+      - topic: direct
+        description: Device Light Set Status direct command.
+      - topic: direct_ack
+        description: Device Light Set Status direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Light Set Status all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Light Set Status all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Light Set Status broadcast command.
+      - topic: direct_nak
+        description: Device Light Set Status direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Light Set Status all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Light Set Status all_link_cleanup_nak command.
+    - topic: set_address_msb
+      description: Device Set Address MSB command.
+      topics:
+      - topic: direct
+        description: Device Set Address MSB direct command.
+      - topic: direct_ack
+        description: Device Set Address MSB direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Set Address MSB all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Set Address MSB all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Set Address MSB broadcast command.
+      - topic: direct_nak
+        description: Device Set Address MSB direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Set Address MSB all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Set Address MSB all_link_cleanup_nak command.
+    - topic: poke_one_byte
+      description: Device Poke One Byte command.
+      topics:
+      - topic: direct
+        description: Device Poke One Byte direct command.
+      - topic: direct_ack
+        description: Device Poke One Byte direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Poke One Byte all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Poke One Byte all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Poke One Byte broadcast command.
+      - topic: direct_nak
+        description: Device Poke One Byte direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Poke One Byte all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Poke One Byte all_link_cleanup_nak command.
+    - topic: block_data_transfer
+      description: Device Block Data Transfer command.
+      topics:
+      - topic: direct
+        description: Device Block Data Transfer direct command.
+      - topic: direct_ack
+        description: Device Block Data Transfer direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Block Data Transfer all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Block Data Transfer all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Block Data Transfer broadcast command.
+      - topic: direct_nak
+        description: Device Block Data Transfer direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Block Data Transfer all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Block Data Transfer all_link_cleanup_nak command.
+    - topic: peek_one_byte
+      description: Device Peek One Byte command.
+      topics:
+      - topic: direct
+        description: Device Peek One Byte direct command.
+      - topic: direct_ack
+        description: Device Peek One Byte direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Peek One Byte all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Peek One Byte all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Peek One Byte broadcast command.
+      - topic: direct_nak
+        description: Device Peek One Byte direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Peek One Byte all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Peek One Byte all_link_cleanup_nak command.
+    - topic: peek_one_byte_internal
+      description: Device Peek One Byte Internal command.
+      topics:
+      - topic: direct
+        description: Device Peek One Byte Internal direct command.
+      - topic: direct_ack
+        description: Device Peek One Byte Internal direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Peek One Byte Internal all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Peek One Byte Internal all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Peek One Byte Internal broadcast command.
+      - topic: direct_nak
+        description: Device Peek One Byte Internal direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Peek One Byte Internal all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Peek One Byte Internal all_link_cleanup_nak command.
+    - topic: poke_one_byte_internal
+      description: Device Poke One Byte Internal command.
+      topics:
+      - topic: direct
+        description: Device Poke One Byte Internal direct command.
+      - topic: direct_ack
+        description: Device Poke One Byte Internal direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Poke One Byte Internal all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Poke One Byte Internal all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Poke One Byte Internal broadcast command.
+      - topic: direct_nak
+        description: Device Poke One Byte Internal direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Poke One Byte Internal all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Poke One Byte Internal all_link_cleanup_nak command.
+    - topic: extended_set/get
+      description: Device Extended Set/Get command.
+      topics:
+      - topic: direct
+        description: Device Extended Set/Get direct command.
+      - topic: direct_ack
+        description: Device Extended Set/Get direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Extended Set/Get all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Extended Set/Get all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Extended Set/Get broadcast command.
+      - topic: direct_nak
+        description: Device Extended Set/Get direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Extended Set/Get all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Extended Set/Get all_link_cleanup_nak command.
+    - topic: light_on_at_ramp_rate
+      description: Device Light ON at Ramp Rate command.
+      topics:
+      - topic: direct
+        description: Device Light ON at Ramp Rate direct command.
+      - topic: direct_ack
+        description: Device Light ON at Ramp Rate direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Light ON at Ramp Rate all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Light ON at Ramp Rate all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Light ON at Ramp Rate broadcast command.
+      - topic: direct_nak
+        description: Device Light ON at Ramp Rate direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Light ON at Ramp Rate all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Light ON at Ramp Rate all_link_cleanup_nak command.
+    - topic: light_off_at_ramp_rate
+      description: Device Light OFF at Ramp Rate command.
+      topics:
+      - topic: direct
+        description: Device Light OFF at Ramp Rate direct command.
+      - topic: direct_ack
+        description: Device Light OFF at Ramp Rate direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Light OFF at Ramp Rate all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Light OFF at Ramp Rate all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Light OFF at Ramp Rate broadcast command.
+      - topic: direct_nak
+        description: Device Light OFF at Ramp Rate direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Light OFF at Ramp Rate all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Light OFF at Ramp Rate all_link_cleanup_nak command.
+    - topic: read/write_all_link_database_(aldb)
+      description: Device Read/Write ALL-Link Database (ALDB) command.
+      topics:
+      - topic: direct
+        description: Device Read/Write ALL-Link Database (ALDB) direct command.
+      - topic: direct_ack
+        description: Device Read/Write ALL-Link Database (ALDB) direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Read/Write ALL-Link Database (ALDB) all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Read/Write ALL-Link Database (ALDB) all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Read/Write ALL-Link Database (ALDB) broadcast command.
+      - topic: direct_nak
+        description: Device Read/Write ALL-Link Database (ALDB) direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Read/Write ALL-Link Database (ALDB) all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Read/Write ALL-Link Database (ALDB) all_link_cleanup_nak command.
+    - topic: trigger_all_link
+      description: Device Trigger ALL-Link command.
+      topics:
+      - topic: direct
+        description: Device Trigger ALL-Link direct command.
+      - topic: direct_ack
+        description: Device Trigger ALL-Link direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Trigger ALL-Link all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Trigger ALL-Link all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Trigger ALL-Link broadcast command.
+      - topic: direct_nak
+        description: Device Trigger ALL-Link direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Trigger ALL-Link all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Trigger ALL-Link all_link_cleanup_nak command.
+    - topic: set_sprinkler_program
+      description: Device Set Sprinkler Program command.
+      topics:
+      - topic: direct
+        description: Device Set Sprinkler Program direct command.
+      - topic: direct_ack
+        description: Device Set Sprinkler Program direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Set Sprinkler Program all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Set Sprinkler Program all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Set Sprinkler Program broadcast command.
+      - topic: direct_nak
+        description: Device Set Sprinkler Program direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Set Sprinkler Program all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Set Sprinkler Program all_link_cleanup_nak command.
+    - topic: sprinkler_valve_on
+      description: Device Sprinkler Valve ON command.
+      topics:
+      - topic: direct
+        description: Device Sprinkler Valve ON direct command.
+      - topic: direct_ack
+        description: Device Sprinkler Valve ON direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Sprinkler Valve ON all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Sprinkler Valve ON all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Sprinkler Valve ON broadcast command.
+      - topic: direct_nak
+        description: Device Sprinkler Valve ON direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Sprinkler Valve ON all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Sprinkler Valve ON all_link_cleanup_nak command.
+    - topic: sprinkler_get_program_response
+      description: Device Sprinkler Get Program Response command.
+      topics:
+      - topic: direct
+        description: Device Sprinkler Get Program Response direct command.
+      - topic: direct_ack
+        description: Device Sprinkler Get Program Response direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Sprinkler Get Program Response all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Sprinkler Get Program Response all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Sprinkler Get Program Response broadcast command.
+      - topic: direct_nak
+        description: Device Sprinkler Get Program Response direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Sprinkler Get Program Response all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Sprinkler Get Program Response all_link_cleanup_nak command.
+    - topic: sprinkler_valve_off
+      description: Device Sprinkler Valve OFF command.
+      topics:
+      - topic: direct
+        description: Device Sprinkler Valve OFF direct command.
+      - topic: direct_ack
+        description: Device Sprinkler Valve OFF direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Sprinkler Valve OFF all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Sprinkler Valve OFF all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Sprinkler Valve OFF broadcast command.
+      - topic: direct_nak
+        description: Device Sprinkler Valve OFF direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Sprinkler Valve OFF all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Sprinkler Valve OFF all_link_cleanup_nak command.
+    - topic: sprinkler_program_on
+      description: Device Sprinkler Program On command.
+      topics:
+      - topic: direct
+        description: Device Sprinkler Program On direct command.
+      - topic: direct_ack
+        description: Device Sprinkler Program On direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Sprinkler Program On all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Sprinkler Program On all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Sprinkler Program On broadcast command.
+      - topic: direct_nak
+        description: Device Sprinkler Program On direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Sprinkler Program On all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Sprinkler Program On all_link_cleanup_nak command.
+    - topic: sprinkler_program_off
+      description: Device Sprinkler Program Off command.
+      topics:
+      - topic: direct
+        description: Device Sprinkler Program Off direct command.
+      - topic: direct_ack
+        description: Device Sprinkler Program Off direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Sprinkler Program Off all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Sprinkler Program Off all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Sprinkler Program Off broadcast command.
+      - topic: direct_nak
+        description: Device Sprinkler Program Off direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Sprinkler Program Off all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Sprinkler Program Off all_link_cleanup_nak command.
+    - topic: sprinkler_control
+      description: Device Sprinkler Control command.
+      topics:
+      - topic: direct
+        description: Device Sprinkler Control direct command.
+      - topic: direct_ack
+        description: Device Sprinkler Control direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Sprinkler Control all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Sprinkler Control all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Sprinkler Control broadcast command.
+      - topic: direct_nak
+        description: Device Sprinkler Control direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Sprinkler Control all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Sprinkler Control all_link_cleanup_nak command.
+    - topic: flash_led
+      description: Device Flash LED command.
+      topics:
+      - topic: direct
+        description: Device Flash LED direct command.
+      - topic: direct_ack
+        description: Device Flash LED direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Flash LED all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Flash LED all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Flash LED broadcast command.
+      - topic: direct_nak
+        description: Device Flash LED direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Flash LED all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Flash LED all_link_cleanup_nak command.
+    - topic: i/o_output_on
+      description: Device I/O Output On command.
+      topics:
+      - topic: direct
+        description: Device I/O Output On direct command.
+      - topic: direct_ack
+        description: Device I/O Output On direct_ack command.
+      - topic: all_link_cleanup
+        description: Device I/O Output On all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device I/O Output On all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device I/O Output On broadcast command.
+      - topic: direct_nak
+        description: Device I/O Output On direct_nak command.
+      - topic: all_link_broadcast
+        description: Device I/O Output On all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device I/O Output On all_link_cleanup_nak command.
+    - topic: sprinkler_get_program_request
+      description: Device Sprinkler Get Program Request command.
+      topics:
+      - topic: direct
+        description: Device Sprinkler Get Program Request direct command.
+      - topic: direct_ack
+        description: Device Sprinkler Get Program Request direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Sprinkler Get Program Request all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Sprinkler Get Program Request all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Sprinkler Get Program Request broadcast command.
+      - topic: direct_nak
+        description: Device Sprinkler Get Program Request direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Sprinkler Get Program Request all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Sprinkler Get Program Request all_link_cleanup_nak command.
+    - topic: i/o_output_off
+      description: Device I/O Output Off command.
+      topics:
+      - topic: direct
+        description: Device I/O Output Off direct command.
+      - topic: direct_ack
+        description: Device I/O Output Off direct_ack command.
+      - topic: all_link_cleanup
+        description: Device I/O Output Off all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device I/O Output Off all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device I/O Output Off broadcast command.
+      - topic: direct_nak
+        description: Device I/O Output Off direct_nak command.
+      - topic: all_link_broadcast
+        description: Device I/O Output Off all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device I/O Output Off all_link_cleanup_nak command.
+    - topic: i/o_alarm_data_request
+      description: Device I/O Alarm Data Request command.
+      topics:
+      - topic: direct
+        description: Device I/O Alarm Data Request direct command.
+      - topic: direct_ack
+        description: Device I/O Alarm Data Request direct_ack command.
+      - topic: all_link_cleanup
+        description: Device I/O Alarm Data Request all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device I/O Alarm Data Request all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device I/O Alarm Data Request broadcast command.
+      - topic: direct_nak
+        description: Device I/O Alarm Data Request direct_nak command.
+      - topic: all_link_broadcast
+        description: Device I/O Alarm Data Request all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device I/O Alarm Data Request all_link_cleanup_nak command.
+    - topic: i/o_write_output_port
+      description: Device I/O Write Output Port command.
+      topics:
+      - topic: direct
+        description: Device I/O Write Output Port direct command.
+      - topic: direct_ack
+        description: Device I/O Write Output Port direct_ack command.
+      - topic: all_link_cleanup
+        description: Device I/O Write Output Port all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device I/O Write Output Port all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device I/O Write Output Port broadcast command.
+      - topic: direct_nak
+        description: Device I/O Write Output Port direct_nak command.
+      - topic: all_link_broadcast
+        description: Device I/O Write Output Port all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device I/O Write Output Port all_link_cleanup_nak command.
+    - topic: i/o_read_input_port
+      description: Device I/O Read Input Port command.
+      topics:
+      - topic: direct
+        description: Device I/O Read Input Port direct command.
+      - topic: direct_ack
+        description: Device I/O Read Input Port direct_ack command.
+      - topic: all_link_cleanup
+        description: Device I/O Read Input Port all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device I/O Read Input Port all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device I/O Read Input Port broadcast command.
+      - topic: direct_nak
+        description: Device I/O Read Input Port direct_nak command.
+      - topic: all_link_broadcast
+        description: Device I/O Read Input Port all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device I/O Read Input Port all_link_cleanup_nak command.
+    - topic: i/o_get_sensor_value
+      description: Device I/O Get Sensor Value command.
+      topics:
+      - topic: direct
+        description: Device I/O Get Sensor Value direct command.
+      - topic: direct_ack
+        description: Device I/O Get Sensor Value direct_ack command.
+      - topic: all_link_cleanup
+        description: Device I/O Get Sensor Value all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device I/O Get Sensor Value all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device I/O Get Sensor Value broadcast command.
+      - topic: direct_nak
+        description: Device I/O Get Sensor Value direct_nak command.
+      - topic: all_link_broadcast
+        description: Device I/O Get Sensor Value all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device I/O Get Sensor Value all_link_cleanup_nak command.
+    - topic: i/o_set_sensor_1_nominal_value
+      description: Device I/O Set Sensor 1 Nominal Value command.
+      topics:
+      - topic: direct
+        description: Device I/O Set Sensor 1 Nominal Value direct command.
+      - topic: direct_ack
+        description: Device I/O Set Sensor 1 Nominal Value direct_ack command.
+      - topic: all_link_cleanup
+        description: Device I/O Set Sensor 1 Nominal Value all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device I/O Set Sensor 1 Nominal Value all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device I/O Set Sensor 1 Nominal Value broadcast command.
+      - topic: direct_nak
+        description: Device I/O Set Sensor 1 Nominal Value direct_nak command.
+      - topic: all_link_broadcast
+        description: Device I/O Set Sensor 1 Nominal Value all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device I/O Set Sensor 1 Nominal Value all_link_cleanup_nak command.
+    - topic: i/o_set_sensor_nominal
+      description: Device I/O Set Sensor Nominal command.
+      topics:
+      - topic: direct
+        description: Device I/O Set Sensor Nominal direct command.
+      - topic: direct_ack
+        description: Device I/O Set Sensor Nominal direct_ack command.
+      - topic: all_link_cleanup
+        description: Device I/O Set Sensor Nominal all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device I/O Set Sensor Nominal all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device I/O Set Sensor Nominal broadcast command.
+      - topic: direct_nak
+        description: Device I/O Set Sensor Nominal direct_nak command.
+      - topic: all_link_broadcast
+        description: Device I/O Set Sensor Nominal all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device I/O Set Sensor Nominal all_link_cleanup_nak command.
+    - topic: fan_status_report
+      description: Device Fan Status Report command.
+      topics:
+      - topic: direct
+        description: Device Fan Status Report direct command.
+      - topic: direct_ack
+        description: Device Fan Status Report direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Fan Status Report all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Fan Status Report all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Fan Status Report broadcast command.
+      - topic: direct_nak
+        description: Device Fan Status Report direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Fan Status Report all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Fan Status Report all_link_cleanup_nak command.
+    - topic: i/o_alarm_data_response
+      description: Device I/O Alarm Data Response command.
+      topics:
+      - topic: direct
+        description: Device I/O Alarm Data Response direct command.
+      - topic: direct_ack
+        description: Device I/O Alarm Data Response direct_ack command.
+      - topic: all_link_cleanup
+        description: Device I/O Alarm Data Response all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device I/O Alarm Data Response all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device I/O Alarm Data Response broadcast command.
+      - topic: direct_nak
+        description: Device I/O Alarm Data Response direct_nak command.
+      - topic: all_link_broadcast
+        description: Device I/O Alarm Data Response all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device I/O Alarm Data Response all_link_cleanup_nak command.
+    - topic: i/o_get_sensor_alarm_delta
+      description: Device I/O Get Sensor Alarm Delta command.
+      topics:
+      - topic: direct
+        description: Device I/O Get Sensor Alarm Delta direct command.
+      - topic: direct_ack
+        description: Device I/O Get Sensor Alarm Delta direct_ack command.
+      - topic: all_link_cleanup
+        description: Device I/O Get Sensor Alarm Delta all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device I/O Get Sensor Alarm Delta all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device I/O Get Sensor Alarm Delta broadcast command.
+      - topic: direct_nak
+        description: Device I/O Get Sensor Alarm Delta direct_nak command.
+      - topic: all_link_broadcast
+        description: Device I/O Get Sensor Alarm Delta all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device I/O Get Sensor Alarm Delta all_link_cleanup_nak command.
+    - topic: i/o_write_configuration_port
+      description: Device I/O Write Configuration Port command.
+      topics:
+      - topic: direct
+        description: Device I/O Write Configuration Port direct command.
+      - topic: direct_ack
+        description: Device I/O Write Configuration Port direct_ack command.
+      - topic: all_link_cleanup
+        description: Device I/O Write Configuration Port all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device I/O Write Configuration Port all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device I/O Write Configuration Port broadcast command.
+      - topic: direct_nak
+        description: Device I/O Write Configuration Port direct_nak command.
+      - topic: all_link_broadcast
+        description: Device I/O Write Configuration Port all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device I/O Write Configuration Port all_link_cleanup_nak command.
+    - topic: i/o_read_configuration_port
+      description: Device I/O Read Configuration Port command.
+      topics:
+      - topic: direct
+        description: Device I/O Read Configuration Port direct command.
+      - topic: direct_ack
+        description: Device I/O Read Configuration Port direct_ack command.
+      - topic: all_link_cleanup
+        description: Device I/O Read Configuration Port all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device I/O Read Configuration Port all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device I/O Read Configuration Port broadcast command.
+      - topic: direct_nak
+        description: Device I/O Read Configuration Port direct_nak command.
+      - topic: all_link_broadcast
+        description: Device I/O Read Configuration Port all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device I/O Read Configuration Port all_link_cleanup_nak command.
+    - topic: i/o_module_control
+      description: Device I/O Module Control command.
+      topics:
+      - topic: direct
+        description: Device I/O Module Control direct command.
+      - topic: direct_ack
+        description: Device I/O Module Control direct_ack command.
+      - topic: all_link_cleanup
+        description: Device I/O Module Control all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device I/O Module Control all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device I/O Module Control broadcast command.
+      - topic: direct_nak
+        description: Device I/O Module Control direct_nak command.
+      - topic: all_link_broadcast
+        description: Device I/O Module Control all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device I/O Module Control all_link_cleanup_nak command.
+    - topic: pool_device_on
+      description: Device Pool Device ON command.
+      topics:
+      - topic: direct
+        description: Device Pool Device ON direct command.
+      - topic: direct_ack
+        description: Device Pool Device ON direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Pool Device ON all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Pool Device ON all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Pool Device ON broadcast command.
+      - topic: direct_nak
+        description: Device Pool Device ON direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Pool Device ON all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Pool Device ON all_link_cleanup_nak command.
+    - topic: pool_set_device_hysteresis
+      description: Device Pool Set Device Hysteresis command.
+      topics:
+      - topic: direct
+        description: Device Pool Set Device Hysteresis direct command.
+      - topic: direct_ack
+        description: Device Pool Set Device Hysteresis direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Pool Set Device Hysteresis all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Pool Set Device Hysteresis all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Pool Set Device Hysteresis broadcast command.
+      - topic: direct_nak
+        description: Device Pool Set Device Hysteresis direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Pool Set Device Hysteresis all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Pool Set Device Hysteresis all_link_cleanup_nak command.
+    - topic: pool_set_device_temperature
+      description: Device Pool Set Device Temperature command.
+      topics:
+      - topic: direct
+        description: Device Pool Set Device Temperature direct command.
+      - topic: direct_ack
+        description: Device Pool Set Device Temperature direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Pool Set Device Temperature all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Pool Set Device Temperature all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Pool Set Device Temperature broadcast command.
+      - topic: direct_nak
+        description: Device Pool Set Device Temperature direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Pool Set Device Temperature all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Pool Set Device Temperature all_link_cleanup_nak command.
+    - topic: pool_device_off
+      description: Device Pool Device OFF command.
+      topics:
+      - topic: direct
+        description: Device Pool Device OFF direct command.
+      - topic: direct_ack
+        description: Device Pool Device OFF direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Pool Device OFF all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Pool Device OFF all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Pool Device OFF broadcast command.
+      - topic: direct_nak
+        description: Device Pool Device OFF direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Pool Device OFF all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Pool Device OFF all_link_cleanup_nak command.
+    - topic: pool_temperature_up
+      description: Device Pool Temperature Up command.
+      topics:
+      - topic: direct
+        description: Device Pool Temperature Up direct command.
+      - topic: direct_ack
+        description: Device Pool Temperature Up direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Pool Temperature Up all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Pool Temperature Up all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Pool Temperature Up broadcast command.
+      - topic: direct_nak
+        description: Device Pool Temperature Up direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Pool Temperature Up all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Pool Temperature Up all_link_cleanup_nak command.
+    - topic: pool_temperature_down
+      description: Device Pool Temperature Down command.
+      topics:
+      - topic: direct
+        description: Device Pool Temperature Down direct command.
+      - topic: direct_ack
+        description: Device Pool Temperature Down direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Pool Temperature Down all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Pool Temperature Down all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Pool Temperature Down broadcast command.
+      - topic: direct_nak
+        description: Device Pool Temperature Down direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Pool Temperature Down all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Pool Temperature Down all_link_cleanup_nak command.
+    - topic: pool_control
+      description: Device Pool Control command.
+      topics:
+      - topic: direct
+        description: Device Pool Control direct command.
+      - topic: direct_ack
+        description: Device Pool Control direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Pool Control all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Pool Control all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Pool Control broadcast command.
+      - topic: direct_nak
+        description: Device Pool Control direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Pool Control all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Pool Control all_link_cleanup_nak command.
+    - topic: door_move
+      description: Device Door Move command.
+      topics:
+      - topic: direct
+        description: Device Door Move direct command.
+      - topic: direct_ack
+        description: Device Door Move direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Door Move all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Door Move all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Door Move broadcast command.
+      - topic: direct_nak
+        description: Device Door Move direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Door Move all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Door Move all_link_cleanup_nak command.
+    - topic: door_status_report
+      description: Device Door Status Report command.
+      topics:
+      - topic: direct
+        description: Device Door Status Report direct command.
+      - topic: direct_ack
+        description: Device Door Status Report direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Door Status Report all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Door Status Report all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Door Status Report broadcast command.
+      - topic: direct_nak
+        description: Device Door Status Report direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Door Status Report all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Door Status Report all_link_cleanup_nak command.
+    - topic: window_covering
+      description: Device Window Covering command.
+      topics:
+      - topic: direct
+        description: Device Window Covering direct command.
+      - topic: direct_ack
+        description: Device Window Covering direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Window Covering all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Window Covering all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Window Covering broadcast command.
+      - topic: direct_nak
+        description: Device Window Covering direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Window Covering all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Window Covering all_link_cleanup_nak command.
+    - topic: window_covering_position
+      description: Device Window Covering Position command.
+      topics:
+      - topic: direct
+        description: Device Window Covering Position direct command.
+      - topic: direct_ack
+        description: Device Window Covering Position direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Window Covering Position all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Window Covering Position all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Window Covering Position broadcast command.
+      - topic: direct_nak
+        description: Device Window Covering Position direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Window Covering Position all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Window Covering Position all_link_cleanup_nak command.
+    - topic: thermostat_temperature_up
+      description: Device Thermostat Temperature Up command.
+      topics:
+      - topic: direct
+        description: Device Thermostat Temperature Up direct command.
+      - topic: direct_ack
+        description: Device Thermostat Temperature Up direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Thermostat Temperature Up all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Thermostat Temperature Up all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Thermostat Temperature Up broadcast command.
+      - topic: direct_nak
+        description: Device Thermostat Temperature Up direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Thermostat Temperature Up all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Thermostat Temperature Up all_link_cleanup_nak command.
+    - topic: thermostat_temperature_down
+      description: Device Thermostat Temperature Down command.
+      topics:
+      - topic: direct
+        description: Device Thermostat Temperature Down direct command.
+      - topic: direct_ack
+        description: Device Thermostat Temperature Down direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Thermostat Temperature Down all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Thermostat Temperature Down all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Thermostat Temperature Down broadcast command.
+      - topic: direct_nak
+        description: Device Thermostat Temperature Down direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Thermostat Temperature Down all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Thermostat Temperature Down all_link_cleanup_nak command.
+    - topic: thermostat_get_zone_information
+      description: Device Thermostat Get Zone Information command.
+      topics:
+      - topic: direct
+        description: Device Thermostat Get Zone Information direct command.
+      - topic: direct_ack
+        description: Device Thermostat Get Zone Information direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Thermostat Get Zone Information all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Thermostat Get Zone Information all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Thermostat Get Zone Information broadcast command.
+      - topic: direct_nak
+        description: Device Thermostat Get Zone Information direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Thermostat Get Zone Information all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Thermostat Get Zone Information all_link_cleanup_nak command.
+    - topic: thermostat_control
+      description: Device Thermostat Control command.
+      topics:
+      - topic: direct
+        description: Device Thermostat Control direct command.
+      - topic: direct_ack
+        description: Device Thermostat Control direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Thermostat Control all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Thermostat Control all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Thermostat Control broadcast command.
+      - topic: direct_nak
+        description: Device Thermostat Control direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Thermostat Control all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Thermostat Control all_link_cleanup_nak command.
+    - topic: thermostat_set_cool_setpoint
+      description: Device Thermostat Set Cool Setpoint command.
+      topics:
+      - topic: direct
+        description: Device Thermostat Set Cool Setpoint direct command.
+      - topic: direct_ack
+        description: Device Thermostat Set Cool Setpoint direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Thermostat Set Cool Setpoint all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Thermostat Set Cool Setpoint all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Thermostat Set Cool Setpoint broadcast command.
+      - topic: direct_nak
+        description: Device Thermostat Set Cool Setpoint direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Thermostat Set Cool Setpoint all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Thermostat Set Cool Setpoint all_link_cleanup_nak command.
+    - topic: thermostat_set_heat_setpoint
+      description: Device Thermostat Set Heat Setpoint command.
+      topics:
+      - topic: direct
+        description: Device Thermostat Set Heat Setpoint direct command.
+      - topic: direct_ack
+        description: Device Thermostat Set Heat Setpoint direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Thermostat Set Heat Setpoint all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Thermostat Set Heat Setpoint all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Thermostat Set Heat Setpoint broadcast command.
+      - topic: direct_nak
+        description: Device Thermostat Set Heat Setpoint direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Thermostat Set Heat Setpoint all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Thermostat Set Heat Setpoint all_link_cleanup_nak command.
+    - topic: leak_detector_announce
+      description: Device Leak Detector Announce command.
+      topics:
+      - topic: direct
+        description: Device Leak Detector Announce direct command.
+      - topic: direct_ack
+        description: Device Leak Detector Announce direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Leak Detector Announce all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Leak Detector Announce all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Leak Detector Announce broadcast command.
+      - topic: direct_nak
+        description: Device Leak Detector Announce direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Leak Detector Announce all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Leak Detector Announce all_link_cleanup_nak command.
+    - topic: assign_to_companion_group
+      description: Device Assign to Companion Group command.
+      topics:
+      - topic: direct
+        description: Device Assign to Companion Group direct command.
+      - topic: direct_ack
+        description: Device Assign to Companion Group direct_ack command.
+      - topic: all_link_cleanup
+        description: Device Assign to Companion Group all_link_cleanup command.
+      - topic: all_link_cleanup_ack
+        description: Device Assign to Companion Group all_link_cleanup_ack command.
+      - topic: broadcast
+        description: Device Assign to Companion Group broadcast command.
+      - topic: direct_nak
+        description: Device Assign to Companion Group direct_nak command.
+      - topic: all_link_broadcast
+        description: Device Assign to Companion Group all_link_broadcast command.
+      - topic: all_link_cleanup_nak
+        description: Device Assign to Companion Group all_link_cleanup_nak command.
