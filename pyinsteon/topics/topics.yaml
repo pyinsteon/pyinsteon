@@ -1,6 +1,49 @@
 ROOT_TOPIC:
   description: Insteon pub/sub topics
   topics:
+  - topic: send
+    description: Send an Insteon Message
+    topics:
+    - topic: get_im_info
+      description: Get IM Info
+    - topic: send_all_link_command
+      description: Send ALL-Link Command
+    - topic: send_insteon_standard_or_extended_message
+      description: Send INSTEON Standard or Extended Message
+    - topic: send_x10
+      description: Send X10
+    - topic: start_all_linking
+      description: Start ALL-Linking
+    - topic: cancel_all_linking
+      description: Cancel ALL-Linking
+    - topic: set_host_device_category
+      description: Set Host Device Category
+    - topic: reset_the_im
+      description: Reset the IM
+    - topic: set_insteon_ack_message_byte
+      description: Set INSTEON ACK Message Byte
+    - topic: get_first_all_link_record
+      description: Get First ALL-Link Record
+    - topic: get_next_all_link_record
+      description: Get Next ALL-Link Record
+    - topic: set_im_configuration
+      description: Set IM Configuration
+    - topic: get_all_link_record_for_sender
+      description: Get ALL-Link Record for Sender
+    - topic: led_on
+      description: LED On
+    - topic: led_off
+      description: LED Off
+    - topic: manage_all_link_record
+      description: Manage ALL-Link Record
+    - topic: set_insteon_nak_message_byte
+      description: Set INSTEON NAK Message Byte
+    - topic: set_insteon_ack_message_two_bytes
+      description: Set INSTEON ACK Message Two Bytes
+    - topic: rf_sleep
+      description: RF Sleep
+    - topic: get_im_configuration
+      description: Get IM Configuration
   - topic: command
     description: Device command.
     topics:
