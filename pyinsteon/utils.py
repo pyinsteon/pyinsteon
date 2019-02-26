@@ -87,6 +87,39 @@ def vars_to_bytes(vals: Iterable) -> bytes:
     return bytes(msg)
 
 
+def vars_to_string(vals: Iterable) -> str:
+    """Create a byte string from a set of values."""
+    from enum import Enum, IntEnum
+    output = []
+    for fld, val in vals:
+        if val is None:
+            pass
+        elif isinstance(val, (Enum, IntEnum)):
+            valstr = str(val)
+        elif isinstance(val, (int, bytes)):
+            valstr = '0x{0:02x}'.format(val)
+        else:
+            valstr = str(val)
+        output.append('{}: {}'.format(fld, valstr))
+    return ', '.join(output)
+
+def vars_to_repr(vals: Iterable) -> str:
+    """Create a byte string from a set of values."""
+    from enum import Enum, IntEnum
+    output = []
+    for fld, val in vals:
+        if val is None:
+            pass
+        elif isinstance(val, (Enum, IntEnum)):
+            valstr = repr(val)
+        elif isinstance(val, (int, bytes)):
+            valstr = '0x{0:02x}'.format(val)
+        else:
+            valstr = repr(val)
+        output.append('{}: {}'.format(fld, valstr))
+    return ', '.join(output)
+
+
 def test_values_eq(val1, val2) -> bool:
     """Test if val1 eq val2 for template management."""
     if val1 is None or val2 is None:
@@ -94,4 +127,3 @@ def test_values_eq(val1, val2) -> bool:
     if val1 == val2:
         return True
     return False
-
