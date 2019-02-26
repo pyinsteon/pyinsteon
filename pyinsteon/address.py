@@ -46,7 +46,7 @@ class Address():
 
     def __repr__(self):
         """Representation of the Address object."""
-        return binascii.hexlify(self._addr).decode()
+        return self._addr.hex()
 
     def __str__(self):
         """Emit the address in human-readible format (AA.BB.CC)."""
@@ -95,4 +95,4 @@ class Address():
     @property
     def id(self):
         """Return the address id."""
-        return self.__repr__
+        return repr(self)
