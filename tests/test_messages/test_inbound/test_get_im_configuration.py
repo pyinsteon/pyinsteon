@@ -35,6 +35,4 @@ class TestGetImConfiguration(unittest.TestCase):
         assert self.msg.ack == self.ack
 
     def test_bytes(self):
-        _LOGGER.debug(bytes(self.msg))
-        _LOGGER.debug(unhexlify(self.hex_ack))
         assert bytes(self.msg) == unhexlify(self.hex_ack)

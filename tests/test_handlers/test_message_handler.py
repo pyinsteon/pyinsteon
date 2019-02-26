@@ -24,7 +24,6 @@ class MockState():
 
     def set_value(self, val):
         """Change the state value."""
-        print("Changing state value to ", val)
         self.value = val
 
 
@@ -34,7 +33,6 @@ class StateUpdater(StateManager):
     async def execute(self, **kwargs):
         """Print the message."""
         msg = kwargs.get('msg')
-        print("Updating state from message: ", msg)
         self._state.set_value('Changed')
         await self._run_next(**kwargs)
 
