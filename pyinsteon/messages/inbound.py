@@ -30,20 +30,20 @@ class Inbound(MessageBase):
         field_vals = self._slice_data(slices, raw_data)
         super().__init__(msg_def, **field_vals)
 
-    def __repr__(self):
-        """Emit the message as a dict."""
-        cls_repr = {}
-        cls_repr['id'] = '{2:x}'.format(self.message_id)
-        for fld in self._fields:
-            val = getattr(self, fld.name)
-            val_bytes = b''
-            if isinstance(val, [int, IntEnum]):
-                val_bytes = bytes([val])
-            elif isinstance(val, [bytes, Address, MessageFlags,
-                                  AllLinkRecordFlags, UserData]):
-                val_bytes = bytes(val)
-            cls_repr[fld.name] = hexlify(val_bytes).decode()
-        return str(cls_repr)
+    # def __repr__(self):
+    #     """Emit the message as a dict."""
+    #     cls_repr = {}
+    #     cls_repr['id'] = '{:02x}'.format(self.message_id)
+    #     for fld in self._fields:
+    #         val = getattr(self, fld.name)
+    #         val_bytes = b''
+    #         if isinstance(val, [int, IntEnum]):
+    #             val_bytes = bytes([val])
+    #         elif isinstance(val, [bytes, Address, MessageFlags,
+    #                               AllLinkRecordFlags, UserData]):
+    #             val_bytes = bytes(val)
+    #         cls_repr[fld.name] = hexlify(val_bytes).decode()
+    #     return str(cls_repr)
 
     def __len__(self):
         """Emit the length of the message."""
@@ -68,8 +68,6 @@ class Inbound(MessageBase):
         field_vals = {}
         for field in self._fields:
             val = field.type(raw_data[slices[curr_slice]])
-            _LOGGER.debug('slice: %s', slices[curr_slice])
-            _LOGGER.debug('Field %s value %s', field.name, val)
             field_vals[field.name] = val
             curr_slice += 1
         return field_vals
@@ -79,7 +77,7 @@ class Inbound(MessageBase):
         return hexlify(bytes(self)).decode()
 
 
-def create(raw_data: bytearray) -> Inbound:
+def create(raw_data: bytearray) -> (Inbound, bytearray):
     """Create a message from a raw byte array."""
 
     def _remaining_data(msg, raw_data):
@@ -99,16 +97,18 @@ def create(raw_data: bytearray) -> Inbound:
 
     def _standard_message(raw_data):
         from .message_definitions import FLD_STD_SEND_ACK, FLD_EXT_SEND_ACK
-        msg_def = MessageDefinition(MessageId.SEND_STANDARD, FLD_STD_SEND_ACK)
-        msg, remaining_data = _create_message(msg_def, raw_data)
-
-        if msg.flags.is_extended:
-            msg_def = MessageDefinition(MessageId.SEND_STANDARD,
+        FLAG_BYTE = 5
+        flags = MessageFlags(raw_data[FLAG_BYTE])
+        _LOGGER.debug('Message Flags: %r', flags)
+        if flags.is_extended:
+            msg_def = MessageDefinition(MessageId.SEND_EXTENDED,
                                         FLD_EXT_SEND_ACK)
+            msg, remaining_data = _create_message(msg_def, raw_data)
+        else:
+            msg_def = MessageDefinition(MessageId.SEND_STANDARD, FLD_STD_SEND_ACK)
             msg, remaining_data = _create_message(msg_def, raw_data)
         return msg, remaining_data
 
-    _LOGGER.info("Starting create")
     if len(raw_data) < 2:
         _LOGGER.debug('Message less than 2 bytes')
         return None, raw_data
@@ -122,5 +122,5 @@ def create(raw_data: bytearray) -> Inbound:
             msg, remaining_data = _create_message(msg_def, raw_data)
         return msg, remaining_data
 
-    _LOGGER.debug("Message ID not found")
+    _LOGGER.warning("Message ID not found")
     return None, raw_data
