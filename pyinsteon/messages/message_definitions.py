@@ -63,7 +63,7 @@ FLD_ALL_LINK_RECORD_RESP = [MessageField("flags", 1, AllLinkRecordFlags),
                             MessageField("data3", 1, int)]
 
 # All-Link Cleanup Status Report 0x58
-FLD_All_LINK_CLEANUP_REPORT_ACK = [MessageField("ack", 1, int)]
+FLD_All_LINK_CLEANUP_REPORT_ACK = [MessageField("ack", 1, AckNak)]
 
 # Get IM Info 0x60
 FLD_GET_IM_INFO_SEND = []
@@ -89,9 +89,9 @@ FLD_EXT_SEND.append(MessageField('user_data', 14, UserData))
 
 # Send INSTEON Standard or Extended Message ACK/NAK 0x62
 FLD_STD_SEND_ACK = FLD_STD_SEND.copy()
-FLD_STD_SEND_ACK.append(MessageField("ack", 1, int))
+FLD_STD_SEND_ACK.append(MessageField("ack", 1, AckNak))
 FLD_EXT_SEND_ACK = FLD_EXT_SEND.copy()
-FLD_EXT_SEND_ACK.append(MessageField("ack", 1, int))
+FLD_EXT_SEND_ACK.append(MessageField("ack", 1, AckNak))
 
 # Send X10 0x63 (SEE X10 Received 0x52)
 
