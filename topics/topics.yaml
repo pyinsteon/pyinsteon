@@ -1,6 +1,20 @@
 ROOT_TOPIC:
   description: Insteon pub/sub topics
   topics:
+  - topic: ack
+    description: An ACK of an sent Message
+    topics:
+    - topic: <address>
+      description: Device specific ACK messages. See 'send' topic for possible subtopics.
+    - topic: modem
+      description: Modem specific ACK messages. See 'send' topic for possible subtopics.
+  - topic: nak
+    description: A NAK of any sent Message
+    topics:
+    - topic: <address>
+      description: Device specific NAK messages. See 'send' topic for possible subtopics.
+    - topic: modem
+      description: Modem specific NAK messages. See 'send' topic for possible subtopics.
   - topic: send
     description: Send an Insteon Message
     topics:
@@ -44,9 +58,22 @@ ROOT_TOPIC:
       description: RF Sleep
     - topic: get_im_configuration
       description: Get IM Configuration
-  - topic: command
+  - topic: <address>  # Device address as the root topic
     description: Device command.
     topics:
+    - topic: aldb
+      description: All-Link Database topics
+      topics:
+      - topic: load
+        description: Initiate loading the All-Link database
+      - topic: loaded
+        description: All-Link Database is loaded
+      - topic: get
+        description: Get one or all ALDB records
+      - topic: set
+        description: Write one ALDB record
+      - topic: record_received
+        description: ALDB record recevied for device
     - topic: assign_to_all_link_group
       description: Device Assign to ALL-Link Group command.
       topics:
@@ -769,7 +796,7 @@ ROOT_TOPIC:
         description: Device Light OFF at Ramp Rate all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device Light OFF at Ramp Rate all_link_cleanup_nak command.
-    - topic: read/write_all_link_database_(aldb)
+    - topic: read_write_aldb
       description: Device Read/Write ALL-Link Database (ALDB) command.
       topics:
       - topic: direct
@@ -959,7 +986,7 @@ ROOT_TOPIC:
         description: Device Flash LED all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device Flash LED all_link_cleanup_nak command.
-    - topic: i/o_output_on
+    - topic: io_output_on
       description: Device I/O Output On command.
       topics:
       - topic: direct
@@ -997,7 +1024,7 @@ ROOT_TOPIC:
         description: Device Sprinkler Get Program Request all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device Sprinkler Get Program Request all_link_cleanup_nak command.
-    - topic: i/o_output_off
+    - topic: io_output_off
       description: Device I/O Output Off command.
       topics:
       - topic: direct
@@ -1016,7 +1043,7 @@ ROOT_TOPIC:
         description: Device I/O Output Off all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device I/O Output Off all_link_cleanup_nak command.
-    - topic: i/o_alarm_data_request
+    - topic: io_alarm_data_request
       description: Device I/O Alarm Data Request command.
       topics:
       - topic: direct
@@ -1035,7 +1062,7 @@ ROOT_TOPIC:
         description: Device I/O Alarm Data Request all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device I/O Alarm Data Request all_link_cleanup_nak command.
-    - topic: i/o_write_output_port
+    - topic: io_write_output_port
       description: Device I/O Write Output Port command.
       topics:
       - topic: direct
@@ -1054,7 +1081,7 @@ ROOT_TOPIC:
         description: Device I/O Write Output Port all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device I/O Write Output Port all_link_cleanup_nak command.
-    - topic: i/o_read_input_port
+    - topic: io_read_input_port
       description: Device I/O Read Input Port command.
       topics:
       - topic: direct
@@ -1073,7 +1100,7 @@ ROOT_TOPIC:
         description: Device I/O Read Input Port all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device I/O Read Input Port all_link_cleanup_nak command.
-    - topic: i/o_get_sensor_value
+    - topic: io_get_sensor_value
       description: Device I/O Get Sensor Value command.
       topics:
       - topic: direct
@@ -1092,7 +1119,7 @@ ROOT_TOPIC:
         description: Device I/O Get Sensor Value all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device I/O Get Sensor Value all_link_cleanup_nak command.
-    - topic: i/o_set_sensor_1_nominal_value
+    - topic: io_set_sensor_1_nominal_value
       description: Device I/O Set Sensor 1 Nominal Value command.
       topics:
       - topic: direct
@@ -1111,7 +1138,7 @@ ROOT_TOPIC:
         description: Device I/O Set Sensor 1 Nominal Value all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device I/O Set Sensor 1 Nominal Value all_link_cleanup_nak command.
-    - topic: i/o_set_sensor_nominal
+    - topic: io_set_sensor_nominal
       description: Device I/O Set Sensor Nominal command.
       topics:
       - topic: direct
@@ -1149,7 +1176,7 @@ ROOT_TOPIC:
         description: Device Fan Status Report all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device Fan Status Report all_link_cleanup_nak command.
-    - topic: i/o_alarm_data_response
+    - topic: io_alarm_data_response
       description: Device I/O Alarm Data Response command.
       topics:
       - topic: direct
@@ -1168,7 +1195,7 @@ ROOT_TOPIC:
         description: Device I/O Alarm Data Response all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device I/O Alarm Data Response all_link_cleanup_nak command.
-    - topic: i/o_get_sensor_alarm_delta
+    - topic: io_get_sensor_alarm_delta
       description: Device I/O Get Sensor Alarm Delta command.
       topics:
       - topic: direct
@@ -1187,7 +1214,7 @@ ROOT_TOPIC:
         description: Device I/O Get Sensor Alarm Delta all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device I/O Get Sensor Alarm Delta all_link_cleanup_nak command.
-    - topic: i/o_write_configuration_port
+    - topic: io_write_configuration_port
       description: Device I/O Write Configuration Port command.
       topics:
       - topic: direct
@@ -1206,7 +1233,7 @@ ROOT_TOPIC:
         description: Device I/O Write Configuration Port all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device I/O Write Configuration Port all_link_cleanup_nak command.
-    - topic: i/o_read_configuration_port
+    - topic: io_read_configuration_port
       description: Device I/O Read Configuration Port command.
       topics:
       - topic: direct
@@ -1225,7 +1252,7 @@ ROOT_TOPIC:
         description: Device I/O Read Configuration Port all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device I/O Read Configuration Port all_link_cleanup_nak command.
-    - topic: i/o_module_control
+    - topic: io_module_control
       description: Device I/O Module Control command.
       topics:
       - topic: direct
@@ -1605,3 +1632,26 @@ ROOT_TOPIC:
         description: Device Assign to Companion Group all_link_broadcast command.
       - topic: all_link_cleanup_nak
         description: Device Assign to Companion Group all_link_cleanup_nak command.
+  - topic: modem
+    description: Topics specific to the modem
+    topics:
+    - topic: aldb
+      description: All-Link database topics for the modem
+      topics:
+      - topic: get_next_all_link_record
+        description: Get the next All-Link record for the modem
+      - topic: get_first_all_link_record
+        description: Get the first All-Link record for the modem
+      - topic: load
+        description: Load the All-Link database for the modem
+      - topic: loaded
+        description: The All-Link database for the modem is loaded
+      - topic: record_received
+        description: ALDB record recevied for device
+  - topic: connection
+    description: Topics specific to the transport/protocol connection
+    topics:
+    - topic: lost
+      description: The connection was lost
+    - topic: made
+      description: The connection was made
