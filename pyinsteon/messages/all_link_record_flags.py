@@ -11,31 +11,16 @@ def create(in_use: bool, mode: AllLinkMode, hwm: bool,
            bit0: bool = False):
     """Create an AllLinkRecordFlags entity."""
     flags = AllLinkRecordFlags(0x00)
-    flags.is_bit_0_set = bit0
-    flags.is_bit_2_set = bit2
-    flags.is_bit_3_set = bit3
-    flags.is_bit_4_set = bit4
-    flags.is_bit_5_set = bit5
-    flags.is_hwm = hwm
-    flags.is_in_use = in_use
-    flags.mode = mode
-    return flags
-
-
-def create_template(in_use: bool = None, mode: AllLinkMode = None,
-                    hwm: bool = None, bit5: bool = None, bit4: bool = None,
-                    bit3: bool = None, bit2: bool = None,
-                    bit0: bool = None):
-    """Create an AllLinkRecordFlags entity."""
-    flags = AllLinkRecordFlags(0x00)
-    flags.is_bit_0_set = bit0
-    flags.is_bit_2_set = bit2
-    flags.is_bit_3_set = bit3
-    flags.is_bit_4_set = bit4
-    flags.is_bit_5_set = bit5
-    flags.is_hwm = hwm
-    flags.is_in_use = in_use
-    flags.mode = mode
+    flags = set_bit(flags, 7, in_use)
+    flags = set_bit(
+        flags, 6,
+        mode.value if isinstance(mode, AllLinkMode) else AllLinkMode(mode))
+    flags = set_bit(flags, 5, bit5)
+    flags = set_bit(flags, 4, bit4)
+    flags = set_bit(flags, 3, bit3)
+    flags = set_bit(flags, 2, bit2)
+    flags = set_bit(flags, 1, hwm)
+    flags = set_bit(flags, 0, bit0)
     return flags
 
 
@@ -111,108 +96,40 @@ class AllLinkRecordFlags():
 
     @property
     def is_in_use(self):
-        """Return if record is in use."""
-        return self._in_use
-
-    @is_in_use.setter
-    def is_in_use(self, val: bool):
         """Set the record in use value."""
-        if val is None:
-            self._in_use = None
-        else:
-            self._in_use = bool(val)
+        return self._in_use
 
     @property
     def mode(self):
         """Return if the record is a responder or controller."""
         return self._mode
 
-    @mode.setter
-    def mode(self, val: AllLinkMode):
-        """Set the all link mode."""
-        if val is None:
-            self._mode = None
-        elif isinstance(val, int):
-            self._mode = AllLinkMode(val)
-        elif isinstance(val, AllLinkMode):
-            self._mode = val
-        else:
-            return TypeError("All link mode must be int, AllLinkMode or None")
-
     @property
     def is_hwm(self):
         """Return if the record is the high water mark."""
         return self._hwm
-
-    @is_hwm.setter
-    def is_hwm(self, val: bool):
-        """Set the record High Water Mark value."""
-        if val is None:
-            self._hwm = None
-        else:
-            self._hwm = bool(val)
 
     @property
     def is_bit_5_set(self):
         """Return if bit 5 is set."""
         return self._bit5
 
-    @is_bit_5_set.setter
-    def is_bit_5_set(self, val: bool):
-        """Set the record bit 5 value."""
-        if val is None:
-            self._bit5 = None
-        else:
-            self._bit5 = bool(val)
-
     @property
     def is_bit_4_set(self):
         """Return if bit 4 is set."""
         return self._bit4
-
-    @is_bit_4_set.setter
-    def is_bit_4_set(self, val: bool):
-        """Set the record bit 4 value."""
-        if val is None:
-            self._bit4 = None
-        else:
-            self._bit4 = bool(val)
 
     @property
     def is_bit_3_set(self):
         """Return if bit 3 is set."""
         return self._bit3
 
-    @is_bit_3_set.setter
-    def is_bit_3_set(self, val: bool):
-        """Set the record bit 3 value."""
-        if val is None:
-            self._bit3 = None
-        else:
-            self._bit3 = bool(val)
-
     @property
     def is_bit_2_set(self):
         """Return if bit 2 is set."""
         return self._bit2
 
-    @is_bit_2_set.setter
-    def is_bit_2_set(self, val: bool):
-        """Set the record bit 2 value."""
-        if val is None:
-            self._bit2 = None
-        else:
-            self._bit2 = bool(val)
-
     @property
     def is_bit_0_set(self):
         """Return if bit 0 is set."""
         return self._bit0
-
-    @is_bit_0_set.setter
-    def is_bit_0_set(self, val: bool):
-        """Set the record bit 0 value."""
-        if val is None:
-            self._bit0 = None
-        else:
-            self._bit0 = bool(val)

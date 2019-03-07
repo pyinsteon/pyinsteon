@@ -29,8 +29,6 @@ class TestAllLinkCleanupStatusReport(unittest.TestCase):
         assert self.msg.ack == self.ack
 
     def test_bytes(self):
-        _LOGGER.debug(bytes(self.msg))
-        _LOGGER.debug(bytes(unhexlify(self.hex)))
         assert bytes(self.msg) == unhexlify(self.hex)
 
 

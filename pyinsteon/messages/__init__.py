@@ -14,6 +14,15 @@ class MessageBase():
             val = val if val is None else field.type(val)
             setattr(self, field.name, val)
 
+    def __repr__(self):
+        """Emit the message in a debug representation."""
+        from ..utils import vars_to_repr
+        flds = []
+        flds.append(('msg_id', self.message_id))
+        for field in self._fields:
+            flds.append((field.name, getattr(self, field.name)))
+        return vars_to_repr(flds)
+
     def __bytes__(self):
         """Emit the message bytes."""
         from ..utils import vars_to_bytes
@@ -23,6 +32,15 @@ class MessageBase():
         for field in self._fields:
             data.append(getattr(self, field.name))
         return vars_to_bytes(data)
+
+    def __str__(self):
+        """Emit the message as a string."""
+        from ..utils import vars_to_string
+        flds = []
+        flds.append(('msg_id', self.message_id))
+        for field in self._fields:
+            flds.append((field.name, getattr(self, field.name)))
+        return vars_to_string(flds)
 
     @property
     def start_code(self):

@@ -49,8 +49,6 @@ class TestExtendedSendAck(unittest.TestCase):
         assert self.msg.user_data == self.user_data
 
     def test_ack(self):
-        _LOGGER.debug(self.msg.ack)
-        _LOGGER.debug(self.ack)
         assert self.msg.ack == self.ack
 
     def test_bytes(self):

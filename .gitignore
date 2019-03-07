@@ -98,4 +98,6 @@ ENV/
 /.pypirc
 /settings.json
 /.vscode
-.vscode/settings.json
+/.vscode/settings.json
+pyinsteon/topics/command_topics.csv
+pyinsteon/topics/csv_to_yaml.py

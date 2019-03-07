@@ -75,7 +75,6 @@ class X10Address():
             return self.housecode_byte
         if byte == 1:
             return self.unitcode_byte
-        _LOGGER.debug(byte)
         err = 'Item index must be 0 or 1: {}'.format(byte)
         raise ValueError(err)
 

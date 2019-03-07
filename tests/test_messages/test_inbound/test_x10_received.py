@@ -25,7 +25,6 @@ class TestX10Received(unittest.TestCase):
         _LOGGER.addHandler(stream_handler)
 
     def test_id(self):
-        _LOGGER.debug(self.msg)
         assert self.msg.message_id == self.message_id
 
     def test_bytes(self):
