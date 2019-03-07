@@ -1,7 +1,9 @@
 """Manage a series of messages and commands."""
 from asyncio import Queue
 from .command_base import CommandBase
+import logging
 
+_LOGGER = logging.getLogger(__name__)
 
 class MessageManager(CommandBase):
     """Manage a message chain."""
@@ -35,7 +37,7 @@ class MessageManager(CommandBase):
 
         For now, this will do nothing.
         """
-        print("Timeout exceeded.")
+        _LOGGER.warning("Timeout exceeded.")
 
     def send(self, msg):
         """Send a message using the manager."""
