@@ -84,7 +84,7 @@ class MessageId(IntEnum):
 
 class MessageFlagType(IntEnum):
     """Message flag mesage type."""
-    
+
     def __repr__(self):
         """Emit the representation of the Enum."""
         return '0x{0:02x}'.format(self.value)
@@ -106,7 +106,7 @@ class MessageFlagType(IntEnum):
 
 class AckNak(IntEnum):
     """ACK/NAK values."""
-    
+
     def __repr__(self):
         """Emit the representation of the Enum."""
         return '0x{0:02x}'.format(self.value)
@@ -138,7 +138,7 @@ class X10CommandType(IntEnum):
 
 class ThermostatMode(IntEnum):
     """Thermostat system modes."""
-    
+
     def __repr__(self):
         """Emit the representation of the Enum."""
         return '0x{0:02x}'.format(self.value)
@@ -158,7 +158,7 @@ class ThermostatMode(IntEnum):
 
 class FanSpeed(IntEnum):
     """Fan speeds."""
-    
+
     def __repr__(self):
         """Emit the representation of the Enum."""
         return '0x{0:02x}'.format(self.value)
@@ -176,7 +176,7 @@ class FanSpeed(IntEnum):
 
 class X10Commands(IntEnum):
     """X10 Commands."""
-    
+
     def __repr__(self):
         """Emit the representation of the Enum."""
         return '0x{0:02x}'.format(self.value)
@@ -204,7 +204,7 @@ class X10Commands(IntEnum):
 
 class ImButtonEvents(IntEnum):
     """IM Button Events values."""
-    
+
     def __repr__(self):
         """Emit the representation of the Enum."""
         return '0x{0:02x}'.format(self.value)
@@ -227,7 +227,7 @@ class ImButtonEvents(IntEnum):
 
 class AllLinkMode(IntEnum):
     """All Link Mode values."""
-    
+
     def __repr__(self):
         """Emit the representation of the Enum."""
         return '0x{0:02x}'.format(self.value)
@@ -245,7 +245,7 @@ class AllLinkMode(IntEnum):
 
 class ManageAllLinkRecordAction(IntEnum):
     """Manage All Link Record Action values."""
-    
+
     def __repr__(self):
         """Emit the representation of the Enum."""
         return '0x{0:02x}'.format(self.value)

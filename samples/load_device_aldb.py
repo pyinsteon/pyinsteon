@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
+# sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 
 from pyinsteon.devices import Device
 from pyinsteon.devices.modem import PLM
@@ -44,6 +44,7 @@ async def load_database():
 
         _LOGGER.info('Starting DB load for %s', address)
         await device.aldb.async_load()
+        _LOGGER.info('ALDB load status: %s', device.aldb.status.name)
         for mem_addr in device.aldb:
             _LOGGER.info(device.aldb[mem_addr])
 

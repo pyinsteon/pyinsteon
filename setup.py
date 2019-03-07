@@ -16,14 +16,15 @@ setup(
     author_email='pyinsteon@harrisnj.net',
     url='https://github.com/pyinsteon/pyinsteon',
     license="MIT License",
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests', 'tests.*', 'topics',
+                                    'docs', 'samples']),
     scripts=[],
     description='Python API for controlling Insteon devices',
     long_description=readme(),
     include_package_data=True,
     zip_safe=True,
     install_requires=[
-        'pyserial==3.2.0',
+        'pyserial',
         'pyserial-asyncio',
         'async_timeout',
         'aiohttp'

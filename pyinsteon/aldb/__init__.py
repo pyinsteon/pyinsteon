@@ -136,7 +136,7 @@ class ALDB():
 
     def _register_handlers(self):
         """Add all command handlers to the ALDB."""
-        from .commands.get_set_all_link_record import GetSetAllLinkRecord
+        from .handlers.get_set_all_link_record import GetSetAllLinkRecord
         self._handlers.append(GetSetAllLinkRecord(self))
 
     def calc_load_status(self):
@@ -199,9 +199,9 @@ class ModemALDB(ALDB):
 
     def _register_handlers(self):
         """Add all command handlers to the ALDB."""
-        from ..aldb.commands.modem_get_first_record import GetFirstRecord
-        from ..aldb.commands.modem_get_next_record import GetNextRecord
-        from .commands.modem_all_link_record_response import AllLinkRecordResponse
+        from ..aldb.handlers.modem_get_first_record import GetFirstRecord
+        from ..aldb.handlers.modem_get_next_record import GetNextRecord
+        from .handlers.modem_all_link_record_response import AllLinkRecordResponse
         self._handlers.append(GetFirstRecord())
         self._handlers.append(GetNextRecord())
         self._handlers.append(AllLinkRecordResponse(self))
