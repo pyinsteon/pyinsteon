@@ -25,7 +25,7 @@ def convert_to_topic(msg: Inbound) -> (str, {}):
 
 def standard_received(msg: Inbound) -> (str, {}):
     """Create a topic from a STANDARD_RECEIVED message."""
-    cmd_topic = CMD_TOPICS[msg.cmd1]
+    cmd_topic = CMD_TOPICS.get(msg.cmd1)
     if not cmd_topic:
         raise ValueError('Unknown command received: cmd1: {}'.format(msg.cmd1))
     msg_type = msg.flags.message_type.name.lower()
@@ -94,7 +94,7 @@ def all_link_cleanup_failure_report(msg: Inbound) -> (str, {}):
 
 def all_link_record_response(msg: Inbound) -> (str, {}):
     """Create a topic from an ALL_LINK_RECORD_RESPONSE message."""
-    topic = 'all_link_record_response'
+    topic = 'modem.aldb.all_link_record_response'
     kwargs = {'flags': msg.flags,
               'group': msg.group,
               'address': msg.address,
@@ -210,14 +210,14 @@ def set_ack_message_byte(msg: Inbound) -> (str, {}):
 
 def get_first_all_link_record(msg: Inbound) -> (str, {}):
     """Create a topic from an get_first_all_link_record message."""
-    topic = '{}.get_first_all_link_record'.format(msg.ack.name.lower())
+    topic = '{}.modem.aldb.get_first_all_link_record'.format(msg.ack.name.lower())
     kwargs = {}
     return (topic, kwargs)
 
 
 def get_next_all_link_record(msg: Inbound) -> (str, {}):
     """Create a topic from an get_next_all_link_record message."""
-    topic = '{}.get_next_all_link_record'.format(msg.ack.name.lower())
+    topic = '{}.modem.aldb.get_next_all_link_record'.format(msg.ack.name.lower())
     kwargs = {}
     return (topic, kwargs)
 
