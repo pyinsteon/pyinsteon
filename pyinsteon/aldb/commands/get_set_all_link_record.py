@@ -16,13 +16,9 @@ RETRIES_WRITE_MAX = 5
 TIMER = 10
 TIMER_INCREMENT = 3
 _LOGGER = logging.getLogger(__name__)
-
-class GetSetCmd(Enum):
-    """Status of the command intention."""
-
-    READ_ALL = 1
-    READ_ONE = 2
-    WRITE = 3
+READ_ALL = 1
+READ_ONE = 2
+WRITE = 3
 
 
 class GetSetAllLinkRecord():
@@ -30,9 +26,11 @@ class GetSetAllLinkRecord():
 
     def __init__(self, aldb: ALDB):
         """Init the ReceiveGetFirstAldbRecordNak class."""
-        self._retries = 0
+        self._retries_all = 0
+        self._retries_one = 0
+        self._retries_write = 0
         self._aldb = aldb
-        self._last_command: GetSetCmd
+        self._last_command = None
         self._last_mem_addr = 0
 
         self._subscribe_topics()
@@ -49,11 +47,13 @@ class GetSetAllLinkRecord():
         num_recs: int (Default 0)  Number of database records to return. When num_recs is 0 and
         mem_addr is 0x0000 the database will return all records.
         """
-        self._retries = 0
+        self._retries_all = 0
+        self._retries_one = 0
+        _LOGGER.debug('attempting to read %x', mem_addr)
         if mem_addr == 0x0000 and num_recs == 0:
-            self._last_command = GetSetCmd.READ_ALL
+            self._last_command = READ_ALL
         else:
-            self._last_command = GetSetCmd.READ_ONE
+            self._last_command = READ_ONE
         self._read(mem_addr, num_recs)
 
     def write(self, mem_addr: int, controller: bool, addr: Address,
@@ -76,8 +76,8 @@ class GetSetAllLinkRecord():
         - control_bit5: int (Defualt 0) - Control flags bit 4, device dependant
         - control_bit4: int (Defualt 0) - Control flags bit 4, device dependant
         """
-        self._retries = 0
-        self._last_command = GetSetCmd.WRITE
+        self._retries_write = 0
+        self._last_command = WRITE
         control_flags = ControlFlags(in_use, controller, True,
                                      control_bit5, control_bit4)
         record = ALDBRecord(mem_addr, control_flags, group, addr,
@@ -95,7 +95,7 @@ class GetSetAllLinkRecord():
         user_data = UserData({'d3': mem_hi, 'd4': mem_lo, 'd5': num_recs})
         user_data.set_checksum(0x2f, 0x00)
         msg = send_extended(self._aldb.address.id, flags, 0x2f, 0x00, user_data)
-        pub.sendMessage('send.aldb.get{}'.format(self._aldb.address.id), msg=msg)
+        pub.sendMessage('send.{}.aldb.get'.format(self._aldb.address.id), msg=msg)
 
     def _write(self, record):
         from ...messages.outbound import send_extended
@@ -109,6 +109,7 @@ class GetSetAllLinkRecord():
 
     def _receive_rec(self, cmd2: int, user_data: UserData = None):
         """Receive an All-Link record."""
+        _LOGGER.debug('Got a record.')
         from ..aldb_record import create_from_userdata
         if not user_data:
             return  # This was a direct_ack so no user data is received.
@@ -117,11 +118,16 @@ class GetSetAllLinkRecord():
 
     def _receive_ack(self, cmd2: int, user_data: UserData = None):
         """receive the ACK message."""
+        _LOGGER.debug('Got ACK message.')
         from ..aldb_record import create_from_userdata
         action = user_data.get('d2')
         num_recs = user_data.get('d5')
         record = create_from_userdata(user_data)
-        timer = TIMER + self._retries * TIMER_INCREMENT
+        if self._last_command == READ_ALL:
+            retries = self._retries_all
+        else:
+            retries = self._retries_one
+        timer = TIMER + retries * TIMER_INCREMENT
 
         if action == 0x00:
             asyncio.ensure_future(self._read_timer(timer, record.mem_addr, num_recs))
@@ -131,7 +137,7 @@ class GetSetAllLinkRecord():
     def _subscribe_topics(self):
         """Subscribe listeners to topics."""
         topic_recv_rec = '{}.read_write_aldb'.format(self._aldb.address.id)
-        topic_get_rec = '{}.aldb.get'.format(self._aldb.address.id)
+        topic_get_rec = '{}.aldb.load'.format(self._aldb.address.id)
         topic_set_rec = '{}.aldb.set'.format(self._aldb.address.id)
         pub.subscribe(self._receive_rec, topic_recv_rec)
         pub.subscribe(self.read, topic_get_rec)
@@ -141,7 +147,7 @@ class GetSetAllLinkRecord():
     async def _read_timer(self, timer, mem_addr, num_recs):
         """Set a timer to confirm if the last get command completed."""
         await asyncio.sleep(timer)
-        if self._last_command == GetSetCmd.READ_ALL:
+        if self._last_command == READ_ALL:
             self._manage_get_all_cmd(mem_addr, num_recs)
         else:
             self._manage_get_one_cmd(mem_addr, num_recs)
@@ -150,49 +156,64 @@ class GetSetAllLinkRecord():
         """Set a timer to confirm the last set command completed."""
         await asyncio.sleep(timer)
         if (not self._aldb.get(record.mem_addr) and
-                self._retries < RETRIES_WRITE_MAX):
+                self._retries_write < RETRIES_WRITE_MAX):
             self._write(record)
 
     def _manage_get_all_cmd(self, mem_addr, num_recs):
         """Manage the READ_ALL command process."""
-        if self._aldb.is_loaded:
+        if self._aldb.calc_load_status():
+            # The ALDB is fully loaded so stop
+            pub.sendMessage('{}.aldb.loaded'.format(self._aldb.address.id))
             return
-        if self._retries < RETRIES_ALL_MAX:
-            self._read(0x0000, 1)
-            self._retries += 1
-        elif not self._has_first_record:
-            self._read(0x0000, 1)
-            self._retries += 1
+        if self._retries_all < RETRIES_ALL_MAX:
+            # Attempt to read all records again
+            self._read(0x0000, 0)
+            self._retries_all += 1
         else:
+            # Read the next missing record
             next_mem_addr = self._next_missing_record()
+            if next_mem_addr is None:
+                _LOGGER.error('Tried to get mem address after HWM')
+                return
             if next_mem_addr == self._last_mem_addr:
-                if self._retries < RETRIES_ONE_MAX:
+                # We are still trying to get the same record as the last read
+                if self._retries_one < RETRIES_ONE_MAX:
                     self._read(next_mem_addr, 1)
-                    self._retries += 1
-                elif self._last_mem_addr == 0x0000:
-                    next_mem_addr = self._aldb.first_mem_addr
-                    self._last_mem_addr = self._aldb.first_mem_addr
-                    self._read(next_mem_addr, 1)
+                    self._retries_one += 1
+                else:
+                    # Tried to read the same record max times so quit
+                    pub.sendMessage(
+                        '{}.aldb.loaded'.format(self._aldb.address.id))
             else:
+                # Reading a different record than the last attempt so reset
+                # the retry count
                 self._last_mem_addr = next_mem_addr
-                self._retries = 0
+                self._retries_one = 0
                 self._read(next_mem_addr, num_recs)
 
     def _manage_get_one_cmd(self, mem_addr, num_recs):
         """Manage the READ_ONE command process."""
         if self._aldb.get(mem_addr):
-            return
-
-        if self._retries < RETRIES_ONE_MAX:
-            pass
+            pub.sendMessage('{}.aldb.loaded'.format(self._aldb.address.id))
+        elif self._retries_one < RETRIES_ONE_MAX:
+            self._read(mem_addr=mem_addr, num_recs=num_recs)
+        else:
+            # Trigger aldb.loaded but this will check the load status.
+            pub.sendMessage('{}.aldb.loaded'.format(self._aldb.address.id))
 
     def _next_missing_record(self):
         last_addr = 0
-        if not self._has_first_record:
+        if not self._has_first_record():
+            if (self._last_mem_addr == 0x0000 and
+                    self._retries_one >= RETRIES_ONE_MAX):
+                return self._aldb.first_mem_addr
             return 0x0000
         for mem_addr in self._aldb:
+            rec = self._aldb[mem_addr]
+            if rec.control_flags.is_high_water_mark:
+                return None
             if last_addr != 0:
-                if not last_addr  - 8 == mem_addr:
+                if not last_addr - 8 == mem_addr:
                     return last_addr - 8
             last_addr = mem_addr
         return last_addr - 8
@@ -205,5 +226,6 @@ class GetSetAllLinkRecord():
         found_first = False
         for mem_addr in self._aldb:
             if mem_addr == self._aldb.first_mem_addr or mem_addr == 0x0fff:
+                _LOGGER.debug('Found First record: 0x%04x', mem_addr)
                 found_first = True
         return found_first

@@ -68,8 +68,16 @@ class TestALDB(unittest.TestCase):
 
         assert self.aldb.get(0xa3a4)
 
+    async def load_aldb(self):
+        """Load the ALDB."""
+        _LOGGER.debug('Starting ALDB load')
+        await self.aldb.async_load()
+        _LOGGER.debug('Done LOAD function.')
+        _LOGGER.debug('Status: %s', self.aldb.status.name)
+        assert self.aldb.is_loaded
+
     async def send_messages(self):
-        """Send test messages."""
+        """Send response messages."""
         from .utils import hex_to_inbound_message
         msg_ack, _ = hex_to_inbound_message(
             '0262{}{}{}{}00000000000000000000000000d106'.format(
@@ -132,21 +140,14 @@ class TestALDB(unittest.TestCase):
                 (msg10, 20),  (msg11, 20), (msg12, 1),
                 (msg_ack, 33), (msg_dir_ack, 1),
                 (msg13, 1), (msg14, 1), (msg15, 1), (msg16, 1)]
-        _LOGGER.debug('Sending LOAD message.')
-        self.aldb.load()
+        _LOGGER.debug('Sending response messages.')
         for msg, sleep in msgs:
             self.sent = False
             await asyncio.sleep(sleep)
-            #if sleep > 10:
-                #assert self.sent
-            # _LOGGER.debug('Rcv: %r', msg)
             topic, kwargs = convert_to_topic(msg)
-            # _LOGGER.debug(kwargs)
-            # _LOGGER.debug(topic)
             pub.sendMessage(topic, **kwargs)
-        assert self.aldb.is_loaded
-        _LOGGER.debug('Done LOAD function.')
 
     def test_load_all(self):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.send_messages())
+        loop.create_task(self.send_messages())
+        loop.run_until_complete(self.load_aldb())

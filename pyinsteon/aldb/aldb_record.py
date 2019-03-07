@@ -2,6 +2,7 @@
 
 from ..address import Address
 from .control_flags import ControlFlags, create_from_byte
+from ..messages.all_link_record_flags import AllLinkRecordFlags
 from ..messages.user_data import UserData
 
 
@@ -25,8 +26,8 @@ def create_from_userdata(userdata: UserData):
 class ALDBRecord():
     """Represents an ALDB record."""
 
-    def __init__(self, memory, control_flags, group, address,
-                 data1, data2, data3):
+    def __init__(self, memory: int, control_flags: ControlFlags, group: int,
+                 address: Address, data1: int, data2: int, data3: int):
         """Initialze the ALDBRecord class."""
         self._memoryLocation = memory
         self._address = Address(address)
@@ -36,6 +37,14 @@ class ALDBRecord():
         self._data3 = data3
         if isinstance(control_flags, ControlFlags):
             self._control_flags = control_flags
+        elif isinstance(control_flags, AllLinkRecordFlags):
+            from ..constants import AllLinkMode
+            is_controller = control_flags.mode == AllLinkMode.CONTROLLER
+            self._control_flags = ControlFlags(control_flags.is_in_use,
+                                               is_controller,
+                                               control_flags.is_hwm,
+                                               control_flags.is_bit_5_set,
+                                               control_flags.is_bit_4_set)
         else:
             self._control_flags = create_from_byte(control_flags)
 
@@ -49,7 +58,7 @@ class ALDBRecord():
                 msgstr = '{}, '.format(msgstr)
             for key, val in prop.items():
                 if isinstance(val, Address):
-                    msgstr = "{}'{}': {}".format(msgstr, key, val.human)
+                    msgstr = "{}'{}': {}".format(msgstr, key, val)
                 elif key == 'memory':
                     msgstr = "{}'{}': 0x{:04x}".format(msgstr, key, val)
                 elif isinstance(val, int):
