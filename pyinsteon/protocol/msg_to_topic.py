@@ -1,18 +1,8 @@
-"""Create outbound messages."""
-from ..messages import MessageBase
-from ..messages.message_definitions import INBOUND_MSG_DEF
-from ..messages.message_flags import MessageFlags
-from ..messages.message_definition import MessageDefinition
-from ..messages.message_definitions import FLD_EXT_SEND_ACK
-from ..constants import (MessageId, DeviceCategory, ImButtonEvents,
-                         AllLinkMode, ManageAllLinkRecordAction, AckNak)
-from ..address import Address
-from ..messages.all_link_record_flags import AllLinkRecordFlags
-from ..messages.im_config_flags import IMConfigurationFlags
-from ..messages.user_data import UserData
-from ..utils import set_bit, test_values_eq
-from .cmd_topics import CMD_TOPICS
+"""Create inbound messages and topics."""
+
+from ..messages.command_topics import command_list
 from ..messages.inbound import Inbound
+
 
 MSG_CONVERTER = {}
 
@@ -25,7 +15,7 @@ def convert_to_topic(msg: Inbound) -> (str, {}):
 
 def standard_received(msg: Inbound) -> (str, {}):
     """Create a topic from a STANDARD_RECEIVED message."""
-    cmd_topic = CMD_TOPICS.get(msg.cmd1)
+    cmd_topic = command_list.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
         raise ValueError('Unknown command received: cmd1: {}'.format(msg.cmd1))
     msg_type = msg.flags.message_type.name.lower()
@@ -38,7 +28,7 @@ def standard_received(msg: Inbound) -> (str, {}):
 
 def extended_received(msg: Inbound) -> (str, {}):
     """Create a topic from a EXTENDED_RECEIVED message."""
-    cmd_topic = CMD_TOPICS[msg.cmd1]
+    cmd_topic = command_list.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
         raise ValueError('Unknown command received: cmd1: {}'.format(msg.cmd1))
     msg_type = msg.flags.message_type.name.lower()
@@ -138,7 +128,7 @@ def send_standard_or_extended_message(msg: Inbound) -> (str, {}):
 
 def send_standard(msg: Inbound) -> (str, {}):
     """Create a topic from an SEND_STANDARD message."""
-    cmd_topic = CMD_TOPICS[msg.cmd1]
+    cmd_topic = command_list.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
         raise ValueError('Unknown command received: cmd1: {}'.format(msg.cmd1))
     msg_type = msg.flags.message_type.name.lower()
@@ -151,7 +141,7 @@ def send_standard(msg: Inbound) -> (str, {}):
 
 def send_extended(msg: Inbound) -> (str, {}):
     """Create a topic from an SEND_STANDARD message."""
-    cmd_topic = CMD_TOPICS[msg.cmd1]
+    cmd_topic = command_list.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
         raise ValueError('Unknown command received: cmd1: {}'.format(msg.cmd1))
     msg_type = msg.flags.message_type.name.lower()
