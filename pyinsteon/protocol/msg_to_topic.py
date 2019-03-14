@@ -1,6 +1,6 @@
-"""Create outbound messages."""
-from .cmd_topics import CMD_TOPICS
+from ..messages.command_topics import command_list
 from ..messages.inbound import Inbound
+
 
 MSG_CONVERTER = {}
 
@@ -13,7 +13,7 @@ def convert_to_topic(msg: Inbound) -> (str, {}):
 
 def standard_received(msg: Inbound) -> (str, {}):
     """Create a topic from a STANDARD_RECEIVED message."""
-    cmd_topic = CMD_TOPICS.get(msg.cmd1)
+    cmd_topic = command_list.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
         raise ValueError('Unknown command received: cmd1: {}'.format(msg.cmd1))
     msg_type = msg.flags.message_type.name.lower()
@@ -26,7 +26,7 @@ def standard_received(msg: Inbound) -> (str, {}):
 
 def extended_received(msg: Inbound) -> (str, {}):
     """Create a topic from a EXTENDED_RECEIVED message."""
-    cmd_topic = CMD_TOPICS[msg.cmd1]
+    cmd_topic = command_list.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
         raise ValueError('Unknown command received: cmd1: {}'.format(msg.cmd1))
     msg_type = msg.flags.message_type.name.lower()
@@ -126,7 +126,7 @@ def send_standard_or_extended_message(msg: Inbound) -> (str, {}):
 
 def send_standard(msg: Inbound) -> (str, {}):
     """Create a topic from an SEND_STANDARD message."""
-    cmd_topic = CMD_TOPICS[msg.cmd1]
+    cmd_topic = command_list.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
         raise ValueError('Unknown command received: cmd1: {}'.format(msg.cmd1))
     msg_type = msg.flags.message_type.name.lower()
@@ -139,7 +139,7 @@ def send_standard(msg: Inbound) -> (str, {}):
 
 def send_extended(msg: Inbound) -> (str, {}):
     """Create a topic from an SEND_STANDARD message."""
-    cmd_topic = CMD_TOPICS[msg.cmd1]
+    cmd_topic = command_list.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
         raise ValueError('Unknown command received: cmd1: {}'.format(msg.cmd1))
     msg_type = msg.flags.message_type.name.lower()

@@ -1,1 +1,1 @@
-"""Protocol handlers."""
+"""Insteon message and command handlers."""
