@@ -6,7 +6,7 @@ import logging
 from ... import pub
 from .. import ALDB
 from ...address import Address
-from ...messages.user_data import UserData
+from ...protocol.messages.user_data import UserData
 from ..aldb_record import ALDBRecord
 from ..control_flags import ControlFlags
 
@@ -85,8 +85,8 @@ class GetSetAllLinkRecord():
         self._write(record)
 
     def _read(self, mem_addr: int, num_recs: int):
-        from ...messages.outbound import send_extended
-        from ...messages.message_flags import create as create_flags
+        from ...protocol.messages.outbound import send_extended
+        from ...protocol.messages.message_flags import create as create_flags
         from ...constants import MessageFlagType
         flags = create_flags(MessageFlagType.DIRECT, True)
         num_recs = 0 if mem_addr == 0x0000 else 1
@@ -136,7 +136,7 @@ class GetSetAllLinkRecord():
 
     def _subscribe_topics(self):
         """Subscribe listeners to topics."""
-        topic_recv_rec = '{}.read_write_aldb'.format(self._aldb.address.id)
+        topic_recv_rec = '{}.extended_read_write_aldb'.format(self._aldb.address.id)
         topic_get_rec = '{}.aldb.load'.format(self._aldb.address.id)
         topic_set_rec = '{}.aldb.set'.format(self._aldb.address.id)
         pub.subscribe(self._receive_rec, topic_recv_rec)

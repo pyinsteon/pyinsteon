@@ -2,8 +2,8 @@
 
 from ..address import Address
 from .control_flags import ControlFlags, create_from_byte
-from ..messages.all_link_record_flags import AllLinkRecordFlags
-from ..messages.user_data import UserData
+from ..protocol.messages.all_link_record_flags import AllLinkRecordFlags
+from ..protocol.messages.user_data import UserData
 
 
 def create_from_userdata(userdata: UserData):
