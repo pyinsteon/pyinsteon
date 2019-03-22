@@ -1,9 +1,19 @@
-from binascii import unhexlify
+import logging
+import sys
 import unittest
-from pyinsteon.constants import MessageId, AllLinkMode
-from pyinsteon.messages.outbound import send_all_link_command
+from binascii import unhexlify
 
-from .outbound_base import TestOutboundBase
+from pyinsteon.constants import AllLinkMode, MessageId
+from pyinsteon.protocol.messages.outbound import send_all_link_command
+
+try:
+    from .outbound_base import TestOutboundBase
+except ImportError:
+    import outbound_base
+    TestOutboundBase = outbound_base.TestOutboundBase
+
+_LOGGER = logging.getLogger(__name__)
+_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestSendAllLinkCommand(unittest.TestCase, TestOutboundBase):
@@ -17,8 +27,16 @@ class TestSendAllLinkCommand(unittest.TestCase, TestOutboundBase):
 
         self.msg = send_all_link_command(0x01, AllLinkMode.CONTROLLER)
 
+        # _LOGGER.setLevel(logging.DEBUG)
+        stream_handler = logging.StreamHandler(sys.stdout)
+        _LOGGER.addHandler(stream_handler)
+
     def test_group(self):
         assert self.msg.group == self.group
 
     def test_mode(self):
         assert self.msg.mode == AllLinkMode.CONTROLLER
+
+
+if __name__ == '__main__':
+    unittest.main()

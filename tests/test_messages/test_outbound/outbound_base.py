@@ -4,7 +4,7 @@ import logging
 import unittest
 import sys
 
-from ...utils import check_fields_match
+from tests.utils import check_fields_match
 
 
 _LOGGER = logging.getLogger(__name__)

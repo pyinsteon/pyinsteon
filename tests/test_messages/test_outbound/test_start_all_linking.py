@@ -3,10 +3,14 @@ import logging
 import unittest
 import sys
 
-from pyinsteon.constants import MessageId, AckNak, AllLinkMode
-from pyinsteon.messages.outbound import start_all_linking
+from pyinsteon.constants import MessageId, AllLinkMode
+from pyinsteon.protocol.messages.outbound import start_all_linking
 
-from .outbound_base import TestOutboundBase
+try:
+    from .outbound_base import TestOutboundBase
+except ImportError:
+    import outbound_base
+    TestOutboundBase = outbound_base.TestOutboundBase
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')

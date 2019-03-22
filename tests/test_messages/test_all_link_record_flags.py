@@ -4,7 +4,7 @@ import unittest
 import sys
 
 from binascii import hexlify, unhexlify
-from pyinsteon.messages.all_link_record_flags import AllLinkRecordFlags
+from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
 from pyinsteon.constants import AllLinkMode
 
 
@@ -30,7 +30,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         self.flags_3D = AllLinkRecordFlags(unhexlify(self.hex_data_3D))
         self.flags_C2 = AllLinkRecordFlags(unhexlify(self.hex_data_C2))
         self.flags_FF = AllLinkRecordFlags(unhexlify(self.hex_data_FF))
-        
+
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)
 

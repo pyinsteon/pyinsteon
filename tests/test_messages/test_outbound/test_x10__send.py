@@ -5,9 +5,14 @@ import unittest
 import sys
 
 from pyinsteon.constants import MessageId, AckNak
-from pyinsteon.messages.outbound import x10_send
+from pyinsteon.protocol.messages.outbound import x10_send
 
-from .outbound_base import TestOutboundBase
+try:
+    from .outbound_base import TestOutboundBase
+except ImportError:
+    import outbound_base
+    TestOutboundBase = outbound_base.TestOutboundBase
+
 from ...utils import hex_to_inbound_message
 
 _LOGGER = logging.getLogger(__name__)

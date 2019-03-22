@@ -4,9 +4,14 @@ import unittest
 import sys
 
 from pyinsteon.constants import MessageId, DeviceCategory
-from pyinsteon.messages.outbound import set_host_dev_cat
+from pyinsteon.protocol.messages.outbound import set_host_dev_cat
 
-from .outbound_base import TestOutboundBase
+try:
+    from .outbound_base import TestOutboundBase
+except ImportError:
+    import outbound_base
+    TestOutboundBase = outbound_base.TestOutboundBase
+
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')

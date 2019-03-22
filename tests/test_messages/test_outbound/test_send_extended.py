@@ -3,13 +3,18 @@ import logging
 import unittest
 import sys
 
-from pyinsteon.messages.outbound import send_extended
+from pyinsteon.protocol.messages.outbound import send_extended
 from pyinsteon.address import Address
-from pyinsteon.messages.message_flags import MessageFlags
+from pyinsteon.protocol.messages.message_flags import MessageFlags
 from pyinsteon.constants import MessageId
-from pyinsteon.messages.user_data import UserData
+from pyinsteon.protocol.messages.user_data import UserData
 
-from .outbound_base import TestOutboundBase
+try:
+    from .outbound_base import TestOutboundBase
+except ImportError:
+    import outbound_base
+    TestOutboundBase = outbound_base.TestOutboundBase
+
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -49,3 +54,7 @@ class TestSendStandardAck(unittest.TestCase, TestOutboundBase):
 
     def test_user_data(self):
         assert self.msg.user_data == self.user_data
+
+
+if __name__ == '__main__':
+    unittest.main()

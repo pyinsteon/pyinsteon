@@ -2,9 +2,13 @@
 from binascii import unhexlify
 import unittest
 from pyinsteon.constants import MessageId
-from pyinsteon.messages.outbound import cancel_all_linking
+from pyinsteon.protocol.messages.outbound import cancel_all_linking
 
-from .outbound_base import TestOutboundBase
+try:
+    from .outbound_base import TestOutboundBase
+except ImportError:
+    import outbound_base
+    TestOutboundBase = outbound_base.TestOutboundBase
 
 
 class TestCancelAllLinking(unittest.TestCase, TestOutboundBase):

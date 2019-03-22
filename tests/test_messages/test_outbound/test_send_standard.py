@@ -3,12 +3,17 @@ import logging
 import unittest
 import sys
 
-from pyinsteon.messages.outbound import send_standard
+from pyinsteon.protocol.messages.outbound import send_standard
 from pyinsteon.address import Address
-from pyinsteon.messages.message_flags import MessageFlags
+from pyinsteon.protocol.messages.message_flags import MessageFlags
 from pyinsteon.constants import MessageId, MESSAGE_NAK
 
-from .outbound_base import TestOutboundBase
+try:
+    from .outbound_base import TestOutboundBase
+except ImportError:
+    import outbound_base
+    TestOutboundBase = outbound_base.TestOutboundBase
+
 
 
 _LOGGER = logging.getLogger(__name__)

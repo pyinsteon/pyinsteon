@@ -5,10 +5,15 @@ import sys
 
 from pyinsteon.constants import MessageId, ManageAllLinkRecordAction
 from pyinsteon.address import Address
-from pyinsteon.messages.all_link_record_flags import AllLinkRecordFlags
-from pyinsteon.messages.outbound import manage_all_link_record
+from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
+from pyinsteon.protocol.messages.outbound import manage_all_link_record
 
-from .outbound_base import TestOutboundBase
+try:
+    from .outbound_base import TestOutboundBase
+except ImportError:
+    import outbound_base
+    TestOutboundBase = outbound_base.TestOutboundBase
+
 
 
 _LOGGER = logging.getLogger(__name__)

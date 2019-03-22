@@ -4,10 +4,15 @@ import unittest
 import sys
 
 from pyinsteon.constants import MessageId, AckNak
-from pyinsteon.messages.im_config_flags import IMConfigurationFlags
-from pyinsteon.messages.outbound import set_im_configuration
+from pyinsteon.protocol.messages.im_config_flags import IMConfigurationFlags
+from pyinsteon.protocol.messages.outbound import set_im_configuration
 
-from .outbound_base import TestOutboundBase
+try:
+    from .outbound_base import TestOutboundBase
+except ImportError:
+    import outbound_base
+    TestOutboundBase = outbound_base.TestOutboundBase
+
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
