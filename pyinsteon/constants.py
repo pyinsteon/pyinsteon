@@ -263,6 +263,16 @@ class ManageAllLinkRecordAction(IntEnum):
     DELETE_FIRST = 0x80
 
 
+class ResponseStatus(IntEnum):
+    """Response status of an outbound message."""
+
+    FAILURE = 0
+    SUCCESS = 1
+    UNCLEAR = 2
+    INPROGRESS = 4
+    UNSENT = 8
+
+
 MESSAGE_START_CODE = 0x02
 MESSAGE_ACK = 0x06
 MESSAGE_NAK = 0x15
