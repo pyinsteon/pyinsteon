@@ -4,11 +4,11 @@ import asyncio
 import logging
 from enum import Enum
 
-from serial_asyncio import SerialTransport, create_serial_connection
+from serial_asyncio import create_serial_connection
 
 from .. import pub
-from .topics import convert_to_topic
-from ..messages.inbound import create
+from .msg_to_topic import convert_to_topic
+from .messages.inbound import create
 
 _LOGGER = logging.getLogger(__name__)
 WRITE_WAIT = 1.5  # Time to wait between writes to transport

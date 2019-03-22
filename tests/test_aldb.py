@@ -9,9 +9,9 @@ from pyinsteon import pub
 from pyinsteon.address import Address
 from pyinsteon.aldb import ALDB
 from pyinsteon.constants import MessageId
-from pyinsteon.messages.all_link_record_flags import AllLinkRecordFlags
-from pyinsteon.messages.inbound import create
-from pyinsteon.protocol.topics import convert_to_topic
+from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
+from pyinsteon.protocol.messages.inbound import create
+from pyinsteon.protocol.msg_to_topic import convert_to_topic
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
@@ -25,8 +25,8 @@ class TestALDB(unittest.TestCase):
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)
         _INSTEON_LOGGER.addHandler(stream_handler)
-        _LOGGER.setLevel(logging.DEBUG)
-        _INSTEON_LOGGER.setLevel(logging.DEBUG)
+        # _LOGGER.setLevel(logging.DEBUG)
+        # _INSTEON_LOGGER.setLevel(logging.DEBUG)
 
         self.hex = '0257030405060708090a'
         self.hex_bytes = bytearray(unhexlify(self.hex))
@@ -58,7 +58,7 @@ class TestALDB(unittest.TestCase):
 
     def test_load_records(self):
         """Test records received are loaded into the ALDB."""
-        from .utils import hex_to_inbound_message
+        from tests.utils import hex_to_inbound_message
         record_hex_data = '0251{}445566{}{}{}a1a2a3a4a5a6a7a8a9aaabacadae'.format(
             self.aldb.address.id, '1f', '2f', '00')
         record_msg, _ = hex_to_inbound_message(record_hex_data)
@@ -78,7 +78,7 @@ class TestALDB(unittest.TestCase):
 
     async def send_messages(self):
         """Send response messages."""
-        from .utils import hex_to_inbound_message
+        from tests.utils import hex_to_inbound_message
         msg_ack, _ = hex_to_inbound_message(
             '0262{}{}{}{}00000000000000000000000000d106'.format(
                 self.aldb.address.id, '1f', '2f', '00'))
@@ -151,3 +151,7 @@ class TestALDB(unittest.TestCase):
         loop = asyncio.get_event_loop()
         loop.create_task(self.send_messages())
         loop.run_until_complete(self.load_aldb())
+
+
+if __name__ == '__main__':
+    unittest.main()
