@@ -1,8 +1,11 @@
 """Utilities for testing."""
+import asyncio
 from binascii import unhexlify
+from collections import namedtuple
 import logging
 import sys
-from pyinsteon.messages.inbound import create
+from pyinsteon.protocol.messages.inbound import create
+from pyinsteon import pub
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -13,7 +16,7 @@ _LOGGER.addHandler(stream_handler)
 def hex_to_inbound_message(hex_data):
     """Create an Inbound message from a hex string."""
     msg_bytes = bytearray(unhexlify(hex_data))
-    (msg, remaining_data) = create(msg_bytes)
+    (msg, _) = create(msg_bytes)
     return msg, msg_bytes
 
 
@@ -34,4 +37,22 @@ def check_fields_match(msg1, msg2):
         # _LOGGER.error(fld2)
         match = match & _check_eq_or_none(fld1, fld2)
     return match
+
+
+def async_case(f):
+    """Wrap a test cast around a wrapper to execute the test."""
+    def wrapper(*args, **kwargs):
+        coro = asyncio.coroutine(f)
+        future = coro(*args, **kwargs)
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(future)
+    return wrapper
+
+TopicItem = namedtuple('TopicItem', 'topic, kwargs, delay')
+
+async def async_send_topics(topic_items):
+    """Publish a topic message to interact with a test case."""
+    for item in topic_items:
+        await asyncio.sleep(item.delay)
+        pub.sendMessage(item.topic, **item.kwargs)
         
