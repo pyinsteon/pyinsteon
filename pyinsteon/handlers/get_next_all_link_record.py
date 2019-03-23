@@ -15,7 +15,7 @@ class GetNextAllLinkRecordHandler(OutboundHandlerBase):
         """Init the GetNextAldbRecordNak class."""
         super().__init__(topic=GET_NEXT_ALL_LINK_RECORD)
 
-    @ack_handler
+    @ack_handler()
     def handle_ack(self):
         """Receive the ACK message and return True."""
 

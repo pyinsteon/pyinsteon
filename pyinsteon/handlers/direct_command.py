@@ -18,6 +18,9 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
         self._address = Address(address)
         self._response_lock = asyncio.Lock()
         super().__init__('{}.{}'.format(self._address.id, command))
+        # We override the _send_topic to ensrue the address does not go as
+        # part of the topic. Address is a key word argument for Direct Commands
+        self._send_topic = command
 
     @property
     def response_lock(self) -> asyncio.Lock:
@@ -29,7 +32,7 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
         if self.response_lock.locked():
             self.response_lock.release()
         await self.response_lock.acquire()
-        response = await super().async_send(**kwargs)
+        response = await super().async_send(address=self._address, **kwargs)
         self.response_lock.release()
         return response
 

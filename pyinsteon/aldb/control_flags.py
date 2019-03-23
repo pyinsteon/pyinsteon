@@ -2,6 +2,8 @@
 
 def create_from_byte(control_flags):
     """Create a ControlFlags class from a control flags byte."""
+    if isinstance(control_flags, bytes):
+        control_flags = int.from_bytes(control_flags, 'big')
     in_use = bool(control_flags & 1 << 7)
     controller = bool(control_flags & 1 << 6)
     bit5 = bool(control_flags & 1 << 5)

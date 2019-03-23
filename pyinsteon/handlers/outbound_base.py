@@ -15,6 +15,7 @@ class OutboundHandlerBase(InboundHandlerBase):
     def __init__(self, topic):
         """Init the MessageManager."""
         self._message_response = asyncio.Queue()
+        self._send_topic = topic
         super().__init__(topic)
 
     @property
@@ -34,5 +35,5 @@ class OutboundHandlerBase(InboundHandlerBase):
                 self._message_response.get_nowait()
             except asyncio.QueueEmpty:
                 pass
-        pub.sendMessage('send.{}'.format(self._topic), **kwargs)
+        pub.sendMessage('send.{}'.format(self._send_topic), **kwargs)
         return await self._message_response.get()

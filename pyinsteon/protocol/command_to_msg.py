@@ -1,13 +1,12 @@
 """Create a topic and a direct message."""
 from . import topic_to_message_handler
-from .commands import commands
 from .. import pub
 from ..address import Address
 from ..constants import MessageFlagType
 from ..topics import (ASSIGN_TO_ALL_LINK_GROUP, ASSIGN_TO_COMPANION_GROUP,
-                      BRIGHTEN_ONE_STEP, DELETE_FROM_ALL_LINK_GROUP,
-                      DEVICE_TEXT_STRING_REQUEST, DIM_ONE_STEP,
-                      DOOR_MOVE_CLOSE_DOOR, DOOR_MOVE_LOWER_DOOR,
+                      BRIGHTEN_ONE_STEP, 
+                      DELETE_FROM_ALL_LINK_GROUP, DEVICE_TEXT_STRING_REQUEST,
+                      DIM_ONE_STEP, DOOR_MOVE_CLOSE_DOOR, DOOR_MOVE_LOWER_DOOR,
                       DOOR_MOVE_OPEN_DOOR, DOOR_MOVE_RAISE_DOOR,
                       DOOR_MOVE_SINGLE_DOOR_CLOSE, DOOR_MOVE_SINGLE_DOOR_OPEN,
                       DOOR_MOVE_STOP_DOOR, DOOR_STATUS_REPORT_CLOSE_DOOR,
@@ -20,10 +19,11 @@ from ..topics import (ASSIGN_TO_ALL_LINK_GROUP, ASSIGN_TO_COMPANION_GROUP,
                       ENTER_UNLINKING_MODE, EXTENDED_GET_SET,
                       EXTENDED_READ_WRITE_ALDB, EXTENDED_TRIGGER_ALL_LINK,
                       FX_USERNAME, GET_INSTEON_ENGINE_VERSION,
-                      GET_OPERATING_FLAGS, ID_REQUEST, INSTANT_CHANGE,
-                      IO_ALARM_DATA_REQUEST, IO_ALARM_DATA_RESPONSE,
-                      IO_GET_SENSOR_ALARM_DELTA, IO_GET_SENSOR_VALUE,
-                      IO_MODULE_DIAGNOSTICS_OFF, IO_MODULE_DIAGNOSTICS_ON,
+                      GET_OPERATING_FLAGS,
+                      ID_REQUEST, INSTANT_CHANGE, IO_ALARM_DATA_REQUEST,
+                      IO_ALARM_DATA_RESPONSE, IO_GET_SENSOR_ALARM_DELTA,
+                      IO_GET_SENSOR_VALUE, IO_MODULE_DIAGNOSTICS_OFF,
+                      IO_MODULE_DIAGNOSTICS_ON,
                       IO_MODULE_DISABLE_STATUS_CHANGE_MESSAGE,
                       IO_MODULE_ENABLE_STATUS_CHANGE_MESSAGE,
                       IO_MODULE_LOAD_EEPROM_FROM_RAM,
@@ -35,7 +35,8 @@ from ..topics import (ASSIGN_TO_ALL_LINK_GROUP, ASSIGN_TO_COMPANION_GROUP,
                       IO_READ_CONFIGURATION_PORT, IO_READ_INPUT_PORT,
                       IO_SET_SENSOR_1_NOMINAL_VALUE,
                       IO_SET_SENSOR_NOMINAL_VALUE, IO_WRITE_CONFIGURATION_PORT,
-                      IO_WRITE_OUTPUT_PORT, OFF, OFF_AT_RAMP_RATE, OFF_FAST,
+                      IO_WRITE_OUTPUT_PORT, 
+                      OFF, OFF_AT_RAMP_RATE, OFF_FAST,
                       ON, ON_AT_RAMP_RATE, ON_FAST, PEEK_ONE_BYTE,
                       PEEK_ONE_BYTE_INTERNAL, PING, POKE_ONE_BYTE,
                       POKE_ONE_BYTE_INTERNAL, POOL_DEVICE_OFF, POOL_DEVICE_ON,
@@ -45,9 +46,11 @@ from ..topics import (ASSIGN_TO_ALL_LINK_GROUP, ASSIGN_TO_COMPANION_GROUP,
                       POOL_LOAD_INITIALIZATION_VALUES,
                       POOL_SET_DEVICE_HYSTERESIS, POOL_SET_DEVICE_TEMPERATURE,
                       POOL_TEMPERATURE_DOWN, POOL_TEMPERATURE_UP,
-                      PRODUCT_DATA_REQUEST, SET_ADDRESS_MSB, SET_ALL_LINK,
+                      PRODUCT_DATA_REQUEST,
+                      SET_ADDRESS_MSB, SET_ALL_LINK,
                       SET_ALL_LINK_COMMAND_ALIAS, SET_DEVICE_TEXT_STRING,
-                      SET_OPERATING_FLAGS, SET_SPRINKLER_PROGRAM, SET_STATUS,
+                      SET_OPERATING_FLAGS,
+                      SET_SPRINKLER_PROGRAM, SET_STATUS,
                       SPRINKLER_BROADCAST_OFF, SPRINKLER_BROADCAST_ON,
                       SPRINKLER_DIAGNOSTICS_OFF, SPRINKLER_DIAGNOSTICS_ON,
                       SPRINKLER_DISABLE_PUMP_ON_V8,
@@ -63,7 +66,8 @@ from ..topics import (ASSIGN_TO_ALL_LINK_GROUP, ASSIGN_TO_COMPANION_GROUP,
                       SPRINKLER_RESUME_COMMAND_ACCEPTANCE,
                       SPRINKLER_SENSOR_OFF, SPRINKLER_SENSOR_ON,
                       SPRINKLER_SKIP_BACK, SPRINKLER_SKIP_FORWARD,
-                      SPRINKLER_VALVE_OFF, SPRINKLER_VALVE_ON, STATUS_REQUEST,
+                      SPRINKLER_VALVE_OFF, SPRINKLER_VALVE_ON,
+                      STATUS_REQUEST,
                       STATUS_REQUEST_ALTERNATE_1, STATUS_REQUEST_ALTERNATE_2,
                       STATUS_REQUEST_ALTERNATE_3,
                       THERMOSTAT_DISABLE_STATUS_CHANGE_MESSAGE,
@@ -94,9 +98,11 @@ from ..topics import (ASSIGN_TO_ALL_LINK_GROUP, ASSIGN_TO_COMPANION_GROUP,
                       THERMOSTAT_ZONE_TEMPERATURE_UP, WINDOW_COVERING_CLOSE,
                       WINDOW_COVERING_OPEN, WINDOW_COVERING_POSITION,
                       WINDOW_COVERING_PROGRAM, WINDOW_COVERING_STOP)
+from .commands import commands
 from .messages.message_flags import create as create_flags
 from .messages.outbound import Outbound, send_extended, send_standard
 from .messages.user_data import UserData
+
 
 # The following messages are all send_standard or send_extended messages
 # The topis is based on the cmd1, cmd2 and extended message flags values
@@ -111,8 +117,7 @@ def _create_direct_message(topic, address, cmd2_in=None,
         msg = send_extended(address, cmd1, cmd2, flags, user_data)
     else:
         msg = send_standard(address, cmd1, cmd2, flags)
-    topic = 'send.{}.{}.direct'.format(address.id, topic)
-    pub.sendMessage(topic, msg=msg)
+    pub.sendMessage('send_message', msg=msg)
 
 
 @topic_to_message_handler(topic=ASSIGN_TO_ALL_LINK_GROUP)

@@ -12,8 +12,6 @@ from ..address import Address
 from .aldb_status import ALDBStatus
 from .aldb_version import ALDBVersion
 from .aldb_record import ALDBRecord
-from .read_manager import ALDBReadManager
-from .im_read_manager import ImReadManager
 from .. import pub
 
 
@@ -90,7 +88,8 @@ class ALDB(ALDBBase):
 
     def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0fff):
         """Init the ALDB class."""
-        super().__init__(self, address=address, version=version, mem_addr=mem_addr)
+        from .read_manager import ALDBReadManager
+        super().__init__(address=address, version=version, mem_addr=mem_addr)
         self._read_manager = ALDBReadManager(self)
 
     def __setitem__(self, mem_addr, record):
@@ -167,6 +166,7 @@ class ModemALDB(ALDBBase):
 
     def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0000):
         """Init the ModemALDB."""
+        from .im_read_manager import ImReadManager
         super().__init__(address, version, mem_addr)
         self._get_next_record_cmd: Callable
         self._read_manager = ImReadManager(self)

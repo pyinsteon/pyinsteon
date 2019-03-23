@@ -6,11 +6,7 @@ import logging
 import sys
 from pyinsteon.protocol.messages.inbound import create
 from pyinsteon import pub
-
-
-_LOGGER = logging.getLogger(__name__)
-stream_handler = logging.StreamHandler(sys.stdout)
-_LOGGER.addHandler(stream_handler)
+from tests import _LOGGER
 
 
 def hex_to_inbound_message(hex_data):
@@ -52,7 +48,14 @@ TopicItem = namedtuple('TopicItem', 'topic, kwargs, delay')
 
 async def async_send_topics(topic_items):
     """Publish a topic message to interact with a test case."""
+    _LOGGER.debug('Sending message')
     for item in topic_items:
         await asyncio.sleep(item.delay)
+        _LOGGER.debug('RX: %s  %s', item.topic, item.kwargs)
         pub.sendMessage(item.topic, **item.kwargs)
         
+def cmd_kwargs(cmd2, target, user_data):
+    """Return a kwargs dict for a standard messsage command."""
+    return {'cmd2': cmd2,
+            'target': target,
+            'user_data': user_data}

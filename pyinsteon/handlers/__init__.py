@@ -6,12 +6,23 @@ from ..constants import AckNak, MessageFlagType, ResponseStatus
 
 TIMEOUT = 3  # Time out between ACK and Direct ACK
 
+
+def _post_response(obj, response: ResponseStatus):
+    """Post a response status to the resonse queue."""
+    if hasattr(obj, 'response_lock'):
+        if obj.response_lock.locked():
+            obj.message_response.put_nowait(response)
+    else:
+        obj.message_response.put_nowait(response)
+
+
 def response_handler(func):
     """Decorator function for any inbound response handler."""
     def register_topic(instance_func, topic):
         pub.subscribe(instance_func, topic)
     func.register_topic = register_topic
     return func
+
 
 def ack_handler(wait_direct_ack=False):
     """Decorator function to register the message ACK handler."""
@@ -33,20 +44,25 @@ def ack_handler(wait_direct_ack=False):
                 asyncio.ensure_future(
                     _wait_direct_ack(self.response_lock, self.message_response))
             else:
-                if self.response_lock.locked():
-                    self.message_response.put_nowait(ResponseStatus.SUCCESS)
+                _post_response(self, ResponseStatus.SUCCESS)
             return func(self, *args, **kwargs)
         wrapper.register_topic = register_topic
         return wrapper
     return setup
 
+
 def nak_handler(func):
     """Decorator function to register the message NAK handler."""
     def register_topic(instance_func, topic):
-        topic = 'ack.{}'.format(topic)
+        topic = 'nak.{}'.format(topic)
         pub.subscribe(instance_func, topic)
-    func.register_topic = register_topic
-    return func
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        _post_response(self, ResponseStatus.FAILURE)
+        return func(self, *args, **kwargs)
+    wrapper.register_topic = register_topic
+    return wrapper
+
 
 def direct_ack_handler(func):
     """Decorator function to register the DIRECT_ACK response handler."""
@@ -60,6 +76,7 @@ def direct_ack_handler(func):
         return func(self, *args, **kwargs)
     wrapper.register_topic = register_topic
     return wrapper
+
 
 def direct_nak_handler(func):
     """Decorator function to register the DIRECT_NAK response handler."""
