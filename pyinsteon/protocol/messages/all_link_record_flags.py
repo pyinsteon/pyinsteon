@@ -94,6 +94,10 @@ class AllLinkRecordFlags():
         match = match & test_values_eq(self.is_hwm, other.is_hwm)
         return match
 
+    def __hash__(self):
+        """Represent the AllLinkrecordFlags object as a hash."""
+        return hash(bytes(self))
+
     @property
     def is_in_use(self):
         """Set the record in use value."""

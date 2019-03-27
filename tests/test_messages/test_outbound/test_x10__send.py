@@ -4,16 +4,10 @@ import logging
 import unittest
 import sys
 
-from pyinsteon.constants import MessageId, AckNak
+from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.outbound import x10_send
 
-try:
-    from .outbound_base import TestOutboundBase
-except ImportError:
-    import outbound_base
-    TestOutboundBase = outbound_base.TestOutboundBase
-
-from ...utils import hex_to_inbound_message
+from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
@@ -23,12 +17,15 @@ class TestX10Send(unittest.TestCase, TestOutboundBase):
 
     def setUp(self):
         self.hex = '02630102'
-        self.bytes_data = unhexlify(self.hex)
-        self.message_id = MessageId(0x63)
         self.raw_x10 = int(0x01)
         self.x10_flag = int(0x02)
 
-        self.msg = x10_send(self.raw_x10, self.x10_flag)
+        kwargs = {'raw_x10': self.raw_x10,
+                  'x10_flag': self.x10_flag}
+
+        super(TestX10Send, self).base_setup(MessageId.X10_SEND,
+                                            unhexlify(self.hex),
+                                            **kwargs)
 
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)

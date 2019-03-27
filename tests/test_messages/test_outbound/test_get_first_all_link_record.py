@@ -4,14 +4,9 @@ import logging
 import unittest
 import sys
 
-from pyinsteon.constants import MessageId, AckNak
+from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.outbound import get_first_all_link_record
-
-try:
-    from .outbound_base import TestOutboundBase
-except ImportError:
-    import outbound_base
-    TestOutboundBase = outbound_base.TestOutboundBase
+from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -22,11 +17,8 @@ class TestGetFirstAllLinkRecord(unittest.TestCase, TestOutboundBase):
 
     def setUp(self):
         self.hex = '0269'
-        self.bytes_data = unhexlify(self.hex)
-        self.message_id = MessageId(0x69)
+        super(TestGetFirstAllLinkRecord, self).base_setup(MessageId(0x69), unhexlify(self.hex))
 
-        self.msg = get_first_all_link_record()
-        
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)
 

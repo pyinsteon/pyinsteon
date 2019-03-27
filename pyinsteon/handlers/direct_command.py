@@ -37,7 +37,7 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
         return response
 
     @ack_handler(wait_direct_ack=True)
-    def handle_ack(self, cmd2, target, user_data):
+    def handle_ack(self, cmd2, user_data):
         """Handle the message ACK."""
 
     @direct_nak_handler

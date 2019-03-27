@@ -11,7 +11,8 @@ class MessageBase():
         self._fields = msg_def.fields
         for field in self._fields:
             val = kwargs.get(field.name)
-            val = val if val is None else field.type(val)
+            if not val is None or isinstance(val, field.type):
+                val = field.type(val)
             setattr(self, field.name, val)
 
     def __repr__(self):

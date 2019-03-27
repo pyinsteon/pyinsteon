@@ -5,12 +5,7 @@ import sys
 
 from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.outbound import set_ack_message_byte
-
-try:
-    from .outbound_base import TestOutboundBase
-except ImportError:
-    import outbound_base
-    TestOutboundBase = outbound_base.TestOutboundBase
+from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -21,11 +16,14 @@ class TestSetInsteonAckMessageByte(unittest.TestCase, TestOutboundBase):
 
     def setUp(self):
         self.hex = '026803'
-        self.bytes_data = unhexlify(self.hex)
-        self.message_id = MessageId(0x68)
+        self.message_id = MessageId.SET_ACK_MESSAGE_BYTE
         self.cmd2 = int(0x03)
 
-        self.msg = set_ack_message_byte(self.cmd2)
+        kwargs = {'cmd2': self.cmd2}
+
+        super(TestSetInsteonAckMessageByte, self).base_setup(self.message_id,
+                                                             unhexlify(self.hex),
+                                                             **kwargs)
 
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)

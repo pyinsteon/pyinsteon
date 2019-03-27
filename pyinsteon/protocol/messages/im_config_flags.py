@@ -74,6 +74,10 @@ class IMConfigurationFlags():
                 self.is_auto_led == other.is_auto_led and
                 self.is_disable_deadman == other.is_disable_deadman)
 
+    def __hash__(self):
+        """Represent the IMConfigurationFlags class as a hash."""
+        return hash(bytes(self))
+
     @property
     def is_auto_link(self):
         """Return if record is in use."""

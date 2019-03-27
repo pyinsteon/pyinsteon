@@ -1,6 +1,18 @@
 """Convert a message to a topic and an args, kwargs arguments."""
 from .commands import commands
 from .messages.inbound import Inbound
+from ..topics import (CANCEL_ALL_LINKING, GET_ALL_LINK_RECORD_FOR_SENDER,
+                      GET_FIRST_ALL_LINK_RECORD, GET_IM_CONFIGURATION,
+                      GET_IM_INFO, GET_NEXT_ALL_LINK_RECORD, LED_OFF, LED_ON,
+                      MANAGE_ALL_LINK_RECORD, RESET_IM, RF_SLEEP,
+                      SEND_ALL_LINK_COMMAND, SEND_EXTENDED, SEND_STANDARD,
+                      SET_ACK_MESSAGE_BYTE, SET_ACK_MESSAGE_TWO_BYTES,
+                      SET_HOST_DEV_CAT, SET_IM_CONFIGURATION,
+                      SET_NAK_MESSAGE_BYTE, START_ALL_LINKING, X10_SEND,
+                      X10_RECEIVED, ALL_LINKING_COMPLETED, BUTTON_EVENT_REPORT,
+                      USER_RESET_DETECTED, ALL_LINK_CLEANUP_FAILURE_REPORT,
+                      ALL_LINK_RECORD_RESPONSE, ALL_LINK_CLEANUP_STATUS_REPORT,
+                      )
 
 
 MSG_CONVERTER = {}
@@ -40,7 +52,7 @@ def extended_received(msg: Inbound) -> (str, {}):
 
 def x10_received(msg: Inbound) -> (str, {}):
     """Create a topic from an X10_RECEIVED message."""
-    topic = 'x10_received'
+    topic = X10_RECEIVED
     kwargs = {'raw_x10': msg.raw_x10,
               'x10_flag': msg.x10_flag}
     return (topic, kwargs)
@@ -48,7 +60,7 @@ def x10_received(msg: Inbound) -> (str, {}):
 
 def all_linking_completed(msg: Inbound) -> (str, {}):
     """Create a topic from an ALL_LINKING_COMPLETED message."""
-    topic = 'all_linking_complete'
+    topic = ALL_LINKING_COMPLETED
     kwargs = {'mode': msg.mode,
               'group': msg.group,
               'address': msg.address,
@@ -60,21 +72,21 @@ def all_linking_completed(msg: Inbound) -> (str, {}):
 
 def button_event_report(msg: Inbound) -> (str, {}):
     """Create a topic from a BUTTON_EVENT_REPORT message."""
-    topic = 'button_event_report'
+    topic = BUTTON_EVENT_REPORT
     kwargs = {'event': msg.event}
     return (topic, kwargs)
 
 
 def user_reset_detected(msg: Inbound) -> (str, {}):
     """Create a topic from a USER_RESET_DETECTED message."""
-    topic = 'user_reset_detected'
+    topic = USER_RESET_DETECTED
     kwargs = {}
     return (topic, kwargs)
 
 
 def all_link_cleanup_failure_report(msg: Inbound) -> (str, {}):
     """Create a topic from an ALL_LINK_CLEANUP_FAILURE_REPORT message."""
-    topic = 'all_link_cleanup_failure_report'
+    topic = ALL_LINK_CLEANUP_FAILURE_REPORT
     kwargs = {'error': msg.error,
               'group': msg.group,
               'address': msg.address}
@@ -83,7 +95,7 @@ def all_link_cleanup_failure_report(msg: Inbound) -> (str, {}):
 
 def all_link_record_response(msg: Inbound) -> (str, {}):
     """Create a topic from an ALL_LINK_RECORD_RESPONSE message."""
-    topic = 'modem_all_link_record_response'
+    topic = ALL_LINK_RECORD_RESPONSE
     kwargs = {'flags': msg.flags,
               'group': msg.group,
               'address': msg.address,
@@ -95,14 +107,14 @@ def all_link_record_response(msg: Inbound) -> (str, {}):
 
 def all_link_cleanup_status_report(msg: Inbound) -> (str, {}):
     """Create a topic from an ALL_LINK_CLEANUP_STATUS_REPORT message."""
-    topic = '{}.all_link_cleanup_status_report'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(ALL_LINK_CLEANUP_STATUS_REPORT, msg.ack.name.lower())
     kwargs = {}
     return (topic, kwargs)
 
 
 def get_im_info(msg: Inbound) -> (str, {}):
     """Create a topic from an GET_IM_INFO message."""
-    topic = '{}.get_im_info'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), SEND_ALL_LINK_COMMAND)
     kwargs = {'address': msg.address,
               'cat': msg.cat,
               'subcat': msg.subcat,
@@ -112,7 +124,7 @@ def get_im_info(msg: Inbound) -> (str, {}):
 
 def send_all_link_command(msg: Inbound) -> (str, {}):
     """Create a topic from an SEND_ALL_LINK_COMMAND message."""
-    topic = '{}.send_all_link_command'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), SEND_ALL_LINK_COMMAND)
     kwargs = {'group': msg.group,
               'mode': msg.mode}
     return (topic, kwargs)
@@ -152,8 +164,8 @@ def send_extended(msg: Inbound) -> (str, {}):
 
 
 def x10_send(msg: Inbound) -> (str, {}):
-    """Create a topic from an x10_send message."""
-    topic = '{}.x10_send'.format(msg.ack.name.lower())
+    """Create a topic from an X10_SEND message."""
+    topic = '{}.{}'.format(msg.ack.name.lower(), X10_SEND)
     kwargs = {'raw_x10': msg.raw_x10,
               'x10_flag': msg.x10_flag}
     return (topic, kwargs)
@@ -161,7 +173,7 @@ def x10_send(msg: Inbound) -> (str, {}):
 
 def start_all_linking(msg: Inbound) -> (str, {}):
     """Create a topic from an start_all_linking message."""
-    topic = '{}.start_all_linking'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), START_ALL_LINKING)
     kwargs = {'mode': msg.mode,
               'group': msg.group}
     return (topic, kwargs)
@@ -169,14 +181,14 @@ def start_all_linking(msg: Inbound) -> (str, {}):
 
 def cancel_all_linking(msg: Inbound) -> (str, {}):
     """Create a topic from an cancel_all_linking message."""
-    topic = '{}.cancel_all_linking'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), CANCEL_ALL_LINKING)
     kwargs = {}
     return (topic, kwargs)
 
 
 def set_host_dev_cat(msg: Inbound) -> (str, {}):
     """Create a topic from an set_host_dev_cat message."""
-    topic = '{}.set_host_dev_cat'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), SET_HOST_DEV_CAT)
     kwargs = {'cat': msg.cat,
               'subcat': msg.subcat,
               'firmware': msg.firmware}
@@ -185,63 +197,63 @@ def set_host_dev_cat(msg: Inbound) -> (str, {}):
 
 def reset_im(msg: Inbound) -> (str, {}):
     """Create a topic from an reset_im message."""
-    topic = '{}.reset_im'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), RESET_IM)
     kwargs = {}
     return (topic, kwargs)
 
 
 def set_ack_message_byte(msg: Inbound) -> (str, {}):
     """Create a topic from an set_ack_message_byte message."""
-    topic = '{}.set_ack_message_byte'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), SET_ACK_MESSAGE_BYTE)
     kwargs = {'cmd2': msg.cmd2}
     return (topic, kwargs)
 
 
 def get_first_all_link_record(msg: Inbound) -> (str, {}):
     """Create a topic from an get_first_all_link_record message."""
-    topic = '{}.modem.aldb.get_first_all_link_record'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), GET_FIRST_ALL_LINK_RECORD)
     kwargs = {}
     return (topic, kwargs)
 
 
 def get_next_all_link_record(msg: Inbound) -> (str, {}):
     """Create a topic from an get_next_all_link_record message."""
-    topic = '{}.modem.aldb.get_next_all_link_record'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), GET_NEXT_ALL_LINK_RECORD)
     kwargs = {}
     return (topic, kwargs)
 
 
 def set_im_configuration(msg: Inbound) -> (str, {}):
     """Create a topic from an set_im_configuration message."""
-    topic = '{}.set_im_configuration'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), SET_IM_CONFIGURATION)
     kwargs = {'flags': msg.flags}
     return (topic, kwargs)
 
 
 def get_all_link_record_for_sender(msg: Inbound) -> (str, {}):
     """Create a topic from an get_all_link_record_for_sender message."""
-    topic = '{}.get_all_link_record_for_sender'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), GET_ALL_LINK_RECORD_FOR_SENDER)
     kwargs = {}
     return (topic, kwargs)
 
 
 def led_on(msg: Inbound) -> (str, {}):
     """Create a topic from an led_on message."""
-    topic = '{}.led_on'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), LED_ON)
     kwargs = {}
     return (topic, kwargs)
 
 
 def led_off(msg: Inbound) -> (str, {}):
     """Create a topic from an led_off message."""
-    topic = '{}.led_off'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), LED_OFF)
     kwargs = {}
     return (topic, kwargs)
 
 
 def manage_all_link_record(msg: Inbound) -> (str, {}):
     """Create a topic from an manage_all_link_record message."""
-    topic = '{}.manage_all_link_record'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), MANAGE_ALL_LINK_RECORD)
     kwargs = {'action': msg.action,
               'flags': msg.flags,
               'group': msg.group,
@@ -254,14 +266,14 @@ def manage_all_link_record(msg: Inbound) -> (str, {}):
 
 def set_nak_message_byte(msg: Inbound) -> (str, {}):
     """Create a topic from an set_nak_message_byte message."""
-    topic = '{}.set_nak_message_byte'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), SET_NAK_MESSAGE_BYTE)
     kwargs = {'cmd2': msg.cmd2}
     return (topic, kwargs)
 
 
 def set_ack_message_two_bytes(msg: Inbound) -> (str, {}):
     """Create a topic from an set_ack_message_two_bytes message."""
-    topic = '{}.set_ack_message_two_bytes'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), SET_ACK_MESSAGE_TWO_BYTES)
     kwargs = {'cmd1': msg.cmd1,
               'cmd2': msg.cmd2}
     return (topic, kwargs)
@@ -269,14 +281,14 @@ def set_ack_message_two_bytes(msg: Inbound) -> (str, {}):
 
 def rf_sleep(msg: Inbound) -> (str, {}):
     """Create a topic from an rf_sleep message."""
-    topic = '{}.rf_sleep'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), RF_SLEEP)
     kwargs = {}
     return (topic, kwargs)
 
 
 def get_im_configuration(msg: Inbound) -> (str, {}):
     """Create a topic from an get_im_configuration message."""
-    topic = '{}.get_im_configuration'.format(msg.ack.name.lower())
+    topic = '{}.{}'.format(msg.ack.name.lower(), GET_IM_CONFIGURATION)
     kwargs = {'flags': msg.flags}
     return (topic, kwargs)
 

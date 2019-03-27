@@ -37,11 +37,11 @@ class ImReadManager():
         response = False
         self._retries = 0
         await self._load_lock.acquire()
-        while not response and not self._max_retries():
+        while response != ResponseStatus.SUCCESS and not self._max_retries():
             response = await self._get_first_handler.async_send()
             _LOGGER.debug('Got response: %s', response.name)
             self._retries += 1
-        if response:
+        if response == ResponseStatus.SUCCESS:
             await self._load_lock.acquire()
         if self._load_lock.locked():
             self._load_lock.release()

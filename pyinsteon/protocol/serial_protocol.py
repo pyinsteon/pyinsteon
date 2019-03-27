@@ -216,11 +216,15 @@ class SerialProtocol(asyncio.Protocol):
             msg, self._buffer = create(self._buffer)
             _LOGGER.debug('BUFFER OUT: %s', self._buffer.hex())
             if msg:
-                (topic, kwargs) = convert_to_topic(msg)
-                if self._is_nak(msg) and not self._has_listeners(topic):
-                    self._resend(msg)
-                else:
-                    pub.sendMessage(topic, **kwargs)
+                try:
+                    (topic, kwargs) = convert_to_topic(msg)
+                    if self._is_nak(msg) and not self._has_listeners(topic):
+                        self._resend(msg)
+                    else:
+                        pub.sendMessage(topic, **kwargs)
+                except ValueError:
+                    # No topic was found for this message
+                    _LOGGER.warning('No topic found for message %r', msg)
             if last_buffer == self._buffer or not self._buffer:
                 _LOGGER.debug('BREAKING: %s', self._buffer.hex())
                 break

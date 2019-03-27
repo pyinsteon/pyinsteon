@@ -59,6 +59,12 @@ class ALDBReadManager():
             num_recs: int (Default 0)  Number of database records to return. When num_recs is 0 and
             mem_addr is 0x0000 the database will return all records.
         """
+        if mem_addr == 0x0000 and num_recs == 0:
+            self._last_command = READ_ALL
+            retries = self._retries_all
+        else:
+            self._last_command = READ_ONE
+            retries = self._retries_one
         await self._load_lock.acquire()
         await self._async_read(mem_addr=mem_addr, num_recs=num_recs)
         await self._load_lock.acquire()
@@ -66,21 +72,22 @@ class ALDBReadManager():
 
     async def _async_read(self, mem_addr: int = 0x00, num_recs: int = 0):
         """Perform the device read function."""
-        _LOGGER.debug('Attempting to read %x', mem_addr)
-        if mem_addr == 0x0000 and num_recs == 0:
-            self._last_command = READ_ALL
+        if (self._last_command == READ_ALL and
+                self._retries_all < RETRIES_ALL_MAX):
             retries = self._retries_all
         else:
-            self._last_command = READ_ONE
             retries = self._retries_one
+        _LOGGER.debug('Attempting to read %x', mem_addr)
         await self._read_handler.async_send(mem_addr=mem_addr, num_recs=num_recs)
         timer = TIMER + retries * TIMER_INCREMENT
         asyncio.ensure_future(self._timer(timer, mem_addr, num_recs))
 
     def _receive_record(self, is_response: bool, record: ALDBRecord):
         """Receive an ALDB record."""
-        _LOGGER.debug('Received record %s', record)
+        num_recs = len(self._aldb)
         self._aldb[record.mem_addr] = record
+        if num_recs != len(self._aldb):
+            _LOGGER.info('Received %d records', len(self._aldb))
 
     async def _timer(self, timer, mem_addr, num_recs):
         """Set a timer to confirm if the last get command completed."""
@@ -101,6 +108,7 @@ class ALDBReadManager():
             # Attempt to read all records again
             asyncio.ensure_future(self._async_read(0x0000, 0))
             self._retries_all += 1
+            _LOGGER.info('Retry reading all records %d times', self._retries_all)
         else:
             # Read the next missing record
             next_mem_addr = self._next_missing_record()
@@ -112,6 +120,8 @@ class ALDBReadManager():
                 if self._retries_one < RETRIES_ONE_MAX:
                     asyncio.ensure_future(self._async_read(next_mem_addr, 1))
                     self._retries_one += 1
+                    _LOGGER.info('Retry reading 0x%04x record %d times',
+                                 next_mem_addr, self._retries_one)
                 else:
                     # Tried to read the same record max times so quit
                     self._load_lock.release()
@@ -128,6 +138,9 @@ class ALDBReadManager():
             self._load_lock.release()
         elif self._retries_one < RETRIES_ONE_MAX:
             asyncio.ensure_future(self._async_read(mem_addr=mem_addr, num_recs=num_recs))
+            self._retries_one += 1
+            _LOGGER.info('Retry reading 0x%04x record %d times',
+                         mem_addr, self._retries_one)
         else:
             # Trigger aldb.loaded but this will check the load status.
             self._load_lock.release()
@@ -151,12 +164,8 @@ class ALDBReadManager():
 
     def _has_first_record(self):
         """Test if the first record is loaded."""
-        if not self._aldb:
-            return False
-
-        found_first = False
         for mem_addr in self._aldb:
             if mem_addr == self._aldb.first_mem_addr or mem_addr == 0x0fff:
                 _LOGGER.debug('Found First record: 0x%04x', mem_addr)
-                found_first = True
-        return found_first
+                return True
+        return False

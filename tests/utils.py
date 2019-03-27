@@ -54,8 +54,12 @@ async def async_send_topics(topic_items):
         _LOGGER.debug('RX: %s  %s', item.topic, item.kwargs)
         pub.sendMessage(item.topic, **item.kwargs)
         
-def cmd_kwargs(cmd2, target, user_data):
+def cmd_kwargs(cmd2, user_data, target=None):
     """Return a kwargs dict for a standard messsage command."""
+    if target:
+        return {'cmd2': cmd2,
+                'target': target,
+                'user_data': user_data}
     return {'cmd2': cmd2,
-            'target': target,
             'user_data': user_data}
+    

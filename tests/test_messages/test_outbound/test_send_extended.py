@@ -21,20 +21,25 @@ _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
-class TestSendStandardAck(unittest.TestCase, TestOutboundBase):
+class TestSendExtended(unittest.TestCase, TestOutboundBase):
 
     def setUp(self):
-        self.hex_data = '0262010203140506a1a2a3a4a5a6a7a8a9aaabacadae'
-        self.bytes_data = unhexlify(self.hex_data)
-        self.message_id = MessageId.SEND_STANDARD
+        self.hex = '0262010203140506a1a2a3a4a5a6a7a8a9aaabacadae'
+        self.message_id = MessageId.SEND_EXTENDED
         self.address = Address('010203')
         self.flags = MessageFlags(0x14)
         self.cmd1 = int(0x05)
         self.cmd2 = int(0x06)
-        self.user_data = UserData(self.bytes_data[8:])
+        self.user_data = UserData(unhexlify(self.hex)[8:])
 
-        self.msg = send_extended(address='010203', flags=0x14, cmd1=0x05, cmd2=0x06,
-                                 user_data=self.bytes_data[8:])
+        kwargs = {'address': self.address,
+                  'flags': self.flags,
+                  'cmd1': self.cmd1,
+                  'cmd2': self.cmd2,
+                  'user_data': self.user_data}
+
+        super(TestSendExtended, self).base_setup(MessageId.SEND_EXTENDED,
+                                                 unhexlify(self.hex), **kwargs)
 
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)

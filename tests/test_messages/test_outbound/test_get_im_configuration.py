@@ -5,13 +5,7 @@ import sys
 
 from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.outbound import get_im_configuration
-
-try:
-    from .outbound_base import TestOutboundBase
-except ImportError:
-    import outbound_base
-    TestOutboundBase = outbound_base.TestOutboundBase
-
+from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -24,8 +18,7 @@ class TestGetImConfiguration(unittest.TestCase, TestOutboundBase):
         self.hex = '0273'
         self.bytes_data = unhexlify(self.hex)
         self.message_id = MessageId(0x73)
-
-        self.msg = get_im_configuration()
+        super(TestGetImConfiguration, self).base_setup(MessageId(0x73), unhexlify(self.hex))
 
         # _LOGGER.setLevel(logging.DEBUG)
         stream_handler = logging.StreamHandler(sys.stdout)

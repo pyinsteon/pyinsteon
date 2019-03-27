@@ -5,12 +5,7 @@ import sys
 
 from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.outbound import get_next_all_link_record
-
-try:
-    from .outbound_base import TestOutboundBase
-except ImportError:
-    import outbound_base
-    TestOutboundBase = outbound_base.TestOutboundBase
+from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -21,11 +16,9 @@ class TestGetNextAllLinkRecord(unittest.TestCase, TestOutboundBase):
 
     def setUp(self):
         self.hex = '026A'
-        self.bytes_data = unhexlify(self.hex)
-        self.message_id = MessageId(0x6A)
+        super(TestGetNextAllLinkRecord, self).base_setup(MessageId.GET_NEXT_ALL_LINK_RECORD,
+                                                         unhexlify(self.hex))
 
-        self.msg = get_next_all_link_record()
-        
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)
 

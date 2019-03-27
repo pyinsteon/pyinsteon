@@ -120,6 +120,10 @@ class MessageFlags():
         """
         return not self.__eq__(other)
 
+    def __hash__(self):
+        """Represent the MessageFlags object as a hash."""
+        return hash(bytes(self))
+
     @property
     def message_type(self) -> MessageFlagType:
         """Return the message type."""

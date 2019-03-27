@@ -23,10 +23,10 @@ class ReadALDBCommandHandler(DirectCommandHandlerBase):
 
     async def async_send(self, mem_addr: int = 0x0000, num_recs: int = 0):
         """Send ALDB read message asyncronously."""
-        await super().async_send(mem_addr=mem_addr, num_recs=num_recs)
+        await super().async_send(action=0x00, mem_addr=mem_addr, num_recs=num_recs)
 
     @ack_handler(wait_direct_ack=True)
-    def handle_ack(self, cmd2, target, user_data):
+    def handle_ack(self, cmd2, user_data):
         """Handle the message ACK.
 
             Overriding the standard ACK handler to ensure we do not
