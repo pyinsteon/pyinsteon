@@ -4,14 +4,14 @@ import logging
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
+# sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 
 from pyinsteon.devices import Device
 from pyinsteon.devices.modem import PLM
 from pyinsteon import pub
 
-PORT = '/dev/ttyS5'
-# PORT = 'COM5'
+# PORT = '/dev/ttyS5'
+PORT = 'COM5'
 DEVICE_ADDRESSES = ['27.C3.87', '45.31.94', '46.2F.24', '13.36.96']
 DEVICE_CAT = 0x02
 DEVICE_SUBCAT = 0x00
@@ -44,6 +44,7 @@ async def load_database():
 
         _LOGGER.info('Starting DB load for %s', address)
         await device.aldb.async_load()
+        _LOGGER.info('ALDB load status: %s', device.aldb.status.name)
         for mem_addr in device.aldb:
             _LOGGER.info(device.aldb[mem_addr])
 
@@ -63,7 +64,7 @@ if __name__ == '__main__':
     _LOGGER.setLevel(logging.INFO)
     _LOGGER_PYINSTEON.setLevel(logging.INFO)
 
-    pub.subscribe(print_topics, pub.ALL_TOPICS)
+    # pub.subscribe(print_topics, pub.ALL_TOPICS)
     loop = asyncio.get_event_loop()
     _LOGGER.info('Running database load method')
     loop.run_until_complete(load_database())

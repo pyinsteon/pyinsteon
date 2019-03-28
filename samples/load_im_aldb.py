@@ -1,16 +1,13 @@
 """Sample program to demonstrated the loading of the Modem's ALDB."""
 import asyncio
 import logging
-import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir)) # , 'pyinsteon'))
 from pyinsteon.devices.modem import PLM
 
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_PYINSTEON = logging.getLogger('pyinsteon.aldb')
-_LOGGER.setLevel(logging.DEBUG)
-_LOGGER_PYINSTEON.setLevel(logging.DEBUG)
+
 
 
 async def do_run():
@@ -27,5 +24,12 @@ async def do_run():
 
 
 if __name__ == '__main__':
+    _LOGGER.setLevel(logging.DEBUG)
+    _LOGGER_PYINSTEON.setLevel(logging.DEBUG)
+    stream_handler = logging.StreamHandler(sys.stdout)
+    _LOGGER.addHandler(stream_handler)
+    _LOGGER_PYINSTEON.addHandler(stream_handler)
+    _LOGGER.setLevel(logging.DEBUG)
+    _LOGGER_PYINSTEON.setLevel(logging.DEBUG)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(do_run())

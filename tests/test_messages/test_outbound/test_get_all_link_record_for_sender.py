@@ -4,9 +4,9 @@ import unittest
 import sys
 
 from pyinsteon.constants import MessageId
-from pyinsteon.messages.outbound import get_all_link_record_for_sender
+from pyinsteon.protocol.messages.outbound import get_all_link_record_for_sender
+from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
 
-from .outbound_base import TestOutboundBase
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
@@ -16,11 +16,8 @@ class TestGetAllLinkRecordForSender(unittest.TestCase, TestOutboundBase):
 
     def setUp(self):
         self.hex = '026C'
-        self.bytes_data = unhexlify(self.hex)
-        self.message_id = MessageId(0x6C)
+        super(TestGetAllLinkRecordForSender, self).base_setup(MessageId(0x6C), unhexlify(self.hex))
 
-        self.msg = get_all_link_record_for_sender()
-        
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)
 

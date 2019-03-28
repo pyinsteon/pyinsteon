@@ -3,10 +3,10 @@ import logging
 import unittest
 import sys
 
-from pyinsteon.constants import MessageId, AckNak
-from pyinsteon.messages.outbound import reset_im
+from pyinsteon.constants import MessageId
+from pyinsteon.protocol.messages.outbound import reset_im
+from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
 
-from .outbound_base import TestOutboundBase
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
@@ -16,12 +16,9 @@ class TestResetIm(unittest.TestCase, TestOutboundBase):
 
     def setUp(self):
         self.hex = '0267'
-        self.bytes_data = unhexlify(self.hex)
-        self.message_id = MessageId(0x67)
-        self.ack = AckNak(0x06)
+        super(TestResetIm, self).base_setup(MessageId.RESET_IM,
+                                            unhexlify(self.hex))
 
-        self.msg = reset_im()
-        
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)
 

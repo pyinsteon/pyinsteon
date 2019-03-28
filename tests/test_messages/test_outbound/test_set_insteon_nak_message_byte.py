@@ -4,9 +4,9 @@ import unittest
 import sys
 
 from pyinsteon.constants import MessageId
-from pyinsteon.messages.outbound import set_nak_message_byte
+from pyinsteon.protocol.messages.outbound import set_nak_message_byte
+from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
 
-from .outbound_base import TestOutboundBase
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
@@ -16,11 +16,13 @@ class TestSetInsteonNakMessageByte(unittest.TestCase, TestOutboundBase):
 
     def setUp(self):
         self.hex = '027003'
-        self.bytes_data = unhexlify(self.hex)
-        self.message_id = MessageId(0x70)
         self.cmd2 = int(0x03)
 
-        self.msg = set_nak_message_byte(self.cmd2)
+        kwargs = {'cmd2': self.cmd2}
+
+        super(TestSetInsteonNakMessageByte, self).base_setup(MessageId.SET_NAK_MESSAGE_BYTE,
+                                                             unhexlify(self.hex),
+                                                             **kwargs)
 
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)

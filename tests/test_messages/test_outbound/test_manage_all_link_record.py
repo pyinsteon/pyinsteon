@@ -5,10 +5,10 @@ import sys
 
 from pyinsteon.constants import MessageId, ManageAllLinkRecordAction
 from pyinsteon.address import Address
-from pyinsteon.messages.all_link_record_flags import AllLinkRecordFlags
-from pyinsteon.messages.outbound import manage_all_link_record
+from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
+from pyinsteon.protocol.messages.outbound import manage_all_link_record
+from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
 
-from .outbound_base import TestOutboundBase
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,8 +19,6 @@ class TestManageAllLinkRecord(unittest.TestCase, TestOutboundBase):
 
     def setUp(self):
         self.hex = '026F400405060708090a0b'
-        self.bytes_data = unhexlify(self.hex)
-        self.message_id = MessageId(0x6F)
         self.action = ManageAllLinkRecordAction(0x40)
         self.flags = AllLinkRecordFlags(0x04)
         self.group = int(0x05)
@@ -29,9 +27,16 @@ class TestManageAllLinkRecord(unittest.TestCase, TestOutboundBase):
         self.data2 = int(0x0a)
         self.data3 = int(0x0b)
 
-        self.msg = manage_all_link_record(self.action, self.flags, self.group,
-                                          self.address, self.data1, self.data2,
-                                          self.data3)
+        kwargs = {"action": self.action,
+                  "flags": self.flags,
+                  "group": self.group,
+                  "address": self.address,
+                  "data1": self.data1,
+                  "data2": self.data2,
+                  "data3": self.data3}
+
+        super(TestManageAllLinkRecord, self).base_setup(MessageId.MANAGE_ALL_LINK_RECORD,
+                                                        unhexlify(self.hex), **kwargs)
 
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)

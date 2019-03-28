@@ -5,7 +5,7 @@ import sys
 
 from pyinsteon.constants import (MessageId, MESSAGE_ACK, MESSAGE_NAK,
                                  MessageFlagType)
-from pyinsteon.messages.message_flags import MessageFlags, create, create_template
+from pyinsteon.protocol.messages.message_flags import MessageFlags, create, create_template
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
@@ -94,7 +94,7 @@ class TestMessageFlags(unittest.TestCase):
         assert self.assigned_hops.max_hops == 3
 
     def test_created(self):
-        assert str(self.create) == '5e'
+        assert str(self.create) == "{'message_type': 'all_link_cleanup', 'extended': 'True', 'hop_left': 3, 'max_hops': 2}"
 
     def test_template_message_type(self):
         assert self.template.message_type == None

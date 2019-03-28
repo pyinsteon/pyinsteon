@@ -1,24 +1,39 @@
-from binascii import unhexlify
+import logging
+import sys
 import unittest
-from pyinsteon.constants import MessageId, AllLinkMode
-from pyinsteon.messages.outbound import send_all_link_command
+from binascii import unhexlify
 
-from .outbound_base import TestOutboundBase
+from pyinsteon.constants import AllLinkMode, MessageId
+from pyinsteon.protocol.messages.outbound import send_all_link_command
+from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
+
+_LOGGER = logging.getLogger(__name__)
+_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestSendAllLinkCommand(unittest.TestCase, TestOutboundBase):
 
     def setUp(self):
         self.hex = '02610101'
-        self.bytes_data = unhexlify(self.hex)
-        self.message_id = MessageId.SEND_ALL_LINK_COMMAND
         self.group = 0x01
-        self.cmd1 = 0x02
+        self.mode = AllLinkMode.CONTROLLER
+        
+        kwargs = {"group": self.group,
+                  "mode": self.mode}
 
-        self.msg = send_all_link_command(0x01, AllLinkMode.CONTROLLER)
+        super(TestSendAllLinkCommand, self).base_setup(
+            MessageId.SEND_ALL_LINK_COMMAND, unhexlify(self.hex), **kwargs)
+
+        # _LOGGER.setLevel(logging.DEBUG)
+        stream_handler = logging.StreamHandler(sys.stdout)
+        _LOGGER.addHandler(stream_handler)
 
     def test_group(self):
         assert self.msg.group == self.group
 
     def test_mode(self):
-        assert self.msg.mode == AllLinkMode.CONTROLLER
+        assert self.msg.mode == self.mode
+
+
+if __name__ == '__main__':
+    unittest.main()

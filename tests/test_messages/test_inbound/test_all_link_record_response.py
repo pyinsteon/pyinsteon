@@ -5,7 +5,7 @@ import sys
 
 from pyinsteon.constants import MessageId
 from pyinsteon.address import Address
-from pyinsteon.messages.all_link_record_flags import AllLinkRecordFlags
+from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
 from ...utils import hex_to_inbound_message
 
 _LOGGER = logging.getLogger(__name__)

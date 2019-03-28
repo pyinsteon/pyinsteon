@@ -3,7 +3,7 @@ import logging
 import unittest
 import sys
 
-from pyinsteon.messages.im_config_flags import IMConfigurationFlags, create
+from pyinsteon.protocol.messages.im_config_flags import IMConfigurationFlags, create
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 

@@ -4,9 +4,9 @@ import unittest
 import sys
 
 from pyinsteon.address import Address
-from pyinsteon.messages.inbound import Inbound, create
-from pyinsteon.messages.message_flags import MessageFlags
-from pyinsteon.messages.user_data import UserData
+from pyinsteon.protocol.messages.inbound import Inbound, create
+from pyinsteon.protocol.messages.message_flags import MessageFlags
+from pyinsteon.protocol.messages.user_data import UserData
 from ...utils import hex_to_inbound_message
 
 

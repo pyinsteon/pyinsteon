@@ -4,9 +4,9 @@ import unittest
 import sys
 
 from pyinsteon.constants import MessageId, AckNak
-from pyinsteon.messages.outbound import led_off
+from pyinsteon.protocol.messages.outbound import led_off
+from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
 
-from .outbound_base import TestOutboundBase
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
@@ -16,10 +16,8 @@ class TestLedOff(unittest.TestCase, TestOutboundBase):
 
     def setUp(self):
         self.hex = '026E'
-        self.bytes_data = unhexlify(self.hex)
-        self.message_id = MessageId(0x6E)
-
-        self.msg = led_off()
+        super(TestLedOff, self).base_setup(MessageId.LED_OFF,
+                                           unhexlify(self.hex))
         
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)

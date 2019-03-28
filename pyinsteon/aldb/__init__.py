@@ -3,6 +3,7 @@
 The All-Link database contains database records that represent links to other
 Insteon devices that either respond to or control the current device.
 """
+from abc import ABC, abstractmethod
 import asyncio
 import logging
 from typing import Callable
@@ -16,30 +17,19 @@ from .. import pub
 
 _LOGGER = logging.getLogger(__name__)
 
-class ALDB():
-    """Represents a device All-Link database.
-
-    Subscribed topics:
-    <address>.aldb.loaded: Triggered when the ALDB load command completes.
-
-    Messages sent:
-    <address>.aldb.load: Triggers the loading of the ALDB.
-    """
+class ALDBBase(ABC):
+    """Represents a base class for a device All-Link database."""
 
     def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0fff):
         """Instantiate the ALL-Link Database object."""
         self._records = {}
         self._status = ALDBStatus.EMPTY
-        self._prior_status = self._status
         self._version = version
 
         self._address = Address(address)
         self._mem_addr = mem_addr
-        self._handlers = []
         self._cb_aldb_loaded = None
-
-        self._register_handlers()
-        self._subscribe_topics()
+        self._read_manager = None
 
     def __len__(self):
         """Return the number of devices in the ALDB."""
@@ -54,17 +44,9 @@ class ALDB():
         """Fetch a device from the ALDB."""
         return self._records.get(mem_addr)
 
+    @abstractmethod
     def __setitem__(self, mem_addr, record):
         """Add or Update a device in the ALDB."""
-        if not isinstance(record, ALDBRecord):
-            raise ValueError
-
-        self._records[mem_addr] = record
-
-        # After we add a record test load status
-        if self._status == ALDBStatus.LOADING:
-            return
-        self._set_load_status()
 
     def __repr__(self):
         """Human representation of a device from the ALDB."""
@@ -100,44 +82,45 @@ class ALDB():
         """Get the record at address 'mem_addr'."""
         return self._records.get(mem_addr, default)
 
-    def load(self, refresh=False, callback=None):
+
+class ALDB(ALDBBase):
+    """All-Link Database for a device."""
+
+    def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0fff):
+        """Init the ALDB class."""
+        from .read_manager import ALDBReadManager
+        super().__init__(address=address, version=version, mem_addr=mem_addr)
+        self._read_manager = ALDBReadManager(self)
+
+    def __setitem__(self, mem_addr, record):
+        """Add or Update a device in the ALDB."""
+        if not isinstance(record, ALDBRecord):
+            raise ValueError
+
+        self._records[mem_addr] = record
+
+        # After we add a record test load status
+        if self._status == ALDBStatus.LOADING:
+            return
+        self._set_load_status()
+
+    def load(self, refresh=False, callback: Callable = None):
         """Load the ALDB calling the callback when done."""
         self._cb_aldb_loaded = callback
         asyncio.ensure_future(self.async_load(refresh))
 
-    async def async_load(self, refresh=False):
+    async def async_load(self, mem_addr: int = 0x00, num_recs: int = 0x00,
+                         refresh: bool = False, callback: Callable = None):
         """Load the All-Link Database."""
         _LOGGER.debug('Loading the ALDB async')
         self._status = ALDBStatus.LOADING
         if refresh:
             self._records = {}
-        topic = '{}.aldb.load'.format(self._address.id)
-        _LOGGER.debug(topic)
-        pub.sendMessage(topic)
-        await self._wait_loading()
-
-    async def _wait_loading(self):
-        WAIT_TIME = 3
-        while self.status == ALDBStatus.LOADING:
-            await asyncio.sleep(WAIT_TIME)
-            WAIT_TIME = min(20, WAIT_TIME * 1.1)
-        if self._cb_aldb_loaded:
-            self._cb_aldb_loaded()
-        self._cb_aldb_loaded = None
-
-    def _add_record(self, record: ALDBRecord):
-        """Add a new record to the ALDB"""
-        self._records[record.mem_addr] = record
-
-    def _subscribe_topics(self):
-        """Subscribe to topics."""
-        pub.subscribe(self._set_load_status,
-                      '{}.aldb.loaded'.format(self._address.id))
-
-    def _register_handlers(self):
-        """Add all command handlers to the ALDB."""
-        from .commands.get_set_all_link_record import GetSetAllLinkRecord
-        self._handlers.append(GetSetAllLinkRecord(self))
+        await self._read_manager.async_read(mem_addr=mem_addr, num_recs=num_recs)
+        self._set_load_status()
+        if callback:
+            callback()
+        return self._status
 
     def calc_load_status(self):
         """Test if the ALDB is fully loaded."""
@@ -163,8 +146,7 @@ class ALDB():
 
     def _set_load_status(self):
         _LOGGER.debug('Setting the load status')
-        is_loaded = self.calc_load_status()
-        if is_loaded:
+        if self.calc_load_status():
             self._status = ALDBStatus.LOADED
         elif self._records:
             self._status = ALDBStatus.PARTIAL
@@ -172,7 +154,7 @@ class ALDB():
             self._status = ALDBStatus.EMPTY
 
 
-class ModemALDB(ALDB):
+class ModemALDB(ALDBBase):
     """All-Link database for modems.
 
     Subscribed topics:
@@ -184,30 +166,28 @@ class ModemALDB(ALDB):
 
     def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0000):
         """Init the ModemALDB."""
+        from .im_read_manager import ImReadManager
         super().__init__(address, version, mem_addr)
         self._get_next_record_cmd: Callable
+        self._read_manager = ImReadManager(self)
 
-    async def async_load(self, refresh=True):
+    def __setitem__(self, mem_addr, record):
+        """Add or Update a device in the ALDB."""
+        if not isinstance(record, ALDBRecord):
+            raise ValueError
+
+        self._records[mem_addr] = record
+
+    def load(self, callback: Callable = None):
+        """Load the All-Link Database."""
+        asyncio.ensure_future(self.async_load(callback))
+
+    async def async_load(self, callback: Callable = None):
         """Load the All-Link Database."""
         _LOGGER.debug('Loading the modem ALDB')
         self._records = {}
-        self._status = ALDBStatus.LOADING
-        if refresh:
-            self._records = {}
-        pub.sendMessage('modem.aldb.load')
-        await self._wait_loading()
-
-    def _register_handlers(self):
-        """Add all command handlers to the ALDB."""
-        from ..aldb.commands.modem_get_first_record import GetFirstRecord
-        from ..aldb.commands.modem_get_next_record import GetNextRecord
-        from .commands.modem_all_link_record_response import AllLinkRecordResponse
-        self._handlers.append(GetFirstRecord())
-        self._handlers.append(GetNextRecord())
-        self._handlers.append(AllLinkRecordResponse(self))
-
-    def _subscribe_topics(self):
-        pub.subscribe(self._loaded, 'modem.aldb.loaded')
-
-    def _loaded(self):
+        await self._read_manager.async_load()
         self._status = ALDBStatus.LOADED
+        if callback:
+            callback()
+        return self._status

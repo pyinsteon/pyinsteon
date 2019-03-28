@@ -3,8 +3,8 @@ import logging
 import unittest
 
 from pyinsteon.address import Address
-from pyinsteon.messages.message_flags import MessageFlags
-from pyinsteon.messages.inbound import Inbound, create
+from pyinsteon.protocol.messages.message_flags import MessageFlags
+from pyinsteon.protocol.messages.inbound import Inbound, create
 from ...utils import hex_to_inbound_message
 
 

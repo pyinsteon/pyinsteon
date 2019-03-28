@@ -4,7 +4,7 @@ import logging
 import unittest
 import sys
 
-from pyinsteon.messages.user_data import UserData, create_empty
+from pyinsteon.protocol.messages.user_data import UserData, create_empty
 
 
 _LOGGER = logging.getLogger(__name__)

@@ -96,3 +96,18 @@ class Address():
     def id(self):
         """Return the address id."""
         return repr(self)
+
+    @property
+    def high(self):
+        """High byte of the address."""
+        return self._addr[0]
+
+    @property
+    def middle(self):
+        """Middle byte of the address."""
+        return self._addr[1]
+
+    @property
+    def low(self):
+        """Low byte of the address."""
+        return self._addr[2]
