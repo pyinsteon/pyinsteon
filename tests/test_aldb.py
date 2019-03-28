@@ -19,11 +19,11 @@ class TestALDB(unittest.TestCase):
 
     def setUp(self):
         """Setup the test."""
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
-        _INSTEON_LOGGER.addHandler(stream_handler)
-        _LOGGER.setLevel(logging.DEBUG)
-        _INSTEON_LOGGER.setLevel(logging.DEBUG)
+        # stream_handler = logging.StreamHandler(sys.stdout)
+        # _LOGGER.addHandler(stream_handler)
+        # _INSTEON_LOGGER.addHandler(stream_handler)
+        # _LOGGER.setLevel(logging.DEBUG)
+        # _INSTEON_LOGGER.setLevel(logging.DEBUG)
 
         self.flags = create_from_byte(0x03)
         self.group = int(0x04)
