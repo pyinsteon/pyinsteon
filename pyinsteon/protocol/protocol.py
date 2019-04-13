@@ -5,7 +5,6 @@ import logging
 from enum import Enum
 
 from pubsub.core.topicobj import Topic
-from serial_asyncio import create_serial_connection
 
 from .. import pub
 
@@ -129,44 +128,7 @@ from .msg_to_topic import convert_to_topic
 
 
 _LOGGER = logging.getLogger(__name__)
-WRITE_WAIT = 1.5  # Time to wait between writes to transport
-
-
-async def connect(device, loop=None, baudrate=19200, **kwargs):
-    """Connect to the serial port.
-
-    Parameters:
-
-    port – Device name.
-
-    baudrate (int) – Baud rate such as 9600 or 115200 etc.
-
-    bytesize – Number of data bits. Possible values: FIVEBITS, SIXBITS, SEVENBITS, EIGHTBITS
-
-    parity – Enable parity checking. Possible values: PARITY_NONE, PARITY_EVEN, PARITY_ODD
-    PARITY_MARK, PARITY_SPACE
-
-    stopbits – Number of stop bits. Possible values: STOPBITS_ONE, STOPBITS_ONE_POINT_FIVE,
-    STOPBITS_TWO
-
-    timeout (float) – Set a read timeout value.
-
-    xonxoff (bool) – Enable software flow control.
-
-    rtscts (bool) – Enable hardware (RTS/CTS) flow control.
-
-    dsrdtr (bool) – Enable hardware (DSR/DTR) flow control.
-
-    write_timeout (float) – Set a write timeout value.
-
-    inter_byte_timeout (float) – Inter-character timeout, None to disable (default).
-    """
-    loop = loop if loop else asyncio.get_event_loop()
-    transport, protocol = await create_serial_connection(loop, SerialProtocol,
-                                                         device,
-                                                         baudrate=baudrate,
-                                                         **kwargs)
-    return transport, protocol
+WRITE_WAIT = 1.25  # Time to wait between writes to transport
 
 
 def _strip_topic(topic: Topic):
@@ -182,10 +144,10 @@ class TransportStatus(Enum):
     OPEN = 3
 
 
-class SerialProtocol(asyncio.Protocol):
+class Protocol(asyncio.Protocol):
     """Serial protocol to perform async I/O with the PLM."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, connect_method, *args, **kwargs):
         """Init the SerialProtocol class."""
         super().__init__(*args, **kwargs)
         self._transport = None
@@ -193,6 +155,8 @@ class SerialProtocol(asyncio.Protocol):
         self._message_queue = asyncio.PriorityQueue()
         self._buffer = bytearray()
         self._writer_task = None
+        self._should_reconnect = True
+        self._connect_method = connect_method
 
     @property
     def connected(self) -> bool:
@@ -231,13 +195,23 @@ class SerialProtocol(asyncio.Protocol):
 
     def connection_lost(self, exc):
         """Notify listeners that the serial connection is lost."""
-        self._writer_task.cancel()
+        if self._writer_task and not self._writer_task.cancelled():
+            self._writer_task.cancel()
         self._status = TransportStatus.CLOSED
-        pub.sendMessage('connection.lost')
+        asyncio.ensure_future(self.async_connect())
+
+    async def async_connect(self):
+        """Connect to the transport asyncrously."""
+        WAIT_TIME = .1
+        while self._should_reconnect and not self.connected:
+            self._transport = await self._connect_method(protocol=self)
+            await asyncio.sleep(WAIT_TIME)
+            WAIT_TIME = min(300, 1.5 * WAIT_TIME)
 
     def pause_writing(self):
         """Pause writing to the transport."""
-        self._writer_task.cancel()
+        if self._writer_task and not self._writer_task.cancelled():
+            self._writer_task.cancel()
         self._status = TransportStatus.PAUSED
         pub.sendMessage('protocol.writing.pause')
 
@@ -250,9 +224,11 @@ class SerialProtocol(asyncio.Protocol):
     def close(self):
         """Close the serial transport."""
         self._unsubscribe()
+        self._should_reconnect = False
         if self._transport:
             self._transport.close()
-        self._writer_task.cancel()
+        if self._writer_task and not self._writer_task.cancelled():
+            self._writer_task.cancel()
         self._status = TransportStatus.CLOSED
 
     def _write(self, msg, priority=5):
@@ -263,8 +239,7 @@ class SerialProtocol(asyncio.Protocol):
         to be lower priority such as 'Load ALDB' versus higher priority such as
         'Set Light Level'.
         """
-        send_msg = msg if isinstance(msg, bytes) else bytes(msg)
-        self._message_queue.put_nowait((priority, send_msg))
+        self._message_queue.put_nowait((priority, msg))
 
     def _subscribe(self):
         """Subscribe to topics."""

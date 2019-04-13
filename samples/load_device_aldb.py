@@ -6,12 +6,16 @@ import sys
 
 # sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 
+from pyinsteon import async_connect
 from pyinsteon.devices import Device
-from pyinsteon.devices.modem import PLM
 from pyinsteon import pub
 
-# PORT = '/dev/ttyS5'
-PORT = 'COM5'
+# DEVICE = '/dev/ttyS5'
+DEVICE = 'COM5'
+HOST = '192.168.1.136'
+USERNAME = 'Terrin55'
+PASSWORD = 'D7hycOji'
+
 DEVICE_ADDRESSES = ['27.C3.87', '45.31.94', '46.2F.24', '13.36.96']
 DEVICE_CAT = 0x02
 DEVICE_SUBCAT = 0x00
@@ -36,8 +40,10 @@ class TestDevice(Device):
 
 async def load_database():
     """Load the device databae."""
-    plm = PLM(PORT)
-    await plm.async_connect()
+    modem = await async_connect(device=DEVICE)
+    # modem = await async_connect(host=HOST,
+    #                             username=USERNAME,
+    #                             password=PASSWORD)
 
     for address in DEVICE_ADDRESSES:
         device = TestDevice(address, DEVICE_CAT, DEVICE_SUBCAT)
@@ -48,7 +54,7 @@ async def load_database():
         for mem_addr in device.aldb:
             _LOGGER.info(device.aldb[mem_addr])
 
-    await plm.async_close()
+    await modem.async_close()
 
 def print_topics(topic=pub.AUTO_TOPIC, **kwargs):
     """Print all messages sent."""
