@@ -7,7 +7,7 @@ from pyinsteon.address import Address
 from pyinsteon.protocol.messages.inbound import Inbound, create
 from pyinsteon.protocol.messages.message_flags import MessageFlags
 from pyinsteon.protocol.messages.user_data import UserData
-from ...utils import hex_to_inbound_message
+from tests.utils import hex_to_inbound_message
 
 
 _LOGGER = logging.getLogger(__name__)

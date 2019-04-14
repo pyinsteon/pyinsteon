@@ -5,7 +5,7 @@ import sys
 
 from pyinsteon.constants import MessageId, AckNak
 from pyinsteon.protocol.messages.im_config_flags import IMConfigurationFlags
-from ...utils import hex_to_inbound_message
+from tests.utils import hex_to_inbound_message
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
