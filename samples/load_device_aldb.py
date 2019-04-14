@@ -13,8 +13,8 @@ from pyinsteon import pub
 # DEVICE = '/dev/ttyS5'
 DEVICE = 'COM5'
 HOST = '192.168.1.136'
-USERNAME = 'Terrin55'
-PASSWORD = 'D7hycOji'
+USERNAME = 'username'
+PASSWORD = 'password'
 
 DEVICE_ADDRESSES = ['27.C3.87', '45.31.94', '46.2F.24', '13.36.96']
 DEVICE_CAT = 0x02

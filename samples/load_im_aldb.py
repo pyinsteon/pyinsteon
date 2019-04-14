@@ -8,14 +8,19 @@ from pyinsteon import async_connect
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_PYINSTEON = logging.getLogger('pyinsteon.aldb')
 
+# DEVICE = '/dev/ttyS5'
+DEVICE = 'COM5'
+HOST = '192.168.1.136'
+USERNAME = 'username'
+PASSWORD = 'password'
 
 
 async def do_run():
     """Connect to the PLM and load the ALDB."""
-    modem = await async_connect(device='COM5')
-    # modem = await async_connect(host='192.168.1.136',
-    #                             username='Terrin55',
-    #                             password='D7hycOji')
+    modem = await async_connect(device=DEVICE)
+    # modem = await async_connect(host=HOST,
+    #                             username=USERNAME,
+    #                             password=PASSWORD)
     print('Connected')
     print('Modem Address:', modem.address)
     print('Loading ALDB')
