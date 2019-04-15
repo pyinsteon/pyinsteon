@@ -1,5 +1,5 @@
-pyinsteon
-==========
+pyinsteon - Python Insteon Module
+=================================
 
 |Build Status| |GitHub release| |PyPI|
 
@@ -46,3 +46,10 @@ git repository and install from local sources:
 
     cd pyinsteon
     pip install .
+
+.. |Build Status| image:: https://travis-ci.org/pyinsteon/pyinsteon.svg?branch=master
+   :target: https://travis-ci.org/pyinsteon/pyinsteon
+.. |GitHub release| image:: https://img.shields.io/github/release/pyinsteon/pyinsteon.svg
+   :target: https://github.com/pyinsteon/pyinsteon/releases
+.. |PyPI| image:: https://img.shields.io/pypi/v/pyinsteon.svg
+   :target: https://pypi.python.org/pypi/pyinsteon
