@@ -32,12 +32,10 @@ async def do_run():
 
 
 if __name__ == '__main__':
-    _LOGGER.setLevel(logging.DEBUG)
-    _LOGGER_PYINSTEON.setLevel(logging.DEBUG)
     stream_handler = logging.StreamHandler(sys.stdout)
     _LOGGER.addHandler(stream_handler)
     _LOGGER_PYINSTEON.addHandler(stream_handler)
-    _LOGGER.setLevel(logging.DEBUG)
-    _LOGGER_PYINSTEON.setLevel(logging.DEBUG)
+    # _LOGGER.setLevel(logging.DEBUG)
+    # _LOGGER_PYINSTEON.setLevel(logging.DEBUG)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(do_run())

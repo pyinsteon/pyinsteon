@@ -32,8 +32,8 @@ class TestModemALDB(unittest.TestCase):
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)
         _INSTEON_LOGGER.addHandler(stream_handler)
-        _LOGGER.setLevel(logging.DEBUG)
-        _INSTEON_LOGGER.setLevel(logging.DEBUG)
+        # _LOGGER.setLevel(logging.DEBUG)
+        # _INSTEON_LOGGER.setLevel(logging.DEBUG)
         self.address = Address('000000')
 
         self.aldb = ModemALDB(self.address)
