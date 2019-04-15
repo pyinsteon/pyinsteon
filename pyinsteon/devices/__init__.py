@@ -9,7 +9,7 @@ from ..address import Address
 class Device(ABC):
     """INSTEON Device Class."""
 
-    def __init__(self, address, cat, subcat, product_key=0x00,
+    def __init__(self, address, cat, subcat, firmware=0x00,
                  description='', model=''):
         """Init the Device class."""
         self._address = Address(address)
@@ -17,9 +17,7 @@ class Device(ABC):
         self._subcat = subcat
         if self._subcat is None:
             self._subcat = 0x00
-        self._product_key = product_key
-        if self._product_key is None:
-            self._product_key = 0x00
+        self._firmware = firmware if firmware is not None else 0x00
         self._description = description
         self._model = model
 
@@ -51,9 +49,9 @@ class Device(ABC):
         return self._subcat
 
     @property
-    def product_key(self):
+    def firmware(self):
         """Return the INSTEON product key."""
-        return self._product_key
+        return self._firmware
 
     @property
     def description(self):

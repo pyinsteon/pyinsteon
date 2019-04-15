@@ -1,19 +1,18 @@
 """Convert a message to a topic and an args, kwargs arguments."""
-from .commands import commands
-from .messages.inbound import Inbound
-from ..topics import (CANCEL_ALL_LINKING, GET_ALL_LINK_RECORD_FOR_SENDER,
+from ..topics import (ALL_LINK_CLEANUP_FAILURE_REPORT,
+                      ALL_LINK_CLEANUP_STATUS_REPORT, ALL_LINK_RECORD_RESPONSE,
+                      ALL_LINKING_COMPLETED, BUTTON_EVENT_REPORT,
+                      CANCEL_ALL_LINKING, GET_ALL_LINK_RECORD_FOR_SENDER,
                       GET_FIRST_ALL_LINK_RECORD, GET_IM_CONFIGURATION,
                       GET_IM_INFO, GET_NEXT_ALL_LINK_RECORD, LED_OFF, LED_ON,
                       MANAGE_ALL_LINK_RECORD, RESET_IM, RF_SLEEP,
-                      SEND_ALL_LINK_COMMAND, SEND_EXTENDED, SEND_STANDARD,
-                      SET_ACK_MESSAGE_BYTE, SET_ACK_MESSAGE_TWO_BYTES,
-                      SET_HOST_DEV_CAT, SET_IM_CONFIGURATION,
-                      SET_NAK_MESSAGE_BYTE, START_ALL_LINKING, X10_SEND,
-                      X10_RECEIVED, ALL_LINKING_COMPLETED, BUTTON_EVENT_REPORT,
-                      USER_RESET_DETECTED, ALL_LINK_CLEANUP_FAILURE_REPORT,
-                      ALL_LINK_RECORD_RESPONSE, ALL_LINK_CLEANUP_STATUS_REPORT,
-                      )
-
+                      SEND_ALL_LINK_COMMAND, SET_ACK_MESSAGE_BYTE,
+                      SET_ACK_MESSAGE_TWO_BYTES, SET_HOST_DEV_CAT,
+                      SET_IM_CONFIGURATION, SET_NAK_MESSAGE_BYTE,
+                      START_ALL_LINKING, USER_RESET_DETECTED, X10_RECEIVED,
+                      X10_SEND)
+from .commands import commands
+from .messages.inbound import Inbound
 
 MSG_CONVERTER = {}
 
@@ -114,7 +113,7 @@ def all_link_cleanup_status_report(msg: Inbound) -> (str, {}):
 
 def get_im_info(msg: Inbound) -> (str, {}):
     """Create a topic from an GET_IM_INFO message."""
-    topic = '{}.{}'.format(msg.ack.name.lower(), SEND_ALL_LINK_COMMAND)
+    topic = '{}.{}'.format(msg.ack.name.lower(), GET_IM_INFO)
     kwargs = {'address': msg.address,
               'cat': msg.cat,
               'subcat': msg.subcat,

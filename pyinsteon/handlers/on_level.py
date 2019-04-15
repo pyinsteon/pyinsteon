@@ -1,5 +1,5 @@
 """Manage outbound ON command to a device."""
-#pylint: disable=arguments-differ
+
 from . import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 from ..topics import ON
@@ -11,10 +11,12 @@ class OnLevelCommand(DirectCommandHandlerBase):
         """Init the OnLevelCommand class."""
         super().__init__(address, ON)
 
+    #pylint: disable=arguments-differ
     def send(self, on_level=0xff, group=0):
         """Send the ON command."""
         super().send(on_level=on_level, group=group)
 
+    #pylint: disable=arguments-differ
     async def async_send(self, on_level=0xff, group=0x00):
         """Send the ON command async."""
         return await super().async_send(on_level=on_level, group=group)

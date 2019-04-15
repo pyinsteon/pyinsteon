@@ -26,8 +26,8 @@ setup(
     install_requires=[
         'pyserial',
         'pyserial-asyncio',
-        'async_timeout',
-        'aiohttp'
+        'aiohttp',
+        'pypubsub'
     ],
     entry_points={
         'console_scripts': ['insteon_monitor = pyinsteon.tools:monitor',

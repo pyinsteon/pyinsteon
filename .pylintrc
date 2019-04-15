@@ -19,6 +19,7 @@ disable=
   cyclic-import,
   duplicate-code,
   global-statement,
+  import-error,
   inconsistent-return-statements,
   locally-disabled,
   not-an-iterable,

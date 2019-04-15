@@ -82,11 +82,9 @@ class MessageFlags():
 
     def __str__(self):
         """Return a hexadecimal representation of the message flags."""
-        val = {'message_type': str(self._type),
-               'extended': str(self._extended),
-               'hop_left': self._hops_left,
-               'max_hops': self._max_hops}
-        return str(val)
+        val = "{}'message_type': '{}', 'extended': {}, 'hops_left': {}, 'max_hops': {}{}".format(
+            '{', str(self._type), self._extended, self._hops_left, self._max_hops, '}')
+        return val
 
     def __bytes__(self):
         """Return a byte representation of the message flags."""

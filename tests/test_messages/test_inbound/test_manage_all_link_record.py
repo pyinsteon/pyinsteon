@@ -6,7 +6,7 @@ import sys
 from pyinsteon.constants import MessageId, AckNak, ManageAllLinkRecordAction
 from pyinsteon.address import Address
 from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
-from ...utils import hex_to_inbound_message
+from tests.utils import hex_to_inbound_message
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')

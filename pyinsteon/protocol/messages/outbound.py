@@ -1,5 +1,5 @@
 """Create outbound messages."""
-from .. import pub
+from ... import pub
 from . import MessageBase
 from .. import topic_to_message_handler
 from ...address import Address
@@ -27,15 +27,12 @@ class Outbound(MessageBase):
 
 def _create_outbound_message(**kwargs) -> Outbound:
     """Create an Outbound message."""
-    # args, _, _, values = inspect.getargvalues(frame)
-    # kwargs = {}
-    # for arg in args:
-    #     kwargs[arg] = values.get(arg)
     topic = kwargs['topic'].name.split('.')[1]
     msg_id = getattr(MessageId, topic.upper())
     msg_def = OUTBOUND_MSG_DEF[msg_id]
+    msg = Outbound(msg_def, **kwargs)
     pub.sendMessage('send_message.{}'.format(topic),
-                    msg=Outbound(msg_def, **kwargs))
+                    msg=msg)
 
 
 @topic_to_message_handler(topic=GET_IM_INFO)
@@ -61,6 +58,7 @@ def send_standard(address: Address, flags: MessageFlags, cmd1: int, cmd2: int,
 def send_extended(address: Address, flags: MessageFlags, cmd1: int, cmd2: int,
                   user_data: UserData, topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a SEND_EXTENDED outbound message."""
+    main_topic = topic.name.split('.')[1]
     kwargs = {'address': address,
               'flags': flags,
               'cmd1': cmd1,
@@ -68,7 +66,7 @@ def send_extended(address: Address, flags: MessageFlags, cmd1: int, cmd2: int,
               'user_data': user_data,
               'topic': topic}
     msg_def = MessageDefinition(MessageId.SEND_EXTENDED, FLD_EXT_SEND)
-    pub.sendMessage('send_message.{}'.format(topic),
+    pub.sendMessage('send_message.{}'.format(main_topic),
                     msg=Outbound(msg_def, **kwargs))
 
 
@@ -165,7 +163,6 @@ def set_nak_message_byte(cmd2: int, topic=pub.AUTO_TOPIC) -> Outbound:
 @topic_to_message_handler(topic=SET_ACK_MESSAGE_TWO_BYTES)
 def set_ack_message_two_bytes(cmd1: int, cmd2: int, topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a SET_ACK_MESSAGE_TWO_BYTES outbound message."""
-    a=topic
     _create_outbound_message(cmd1=cmd1, cmd2=cmd2, topic=topic)
 
 

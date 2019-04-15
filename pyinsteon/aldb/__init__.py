@@ -168,7 +168,6 @@ class ModemALDB(ALDBBase):
         """Init the ModemALDB."""
         from .im_read_manager import ImReadManager
         super().__init__(address, version, mem_addr)
-        self._get_next_record_cmd: Callable
         self._read_manager = ImReadManager(self)
 
     def __setitem__(self, mem_addr, record):
