@@ -82,9 +82,9 @@ class MessageFlags():
 
     def __str__(self):
         """Return a hexadecimal representation of the message flags."""
-        val = {'message_type': str(self._type),
+        val = {'message_type': str(self._type.name.lower()),
                'extended': str(self._extended),
-               'hop_left': self._hops_left,
+               'hops_left': self._hops_left,
                'max_hops': self._max_hops}
         return str(val)
 
