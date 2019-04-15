@@ -27,10 +27,6 @@ class Outbound(MessageBase):
 
 def _create_outbound_message(**kwargs) -> Outbound:
     """Create an Outbound message."""
-    # args, _, _, values = inspect.getargvalues(frame)
-    # kwargs = {}
-    # for arg in args:
-    #     kwargs[arg] = values.get(arg)
     topic = kwargs['topic'].name.split('.')[1]
     msg_id = getattr(MessageId, topic.upper())
     msg_def = OUTBOUND_MSG_DEF[msg_id]
@@ -167,7 +163,6 @@ def set_nak_message_byte(cmd2: int, topic=pub.AUTO_TOPIC) -> Outbound:
 @topic_to_message_handler(topic=SET_ACK_MESSAGE_TWO_BYTES)
 def set_ack_message_two_bytes(cmd1: int, cmd2: int, topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a SET_ACK_MESSAGE_TWO_BYTES outbound message."""
-    a=topic
     _create_outbound_message(cmd1=cmd1, cmd2=cmd2, topic=topic)
 
 

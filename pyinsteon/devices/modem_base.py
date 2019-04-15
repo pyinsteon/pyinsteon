@@ -2,7 +2,6 @@
 from abc import ABCMeta
 import asyncio
 from . import Device
-from .. import pub
 from ..aldb import ModemALDB
 
 

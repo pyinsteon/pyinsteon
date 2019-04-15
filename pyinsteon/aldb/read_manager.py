@@ -40,7 +40,7 @@ class ALDBReadManager():
 
         Parameters:
 
-            mem_addr: int (Default 0x0000) - Memory address of the record to retrieve. 
+            mem_addr: int (Default 0x0000) - Memory address of the record to retrieve.
             When mem_addr is 0x0000 the device will return the first record.
 
             num_recs: int (Default 0)  Number of database records to return. When num_recs is 0 and
@@ -53,7 +53,7 @@ class ALDBReadManager():
 
         Parameters:
 
-            mem_addr: int (Default 0x0000) - Memory address of the record to retrieve. 
+            mem_addr: int (Default 0x0000) - Memory address of the record to retrieve.
             When mem_addr is 0x0000 the device will return the first record.
 
             num_recs: int (Default 0)  Number of database records to return. When num_recs is 0 and
@@ -61,10 +61,8 @@ class ALDBReadManager():
         """
         if mem_addr == 0x0000 and num_recs == 0:
             self._last_command = READ_ALL
-            retries = self._retries_all
         else:
             self._last_command = READ_ONE
-            retries = self._retries_one
         await self._load_lock.acquire()
         await self._async_read(mem_addr=mem_addr, num_recs=num_recs)
         await self._load_lock.acquire()
@@ -165,7 +163,7 @@ class ALDBReadManager():
     def _has_first_record(self):
         """Test if the first record is loaded."""
         for mem_addr in self._aldb:
-            if mem_addr == self._aldb.first_mem_addr or mem_addr == 0x0fff:
+            if mem_addr in [self._aldb.first_mem_addr, 0x0fff]:
                 _LOGGER.debug('Found First record: 0x%04x', mem_addr)
                 return True
         return False

@@ -49,9 +49,9 @@ class Device(ABC):
         return self._subcat
 
     @property
-    def product_key(self):
+    def firmware(self):
         """Return the INSTEON product key."""
-        return self._product_key
+        return self._firmware
 
     @property
     def description(self):

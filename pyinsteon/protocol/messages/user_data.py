@@ -114,7 +114,7 @@ class UserData():
 
     def __str__(self):
         """Emit the user data in human readable format."""
-        from ..utils import vars_to_string
+        from ...utils import vars_to_string
         data = []
         for i in range(1, 15):
             key = 'd{}'.format(i)
@@ -153,7 +153,7 @@ class UserData():
 
     def set_crc(self, cmd1: int, cmd2: int):
         """Set Userdata[13] and Userdata[14] to the CRC value."""
-        data1 = bytes(cmd1) 
+        data1 = bytes(cmd1)
         data2 = bytes(cmd2)
         data3 = bytes(self)[0:13]
         data = b''.join([data1, data2, data3])

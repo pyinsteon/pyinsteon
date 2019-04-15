@@ -122,7 +122,7 @@ class AckNak(IntEnum):
 
 class X10CommandType(IntEnum):
     """X10 command types."""
-    
+
     def __repr__(self):
         """Emit the representation of the Enum."""
         return '0x{0:02x}'.format(self.value)

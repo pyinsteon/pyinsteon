@@ -17,10 +17,12 @@ class ReadALDBCommandHandler(DirectCommandHandlerBase):
         """Init the ReadALDBCommandHandler."""
         super().__init__(address, EXTENDED_READ_WRITE_ALDB)
 
+    #pylint: disable=arguments-differ
     def send(self, mem_addr: int = 0x0000, num_recs: int = 0):
         """Send ALDB read message."""
         asyncio.ensure_future(self.async_send(mem_addr=mem_addr, num_recs=num_recs))
 
+    #pylint: disable=arguments-differ
     async def async_send(self, mem_addr: int = 0x0000, num_recs: int = 0):
         """Send ALDB read message asyncronously."""
         await super().async_send(action=0x00, mem_addr=mem_addr, num_recs=num_recs)

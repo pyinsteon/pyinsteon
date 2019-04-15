@@ -4,8 +4,6 @@ import asyncio
 import logging
 from enum import Enum
 
-from pubsub.core.topicobj import Topic
-
 from .. import pub
 
 
@@ -131,8 +129,25 @@ _LOGGER = logging.getLogger(__name__)
 WRITE_WAIT = 1.25  # Time to wait between writes to transport
 
 
-def _strip_topic(topic: Topic):
-    """Return the root topic."""
+def _is_nak(msg):
+    """Test if a message is a NAK from the modem."""
+    if hasattr(msg, 'ack') and msg.ack.value == 0x15:
+        return True
+    return False
+
+
+def _has_listeners(topic):
+    """Test if a topic has listeners.
+
+    Only used if the msg is a NAK. If no NAK specific listeners
+    then resend the message. Otherwise it is assumed the NAK
+    specific listner is resending if necessary.
+    """
+    topicManager = pub.getDefaultTopicMgr()
+    pub_topic = topicManager.getTopic(name=topic, okIfNone=True)
+    if pub_topic and pub_topic.getListeners():
+        return True
+    return False
 
 
 class TransportStatus(Enum):
@@ -182,7 +197,7 @@ class Protocol(asyncio.Protocol):
             if msg:
                 try:
                     (topic, kwargs) = convert_to_topic(msg)
-                    if self._is_nak(msg) and not self._has_listeners(topic):
+                    if _is_nak(msg) and not _has_listeners(topic):
                         self._resend(msg)
                     else:
                         pub.sendMessage(topic, **kwargs)
@@ -251,25 +266,6 @@ class Protocol(asyncio.Protocol):
         TODO: Avoid resending the same message 10 times.
         """
         self._write(bytes(msg)[:-1])
-
-    def _is_nak(self, msg):
-        """Test if a message is a NAK from the modem."""
-        if hasattr(msg, 'ack') and msg.ack.value == 0x15:
-            return True
-        return False
-
-    def _has_listeners(self, topic):
-        """Test if a topic has listeners.
-
-        Only used if the msg is a NAK. If no NAK specific listeners
-        then resend the message. Otherwise it is assumed the NAK
-        specific listner is resending if necessary.
-        """
-        topicManager = pub.getDefaultTopicMgr()
-        pub_topic = topicManager.getTopic(name=topic, okIfNone=True)
-        if pub_topic and pub_topic.getListeners():
-            return True
-        return False
 
     def _unsubscribe(self):
         """Unsubscribe to topics."""

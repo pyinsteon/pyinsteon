@@ -4,7 +4,7 @@ from .. import pub
 from ..address import Address
 from ..constants import MessageFlagType
 from ..topics import (ASSIGN_TO_ALL_LINK_GROUP, ASSIGN_TO_COMPANION_GROUP,
-                      BRIGHTEN_ONE_STEP, 
+                      BRIGHTEN_ONE_STEP,
                       DELETE_FROM_ALL_LINK_GROUP, DEVICE_TEXT_STRING_REQUEST,
                       DIM_ONE_STEP, DOOR_MOVE_CLOSE_DOOR, DOOR_MOVE_LOWER_DOOR,
                       DOOR_MOVE_OPEN_DOOR, DOOR_MOVE_RAISE_DOOR,
@@ -35,7 +35,7 @@ from ..topics import (ASSIGN_TO_ALL_LINK_GROUP, ASSIGN_TO_COMPANION_GROUP,
                       IO_READ_CONFIGURATION_PORT, IO_READ_INPUT_PORT,
                       IO_SET_SENSOR_1_NOMINAL_VALUE,
                       IO_SET_SENSOR_NOMINAL_VALUE, IO_WRITE_CONFIGURATION_PORT,
-                      IO_WRITE_OUTPUT_PORT, 
+                      IO_WRITE_OUTPUT_PORT,
                       OFF, OFF_AT_RAMP_RATE, OFF_FAST,
                       ON, ON_AT_RAMP_RATE, ON_FAST, PEEK_ONE_BYTE,
                       PEEK_ONE_BYTE_INTERNAL, PING, POKE_ONE_BYTE,
@@ -396,7 +396,7 @@ def set_sprinkler_program(address: Address, program: int, OTHER_EXT_DATA, topic=
 
 @topic_to_command_handler(topic=SPRINKLER_VALVE_ON)
 def sprinkler_valve_on(address: Address, valve: int, topic=pub.AUTO_TOPIC):
-    """Create a SPRINKLER_VALVE_ON command.""" 
+    """Create a SPRINKLER_VALVE_ON command."""
     _create_direct_message(topic=topic, address=address, cmd2=valve)
 
 
@@ -454,7 +454,7 @@ def sprinkler_get_valve_status(address: Address, topic=pub.AUTO_TOPIC):
 def sprinkler_inhibit_command_acceptance(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_INHIBIT_COMMAND_ACCEPTANCE command."""
     topic = topic.name.split('.')[1]
-    user_data=UserData({'d1': 0x03})
+    user_data = UserData({'d1': 0x03})
     _create_direct_message(topic=topic, address=address, cmd2=0x44, user_data=user_data)
 
 

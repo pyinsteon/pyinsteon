@@ -4,7 +4,7 @@ from ..constants import MessageId, AllLinkMode
 
 def _to_url(host, port, cmd):
     """Convert a host, port and command to a url."""
-    return 'http://{:s}:{:d}/{:s}'.format(host, port, cmd) 
+    return 'http://{:s}:{:d}/{:s}'.format(host, port, cmd)
 
 def convert_to_url(host, port, msg: Outbound) -> str:
     """Convert a message to a URL."""
