@@ -1,5 +1,5 @@
-pyinsteon - Python Insteon Module
-=================================
+pyinsteon - Python Insteon Package
+==================================
 
 |Build Status| |GitHub release| |PyPI|
 
