@@ -6,7 +6,7 @@ from pyinsteon import async_connect
 
 
 _LOGGER = logging.getLogger(__name__)
-_LOGGER_PYINSTEON = logging.getLogger('pyinsteon.aldb')
+_LOGGER_PYINSTEON = logging.getLogger('pyinsteon')
 
 # DEVICE = '/dev/ttyS5'
 DEVICE = 'COM5'
