@@ -1,9 +1,11 @@
+"""Test Get All-Link Record for Sender Command."""
 from binascii import unhexlify
 import logging
 import unittest
 import sys
 
 from pyinsteon.constants import MessageId
+#pylint: disable=unused-import
 from pyinsteon.protocol.messages.outbound import get_all_link_record_for_sender
 from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
 
@@ -13,6 +15,7 @@ _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestGetAllLinkRecordForSender(unittest.TestCase, TestOutboundBase):
+    """Test Get All-Link Record for Sender Command."""
 
     def setUp(self):
         self.hex = '026C'

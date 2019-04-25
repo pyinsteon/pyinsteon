@@ -1,12 +1,9 @@
 """Base class for testing outbound messages."""
 
 import logging
-import unittest
 import sys
 
 from pyinsteon import pub
-from pyinsteon.constants import MessageId
-from tests.utils import check_fields_match
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,7 +16,9 @@ _INSTEON_LOGGER.addHandler(stream_handler)
 
 
 class TestOutboundBase():
+    """Test outbound messages base object."""
 
+    #pylint: disable=attribute-defined-outside-init
     def base_setup(self, message_id, bytes_data, **kwargs):
         """Init the TestOutboundBase class."""
         self.msg = None

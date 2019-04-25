@@ -1,13 +1,16 @@
-"""Sample program to demonstrated the loading of the Modem's ALDB."""
+"""Load saved devices to provide quick startup."""
+
 import asyncio
 import logging
+import os
 import sys
-from pyinsteon import async_connect
+from pyinsteon import async_connect, device_mgr
 
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_PYINSTEON = logging.getLogger('pyinsteon')
 
+PATH = os.path.join(os.getcwd(), 'samples')
 # DEVICE = '/dev/ttyS5'
 DEVICE = 'COM5'
 HOST = '192.168.1.136'
@@ -23,11 +26,10 @@ async def do_run():
     #                             password=PASSWORD)
     print('Connected')
     print('Modem Address:', modem.address)
-    print('Loading ALDB')
-    await modem.aldb.async_load()
-    print('ALDB Load Status: ', modem.aldb.status.name)
-    for record in modem.aldb:
-        print(modem.aldb[record])
+    await device_mgr.load_devices(workdir=PATH)
+    await device_mgr.save_devices(workdir=PATH)
+    for address in device_mgr:
+        print(device_mgr[address].address)
     await modem.async_close()
 
 

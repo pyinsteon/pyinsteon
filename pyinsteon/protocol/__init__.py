@@ -1,8 +1,11 @@
 """Protocol classes to interface with serial, socket and http devices."""
 import asyncio
 from functools import partial
+import logging
 
 from .. import pub
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def topic_to_message_handler(topic):
@@ -35,7 +38,8 @@ async def async_connect_serial(device, protocol):
     try:
         ser = serial.serial_for_url(url=device, baudrate=19200)
         transport = SerialTransport(loop, protocol, ser, device=device)
-    except OSError:
+    except OSError as e:
+        _LOGGER.warning('Unable to connect to %s: %s', device, e)
         transport = None
     return transport
 
@@ -65,7 +69,7 @@ async def async_connect_http(host, username, password, protocol, port=None):
 
 
 async def async_modem_connect(device=None, host=None, port=None, username=None,
-                              password=None, hub_version=2, workdir=''):
+                              password=None, hub_version=2):
     """Connect to the Insteon Modem.
 
         Returns an Insteon Modem object (PLM, Hub, or Hub1)
@@ -124,7 +128,7 @@ async def async_modem_connect(device=None, host=None, port=None, username=None,
     get_im_info = GetImInfoHandler()
     get_im_info.subscribe(set_im_info)
     await get_im_info.async_send()
-    modem = Modem(protocol=protocol, transport=transport, workdir=workdir,
-                  address=address, cat=cat, subcat=subcat, firmware=firmware)
+    modem = Modem(protocol=protocol, transport=transport, address=address,
+                  cat=cat, subcat=subcat, firmware=firmware)
     # Pause to allow connection_made to be called:
     return modem
