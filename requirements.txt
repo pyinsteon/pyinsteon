@@ -2,3 +2,4 @@ pyserial
 pyserial-asyncio
 aiohttp
 pypubsub
+aiofile

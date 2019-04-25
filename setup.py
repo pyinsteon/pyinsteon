@@ -27,7 +27,8 @@ setup(
         'pyserial',
         'pyserial-asyncio',
         'aiohttp',
-        'pypubsub'
+        'pypubsub',
+        'aiofile'
     ],
     entry_points={
         'console_scripts': ['insteon_monitor = pyinsteon.tools:monitor',
