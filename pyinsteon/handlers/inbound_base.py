@@ -20,6 +20,13 @@ class InboundHandlerBase(ABC):
         """Subscribe to this message handler."""
         self._subscribers.append(callback)
 
+    def unsubscribe(self, callback: Callable):
+        """Unsubscribe to this message handler."""
+        try:
+            self._subscribers.remove(callback)
+        except ValueError:
+            pass
+
     def _call_subscribers(self, **kwargs):
         """Call all subscribers."""
         for listener in self._subscribers:
