@@ -16,7 +16,7 @@ from ...topics import (CANCEL_ALL_LINKING, GET_ALL_LINK_RECORD_FOR_SENDER,
 from .all_link_record_flags import AllLinkRecordFlags
 from .im_config_flags import IMConfigurationFlags
 from .message_definition import MessageDefinition
-from .message_definitions import FLD_EXT_SEND, OUTBOUND_MSG_DEF
+from .message_definitions import FLD_EXT_SEND, FLD_STD_SEND, OUTBOUND_MSG_DEF
 from .message_flags import MessageFlags
 from .user_data import UserData
 
@@ -51,7 +51,15 @@ def send_all_link_command(group: int, mode: AllLinkMode, topic=pub.AUTO_TOPIC) -
 def send_standard(address: Address, flags: MessageFlags, cmd1: int, cmd2: int,
                   topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a SEND_STANDARD outbound message."""
-    _create_outbound_message(address=address, flags=flags, cmd1=cmd1, cmd2=cmd2, topic=topic)
+    main_topic = topic.name.split('.')[1]
+    kwargs = {'address': address,
+              'flags': flags,
+              'cmd1': cmd1,
+              'cmd2': cmd2,
+              'topic': topic}
+    msg_def = MessageDefinition(MessageId.SEND_EXTENDED, FLD_STD_SEND)
+    pub.sendMessage('send_message.{}'.format(main_topic),
+                    msg=Outbound(msg_def, **kwargs))
 
 
 @topic_to_message_handler(topic=SEND_EXTENDED)
