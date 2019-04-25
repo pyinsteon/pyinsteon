@@ -10,6 +10,12 @@ DEVICE_INFO_FILE = 'insteon_devices.json'
 _LOGGER = logging.getLogger(__name__)
 
 
+def _create_device(device_id: DeviceId):
+    from ..devices.dummy import DummyDevice
+    return DummyDevice(device_id.address, device_id.cat, device_id.subcat,
+                       device_id.firmware)
+
+
 class DeviceManager():
     """Manages the list of active devices."""
 
@@ -38,7 +44,7 @@ class DeviceManager():
     def __additem__(self, device):
         """Add a device to the device list."""
         if isinstance(device, DeviceId):
-            self._create_device(device)
+            _create_device(device)
         elif isinstance(device, Device):
             self._devices[device.address.id] = device
         else:
@@ -73,7 +79,7 @@ class DeviceManager():
         mgr = IdManager()
         device_list = await mgr.async_id_devices(address_list, ignore_known_devices)
         for address in device_list:
-            self._create_device(device_list[address])
+            _create_device(device_list[address])
 
     async def load_devices(self, workdir='', id_devices=1, force_reload=False):
         """Load devices from the `insteon_devices.yaml` file and device overrides.
@@ -122,7 +128,7 @@ class DeviceManager():
         for address in device_info_list:
             device_id = device_info_list.get(address)
             if device_id.cat:
-                device = self._create_device(device_id)
+                device = _create_device(device_id)
                 self._devices[address] = device
 
     async def _load_saved_devices(self):
@@ -137,7 +143,7 @@ class DeviceManager():
                 subcat = saved_device.get('subcat')
                 firmware = saved_device.get('firmware')
                 device_id = DeviceId(addr, cat, subcat, firmware)
-                device = self._create_device(device_id)
+                device = _create_device(device_id)
                 if device:
                     device.aldb.load_saved_records(aldb_status, aldb)
                     self._devices[addr] = device
@@ -154,16 +160,11 @@ class DeviceManager():
                 subcat = device_override.get('subcat')
                 firmware = device_override.get('firmware')
                 device_id = DeviceId(addr, cat, subcat, firmware)
-                device = self._create_device(device_id)
+                device = _create_device(device_id)
                 if device:
                     _LOGGER.debug('Device with id %s added to device list '
                                   'from device override data.', addr)
                     self._devices[addr] = device
-
-    def _create_device(self, device_id: DeviceId):
-        from ..devices.dummy import DummyDevice
-        return DummyDevice(device_id.address, device_id.cat, device_id.subcat,
-                           device_id.firmware)
 
     def _device_info_to_dict(self):
         """Save all device information to the device info file."""
@@ -180,12 +181,12 @@ class DeviceManager():
                     rec = device.aldb[mem]
                     if rec:
                         aldbRec = {'memory': mem,
-                                    'control_flags': rec.control_flags.byte,
-                                    'group': rec.group,
-                                    'address': rec.address.id,
-                                    'data1': rec.data1,
-                                    'data2': rec.data2,
-                                    'data3': rec.data3}
+                                   'control_flags': rec.control_flags.byte,
+                                   'group': rec.group,
+                                   'address': rec.address.id,
+                                   'data1': rec.data1,
+                                   'data2': rec.data2,
+                                   'data3': rec.data3}
                         aldb[mem] = aldbRec
                 deviceInfo = {'address': device.address.id,
                               'cat': device.cat,
