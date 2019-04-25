@@ -1,4 +1,5 @@
 """Convert a message to a topic and an args, kwargs arguments."""
+import logging
 from ..topics import (ALL_LINK_CLEANUP_FAILURE_REPORT,
                       ALL_LINK_CLEANUP_STATUS_REPORT, ALL_LINK_RECORD_RESPONSE,
                       ALL_LINKING_COMPLETED, BUTTON_EVENT_REPORT,
@@ -15,6 +16,7 @@ from .commands import commands
 from .messages.inbound import Inbound
 
 MSG_CONVERTER = {}
+_LOGGER = logging.getLogger(__name__)
 
 
 def convert_to_topic(msg: Inbound) -> (str, {}):
@@ -27,7 +29,8 @@ def standard_received(msg: Inbound) -> (str, {}):
     """Create a topic from a STANDARD_RECEIVED message."""
     cmd_topic = commands.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
-        raise ValueError('Unknown command received: cmd1: {}'.format(msg.cmd1))
+        _LOGGER.warning('Unknown command received: cmd1: %s cmd2: %s extended: %s',
+                        msg.cmd1, msg.cmd2, msg.flags.is_extended)
     msg_type = msg.flags.message_type.name.lower()
     topic = '{}.{}.{}'.format(msg.address.id, cmd_topic, msg_type)
     kwargs = {'cmd2': msg.cmd2,
@@ -40,7 +43,8 @@ def extended_received(msg: Inbound) -> (str, {}):
     """Create a topic from a EXTENDED_RECEIVED message."""
     cmd_topic = commands.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
-        raise ValueError('Unknown command received: cmd1: {}'.format(msg.cmd1))
+        _LOGGER.warning('Unknown command received: cmd1: %s cmd2: %s extended: %s',
+                        msg.cmd1, msg.cmd2, msg.flags.is_extended)
     msg_type = msg.flags.message_type.name.lower()
     topic = '{}.{}.{}'.format(msg.address.id, cmd_topic, msg_type)
     kwargs = {'cmd2': msg.cmd2,
