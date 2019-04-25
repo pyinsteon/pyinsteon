@@ -6,6 +6,7 @@ from datetime import datetime
 from ..aldb import ALDB
 from ..address import Address
 
+
 class Device(ABC):
     """INSTEON Device Class."""
 
