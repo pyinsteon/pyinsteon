@@ -25,7 +25,7 @@ async def do_run():
     print('Modem Address:', modem.address)
     print('Loading ALDB')
     await modem.aldb.async_load()
-    print ('ALDB Load Status: ', modem.aldb.status.name)
+    print('ALDB Load Status: ', modem.aldb.status.name)
     for record in modem.aldb:
         print(modem.aldb[record])
     await modem.async_close()
