@@ -1,14 +1,14 @@
-"""Handle an outbound direct message to a device."""
+"""Handle an outbound message that expects a response."""
 
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 import asyncio
 from .outbound_base import OutboundHandlerBase
 from ..address import Address
-from . import ack_handler, direct_nak_handler, direct_ack_handler
+from . import ack_handler, response_handler
 
 TIMEOUT = 3  # Wait time for device response
 
-class DirectCommandHandlerBase(OutboundHandlerBase):
+class ResponseCommandHandlerBase(OutboundHandlerBase):
     """Abstract base class for outbound direct message handling."""
 
     __meta__ = ABCMeta
@@ -36,14 +36,15 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
         self.response_lock.release()
         return response
 
-    @ack_handler(wait_direct_ack=True)
-    def handle_ack(self, cmd2, user_data):
-        """Handle the message ACK."""
+    @abstractmethod
+    @ack_handler(wait_response=True)
+    def handle_ack(self, **kwargs):
+        """Handle the message ACK.
 
-    @direct_nak_handler
-    def handle_direct_nak(self, cmd2, target, user_data):
-        """Handle the message ACK."""
+        This must be overriden to include the proper 
+        """
 
-    @direct_ack_handler
-    def handle_direct_ack(self, cmd2, target, user_data):
-        """Handle the direct ACK."""
+    @abstractmethod
+    @response_handler()
+    def handle_response(self, cmd2, target, user_data):
+        """Handle the message response."""

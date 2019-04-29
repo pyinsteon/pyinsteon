@@ -15,6 +15,9 @@ class InboundHandlerBase(ABC):
             attr = getattr(self, attr_str)
             if hasattr(attr, 'register_topic'):
                 attr.register_topic(attr, self._topic)
+            if hasattr(attr, 'register_status') and hasattr(self, '_address'):
+                #pylint: disable=no-member
+                attr.register_status(attr, self._address)
 
     def subscribe(self, callback: Callable):
         """Subscribe to this message handler."""
