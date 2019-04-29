@@ -27,9 +27,10 @@ async def do_run():
     print('Connected')
     print('Modem Address:', modem.address)
     await device_mgr.load_devices(workdir=PATH)
-    await device_mgr.save_devices(workdir=PATH)
+    # await device_mgr.save_devices(workdir=PATH)
     for address in device_mgr:
-        print(device_mgr[address].address)
+        device = device_mgr[address]
+        print(device.address, device.description, device.model)
     await modem.async_close()
 
 
