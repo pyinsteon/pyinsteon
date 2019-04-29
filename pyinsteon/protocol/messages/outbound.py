@@ -24,6 +24,34 @@ from .user_data import UserData
 class Outbound(MessageBase):
     """Outbound message class."""
 
+    def __eq__(self, other):
+        """Needed to allow a prioritized queue work.
+
+        Always returns True.
+        """
+        return True
+
+    def __gt__(self, other):
+        """Needed to allow a prioritized queue work.
+
+        Always returns False.
+        """
+        return False
+
+    def __lt__(self, other):
+        """Needed to allow a prioritized queue work.
+
+        Always returns False.
+        """
+        return False
+
+    def __hash__(self):
+        """Needed to allow a prioritized queue work.
+
+        Return hash of str(self).
+        """
+        return hash(str(self))
+
 
 def _create_outbound_message(**kwargs) -> Outbound:
     """Create an Outbound message."""
