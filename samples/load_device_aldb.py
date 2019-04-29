@@ -1,52 +1,37 @@
 """Sample program to demonstrate loading a device All-Link Database."""
 import asyncio
-import logging
 import os
+import logging
 import sys
 
-# sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
-
 from pyinsteon import async_connect
-from pyinsteon.devices import Device
 from pyinsteon import pub
 
+
+PATH = os.path.join(os.getcwd(), 'samples')
 # DEVICE = '/dev/ttyS5'
 DEVICE = 'COM5'
 HOST = '192.168.1.136'
 USERNAME = 'username'
 PASSWORD = 'password'
 
-DEVICE_ADDRESSES = ['27.C3.87', '45.31.94', '46.2F.24', '13.36.96']
-DEVICE_CAT = 0x02
-DEVICE_SUBCAT = 0x00
-DEVICE_DESCRIPTION = 'Generic on/off device'
+DEVICE_ADDRESSES = ['27.C3.87'] # , '45.31.94', '46.2F.24', '13.36.96']
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_PYINSTEON = logging.getLogger('pyinsteon')
 
 
-class TestDevice(Device):
-    """Test generic device."""
-
-    def _register_states(self):
-        """Dummy abstract class."""
-
-    def _register_handlers(self):
-        """Dummy abstract class."""
-
-    def _register_default_links(self):
-        """Dummy abstract class."""
-
-
 async def load_database():
     """Load the device databae."""
+    from pyinsteon import device_mgr
     modem = await async_connect(device=DEVICE)
     # modem = await async_connect(host=HOST,
     #                             username=USERNAME,
     #                             password=PASSWORD)
 
+    await device_mgr.load_devices(workdir=PATH)
     for address in DEVICE_ADDRESSES:
-        device = TestDevice(address, DEVICE_CAT, DEVICE_SUBCAT)
+        device = device_mgr[address]
 
         _LOGGER.info('Starting DB load for %s', address)
         await device.aldb.async_load()
