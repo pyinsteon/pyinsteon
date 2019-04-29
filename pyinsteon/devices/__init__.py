@@ -24,13 +24,14 @@ class Device(ABC):
 
         self._last_communication_received = datetime(1, 1, 1, 1, 1, 1)
         self._product_data_in_aldb = False
-        self._stateList = {}
+        self._states = {}
+        self._handlers = {}
 
         self._aldb = ALDB(self._address)
         self._default_links = []
 
-        self._register_states()
         self._register_handlers()
+        self._register_states()
         self._register_default_links()
 
     # Public properties
@@ -72,7 +73,7 @@ class Device(ABC):
     @property
     def states(self):
         """Return the device states/groups."""
-        return self._stateList
+        return self._states
 
     @property
     def prod_data_in_aldb(self):
@@ -93,7 +94,7 @@ class Device(ABC):
     def aldb(self):
         """Return the device All-Link Database."""
         return self._aldb
-
+  
     @abstractmethod
     def _register_states(self):
         """Add the states to the device."""
