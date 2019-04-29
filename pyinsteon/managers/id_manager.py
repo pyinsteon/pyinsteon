@@ -3,7 +3,8 @@ from asyncio import sleep
 from collections import namedtuple
 
 from ..address import Address
-from ..handlers.id_request import IdRequestCommand
+from ..handlers.to_device.id_request import IdRequestCommand
+from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
 
 DeviceId = namedtuple('DeviceId', 'address cat subcat firmware')
 
@@ -27,15 +28,18 @@ class IdManager:
             self._address_list[address_id] = DeviceId(None, None, None, None)
         for addr in address_list:
             id_handler = IdRequestCommand(addr)
-            id_handler.subscribe(self._id_response)
+            id_response_handler = AssignToAllLinkGroupCommand(addr)
+            id_response_handler.subscribe(self._id_response)
             retries = 0
             while self._address_list[addr].cat is None and retries <= 5:
                 await id_handler.async_send()
                 retries += 1
                 await sleep(1)
-            id_handler.unsubscribe(self._id_response)
+            id_response_handler.unsubscribe(self._id_response)
         return self._address_list
 
-    def _id_response(self, address, cat, subcat, firmware):
+    def _id_response(self, address, cat, subcat, firmware, group, mode):
         address = Address(address)
-        self._address_list[address.id] = DeviceId(address, cat, subcat, firmware)
+        device = DeviceId(address, cat, subcat, firmware)
+        if device:
+            self._address_list[address.id] = device

@@ -2,7 +2,7 @@
 import asyncio
 import logging
 # from . import ALDB
-from .aldb_record import ALDBRecord
+from ..aldb.aldb_record import ALDBRecord
 
 
 RETRIES_ALL_MAX = 5
@@ -21,7 +21,8 @@ class ALDBReadManager():
 
     def __init__(self, aldb): # : ALDB):
         """Init the ALDBReadManager class."""
-        from ..handlers.read_aldb import ReadALDBCommandHandler, ReceiveALDBRecordHandler
+        from ..handlers.to_device.read_aldb import ReadALDBCommandHandler
+        from ..handlers.from_device.receive_aldb_record import ReceiveALDBRecordHandler
         self._aldb = aldb
 
         self._retries_all = 0

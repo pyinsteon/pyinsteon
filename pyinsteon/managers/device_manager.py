@@ -2,18 +2,30 @@
 import json
 import logging
 
-from . import Device
+from ..devices import Device
 from ..address import Address
-from .id_manager import DeviceId
+from ..managers.id_manager import DeviceId
 
 DEVICE_INFO_FILE = 'insteon_devices.json'
 _LOGGER = logging.getLogger(__name__)
 
 
 def _create_device(device_id: DeviceId):
-    from ..devices.dummy import DummyDevice
-    return DummyDevice(device_id.address, device_id.cat, device_id.subcat,
-                       device_id.firmware)
+    from ..devices.ipdb import IPDB
+    ipdb = IPDB()
+    product = ipdb[[device_id.cat, device_id.subcat]]
+    deviceclass = product.deviceclass
+    device = None
+    if deviceclass is not None:
+        device = deviceclass(device_id.address,
+                             device_id.cat,
+                             device_id.subcat,
+                             device_id.firmware,
+                             product.description,
+                             product.model)
+    else:
+        print('Device not found')
+    return device
 
 
 class DeviceManager():
@@ -27,7 +39,7 @@ class DeviceManager():
         self._known_devices = None
         self._workdir = None
 
-    def __getitem__(self, address):
+    def __getitem__(self, address) -> Device:
         """Return a a device from the device address."""
         address = Address(address)
         return self._devices.get(address.id)
@@ -37,8 +49,9 @@ class DeviceManager():
         for address in self._devices:
             yield address
 
-    def get(self, address):
+    def get(self, address) -> Device:
         """Return a device from an address."""
+        address = Address(address)
         return self._devices.get(address.id)
 
     def __additem__(self, device):
@@ -75,7 +88,7 @@ class DeviceManager():
 
     async def discover_devices(self, address_list, ignore_known_devices=True):
         """Discover devices in the All-Link Database using ID Request command."""
-        from .id_manager import IdManager
+        from ..managers.id_manager import IdManager
         mgr = IdManager()
         device_list = await mgr.async_id_devices(address_list, ignore_known_devices)
         for address in device_list:
@@ -122,7 +135,7 @@ class DeviceManager():
 
     async def id_devices(self, address_list):
         """Call ID Request command for all unknown devices."""
-        from .id_manager import IdManager
+        from ..managers.id_manager import IdManager
         id_manager = IdManager()
         device_info_list = await id_manager.async_id_devices(address_list)
         for address in device_info_list:

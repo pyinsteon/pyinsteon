@@ -2,7 +2,7 @@
 
 from pubsub import pub
 from .protocol import async_modem_connect
-from .devices.device_manager import DeviceManager
+from .managers.device_manager import DeviceManager
 
 
 device_mgr = DeviceManager()

@@ -111,7 +111,7 @@ class ALDB(ALDBBase):
 
     def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0fff):
         """Init the ALDB class."""
-        from .read_manager import ALDBReadManager
+        from ..managers.read_manager import ALDBReadManager
         super().__init__(address=address, version=version, mem_addr=mem_addr)
         self._read_manager = ALDBReadManager(self)
 
@@ -189,7 +189,7 @@ class ModemALDB(ALDBBase):
 
     def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0000):
         """Init the ModemALDB."""
-        from .im_read_manager import ImReadManager
+        from ..managers.im_read_manager import ImReadManager
         super().__init__(address, version, mem_addr)
         self._read_manager = ImReadManager(self)
 
