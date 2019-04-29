@@ -201,27 +201,39 @@ def id_request(address: Address, topic=pub.AUTO_TOPIC):
 
 
 @topic_to_command_handler(topic=ON)
-def on(address: Address, on_level: int, topic=pub.AUTO_TOPIC):
+def on(address: Address, on_level: int, group=0, topic=pub.AUTO_TOPIC):
     """Create a ON command."""
-    _create_direct_message(topic=topic, address=address, cmd2=on_level)
+    user_data = None
+    if group:
+        user_data = UserData({'d1': group})
+    _create_direct_message(topic=topic, address=address, cmd2=on_level, user_data=user_data)
 
 
 @topic_to_command_handler(topic=ON_FAST)
-def on_fast(address: Address, on_level: int, topic=pub.AUTO_TOPIC):
+def on_fast(address: Address, on_level: int, group: int, topic=pub.AUTO_TOPIC):
     """Create a ON_FAST command."""
-    _create_direct_message(topic=topic, address=address, cmd2=on_level)
+    user_data = None
+    if group:
+        user_data = UserData({'d1': group})
+    _create_direct_message(topic=topic, address=address, cmd2=on_level, user_data=user_data)
 
 
 @topic_to_command_handler(topic=OFF)
-def off(address: Address, topic=pub.AUTO_TOPIC):
+def off(address: Address, group: int, topic=pub.AUTO_TOPIC):
     """Create a OFF command."""
-    _create_direct_message(topic=topic, address=address)
+    user_data = None
+    if group:
+        user_data = UserData({'d1': group})
+    _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
 @topic_to_command_handler(topic=OFF_FAST)
-def off_fast(address: Address, topic=pub.AUTO_TOPIC):
+def off_fast(address: Address, group: int, topic=pub.AUTO_TOPIC):
     """Create a OFF_FAST command."""
-    _create_direct_message(topic=topic, address=address)
+    user_data = None
+    if group:
+        user_data = UserData({'d1': group})
+    _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
 @topic_to_command_handler(topic=BRIGHTEN_ONE_STEP)
