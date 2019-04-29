@@ -6,14 +6,14 @@ import sys
 
 from pyinsteon.constants import MessageId, AckNak
 from pyinsteon.protocol.messages.outbound import set_ack_message_two_bytes
-from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
+from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
-class TestSetInsteonAckMessageTwoBytes(unittest.TestCase, TestOutboundBase):
+class PauseSetInsteonAckMessageTwoBytes(unittest.TestCase, OutboundBase):
 
     def setUp(self):
         self.hex = '02710304'
@@ -23,7 +23,7 @@ class TestSetInsteonAckMessageTwoBytes(unittest.TestCase, TestOutboundBase):
         kwargs = {'cmd1': self.cmd1,
                   'cmd2': self.cmd2}
 
-        super(TestSetInsteonAckMessageTwoBytes, self).base_setup(
+        super(PauseSetInsteonAckMessageTwoBytes, self).base_setup(
             MessageId.SET_ACK_MESSAGE_TWO_BYTES, unhexlify(self.hex), **kwargs)
 
         self.msg = set_ack_message_two_bytes(self.cmd1, self.cmd2)
