@@ -15,12 +15,12 @@ _LOGGER.addHandler(stream_handler)
 _INSTEON_LOGGER.addHandler(stream_handler)
 
 
-class TestOutboundBase():
+class OutboundBase():
     """Test outbound messages base object."""
 
     #pylint: disable=attribute-defined-outside-init
     def base_setup(self, message_id, bytes_data, **kwargs):
-        """Init the TestOutboundBase class."""
+        """Init the OutboundBase class."""
         self.msg = None
         self.message_id = message_id
         self.bytes_data = bytes_data
