@@ -29,8 +29,10 @@ def standard_received(msg: Inbound) -> (str, {}):
     """Create a topic from a STANDARD_RECEIVED message."""
     cmd_topic = commands.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
-        _LOGGER.warning('Unknown command received: cmd1: %s cmd2: %s extended: %s',
-                        msg.cmd1, msg.cmd2, msg.flags.is_extended)
+        cmd_topic = 'standard_received'
+        _LOGGER.warning('Unknown command received: Address: %s flags: %s cmd1: %s cmd2: %s '
+                        'extended: %s', msg.address, msg.flags, msg.cmd1, msg.cmd2,
+                        msg.flags.is_extended)
     msg_type = msg.flags.message_type.name.lower()
     topic = '{}.{}.{}'.format(msg.address.id, cmd_topic, msg_type)
     kwargs = {'cmd2': msg.cmd2,
@@ -43,8 +45,10 @@ def extended_received(msg: Inbound) -> (str, {}):
     """Create a topic from a EXTENDED_RECEIVED message."""
     cmd_topic = commands.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
-        _LOGGER.warning('Unknown command received: cmd1: %s cmd2: %s extended: %s',
-                        msg.cmd1, msg.cmd2, msg.flags.is_extended)
+        cmd_topic = 'extended_received'
+        _LOGGER.warning('Unknown command received: Address: %s flags: %s cmd1: %s cmd2: %s '
+                        'extended: %s', msg.address, msg.flags, msg.cmd1, msg.cmd2,
+                        msg.flags.is_extended)
     msg_type = msg.flags.message_type.name.lower()
     topic = '{}.{}.{}'.format(msg.address.id, cmd_topic, msg_type)
     kwargs = {'cmd2': msg.cmd2,
@@ -144,7 +148,8 @@ def send_standard(msg: Inbound) -> (str, {}):
     """Create a topic from an SEND_STANDARD message."""
     cmd_topic = commands.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
-        raise ValueError('Unknown command received: cmd1: {}'.format(msg.cmd1))
+        _LOGGER.warning('Unknown command sent: flags: %s cmd1: %s cmd2: %s extended: %s',
+                        msg.flags, msg.cmd1, msg.cmd2, msg.flags.is_extended)
     msg_type = msg.flags.message_type.name.lower()
     topic = '{}.{}.{}.{}'.format(msg.ack.name.lower(), msg.address.id,
                                  cmd_topic, msg_type)
@@ -157,7 +162,8 @@ def send_extended(msg: Inbound) -> (str, {}):
     """Create a topic from an SEND_STANDARD message."""
     cmd_topic = commands.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
-        raise ValueError('Unknown command received: cmd1: {}'.format(msg.cmd1))
+        _LOGGER.warning('Unknown command sent: flags: %s cmd1: %s cmd2: %s extended: %s',
+                        msg.flags, msg.cmd1, msg.cmd2, msg.flags.is_extended)
     msg_type = msg.flags.message_type.name.lower()
     topic = '{}.{}.{}.{}'.format(str(msg.ack), msg.address.id,
                                  cmd_topic, msg_type)
