@@ -5,14 +5,14 @@ import sys
 
 from pyinsteon.constants import MessageId, AckNak
 from pyinsteon.protocol.messages.outbound import led_off
-from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
+from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
-class TestLedOff(unittest.TestCase, TestOutboundBase):
+class TestLedOff(unittest.TestCase, OutboundBase):
 
     def setUp(self):
         self.hex = '026E'

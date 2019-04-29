@@ -5,12 +5,12 @@ from binascii import unhexlify
 
 from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.outbound import get_im_info
-from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
+from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
-class TestGetImInfo(unittest.TestCase, TestOutboundBase):
+class TestGetImInfo(unittest.TestCase, OutboundBase):
 
     def setUp(self):
         self.hex = '0260'

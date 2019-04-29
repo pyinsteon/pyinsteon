@@ -5,14 +5,14 @@ import sys
 
 from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.outbound import rf_sleep
-from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
+from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
-class TestRfSleep(unittest.TestCase, TestOutboundBase):
+class TestRfSleep(unittest.TestCase, OutboundBase):
 
     def setUp(self):
         self.hex = '0272'

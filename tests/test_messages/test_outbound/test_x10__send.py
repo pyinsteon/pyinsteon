@@ -7,13 +7,13 @@ import sys
 from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.outbound import x10_send
 
-from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
+from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
-class TestX10Send(unittest.TestCase, TestOutboundBase):
+class TestX10Send(unittest.TestCase, OutboundBase):
 
     def setUp(self):
         self.hex = '02630102'

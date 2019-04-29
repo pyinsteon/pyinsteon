@@ -9,10 +9,10 @@ from pyinsteon.protocol.messages.message_flags import MessageFlags
 from pyinsteon.constants import MessageId, MESSAGE_NAK
 
 try:
-    from .outbound_base import TestOutboundBase
+    from .outbound_base import OutboundBase
 except ImportError:
     import outbound_base
-    TestOutboundBase = outbound_base.TestOutboundBase
+    OutboundBase = outbound_base.OutboundBase
 
 
 
@@ -20,7 +20,7 @@ _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
-class TestSendStandard(unittest.TestCase, TestOutboundBase):
+class TestSendStandard(unittest.TestCase, OutboundBase):
 
     def setUp(self):
         self.hex = '0262010203040506'

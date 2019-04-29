@@ -6,14 +6,14 @@ import sys
 
 from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.outbound import get_first_all_link_record
-from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
+from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
-class TestGetFirstAllLinkRecord(unittest.TestCase, TestOutboundBase):
+class TestGetFirstAllLinkRecord(unittest.TestCase, OutboundBase):
 
     def setUp(self):
         self.hex = '0269'

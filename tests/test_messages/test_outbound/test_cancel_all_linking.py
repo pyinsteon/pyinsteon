@@ -2,10 +2,10 @@
 from binascii import unhexlify
 import unittest
 from pyinsteon.constants import MessageId
-from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
+from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
-class TestCancelAllLinking(unittest.TestCase, TestOutboundBase):
+class TestCancelAllLinking(unittest.TestCase, OutboundBase):
     """Test Cancel All-Linking command."""
     def setUp(self):
         #pylint: disable=unused-import
