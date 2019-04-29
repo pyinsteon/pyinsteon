@@ -3,7 +3,7 @@
 from . import Device
 
 
-class DummyDevice(Device):
+class UnknownDevice(Device):
     """Dummy device for testing."""
 
     def _register_default_links(self):
