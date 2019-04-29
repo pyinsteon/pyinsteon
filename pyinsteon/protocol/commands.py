@@ -1,5 +1,5 @@
 """Collection of topics mapped to commands (cmd1, cmd2)."""
-from ..topics import (ASSIGN_TO_ALL_LINK_GROUP,
+from ..topics import (ALL_LINK_CLEANUP_STATUS_REPORT, ASSIGN_TO_ALL_LINK_GROUP,
                       ASSIGN_TO_COMPANION_GROUP, BRIGHTEN_ONE_STEP,
                       DELETE_FROM_ALL_LINK_GROUP, DEVICE_TEXT_STRING_REQUEST,
                       DIM_ONE_STEP, DOOR_MOVE_CLOSE_DOOR, DOOR_MOVE_LOWER_DOOR,
@@ -143,6 +143,7 @@ commands.add(DEVICE_TEXT_STRING_REQUEST, 0x03, 0x02, False)
 commands.add(SET_DEVICE_TEXT_STRING, 0x03, 0x03, True)
 commands.add(SET_ALL_LINK_COMMAND_ALIAS, 0x03, 0x04, True)
 commands.add(SET_ALL_LINK, 0x03, 0x04, True)
+commands.add(ALL_LINK_CLEANUP_STATUS_REPORT, 0x06, None, None)
 commands.add(ENTER_LINKING_MODE, 0x09, None, False)
 commands.add(ENTER_UNLINKING_MODE, 0x0a, None, False)
 commands.add(GET_INSTEON_ENGINE_VERSION, 0x0d, 0x00, False)
