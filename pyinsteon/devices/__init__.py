@@ -26,12 +26,14 @@ class Device(ABC):
         self._product_data_in_aldb = False
         self._states = {}
         self._handlers = {}
+        self._events = {}
 
         self._aldb = ALDB(self._address)
         self._default_links = []
 
         self._register_handlers()
         self._register_states()
+        self._register_events()
         self._register_default_links()
 
     # Public properties
@@ -106,3 +108,7 @@ class Device(ABC):
     @abstractmethod
     def _register_default_links(self):
         """Add default links for linking the device to the modem."""
+
+    @abstractmethod
+    def _register_events(self):
+        """Add events that are triggered when events are fired from the device."""
