@@ -1,4 +1,4 @@
-"""Switched Lighting Control devices."""
+"""Switched Lighting Control devices (CATEGORY 0x02)."""
 from . import Device
 from ..handlers.to_device.on_level import OnLevelCommand
 from ..handlers.from_device.on_level import OnLevelInbound
@@ -6,12 +6,15 @@ from ..handlers.to_device.off import OffCommand
 from ..handlers.from_device.off import OffInbound
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..states.on_off import OnOff
+from ..events import Event
 
 ON_COMMAND = 'on_command'
 ON_INBOUND = 'on_inbound'
 OFF_COMMAND = 'off_command'
 OFF_INBOUND = 'off_inbound'
 STATUS_COMMAND = 'status_command'
+ON_EVENT = 'on_event'
+OFF_EVENT = 'off_event'
 
 
 class SwitchedLightingControl(Device):
@@ -57,6 +60,12 @@ class SwitchedLightingControl(Device):
                                                   self._handlers[OFF_COMMAND],
                                                   self._handlers[OFF_INBOUND]])
         self._handlers[STATUS_COMMAND].subscribe(self._set_status)
+
+    def _register_events(self):
+        self._events[ON_EVENT] = Event([self._handlers[ON_COMMAND],
+                                        self._handlers[ON_INBOUND]])
+        self._events[OFF_EVENT] = Event([self._handlers[OFF_COMMAND],
+                                         self._handlers[OFF_INBOUND]])
 
     def _set_status(self, status):
         """Set the status of the on_off_switch state."""
