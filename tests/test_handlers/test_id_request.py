@@ -9,7 +9,7 @@ from pyinsteon.constants import ResponseStatus
 from pyinsteon.handlers.to_device.id_request import IdRequestCommand
 from pyinsteon.handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
 from pyinsteon.topics import ASSIGN_TO_ALL_LINK_GROUP
-from tests.utils import TopicItem, async_case, async_send_topics
+from tests.utils import TopicItem, async_case, send_topics
 
 from tests import _LOGGER
 
@@ -50,8 +50,9 @@ class TestIdRequest(unittest.TestCase):
                             {"cmd2": cmd2, "target": None, "user_data": None}, .5),
                   TopicItem(self.id_response_topic,
                             {'cmd2': cmd2, 'target': Address('010203'), 'user_data': None}, .5)]
-        asyncio.ensure_future(async_send_topics(topics))
-        assert await self.handler.async_send()
+        send_topics(topics)
+        assert await self.id_handler.async_send()
+        await asyncio.sleep(1)
         assert self._cat == 1
         assert self._subcat == 2
         assert self._firmware == 3
@@ -64,8 +65,8 @@ class TestIdRequest(unittest.TestCase):
                             {"cmd2": cmd2, "target": None, "user_data": None}, .5),
                   TopicItem(self.direct_nak_topic,
                             {"cmd2": cmd2, "target": None, "user_data": None}, .5)]
-        asyncio.ensure_future(async_send_topics(topics))
-        assert await self.handler.async_send() == ResponseStatus.UNCLEAR
+        send_topics(topics)
+        assert await self.id_handler.async_send() == ResponseStatus.UNCLEAR
 
 if __name__ == '__main__':
     unittest.main()

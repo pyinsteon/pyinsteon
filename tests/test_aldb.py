@@ -10,7 +10,7 @@ from pyinsteon.aldb import ALDB
 from pyinsteon.aldb.control_flags import create_from_byte
 from pyinsteon.protocol.messages.user_data import UserData
 from pyinsteon.topics import EXTENDED_READ_WRITE_ALDB
-from tests.utils import TopicItem, async_case, async_send_topics, cmd_kwargs
+from tests.utils import TopicItem, async_case, send_topics, cmd_kwargs
 from tests import _LOGGER, _INSTEON_LOGGER
 
 
@@ -39,13 +39,14 @@ class TestALDB(unittest.TestCase):
     async def test_load_aldb(self):
         """Load the ALDB."""
         _LOGGER.debug('Starting ALDB load')
-        asyncio.ensure_future(self.send_messages())
+        responses = self.create_messages()
+        send_topics(responses)
         await self.aldb.async_load()
         _LOGGER.debug('Done LOAD function.')
         _LOGGER.debug('Status: %s', self.aldb.status.name)
         assert self.aldb.is_loaded
 
-    async def send_messages(self):
+    def create_messages(self):
         """Send response messages."""
         ack_topic = 'ack.{}.{}'.format(self.address.id, EXTENDED_READ_WRITE_ALDB)
         rec_topic = '{}.{}.direct'.format(self.address.id, EXTENDED_READ_WRITE_ALDB)
@@ -93,7 +94,7 @@ class TestALDB(unittest.TestCase):
                   TopicItem(rec_topic, cmd_kwargs(cmd2, ud14, target), 1),
                   TopicItem(rec_topic, cmd_kwargs(cmd2, ud15, target), 1),
                   TopicItem(rec_topic, cmd_kwargs(cmd2, ud16, target), 1)]
-        await async_send_topics(topics)
+        return topics
 
 
 if __name__ == '__main__':

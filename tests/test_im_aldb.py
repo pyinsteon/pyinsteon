@@ -9,7 +9,7 @@ from pyinsteon.address import Address
 from pyinsteon.aldb import ModemALDB
 from pyinsteon.aldb.control_flags import create_from_byte
 from pyinsteon.topics import ALL_LINK_RECORD_RESPONSE, GET_NEXT_ALL_LINK_RECORD, GET_FIRST_ALL_LINK_RECORD
-from tests.utils import TopicItem, async_case, async_send_topics
+from tests.utils import TopicItem, async_case, send_topics
 from tests import _LOGGER, _INSTEON_LOGGER
 
 
@@ -42,7 +42,7 @@ class TestModemALDB(unittest.TestCase):
     async def test_load(self):
         """Test loading the modem ALDB."""
 
-        async def send_messages():
+        def create_messages():
             """Send response messages."""
             ack_first_topic = 'ack.{}'.format(GET_FIRST_ALL_LINK_RECORD)
             ack_topic = 'ack.{}'.format(GET_NEXT_ALL_LINK_RECORD)
@@ -68,9 +68,10 @@ class TestModemALDB(unittest.TestCase):
                 TopicItem(nak_topic, {}, 1),
                 TopicItem(nak_topic, {}, 1),
                 TopicItem(nak_topic, {}, 1)]
-            await async_send_topics(topics)
+            return topics
 
-        asyncio.ensure_future(send_messages())
+        responses = create_messages()
+        send_topics(responses)
         response = await self.aldb.async_load()
         _LOGGER.debug('Done LOAD function.')
         _LOGGER.debug('Status: %s', response.name)
@@ -81,15 +82,16 @@ class TestModemALDB(unittest.TestCase):
     async def test_empty_aldb(self):
         """Test for an empty ALDB."""
 
-        async def send_nak_messages():
+        def create_messages():
             """Send 3 NAK messages."""
             nak_topic = 'nak.{}'.format(GET_FIRST_ALL_LINK_RECORD)
             topics = [TopicItem(nak_topic, {}, 1),
                       TopicItem(nak_topic, {}, 1),
                       TopicItem(nak_topic, {}, 1)]
-            await async_send_topics(topics)
+            return topics
 
-        asyncio.ensure_future(send_nak_messages())
+        responses = create_messages()
+        send_topics(responses)
         response = await self.aldb.async_load()
         _LOGGER.debug('Done LOAD function.')
         _LOGGER.debug('Status: %s', response.name)

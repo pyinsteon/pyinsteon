@@ -1,8 +1,8 @@
 """Test the on_level command handler."""
 import asyncio
 import unittest
-from pyinsteon.handlers.on_level import OnLevelCommand
-from tests.utils import async_case, async_send_topics, TopicItem
+from pyinsteon.handlers.to_device.on_level import OnLevelCommand
+from tests.utils import async_case, send_topics, TopicItem
 from pyinsteon.constants import ResponseStatus
 
 
@@ -33,7 +33,7 @@ class TestOnLevel(unittest.TestCase):
                             {"cmd2": cmd2, "target": '4d5e6f', "user_data": None}, .5),
                   TopicItem(self.direct_ack_topic,
                             {"cmd2": cmd2, "target": '4d5e6f', "user_data": None}, .5)]
-        asyncio.ensure_future(async_send_topics(topics))
+        send_topics(topics)
         assert await self.handler.async_send(on_level=cmd2)
         assert self._on_level == cmd2
 
@@ -46,7 +46,7 @@ class TestOnLevel(unittest.TestCase):
                             {"cmd2": cmd2, "target": '4d5e6f', "user_data": {'d1': group}}, .5),
                   TopicItem(self.direct_ack_topic,
                             {"cmd2": cmd2, "target": '4d5e6f', "user_data":  {'d1': group}}, .5)]
-        asyncio.ensure_future(async_send_topics(topics))
+        send_topics(topics)
         assert await self.handler.async_send(on_level=cmd2)
         assert self._on_level == cmd2
         assert self._group == group
@@ -60,7 +60,7 @@ class TestOnLevel(unittest.TestCase):
                             {"cmd2": cmd2, "target": '4d5e6f', "user_data": {'d1': group}}, .5),
                   TopicItem(self.direct_nak_topic,
                             {"cmd2": cmd2, "target": '4d5e6f', "user_data":  {'d1': group}}, .5)]
-        asyncio.ensure_future(async_send_topics(topics))
+        send_topics(topics)
         assert await self.handler.async_send(on_level=cmd2)  == ResponseStatus.UNCLEAR
 
 if __name__ == '__main__':
