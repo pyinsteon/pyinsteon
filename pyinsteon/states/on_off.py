@@ -1,12 +1,17 @@
 """On / Off state."""
 from . import StateBase
+from ..address import Address
 
 class OnOff(StateBase):
     """On / Off state."""
 
-    def _set_value(self, **kwargs):
+    def __init__(self, name: str, address: Address, handlers: list,
+                 group: int = 0, default: int = None):
+        """Init the OnLevel class."""
+        super().__init__(name, address, handlers, group, default, value_type=int)
+
+    #pylint: disable=arguments-differ
+    def _set_value(self, on_level, group=1):
         """Set the value of the state from the handlers."""
-        value = kwargs['on_level']
-        group = kwargs['group']
         if self._group == group:
-            self.value = 0xff if value else 0
+            self.value = 0xff if on_level else 0
