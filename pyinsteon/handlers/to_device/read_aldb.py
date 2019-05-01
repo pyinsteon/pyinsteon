@@ -4,7 +4,7 @@ import logging
 from .direct_command import DirectCommandHandlerBase
 from ...topics import EXTENDED_READ_WRITE_ALDB
 from .. import ack_handler, direct_ack_handler
-from pyinsteon.address import Address
+from ...address import Address
 
 
 _LOGGER = logging.getLogger(__name__)
