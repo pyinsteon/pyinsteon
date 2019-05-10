@@ -42,7 +42,7 @@ class ALDBRecord():
             is_controller = control_flags.mode == AllLinkMode.CONTROLLER
             self._control_flags = ControlFlags(control_flags.is_in_use,
                                                is_controller,
-                                               control_flags.is_hwm,
+                                               control_flags.used_before,
                                                control_flags.is_bit_5_set,
                                                control_flags.is_bit_4_set)
         else:
@@ -90,6 +90,16 @@ class ALDBRecord():
     def mem_addr(self):
         """Return the memory address of the database record."""
         return self._memoryLocation
+
+    @mem_addr.setter
+    def mem_addr(self, value):
+        """Set the memory address of the record."""
+        try:
+            mem = int(value)
+        except ValueError:
+            raise ValueError('Memory address must be an integer.')
+        else:
+            self._memoryLocation = mem
 
     @property
     def memhi(self):
