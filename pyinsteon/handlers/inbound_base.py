@@ -7,6 +7,8 @@ from ..subscriber_base import SubscriberBase
 class InboundHandlerBase(SubscriberBase):
     """Inbound message handler."""
 
+    __meta__ = ABCMeta
+
     def __init__(self, topic):
         """Init the InboundHandlerBase class."""
         super().__init__()
