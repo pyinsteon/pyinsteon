@@ -14,6 +14,15 @@ triggering the event.
 from .subscriber_base import SubscriberBase
 from .address import Address
 
+ON_EVENT = 'on_event'
+ON_FAST_EVENT = 'on_fast_event'
+OFF_EVENT = 'off_event'
+OFF_FAST_EVENT = 'off_fast_event'
+FAN_ON_EVENT = 'fan_on_event'
+FAN_ON_FAST_EVENT = 'fan_on_fast_event'
+FAN_OFF_EVENT = 'fan_off_event'
+FAN_OFF_FAST_EVENT = 'fan_off_fast_event'
+
 
 class Event(SubscriberBase):
     """Event class to manage triggering of events.
