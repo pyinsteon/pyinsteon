@@ -31,12 +31,12 @@ def ack_handler(wait_response=False):
         pub.subscribe(instance_func, topic)
     async def _wait_response(lock: asyncio.Lock, queue: asyncio.Queue):
         """Wait for the direct ACK message, and post False if timeout reached."""
-        try:
-            if lock.locked():
+        if lock.locked():
+            try:
                 await asyncio.wait_for(lock.acquire(), TIMEOUT)
-        except asyncio.TimeoutError:
-            if lock.locked():
-                queue.put_nowait(ResponseStatus.FAILURE)
+            except asyncio.TimeoutError:
+                if lock.locked():
+                    queue.put_nowait(ResponseStatus.FAILURE)
     def setup(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
