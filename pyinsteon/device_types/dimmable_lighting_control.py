@@ -10,9 +10,13 @@ from ..handlers.to_device.off_fast import OffFastCommand
 from ..handlers.from_device.off_fast import OffFastInbound
 from ..handlers.to_device.status_request import (StatusRequestCommand,
                                                  StatusRequest3Command)
+from ..states import DIMMABLE_LIGHT_STATE, DIMMABLE_FAN_STATE
 from ..states.on_level import OnLevel
-from ..event import Event
+from ..events import (Event, ON_EVENT, ON_FAST_EVENT, OFF_EVENT, OFF_FAST_EVENT,
+                      FAN_ON_EVENT, FAN_ON_FAST_EVENT, FAN_OFF_EVENT,
+                      FAN_OFF_FAST_EVENT)
 from ..constants import FanSpeed
+
 
 ON_COMMAND = 'on_command'
 ON_INBOUND = 'on_inbound'
@@ -24,18 +28,6 @@ OFF_FAST_COMMAND = 'off_fast_command'
 OFF_FAST_INBOUND = 'off_fast_inbound'
 STATUS_COMMAND = 'status_command'
 STATUS_3_COMMAND = 'status_3_command'
-
-ON_EVENT = 'on_event'
-ON_FAST_EVENT = 'on_fast_event'
-OFF_EVENT = 'off_event'
-OFF_FAST_EVENT = 'off_fast_event'
-FAN_ON_EVENT = 'fan_on_event'
-FAN_ON_FAST_EVENT = 'fan_on_fast_event'
-FAN_OFF_EVENT = 'fan_off_event'
-FAN_OFF_FAST_EVENT = 'fan_off_fast_event'
-
-DIMMABLE_LIGHT_STATE = 'dimmable_light_state'
-DIMMABLE_FAN_STATE = 'dimmable_fan_state'
 
 
 class DimmableLightingControl(Device):

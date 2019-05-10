@@ -5,7 +5,7 @@ import collections
 from .unknown_device import UnknownDevice
 from .hub import Hub
 from .plm import PLM
-# from insteonplm.devices.generalController import (GeneralController,
+# from from ..generalController import (GeneralController,
 #                                                   GeneralController_2342,
 #                                                   GeneralController_2342_4,
 #                                                   GeneralController_2342_8)
@@ -17,17 +17,17 @@ from .switched_lighting_control import (SwitchedLightingControl) #,
 #                                                         SwitchedLightingControl_2334_222_6,
 #                                                         SwitchedLightingControl_2334_222_8,
 #                                                         SwitchedLightingControl_2663_222)
-# from insteonplm.devices.climateControl import ClimateControl_2441th
-# from insteonplm.devices.securityHealthSafety import (SecurityHealthSafety,
+# from from ..climateControl import ClimateControl_2441th
+# from from ..securityHealthSafety import (SecurityHealthSafety,
 #                                                      SecurityHealthSafety_2421,
 #                                                      SecurityHealthSafety_2842_222,
 #                                                      SecurityHealthSafety_2852_222,
 #                                                      SecurityHealthSafety_2845_222,
 #                                                      SecurityHealthSafety_2982_222)
-# from insteonplm.devices.sensorsActuators import (SensorsActuators,
+# from from ..sensorsActuators import (SensorsActuators,
 #                                                  SensorsActuators_2450)
-# from insteonplm.devices.windowCoverings import WindowCovering
-# from insteonplm.devices.x10 import (X10OnOff, X10Dimmable, X10Sensor,
+# from from ..windowCoverings import WindowCovering
+# from from ..x10 import (X10OnOff, X10Dimmable, X10Sensor,
 #                                     X10AllUnitsOff, X10AllLightsOn,
 #                                     X10AllLightsOff)
 

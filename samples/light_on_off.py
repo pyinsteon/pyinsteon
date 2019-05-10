@@ -4,7 +4,7 @@ import asyncio
 import logging
 import os
 import sys
-from pyinsteon import async_connect, device_mgr
+from pyinsteon import async_connect, devices
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,8 +30,8 @@ async def do_run():
     #                             password=PASSWORD)
     print('Connected')
     print('Modem Address:', modem.address)
-    await device_mgr.load_devices(workdir=PATH, id_devices=0)
-    device = device_mgr['27.C3.87']
+    await devices.load_devices(workdir=PATH, id_devices=0)
+    device = devices['27.C3.87']
     device.states[0].subscribe(state_changed)
     await device.async_on()
     await asyncio.sleep(1)

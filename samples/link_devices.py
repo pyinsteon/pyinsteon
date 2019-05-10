@@ -4,7 +4,7 @@ import asyncio
 import logging
 import os
 import sys
-from pyinsteon import async_connect, device_mgr
+from pyinsteon import async_connect, devices
 from pyinsteon.managers.link_manager import async_link_devices
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,9 +30,9 @@ async def do_run():
     #                             password=PASSWORD)
     print('Connected')
     print('Modem Address:', modem.address)
-    await device_mgr.load_devices(workdir=PATH, id_devices=0)
-    controller = device_mgr.get('27.C3.87')
-    responder = device_mgr.get('13.36.96')
+    await devices.load_devices(workdir=PATH, id_devices=0)
+    controller = devices.get('27.C3.87')
+    responder = devices.get('13.36.96')
     link_result = await async_link_devices(controller, responder, 1)
     if link_result:
         print(link_result)

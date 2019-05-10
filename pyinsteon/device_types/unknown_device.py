@@ -14,3 +14,6 @@ class UnknownDevice(Device):
 
     def _register_states(self):
         """Do nothing."""
+
+    def _register_events(self):
+        """Do nothing."""

@@ -96,7 +96,7 @@ class Device(ABC):
     def aldb(self):
         """Return the device All-Link Database."""
         return self._aldb
-  
+
     @abstractmethod
     def _register_states(self):
         """Add the states to the device."""
