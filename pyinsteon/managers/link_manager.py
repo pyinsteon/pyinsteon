@@ -1,8 +1,8 @@
 """Manage links beteween devices."""
 import asyncio
 from collections import namedtuple
-from ..devices import Device
-from .. import device_mgr
+from ..device_types import Device
+from .. import devices
 from ..address import Address
 from ..constants import AllLinkMode
 from ..handlers.enter_linking_mode import EnterLinkingModeCommand
@@ -45,13 +45,13 @@ async def async_unlink_devices(controller: Device, responder: Device, group: int
 
 
 def _set_linking_command(device):
-    if device == device_mgr.modem:
+    if device == devices.modem:
         return StartAllLinkingCommandHandler()
     return EnterLinkingModeCommand(device.address)
 
 
 def _set_unlinking_command(device):
-    if device == device_mgr.modem:
+    if device == devices.modem:
         return StartAllLinkingCommandHandler()
     return EnterUnlinkingModeCommand(device.address)
 
@@ -77,9 +77,7 @@ def _link_complete(**kwargs):
 
 async def _wait_for_link_complete():
     response1 = await link_queue.get()
-    print('got one response')
     response2 = await link_queue.get()
-    print('got another response')
     return (response1, response2)
 
 
