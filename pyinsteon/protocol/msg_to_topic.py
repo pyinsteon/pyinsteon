@@ -30,9 +30,7 @@ def standard_received(msg: Inbound) -> (str, {}):
     cmd_topic = commands.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
         cmd_topic = 'standard_received'
-        _LOGGER.warning('Unknown command received: Address: %s flags: %s cmd1: %s cmd2: %s '
-                        'extended: %s', msg.address, msg.flags, msg.cmd1, msg.cmd2,
-                        msg.flags.is_extended)
+        _LOGGER.warning('Unknown standard command received: %s', msg)
     msg_type = msg.flags.message_type.name.lower()
     topic = '{}.{}.{}'.format(msg.address.id, cmd_topic, msg_type)
     kwargs = {'cmd2': msg.cmd2,
@@ -46,9 +44,7 @@ def extended_received(msg: Inbound) -> (str, {}):
     cmd_topic = commands.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
     if not cmd_topic:
         cmd_topic = 'extended_received'
-        _LOGGER.warning('Unknown command received: Address: %s flags: %s cmd1: %s cmd2: %s '
-                        'extended: %s', msg.address, msg.flags, msg.cmd1, msg.cmd2,
-                        msg.flags.is_extended)
+        _LOGGER.warning('Unknown Extended command received: %s', msg)
     msg_type = msg.flags.message_type.name.lower()
     topic = '{}.{}.{}'.format(msg.address.id, cmd_topic, msg_type)
     kwargs = {'cmd2': msg.cmd2,
