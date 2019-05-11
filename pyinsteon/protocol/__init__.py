@@ -104,12 +104,12 @@ async def async_modem_connect(device=None, host=None, port=None, username=None,
         return ValueError('Must specify either a device or a host')
 
     if device:
-        from ..devices.plm import PLM as Modem
+        from ..device_types.plm import PLM as Modem
         connect_method = partial(async_connect_serial, **{'device':device})
         protocol = Protocol(connect_method=connect_method)
 
     elif hub_version == 2:
-        from ..devices.hub import Hub as Modem
+        from ..device_types.hub import Hub as Modem
         connect_method = partial(async_connect_http, **{'host':host,
                                                         'username':username,
                                                         'password':password,
@@ -117,7 +117,7 @@ async def async_modem_connect(device=None, host=None, port=None, username=None,
         protocol = Protocol(connect_method=connect_method)
 
     else:
-        from ..devices.plm import PLM as Modem
+        from ..device_types.plm import PLM as Modem
         connect_method = partial(async_connect_socket, **{'host':host,
                                                           'port':port,
                                                           'protocol':protocol})
