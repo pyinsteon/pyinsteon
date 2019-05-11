@@ -3,7 +3,7 @@
 import unittest
 from pyinsteon.address import Address
 from pyinsteon.handlers import ResponseStatus
-from pyinsteon.devices.dimmable_lighting_control import (
+from pyinsteon.device_types.dimmable_lighting_control import (
     DimmableLightingControl, DIMMABLE_LIGHT_STATE)
 from pyinsteon.topics import ON, OFF, ON_FAST, OFF_FAST
 from tests.utils import TopicItem, async_case, send_topics, make_command_response_messages
