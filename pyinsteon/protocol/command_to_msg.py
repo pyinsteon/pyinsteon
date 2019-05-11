@@ -2,7 +2,7 @@
 from . import topic_to_command_handler
 from .. import pub
 from ..address import Address
-from ..constants import MessageFlagType
+from ..constants import MessageFlagType, AllLinkMode
 from ..topics import (ASSIGN_TO_ALL_LINK_GROUP, ASSIGN_TO_COMPANION_GROUP,
                       BRIGHTEN_ONE_STEP,
                       DELETE_FROM_ALL_LINK_GROUP, DEVICE_TEXT_STRING_REQUEST,
@@ -346,16 +346,42 @@ def off_at_ramp_rate(address: Address, ramp_rate: int, topic=pub.AUTO_TOPIC):
     """Create a OFF_AT_RAMP_RATE command."""
     _create_direct_message(topic=topic, address=address, cmd2=ramp_rate)
 
-
-@topic_to_command_handler(topic=EXTENDED_READ_WRITE_ALDB)
-def extended_read_write_aldb(address: Address, action: int, mem_addr: int, num_recs: int,
-                             topic=pub.AUTO_TOPIC):
-    """Create a EXTENDED_READ_WRITE_ALDB command."""
-    num_recs = 0 if mem_addr == 0x0000 else 1
+def _read_aldb(address, mem_addr, num_recs, topic):
+    # num_recs = 0 if mem_addr == 0x0000 else 1
     mem_hi = mem_addr >> 8
     mem_lo = mem_addr & 0xff
-    user_data = UserData({'d2': action, 'd3': mem_hi, 'd4': mem_lo, 'd5': num_recs})
+    user_data = UserData({'d2': 0x00, 'd3': mem_hi, 'd4': mem_lo, 'd5': num_recs})
     _create_direct_message(topic=topic, address=address, user_data=user_data)
+
+
+def _write_aldb(address, mem_addr, mode, group, target, data1, data2, data3,
+                in_use, topic):
+    from .messages.all_link_record_flags import create
+    address = Address(address)
+    target = Address(target)
+    mem_hi = mem_addr >> 8
+    mem_lo = mem_addr & 0xff
+    flags = create(in_use=in_use, mode=mode, hwm=False)
+    user_data = UserData({'d2': 0x02, 'd3': mem_hi, 'd4': mem_lo, 'd5': 0x08,
+                          'd6': int(flags), 'd7': group, 'd8': target.high, 'd9': target.middle,
+                          'd10': target.low, 'd11': data1, 'd12': data2, 'd13': data3})
+    _create_direct_message(topic=topic, address=address, user_data=user_data)
+
+
+@topic_to_command_handler(topic=EXTENDED_READ_WRITE_ALDB)
+def extended_read_write_aldb(address: Address, action: int, mem_addr: int, 
+                             num_recs: int = 0,
+                             mode: AllLinkMode = AllLinkMode.CONTROLLER, group: int = 0x01, 
+                             target: Address = None, data1: int = 0x00, data2: int = 0x00,
+                             data3: int = 0x00, in_use: bool = True,
+                             topic=pub.AUTO_TOPIC):
+    """Create a EXTENDED_READ_WRITE_ALDB command."""
+    if action == 0x00:
+        _read_aldb(address=address, mem_addr=mem_addr, num_recs=num_recs, topic=topic)
+    elif action == 0x02:
+        _write_aldb(address=address, mem_addr=mem_addr, mode=mode, group=group,
+                    target=target, data1=data1, data2=data2, data3=data3,
+                    in_use=in_use, topic=topic)
 
 
 @topic_to_command_handler(topic=EXTENDED_TRIGGER_ALL_LINK)
