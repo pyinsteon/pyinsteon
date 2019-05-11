@@ -3,6 +3,11 @@ from abc import ABC, abstractmethod
 from ..address import Address
 from ..subscriber_base import SubscriberBase
 
+
+DIMMABLE_LIGHT_STATE = 'dimmable_light_state'
+DIMMABLE_FAN_STATE = 'dimmable_fan_state'
+ON_OFF_SWITCH_STATE = 'on_off_switch_state'
+
 class StateBase(SubscriberBase):
     """Device state base class."""
 
