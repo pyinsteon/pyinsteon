@@ -112,6 +112,7 @@ class DeviceIdManager(SubscriberBase):
             self._unknown_devices.remove(address)
         except ValueError:
             pass
+        pub.unsubscribe(self._device_awake, address.id)
         self._call_subscribers(device_id=device_id)
 
     async def _id_awake_devices(self):
@@ -135,6 +136,8 @@ class DeviceIdManager(SubscriberBase):
 
     def _device_awake(self, topic=pub.AUTO_TOPIC, **kwargs):
         """An unknown device has sent a message so we try to identify it."""
+        if self._id_device_lock.locked():
+            return
         try:
             address = Address(topic.name.split('.')[0])
         except ValueError:
