@@ -3,10 +3,9 @@ import asyncio
 from collections import namedtuple
 from ..device_types import Device
 from .. import devices
-from ..address import Address
 from ..constants import AllLinkMode
-from ..handlers.enter_linking_mode import EnterLinkingModeCommand
-from ..handlers.enter_unlinking_mode import EnterUnlinkingModeCommand
+from ..handlers.to_device.enter_linking_mode import EnterLinkingModeCommand
+from ..handlers.to_device.enter_unlinking_mode import EnterUnlinkingModeCommand
 from ..handlers.start_all_linking import StartAllLinkingCommandHandler
 
 link_queue = asyncio.Queue()
