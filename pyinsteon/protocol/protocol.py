@@ -203,6 +203,7 @@ class Protocol(asyncio.Protocol):
                     if _is_nak(msg) and not _has_listeners(topic):
                         self._resend(msg)
                     else:
+                        _LOGGER_MSG.debug('Topic: %s', topic)
                         pub.sendMessage(topic, **kwargs)
             if last_buffer == self._buffer or not self._buffer:
                 break
