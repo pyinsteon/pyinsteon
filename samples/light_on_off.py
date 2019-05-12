@@ -19,6 +19,7 @@ PASSWORD = 'password'
 
 
 def state_changed(name, value, group):
+    """Capture the state change."""
     print('State changed to', value)
 
 
@@ -30,7 +31,7 @@ async def do_run():
     #                             password=PASSWORD)
     print('Connected')
     print('Modem Address:', modem.address)
-    await devices.load_devices(workdir=PATH, id_devices=0)
+    await devices.async_load(workdir=PATH, id_devices=0)
     device = devices['27.C3.87']
     device.states[0].subscribe(state_changed)
     await device.async_on()
