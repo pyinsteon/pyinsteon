@@ -369,9 +369,9 @@ def _write_aldb(address, mem_addr, mode, group, target, data1, data2, data3,
 
 
 @topic_to_command_handler(topic=EXTENDED_READ_WRITE_ALDB)
-def extended_read_write_aldb(address: Address, action: int, mem_addr: int, 
+def extended_read_write_aldb(address: Address, action: int, mem_addr: int,
                              num_recs: int = 0,
-                             mode: AllLinkMode = AllLinkMode.CONTROLLER, group: int = 0x01, 
+                             mode: AllLinkMode = AllLinkMode.CONTROLLER, group: int = 0x01,
                              target: Address = None, data1: int = 0x00, data2: int = 0x00,
                              data3: int = 0x00, in_use: bool = True,
                              topic=pub.AUTO_TOPIC):
