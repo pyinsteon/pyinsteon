@@ -260,10 +260,6 @@ class ModemALDB(ALDBBase):
 
         self._records[mem_addr] = record
 
-    def load(self, callback: Callable = None):
-        """Load the All-Link Database."""
-        asyncio.ensure_future(self.async_load(callback))
-
     async def async_load(self, callback: Callable = None):
         """Load the All-Link Database."""
         _LOGGER.debug('Loading the modem ALDB')
