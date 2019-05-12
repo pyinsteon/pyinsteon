@@ -6,7 +6,7 @@ from pyinsteon.handlers import ResponseStatus
 from pyinsteon.device_types.dimmable_lighting_control import (
     DimmableLightingControl, DIMMABLE_LIGHT_STATE)
 from pyinsteon.topics import ON, OFF, ON_FAST, OFF_FAST
-from tests.utils import TopicItem, async_case, send_topics, make_command_response_messages
+from tests.utils import async_case, send_topics, make_command_response_messages
 
 
 class TestDimmableLIghtingControl(unittest.TestCase):
