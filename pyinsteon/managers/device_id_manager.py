@@ -28,7 +28,6 @@ class DeviceIdManager(SubscriberBase):
         self._awake_devices = []
         self._awake_devices_queue = asyncio.Queue()
         self._id_device_lock = asyncio.Lock()
-        asyncio.ensure_future(self._id_awake_devices())
 
     def __getitem__(self, address):
         """Return the unknown device list."""
@@ -36,6 +35,10 @@ class DeviceIdManager(SubscriberBase):
         device_id = self._device_ids.get(address)
         if not device_id:
             self.append(address)
+
+    def start(self):
+        """Start the ID manager for unknown devices."""
+        asyncio.ensure_future(self._id_awake_devices())
 
     def close(self):
         """Close the ID listener."""

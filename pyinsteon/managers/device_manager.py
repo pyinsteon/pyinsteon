@@ -79,6 +79,11 @@ class DeviceManager():
         self._modem = modem
         self._devices[self._modem.address] = self._modem
 
+    @property
+    def id_manager(self):
+        """Return the ID manager instance."""
+        return self._id_manager
+
     def set_id(self, address: Address, cat: int, subcat: int, firmware: int):
         """Add a device override to identify the device information.
 

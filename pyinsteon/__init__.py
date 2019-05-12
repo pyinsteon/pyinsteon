@@ -26,11 +26,12 @@ async def async_connect(device=None, host=None, port=None, username=None,
                                       username=username, password=password,
                                       hub_version=hub_version, **kwargs)
     devices.modem = modem
+    devices.id_manager.start()
     return modem
 
 async def async_close():
     """Close the connection and stop all tasks."""
     import asyncio
     await devices.modem.async_close()
-    await devices.async_close()
+    devices.id_manager.close()
     await asyncio.sleep(.1)

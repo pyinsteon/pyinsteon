@@ -1,13 +1,12 @@
 """Sample program to demonstrate loading a device All-Link Database."""
 import asyncio
-import os
 import logging
+import os
 import sys
 
-from pyinsteon import async_connect
 from pyinsteon import pub
-from pyinsteon.aldb.aldb_record import ALDBRecord
 
+from pyinsteon import async_connect
 
 PATH = os.path.join(os.getcwd(), 'samples')
 # DEVICE = '/dev/ttyS5'

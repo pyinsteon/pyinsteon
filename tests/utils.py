@@ -2,11 +2,11 @@
 import asyncio
 from binascii import unhexlify
 from collections import namedtuple
-import logging
-import sys
-from pyinsteon.protocol.messages.inbound import create
+
 from pyinsteon import pub
-from tests import _LOGGER
+
+from pyinsteon.protocol.messages.inbound import create
+from tests import _LOGGER_MSG
 
 
 def hex_to_inbound_message(hex_data):
@@ -49,10 +49,10 @@ TopicItem = namedtuple('TopicItem', 'topic, kwargs, delay')
 def send_topics(topic_items):
     """Publish a topic message to interact with a test case."""
     async def async_send_topics(topic_items):
-        _LOGGER.debug('Sending message')
+        _LOGGER_MSG.debug('Sending messages')
         for item in topic_items:
             await asyncio.sleep(item.delay)
-            _LOGGER.debug('RX: %s  %s', item.topic, item.kwargs)
+            _LOGGER_MSG.debug('SENDING: %s  %s', item.topic, item.kwargs)
             pub.sendMessage(item.topic, **item.kwargs)
     asyncio.ensure_future(async_send_topics(topic_items))
 
@@ -74,4 +74,3 @@ def make_command_response_messages(address, topic, cmd2, target='000000', user_d
     direct_ack = '{}.{}.direct_ack'.format(address.id, topic)
     return [TopicItem(ack, cmd_kwargs(cmd2, user_data), .25),
             TopicItem(direct_ack, cmd_kwargs(cmd2, user_data, target), .25)]
-    
