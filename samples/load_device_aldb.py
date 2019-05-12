@@ -4,8 +4,7 @@ import os
 import logging
 import sys
 
-from pyinsteon import async_connect
-from pyinsteon import pub
+from pyinsteon import async_connect, async_close
 
 
 PATH = os.path.join(os.getcwd(), 'samples')
@@ -23,7 +22,7 @@ _LOGGER_MSG = logging.getLogger('pyinsteon.messages')
 async def load_database():
     """Load the device databae."""
     from pyinsteon import devices
-    modem = await async_connect(device=DEVICE)
+    await async_connect(device=DEVICE)
     # modem = await async_connect(host=HOST,
     #                             username=USERNAME,
     #                             password=PASSWORD)
@@ -38,12 +37,7 @@ async def load_database():
         _LOGGER.info('\nALDB load status for %s: %s', device.address, device.aldb.status.name)
         for mem_addr in device.aldb:
             _LOGGER.info(device.aldb[mem_addr])
-    await modem.async_close()
-
-def print_topics(topic=pub.AUTO_TOPIC, **kwargs):
-    """Print all messages sent."""
-    _LOGGER.debug('Topic: %s', topic)
-    _LOGGER.debug('kwargs: %s', kwargs)
+    await async_close()
 
 
 if __name__ == '__main__':
@@ -53,9 +47,8 @@ if __name__ == '__main__':
 
     _LOGGER.setLevel(logging.INFO)
     _LOGGER_PYINSTEON.setLevel(logging.INFO)
-    _LOGGER_MSG.setLevel(logging.DEBUG)
+    _LOGGER_MSG.setLevel(logging.INFO)
 
-    # pub.subscribe(print_topics, pub.ALL_TOPICS)
     loop = asyncio.get_event_loop()
     _LOGGER.info('Loading All-Link database for all devices')
     loop.run_until_complete(load_database())
