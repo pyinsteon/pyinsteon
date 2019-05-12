@@ -4,7 +4,6 @@ from binascii import unhexlify
 from collections import namedtuple
 
 from pyinsteon import pub
-
 from pyinsteon.protocol.messages.inbound import create
 from tests import _LOGGER_MSG
 
