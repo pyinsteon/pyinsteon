@@ -152,7 +152,7 @@ class ALDBReadManager():
                 # the retry count
                 self._last_mem_addr = next_mem_addr
                 self._retries_one = 0
-                asyncio.ensure_future(self._async_read(next_mem_addr, num_recs))
+                asyncio.ensure_future(self._async_read(next_mem_addr, 1))
 
     def _manage_get_one_cmd(self, mem_addr, num_recs):
         """Manage the READ_ONE command process."""
