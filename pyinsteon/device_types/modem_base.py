@@ -52,5 +52,5 @@ class ModemBase(Device, metaclass=ABCMeta):
     def _register_handlers(self):
         """Register command handlers for modems."""
 
-    def _register_events(Self):
+    def _register_events(self):
         """Register events for modems."""

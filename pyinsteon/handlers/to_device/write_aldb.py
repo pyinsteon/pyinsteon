@@ -1,8 +1,6 @@
 """Handle sending a read request for ALDB records."""
-import asyncio
 import logging
 
-from .. import direct_ack_handler
 from ...address import Address
 from ...topics import EXTENDED_READ_WRITE_ALDB
 from .direct_command import DirectCommandHandlerBase

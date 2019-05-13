@@ -39,10 +39,7 @@ class ResponseCommandHandlerBase(OutboundHandlerBase):
     @abstractmethod
     @ack_handler(wait_response=True)
     def handle_ack(self, **kwargs):
-        """Handle the message ACK.
-
-        This must be overriden to include the proper 
-        """
+        """Handle the message ACK."""
 
     @abstractmethod
     @response_handler()

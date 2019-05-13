@@ -12,9 +12,9 @@ from ..handlers.to_device.status_request import (StatusRequestCommand,
                                                  StatusRequest3Command)
 from ..states import DIMMABLE_LIGHT_STATE, DIMMABLE_FAN_STATE
 from ..states.on_level import OnLevel
-from ..events import (Event, ON_EVENT, ON_FAST_EVENT, OFF_EVENT, OFF_FAST_EVENT,
-                      FAN_ON_EVENT, FAN_ON_FAST_EVENT, FAN_OFF_EVENT,
-                      FAN_OFF_FAST_EVENT)
+from ..events import (Event, ON_EVENT, ON_FAST_EVENT, OFF_EVENT, OFF_FAST_EVENT)  # ,
+#                      FAN_ON_EVENT, FAN_ON_FAST_EVENT, FAN_OFF_EVENT,
+#                      FAN_OFF_FAST_EVENT)
 from ..constants import FanSpeed
 
 
