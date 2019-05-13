@@ -3,7 +3,7 @@ import asyncio
 import logging
 # from . import ALDB
 from ..aldb.aldb_record import ALDBRecord
-
+from async_generator import yield_, async_generator
 
 RETRIES_ALL_MAX = 5
 RETRIES_ONE_MAX = 20
@@ -15,15 +15,16 @@ READ_ALL = 1
 READ_ONE = 2
 WRITE = 3
 
-
 class ALDBReadManager():
     """ALDB Read Manager."""
 
-    def __init__(self, aldb): # : ALDB):
+    def __init__(self, aldb, mem_addr: int = 0x00, num_recs: int = 0): # : ALDB):
         """Init the ALDBReadManager class."""
         from ..handlers.to_device.read_aldb import ReadALDBCommandHandler
         from ..handlers.from_device.receive_aldb_record import ReceiveALDBRecordHandler
         self._aldb = aldb
+        self._mem_addr = mem_addr
+        self._num_recs = num_recs
 
         self._records = asyncio.Queue()
         self._retries_all = 0
@@ -37,42 +38,21 @@ class ALDBReadManager():
         self._record_handler.subscribe(self._receive_record)
         self._timer_lock = asyncio.Lock()
 
-    def read(self, mem_addr: int = 0x00, num_recs: int = 0):
-        """Read one or more ALDB records.
-
-        Parameters:
-
-            mem_addr: int (Default 0x0000) - Memory address of the record to retrieve.
-            When mem_addr is 0x0000 the device will return the first record.
-
-            num_recs: int (Default 0)  Number of database records to return. When num_recs is 0 and
-            mem_addr is 0x0000 the database will return all records.
-        """
-        asyncio.ensure_future(self.async_read(mem_addr=mem_addr, num_recs=num_recs))
-
+    @async_generator
     async def async_read(self, mem_addr: int = 0x00, num_recs: int = 0):
-        """Read one or more ALDB records asyncronously.
-
-        Parameters:
-
-            mem_addr: int (Default 0x0000) - Memory address of the record to retrieve.
-            When mem_addr is 0x0000 the device will return the first record.
-
-            num_recs: int (Default 0)  Number of database records to return. When num_recs is 0 and
-            mem_addr is 0x0000 the database will return all records.
-        """
-        if mem_addr == 0x0000 and num_recs == 0:
+        """Start the reading process to enable iteration."""
+        if self._mem_addr == 0x0000 and self._num_recs == 0:
             self._last_command = READ_ALL
         else:
             self._last_command = READ_ONE
-        self._last_mem_addr = mem_addr
-        await self._async_read(mem_addr=mem_addr, num_recs=num_recs)
+        self._last_mem_addr = self._mem_addr
+        await self._async_read(mem_addr=self._mem_addr, num_recs=self._num_recs)
         while True:
             record = await self._records.get()
             if record is None:
                 break
             else:
-                yield record
+                await yield_(record)
 
     async def _async_read(self, mem_addr: int = 0x00, num_recs: int = 0):
         """Perform the device read function."""
