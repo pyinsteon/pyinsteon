@@ -2,7 +2,7 @@
 import asyncio
 
 from pyinsteon import async_connect, devices, async_close
-from . import set_log_levels, _LOGGER, PATH
+from samples import set_log_levels, _LOGGER, PATH
 
 
 # DEVICE = '/dev/ttyS5'
@@ -19,7 +19,8 @@ async def load_database():
     #                             username=USERNAME,
     #                             password=PASSWORD)
 
-    await devices.async_load(workdir=PATH)
+    await devices.async_load(workdir=PATH, id_devices=0)
+    await devices.async_save(workdir=PATH)
     for address in devices:
         device = devices[address]
         if not device.aldb.is_loaded:
@@ -33,7 +34,7 @@ async def load_database():
 
 
 if __name__ == '__main__':
-    set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info')
+    set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='debug')
     loop = asyncio.get_event_loop()
     _LOGGER.info('Loading All-Link database for all devices')
     loop.run_until_complete(load_database())
