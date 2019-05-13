@@ -1,16 +1,11 @@
 """Load saved devices to provide quick startup."""
 
 import asyncio
-import logging
-import os
-import sys
-from pyinsteon import async_connect, devices
+from pyinsteon import async_connect, devices, async_close
 from pyinsteon.managers.link_manager import async_link_devices
+from . import _LOGGER, set_log_levels, PATH
 
-_LOGGER = logging.getLogger(__name__)
-_LOGGER_PYINSTEON = logging.getLogger('pyinsteon')
 
-PATH = os.path.join(os.getcwd(), 'samples')
 # DEVICE = '/dev/ttyS5'
 DEVICE = 'COM5'
 HOST = '192.168.1.136'
@@ -20,7 +15,7 @@ PASSWORD = 'password'
 
 def state_changed(name, value, group):
     """Capture the state change."""
-    print('State changed to', value)
+    _LOGGER.info('State changed to %s', value)
 
 
 async def do_run():
@@ -29,22 +24,18 @@ async def do_run():
     # modem = await async_connect(host=HOST,
     #                             username=USERNAME,
     #                             password=PASSWORD)
-    print('Connected')
-    print('Modem Address:', modem.address)
+    _LOGGER.info('Connected')
+    _LOGGER.info('Modem Address: %s', modem.address)
     await devices.async_load(workdir=PATH, id_devices=0)
     controller = devices.get('27.C3.87')
     responder = devices.get('13.36.96')
     link_result = await async_link_devices(controller, responder, 1)
     if link_result:
-        print(link_result)
-    await modem.async_close()
+        _LOGGER.info(link_result)
+    await async_close()
 
 
 if __name__ == '__main__':
-    stream_handler = logging.StreamHandler(sys.stdout)
-    _LOGGER.addHandler(stream_handler)
-    _LOGGER_PYINSTEON.addHandler(stream_handler)
-    # _LOGGER.setLevel(logging.DEBUG)
-    # _LOGGER_PYINSTEON.setLevel(logging.DEBUG)
+    set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info')
     loop = asyncio.get_event_loop()
     loop.run_until_complete(do_run())

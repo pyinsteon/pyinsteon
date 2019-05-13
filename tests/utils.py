@@ -5,7 +5,7 @@ from collections import namedtuple
 
 from pyinsteon import pub
 from pyinsteon.protocol.messages.inbound import create
-from tests import _LOGGER_MSG
+from tests import _LOGGER_MESSAGES
 
 
 def hex_to_inbound_message(hex_data):
@@ -48,10 +48,9 @@ TopicItem = namedtuple('TopicItem', 'topic, kwargs, delay')
 def send_topics(topic_items):
     """Publish a topic message to interact with a test case."""
     async def async_send_topics(topic_items):
-        _LOGGER_MSG.debug('Sending messages')
         for item in topic_items:
             await asyncio.sleep(item.delay)
-            _LOGGER_MSG.debug('SENDING: %s  %s', item.topic, item.kwargs)
+            _LOGGER_MESSAGES.debug('RX: %s  %s', item.topic, item.kwargs)
             pub.sendMessage(item.topic, **item.kwargs)
     asyncio.ensure_future(async_send_topics(topic_items))
 

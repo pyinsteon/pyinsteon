@@ -1,27 +1,30 @@
+"""Utilities for tests."""
 import os
 import sys
 import logging
 
 
 _LOGGER = logging.getLogger(__name__)
-_LOGGER_INSTEON = logging.getLogger('pyinsteon')
-_LOGGER_MSG = logging.getLogger('pyinsteon.messages')
+_LOGGER_PYINSTEON = logging.getLogger('pyinsteon')
+_LOGGER_MESSAGES = logging.getLogger('pyinsteon.messages')
+PATH = os.path.join(os.getcwd())
 
 
-def set_log_levels(logger='info', logger_insteon='info', logger_msg='info'):
-    logger_level = _text_to_log_level(logger)
-    logger_insteon_level = _text_to_log_level(logger_insteon)
-    logger_msg_level = _text_to_log_level(logger_msg)
 
-    # stream_handler = logging.StreamHandler(sys.stdout)
+def set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info'):
+    """Set the log levels of the three logs."""
+    _setup_logger(_LOGGER, logger)
+    _setup_logger(_LOGGER_PYINSTEON, logger_pyinsteon)
+    _setup_logger(_LOGGER_MESSAGES, logger_messages)
 
-    # _LOGGER.addHandler(stream_handler)
-    # _LOGGER_INSTEON.addHandler(stream_handler)
-    # _LOGGER_MSG.addHandler(stream_handler)
 
-    _LOGGER.setLevel(logger_level)
-    _LOGGER_INSTEON.setLevel(logger_insteon_level)
-    _LOGGER_MSG.setLevel(logger_msg_level)
+def _setup_logger(logger, level):
+    _LOGGER.setLevel(_text_to_log_level(level))
+    if not logger.hasHandlers():
+        stream_handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
 
 
 def _text_to_log_level(log_level_text):
