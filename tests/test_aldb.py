@@ -9,7 +9,7 @@ from pyinsteon.aldb.control_flags import create_from_byte
 from pyinsteon.protocol.messages.user_data import UserData
 from pyinsteon.topics import EXTENDED_READ_WRITE_ALDB
 from tests.utils import TopicItem, async_case, send_topics, cmd_kwargs
-from tests import _LOGGER, _LOGGER_MSG, set_log_levels
+from tests import _LOGGER, set_log_levels
 
 
 class TestALDB(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestALDB(unittest.TestCase):
 
     def setUp(self):
         """Setup the test."""
-        set_log_levels(logger='info', logger_msg='info', logger_insteon='info')
+        set_log_levels(logger='info', logger_messages='info', logger_pyinsteon='info')
         self.flags = create_from_byte(0x03)
         self.group = int(0x04)
         self.address = Address('050607')
@@ -52,12 +52,12 @@ class TestALDB(unittest.TestCase):
 
     def send_ack_and_direct_ack(self, address, action, mem_addr, num_recs,
                                 topic=pub.AUTO_TOPIC):
-        _LOGGER_MSG.debug('Received message %s', topic)
+        _LOGGER.debug('Received message %s', topic)
         ack_kwargs = cmd_kwargs(self.cmd2, self.ud_ack)
         dir_ack_kwargs = cmd_kwargs(self.cmd2, self.ud_ack, self.target)
-        _LOGGER_MSG.debug('SENDING: %s %s', self.ack_topic, ack_kwargs)
+        _LOGGER.debug('SENDING: %s %s', self.ack_topic, ack_kwargs)
         pub.sendMessage(self.ack_topic, **ack_kwargs)
-        _LOGGER_MSG.debug('SENDING: %s %s', self.dir_ack_topic, dir_ack_kwargs)
+        _LOGGER.debug('SENDING: %s %s', self.dir_ack_topic, dir_ack_kwargs)
         pub.sendMessage(self.dir_ack_topic, **dir_ack_kwargs)
 
 
@@ -79,18 +79,22 @@ class TestALDB(unittest.TestCase):
         ud11 = UserData(unhexlify('01010faf00e2013118a20300013f'))
         ud12 = UserData(unhexlify('01010fa700000000000000000019'))
 
-        topics = [TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud1, self.target), TIMER + TIMER_INCREMENT * 4),
+        topics = [TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud1, self.target),
+                            TIMER + TIMER_INCREMENT * 4),
                   TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud2, self.target), .1),
 
-                  TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud3, self.target), TIMER + TIMER_INCREMENT * 5),
+                  TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud3, self.target),
+                            TIMER + TIMER_INCREMENT * 5),
                   TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud4, self.target), .1),
                   TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud5, self.target), .1),
 
-                  TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud6, self.target), TIMER + TIMER_INCREMENT * 6),
+                  TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud6, self.target),
+                            TIMER + TIMER_INCREMENT * 6),
                   TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud7, self.target), 5),
                   TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud8, self.target), 1),
 
-                  TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud9, self.target), TIMER + TIMER_INCREMENT * 7),
+                  TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud9, self.target),
+                            TIMER + TIMER_INCREMENT * 7),
                   TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud10, self.target), .1),
                   TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud11, self.target), .1),
                   TopicItem(self.rec_topic, cmd_kwargs(self.cmd2, ud12, self.target), .1)]

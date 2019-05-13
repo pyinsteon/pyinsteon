@@ -1,26 +1,23 @@
 """Test loading the IM ALDB."""
-import asyncio
-import sys
 import unittest
-from binascii import hexlify
-import logging
 
 from pyinsteon.address import Address
 from pyinsteon.aldb import ModemALDB
-from pyinsteon.aldb.control_flags import create_from_byte
-from pyinsteon.topics import ALL_LINK_RECORD_RESPONSE, GET_NEXT_ALL_LINK_RECORD, GET_FIRST_ALL_LINK_RECORD
+from pyinsteon.topics import (ALL_LINK_RECORD_RESPONSE, GET_NEXT_ALL_LINK_RECORD,
+                              GET_FIRST_ALL_LINK_RECORD)
 from tests.utils import TopicItem, async_case, send_topics
-from tests import _LOGGER, _INSTEON_LOGGER
+from tests import _LOGGER, set_log_levels
 
 
 def fill_rec(flags, group, address, data1, data2, data3):
+    """Fill an All-Link Record."""
     from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
     kwargs = {'flags': AllLinkRecordFlags(flags),
-                'group': group,
-                'address': Address(address),
-                'data1': data1,
-                'data2': data2,
-                'data3': data3}
+              'group': group,
+              'address': Address(address),
+              'data1': data1,
+              'data2': data2,
+              'data3': data3}
     return kwargs
 
 
@@ -29,13 +26,8 @@ class TestModemALDB(unittest.TestCase):
 
     def setUp(self):
         """Setup the test."""
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
-        _INSTEON_LOGGER.addHandler(stream_handler)
-        # _LOGGER.setLevel(logging.DEBUG)
-        # _INSTEON_LOGGER.setLevel(logging.DEBUG)
+        set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info')
         self.address = Address('000000')
-
         self.aldb = ModemALDB(self.address)
 
     @async_case
