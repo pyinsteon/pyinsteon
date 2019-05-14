@@ -31,6 +31,11 @@ class ResponseCommandHandlerBase(OutboundHandlerBase):
         """Send the command and wait for a direct_nak."""
         if self.response_lock.locked():
             self.response_lock.release()
+        while True:
+            try:
+                self._message_response.get_nowait()
+            except asyncio.QueueEmpty:
+                break
         # await self.response_lock.acquire()
         response = await super().async_send(address=self._address, **kwargs)
         if self.response_lock.locked():
