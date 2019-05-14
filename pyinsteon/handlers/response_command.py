@@ -31,9 +31,10 @@ class ResponseCommandHandlerBase(OutboundHandlerBase):
         """Send the command and wait for a direct_nak."""
         if self.response_lock.locked():
             self.response_lock.release()
-        await self.response_lock.acquire()
+        # await self.response_lock.acquire()
         response = await super().async_send(address=self._address, **kwargs)
-        self.response_lock.release()
+        if self.response_lock.locked():
+            self.response_lock.release()
         return response
 
     @abstractmethod
