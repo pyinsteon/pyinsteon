@@ -19,7 +19,7 @@ async def load_database():
     #                             username=USERNAME,
     #                             password=PASSWORD)
 
-    await devices.async_load(workdir=PATH, id_devices=0)
+    await devices.async_load(workdir=PATH)
     await devices.async_save(workdir=PATH)
     for address in devices:
         device = devices[address]
