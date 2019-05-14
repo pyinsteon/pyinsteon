@@ -3,7 +3,7 @@ import asyncio
 import unittest
 from pyinsteon import pub
 from pyinsteon.handlers.send_all_link import SendAllLinkingCommandHandler
-from tests.utils import async_case, async_send_topics, TopicItem
+from tests.utils import async_case, send_topics, TopicItem
 
 class TestSendAllLinkingCommandHandler(unittest.TestCase):
     """Test the SendAllLink command handler."""
@@ -20,7 +20,7 @@ class TestSendAllLinkingCommandHandler(unittest.TestCase):
     async def test_async_send(self):
         """Test the async_send method."""
         topics = [TopicItem('ack.send_all_link_command', {"group": 0x01, "mode": 0x01 }, .5 )]
-        asyncio.ensure_future(async_send_topics(topics))
+        send_topics(topics)
         assert await self.handler.async_send()
 
     def send_listener(self, group, mode):

@@ -1,4 +1,5 @@
 """ALDB Control Flags."""
+from ..constants import AllLinkMode
 
 def create_from_byte(control_flags):
     """Create a ControlFlags class from a control flags byte."""
@@ -24,15 +25,30 @@ class ControlFlags():
         self._bit5 = bool(bit5)
         self._bit4 = bool(bit4)
 
+    def __int__(self):
+        """Return an int representation of ControlFlags."""
+        flags = int(self._in_use) << 7 \
+            | int(self._controller) << 6 \
+            | int(self._bit5) << 5 \
+            | int(self._bit4) << 4 \
+            | int(self._used_before) << 1
+        return flags
+
+    def __bytes__(self):
+        """Return a byte representation of ControlFlags."""
+        return bytes([int(self)])
+
+    @property
+    def mode(self) -> AllLinkMode:
+        """return the All-Link Mode of the record."""
+        if self._controller:
+            return AllLinkMode.CONTROLLER
+        return AllLinkMode.RESPONDER
+
     @property
     def is_in_use(self):
         """Return True if the record is in use."""
         return self._in_use
-
-    @property
-    def is_available(self):
-        """Return True if the record is available for use."""
-        return not self._in_use
 
     @property
     def is_controller(self):
@@ -53,13 +69,3 @@ class ControlFlags():
     def is_used_before(self):
         """Return True if this is not the last record."""
         return self._used_before
-
-    @property
-    def byte(self):
-        """Return a byte representation of ControlFlags."""
-        flags = int(self._in_use) << 7 \
-            | int(self._controller) << 6 \
-            | int(self._bit5) << 5 \
-            | int(self._bit4) << 4 \
-            | int(self._used_before) << 1
-        return flags

@@ -5,14 +5,14 @@ import sys
 
 from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.outbound import set_nak_message_byte
-from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
+from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
-class TestSetInsteonNakMessageByte(unittest.TestCase, TestOutboundBase):
+class TestSetInsteonNakMessageByte(unittest.TestCase, OutboundBase):
 
     def setUp(self):
         self.hex = '027003'

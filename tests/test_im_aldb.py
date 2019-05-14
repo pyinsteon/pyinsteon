@@ -1,26 +1,23 @@
 """Test loading the IM ALDB."""
-import asyncio
-import sys
 import unittest
-from binascii import hexlify
-import logging
 
 from pyinsteon.address import Address
 from pyinsteon.aldb import ModemALDB
-from pyinsteon.aldb.control_flags import create_from_byte
-from pyinsteon.topics import ALL_LINK_RECORD_RESPONSE, GET_NEXT_ALL_LINK_RECORD, GET_FIRST_ALL_LINK_RECORD
-from tests.utils import TopicItem, async_case, async_send_topics
-from tests import _LOGGER, _INSTEON_LOGGER
+from pyinsteon.topics import (ALL_LINK_RECORD_RESPONSE, GET_NEXT_ALL_LINK_RECORD,
+                              GET_FIRST_ALL_LINK_RECORD)
+from tests.utils import TopicItem, async_case, send_topics
+from tests import _LOGGER, set_log_levels
 
 
 def fill_rec(flags, group, address, data1, data2, data3):
+    """Fill an All-Link Record."""
     from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
     kwargs = {'flags': AllLinkRecordFlags(flags),
-                'group': group,
-                'address': Address(address),
-                'data1': data1,
-                'data2': data2,
-                'data3': data3}
+              'group': group,
+              'address': Address(address),
+              'data1': data1,
+              'data2': data2,
+              'data3': data3}
     return kwargs
 
 
@@ -29,20 +26,15 @@ class TestModemALDB(unittest.TestCase):
 
     def setUp(self):
         """Setup the test."""
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
-        _INSTEON_LOGGER.addHandler(stream_handler)
-        # _LOGGER.setLevel(logging.DEBUG)
-        # _INSTEON_LOGGER.setLevel(logging.DEBUG)
+        set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info')
         self.address = Address('000000')
-
         self.aldb = ModemALDB(self.address)
 
     @async_case
     async def test_load(self):
         """Test loading the modem ALDB."""
 
-        async def send_messages():
+        def create_messages():
             """Send response messages."""
             ack_first_topic = 'ack.{}'.format(GET_FIRST_ALL_LINK_RECORD)
             ack_topic = 'ack.{}'.format(GET_NEXT_ALL_LINK_RECORD)
@@ -68,9 +60,10 @@ class TestModemALDB(unittest.TestCase):
                 TopicItem(nak_topic, {}, 1),
                 TopicItem(nak_topic, {}, 1),
                 TopicItem(nak_topic, {}, 1)]
-            await async_send_topics(topics)
+            return topics
 
-        asyncio.ensure_future(send_messages())
+        responses = create_messages()
+        send_topics(responses)
         response = await self.aldb.async_load()
         _LOGGER.debug('Done LOAD function.')
         _LOGGER.debug('Status: %s', response.name)
@@ -81,15 +74,16 @@ class TestModemALDB(unittest.TestCase):
     async def test_empty_aldb(self):
         """Test for an empty ALDB."""
 
-        async def send_nak_messages():
+        def create_messages():
             """Send 3 NAK messages."""
             nak_topic = 'nak.{}'.format(GET_FIRST_ALL_LINK_RECORD)
             topics = [TopicItem(nak_topic, {}, 1),
                       TopicItem(nak_topic, {}, 1),
                       TopicItem(nak_topic, {}, 1)]
-            await async_send_topics(topics)
+            return topics
 
-        asyncio.ensure_future(send_nak_messages())
+        responses = create_messages()
+        send_topics(responses)
         response = await self.aldb.async_load()
         _LOGGER.debug('Done LOAD function.')
         _LOGGER.debug('Status: %s', response.name)

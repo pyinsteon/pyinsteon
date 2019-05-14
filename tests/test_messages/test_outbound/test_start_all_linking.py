@@ -5,14 +5,14 @@ import sys
 
 from pyinsteon.constants import MessageId, AllLinkMode
 from pyinsteon.protocol.messages.outbound import start_all_linking
-from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
+from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
-class TestStartAllLinking(unittest.TestCase, TestOutboundBase):
+class TestStartAllLinking(unittest.TestCase, OutboundBase):
 
     def setUp(self):
         self.hex = '02640304'

@@ -2,10 +2,10 @@
 
 from pubsub import pub
 from .protocol import async_modem_connect
-from .devices.device_manager import DeviceManager
+from .managers.device_manager import DeviceManager
 
 
-device_mgr = DeviceManager()
+devices = DeviceManager()
 
 
 async def async_connect(device=None, host=None, port=None, username=None,
@@ -25,5 +25,13 @@ async def async_connect(device=None, host=None, port=None, username=None,
     modem = await async_modem_connect(device=device, host=host, port=port,
                                       username=username, password=password,
                                       hub_version=hub_version, **kwargs)
-    device_mgr.modem = modem
+    devices.modem = modem
+    devices.id_manager.start()
     return modem
+
+async def async_close():
+    """Close the connection and stop all tasks."""
+    import asyncio
+    await devices.modem.async_close()
+    devices.id_manager.close()
+    await asyncio.sleep(.1)

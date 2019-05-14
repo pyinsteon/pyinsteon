@@ -2,11 +2,10 @@
 import asyncio
 from binascii import unhexlify
 from collections import namedtuple
-import logging
-import sys
-from pyinsteon.protocol.messages.inbound import create
+
 from pyinsteon import pub
-from tests import _LOGGER
+from pyinsteon.protocol.messages.inbound import create
+from tests import _LOGGER_MESSAGES
 
 
 def hex_to_inbound_message(hex_data):
@@ -46,14 +45,15 @@ def async_case(f):
 
 TopicItem = namedtuple('TopicItem', 'topic, kwargs, delay')
 
-async def async_send_topics(topic_items):
+def send_topics(topic_items):
     """Publish a topic message to interact with a test case."""
-    _LOGGER.debug('Sending message')
-    for item in topic_items:
-        await asyncio.sleep(item.delay)
-        _LOGGER.debug('RX: %s  %s', item.topic, item.kwargs)
-        pub.sendMessage(item.topic, **item.kwargs)
-        
+    async def async_send_topics(topic_items):
+        for item in topic_items:
+            await asyncio.sleep(item.delay)
+            _LOGGER_MESSAGES.debug('RX: %s  %s', item.topic, item.kwargs)
+            pub.sendMessage(item.topic, **item.kwargs)
+    asyncio.ensure_future(async_send_topics(topic_items))
+
 def cmd_kwargs(cmd2, user_data, target=None):
     """Return a kwargs dict for a standard messsage command."""
     if target:
@@ -62,4 +62,13 @@ def cmd_kwargs(cmd2, user_data, target=None):
                 'user_data': user_data}
     return {'cmd2': cmd2,
             'user_data': user_data}
-    
+
+def make_command_response_messages(address, topic, cmd2, target='000000', user_data=None):
+    """Return a colleciton of ACK and Direct ACK responses to commands."""
+    from pyinsteon.address import Address
+
+    address = Address(address)
+    ack = 'ack.{}.{}'.format(address.id, topic)
+    direct_ack = '{}.{}.direct_ack'.format(address.id, topic)
+    return [TopicItem(ack, cmd_kwargs(cmd2, user_data), .25),
+            TopicItem(direct_ack, cmd_kwargs(cmd2, user_data, target), .25)]

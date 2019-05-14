@@ -23,12 +23,15 @@ setup(
     long_description=readme(),
     include_package_data=True,
     zip_safe=True,
+
     install_requires=[
         'pyserial',
         'pyserial-asyncio',
         'aiohttp',
-        'pypubsub'
-    ],
+        'pypubsub',
+        'aiofile',
+        'async_generator'
+        ],
     entry_points={
         'console_scripts': ['insteon_monitor = pyinsteon.tools:monitor',
                             'insteon_tools = '

@@ -5,9 +5,9 @@ from ..handlers.get_first_all_link_record import GetFirstAllLinkRecordHandler
 from ..handlers.get_next_all_link_record import GetNextAllLinkRecordHandler
 from ..handlers.all_link_record_response import AllLinkRecordResponseHandler
 from ..address import Address
-from .aldb_record import ALDBRecord
-from .control_flags import create_from_byte
-from . import ModemALDB
+from ..aldb.aldb_record import ALDBRecord
+from ..aldb.control_flags import create_from_byte
+from ..aldb import ModemALDB
 from ..constants import ResponseStatus
 
 

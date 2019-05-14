@@ -7,7 +7,7 @@ from pyinsteon.constants import MessageId, ManageAllLinkRecordAction
 from pyinsteon.address import Address
 from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
 from pyinsteon.protocol.messages.outbound import manage_all_link_record
-from tests.test_messages.test_outbound.outbound_base import TestOutboundBase
+from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 
@@ -15,7 +15,7 @@ _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
-class TestManageAllLinkRecord(unittest.TestCase, TestOutboundBase):
+class TestManageAllLinkRecord(unittest.TestCase, OutboundBase):
 
     def setUp(self):
         self.hex = '026F400405060708090a0b'

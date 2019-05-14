@@ -1,4 +1,10 @@
-﻿# Byte-compiled / optimized / DLL files
+﻿# Project files to ignore
+pyinsteon/topics/command_topics.csv
+pyinsteon/topics/csv_to_yaml.py
+samples/*.json
+*.json
+
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -87,6 +93,8 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+#VS and VS Code project settings
 /.vs/pyiteon/v15/.suo
 /.vs/ProjectSettings.json
 /.vs/slnx.sqlite
@@ -99,5 +107,4 @@ ENV/
 /settings.json
 /.vscode
 /.vscode/settings.json
-pyinsteon/topics/command_topics.csv
-pyinsteon/topics/csv_to_yaml.py
+samples/insteon_devices.json

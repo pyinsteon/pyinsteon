@@ -10,10 +10,10 @@ from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.user_data import UserData
 
 try:
-    from .outbound_base import TestOutboundBase
+    from .outbound_base import OutboundBase
 except ImportError:
     import outbound_base
-    TestOutboundBase = outbound_base.TestOutboundBase
+    OutboundBase = outbound_base.OutboundBase
 
 
 
@@ -21,7 +21,7 @@ _LOGGER = logging.getLogger(__name__)
 _INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
-class TestSendExtended(unittest.TestCase, TestOutboundBase):
+class TestSendExtended(unittest.TestCase, OutboundBase):
 
     def setUp(self):
         self.hex = '0262010203140506a1a2a3a4a5a6a7a8a9aaabacadae'

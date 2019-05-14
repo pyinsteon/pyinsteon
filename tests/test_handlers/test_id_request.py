@@ -6,9 +6,10 @@ import unittest
 
 from pyinsteon.address import Address
 from pyinsteon.constants import ResponseStatus
-from pyinsteon.handlers.id_request import IdRequestCommand
+from pyinsteon.handlers.to_device.id_request import IdRequestCommand
+from pyinsteon.handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
 from pyinsteon.topics import ASSIGN_TO_ALL_LINK_GROUP
-from tests.utils import TopicItem, async_case, async_send_topics
+from tests.utils import TopicItem, async_case, send_topics
 
 from tests import _LOGGER
 
@@ -18,8 +19,9 @@ class TestIdRequest(unittest.TestCase):
     def setUp(self):
         """Set up the test."""
         self._address = '1a2b3c'
-        self.handler = IdRequestCommand(self._address)
-        self.handler.subscribe(self.set_id)
+        self.id_handler = IdRequestCommand(self._address)
+        self.all_link_handler = AssignToAllLinkGroupCommand(self._address)
+        self.all_link_handler.subscribe(self.set_id)
         self._cat = None
         self._subcat = None
         self._firmware = None
@@ -32,7 +34,7 @@ class TestIdRequest(unittest.TestCase):
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)
 
-    def set_id(self, address, cat, subcat, firmware):
+    def set_id(self, address, cat, subcat, firmware, group, mode):
         """Callback to on_level direct_ack."""
         self._cat = cat
         self._subcat = subcat
@@ -48,8 +50,9 @@ class TestIdRequest(unittest.TestCase):
                             {"cmd2": cmd2, "target": None, "user_data": None}, .5),
                   TopicItem(self.id_response_topic,
                             {'cmd2': cmd2, 'target': Address('010203'), 'user_data': None}, .5)]
-        asyncio.ensure_future(async_send_topics(topics))
-        assert await self.handler.async_send()
+        send_topics(topics)
+        assert await self.id_handler.async_send()
+        await asyncio.sleep(1)
         assert self._cat == 1
         assert self._subcat == 2
         assert self._firmware == 3
@@ -62,8 +65,8 @@ class TestIdRequest(unittest.TestCase):
                             {"cmd2": cmd2, "target": None, "user_data": None}, .5),
                   TopicItem(self.direct_nak_topic,
                             {"cmd2": cmd2, "target": None, "user_data": None}, .5)]
-        asyncio.ensure_future(async_send_topics(topics))
-        assert await self.handler.async_send() == ResponseStatus.UNCLEAR
+        send_topics(topics)
+        assert await self.id_handler.async_send() == ResponseStatus.UNCLEAR
 
 if __name__ == '__main__':
     unittest.main()

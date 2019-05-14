@@ -10,7 +10,7 @@ class ModemBase(Device, metaclass=ABCMeta):
 
     __meta__ = ABCMeta
 
-    def __init__(self, protocol, transport, workdir='', address='000000',
+    def __init__(self, protocol, transport, address='000000',
                  cat=0x03, subcat=0x00, firmware=0x00,
                  description='', model=''):
         """Init the Modem class."""
@@ -51,3 +51,6 @@ class ModemBase(Device, metaclass=ABCMeta):
 
     def _register_handlers(self):
         """Register command handlers for modems."""
+
+    def _register_events(self):
+        """Register events for modems."""

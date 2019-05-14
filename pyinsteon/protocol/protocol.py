@@ -126,7 +126,8 @@ from .msg_to_topic import convert_to_topic
 
 
 _LOGGER = logging.getLogger(__name__)
-WRITE_WAIT = 1.25  # Time to wait between writes to transport
+_LOGGER_MSG = logging.getLogger('pyinsteon.messages')
+WRITE_WAIT = 1.5  # Time to wait between writes to transport
 
 
 def _is_nak(msg):
@@ -188,24 +189,23 @@ class Protocol(asyncio.Protocol):
     def data_received(self, data):
         """Receive data from the serial transport."""
         self._buffer.extend(data)
-        _LOGGER.debug('CURR BUFF: %s', self._buffer.hex())
         while True:
             last_buffer = self._buffer
-            _LOGGER.debug('BUFFER IN: %s', self._buffer.hex())
             msg, self._buffer = create(self._buffer)
-            _LOGGER.debug('BUFFER OUT: %s', self._buffer.hex())
             if msg:
+                _LOGGER_MSG.debug('RX: %s', repr(msg))
                 try:
                     (topic, kwargs) = convert_to_topic(msg)
-                    if _is_nak(msg) and not _has_listeners(topic):
-                        self._resend(msg)
-                    else:
-                        pub.sendMessage(topic, **kwargs)
                 except ValueError:
                     # No topic was found for this message
                     _LOGGER.warning('No topic found for message %r', msg)
+                else:
+                    if _is_nak(msg) and not _has_listeners(topic):
+                        self._resend(msg)
+                    else:
+                        _LOGGER_MSG.debug('Topic: %s', topic)
+                        pub.sendMessage(topic, **kwargs)
             if last_buffer == self._buffer or not self._buffer:
-                _LOGGER.debug('BREAKING: %s', self._buffer.hex())
                 break
 
     def connection_lost(self, exc):
@@ -279,5 +279,6 @@ class Protocol(asyncio.Protocol):
         """Write data to the transport."""
         while self._status == TransportStatus.OPEN:
             _, msg = await self._message_queue.get()
+            _LOGGER_MSG.debug('TX: %s', repr(msg))
             self._transport.write(msg)
             await asyncio.sleep(WRITE_WAIT)
