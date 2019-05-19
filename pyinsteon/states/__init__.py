@@ -11,7 +11,7 @@ ON_OFF_SWITCH_STATE = 'on_off_switch_state'
 class StateBase(SubscriberBase):
     """Device state base class."""
 
-    def __init__(self, name: str, address: Address, handlers, group=0,
+    def __init__(self, name: str, address: Address, group=0,
                  default=None, value_type: type = int):
         """Init the StateBase class."""
         super().__init__()
@@ -20,7 +20,6 @@ class StateBase(SubscriberBase):
         self._group = group
         self._value = int(default) if default is not None else None
         self._type = value_type
-        self._subscribe_handlers(handlers)
 
     @property
     def name(self):
@@ -44,10 +43,10 @@ class StateBase(SubscriberBase):
             self._call_subscribers(name=self._name, address=self._address,
                                    value=self._value, group=self._group)
 
+    def add_handler(self, handler):
+        """Subscribe to a handler to set the value of the state."""
+        handler.subscribe(self._set_value)
+
     @abstractmethod
     def _set_value(self, **kwargs):
         """Set the value of the state from a Handler."""
-
-    def _subscribe_handlers(self, handlers):
-        for handler in handlers:
-            handler.subscribe(self._set_value)
