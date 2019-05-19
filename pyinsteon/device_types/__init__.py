@@ -97,6 +97,11 @@ class Device(ABC):
         """Return the device All-Link Database."""
         return self._aldb
 
+    @property
+    def is_battery(self):
+        """Return True if the device is battery operated."""
+        return False
+
     @abstractmethod
     def _register_states(self):
         """Add the states to the device."""
