@@ -33,7 +33,6 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
             self.response_lock.release()
         await self.response_lock.acquire()
         response = await super().async_send(address=self._address, **kwargs)
-        self.response_lock.release()
         return response
 
     @ack_handler(wait_response=True)

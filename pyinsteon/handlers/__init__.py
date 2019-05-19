@@ -1,10 +1,13 @@
 """Insteon message and command handlers."""
 import asyncio
 from functools import wraps
+import logging
 from .. import pub
 from ..constants import AckNak, MessageFlagType, ResponseStatus
 
+
 TIMEOUT = 3  # Time out between ACK and Direct ACK
+_LOGGER = logging.getLogger(__name__)
 
 
 def _post_response(obj, response: ResponseStatus):
@@ -29,17 +32,23 @@ def ack_handler(wait_response=False):
     def register_topic(instance_func, topic):
         topic = 'ack.{}'.format(topic)
         pub.subscribe(instance_func, topic)
-        
+
     async def _wait_response(lock: asyncio.Lock, queue: asyncio.Queue):
         """Wait for the direct ACK message, and post False if timeout reached."""
         if lock.locked():
             lock.release()
-        await lock.acquire()
+        try:
+            await asyncio.wait_for(lock.acquire(), .1)
+        except asyncio.TimeoutError:
+            _LOGGER.error('Lock aquired while waiting to release')
+            return
         try:
             await asyncio.wait_for(lock.acquire(), TIMEOUT)
         except asyncio.TimeoutError:
             if lock.locked():
                 queue.put_nowait(ResponseStatus.FAILURE)
+        if lock.locked():
+            lock.release()
 
     def setup(func):
         @wraps(func)
