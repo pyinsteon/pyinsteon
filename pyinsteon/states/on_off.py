@@ -5,10 +5,10 @@ from ..address import Address
 class OnOff(StateBase):
     """On / Off state."""
 
-    def __init__(self, name: str, address: Address, handlers: list,
-                 group: int = 0, default: int = None):
+    def __init__(self, name: str, address: Address, group: int = 0,
+                 default: int = None):
         """Init the OnLevel class."""
-        super().__init__(name, address, handlers, group, default, value_type=int)
+        super().__init__(name, address, group, default, value_type=int)
 
     #pylint: disable=arguments-differ
     def _set_value(self, on_level, group=1):

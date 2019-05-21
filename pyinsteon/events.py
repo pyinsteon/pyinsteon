@@ -35,7 +35,7 @@ class Event(SubscriberBase):
     triggering the event.
     """
 
-    def __init__(self, name: str, address: Address, handlers: list, group=0):
+    def __init__(self, name: str, address: Address, group=0):
         """Init the Event class."""
         super().__init__()
         self._name = name
@@ -45,3 +45,7 @@ class Event(SubscriberBase):
     def _call_subscribers(self, **kwargs):
         """Call subscribers to the event."""
         super()._call_subscribers(name=self._name, address=self._address, group=self._group)
+
+    def add_handler(self, handler):
+        """Add a handler to trigger the event."""
+        handler.subscribe(self._call_subscribers)
