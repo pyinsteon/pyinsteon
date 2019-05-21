@@ -33,8 +33,8 @@ async def async_close():
     """Close the connection and stop all tasks."""
     import asyncio
     await devices.modem.async_close()
-    for device in devices:
-        if device.is_battery:
-            device.aldb.close()
+    for addr in devices:
+        if devices[addr].is_battery:
+            devices[addr].close()
     devices.id_manager.close()
     await asyncio.sleep(.1)
