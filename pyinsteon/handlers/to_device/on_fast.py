@@ -23,7 +23,7 @@ class OnFastCommand(DirectCommandHandlerBase):
         return await super().async_send(on_level=0xff, group=group)
 
     @direct_ack_handler
-    def handle_response(self, cmd2, target, user_data):
+    def handle_direct_ack(self, cmd2, target, user_data):
         """Handle the ON FAST response direct ACK."""
         group = 0
         if user_data:

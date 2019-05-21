@@ -22,7 +22,7 @@ class OffCommand(DirectCommandHandlerBase):
         return await super().async_send(group=group)
 
     @direct_ack_handler
-    def handle_response(self, cmd2, target, user_data):
+    def handle_direct_ack(self, cmd2, target, user_data):
         """Handle the OFF response direct ACK."""
         group = 0
         if user_data:
