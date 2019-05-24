@@ -2,7 +2,7 @@
 from . import topic_to_command_handler
 from .. import pub
 from ..address import Address
-from ..constants import MessageFlagType, AllLinkMode
+from ..constants import MessageFlagType, AllLinkMode, RampRate
 from ..topics import (ASSIGN_TO_ALL_LINK_GROUP, ASSIGN_TO_COMPANION_GROUP,
                       BRIGHTEN_ONE_STEP,
                       DELETE_FROM_ALL_LINK_GROUP, DEVICE_TEXT_STRING_REQUEST,
@@ -68,8 +68,6 @@ from ..topics import (ASSIGN_TO_ALL_LINK_GROUP, ASSIGN_TO_COMPANION_GROUP,
                       SPRINKLER_SKIP_BACK, SPRINKLER_SKIP_FORWARD,
                       SPRINKLER_VALVE_OFF, SPRINKLER_VALVE_ON,
                       STATUS_REQUEST,
-                      STATUS_REQUEST_ALTERNATE_1, STATUS_REQUEST_ALTERNATE_2,
-                      STATUS_REQUEST_ALTERNATE_3,
                       THERMOSTAT_DISABLE_STATUS_CHANGE_MESSAGE,
                       THERMOSTAT_ENABLE_STATUS_CHANGE_MESSAGE,
                       THERMOSTAT_GET_AMBIENT_TEMPERATURE,
@@ -109,8 +107,8 @@ from .messages.user_data import UserData
 
 def _create_direct_message(topic, address, cmd2=None, user_data=None):
     main_topic = topic.name.split('.')[1]
-    cmd1, cmd2_std, extended = commands.get_cmd1_cmd2(main_topic)
-    extended = True if user_data else extended
+    cmd1, cmd2_std, _ = commands.get_cmd1_cmd2(main_topic)
+    extended = user_data is not None
     cmd2 = cmd2_std if cmd2_std is not None else cmd2
     flags = create_flags(MessageFlagType.DIRECT, extended)
     if extended:
@@ -185,19 +183,19 @@ def enter_unlinking_mode(address: Address, group: int, topic=pub.AUTO_TOPIC):
 @topic_to_command_handler(topic=GET_INSTEON_ENGINE_VERSION)
 def get_insteon_engine_version(address: Address, topic=pub.AUTO_TOPIC):
     """Create a GET_INSTEON_ENGINE_VERSION command."""
-    _create_direct_message(topic=topic, address=address)
+    _create_direct_message(topic=topic, address=address, cmd2=0x00)
 
 
 @topic_to_command_handler(topic=PING)
 def ping(address: Address, topic=pub.AUTO_TOPIC):
     """Create a PING command."""
-    _create_direct_message(topic=topic, address=address)
+    _create_direct_message(topic=topic, address=address, cmd2=0x00)
 
 
 @topic_to_command_handler(topic=ID_REQUEST)
 def id_request(address: Address, topic=pub.AUTO_TOPIC):
     """Create a ID_REQUEST command."""
-    _create_direct_message(topic=topic, address=address)
+    _create_direct_message(topic=topic, address=address, cmd2=0x00)
 
 
 @topic_to_command_handler(topic=ON)
@@ -239,38 +237,19 @@ def off_fast(address: Address, group: int, topic=pub.AUTO_TOPIC):
 @topic_to_command_handler(topic=BRIGHTEN_ONE_STEP)
 def brighten_one_step(address: Address, topic=pub.AUTO_TOPIC):
     """Create a BRIGHTEN_ONE_STEP command."""
-    _create_direct_message(topic=topic, address=address)
+    _create_direct_message(topic=topic, address=address, cmd2=0)
 
 
 @topic_to_command_handler(topic=DIM_ONE_STEP)
 def dim_one_step(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DIM_ONE_STEP command."""
-    _create_direct_message(topic=topic, address=address)
+    _create_direct_message(topic=topic, address=address, cmd2=0)
 
 
 @topic_to_command_handler(topic=STATUS_REQUEST)
-def status_request(address: Address, topic=pub.AUTO_TOPIC):
+def status_request(address: Address, status_type: int = 0, topic=pub.AUTO_TOPIC):
     """Create a STATUS_REQUEST command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(topic=STATUS_REQUEST_ALTERNATE_1)
-def status_request_alternate_1(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a STATUS_REQUEST_ALTERNATE_1 command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(topic=STATUS_REQUEST_ALTERNATE_2)
-def status_request_alternate_2(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a STATUS_REQUEST_ALTERNATE_2 command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(topic=STATUS_REQUEST_ALTERNATE_3)
-def status_request_alternate_3(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a STATUS_REQUEST_ALTERNATE_3 command."""
-    _create_direct_message(topic=topic, address=address)
-
+    _create_direct_message(topic=topic, address=address, cmd2=status_type)
 
 @topic_to_command_handler(topic=GET_OPERATING_FLAGS)
 def get_operating_flags(address: Address, flags_requested: int, topic=pub.AUTO_TOPIC):
@@ -279,9 +258,9 @@ def get_operating_flags(address: Address, flags_requested: int, topic=pub.AUTO_T
 
 
 @topic_to_command_handler(topic=SET_OPERATING_FLAGS)
-def set_operating_flags(address: Address, flags_to_alter: int, topic=pub.AUTO_TOPIC):
+def set_operating_flags(address: Address, flags: int, topic=pub.AUTO_TOPIC):
     """Create a SET_OPERATING_FLAGS command."""
-    _create_direct_message(topic=topic, address=address, cmd2=flags_to_alter)
+    _create_direct_message(topic=topic, address=address, cmd2=flags)
 
 
 @topic_to_command_handler(topic=INSTANT_CHANGE)
@@ -327,32 +306,35 @@ def poke_one_byte_internal(address: Address, byte_to_write: int, topic=pub.AUTO_
 
 
 @topic_to_command_handler(topic=ON_AT_RAMP_RATE)
-def on_at_ramp_rate(address: Address, on_level: int, ramp_rate: int, topic=pub.AUTO_TOPIC):
+def on_at_ramp_rate(address: Address, on_level: int, ramp_rate: RampRate, topic=pub.AUTO_TOPIC):
     """Create a ON_AT_RAMP_RATE command."""
-    on_level = on_level & 0x0f << 4
-    ramp_rate = int(ramp_rate / 2 + 1)
-    on_level_and_ramp_rate = on_level + ramp_rate
-    _create_direct_message(topic=topic, address=address, cmd2=on_level_and_ramp_rate)
-
+    from math import ceil
+    on_level = min(0x10, on_level & 0xf0)
+    ramp_rate = ceil(int(ramp_rate) / 2) + 1 & 0x0f
+    cmd2 = on_level + ramp_rate
+    _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 @topic_to_command_handler(topic=EXTENDED_GET_SET)
-def extended_get_set(address: Address, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def extended_get_set(address: Address, user_data: UserData, topic=pub.AUTO_TOPIC):
     """Create a EXTENDED_GET_SET command."""
-    _create_direct_message(topic=topic, address=address, user_data=OTHER_EXT_DATA)
-
+    user_data = UserData(user_data)
+    _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 @topic_to_command_handler(topic=OFF_AT_RAMP_RATE)
-def off_at_ramp_rate(address: Address, ramp_rate: int, topic=pub.AUTO_TOPIC):
+def off_at_ramp_rate(address: Address, on_level: int, ramp_rate: RampRate, topic=pub.AUTO_TOPIC):
     """Create a OFF_AT_RAMP_RATE command."""
-    _create_direct_message(topic=topic, address=address, cmd2=ramp_rate)
+    from math import ceil
+    on_level = min(0x10, on_level & 0xf0)
+    ramp_rate = ceil(int(ramp_rate) / 2) + 1 & 0x0f
+    cmd2 = on_level + ramp_rate
+    _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 def _read_aldb(address, mem_addr, num_recs, topic):
     # num_recs = 0 if mem_addr == 0x0000 else 1
     mem_hi = mem_addr >> 8
     mem_lo = mem_addr & 0xff
     user_data = UserData({'d2': 0x00, 'd3': mem_hi, 'd4': mem_lo, 'd5': num_recs})
-    _create_direct_message(topic=topic, address=address, user_data=user_data)
-
+    _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 def _write_aldb(address, mem_addr, mode, group, target, data1, data2, data3,
                 in_use, topic):
@@ -365,7 +347,7 @@ def _write_aldb(address, mem_addr, mode, group, target, data1, data2, data3,
     user_data = UserData({'d2': 0x02, 'd3': mem_hi, 'd4': mem_lo, 'd5': 0x08,
                           'd6': int(flags), 'd7': group, 'd8': target.high, 'd9': target.middle,
                           'd10': target.low, 'd11': data1, 'd12': data2, 'd13': data3})
-    _create_direct_message(topic=topic, address=address, user_data=user_data)
+    _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
 @topic_to_command_handler(topic=EXTENDED_READ_WRITE_ALDB)
@@ -387,7 +369,7 @@ def extended_read_write_aldb(address: Address, action: int, mem_addr: int,
 @topic_to_command_handler(topic=EXTENDED_TRIGGER_ALL_LINK)
 def extended_trigger_all_link(address: Address, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
     """Create a EXTENDED_TRIGGER_ALL_LINK command."""
-    _create_direct_message(topic=topic, address=address, user_data=OTHER_EXT_DATA)
+    _create_direct_message(topic=topic, address=address, cmd2=0, user_data=OTHER_EXT_DATA)
 
 
 @topic_to_command_handler(topic=SET_SPRINKLER_PROGRAM)
