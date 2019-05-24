@@ -115,8 +115,9 @@ def create(raw_data: bytearray) -> (Inbound, bytearray):
                 msg, remaining_data = _create_message(msg_def, data_bytes)
             return msg, bytearray(remaining_data)
     except ValueError:
-        _LOGGER.warning("Message ID not found: 0x%2x", data_bytes[1])
+        _LOGGER.debug("Message ID not found: 0x%02x", data_bytes[1])
         _LOGGER.debug('Bad Data: %s', raw_data.hex())
-        return None, bytearray(data_bytes[-2])
+        truncate = 1 if data_bytes[1] == 0x02 else 2
+        return None, bytearray(data_bytes[truncate:])
 
     return None, raw_data
