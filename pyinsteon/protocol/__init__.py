@@ -60,9 +60,8 @@ async def async_connect_http(host, username, password, protocol, port=None):
     """Connect to the Hub Version 2 via HTTP."""
     from .http_transport import HttpTransport
     port = 25105 if not port else port
-    loop = asyncio.get_event_loop()
     transport = HttpTransport(protocol=protocol, host=host, port=port,
-                              username=username, password=password, loop=loop)
+                              username=username, password=password)
     if await transport.async_test_connection():
         protocol.connection_made(transport)
     return transport
@@ -128,7 +127,8 @@ async def async_modem_connect(device=None, host=None, port=None, username=None,
     get_im_info = GetImInfoHandler()
     get_im_info.subscribe(set_im_info)
     await get_im_info.async_send()
-    modem = Modem(protocol=protocol, transport=transport, address=address,
-                  cat=cat, subcat=subcat, firmware=firmware)
+    modem = Modem(address=address, cat=cat, subcat=subcat, firmware=firmware)
+    modem.protocol = protocol
+    modem.transport = transport
     # Pause to allow connection_made to be called:
     return modem
