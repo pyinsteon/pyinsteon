@@ -100,7 +100,7 @@ def response_handler(response_topic=None):
     """
     def register_topic(instance_func, topic):
         response_topic = response_topic if response_topic else topic
-        pub.subscribe(instance_func, topic)
+        pub.subscribe(instance_func, response_topic)
     def setup(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
