@@ -77,9 +77,7 @@ from .command_to_msg import (assign_to_all_link_group,
                              sprinkler_sensor_off, sprinkler_sensor_on,
                              sprinkler_skip_back, sprinkler_skip_forward,
                              sprinkler_valve_off, sprinkler_valve_on,
-                             status_request, status_request_alternate_1,
-                             status_request_alternate_2,
-                             status_request_alternate_3,
+                             status_request,
                              thermostat_disable_status_change_message,
                              thermostat_enable_status_change_message,
                              thermostat_get_ambient_temperature,
@@ -167,23 +165,27 @@ class Protocol(asyncio.Protocol):
         """Init the SerialProtocol class."""
         super().__init__(*args, **kwargs)
         self._transport = None
-        self._status = TransportStatus.CLOSED
         self._message_queue = asyncio.PriorityQueue()
         self._buffer = bytearray()
-        self._writer_task = None
         self._should_reconnect = True
         self._connect_method = connect_method
 
     @property
     def connected(self) -> bool:
         """Return true if the transport is connected."""
-        return self._status in [TransportStatus.OPEN, TransportStatus.PAUSED]
+        status = not self._transport.is_closing() if self._transport else False
+        return status
+
+    @property
+    def message_queue(self):
+        """Return the queue of messages to write to the transport."""
+        return self._message_queue
 
     def connection_made(self, transport):
+        """Connection to the transport has been made."""
         self._transport = transport
         self._start_writer()
         self._subscribe()
-        self._status = TransportStatus.OPEN
         pub.sendMessage('connection.made')
 
     def data_received(self, data):
@@ -193,27 +195,37 @@ class Protocol(asyncio.Protocol):
             last_buffer = self._buffer
             msg, self._buffer = create(self._buffer)
             if msg:
-                _LOGGER_MSG.debug('RX: %s', repr(msg))
-                try:
-                    (topic, kwargs) = convert_to_topic(msg)
-                except ValueError:
-                    # No topic was found for this message
-                    _LOGGER.warning('No topic found for message %r', msg)
-                else:
-                    if _is_nak(msg) and not _has_listeners(topic):
-                        self._resend(msg)
-                    else:
-                        _LOGGER_MSG.debug('Topic: %s', topic)
-                        pub.sendMessage(topic, **kwargs)
+                self._publish_message(msg)
+
             if last_buffer == self._buffer or not self._buffer:
                 break
 
+    def _publish_message(self, msg):
+        _LOGGER_MSG.debug('RX: %s', repr(msg))
+        try:
+            for (topic, kwargs) in convert_to_topic(msg):
+                if _is_nak(msg) and not _has_listeners(topic):
+                    self._resend(msg)
+                else:
+                    try:
+                        pub.sendMessage(topic, **kwargs)
+                    #pylint: disable=broad-except
+                    except Exception as e:
+                        _LOGGER.error('An issue occured receiving the following message')
+                        _LOGGER.error('MSG: %s', msg)
+                        _LOGGER.error('Topic: %s data: %s', topic, kwargs)
+                        _LOGGER.error('Error: %s', str(e))
+        except ValueError:
+            # No topic was found for this message
+            _LOGGER.debug('No topic found for message %r', msg)
+
     def connection_lost(self, exc):
         """Notify listeners that the serial connection is lost."""
-        if self._writer_task and not self._writer_task.cancelled():
-            self._writer_task.cancel()
-        self._status = TransportStatus.CLOSED
+        self._stop_writer()
         asyncio.ensure_future(self.async_connect())
+
+    def _stop_writer(self):
+        self._message_queue.put_nowait((0, None))
 
     async def async_connect(self):
         """Connect to the transport asyncrously."""
@@ -225,26 +237,21 @@ class Protocol(asyncio.Protocol):
 
     def pause_writing(self):
         """Pause writing to the transport."""
-        if self._writer_task and not self._writer_task.cancelled():
-            self._writer_task.cancel()
-        self._status = TransportStatus.PAUSED
-        pub.sendMessage('protocol.writing.pause')
+        self._stop_writer()
+        # pub.sendMessage('protocol.writing.pause')
 
     def resume_writing(self):
         """Resume writing to the transport."""
         self._start_writer()
-        self._status = TransportStatus.OPEN
-        pub.sendMessage('protocol.writing.resume')
+        # pub.sendMessage('protocol.writing.resume')
 
     def close(self):
         """Close the serial transport."""
         self._unsubscribe()
         self._should_reconnect = False
+        self._stop_writer()
         if self._transport:
             self._transport.close()
-        if self._writer_task and not self._writer_task.cancelled():
-            self._writer_task.cancel()
-        self._status = TransportStatus.CLOSED
 
     def _write(self, msg, priority=5):
         """Prepare data for writing to the transport.
@@ -273,12 +280,14 @@ class Protocol(asyncio.Protocol):
 
     def _start_writer(self):
         """Start the message writer."""
-        self._writer_task = asyncio.ensure_future(self._write_messages())
+        asyncio.ensure_future(self._write_messages())
 
     async def _write_messages(self):
         """Write data to the transport."""
-        while self._status == TransportStatus.OPEN:
+        while not self._transport.is_closing():
             _, msg = await self._message_queue.get()
-            _LOGGER_MSG.debug('TX: %s', repr(msg))
-            self._transport.write(msg)
-            await asyncio.sleep(WRITE_WAIT)
+            if msg:
+                _LOGGER_MSG.debug('TX: %s', repr(msg))
+                self._transport.write(msg)
+                await asyncio.sleep(WRITE_WAIT)
+        _LOGGER.debug('Hub writer stopped.')
