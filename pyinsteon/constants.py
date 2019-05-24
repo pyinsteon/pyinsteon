@@ -262,6 +262,42 @@ class ManageAllLinkRecordAction(IntEnum):
     MOD_FIRST_RESP_OR_ADD = 0x41
     DELETE_FIRST = 0x80
 
+class RampRate(IntEnum):
+    """Ramp rate values."""
+
+    MIN_9 = 0x00
+    MIN_8 = 0x01
+    MIN_7 = 0x02
+    MIN_6 = 0x03
+    MIN_5 = 0x04
+    MIN_4_5 = 0x05
+    MIN_4 = 0x06
+    MIN_3_5 = 0x07
+    MIN_3 = 0x08
+    MIN_2_5 = 0x09
+    MIN_2 = 0x0A
+    MIN_1_5 = 0x0B
+    MIN_1 = 0x0C
+    SEC_47 = 0x0D
+    SEC_43 = 0x0E
+    SEC_38_5 = 0x0F
+    SEC_34 = 0x10
+    SEC_32 = 0x11
+    SEC_30 = 0x12
+    SEC_28 = 0x13
+    SEC_26 = 0x14
+    SEC_23_5 = 0x15
+    SEC_21_5 = 0x16
+    SEC_19 = 0x17
+    SEC_8_5 = 0x18
+    SEC_6_5 = 0x19
+    SEC_4_5 = 0x1A
+    SEC_2 = 0x1B
+    SEC_0_5 = 0x1C
+    SEC_0_3 = 0x1D
+    SEC_0_2 = 0x1E
+    SEC_0_1 = 0x1F
+
 
 class ResponseStatus(IntEnum):
     """Response status of an outbound message."""
