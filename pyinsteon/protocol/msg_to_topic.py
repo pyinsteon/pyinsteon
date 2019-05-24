@@ -25,32 +25,39 @@ def convert_to_topic(msg: Inbound) -> (str, {}):
     return converter(msg)
 
 
+def _create_rcv_std_ext_msg(topic, address, flags, cmd2, target, user_data):
+    msg_type = flags.message_type.name.lower()
+    topic = '{}.{}.{}'.format(address.id, topic, msg_type)
+    kwargs = {'cmd2': cmd2,
+              'target': target,
+              'user_data': user_data}
+    return (topic, kwargs)
+
+
 def standard_received(msg: Inbound) -> (str, {}):
     """Create a topic from a STANDARD_RECEIVED message."""
-    cmd_topic = commands.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
-    if not cmd_topic:
-        cmd_topic = 'standard_received'
-        _LOGGER.warning('Unknown standard command received: %s', msg)
-    msg_type = msg.flags.message_type.name.lower()
-    topic = '{}.{}.{}'.format(msg.address.id, cmd_topic, msg_type)
-    kwargs = {'cmd2': msg.cmd2,
-              'target': msg.target,
-              'user_data': None}
-    return (topic, kwargs)
+    found_topic = False
+    for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags.is_extended):
+        found_topic = True
+        yield _create_rcv_std_ext_msg(
+            topic, msg.address, msg.flags, msg.cmd2, msg.target, None)
+    if not found_topic:
+        topic = 'standard_received'
+        yield _create_rcv_std_ext_msg(
+            topic, msg.address, msg.flags, msg.cmd2, msg.target, None)
 
 
 def extended_received(msg: Inbound) -> (str, {}):
     """Create a topic from a EXTENDED_RECEIVED message."""
-    cmd_topic = commands.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
-    if not cmd_topic:
-        cmd_topic = 'extended_received'
-        _LOGGER.warning('Unknown Extended command received: %s', msg)
-    msg_type = msg.flags.message_type.name.lower()
-    topic = '{}.{}.{}'.format(msg.address.id, cmd_topic, msg_type)
-    kwargs = {'cmd2': msg.cmd2,
-              'target': msg.target,
-              'user_data': msg.user_data}
-    return (topic, kwargs)
+    found_topic = False
+    for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags.is_extended):
+        found_topic = True
+        return _create_rcv_std_ext_msg(
+            topic, msg.address, msg.flags, msg.cmd2, msg.target, msg.user_data)
+    if not found_topic:
+        topic = 'extended_received'
+        return _create_rcv_std_ext_msg(
+            topic, msg.address, msg.flags, msg.cmd2, msg.target, msg.user_data)
 
 
 def x10_received(msg: Inbound) -> (str, {}):
@@ -58,7 +65,7 @@ def x10_received(msg: Inbound) -> (str, {}):
     topic = X10_RECEIVED
     kwargs = {'raw_x10': msg.raw_x10,
               'x10_flag': msg.x10_flag}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def all_linking_completed(msg: Inbound) -> (str, {}):
@@ -70,21 +77,21 @@ def all_linking_completed(msg: Inbound) -> (str, {}):
               'cat': msg.cat,
               'subcat': msg.subcat,
               'firmware': msg.firmware}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def button_event_report(msg: Inbound) -> (str, {}):
     """Create a topic from a BUTTON_EVENT_REPORT message."""
     topic = BUTTON_EVENT_REPORT
     kwargs = {'event': msg.event}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def user_reset_detected(msg: Inbound) -> (str, {}):
     """Create a topic from a USER_RESET_DETECTED message."""
     topic = USER_RESET_DETECTED
     kwargs = {}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def all_link_cleanup_failure_report(msg: Inbound) -> (str, {}):
@@ -93,7 +100,7 @@ def all_link_cleanup_failure_report(msg: Inbound) -> (str, {}):
     kwargs = {'error': msg.error,
               'group': msg.group,
               'address': msg.address}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def all_link_record_response(msg: Inbound) -> (str, {}):
@@ -105,14 +112,14 @@ def all_link_record_response(msg: Inbound) -> (str, {}):
               'data1': msg.data1,
               'data2': msg.data2,
               'data3': msg.data3}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def all_link_cleanup_status_report(msg: Inbound) -> (str, {}):
     """Create a topic from an ALL_LINK_CLEANUP_STATUS_REPORT message."""
     topic = '{}.{}'.format(ALL_LINK_CLEANUP_STATUS_REPORT, msg.ack.name.lower())
     kwargs = {}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def get_im_info(msg: Inbound) -> (str, {}):
@@ -122,7 +129,7 @@ def get_im_info(msg: Inbound) -> (str, {}):
               'cat': msg.cat,
               'subcat': msg.subcat,
               'firmware': msg.firmware}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def send_all_link_command(msg: Inbound) -> (str, {}):
@@ -130,42 +137,28 @@ def send_all_link_command(msg: Inbound) -> (str, {}):
     topic = '{}.{}'.format(msg.ack.name.lower(), SEND_ALL_LINK_COMMAND)
     kwargs = {'group': msg.group,
               'mode': msg.mode}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
-
-def send_standard_or_extended_message(msg: Inbound) -> (str, {}):
-    """Convert standard and extended messages to topic."""
-    if msg.flags.is_extended:
-        return send_extended(msg)
-    return send_standard(msg)
-
-
-def send_standard(msg: Inbound) -> (str, {}):
-    """Create a topic from an SEND_STANDARD message."""
-    cmd_topic = commands.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
-    if not cmd_topic:
-        _LOGGER.warning('Unknown command sent: flags: %s cmd1: %s cmd2: %s extended: %s',
-                        msg.flags, msg.cmd1, msg.cmd2, msg.flags.is_extended)
-    msg_type = msg.flags.message_type.name.lower()
-    topic = '{}.{}.{}.{}'.format(msg.ack.name.lower(), msg.address.id,
-                                 cmd_topic, msg_type)
-    kwargs = {'cmd2': msg.cmd2,
+def _create_send_std_ext(topic, address, flags, cmd2, user_data, ack):
+    msg_type = flags.message_type.name.lower()
+    topic = '{}.{}.{}.{}'.format(ack.name.lower(), address.id, topic, msg_type)
+    kwargs = {'cmd2': cmd2,
               'user_data': None}
     return (topic, kwargs)
 
+def send_standard_or_extended_message(msg: Inbound) -> (str, {}):
+    """Convert standard and extended messages to topic."""
+    def_topic = 'send_extended' if msg.flags.is_extended else 'send_standard'
+    user_data = msg.user_data if msg.flags.is_extended else None
 
-def send_extended(msg: Inbound) -> (str, {}):
-    """Create a topic from an SEND_STANDARD message."""
-    cmd_topic = commands.get_topic(msg.cmd1, msg.cmd2, msg.flags.is_extended)
-    if not cmd_topic:
-        _LOGGER.warning('Unknown command sent: flags: %s cmd1: %s cmd2: %s extended: %s',
-                        msg.flags, msg.cmd1, msg.cmd2, msg.flags.is_extended)
-    msg_type = msg.flags.message_type.name.lower()
-    topic = '{}.{}.{}.{}'.format(str(msg.ack), msg.address.id,
-                                 cmd_topic, msg_type)
-    kwargs = {'cmd2': msg.cmd2,
-              'user_data': msg.user_data}
-    return (topic, kwargs)
+    found_topic = False
+    for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags.is_extended):
+        found_topic = True
+        yield _create_send_std_ext(
+            topic, msg.address, msg.flags, msg.cmd2, user_data, msg.ack)
+    if not found_topic:
+        yield _create_send_std_ext(
+            def_topic, msg.address, msg.flags, msg.cmd2, user_data, msg.ack)
 
 
 def x10_send(msg: Inbound) -> (str, {}):
@@ -173,7 +166,7 @@ def x10_send(msg: Inbound) -> (str, {}):
     topic = '{}.{}'.format(msg.ack.name.lower(), X10_SEND)
     kwargs = {'raw_x10': msg.raw_x10,
               'x10_flag': msg.x10_flag}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def start_all_linking(msg: Inbound) -> (str, {}):
@@ -181,14 +174,14 @@ def start_all_linking(msg: Inbound) -> (str, {}):
     topic = '{}.{}'.format(msg.ack.name.lower(), START_ALL_LINKING)
     kwargs = {'mode': msg.mode,
               'group': msg.group}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def cancel_all_linking(msg: Inbound) -> (str, {}):
     """Create a topic from an cancel_all_linking message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), CANCEL_ALL_LINKING)
     kwargs = {}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def set_host_dev_cat(msg: Inbound) -> (str, {}):
@@ -197,63 +190,63 @@ def set_host_dev_cat(msg: Inbound) -> (str, {}):
     kwargs = {'cat': msg.cat,
               'subcat': msg.subcat,
               'firmware': msg.firmware}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def reset_im(msg: Inbound) -> (str, {}):
     """Create a topic from an reset_im message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), RESET_IM)
     kwargs = {}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def set_ack_message_byte(msg: Inbound) -> (str, {}):
     """Create a topic from an set_ack_message_byte message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), SET_ACK_MESSAGE_BYTE)
     kwargs = {'cmd2': msg.cmd2}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def get_first_all_link_record(msg: Inbound) -> (str, {}):
     """Create a topic from an get_first_all_link_record message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), GET_FIRST_ALL_LINK_RECORD)
     kwargs = {}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def get_next_all_link_record(msg: Inbound) -> (str, {}):
     """Create a topic from an get_next_all_link_record message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), GET_NEXT_ALL_LINK_RECORD)
     kwargs = {}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def set_im_configuration(msg: Inbound) -> (str, {}):
     """Create a topic from an set_im_configuration message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), SET_IM_CONFIGURATION)
     kwargs = {'flags': msg.flags}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def get_all_link_record_for_sender(msg: Inbound) -> (str, {}):
     """Create a topic from an get_all_link_record_for_sender message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), GET_ALL_LINK_RECORD_FOR_SENDER)
     kwargs = {}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def led_on(msg: Inbound) -> (str, {}):
     """Create a topic from an led_on message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), LED_ON)
     kwargs = {}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def led_off(msg: Inbound) -> (str, {}):
     """Create a topic from an led_off message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), LED_OFF)
     kwargs = {}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def manage_all_link_record(msg: Inbound) -> (str, {}):
@@ -266,14 +259,14 @@ def manage_all_link_record(msg: Inbound) -> (str, {}):
               'data1': msg.data1,
               'data2': msg.data2,
               'data3': msg.data3}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def set_nak_message_byte(msg: Inbound) -> (str, {}):
     """Create a topic from an set_nak_message_byte message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), SET_NAK_MESSAGE_BYTE)
     kwargs = {'cmd2': msg.cmd2}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def set_ack_message_two_bytes(msg: Inbound) -> (str, {}):
@@ -281,21 +274,21 @@ def set_ack_message_two_bytes(msg: Inbound) -> (str, {}):
     topic = '{}.{}'.format(msg.ack.name.lower(), SET_ACK_MESSAGE_TWO_BYTES)
     kwargs = {'cmd1': msg.cmd1,
               'cmd2': msg.cmd2}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def rf_sleep(msg: Inbound) -> (str, {}):
     """Create a topic from an rf_sleep message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), RF_SLEEP)
     kwargs = {}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 def get_im_configuration(msg: Inbound) -> (str, {}):
     """Create a topic from an get_im_configuration message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), GET_IM_CONFIGURATION)
     kwargs = {'flags': msg.flags}
-    return (topic, kwargs)
+    yield (topic, kwargs)
 
 
 MSG_CONVERTER[0x50] = standard_received
