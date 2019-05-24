@@ -14,12 +14,17 @@ LinkInfo = namedtuple('LinkInfo', 'controller responder group cat subcat firmwar
 
 async def async_link_devices(controller: Device, responder: Device, group: int = 0):
     """Link two devices."""
+    from ..handlers import ResponseStatus
     c_link_cmd = _set_linking_command(controller)
     r_link_cmd = _set_linking_command(responder)
     c_link_cmd.subscribe(_link_complete)
     r_link_cmd.subscribe(_link_complete)
-    _send_linking_command(c_link_cmd, AllLinkMode.CONTROLLER, group)
-    _send_linking_command(r_link_cmd, AllLinkMode.RESPONDER, group)
+    c_response = await _send_linking_command(c_link_cmd, AllLinkMode.CONTROLLER, group)
+    if not c_response == ResponseStatus.SUCCESS:
+        return False
+    r_response = await _send_linking_command(r_link_cmd, AllLinkMode.RESPONDER, group)
+    if not r_response == ResponseStatus.SUCCESS:
+        return False
     try:
         response1, response2 = await asyncio.wait_for(_wait_for_link_complete(), timeout=TIMEOUT)
     except asyncio.TimeoutError:
@@ -55,18 +60,18 @@ def _set_unlinking_command(device):
     return EnterUnlinkingModeCommand(device.address)
 
 
-def _send_linking_command(cmd, mode, group):
+async def _send_linking_command(cmd, mode, group):
     if isinstance(cmd, StartAllLinkingCommandHandler):
-        cmd.send(mode=mode, group=group)
+        return await cmd.async_send(mode=mode, group=group)
     else:
-        cmd.send(group=group)
+        return await cmd.async_send(group=group)
 
 
-def _send_unlinking_command(cmd, group):
+async def _send_unlinking_command(cmd, group):
     if isinstance(cmd, StartAllLinkingCommandHandler):
-        cmd.send(mode=AllLinkMode.DELETE, group=group)
+        return await cmd.async_send(mode=AllLinkMode.DELETE, group=group)
     else:
-        cmd.send(group=group)
+        return await cmd.async_send(group=group)
 
 
 def _link_complete(**kwargs):
