@@ -18,6 +18,15 @@ def _post_response(obj, response: ResponseStatus):
     else:
         obj.message_response.put_nowait(response)
 
+async def _async_post_response(obj, response, func, args, kwargs):
+    """Used to ensure the lock is locked before posting a response."""
+    if obj.response_lock.locked():
+        # Only trigger the message response if the response_lock is still
+        # locked. This ensures status messages are not responded to.
+        await obj.message_response.put(response)
+        if obj.response_lock.locked():
+            obj.response_lock.release()
+        func(obj, *args, **kwargs)
 
 def inbound_handler(func):
     """Decorator function for any inbound message handler."""
@@ -35,18 +44,18 @@ def ack_handler(wait_response=False):
 
     async def _wait_response(lock: asyncio.Lock, queue: asyncio.Queue):
         """Wait for the direct ACK message, and post False if timeout reached."""
+        # Need to consider the risk of this. We may be unlocking a prior send command.
+        # This would mean that the prior command will terminate. What happens when the 
+        # prior command returns a direct ACK then this command returns a direct ACK?
+        # Do not believe this is an issue but need to test.
         if lock.locked():
             lock.release()
-        try:
-            await asyncio.wait_for(lock.acquire(), .1)
-        except asyncio.TimeoutError:
-            _LOGGER.error('Lock aquired while waiting to release')
-            return
+        await lock.acquire()
         try:
             await asyncio.wait_for(lock.acquire(), TIMEOUT)
         except asyncio.TimeoutError:
             if lock.locked():
-                queue.put_nowait(ResponseStatus.FAILURE)
+                await queue.put(ResponseStatus.FAILURE)
         if lock.locked():
             lock.release()
 
@@ -65,7 +74,12 @@ def ack_handler(wait_response=False):
 
 
 def nak_handler(func):
-    """Decorator function to register the message NAK handler."""
+    """Decorator function to register the message NAK handler.
+
+    This should only be used if the command requires a special NAK
+    handler. Under normal conditions all NAK responses are resent by the
+    Protocol.
+    """
     def register_topic(instance_func, topic):
         topic = 'nak.{}'.format(topic)
         pub.subscribe(instance_func, topic)
@@ -86,13 +100,13 @@ def response_handler(response_topic=None):
     """
     def register_topic(instance_func, topic):
         response_topic = response_topic if response_topic else topic
-        pub.subscribe(instance_func, response_topic)
+        pub.subscribe(instance_func, topic)
     def setup(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
-            if self.response_lock.locked():
-                self.message_response.put_nowait(ResponseStatus.SUCCESS)
-            return func(self, *args, **kwargs)
+            asyncio.ensure_future(
+                _async_post_response(self, ResponseStatus.SUCCESS, func, args, kwargs)
+            )
         wrapper.register_topic = register_topic
         return wrapper
     return setup
@@ -105,11 +119,9 @@ def direct_ack_handler(func):
         pub.subscribe(instance_func, topic)
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        if self.response_lock.locked():
-            # Only trigger the message response if the response_lock is still
-            # locked. This ensures status messages are not responded to.
-            self.message_response.put_nowait(ResponseStatus.SUCCESS)
-            return func(self, *args, **kwargs)
+        asyncio.ensure_future(
+            _async_post_response(self, ResponseStatus.SUCCESS, func, args, kwargs)
+        )
     wrapper.register_topic = register_topic
     return wrapper
 
@@ -124,11 +136,9 @@ def status_handler(func):
         pub.subscribe(instance_func, address.id)
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        if self.response_lock.locked():
-            # Only trigger the message response if the response_lock is still
-            # locked. This ensures only status messages are responded to.
-            self.message_response.put_nowait(ResponseStatus.SUCCESS)
-            return func(self, *args, **kwargs)
+        asyncio.ensure_future(
+            _async_post_response(self, ResponseStatus.SUCCESS, func, args, kwargs)
+        )
     wrapper.register_status = register_status
     return wrapper
 
@@ -140,9 +150,9 @@ def direct_nak_handler(func):
         pub.subscribe(instance_func, topic)
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        if self.response_lock.locked():
-            self.message_response.put_nowait(ResponseStatus.UNCLEAR)
-        return func(self, *args, **kwargs)
+        asyncio.ensure_future(
+            _async_post_response(self, ResponseStatus.UNCLEAR, func, args, kwargs)
+        )
     wrapper.register_topic = register_topic
     return wrapper
 

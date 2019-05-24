@@ -37,10 +37,8 @@ class ResponseCommandHandlerBase(OutboundHandlerBase):
             except asyncio.QueueEmpty:
                 break
         # await self.response_lock.acquire()
-        response = await super().async_send(address=self._address, **kwargs)
-        if self.response_lock.locked():
-            self.response_lock.release()
-        return response
+        result = await super().async_send(address=self._address, **kwargs)
+        return result
 
     @abstractmethod
     @ack_handler(wait_response=True)

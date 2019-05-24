@@ -29,11 +29,8 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
 
     async def async_send(self, **kwargs):
         """Send the command and wait for a direct_nak."""
-        if self.response_lock.locked():
-            self.response_lock.release()
-        await self.response_lock.acquire()
-        response = await super().async_send(address=self._address, **kwargs)
-        return response
+        result = await super().async_send(address=self._address, **kwargs)
+        return result
 
     @ack_handler(wait_response=True)
     def handle_ack(self, cmd2, user_data):
