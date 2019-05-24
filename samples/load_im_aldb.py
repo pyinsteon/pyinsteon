@@ -1,18 +1,17 @@
 """Sample program to demonstrated the loading of the Modem's ALDB."""
 import asyncio
 from pyinsteon import async_connect, async_close
-from samples import set_log_levels, _LOGGER
+from samples import set_log_levels, _LOGGER, get_hub_config
 
 # DEVICE = '/dev/ttyS5'
 DEVICE = 'COM5'
-HOST = '192.168.1.136'
-USERNAME = 'username'
-PASSWORD = 'password'
+USERNAME, PASSWORD, HOST = get_hub_config()
 
 
 async def do_run():
     """Connect to the PLM and load the ALDB."""
-    modem = await async_connect(device=DEVICE)
+    devices = await async_connect(device=DEVICE)
+    modem = devices.modem
     # modem = await async_connect(host=HOST,
     #                             username=USERNAME,
     #                             password=PASSWORD)

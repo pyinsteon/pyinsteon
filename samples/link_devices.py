@@ -1,16 +1,13 @@
 """Load saved devices to provide quick startup."""
 
 import asyncio
-from pyinsteon import async_connect, devices, async_close
+from pyinsteon import async_connect, async_close
 from pyinsteon.managers.link_manager import async_link_devices
-from . import _LOGGER, set_log_levels, PATH
-
+from samples import _LOGGER, set_log_levels, PATH, get_hub_config
 
 # DEVICE = '/dev/ttyS5'
 DEVICE = 'COM5'
-HOST = '192.168.1.136'
-USERNAME = 'username'
-PASSWORD = 'password'
+USERNAME, PASSWORD, HOST = get_hub_config()
 
 
 def state_changed(name, value, group):
@@ -20,10 +17,11 @@ def state_changed(name, value, group):
 
 async def do_run():
     """Connect to the PLM and load the ALDB."""
-    modem = await async_connect(device=DEVICE)
+    devices = await async_connect(device=DEVICE)
     # modem = await async_connect(host=HOST,
     #                             username=USERNAME,
     #                             password=PASSWORD)
+    modem = devices.modem
     _LOGGER.info('Connected')
     _LOGGER.info('Modem Address: %s', modem.address)
     await devices.async_load(workdir=PATH, id_devices=0)
