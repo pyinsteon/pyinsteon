@@ -15,6 +15,7 @@ _LOGGER = logging.getLogger(__name__)
 READ_ALL = 1
 READ_ONE = 2
 WRITE = 3
+CANCEL = 0
 
 class ALDBReadManager():
     """ALDB Read Manager."""
@@ -35,7 +36,7 @@ class ALDBReadManager():
         self._last_mem_addr = 0
         self._read_handler = ReadALDBCommandHandler(self._aldb.address)
         self._record_handler = ReceiveALDBRecordHandler(self._aldb.address)
-        self._read_handler.subscribe(self._receive_record)
+        self._read_handler.subscribe(self._receive_direct_ack)
         self._record_handler.subscribe(self._receive_record)
         self._timer_lock = asyncio.Lock()
 
@@ -67,6 +68,18 @@ class ALDBReadManager():
         timer = TIMER + retries * TIMER_INCREMENT
         asyncio.ensure_future(self._timer(timer, mem_addr, num_recs))
 
+    def _receive_direct_ack(self, ack_response):
+        """Receive the response from the direct ACK."""
+        IM_NOT_IN_DEVICE_ALDB = 0xff
+        CHECKSUM_ERROR = 0xfd
+        ILLEGAL_VALUE_IN_COMMAND = 0xfb
+        if ack_response in [IM_NOT_IN_DEVICE_ALDB,
+                            CHECKSUM_ERROR,
+                            ILLEGAL_VALUE_IN_COMMAND]:
+            _LOGGER.error('ALDB Load error: 0x%02x', ack_response)
+            self._last_command = CANCEL
+            self._records.put_nowait(None)
+
     def _receive_record(self, is_response: bool, record: ALDBRecord):
         """Receive an ALDB record."""
         num_recs = len(self._aldb)
@@ -94,7 +107,7 @@ class ALDBReadManager():
             pass
         if self._last_command == READ_ALL:
             self._manage_get_all_cmd(mem_addr, num_recs)
-        else:
+        elif self._last_command == READ_ONE:
             self._manage_get_one_cmd(mem_addr, num_recs)
 
     def _manage_get_all_cmd(self, mem_addr, num_recs):
