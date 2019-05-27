@@ -175,9 +175,9 @@ commands.add(PEEK_ONE_BYTE, 0x2b, None, False)
 commands.add(PEEK_ONE_BYTE_INTERNAL, 0x2c, None, False)
 commands.add(POKE_ONE_BYTE_INTERNAL, 0x2d, None, False)
 
-# commands.add(ON_AT_RAMP_RATE, 0x2e, None, False)  # cmd2 ne 0x00 => no confict w/ ext get set
+commands.add(ON_AT_RAMP_RATE, 0x2e, None, False)  # cmd2 ne 0x00 => no confict w/ ext get set
 commands.add(EXTENDED_GET_SET, 0x2e, None, None)  # Check if direct_ack is sd or ed message
-# commands.add(OFF_AT_RAMP_RATE, 0x2f, None, False)  # cmd2 ne 0x00 => no confict w/ read aldb
+commands.add(OFF_AT_RAMP_RATE, 0x2f, None, False)  # cmd2 ne 0x00 => no confict w/ read aldb
 commands.add(EXTENDED_READ_WRITE_ALDB, 0x2f, None, None)  # direct_ack is sd msg
 commands.add(EXTENDED_TRIGGER_ALL_LINK, 0x30, None, None)  # Check direct_ack sd or ed msg
 
