@@ -28,6 +28,7 @@ async def do_run():
 
 
 if __name__ == '__main__':
-    set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+    set_log_levels(logger='info', logger_pyinsteon='info',
+                   logger_messages='info', logger_topics=False)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(do_run())
