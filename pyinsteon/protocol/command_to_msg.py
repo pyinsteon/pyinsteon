@@ -315,9 +315,15 @@ def on_at_ramp_rate(address: Address, on_level: int, ramp_rate: RampRate, topic=
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 @topic_to_command_handler(topic=EXTENDED_GET_SET)
-def extended_get_set(address: Address, user_data: UserData, topic=pub.AUTO_TOPIC):
+def extended_get_set(address: Address, data1=0, data2=0, data3=0, data4=0,
+                     data5=0, data6=0, data7=0, data8=0, data9=0, data10=0,
+                     data11=0, data12=0, data13=0, data14=0, topic=pub.AUTO_TOPIC):
     """Create a EXTENDED_GET_SET command."""
-    user_data = UserData(user_data)
+    data = {}
+    items = locals()
+    for i in range(3, 15):
+        data['d{}'.format(i)] = items['data{}'.format(i)]
+    user_data = UserData(data)
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 @topic_to_command_handler(topic=OFF_AT_RAMP_RATE)
