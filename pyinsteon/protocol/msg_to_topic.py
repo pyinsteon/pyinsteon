@@ -52,11 +52,11 @@ def extended_received(msg: Inbound) -> (str, {}):
     found_topic = False
     for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags.is_extended):
         found_topic = True
-        return _create_rcv_std_ext_msg(
+        yield _create_rcv_std_ext_msg(
             topic, msg.address, msg.flags, msg.cmd2, msg.target, msg.user_data)
     if not found_topic:
         topic = 'extended_received'
-        return _create_rcv_std_ext_msg(
+        yield _create_rcv_std_ext_msg(
             topic, msg.address, msg.flags, msg.cmd2, msg.target, msg.user_data)
 
 
