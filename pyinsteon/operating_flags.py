@@ -89,15 +89,19 @@ class OperatingFlags():
 
     def add_handler(self, handler):
         """Subscribe to a handler to set the value of the state."""
-        handler.subscribe(self._set_value)
+        handler.subscribe(self.set_value)
 
     #pylint: disable=unused-variable
-    def _set_value(self, flags):
-        """Set the operating flags based on the device value."""
+    def set_value(self, flags):
+        """Set the operating flags based on the device value.
+
+        This method does not set the `is_dirty` flag.
+        Only use this method when loading the flags from the device.
+        """
         if isinstance(flags, (bytes, bytearray)):
             flags = int.from_bytes(flags, byteorder='big')
         for bit in range(0, 8):
-            setattr(self, self._names[bit], bool(flags & 1 << bit))
+            self._flags[bit] = bool(flags & 1 << bit)
 
     def _get_bit_from_key(self, key):
         """Return the bit number from the operating flag name."""

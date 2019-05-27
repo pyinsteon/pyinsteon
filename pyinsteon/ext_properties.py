@@ -39,7 +39,7 @@ class ExtendedProperties():
 
     def add_handler(self, handler):
         """Subscribe to a handler to set the value of the state."""
-        handler.subscribe(self._set_values)
+        handler.subscribe(self.set_values)
 
     def _set_value(self, key, value):
         """Set the value of the flag without marking as dirty."""
@@ -51,11 +51,19 @@ class ExtendedProperties():
         flag = self._get_flag_from_key(key)
         self._flags[flag] = int(value)
 
-    def _set_values(self, data):
-        """Set the value of the flags."""
+    def set_values(self, properties):
+        """Set the value of the flags.
+
+        This method does not set the `is_dirty` flag.
+        Use this method only when loading values from the device.
+        """
         flag = range(3, 15).__iter__()
-        for value in data:
-            self[next(flag)] = value
+        for value in properties:
+            if isinstance(properties, dict):
+                val = properties.get(value)
+            else:
+                val = value
+            self[next(flag)] = val
 
     def _get_flag_from_key(self, key):
         """Return the bit number from the operating flag name."""
