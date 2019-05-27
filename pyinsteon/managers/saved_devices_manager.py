@@ -16,11 +16,17 @@ def _dict_to_device(device_dict):
     cat = device_dict.get('cat')
     subcat = device_dict.get('subcat')
     firmware = device_dict.get('firmware')
+    operating_flags = device_dict.get('operating_flags')
+    ext_properties = _dict_to_ext_properties(device_dict.get('ext_properties'))
     device_id = DeviceId(address, cat, subcat, firmware)
     device = create_device(device_id)
     if device:
         aldb_records = _dict_to_aldb_record(aldb)
         device.aldb.load_saved_records(aldb_status, aldb_records)
+        if operating_flags:
+            device.operating_flags.set_value(operating_flags)
+        if ext_properties:
+            device.ext_properties.set_values(ext_properties)
     return device
 
 
@@ -44,12 +50,20 @@ def _device_to_dict(device_list):
                                'data2': rec.data2,
                                'data3': rec.data3}
                     aldb[mem] = aldbRec
+            ext_properties = {}
+            index = 3
+            for flag in device.ext_properties:
+                ext_properties[flag] = {'value': device.ext_properties[flag],
+                                        'index': index}
+                index += 1
             deviceInfo = {'address': device.address.id,
                           'cat': device.cat,
                           'subcat': device.subcat,
                           'firmware': device.firmware,
                           'aldb_status': device.aldb.status.value,
-                          'aldb': aldb}
+                          'aldb': aldb,
+                          'operating_flags': int(device.operating_flags),
+                          'ext_properties': ext_properties}
             devices.append(deviceInfo)
     return devices
 
@@ -70,6 +84,25 @@ def _dict_to_aldb_record(aldb_dict):
                                             group, rec_addr,
                                             data1, data2, data3)
     return records
+
+
+def _dict_to_ext_properties(ext_properties_dict):
+    from collections import OrderedDict
+    if ext_properties_dict is None:
+        return None
+    kwargs = {}
+    temp_data = {}
+    data = OrderedDict()
+    for flag in ext_properties_dict:
+        prop_dict = ext_properties_dict[flag]
+        index = prop_dict['index']
+        key_name = 'data{}'.format(index)
+        kwargs[key_name] = flag
+        temp_data[index] = prop_dict['value']
+    for index in range(3, 15):
+        data[index] = temp_data[index]
+
+    return data
 
 
 class SavedDeviceManager():
