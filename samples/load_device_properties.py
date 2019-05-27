@@ -16,7 +16,7 @@ async def load_device_properties():
     #                     username=USERNAME,
     #                     password=PASSWORD)
 
-    await devices.async_load(workdir=PATH, id_devices=0)
+    await devices.async_load(workdir=PATH)
     await devices.async_save(workdir=PATH)
     for address in devices:
         device = devices[address]
@@ -25,16 +25,21 @@ async def load_device_properties():
             await device.aldb.async_load()
             await devices.async_save(workdir=PATH)
         _LOGGER.info('\nALDB load status for %s: %s', device.address, device.aldb.status.name)
-        op_flag_result = await device.async_get_operating_flags()
-        if not op_flag_result:
-            _LOGGER.error('Unable to get Operating Flags for %s', device.address)    
+        await device.async_get_operating_flags()
+        await device.async_get_extended_properties()
         for mem_addr in device.aldb:
             _LOGGER.info(device.aldb[mem_addr])
+        for flag in device.operating_flags:
+            _LOGGER.info('%s: %s', flag, device.operating_flags[flag])
+        for flag in device.ext_properties:
+            _LOGGER.info('%s: %s', flag, device.ext_properties[flag])
+        await devices.async_save(workdir=PATH)
     await async_close()
 
 
 if __name__ == '__main__':
-    set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='debug')
+    set_log_levels(logger='info', logger_pyinsteon='info',
+                   logger_messages='info', logger_topics=False)
     loop = asyncio.get_event_loop()
     _LOGGER.info('Loading All-Link database for all devices')
     loop.run_until_complete(load_device_properties())
