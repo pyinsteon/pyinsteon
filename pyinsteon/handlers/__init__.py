@@ -36,7 +36,7 @@ def inbound_handler(func):
     return func
 
 
-def ack_handler(wait_response=False):
+def ack_handler(wait_response=False, timeout=TIMEOUT):
     """Decorator function to register the message ACK handler."""
     def register_topic(instance_func, topic):
         topic = 'ack.{}'.format(topic)
