@@ -8,6 +8,7 @@ from ..subscriber_base import SubscriberBase
 from ..address import Address
 from ..handlers.to_device.id_request import IdRequestCommand
 from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
+from ..handlers.from_device.delete_from_all_link_group import DeleteFromAllLinkGroupCommand
 
 _LOGGER = logging.getLogger(__name__)
 MAX_RETRIES = 5
@@ -32,9 +33,7 @@ class DeviceIdManager(SubscriberBase):
     def __getitem__(self, address):
         """Return the unknown device list."""
         address = Address(address)
-        device_id = self._device_ids.get(address)
-        if not device_id:
-            self.append(address)
+        return self._device_ids.get(address)
 
     def start(self):
         """Start the ID manager for unknown devices."""
@@ -59,6 +58,7 @@ class DeviceIdManager(SubscriberBase):
 
     def set_device_id(self, address: Address, cat: int, subcat: int, firmware: int = 0x00):
         """Set the device ID of a device."""
+        from .. import devices
         address = Address(address)
         cat = int(cat)
         subcat = int(subcat)
@@ -69,7 +69,9 @@ class DeviceIdManager(SubscriberBase):
             pass
         device_id = DeviceId(address, cat, subcat, firmware)
         self._device_ids[address] = device_id
-        self._call_subscribers(device_id=device_id)
+        device = devices[address]
+        if not device:
+            self._call_subscribers(device_id=device_id)
 
     async def async_id_devices(self, refresh: bool = False):
         """Identify the devices in the unknown device list."""
@@ -97,12 +99,19 @@ class DeviceIdManager(SubscriberBase):
         id_handler = IdRequestCommand(address)
         id_response_handler = AssignToAllLinkGroupCommand(address)
         id_response_handler.subscribe(self._id_response)
+        id_response_handler_alt = DeleteFromAllLinkGroupCommand(address)
+        id_response_handler_alt.subscribe(self._id_response)
         retries = 0
         while self._device_ids[address].cat is None and retries <= MAX_RETRIES:
+            from random import randint
+            rand = randint(1, 100)
+            print('sending device ID request', rand)
             await id_handler.async_send()
+            print('request sent', rand)
             retries += 1
             await asyncio.sleep(RETRY_PAUSE)
         id_response_handler.unsubscribe(self._id_response)
+        id_response_handler_alt.unsubscribe(self._id_response)
         if self._id_device_lock.locked():
             self._id_device_lock.release()
         return self._device_ids[address]
@@ -124,13 +133,15 @@ class DeviceIdManager(SubscriberBase):
             address = await self._awake_devices_queue.get()
             if address is None:
                 break
+            await asyncio.sleep(.5)
             await self.async_id_device(address=address)
             await asyncio.sleep(2)
             self._check_awake_device(address)
 
     def _check_awake_device(self, address):
         """Check if an awake device has been identified."""
-        if not self._device_ids.get(address):
+        dev_id = self._device_ids.get(address)
+        if dev_id is None or dev_id.cat is None:
             pub.subscribe(self._device_awake, address.id)
         try:
             self._awake_devices.remove(address)
