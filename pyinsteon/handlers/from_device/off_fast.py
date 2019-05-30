@@ -14,7 +14,7 @@ class OffFastInbound(BroadcastCommandHandlerBase):
     @broadcast_handler
     def handle_command(self, cmd2, target, user_data):
         """Handle the OFF command from a device."""
-        group = 0
+        group = target.low
         if user_data:
             group = user_data.get('d1')
         self._call_subscribers(on_level=0, group=group)
