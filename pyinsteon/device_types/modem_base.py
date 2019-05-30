@@ -70,6 +70,9 @@ class ModemBase(Device, metaclass=ABCMeta):
     async def async_set_operating_flags(self):
         """Write the operating flags to the device."""
 
+    async def async_get_extended_properties(self):
+        """Get the device extended properties."""
+
     def _subscribe_topics(self):
         """Subscribe to modem specific topics."""
     #     pub.subscribe(self.connect, "connection.lost")
