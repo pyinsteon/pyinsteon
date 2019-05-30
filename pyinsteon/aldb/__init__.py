@@ -89,6 +89,10 @@ class ALDBBase(ABC):
         """Get the record at address 'mem_addr'."""
         return self._records.get(mem_addr, default)
 
+    @abstractmethod
+    async def async_load(self, *args, **kwargs):
+        """Load the All-Link Database."""
+
     def load_saved_records(self, status: ALDBStatus, records: [ALDBRecord]):
         """Load All-Link records from a dictionary of saved records."""
         if isinstance(status, ALDBStatus):
@@ -128,6 +132,7 @@ class ALDB(ALDBBase):
         self._cb_aldb_loaded = callback
         asyncio.ensure_future(self.async_load(refresh))
 
+    #pylint: disable=arguments-differ
     async def async_load(self, mem_addr: int = 0x00, num_recs: int = 0x00,
                          refresh: bool = False, callback: Callable = None):
         """Load the All-Link Database."""
@@ -260,6 +265,7 @@ class ModemALDB(ALDBBase):
 
         self._records[mem_addr] = record
 
+    #pylint: disable=arguments-differ
     async def async_load(self, callback: Callable = None):
         """Load the All-Link Database."""
         _LOGGER.debug('Loading the modem ALDB')
