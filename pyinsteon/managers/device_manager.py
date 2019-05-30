@@ -2,6 +2,7 @@
 from asyncio import Lock
 import logging
 
+from ..subscriber_base import SubscriberBase
 from ..device_types import Device
 from ..address import Address
 from ..managers.device_id_manager import DeviceIdManager, DeviceId
@@ -27,11 +28,12 @@ def create_device(device_id: DeviceId):
     return device
 
 
-class DeviceManager():
+class DeviceManager(SubscriberBase):
     """Manages the list of active devices."""
 
     def __init__(self):
         """Init the DeviceManager class."""
+        super().__init__()
         self._devices = {}
         self._modem = None
         self._id_manager = DeviceIdManager()
@@ -59,6 +61,11 @@ class DeviceManager():
         self._devices[device.address] = device
         self._id_manager.set_device_id(device.address, device.cat,
                                        device.subcat, device.firmware)
+        self._call_subscribers(address=device.address)
+
+    def __len__(self):
+        """Return the number of devices."""
+        return len(self._devices)
 
     def get(self, address) -> Device:
         """Return a device from an address."""
@@ -150,5 +157,5 @@ class DeviceManager():
             return
         if device_id.cat is not None:
             device = create_device(device_id)
-            self._devices[device_id.address] = device
+            self[device_id.address] = device
             _LOGGER.debug('Device %s added', device.address)
