@@ -159,10 +159,21 @@ def direct_nak_handler(func):
 
 def broadcast_handler(func):
     """Decorator function to register the BROADCAST message handler."""
+    from datetime import datetime
+    last_command = datetime(1, 1, 1)
     def register_topic(instance_func, topic):
         topic_broadcast = '{}.broadcast'.format(topic)
         topic_all_link_broadcast = '{}.all_link_broadcast'.format(topic)
         pub.subscribe(instance_func, topic_broadcast)
         pub.subscribe(instance_func, topic_all_link_broadcast)
-    func.register_topic = register_topic
-    return func
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        nonlocal last_command
+        curr_time = datetime.now()
+        tdelta = curr_time - last_command
+        last_command = curr_time
+        if tdelta.seconds >= 2:
+            return func(self, *args, **kwargs)
+
+    wrapper.register_topic = register_topic
+    return wrapper
