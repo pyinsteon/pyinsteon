@@ -3,9 +3,10 @@
 from pubsub import pub
 from .protocol import async_modem_connect
 from .managers.device_manager import DeviceManager
-
+from .listener_exception_handler import ListenerExceptionHandler
 
 devices = DeviceManager()
+pub.setListenerExcHandler(ListenerExceptionHandler())
 
 
 async def async_connect(device=None, host=None, port=None, username=None,
