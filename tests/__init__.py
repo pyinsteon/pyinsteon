@@ -10,6 +10,13 @@ _LOGGER_MESSAGES = logging.getLogger('pyinsteon.messages')
 PATH = os.path.join(os.getcwd())
 
 
+async def async_connect_mock(read_queue, write_queue, protocol):
+    """Mock connection for testing."""
+    from .mock_transport import MockTransport
+    transport = MockTransport(protocol, read_queue, write_queue)
+    protocol.connection_made(transport)
+    return transport
+
 
 def set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info'):
     """Set the log levels of the three logs."""
