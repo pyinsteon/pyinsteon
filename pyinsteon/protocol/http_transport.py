@@ -92,7 +92,19 @@ class HttpTransport(asyncio.Transport):
     async def _async_write(self, url):
         """Write the message to the Hub."""
         await self._read_write_lock
-        response = await self._reader_writer.async_write(url)
+        response_status = 0
+        retry = 0
+        while response_status != 200 and retry < 5:
+            if self.is_closing:
+                if self._read_write_lock.locked():
+                    self._read_write_lock.release()
+                return
+            response = await self._reader_writer.async_write(url)
+            response_status = response.status
+            if response_status != 200:
+                _LOGGER.debug('Hub write request failed for url %s', url)
+                retry += 1
+                asyncio.sleep(.5)
         if self._read_write_lock.locked():
             self._read_write_lock.release()
  
