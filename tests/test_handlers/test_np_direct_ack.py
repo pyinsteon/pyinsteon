@@ -26,9 +26,10 @@ class TestNoDirectAck(unittest.TestCase):
     @async_case
     async def test_no_direct_ack(self):
         """Test no direct ACK received."""
+        cmd1 = 0x99
         cmd2 = 0xaa
         topics = [TopicItem(self.ack_topic,
-                            {"cmd2": cmd2, "target": '4d5e6f', "user_data": None}, .5)]
+                            {'cmd1': cmd1, 'cmd2': cmd2, "target": '4d5e6f', "user_data": None}, .5)]
         send_topics(topics)
         assert await self.handler.async_send(on_level=cmd2) == ResponseStatus.FAILURE
         assert self._on_level is None

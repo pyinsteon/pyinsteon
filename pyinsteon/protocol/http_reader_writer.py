@@ -5,6 +5,21 @@ import aiohttp
 
 _LOGGER = logging.getLogger(__name__)
 
+def _log_error(status):
+    if status == 401:
+        _LOGGER.error('Athentication error, check your configuration')
+        _LOGGER.error('If configuration is correct and restart the Hub')
+        _LOGGER.error('System must be restared to reconnect to hub')
+    elif status == 404:
+        _LOGGER.error('Hub not found, check configuration')
+    elif status in range(500, 600):
+        _LOGGER.error('Hub returned a server error')
+        _LOGGER.error('Restart the Hub and try again')
+    else:
+        _LOGGER.error('An unknown error has occured')
+        _LOGGER.error('Check the configuration and restart the Hub and '
+                      'the application')
+
 
 class HttpReaderWriter():
     """HTTP reader and writer."""
@@ -26,7 +41,7 @@ class HttpReaderWriter():
                             _LOGGER.debug('Test connection status is %d',
                                           response.status)
                             return True
-                        self._log_error(response.status)
+                        _log_error(response.status)
                         _LOGGER.debug('Connection test failed')
                         return False
 
@@ -46,14 +61,14 @@ class HttpReaderWriter():
                 if response.status == 200:
                     html = await response.text()
                 else:
-                    self._log_error(response.status)
+                    _log_error(response.status)
                     raise HubConnectionException(
                         'Connection status error: {}'.format(response.status))
         except (asyncio.TimeoutError, aiohttp.ClientError) as e:
             await session.close()
             _LOGGER.error('Session error: %s', str(e))
             raise HubConnectionException(str(e))
-        return self._parse_buffer(html)
+        return await self._parse_buffer(html)
 
     async def async_write(self, url):
         """Write data to the transport asyncronously."""
@@ -65,9 +80,9 @@ class HttpReaderWriter():
                     return_status = response.status
                     _LOGGER.debug("Post status: %s", response.status)
                     if response.status == 200:
-                        self.reset_reader()
+                        await self.reset_reader()
                     else:
-                        self._log_error(response.status)
+                        _log_error(response.status)
         except aiohttp.ClientError:
             _LOGGER.error('Hub write failure (ClienError)')
         except asyncio.TimeoutError:
@@ -75,11 +90,11 @@ class HttpReaderWriter():
 
         return return_status
 
-    def reset_reader(self):
+    async def reset_reader(self):
         """Reset the reader to default position."""
-        self._set_last_read(0)
+        await self._set_last_read(0)
 
-    def _parse_buffer(self, html):
+    async def _parse_buffer(self, html):
         last_stop = 0
         if not self._last_read.empty():
             last_stop = self._last_read.get_nowait()
@@ -92,9 +107,11 @@ class HttpReaderWriter():
             return None
         this_stop = int(raw_text[-2:], 16)
         if this_stop > last_stop:
+            _LOGGER.debug('Raw buffer: %s', raw_text)
             _LOGGER.debug('Buffer from %d to %d', last_stop, this_stop)
             buffer = raw_text[last_stop:this_stop]
         elif this_stop < last_stop:
+            _LOGGER.debug('Raw buffer: %s', raw_text)
             _LOGGER.debug('Buffer from %d to 200 and 0 to %d',
                           last_stop, this_stop)
             buffer_hi = raw_text[last_stop:200]
@@ -105,25 +122,10 @@ class HttpReaderWriter():
             buffer = '{:s}{:s}'.format(buffer_hi, buffer_low)
         else:
             buffer = None
-        self._set_last_read(this_stop)
+        await self._set_last_read(this_stop)
         return buffer
 
-    def _set_last_read(self, val):
+    async def _set_last_read(self, val):
         while not self._last_read.empty():
-            self._last_read.get_nowait()
-        self._last_read.put_nowait(val)
-
-    def _log_error(self, status):
-        if status == 401:
-            _LOGGER.error('Athentication error, check your configuration')
-            _LOGGER.error('If configuration is correct and restart the Hub')
-            _LOGGER.error('System must be restared to reconnect to hub')
-        elif status == 404:
-            _LOGGER.error('Hub not found, check configuration')
-        elif status in range(500, 600):
-            _LOGGER.error('Hub returned a server error')
-            _LOGGER.error('Restart the Hub and try again')
-        else:
-            _LOGGER.error('An unknown error has occured')
-            _LOGGER.error('Check the configuration and restart the Hub and '
-                          'the application')
+            await self._last_read.get()
+        await self._last_read.put(val)

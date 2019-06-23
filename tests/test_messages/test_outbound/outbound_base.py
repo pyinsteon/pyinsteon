@@ -30,7 +30,7 @@ class OutboundBase():
             topic = 'send_extended'
         pub.sendMessage('send.{}'.format(topic), **kwargs)
 
-    def receive_message(self, msg):
+    def receive_message(self, msg, priority=5):
         """Set the message from the outbound publisher."""
         self.msg = msg
 

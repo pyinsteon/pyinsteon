@@ -5,4 +5,3 @@ from . import Device
 
 class UnknownDevice(Device):
     """Dummy device for testing."""
-

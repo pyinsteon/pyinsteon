@@ -68,7 +68,7 @@ def send_data(data_items, queue):
             queue.put_nowait(item.data)
     asyncio.ensure_future(async_send_data(data_items, queue))
 
-def create_std_ext_msg(address, flags, cmd1, cmd2, user_data=None, target=None):
+def create_std_ext_msg(address, flags, cmd1, cmd2, user_data=None, target=None, ack=0):
     """"Create a standard or extended message."""
     data = bytearray()
     data.append(0x02)
@@ -90,12 +90,15 @@ def create_std_ext_msg(address, flags, cmd1, cmd2, user_data=None, target=None):
     if user_data:
         for byte in user_data:
             data.append(byte)
+    if ack:
+        data.append(ack)
     return bytes(data)
 
-def cmd_kwargs(cmd2, user_data, target=None, address=None):
+def cmd_kwargs(cmd1, cmd2, user_data, target=None, address=None):
     """Return a kwargs dict for a standard messsage command."""
     from pyinsteon.address import Address
-    kwargs = {'cmd2': cmd2,
+    kwargs = {'cmd1': cmd1,
+              'cmd2': cmd2,
               'user_data': user_data}
     if target:
         kwargs['target'] = Address(target)
@@ -103,12 +106,12 @@ def cmd_kwargs(cmd2, user_data, target=None, address=None):
         kwargs['address'] = Address(address)
     return kwargs
 
-def make_command_response_messages(address, topic, cmd2, target='000000', user_data=None):
+def make_command_response_messages(address, topic, cmd1, cmd2, target='000000', user_data=None):
     """Return a colleciton of ACK and Direct ACK responses to commands."""
     from pyinsteon.address import Address
 
     address = Address(address)
     ack = 'ack.{}.{}'.format(address.id, topic)
     direct_ack = '{}.{}.direct_ack'.format(address.id, topic)
-    return [TopicItem(ack, cmd_kwargs(cmd2, user_data), .25),
-            TopicItem(direct_ack, cmd_kwargs(cmd2, user_data, target), .25)]
+    return [TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), .25),
+            TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), .25)]

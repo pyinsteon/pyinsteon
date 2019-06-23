@@ -15,7 +15,7 @@ MAX_RETRIES = 5
 RETRY_PAUSE = 2
 
 
-DeviceId = namedtuple('DeviceId', 'address cat subcat firmware')
+DeviceId = namedtuple('DeviceId', 'address cat subcat firmware')  # product_id')
 
 
 class DeviceIdManager(SubscriberBase):
@@ -103,11 +103,7 @@ class DeviceIdManager(SubscriberBase):
         id_response_handler_alt.subscribe(self._id_response)
         retries = 0
         while self._device_ids[address].cat is None and retries <= MAX_RETRIES:
-            from random import randint
-            rand = randint(1, 100)
-            print('sending device ID request', rand)
             await id_handler.async_send()
-            print('request sent', rand)
             retries += 1
             await asyncio.sleep(RETRY_PAUSE)
         id_response_handler.unsubscribe(self._id_response)
@@ -126,6 +122,19 @@ class DeviceIdManager(SubscriberBase):
             pass
         pub.unsubscribe(self._device_awake, address.id)
         self._call_subscribers(device_id=device_id)
+
+    def _set_device_info(self, address, cat=None, subcat=None, firmware=None, product_id=None):
+        """Set the device ID info."""
+        device_id = self._device_ids.get(address)
+        if device_id is None:
+            new_id = DeviceId(address, cat, subcat, firmware)
+        else:
+            new_id = DeviceId(address,
+                              cat if cat else device_id.cat,
+                              subcat if subcat else device_id.subcat,
+                              firmware if firmware else device_id.firmware)  # ,
+                              # product_id if product_id else device_id.product_id)
+        self._device_ids[address] = new_id
 
     async def _id_awake_devices(self):
         """Loop on devices that wake up and send a message."""

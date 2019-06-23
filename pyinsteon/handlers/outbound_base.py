@@ -38,7 +38,8 @@ class OutboundHandlerBase(InboundHandlerBase):
                 pass
         pub.sendMessage('send.{}'.format(self._send_topic), **kwargs)
         try:
-            return await asyncio.wait_for(
+            test = await asyncio.wait_for(
                 self._message_response.get(), TIMEOUT)
+            return test
         except asyncio.TimeoutError:
             return ResponseStatus.UNSENT

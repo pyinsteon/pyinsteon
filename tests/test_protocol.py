@@ -11,7 +11,7 @@ from pyinsteon.topics import ON
 
 from tests import async_connect_mock
 from tests.utils import (send_topics, send_data, create_std_ext_msg,
-                        async_case, DataItem, TopicItem)
+                         async_case, DataItem, TopicItem)
 
 
 class TestProtocol(unittest.TestCase):
@@ -43,6 +43,8 @@ class TestProtocol(unittest.TestCase):
         send_topics(topics)
         await asyncio.sleep(2)
         assert self._last_topic == 'ack.{}.on.direct'.format(address.id)
+        self._protocol.close()
+        await asyncio.sleep(.1)
 
     @async_case
     async def test_receive_on_msg(self):
@@ -55,3 +57,21 @@ class TestProtocol(unittest.TestCase):
         send_data(data, self._read_queue)
         await asyncio.sleep(2)
         assert self._last_topic == '{}.on.broadcast'.format(address.id)
+        self._protocol.close()
+        await asyncio.sleep(.1)
+
+    @async_case
+    async def test_send_on_all_link_broadcast_topic(self):
+        """Test sending the ON command."""
+        from pyinsteon.handlers.to_device.on_level_all_link_broadcast import (
+            OnLevelAllLinkBroadcastCommand)
+        group = 3
+        target = Address(bytearray([0x00, 0x00, group]))
+        ack_topic = 'ack.{}.on.all_link_broadcast'.format(target.id)
+        cmd = OnLevelAllLinkBroadcastCommand(group=group)
+        await self._protocol.async_connect()
+        await cmd.async_send()  # Mock transport auto sends ACK/NAK
+        await asyncio.sleep(2)
+        assert self._last_topic == ack_topic
+        self._protocol.close()
+        await asyncio.sleep(.1)

@@ -16,17 +16,21 @@ def _dict_to_device(device_dict):
     cat = device_dict.get('cat')
     subcat = device_dict.get('subcat')
     firmware = device_dict.get('firmware')
-    operating_flags = device_dict.get('operating_flags')
-    ext_properties = _dict_to_ext_properties(device_dict.get('ext_properties'))
+    operating_flags = device_dict.get('operating_flags', {})
+    properties = device_dict.get('properties', {})
     device_id = DeviceId(address, cat, subcat, firmware)
     device = create_device(device_id)
     if device:
         aldb_records = _dict_to_aldb_record(aldb)
         device.aldb.load_saved_records(aldb_status, aldb_records)
-        if operating_flags:
-            device.operating_flags.set_value(operating_flags)
-        if ext_properties:
-            device.ext_properties.set_values(ext_properties)
+        for flag in operating_flags:
+            value = operating_flags[flag]
+            if device.operating_flags.get(flag):
+                device.operating_flags[flag].load(value)
+        for flag in properties:
+            value = properties[flag]
+            if device.properties.get(flag):
+                device.properties[flag].load(value)
     return device
 
 
@@ -43,66 +47,57 @@ def _device_to_dict(device_list):
                 rec = device.aldb[mem]
                 if rec:
                     aldbRec = {'memory': mem,
-                               'control_flags': int(rec.control_flags),
+                               'in_use': rec.is_in_use,
+                               'controller': rec.is_controller,
+                               'high_water_mark': rec.is_high_water_mark,
+                               'bit5': rec.is_bit5_set,
+                               'bit4': rec.is_bit4_set,
                                'group': rec.group,
-                               'address': rec.address.id,
+                               'target': rec.target.id,
                                'data1': rec.data1,
                                'data2': rec.data2,
                                'data3': rec.data3}
                     aldb[mem] = aldbRec
-            ext_properties = {}
-            index = 3
-            for flag in device.ext_properties:
-                ext_properties[flag] = {'value': device.ext_properties[flag],
-                                        'index': index}
-                index += 1
+            operating_flags = {}
+            for flag in device.operating_flags:
+                operating_flags[flag] = device.operating_flags[flag].value
+            properties = {}
+            for flag in device.properties:
+                properties[flag] = device.properties[flag].value
             deviceInfo = {'address': device.address.id,
                           'cat': device.cat,
                           'subcat': device.subcat,
                           'firmware': device.firmware,
                           'aldb_status': device.aldb.status.value,
                           'aldb': aldb,
-                          'operating_flags': int(device.operating_flags),
-                          'ext_properties': ext_properties}
+                          'operating_flags': operating_flags,
+                          'properties': properties}
             devices.append(deviceInfo)
     return devices
 
 
 def _dict_to_aldb_record(aldb_dict):
-    from ..aldb.control_flags import create_from_byte
     from ..aldb.aldb_record import ALDBRecord
     records = {}
     for mem_addr in aldb_dict:
         rec = aldb_dict[mem_addr]
-        control_flags = create_from_byte(int(rec.get('control_flags', 0)))
+        memory = int(mem_addr)
+        control_flags = int(rec.get('control_flags', 0))
+        in_use = rec.get('in_use', bool(control_flags & 1 << 7))
+        controller = rec.get('controller', bool(control_flags & 1 << 6))
+        bit5 = rec.get('bit5', bool(control_flags & 1 << 5))
+        bit4 = rec.get('bit4', bool(control_flags & 1 << 4))
+        high_water_mark = rec.get('high_water_mark', not bool(control_flags & 1 << 1))
         group = int(rec.get('group', 0))
-        rec_addr = rec.get('address', '000000')
+        target = rec.get('target', rec.get('address', '000000'))
         data1 = int(rec.get('data1', 0))
         data2 = int(rec.get('data2', 0))
         data3 = int(rec.get('data3', 0))
-        records[int(mem_addr)] = ALDBRecord(int(mem_addr), control_flags,
-                                            group, rec_addr,
-                                            data1, data2, data3)
+        records[memory] = ALDBRecord(memory=memory, controller=controller, group=group,
+                                     target=target, data1=data1, data2=data2, data3=data3,
+                                     in_use=in_use, high_water_mark=high_water_mark,
+                                     bit5=bit5, bit4=bit4)
     return records
-
-
-def _dict_to_ext_properties(ext_properties_dict):
-    from collections import OrderedDict
-    if ext_properties_dict is None:
-        return None
-    kwargs = {}
-    temp_data = {}
-    data = OrderedDict()
-    for flag in ext_properties_dict:
-        prop_dict = ext_properties_dict[flag]
-        index = prop_dict['index']
-        key_name = 'data{}'.format(index)
-        kwargs[key_name] = flag
-        temp_data[index] = prop_dict['value']
-    for index in range(3, 15):
-        data[index] = temp_data[index]
-
-    return data
 
 
 class SavedDeviceManager():

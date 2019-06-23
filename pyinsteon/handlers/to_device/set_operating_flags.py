@@ -20,6 +20,6 @@ class SetOperatingFlagsCommand(DirectCommandHandlerBase):
         super().send(flags=int(flags))
 
     #pylint: disable=arguments-differ
-    async def async_send(self, flags):
+    async def async_send(self, cmd):
         """Send Get Operating Flags message asyncronously."""
-        return await super().async_send(flags=int(flags))
+        return await super().async_send(cmd=cmd)

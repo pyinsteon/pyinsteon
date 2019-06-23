@@ -1,21 +1,28 @@
 """Monitor all messages to and from the Insteon Modem."""
 import asyncio
 from pyinsteon import async_connect, async_close, devices
-from samples import get_hub_config, set_log_levels, PATH, get_hub_config
+from samples import get_hub_config, set_log_levels, PATH, _LOGGER
 
 
 # DEVICE = '/dev/ttyS5'
 DEVICE = 'COM5'
 USERNAME, PASSWORD, HOST = get_hub_config()
 
+def device_added(address):
+    """Log a device added to the device list."""
+    _LOGGER.info('Device added: %s', address)
+
 async def run():
     """Run the monitoring."""
-    set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='debug')
+    set_log_levels(logger='info', logger_pyinsteon='info',
+                   logger_messages='debug', logger_topics=True)
     await async_connect(host=HOST, username=USERNAME, password=PASSWORD)
-    await devices.async_load(workdir=PATH, id_devices=0)
+    devices.subscribe(device_added)
+    await devices.async_load(workdir=PATH)
     await devices.async_save(workdir=PATH)
+    _LOGGER.info('Devices loaded: %d', len(devices))
     while True:
-        await asyncio.sleep(600)
+        await asyncio.sleep(5)
 
 
 if __name__ == '__main__':

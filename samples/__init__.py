@@ -13,7 +13,7 @@ _LOGGER_TOPICS = logging.getLogger('topics')
 PATH = os.getcwd()
 
 
-def set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info', logger_topics=None):
+def set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info', logger_topics=False):
     """Set the log levels of the three logs."""
     _setup_logger(_LOGGER, logger)
     _setup_logger(_LOGGER_PYINSTEON, logger_pyinsteon)
@@ -23,6 +23,7 @@ def set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info
         pub.subscribe(_log_all_topics, pub.ALL_TOPICS)
     else:
         _setup_logger(_LOGGER_TOPICS, 'fatal')
+        pub.unsubscribe(_log_all_topics, pub.ALL_TOPICS)
 
 def _log_all_topics(topic=pub.AUTO_TOPIC, **kwargs):
     """Log all topics from pyinsteon."""
@@ -63,4 +64,3 @@ def get_hub_config():
         except yaml.YAMLError as exc:
             _LOGGER.error(exc)
         return (config.get('username'), config.get('password'), config.get('address'))
-        

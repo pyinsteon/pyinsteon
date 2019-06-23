@@ -18,4 +18,3 @@ class OnLevel(StateBase):
         """Set the value of the state from the handlers."""
         if self._group == group:
             self.value = int(on_level) if on_level else 0
-            _LOGGER.info('New on level 0x%02x', self.value)

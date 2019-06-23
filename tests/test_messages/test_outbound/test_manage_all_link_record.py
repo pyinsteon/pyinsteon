@@ -22,7 +22,7 @@ class TestManageAllLinkRecord(unittest.TestCase, OutboundBase):
         self.action = ManageAllLinkRecordAction(0x40)
         self.flags = AllLinkRecordFlags(0x04)
         self.group = int(0x05)
-        self.address = Address('060708')
+        self.target = Address('060708')
         self.data1 = int(0x09)
         self.data2 = int(0x0a)
         self.data3 = int(0x0b)
@@ -30,7 +30,7 @@ class TestManageAllLinkRecord(unittest.TestCase, OutboundBase):
         kwargs = {"action": self.action,
                   "flags": self.flags,
                   "group": self.group,
-                  "address": self.address,
+                  "target": self.target,
                   "data1": self.data1,
                   "data2": self.data2,
                   "data3": self.data3}
@@ -50,8 +50,8 @@ class TestManageAllLinkRecord(unittest.TestCase, OutboundBase):
     def test_group(self):
         assert self.msg.group == self.group
 
-    def test_address(self):
-        assert self.msg.address == self.address
+    def test_target(self):
+        assert self.msg.target == self.target
 
     def test_data1(self):
         assert self.msg.data1 == self.data1

@@ -1,5 +1,4 @@
 """All-Link database for battery oppertated devices."""
-import asyncio
 from collections import namedtuple
 from typing import Callable
 from .. import pub

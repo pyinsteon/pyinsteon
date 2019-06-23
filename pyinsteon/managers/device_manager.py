@@ -138,8 +138,8 @@ class DeviceManager(SubscriberBase):
 
         for mem_addr in self._modem.aldb:
             rec = self._modem.aldb[mem_addr]
-            if rec.address != Address('000000'):
-                self._id_manager.append(rec.address)
+            if rec.target != Address('000000'):
+                self._id_manager.append(rec.target)
 
         if id_devices:
             id_all = id_devices == 2

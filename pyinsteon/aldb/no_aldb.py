@@ -11,12 +11,13 @@ class NoALDB(ALDBBase):
 
     def __setitem__(self, mem_addr, record):
         """Do nothing."""
-        
+
     @property
     def is_loaded(self) -> bool:
         """Always returns loaded."""
         return ALDBStatus.LOADED
 
+    #pylint: disable=arguments-differ
     async def async_load(self, mem_addr: int = 0x00, num_recs: int = 0x00,
                          refresh: bool = False, callback: Callable = None):
         """Load the All-Link Database."""

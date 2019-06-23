@@ -20,20 +20,21 @@ class TestUserData(unittest.TestCase):
         self.empty_user_data = create_empty()
         self.emtpy_none_user_data = create_empty(None)
         self.values_user_data = create_empty()
-        self.dict_user_data = UserData({'d1': 0xb1,
-                                       'd2': 0xb2,
-                                       'd3': 0xb3,
-                                       'd4': 0xb4,
-                                       'd5': 0xb5,
-                                       'd6': 0xb6,
-                                       'd7': 0xb7,
-                                       'd8': 0xb8,
-                                       'd9': 0xb9,
-                                       'd10': 0xba,
-                                       'd11': 0xbb,
-                                       'd12': 0xbc,
-                                       'd13': 0xbd,
-                                       'd14': 0xbe})
+        self._data = {'d1': 0xb1,
+                      'd2': 0xb2,
+                      'd3': 0xb3,
+                      'd4': 0xb4,
+                      'd5': 0xb5,
+                      'd6': 0xb6,
+                      'd7': 0xb7,
+                      'd8': 0xb8,
+                      'd9': 0xb9,
+                      'd10': 0xba,
+                      'd11': 0xbb,
+                      'd12': 0xbc,
+                      'd13': 0xbd,
+                      'd14': 0xbe}
+        self.dict_user_data = UserData(self._data)
         for itm in range(1, 15):
             key = 'd{}'.format(itm)
             self.values_user_data[key] = itm + 0xa0

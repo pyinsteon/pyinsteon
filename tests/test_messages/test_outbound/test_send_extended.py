@@ -3,7 +3,6 @@ import logging
 import unittest
 import sys
 
-from pyinsteon.protocol.messages.outbound import send_extended
 from pyinsteon.address import Address
 from pyinsteon.protocol.messages.message_flags import MessageFlags
 from pyinsteon.constants import MessageId

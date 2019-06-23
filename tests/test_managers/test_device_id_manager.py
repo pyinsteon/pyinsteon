@@ -33,13 +33,12 @@ class TestDeviceIdManager(unittest.TestCase):
     @async_case
     async def test_id_awake_device(self):
         """Test an awake device is recognized."""
-        print('Running test_id_awake_device')
         address = Address('010101')
         off, ack, dir_ack, response = self._set_topics(address)
-        topic_item_1 = TopicItem(off, cmd_kwargs(0x00, None, Address('000001')), 1)
-        topic_item_2 = TopicItem(ack, cmd_kwargs(0x00, None, None), .5)
-        topic_item_3 = TopicItem(dir_ack, cmd_kwargs(0x00, None, self._modem_address), .5)
-        topic_item_4 = TopicItem(response, cmd_kwargs(0x12, None, self._target), .5)
+        topic_item_1 = TopicItem(off, cmd_kwargs(0x10, 0x00, None, Address('000001')), 1)
+        topic_item_2 = TopicItem(ack, cmd_kwargs(0x10, 0x00, None, None), .5)
+        topic_item_3 = TopicItem(dir_ack, cmd_kwargs(0x10, 0x00, None, self._modem_address), .5)
+        topic_item_4 = TopicItem(response, cmd_kwargs(0x10, 0x12, None, self._target), .5)
         topic_data = [topic_item_1, topic_item_2, topic_item_3, topic_item_4]
 
         self._id_mgr.start()
@@ -69,12 +68,11 @@ class TestDeviceIdManager(unittest.TestCase):
     @async_case
     async def test_id_device(self):
         """Test device identification."""
-        print('Runnign test_id_device')
         address = Address('040404')
         _, ack, dir_ack, response = self._set_topics(address)
-        topic_item_1 = TopicItem(ack, cmd_kwargs(0x00, None, None), 1)
-        topic_item_2 = TopicItem(dir_ack, cmd_kwargs(0x00, None, self._modem_address), .5)
-        topic_item_3 = TopicItem(response, cmd_kwargs(0x12, None, self._target), .5)
+        topic_item_1 = TopicItem(ack, cmd_kwargs(0x10, 0x00, None, None), 1)
+        topic_item_2 = TopicItem(dir_ack, cmd_kwargs(0x10, 0x00, None, self._modem_address), .5)
+        topic_item_3 = TopicItem(response, cmd_kwargs(0x10, 0x12, None, self._target), .5)
         topic_data = [topic_item_1, topic_item_2, topic_item_3]
 
         send_topics(topic_data)

@@ -16,17 +16,17 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
         super().__init__(address, EXTENDED_GET_SET)
 
     #pylint: disable=arguments-differ
-    def send(self, button=0):
+    def send(self, group=0):
         """Send Get Operating Flags message."""
-        super().send(data1=button)
+        super().send(data1=group)
 
     #pylint: disable=arguments-differ
-    async def async_send(self, button=0):
+    async def async_send(self, group=0):
         """Send Get Operating Flags message asyncronously."""
-        return await super().async_send(data1=button)
+        return await super().async_send(data1=group)
 
     @direct_ack_handler
-    def handle_direct_ack(self, cmd2, target, user_data):
+    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
         """Handle the direct ACK message."""
         from collections import OrderedDict
         if not user_data or not user_data['d2'] == 0x01:

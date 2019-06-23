@@ -80,12 +80,14 @@ class ALDBReadManager():
             self._last_command = CANCEL
             self._records.put_nowait(None)
 
-    def _receive_record(self, is_response: bool, record: ALDBRecord):
+    def _receive_record(self, memory, controller, group, target,
+                        data1, data2, data3, in_use,
+                        high_water_mark, bit5, bit4):
         """Receive an ALDB record."""
-        num_recs = len(self._aldb)
+        record = ALDBRecord(memory=memory, controller=controller, group=group, target=target,
+                            data1=data1, data2=data2, data3=data3, in_use=in_use,
+                            high_water_mark=high_water_mark, bit5=bit5, bit4=bit4)
         self._records.put_nowait(record)
-        if num_recs != len(self._aldb):
-            _LOGGER.info('Received %d records', len(self._aldb))
         asyncio.ensure_future(self._release_timer())
 
     async def _release_timer(self):
@@ -172,7 +174,7 @@ class ALDBReadManager():
             return self._aldb.first_mem_addr
         for mem_addr in self._aldb:
             rec = self._aldb[mem_addr]
-            if rec.control_flags.is_high_water_mark:
+            if rec.is_high_water_mark:
                 return None
             if last_addr != 0:
                 if not last_addr - 8 == mem_addr:

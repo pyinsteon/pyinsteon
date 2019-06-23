@@ -149,6 +149,21 @@ def _has_listeners(topic):
     return False
 
 
+def _publish_broadcast(topic, **kwargs):
+    from . import topic_to_message_type
+    from ..constants import MessageFlagType as MFT
+    msg_type = topic_to_message_type(topic)
+    if msg_type in [MFT.BROADCAST, MFT.ALL_LINK_BROADCAST, MFT.ALL_LINK_CLEANUP,
+                    MFT.ALL_LINK_CLEANUP_ACK, MFT.ALL_LINK_CLEANUP_NAK]:
+        try:
+            pub.sendMessage(str(msg_type), **kwargs)
+        #pylint: disable=broad-except
+        except Exception as e:
+            _LOGGER.error('An issue occured distributing the following broadcast message')
+            _LOGGER.error('Topic: %s data: %s', topic, kwargs)
+            _LOGGER.error('Error: %s', str(e))
+
+
 class TransportStatus(Enum):
     """Status of the transport."""
 
@@ -211,10 +226,11 @@ class Protocol(asyncio.Protocol):
                         pub.sendMessage(topic, **kwargs)
                     #pylint: disable=broad-except
                     except Exception as e:
-                        _LOGGER.error('An issue occured receiving the following message')
+                        _LOGGER.error('An issue occured distributing the following message')
                         _LOGGER.error('MSG: %s', msg)
                         _LOGGER.error('Topic: %s data: %s', topic, kwargs)
                         _LOGGER.error('Error: %s', str(e))
+                    # _publish_broadcast(topic, **kwargs)
         except ValueError:
             # No topic was found for this message
             _LOGGER.debug('No topic found for message %r', msg)
@@ -288,6 +304,6 @@ class Protocol(asyncio.Protocol):
             _, msg = await self._message_queue.get()
             if msg:
                 _LOGGER_MSG.debug('TX: %s', repr(msg))
-                self._transport.write(msg)
+                await self._transport.async_write(msg)
                 await asyncio.sleep(WRITE_WAIT)
         _LOGGER.debug('Hub writer stopped.')

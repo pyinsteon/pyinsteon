@@ -17,7 +17,7 @@ class GetNextAllLinkRecordHandler(OutboundHandlerBase):
 
     @ack_handler()
     def handle_ack(self):
-        """Receive the ACK message and return True."""
+        """Handle the ACK message and return True."""
 
     @nak_handler
     def handle_nak(self):

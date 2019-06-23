@@ -2,7 +2,7 @@
 from . import topic_to_command_handler
 from .. import pub
 from ..address import Address
-from ..constants import MessageFlagType, AllLinkMode, RampRate
+from ..constants import RampRate
 from ..topics import (ASSIGN_TO_ALL_LINK_GROUP, ASSIGN_TO_COMPANION_GROUP,
                       BRIGHTEN_ONE_STEP,
                       DELETE_FROM_ALL_LINK_GROUP, DEVICE_TEXT_STRING_REQUEST,
@@ -106,11 +106,13 @@ from .messages.user_data import UserData
 # The topis is based on the cmd1, cmd2 and extended message flags values
 
 def _create_direct_message(topic, address, cmd2=None, user_data=None):
+    from . import topic_to_message_type
     main_topic = topic.name.split('.')[1]
     cmd1, cmd2_std, _ = commands.get_cmd1_cmd2(main_topic)
     extended = user_data is not None
     cmd2 = cmd2_std if cmd2_std is not None else cmd2
-    flags = create_flags(MessageFlagType.DIRECT, extended)
+    flag_type = topic_to_message_type(topic)
+    flags = create_flags(flag_type, extended)
     if extended:
         user_data.set_checksum(cmd1, cmd2)
         send_extended(address=address, cmd1=cmd1, cmd2=cmd2, flags=flags,
@@ -217,12 +219,12 @@ def on_fast(address: Address, on_level: int, group: int, topic=pub.AUTO_TOPIC):
 
 
 @topic_to_command_handler(topic=OFF)
-def off(address: Address, group: int, topic=pub.AUTO_TOPIC):
+def off(address: Address, group: int, cmd2: int = 0, topic=pub.AUTO_TOPIC):
     """Create a OFF command."""
     user_data = None
     if group:
         user_data = UserData({'d1': group})
-    _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
+    _create_direct_message(topic=topic, address=address, cmd2=cmd2, user_data=user_data)
 
 
 @topic_to_command_handler(topic=OFF_FAST)
@@ -258,9 +260,9 @@ def get_operating_flags(address: Address, flags_requested: int, topic=pub.AUTO_T
 
 
 @topic_to_command_handler(topic=SET_OPERATING_FLAGS)
-def set_operating_flags(address: Address, flags: int, topic=pub.AUTO_TOPIC):
+def set_operating_flags(address: Address, cmd: int, topic=pub.AUTO_TOPIC):
     """Create a SET_OPERATING_FLAGS command."""
-    _create_direct_message(topic=topic, address=address, cmd2=flags)
+    _create_direct_message(topic=topic, address=address, cmd2=cmd)
 
 
 @topic_to_command_handler(topic=INSTANT_CHANGE)
@@ -314,6 +316,7 @@ def on_at_ramp_rate(address: Address, on_level: int, ramp_rate: RampRate, topic=
     cmd2 = on_level + ramp_rate
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
+
 @topic_to_command_handler(topic=EXTENDED_GET_SET)
 def extended_get_set(address: Address, data1=0, data2=0, data3=0, data4=0,
                      data5=0, data6=0, data7=0, data8=0, data9=0, data10=0,
@@ -321,7 +324,7 @@ def extended_get_set(address: Address, data1=0, data2=0, data3=0, data4=0,
     """Create a EXTENDED_GET_SET command."""
     data = {}
     items = locals()
-    for i in range(3, 15):
+    for i in range(1, 15):
         data['d{}'.format(i)] = items['data{}'.format(i)]
     user_data = UserData(data)
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
@@ -335,6 +338,7 @@ def off_at_ramp_rate(address: Address, on_level: int, ramp_rate: RampRate, topic
     cmd2 = on_level + ramp_rate
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
+
 def _read_aldb(address, mem_addr, num_recs, topic):
     # num_recs = 0 if mem_addr == 0x0000 else 1
     mem_hi = mem_addr >> 8
@@ -342,14 +346,15 @@ def _read_aldb(address, mem_addr, num_recs, topic):
     user_data = UserData({'d2': 0x00, 'd3': mem_hi, 'd4': mem_lo, 'd5': num_recs})
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
-def _write_aldb(address, mem_addr, mode, group, target, data1, data2, data3,
-                in_use, topic):
+
+def _write_aldb(address, mem_addr, controller, group, target, data1, data2, data3,
+                in_use, high_water_mark, bit5, bit4, topic):
     from .messages.all_link_record_flags import create
     address = Address(address)
     target = Address(target)
     mem_hi = mem_addr >> 8
     mem_lo = mem_addr & 0xff
-    flags = create(in_use=in_use, mode=mode, hwm=False)
+    flags = create(in_use=in_use, controller=controller, hwm=high_water_mark, bit5=bit5, bit4=bit4)
     user_data = UserData({'d2': 0x02, 'd3': mem_hi, 'd4': mem_lo, 'd5': 0x08,
                           'd6': int(flags), 'd7': group, 'd8': target.high, 'd9': target.middle,
                           'd10': target.low, 'd11': data1, 'd12': data2, 'd13': data3})
@@ -359,17 +364,18 @@ def _write_aldb(address, mem_addr, mode, group, target, data1, data2, data3,
 @topic_to_command_handler(topic=EXTENDED_READ_WRITE_ALDB)
 def extended_read_write_aldb(address: Address, action: int, mem_addr: int,
                              num_recs: int = 0,
-                             mode: AllLinkMode = AllLinkMode.CONTROLLER, group: int = 0x01,
+                             controller: bool = True, group: int = 0x01,
                              target: Address = None, data1: int = 0x00, data2: int = 0x00,
-                             data3: int = 0x00, in_use: bool = True,
-                             topic=pub.AUTO_TOPIC):
+                             data3: int = 0x00, in_use: bool = True, high_water_mark: bool = False,
+                             bit5: int = 0, bit4: int = 0, topic=pub.AUTO_TOPIC):
     """Create a EXTENDED_READ_WRITE_ALDB command."""
     if action == 0x00:
         _read_aldb(address=address, mem_addr=mem_addr, num_recs=num_recs, topic=topic)
     elif action == 0x02:
-        _write_aldb(address=address, mem_addr=mem_addr, mode=mode, group=group,
+        _write_aldb(address=address, mem_addr=mem_addr, controller=controller, group=group,
                     target=target, data1=data1, data2=data2, data3=data3,
-                    in_use=in_use, topic=topic)
+                    in_use=in_use, high_water_mark=high_water_mark, bit5=bit5, bit4=bit4,
+                    topic=topic)
 
 
 @topic_to_command_handler(topic=EXTENDED_TRIGGER_ALL_LINK)

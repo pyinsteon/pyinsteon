@@ -2,7 +2,7 @@
 from abc import ABCMeta
 import asyncio
 from . import Device
-from ..aldb import ModemALDB
+from ..aldb.modem_aldb import ModemALDB
 
 
 class ModemBase(Device, metaclass=ABCMeta):
@@ -64,13 +64,13 @@ class ModemBase(Device, metaclass=ABCMeta):
                 await asyncio.sleep(WAIT_TIME)
                 WAIT_TIME = min(300, 1.5 * WAIT_TIME)
 
-    async def async_get_operating_flags(self):
+    async def async_get_operating_flags(self, group=None):
         """Read the device operating flags."""
 
-    async def async_set_operating_flags(self):
+    async def async_set_operating_flags(self, group=None, force=False):
         """Write the operating flags to the device."""
 
-    async def async_get_extended_properties(self):
+    async def async_get_extended_properties(self, group=None):
         """Get the device extended properties."""
 
     def _subscribe_topics(self):

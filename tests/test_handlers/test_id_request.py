@@ -43,13 +43,15 @@ class TestIdRequest(unittest.TestCase):
     @async_case
     async def test_id_request(self):
         """Test the ON command."""
+        cmd1 = 0x99
         cmd2 = 0xaa
         topics = [TopicItem(self.ack_topic,
-                            {"cmd2": cmd2, "target": None, "user_data": None}, .5),
+                            {"cmd1": cmd1, "cmd2": cmd2, "target": None, "user_data": None}, .5),
                   TopicItem(self.direct_ack_topic,
-                            {"cmd2": cmd2, "target": None, "user_data": None}, .5),
+                            {"cmd1": cmd1, "cmd2": cmd2, "target": None, "user_data": None}, .5),
                   TopicItem(self.id_response_topic,
-                            {'cmd2': cmd2, 'target': Address('010203'), 'user_data': None}, .5)]
+                            {'cmd1': cmd1, 'cmd2': cmd2, 'target': Address('010203'),
+                             'user_data': None}, .5)]
         send_topics(topics)
         assert await self.id_handler.async_send()
         await asyncio.sleep(1)
@@ -60,13 +62,15 @@ class TestIdRequest(unittest.TestCase):
     @async_case
     async def test_id_request_nak(self):
         """Test the ON command."""
+        cmd1 = 0x99
         cmd2 = 0xaa
         topics = [TopicItem(self.ack_topic,
-                            {"cmd2": cmd2, "target": None, "user_data": None}, .5),
+                            {'cmd1': cmd1, "cmd2": cmd2, "target": None, "user_data": None}, .5),
                   TopicItem(self.direct_nak_topic,
-                            {"cmd2": cmd2, "target": None, "user_data": None}, .5)]
+                            {'cmd1': cmd1, "cmd2": cmd2, "target": None, "user_data": None}, .5)]
         send_topics(topics)
-        assert await self.id_handler.async_send() == ResponseStatus.UNCLEAR
+        result = await self.id_handler.async_send()
+        assert result == ResponseStatus.UNCLEAR
 
 if __name__ == '__main__':
     unittest.main()

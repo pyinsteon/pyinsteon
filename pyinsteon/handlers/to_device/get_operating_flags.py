@@ -27,6 +27,6 @@ class GetOperatingFlagsCommand(DirectCommandHandlerBase):
         return result
 
     @direct_ack_handler
-    def handle_direct_ack(self, cmd2, target, user_data):
+    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
         """Handle the direct ACK message."""
         self._call_subscribers(flags=cmd2)

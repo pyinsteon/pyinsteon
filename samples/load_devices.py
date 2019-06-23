@@ -12,15 +12,15 @@ USERNAME, PASSWORD, HOST  = get_hub_config()
 
 async def do_run():
     """Connect to the PLM and load the ALDB."""
-    devices = await async_connect(device=DEVICE)
+    # devices = await async_connect(device=DEVICE)
+    devices = await async_connect(host=HOST,
+                                  username=USERNAME,
+                                  password=PASSWORD)
     modem = devices.modem
-    # modem = await async_connect(host=HOST,
-    #                             username=USERNAME,
-    #                             password=PASSWORD)
     _LOGGER.info('Connected')
     _LOGGER.info('Modem Address: %s', modem.address)
     await devices.async_load(workdir=PATH)
-    # await devices.async_save(workdir=PATH)
+    await devices.async_save(workdir=PATH)
     for address in devices:
         device = devices[address]
         _LOGGER.info('%s %s %s', device.address, device.description, device.model)
@@ -28,7 +28,7 @@ async def do_run():
 
 
 if __name__ == '__main__':
-    set_log_levels(logger='info', logger_pyinsteon='info',
-                   logger_messages='info', logger_topics=False)
+    set_log_levels(logger='info', logger_pyinsteon='debug',
+                   logger_messages='debug', logger_topics=True)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(do_run())

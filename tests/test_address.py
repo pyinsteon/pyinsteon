@@ -15,7 +15,7 @@ class TestAddress(unittest.TestCase):
         self.hex = '010203'
         self.address = Address(self.hex)
         self.address_bytes = Address(bytearray(unhexlify(self.hex)))
-        
+
         # _LOGGER.setLevel(logging.DEBUG)
         stream_handler = logging.StreamHandler(sys.stdout)
         _LOGGER.addHandler(stream_handler)

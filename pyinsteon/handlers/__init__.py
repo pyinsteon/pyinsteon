@@ -10,23 +10,20 @@ TIMEOUT = 3  # Time out between ACK and Direct ACK
 _LOGGER = logging.getLogger(__name__)
 
 
-def _post_response(obj, response: ResponseStatus):
+async def _async_post_response(obj, response: ResponseStatus, func=None, args=None, kwargs=None):
     """Post a response status to the resonse queue."""
     if hasattr(obj, 'response_lock'):
         if obj.response_lock.locked():
-            obj.message_response.put_nowait(response)
-    else:
-        obj.message_response.put_nowait(response)
-
-async def _async_post_response(obj, response, func, args, kwargs):
-    """Used to ensure the lock is locked before posting a response."""
-    if obj.response_lock.locked():
-        # Only trigger the message response if the response_lock is still
-        # locked. This ensures status messages are not responded to.
-        await obj.message_response.put(response)
+            await obj.message_response.put(response)
+            if func is not None:
+                func(obj, *args, **kwargs)
         if obj.response_lock.locked():
             obj.response_lock.release()
-        func(obj, *args, **kwargs)
+    else:
+        await obj.message_response.put(response)
+        if func is not None:
+            func(obj, *args, **kwargs)
+
 
 def inbound_handler(func):
     """Decorator function for any inbound message handler."""
@@ -45,7 +42,7 @@ def ack_handler(wait_response=False, timeout=TIMEOUT):
     async def _wait_response(lock: asyncio.Lock, queue: asyncio.Queue):
         """Wait for the direct ACK message, and post False if timeout reached."""
         # Need to consider the risk of this. We may be unlocking a prior send command.
-        # This would mean that the prior command will terminate. What happens when the 
+        # This would mean that the prior command will terminate. What happens when the
         # prior command returns a direct ACK then this command returns a direct ACK?
         # Do not believe this is an issue but need to test.
         if lock.locked():
@@ -66,7 +63,8 @@ def ack_handler(wait_response=False, timeout=TIMEOUT):
                 asyncio.ensure_future(
                     _wait_response(self.response_lock, self.message_response))
             else:
-                _post_response(self, ResponseStatus.SUCCESS)
+                asyncio.ensure_future(
+                    _async_post_response(self, ResponseStatus.SUCCESS))
             return func(self, *args, **kwargs)
         wrapper.register_topic = register_topic
         return wrapper
@@ -85,8 +83,8 @@ def nak_handler(func):
         pub.subscribe(instance_func, topic)
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        _post_response(self, ResponseStatus.FAILURE)
-        return func(self, *args, **kwargs)
+        asyncio.ensure_future(
+            _async_post_response(self, ResponseStatus.FAILURE, func, args, kwargs))
     wrapper.register_topic = register_topic
     return wrapper
 
@@ -99,8 +97,9 @@ def response_handler(response_topic=None):
         send topic.
     """
     def register_topic(instance_func, topic):
-        response_topic = response_topic if response_topic else topic
-        pub.subscribe(instance_func, response_topic)
+        nonlocal response_topic
+        topic = response_topic if response_topic is not None else topic
+        pub.subscribe(instance_func, topic)
     def setup(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
@@ -166,6 +165,25 @@ def broadcast_handler(func):
         topic_all_link_broadcast = '{}.all_link_broadcast'.format(topic)
         pub.subscribe(instance_func, topic_broadcast)
         pub.subscribe(instance_func, topic_all_link_broadcast)
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        nonlocal last_command
+        curr_time = datetime.now()
+        tdelta = curr_time - last_command
+        last_command = curr_time
+        if tdelta.seconds >= 2:
+            return func(self, *args, **kwargs)
+
+    wrapper.register_topic = register_topic
+    return wrapper
+
+def all_link_cleanup_handler(func):
+    """Decorator function to register the BROADCAST message handler."""
+    from datetime import datetime
+    last_command = datetime(1, 1, 1)
+    def register_topic(instance_func, topic):
+        topic = '{}.all_link_cleanup'.format(topic)
+        pub.subscribe(instance_func, topic)
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         nonlocal last_command

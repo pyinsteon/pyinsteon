@@ -13,7 +13,7 @@ class DeleteFromAllLinkGroupCommand(BroadcastCommandHandlerBase):
         super().__init__(address, DELETE_FROM_ALL_LINK_GROUP)
 
     @broadcast_handler
-    def receive_id(self, cmd2, target, user_data):
+    def receive_id(self, cmd1, cmd2, target, user_data):
         """Receive the device ID information."""
         cat = target.high
         subcat = target.middle

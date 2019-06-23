@@ -5,23 +5,21 @@ from ...utils import bit_is_set, set_bit, test_values_eq
 from ...constants import AllLinkMode
 
 
-def create(in_use: bool, mode: AllLinkMode, hwm: bool,
+def create(in_use: bool, controller: bool, hwm: bool,
            bit5: bool = False, bit4: bool = False,
            bit3: bool = False, bit2: bool = False,
            bit0: bool = False):
     """Create an AllLinkRecordFlags entity."""
-    flags = AllLinkRecordFlags(0x00)
+    flags = 0x00
     flags = set_bit(flags, 7, in_use)
-    flags = set_bit(
-        flags, 6,
-        mode.value if isinstance(mode, AllLinkMode) else AllLinkMode(mode))
+    flags = set_bit(flags, 6, controller)
     flags = set_bit(flags, 5, bit5)
     flags = set_bit(flags, 4, bit4)
     flags = set_bit(flags, 3, bit3)
     flags = set_bit(flags, 2, bit2)
-    flags = set_bit(flags, 1, hwm)
+    flags = set_bit(flags, 1, not hwm)
     flags = set_bit(flags, 0, bit0)
-    return flags
+    return AllLinkRecordFlags(flags)
 
 
 def _normalize(data):
@@ -62,6 +60,10 @@ class AllLinkRecordFlags():
         flags = set_bit(flags, 1, not self._hwm)
         flags = set_bit(flags, 0, self._bit0)
         return bytes([flags])
+
+    def __int__(self):
+        """Return the integer representation of the flags."""
+        return int.from_bytes(bytes(self), byteorder='big')
 
     def __repr__(self):
         """Return the hex representation of the flags."""

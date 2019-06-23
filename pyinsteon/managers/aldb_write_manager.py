@@ -29,14 +29,14 @@ class ALDBWriteManager():
         if not self.can_write:
             raise ALDBWriteException('All-Link databased must be loaded before writing.')
 
-        if (self._aldb.first_mem_addr <= record.mem_addr or
-                record.mem_addr <= record.high_water_mark_mem_addr):
+        if (record.mem_addr > self._aldb.first_mem_addr or
+                record.mem_addr < self._aldb.high_water_mark_mem_addr):
             raise ALDBWriteException('All-link record memory address out of range.')
 
         # If we get a direct ACK, we assume the ALDB has been written.
         # Should we force read to ensure it is accuate.
         return await self._write_handler.async_send(
-            mem_addr=record.mem_addr, mode=record.control_flags.mode,
+            mem_addr=record.mem_addr, controller=record.is_controller,
             group=record.group, target=record.target,
             data1=record.data1, data2=record.data2, data3=record.data3,
-            in_use=True)
+            in_use=record.is_in_use, bit5=record.is_bit5_set, bit4=record.is_bit4_set)

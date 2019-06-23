@@ -6,8 +6,7 @@ from ..handlers.get_next_all_link_record import GetNextAllLinkRecordHandler
 from ..handlers.all_link_record_response import AllLinkRecordResponseHandler
 from ..address import Address
 from ..aldb.aldb_record import ALDBRecord
-from ..aldb.control_flags import create_from_byte
-from ..aldb import ModemALDB
+from ..aldb.modem_aldb import ModemALDB
 from ..constants import ResponseStatus
 
 
@@ -50,13 +49,15 @@ class ImReadManager():
         """Test if max retries reached."""
         return bool(self._retries >= 3)
 
-    def _receive_record(self, flags: bytes, group: int, address: Address,
-                        data1: int, data2: int, data3: int):
+    def _receive_record(self, in_use: bool, high_water_mark: bool,
+                        controller: bool, group: int, target: Address,
+                        data1: int, data2: int, data3: int,
+                        bit5: bool, bit4: bool):
         """Receive a record and load into the ALDB."""
         self._last_mem_addr = self._last_mem_addr - 8
-        control_flags = create_from_byte(flags)
-        record = ALDBRecord(self._last_mem_addr, control_flags, group, address,
-                            data1, data2, data3)
+        record = ALDBRecord(memory=self._last_mem_addr, controller=controller, group=group,
+                            target=target, data1=data1, data2=data2, data3=data3, in_use=in_use,
+                            high_water_mark=high_water_mark, bit5=bit5, bit4=bit4)
         self._aldb[self._last_mem_addr] = record
         asyncio.ensure_future(self._get_next_record())
 

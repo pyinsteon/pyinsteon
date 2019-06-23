@@ -36,7 +36,7 @@ class MockTransport(SubscriberBase, asyncio.Transport):
 
     def close(self):
         """Close the transport."""
-        self._data_queue.put_nowait(None)
+        self._read_queue.put_nowait(None)
         self._closing = True
 
     def get_write_buffer_size(self):
@@ -62,3 +62,7 @@ class MockTransport(SubscriberBase, asyncio.Transport):
         ack_nak = 0x06 if rand_num > 10 else 0x15
         ack = bytes(data) + bytes([ack_nak])
         self._protocol.data_received(ack)
+
+    async def async_write(self, data):
+        """Write to the transport."""
+        self.write(data)

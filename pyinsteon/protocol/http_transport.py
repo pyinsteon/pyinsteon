@@ -45,6 +45,7 @@ class HttpTransport(asyncio.Transport):
         self._closing = False
         self._read_write_lock = asyncio.Lock()
         self._last_read = asyncio.Queue()
+        self._last_msg = None
 
         self._start_reader()
 
@@ -84,30 +85,34 @@ class HttpTransport(asyncio.Transport):
 
     def write(self, data):
         """Write data to the transport."""
-        from .msg_to_url import convert_to_url
-        _LOGGER.debug("..................Writing a message..............")
-        url = convert_to_url(self._host, self._port, data)
-        asyncio.ensure_future(self._async_write(url))
+        asyncio.ensure_future(self.async_write(data))
 
-    async def _async_write(self, url):
+    async def async_write(self, data):
+        """Async write to the transport."""
+        from .msg_to_url import convert_to_url
+        url = convert_to_url(self._host, self._port, data)
+        await self._async_write_url(url=url, msg=bytes(data))
+
+    async def _async_write_url(self, url, msg=None):
         """Write the message to the Hub."""
         await self._read_write_lock
         response_status = 0
         retry = 0
         while response_status != 200 and retry < 5:
-            if self.is_closing:
+            if self.is_closing():
                 if self._read_write_lock.locked():
                     self._read_write_lock.release()
                 return
-            response = await self._reader_writer.async_write(url)
-            response_status = response.status
+            response_status = await self._reader_writer.async_write(url)
             if response_status != 200:
                 _LOGGER.debug('Hub write request failed for url %s', url)
                 retry += 1
                 asyncio.sleep(.5)
+            else:
+                self._last_msg = msg
         if self._read_write_lock.locked():
             self._read_write_lock.release()
- 
+
     async def async_test_connection(self):
         """Test the connection to the hub."""
         url = 'http://{:s}:{:d}/buffstatus.xml'.format(self._host, self._port)
@@ -129,13 +134,13 @@ class HttpTransport(asyncio.Transport):
     async def _clear_buffer(self):
         _LOGGER.debug("..................Clearing the buffer..............")
         url = 'http://{:s}:{:d}/1?XB=M=1'.format(self._host, self._port)
-        await self._async_write(url)
+        await self._async_write_url(url)
 
     # pylint: disable=broad-except
     async def _ensure_reader(self):
         _LOGGER.info('Insteon Hub reader started')
         await self._clear_buffer()
-        self._reader_writer.reset_reader()
+        await self._reader_writer.reset_reader()
         url = 'http://{:s}:{:d}/buffstatus.xml'.format(self._host, self._port)
         _LOGGER.debug('Calling connection made')
         self._protocol.connection_made(self)
@@ -164,6 +169,7 @@ class HttpTransport(asyncio.Transport):
             else:
                 if buffer:
                     _LOGGER.debug('New buffer: %s', buffer)
+                    buffer = self._check_strong_nak(buffer)
                     bin_buffer = unhexlify(buffer)
                     self._protocol.data_received(bin_buffer)
             if self._read_write_lock.locked():
@@ -171,6 +177,18 @@ class HttpTransport(asyncio.Transport):
             if not self.is_closing:
                 await asyncio.sleep(.5)
         _LOGGER.info('Insteon Hub reader stopped')
+
+    def _check_strong_nak(self, buffer):
+        """Check if a NAK message is received with multiple NAKs.
+
+        There appears to be a bug in the Hub that produces a series
+        of NAK codes rather than returning the original message
+        with a single NAK.
+        """
+        naks = buffer.count('15')
+        if (naks >= 9 or naks == len(buffer)/2) and self._last_msg is not None:
+            return self._last_msg.hex() + '15'
+        return buffer
 
     # pylint: disable=unused-argument
     def _start_reader(self, future=None):

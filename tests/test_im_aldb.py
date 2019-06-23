@@ -2,19 +2,19 @@
 import unittest
 
 from pyinsteon.address import Address
-from pyinsteon.aldb import ModemALDB
+from pyinsteon.aldb.modem_aldb import ModemALDB
 from pyinsteon.topics import (ALL_LINK_RECORD_RESPONSE, GET_NEXT_ALL_LINK_RECORD,
                               GET_FIRST_ALL_LINK_RECORD)
 from tests.utils import TopicItem, async_case, send_topics
 from tests import _LOGGER, set_log_levels
 
 
-def fill_rec(flags, group, address, data1, data2, data3):
+def fill_rec(flags, group, target, data1, data2, data3):
     """Fill an All-Link Record."""
     from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
     kwargs = {'flags': AllLinkRecordFlags(flags),
               'group': group,
-              'address': Address(address),
+              'target': Address(target),
               'data1': data1,
               'data2': data2,
               'data3': data3}

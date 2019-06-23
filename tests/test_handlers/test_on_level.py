@@ -28,11 +28,12 @@ class TestOnLevel(unittest.TestCase):
     @async_case
     async def test_on_level(self):
         """Test the ON command."""
+        cmd1 = 0x99
         cmd2 = 0xaa
         topics = [TopicItem(self.ack_topic,
-                            {"cmd2": cmd2, "target": '4d5e6f', "user_data": None}, .5),
+                            {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data": None}, .5),
                   TopicItem(self.direct_ack_topic,
-                            {"cmd2": cmd2, "target": '4d5e6f', "user_data": None}, .5)]
+                            {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data": None}, .5)]
         send_topics(topics)
         assert await self.handler.async_send(on_level=cmd2)
         assert self._on_level == cmd2
@@ -40,12 +41,13 @@ class TestOnLevel(unittest.TestCase):
     @async_case
     async def test_on_level_group(self):
         """Test the ON command."""
+        cmd1 = 0x99
         cmd2 = 0xaa
         group = 0x02
         topics = [TopicItem(self.ack_topic,
-                            {"cmd2": cmd2, "target": '4d5e6f', "user_data": {'d1': group}}, .5),
+                            {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data": {'d1': group}}, .5),
                   TopicItem(self.direct_ack_topic,
-                            {"cmd2": cmd2, "target": '4d5e6f', "user_data":  {'d1': group}}, .5)]
+                            {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data":  {'d1': group}}, .5)]
         send_topics(topics)
         assert await self.handler.async_send(on_level=cmd2)
         assert self._on_level == cmd2
@@ -54,12 +56,13 @@ class TestOnLevel(unittest.TestCase):
     @async_case
     async def test_on_level_nak(self):
         """Test the ON command."""
+        cmd1 = 0x99
         cmd2 = 0xaa
         group = 0x02
         topics = [TopicItem(self.ack_topic,
-                            {"cmd2": cmd2, "target": '4d5e6f', "user_data": {'d1': group}}, .5),
+                            {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data": {'d1': group}}, .5),
                   TopicItem(self.direct_nak_topic,
-                            {"cmd2": cmd2, "target": '4d5e6f', "user_data":  {'d1': group}}, .5)]
+                            {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data":  {'d1': group}}, .5)]
         send_topics(topics)
         assert await self.handler.async_send(on_level=cmd2)  == ResponseStatus.UNCLEAR
 

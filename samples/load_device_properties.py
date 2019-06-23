@@ -1,7 +1,7 @@
 """Sample program to demonstrate loading a device All-Link Database."""
 import asyncio
 
-from pyinsteon import async_connect, devices, async_close
+from pyinsteon import async_connect, async_close
 from samples import set_log_levels, _LOGGER, PATH, get_hub_config
 
 # DEVICE = '/dev/ttyS5'
@@ -11,29 +11,26 @@ USERNAME, PASSWORD, HOST = get_hub_config()
 
 async def load_device_properties():
     """Load the device databae."""
-    await async_connect(device=DEVICE)
-    # await async_connect(host=HOST,
-    #                     username=USERNAME,
-    #                     password=PASSWORD)
+    # devices = await async_connect(device=DEVICE)
+    devices = await async_connect(host=HOST,
+                                  username=USERNAME,
+                                  password=PASSWORD)
 
     await devices.async_load(workdir=PATH)
     await devices.async_save(workdir=PATH)
     for address in devices:
         device = devices[address]
         if not device.aldb.is_loaded:
-            _LOGGER.info('\nStarting DB load for %s', address)
+            _LOGGER.info('Starting DB load for %s', address)
             await device.aldb.async_load()
-            await devices.async_save(workdir=PATH)
-        _LOGGER.info('\nALDB load status for %s: %s', device.address, device.aldb.status.name)
+        _LOGGER.info('ALDB load status for %s: %s', device.address, device.aldb.status.name)
+        _LOGGER.info('Loading device properties')
         await device.async_get_operating_flags()
         await device.async_get_extended_properties()
-        for mem_addr in device.aldb:
-            _LOGGER.info(device.aldb[mem_addr])
-        for flag in device.operating_flags:
-            _LOGGER.info('%s: %s', flag, device.operating_flags[flag])
-        for flag in device.ext_properties:
-            _LOGGER.info('%s: %s', flag, device.ext_properties[flag])
+        await asyncio.sleep(3) # Give the device some time to respond to get ext prop
+
         await devices.async_save(workdir=PATH)
+        _LOGGER.info('')
     await async_close()
 
 

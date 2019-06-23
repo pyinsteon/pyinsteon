@@ -25,10 +25,11 @@ def convert_to_topic(msg: Inbound) -> (str, {}):
     return converter(msg)
 
 
-def _create_rcv_std_ext_msg(topic, address, flags, cmd2, target, user_data):
+def _create_rcv_std_ext_msg(topic, address, flags, cmd1, cmd2, target, user_data):
     msg_type = flags.message_type.name.lower()
     topic = '{}.{}.{}'.format(address.id, topic, msg_type)
-    kwargs = {'cmd2': cmd2,
+    kwargs = {'cmd1': cmd1,
+              'cmd2': cmd2,
               'target': target,
               'user_data': user_data}
     return (topic, kwargs)
@@ -40,11 +41,11 @@ def standard_received(msg: Inbound) -> (str, {}):
     for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags.is_extended):
         found_topic = True
         yield _create_rcv_std_ext_msg(
-            topic, msg.address, msg.flags, msg.cmd2, msg.target, None)
+            topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, None)
     if not found_topic:
         topic = 'standard_received'
         yield _create_rcv_std_ext_msg(
-            topic, msg.address, msg.flags, msg.cmd2, msg.target, None)
+            topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, None)
 
 
 def extended_received(msg: Inbound) -> (str, {}):
@@ -53,11 +54,11 @@ def extended_received(msg: Inbound) -> (str, {}):
     for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags.is_extended):
         found_topic = True
         yield _create_rcv_std_ext_msg(
-            topic, msg.address, msg.flags, msg.cmd2, msg.target, msg.user_data)
+            topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, msg.user_data)
     if not found_topic:
         topic = 'extended_received'
         yield _create_rcv_std_ext_msg(
-            topic, msg.address, msg.flags, msg.cmd2, msg.target, msg.user_data)
+            topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, msg.user_data)
 
 
 def x10_received(msg: Inbound) -> (str, {}):
@@ -73,7 +74,7 @@ def all_linking_completed(msg: Inbound) -> (str, {}):
     topic = ALL_LINKING_COMPLETED
     kwargs = {'mode': msg.mode,
               'group': msg.group,
-              'address': msg.address,
+              'target': msg.target,
               'cat': msg.cat,
               'subcat': msg.subcat,
               'firmware': msg.firmware}
@@ -99,7 +100,7 @@ def all_link_cleanup_failure_report(msg: Inbound) -> (str, {}):
     topic = ALL_LINK_CLEANUP_FAILURE_REPORT
     kwargs = {'error': msg.error,
               'group': msg.group,
-              'address': msg.address}
+              'target': msg.target}
     yield (topic, kwargs)
 
 
@@ -108,7 +109,7 @@ def all_link_record_response(msg: Inbound) -> (str, {}):
     topic = ALL_LINK_RECORD_RESPONSE
     kwargs = {'flags': msg.flags,
               'group': msg.group,
-              'address': msg.address,
+              'target': msg.target,
               'data1': msg.data1,
               'data2': msg.data2,
               'data3': msg.data3}
@@ -139,10 +140,11 @@ def send_all_link_command(msg: Inbound) -> (str, {}):
               'mode': msg.mode}
     yield (topic, kwargs)
 
-def _create_send_std_ext(topic, address, flags, cmd2, user_data, ack):
+def _create_send_std_ext(topic, address, flags, cmd1, cmd2, user_data, ack):
     msg_type = flags.message_type.name.lower()
     topic = '{}.{}.{}.{}'.format(ack.name.lower(), address.id, topic, msg_type)
-    kwargs = {'cmd2': cmd2,
+    kwargs = {'cmd1': cmd1,
+              'cmd2': cmd2,
               'user_data': None}
     return (topic, kwargs)
 
@@ -155,10 +157,10 @@ def send_standard_or_extended_message(msg: Inbound) -> (str, {}):
     for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags.is_extended):
         found_topic = True
         yield _create_send_std_ext(
-            topic, msg.address, msg.flags, msg.cmd2, user_data, msg.ack)
+            topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, user_data, msg.ack)
     if not found_topic:
         yield _create_send_std_ext(
-            def_topic, msg.address, msg.flags, msg.cmd2, user_data, msg.ack)
+            def_topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, user_data, msg.ack)
 
 
 def x10_send(msg: Inbound) -> (str, {}):
@@ -255,7 +257,7 @@ def manage_all_link_record(msg: Inbound) -> (str, {}):
     kwargs = {'action': msg.action,
               'flags': msg.flags,
               'group': msg.group,
-              'address': msg.address,
+              'target': msg.target,
               'data1': msg.data1,
               'data2': msg.data2,
               'data3': msg.data3}

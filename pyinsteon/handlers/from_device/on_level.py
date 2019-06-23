@@ -13,7 +13,7 @@ class OnLevelInbound(BroadcastCommandHandlerBase):
         super().__init__(address, ON)
 
     @broadcast_handler
-    def handle_command(self, cmd2, target, user_data):
+    def handle_command(self, cmd1, cmd2, target, user_data):
         """Handle the ON command from a device."""
         group = target.low
         if user_data:
