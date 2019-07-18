@@ -7,6 +7,10 @@ from ..subscriber_base import SubscriberBase
 DIMMABLE_LIGHT_STATE = 'dimmable_light_state'
 DIMMABLE_FAN_STATE = 'dimmable_fan_state'
 ON_OFF_SWITCH_STATE = 'on_off_switch_state'
+ON_OFF_SWITCH_STATE_BOTTOM = 'on_off_switch_state_bottom'
+LOW_BATTERY_STATE = 'low_battery'
+OPEN_CLOSE_SENSOR_STATE = 'open_close_sensor'
+LIGHT_SENSOR_STATE = 'light_sensor_state'
 
 class StateBase(SubscriberBase):
     """Device state base class."""

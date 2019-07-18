@@ -226,7 +226,15 @@ def get_next_all_link_record(msg: Inbound) -> (str, {}):
 def set_im_configuration(msg: Inbound) -> (str, {}):
     """Create a topic from an set_im_configuration message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), SET_IM_CONFIGURATION)
-    kwargs = {'flags': msg.flags}
+    disable_auto_linking = bool(msg.flags & 1 << 7)
+    monitor_mode = bool(msg.flags & 1 << 6)
+    auto_led = bool(msg.flags & 1 << 5)
+    deadman = bool(msg.flags & 1 << 4)
+
+    kwargs = {'disable_auto_linking':disable_auto_linking,
+              'monitor_mode':monitor_mode,
+              'auto_led':auto_led,
+              'deadman':deadman}
     yield (topic, kwargs)
 
 
@@ -289,7 +297,15 @@ def rf_sleep(msg: Inbound) -> (str, {}):
 def get_im_configuration(msg: Inbound) -> (str, {}):
     """Create a topic from an get_im_configuration message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), GET_IM_CONFIGURATION)
-    kwargs = {'flags': msg.flags}
+    disable_auto_linking = bool(msg.flags & 1 << 7)
+    monitor_mode = bool(msg.flags & 1 << 6)
+    auto_led = bool(msg.flags & 1 << 5)
+    deadman = bool(msg.flags & 1 << 4)
+
+    kwargs = {'disable_auto_linking':disable_auto_linking,
+              'monitor_mode':monitor_mode,
+              'auto_led':auto_led,
+              'deadman':deadman}
     yield (topic, kwargs)
 
 

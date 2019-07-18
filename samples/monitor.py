@@ -20,9 +20,17 @@ async def run():
     devices.subscribe(device_added)
     await devices.async_load(workdir=PATH)
     await devices.async_save(workdir=PATH)
+    await devices.modem.async_get_configuration()
+    await devices.modem.async_set_configuration(
+        disable_auto_linking=devices.modem.disable_auto_linking, monitor_mode=True,
+        auto_led=devices.modem.auto_led, deadman=devices.modem.deadman)
     _LOGGER.info('Devices loaded: %d', len(devices))
-    while True:
-        await asyncio.sleep(5)
+    try:
+        while True:
+            await asyncio.sleep(5)
+    except KeyboardInterrupt:
+        await async_close()
+        raise KeyboardInterrupt()
 
 
 if __name__ == '__main__':
@@ -30,8 +38,6 @@ if __name__ == '__main__':
     try:
         loop.run_until_complete(run())
     except KeyboardInterrupt:
-        close_task = loop.create_task(async_close())
-        loop.run_until_complete(close_task)
         loop.stop()
         pending = asyncio.Task.all_tasks(loop=loop)
         for task in pending:

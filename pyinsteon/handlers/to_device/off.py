@@ -26,5 +26,5 @@ class OffCommand(DirectCommandHandlerBase):
         """Handle the OFF response direct ACK."""
         group = 1
         if user_data:
-            group = user_data.get('d1', 0)
+            group = user_data.get('d1')
         self._call_subscribers(on_level=0, group=group)

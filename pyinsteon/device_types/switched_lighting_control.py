@@ -1,5 +1,10 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
+from ..handlers.kpl.set_leds import SetLedsCommandHandler
+from ..handlers.kpl.trigger_scene import TriggerSceneCommandHandler
+from .commands import SET_LEDS_COMMAND, TRIGGER_SCENE_COMMAND, STATUS_COMMAND
 from .on_off_responder_base import OnOffResponderBase
+from ..states import ON_OFF_SWITCH_STATE, ON_OFF_SWITCH_STATE_BOTTOM
+from ..states.on_off import OnOff
 
 
 class SwitchedLightingControl(OnOffResponderBase):
@@ -127,3 +132,86 @@ class SwitchedLightingControl_DinRail(SwitchedLightingControl):
         self._add_property(X10_UNIT, 6, None)
         self._add_property(RAMP_RATE, 7, 5)
         self._add_property(ON_LEVEL, 8, 6)
+
+
+class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
+    """KeypadLinc base class."""
+
+    def __init__(self, button_list, address, cat, subcat, firmware=0x00, description='', model=''):
+        """Init the SwitchedLightingControl_KeypadLinc class."""
+        super().__init__(address, cat, subcat, firmware, description, model, buttons=[1])
+        for button in button_list:
+            name = '{}_{}'.format(ON_OFF_SWITCH_STATE, button_list[button])
+            self._states[button] = OnOff(name=name, address=self._address, group=button)
+            self._add_button_handlers(button)
+
+    async def async_on(self, group: int = 0):
+        """Turn on the button LED. """
+        if group in [0, 1]:
+            return await super().async_on(group=group)
+        kwargs = {}
+        for curr_group in range(1, 9):
+            var = 'group{}'.format(curr_group)
+            kwargs[var] = True if curr_group == group else bool(self._states.get(curr_group))
+        return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+
+    async def async_off(self, group: int = 0):
+        """Turn on the button LED. """
+        if group in [0, 1]:
+            return await super().async_off(group=group)
+        kwargs = {}
+        for curr_group in range(1, 9):
+            var = 'group{}'.format(curr_group)
+            kwargs[var] = False if curr_group == group else bool(self._states.get(curr_group))
+        return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+
+    def _register_handlers(self):
+        super()._register_handlers()
+        self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
+        self._handlers[TRIGGER_SCENE_COMMAND] = TriggerSceneCommandHandler(address=self._address)
+
+    def _add_button_handlers(self, button):
+        self._handlers[SET_LEDS_COMMAND].subscribe(self._states[button])
+
+
+class SwitchedLightingControl_KeypadLinc_6(SwitchedLightingControl_KeypadLinc):
+    """KeypadLinc 6 button switch."""
+
+    def __init__(self, address, cat, subcat, firmware=0x00, description='', model=''):
+        """Init the SwitchedLightingControl_KeypadLinc_6 class."""
+        button_list = {3: 'A', 4: 'B', 5: 'C', 6: 'D'}
+        super().__init__(button_list=button_list, address=address, cat=cat, subcat=subcat,
+                         firmware=firmware, description=description, model=model)
+
+
+class SwitchedLightingControl_KeypadLinc_8(SwitchedLightingControl_KeypadLinc):
+    """KeypadLinc 8 button switch."""
+
+    def __init__(self, address, cat, subcat, firmware=0x00, description='', model=''):
+        """Init the SwitchedLightingControl_KeypadLinc_8 class."""
+        button_list = {2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H'}
+        super().__init__(button_list=button_list, address=address, cat=cat, subcat=subcat,
+                         firmware=firmware, description=description, model=model)
+
+class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc):
+    """On/Off outlet model 2663-222 Switched Lighting Control.
+
+    Device Class 0x02 subcat 0x39
+    """
+
+    def __init__(self, button_list, address, cat, subcat, firmware=0x00, description='', model=''):
+        """Init the SwitchedLightingControl_KeypadLinc class."""
+        super().__init__(address, cat, subcat, firmware, description, model, buttons=[1, 2])
+
+    def status(self, group=None):
+        """Request the status of the device."""
+        self._handlers[STATUS_COMMAND].send(status_type=1)
+
+    async def async_status(self, group=None):
+        """Request the status of the device."""
+        return await self._handlers[STATUS_COMMAND].async_send(status_type=1)
+
+    def _set_status(self, status):
+        """Set the status of the dimmable_switch state."""
+        self._states[1].value = status & 0x02
+        self._states[2].value = status & 0x01

@@ -16,32 +16,33 @@ from .dimmable_lighting_control import (DimmableLightingControl,
                                         DimmableLightingControl_SwitchLinc,
                                         DimmableLightingControl_InLineLinc,
                                         DimmableLightingControl_OutletLinc,
-                                        DimmableLightingControl_DinRail) #,
-#                                                         DimmableLightingControl_2475F,
-#                                                         DimmableLightingControl_2334_222_6,
-#                                                         DimmableLightingControl_2334_222_8)
+                                        DimmableLightingControl_DinRail,
+                                        DimmableLightingControl_FanLinc,
+                                        DimmableLightingControl_KeypadLinc_6,
+                                        DimmableLightingControl_KeypadLinc_8)
 from .switched_lighting_control import (SwitchedLightingControl,
                                         SwitchedLightingControl_ApplianceLinc,
                                         SwitchedLightingControl_SwitchLinc,
                                         SwitchedLightingControl_InLineLinc,
                                         SwitchedLightingControl_OutletLinc,
-                                        SwitchedLightingControl_DinRail)
-#                                                         SwitchedLightingControl_2334_222_6,
-#                                                         SwitchedLightingControl_2334_222_8,
-#                                                         SwitchedLightingControl_2663_222)
-# from from ..climateControl import ClimateControl_2441th
-# from from ..securityHealthSafety import (SecurityHealthSafety,
-#                                                      SecurityHealthSafety_2421,
-#                                                      SecurityHealthSafety_2842_222,
-#                                                      SecurityHealthSafety_2852_222,
-from .security_health_safety import SecurityHealthSafety_2845_222
-#                                                      SecurityHealthSafety_2982_222)
-# from from ..sensorsActuators import (SensorsActuators,
-#                                                  SensorsActuators_2450)
-# from from ..windowCoverings import WindowCovering
-# from from ..x10 import (X10OnOff, X10Dimmable, X10Sensor,
-#                                     X10AllUnitsOff, X10AllLightsOn,
-#                                     X10AllLightsOff)
+                                        SwitchedLightingControl_DinRail,
+                                        SwitchedLightingControl_KeypadLinc_6,
+                                        SwitchedLightingControl_KeypadLinc_8,
+                                        SwitchedLightingControl_OnOffOutlet)
+# from ..climateControl import ClimateControl_2441th
+from ..security_health_safety import (SecurityHealthSafety,
+                                      SecurityHealthSafety_OpenCloseSensor,
+                                      SecurityHealthSafety_MotionSensor,
+                                      SecurityHealthSafety_DoorSensor)
+                                      # Light sensor
+                                      # Smokebridge
+                                      # Motion Sensor II
+# from ..sensorsActuators import (SensorsActuators,
+#                                 SensorsActuators_2450)
+# from ..windowCoverings import WindowCovering
+# from ..x10 import (X10OnOff, X10Dimmable, X10Sensor,
+#                    X10AllUnitsOff, X10AllLightsOn,
+#                    X10AllLightsOff)
 
 # pylint: disable=line-too-long
 # pylint: disable=too-few-public-methods
@@ -95,10 +96,10 @@ class IPDB():
         Product(0x01, 0x06, None, 'LampLinc', '2456D2', DimmableLightingControl_LampLinc),
         Product(0x01, 0x07, None, 'ICON LampLinc', '2856D2', DimmableLightingControl_LampLinc),
         Product(0x01, 0x07, None, 'ICON LampLinc', '2856D2B', DimmableLightingControl_LampLinc),
-        # Product(0x01, 0x09, 0x000037, 'KeypadLinc Dimmer', '2486DWH6', DimmableLightingControl_2334_222_6),
+        Product(0x01, 0x09, 0x000037, 'KeypadLinc Dimmer', '2486DWH6', DimmableLightingControl_KeypadLinc_6),
         Product(0x01, 0x0A, None, 'ICON In-Wall Controller', '', DimmableLightingControl_InLineLinc),
         Product(0x01, 0x0B, None, 'Dimmer Module', '2632-422', DimmableLightingControl_SwitchLinc),
-        # Product(0x01, 0x0C, 0x00001D, 'KeypadLinc Dimmer', '2486DWH8', DimmableLightingControl_2334_222_8),
+        Product(0x01, 0x0C, 0x00001D, 'KeypadLinc Dimmer', '2486DWH8', DimmableLightingControl_KeypadLinc_8),
         Product(0x01, 0x0D, None, 'SocketLinc', '2454D', DimmableLightingControl_LampLinc),
         Product(0x01, 0x0E, None, 'LampLinc Dimmer', '2457D2', DimmableLightingControl_LampLinc),
         Product(0x01, 0x0F, None, 'Dimmer Module', '2632-432', DimmableLightingControl_SwitchLinc),
@@ -109,9 +110,9 @@ class IPDB():
         Product(0x01, 0x18, None, 'ICON SwitchLinc Dimmer In-line Companion', '2474D', DimmableLightingControl_InLineLinc),
         Product(0x01, 0x19, None, 'SwitchLinc Dimmer', '2476D', DimmableLightingControl_SwitchLinc),
         Product(0x01, 0x1A, None, 'In-LineLinc Dimmer', '2475D', DimmableLightingControl_InLineLinc),
-        # Product(0x01, 0x1B, None, 'KeypadLinc Dimmer', '2486DWH6', DimmableLightingControl_2334_222_6),
-        # Product(0x01, 0x1B, 0x00001D, 'KeypadLinc Dimmer', '2486DWH6', DimmableLightingControl_2334_222_6),
-        # Product(0x01, 0x1C, None, 'KeypadLinc Dimmer', '2486DWH8', DimmableLightingControl_2334_222_8),
+        Product(0x01, 0x1B, None, 'KeypadLinc Dimmer', '2486DWH6', DimmableLightingControl_KeypadLinc_6),
+        Product(0x01, 0x1B, 0x00001D, 'KeypadLinc Dimmer', '2486DWH6', DimmableLightingControl_KeypadLinc_6),
+        Product(0x01, 0x1C, None, 'KeypadLinc Dimmer', '2486DWH8', DimmableLightingControl_KeypadLinc_8),
         Product(0x01, 0x1D, None, 'SwitchLinc Dimmer', '2476DH', DimmableLightingControl_SwitchLinc),
         Product(0x01, 0x1E, None, 'ICON Dimmer Switch', '2876D', DimmableLightingControl_SwitchLinc),
         Product(0x01, 0x1F, 0x0000000, 'ToggleLinc Dimmer', '2466DW', DimmableLightingControl_SwitchLinc),
@@ -128,7 +129,7 @@ class IPDB():
         Product(0x01, 0x2B, 0x000091, 'Wall Dimmer - 1000W', '4711', DimmableLightingControl_SwitchLinc),
         Product(0x01, 0x2C, 0x000092, 'In-Line Dimmer', '4712', DimmableLightingControl_InLineLinc),
         Product(0x01, 0x2D, 0x00009E, 'SwitchLinc Dimmer', '2477DH', DimmableLightingControl_SwitchLinc),
-        # Product(0x01, 0x2E, None, 'FanLinc', '2475F', DimmableLightingControl_2475F),
+        Product(0x01, 0x2E, None, 'FanLinc', '2475F', DimmableLightingControl_FanLinc),
         Product(0x01, 0x2F, None, 'KeypadLinc Schedule Timer with Dimmer', '2484DST6', DimmableLightingControl), # KPL
         Product(0x01, 0x30, None, 'SwitchLinc Dimmer', '2476D', DimmableLightingControl_SwitchLinc),
         Product(0x01, 0x31, None, 'SwitchLinc Dimmer', '2478D', DimmableLightingControl_SwitchLinc),
@@ -146,9 +147,9 @@ class IPDB():
         Product(0x01, 0x3E, None, 'Ballast Dimmer', '2446-522', DimmableLightingControl_InLineLinc),
         Product(0x01, 0x3F, None, 'Fixture Dimmer', '2447-422', DimmableLightingControl_InLineLinc),
         Product(0x01, 0x40, None, 'Fixture Dimmer', '2447-522', DimmableLightingControl),
-        # Product(0x01, 0x41, None, 'Keypad Dimmer', '2334-222', DimmableLightingControl_2334_222_8),
-        # Product(0x01, 0x42, None, 'Keypad Dimmer', '2334-232', DimmableLightingControl_2334_222_6),
-        # Product(0x01, 0x42, None, 'Keypad with Dimmer', '2334-232', DimmableLightingControl_2334_222_6),
+        Product(0x01, 0x41, None, 'Keypad Dimmer', '2334-222', DimmableLightingControl_KeypadLinc_8),
+        Product(0x01, 0x42, None, 'Keypad Dimmer', '2334-232', DimmableLightingControl_KeypadLinc_6),
+        Product(0x01, 0x42, None, 'Keypad with Dimmer', '2334-232', DimmableLightingControl_KeypadLinc_6),
         Product(0x01, 0x49, None, 'LED PAR38 Bulb', '2674-222', DimmableLightingControl),
         Product(0x01, 0x4A, None, 'LED PAR38 Bulb', '2674-422', DimmableLightingControl),
         Product(0x01, 0x4B, None, 'LED PAR38 Bulb', '2672-522', DimmableLightingControl),
@@ -158,7 +159,7 @@ class IPDB():
         Product(0x01, 0x4F, None, 'LED PAR38 Bulb', '2672-522', DimmableLightingControl),
 
         Product(0x02, None, None, 'Generic Switched Lighting Control', '', SwitchedLightingControl),
-        # Product(0x02, 0x05, None, 'KeypadLinc On/Off', '2486SWH8', SwitchedLightingControl_2334_222_8),
+        Product(0x02, 0x05, None, 'KeypadLinc On/Off', '2486SWH8', SwitchedLightingControl_KeypadLinc_8),
         Product(0x02, 0x06, None, 'Outdoor ApplianceLinc', '2456S3E', SwitchedLightingControl_ApplianceLinc),
         Product(0x02, 0x07, None, 'TimerLinc', '2456S3T', SwitchedLightingControl),
         Product(0x02, 0x08, 0x000023, 'OutletLinc Relay', '2473SWH', SwitchedLightingControl_OutletLinc),
@@ -168,8 +169,7 @@ class IPDB():
         Product(0x02, 0x0C, None, 'ICON Appliance Module', '2856S3B', SwitchedLightingControl_ApplianceLinc),
         Product(0x02, 0x0D, None, 'ToggleLinc On/Off', '2466SW', SwitchedLightingControl_SwitchLinc),
         Product(0x02, 0x0E, None, 'SwitchLinc Relay Countdown Timer', '2476ST', SwitchedLightingControl_SwitchLinc),
-        # Product(0x02, 0x0F, None, 'KeypadLinc On/Off', '2486SWH6', SwitchedLightingControl_2334_222_6),
-        # Product(0x02, 0x0F, 0x000036, 'KeypadLinc On/Off', '2486SWH6', SwitchedLightingControl_2334_222_6),
+        Product(0x02, 0x0F, 0x000036, 'KeypadLinc On/Off', '2486SWH6', SwitchedLightingControl_KeypadLinc_6),
         Product(0x02, 0x10, 0x00001B, 'In-LineLinc Relay', '2475S', SwitchedLightingControl_InLineLinc),
         Product(0x02, 0x11, None, 'EZSwitch30', '', SwitchedLightingControl),
         Product(0x02, 0x12, 0x00003E, 'ICON In-LineLinc Relay', '2474S', SwitchedLightingControl_InLineLinc),
@@ -182,9 +182,9 @@ class IPDB():
         Product(0x02, 0x19, None, 'SwitchLinc 220V Relay', '2494S220', SwitchedLightingControl_SwitchLinc),
         Product(0x02, 0x1A, 0x0000000, 'ToggleLinc On/Off', '2466SW', SwitchedLightingControl_SwitchLinc),
         Product(0x02, 0x1C, None, 'SwitchLinc Relay', '2476S', SwitchedLightingControl_SwitchLinc),
-        # Product(0x02, 0x1E, None, 'KeypadLinc On/Off', '2487S', SwitchedLightingControl_2334_222_6), # KPL
+        Product(0x02, 0x1E, None, 'KeypadLinc On/Off', '2487S', SwitchedLightingControl_KeypadLinc_6), # KPL
         Product(0x02, 0x1F, None, 'In-LineLinc On/Off', '2475SDB', SwitchedLightingControl_InLineLinc),
-        # Product(0x02, 0x20, 0x00008A, 'Wall Keypad Switch', '4704', SwitchedLightingControl),  # KPL
+        Product(0x02, 0x20, 0x00008A, 'Wall Keypad Switch', '4704', SwitchedLightingControl),  # KPL
         Product(0x02, 0x21, 0x00008C, 'Outlet Switch', '4707', SwitchedLightingControl_OutletLinc),
         Product(0x02, 0x22, 0x000093, 'In-Line Switch', '4713', SwitchedLightingControl_InLineLinc),
         Product(0x02, 0x23, 0x000088, 'Wall Switch', '4702', SwitchedLightingControl_SwitchLinc),
@@ -194,7 +194,7 @@ class IPDB():
         Product(0x02, 0x29, None, 'SwitchLinc Relay Countdown Timer', '2476ST', SwitchedLightingControl_SwitchLinc),
         Product(0x02, 0x2A, None, 'SwitchLinc Relay (Dual-Band)', '2477S', SwitchedLightingControl_SwitchLinc),
         Product(0x02, 0x2B, None, 'In-LineLinc On/Off', '2475SDB-50', SwitchedLightingControl_InLineLinc),
-        # Product(0x02, 0x2C, None, 'KeypadLinc On/Off', '2487S', SwitchedLightingControl_2334_222_6),
+        Product(0x02, 0x2C, None, 'KeypadLinc On/Off', '2487S', SwitchedLightingControl_KeypadLinc_6),
         Product(0x02, 0x2D, None, 'On/Off Module', '2633-422', SwitchedLightingControl_SwitchLinc),
         Product(0x02, 0x2E, None, 'DIN Rail On/Off', '2453-222', SwitchedLightingControl_DinRail),
         Product(0x02, 0x2F, None, 'Micro On/Off', '2443-222', SwitchedLightingControl),
@@ -207,7 +207,7 @@ class IPDB():
         Product(0x02, 0x36, None, 'On/Off Module', '2633-522', SwitchedLightingControl_SwitchLinc),
         Product(0x02, 0x37, None, 'On/Off Module', '2635-222', SwitchedLightingControl_SwitchLinc),
         Product(0x02, 0x38, None, 'On/Off Outdoor Module', '2634-222', SwitchedLightingControl_ApplianceLinc),
-        Product(0x02, 0x39, None, 'On/Off Outlet', '2663-222', SwitchedLightingControl_ApplianceLinc),
+        Product(0x02, 0x39, None, 'On/Off Outlet', '2663-222', SwitchedLightingControl_OnOffOutlet),
 
         Product(0x03, None, None, 'Generic Network Bridge Controller', '', PLM),
         Product(0x03, 0x01, None, 'PowerLinc Serial', '2414S', PLM),
@@ -328,23 +328,22 @@ class IPDB():
         Product(0x0F, 0x09, None, 'Deadbolt', '2863-522', UnknownDevice),
         Product(0x0F, 0x0A, 0x0000000, 'Lock Controller', '2862-222', UnknownDevice),
 
-        # Product(0x10, None, None, 'Generic Security, Heath and Safety Device', '', SecurityHealthSafety),
-        # Product(0x10, 0x01, None, 'Motion Sensor', '2420M', SecurityHealthSafety_2842_222),
-        # Product(0x10, 0x01, None, 'Motion Sensor', '2842-222', SecurityHealthSafety_2842_222),
-        # Product(0x10, 0x02, None, 'Open/Close Sensor', '2421', SecurityHealthSafety_2421),
-        # Product(0x10, 0x02, None, 'Open/Close Sensor', '2843-222', SecurityHealthSafety_2421),
-        # Product(0x10, 0x03, 0x0000A0, 'Motion Sensor', '4716', SecurityHealthSafety_2842_222),
-        # Product(0x10, 0x04, None, 'Motion Sensor', '2842-422', SecurityHealthSafety_2842_222),
-        # Product(0x10, 0x05, None, 'Motion Sensor', '2842-522', SecurityHealthSafety_2842_222),
-        # Product(0x10, 0x06, None, 'Open/Close Sensor', '2843-422', SecurityHealthSafety_2421),
-        # Product(0x10, 0x07, None, 'Open/Close Sensor', '2843-522', SecurityHealthSafety_2421),
+        Product(0x10, None, None, 'Generic Security, Heath and Safety Device', '', SecurityHealthSafety),
+        Product(0x10, 0x01, None, 'Motion Sensor', '2420M', SecurityHealthSafety_MotionSensor),
+        Product(0x10, 0x01, None, 'Motion Sensor', '2842-222', SecurityHealthSafety_MotionSensor),
+        Product(0x10, 0x02, None, 'Open/Close Sensor', '2843-222', SecurityHealthSafety_OpenCloseSensor),
+        Product(0x10, 0x03, None, 'Motion Sensor', '4716', SecurityHealthSafety_MotionSensor),
+        Product(0x10, 0x04, None, 'Motion Sensor', '2842-422', SecurityHealthSafety_MotionSensor),
+        Product(0x10, 0x05, None, 'Motion Sensor', '2842-522', SecurityHealthSafety_MotionSensor),
+        Product(0x10, 0x06, None, 'Open/Close Sensor', '2843-422', SecurityHealthSafety_OpenCloseSensor),
+        Product(0x10, 0x07, None, 'Open/Close Sensor', '2843-522', SecurityHealthSafety_OpenCloseSensor),
         # Product(0x10, 0x08, None, 'Leak Sensor', '2852-222', SecurityHealthSafety_2852_222),
-        Product(0x10, 0x09, None, 'Door Sensor', '2843-232', SecurityHealthSafety_2845_222),
+        Product(0x10, 0x09, None, 'Door Sensor', '2843-232', SecurityHealthSafety_DoorSensor),
         # Product(0x10, 0x0A, None, 'Smoke Bridge', '2982-222', SecurityHealthSafety_2982_222),
-        Product(0x10, 0x11, None, 'Door Sensor', '2845-222', SecurityHealthSafety_2845_222),
-        Product(0x10, 0x14, None, 'Door Sensor', '2845-422', SecurityHealthSafety_2845_222),
-        Product(0x10, 0x15, None, 'Door Sensor', '2845-522', SecurityHealthSafety_2845_222),
-        # Product(0x10, 0x16, None, 'Motion Sensor II', '2844-222', SecurityHealthSafety_2842_222),
+        Product(0x10, 0x11, None, 'Door Sensor', '2845-222', SecurityHealthSafety_DoorSensor),
+        Product(0x10, 0x14, None, 'Door Sensor', '2845-422', SecurityHealthSafety_DoorSensor),
+        Product(0x10, 0x15, None, 'Door Sensor', '2845-522', SecurityHealthSafety_DoorSensor),
+        Product(0x10, 0x16, None, 'Motion Sensor II', '2844-222', SecurityHealthSafety_MotionSensor),
 
         # Product(0xFF, 0x00, None, 'Unrecognized INSTEON Device', '', UnknownDevice),
         # Product(0xFF, 0x01, None, 'Unknown Device', '', UnknownDevice),

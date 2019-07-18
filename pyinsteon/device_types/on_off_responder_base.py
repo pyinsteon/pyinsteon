@@ -1,9 +1,8 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
-from .on_off_controller_base import OnOffControllerBase
-from .commands import ON_COMMAND, OFF_COMMAND
-from ..handlers.to_device.on_level import OnLevelCommand
 from ..handlers.to_device.off import OffCommand
-
+from ..handlers.to_device.on_level import OnLevelCommand
+from .commands import OFF_COMMAND, ON_COMMAND
+from .on_off_controller_base import OnOffControllerBase
 
 
 class OnOffResponderBase(OnOffControllerBase):
@@ -16,21 +15,21 @@ class OnOffResponderBase(OnOffControllerBase):
         for button in range(1, buttons + 1):
             self._setup_button(button)
 
-    def on(self):
+    def on(self, group: int = 0):
         """Turn on the device."""
-        self._handlers[ON_COMMAND].send(on_level=0xff, group=0)
+        self._handlers[ON_COMMAND].send(on_level=0xff, group=group)
 
-    async def async_on(self):
+    async def async_on(self, group: int = 0):
         """Turn on the device."""
-        await self._handlers[ON_COMMAND].async_send(on_level=0xff, group=0)
+        await self._handlers[ON_COMMAND].async_send(on_level=0xff, group=group)
 
-    def off(self):
+    def off(self, group: int = 0):
         """Turn off the device."""
-        self._handlers[OFF_COMMAND].send()
+        self._handlers[OFF_COMMAND].send(group=group)
 
-    async def async_off(self):
+    async def async_off(self, group: int = 0):
         """Turn off the device."""
-        await self._handlers[OFF_COMMAND].async_send()
+        await self._handlers[OFF_COMMAND].async_send(group=group)
 
     def _register_default_links(self):
         pass

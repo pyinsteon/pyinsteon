@@ -172,8 +172,16 @@ def get_next_all_link_record(topic=pub.AUTO_TOPIC) -> Outbound:
 
 
 @topic_to_message_handler(topic=SET_IM_CONFIGURATION)
-def set_im_configuration(flags: IMConfigurationFlags, topic=pub.AUTO_TOPIC) -> Outbound:
+def set_im_configuration(disable_auto_linking: bool, monitor_mode: bool,
+                         auto_led: bool, deadman: bool,
+                         topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a SET_IM_CONFIGURATION outbound message."""
+    flag_byte = 0x00
+    flag_byte = flag_byte | (1 if disable_auto_linking else 0) << 7
+    flag_byte = flag_byte | (1 if monitor_mode else 0) << 6
+    flag_byte = flag_byte | (1 if auto_led else 0) << 5
+    flag_byte = flag_byte | (1 if deadman else 0) << 4
+    flags = IMConfigurationFlags(flag_byte)
     _create_outbound_message(flags=flags, topic=topic, priority=2)
 
 

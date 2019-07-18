@@ -22,3 +22,8 @@ SET_OPERATING_FLAGS_COMMAND = 'set_operating_flags'
 EXTENDED_GET_COMMAND = 'extended_get'
 EXTENDED_SET_COMMAND = 'extended_set'
 EXTENDED_GET_RESPONSE = 'extended_get_response'
+
+SET_LEDS_COMMAND ='set_leds'
+TRIGGER_SCENE_COMMAND = 'trigger_scene'
+
+GET_IM_CONFIG_COMMAND = 'get_im_config'

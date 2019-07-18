@@ -13,8 +13,17 @@ TRIGGER_GROUP_BIT_MASK = 'trigger_group_bit_mask'
 LSB_OF_SLEEP_INTERVAL = 'lsb_of_sleep_interval'
 APP_RETRIES = 'app_retries'
 CONFIG = 'config'
-BATTERY_LEVEL = 'config_battery_level'
+BATTERY_LEVEL = 'battery_level'
 DATABASE_DELTA = 'database_delta'
+SENSOR_STATUS = 'sensor_status'
+HEARBEAT_INTERVAL = 'heartbeat_interval'
+BATTERY_LOW_LEVEL = 'battery_low_level'
+LED_BRIGHTNESS = 'led_brightness'
+MOTION_TIMEOUT = 'motion_timeout'
+LIGHT_SENSITIVITY = 'light_sensitivity'
+HARDWARE_TIMEOUT = 'hardware_timeout'
+HARDWARE_LIGHT_SENSITIVITY = 'hardware_light_sensitivity'
+AMBIENT_LIGHT_INTENSITY = 'ambient_light_intensity'
 
 
 class ExtendedProperty(DeviceFlagBase):

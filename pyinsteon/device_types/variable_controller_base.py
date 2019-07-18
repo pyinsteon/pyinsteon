@@ -16,12 +16,12 @@ class VariableControllerBase(Device):
     """Variable state value controller device."""
 
     def __init__(self, address, cat, subcat, firmware=0x00,
-                 description='', model='', buttons=1):
+                 description='', model='', buttons=range(1, 2)):
         """Init the VariableControllerBase class."""
         super().__init__(address, cat, subcat, firmware, description, model)
         if not hasattr(self, '_button_names'):
             self._button_names = {}
-        for button in range(1, buttons + 1):
+        for button in buttons:
             self._setup_button(button)
 
     def status(self):

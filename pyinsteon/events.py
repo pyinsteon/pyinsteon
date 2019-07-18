@@ -22,6 +22,10 @@ FAN_ON_EVENT = 'fan_on_event'
 FAN_ON_FAST_EVENT = 'fan_on_fast_event'
 FAN_OFF_EVENT = 'fan_off_event'
 FAN_OFF_FAST_EVENT = 'fan_off_fast_event'
+LOW_BATTERY_EVENT = 'low_battery_event'
+HEARTBEAT_EVENT = 'heartbeat_event'
+OPEN_EVENT = 'open_event'
+CLOSE_EVENT = 'close_event'
 
 
 class Event(SubscriberBase):
