@@ -5,7 +5,7 @@ discover
 coveralls==1.2.0
 flake8-docstrings==1.3.0
 flake8==3.7.7
-pydocstyle==3.0.0
+pydocstyle==4.0.1
 pylint==2.3.1
 
 # mock-open==1.3.1
