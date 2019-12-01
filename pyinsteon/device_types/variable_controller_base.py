@@ -4,7 +4,7 @@ from . import Device
 from .commands import STATUS_COMMAND
 from ..managers.on_level_manager import OnLevelManager
 from ..handlers.to_device.status_request import StatusRequestCommand
-from ..states import DIMMABLE_LIGHT_STATE
+from ..states import DIMMABLE_LIGHT
 from ..states.on_level import OnLevel
 from ..events import Event, ON_EVENT, ON_FAST_EVENT, OFF_EVENT, OFF_FAST_EVENT
 
@@ -16,12 +16,7 @@ class VariableControllerBase(Device):
     def __init__(self, address, cat, subcat, firmware=0x00,
                  description='', model='', buttons=None):
         """Init the VariableControllerBase class."""
-        if not hasattr(self, '_button_names'):
-            self._button_names = {}
-        if buttons:
-            self._buttons = buttons
-        else:
-            self._buttons = [1]
+        self._buttons = {1: DIMMABLE_LIGHT} if buttons is None else buttons
         super().__init__(address, cat, subcat, firmware, description, model)
 
     #pylint: disable=arguments-differ
@@ -54,8 +49,8 @@ class VariableControllerBase(Device):
     def _register_states(self):
         super()._register_states()
         for group in self._buttons:
-            button_name = self._button_names.get(group, DIMMABLE_LIGHT_STATE)
-            self._states[group] = OnLevel(name=button_name,
+            name = self._buttons[group]
+            self._states[group] = OnLevel(name=name,
                                           address=self._address,
                                           group=group)
 

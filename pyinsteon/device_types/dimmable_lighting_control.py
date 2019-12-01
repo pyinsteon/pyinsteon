@@ -3,8 +3,10 @@ from ..constants import FanSpeed
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..handlers.to_device.trigger_scene import TriggerSceneCommandHandler
-from ..states import (DIMMABLE_FAN_STATE, DIMMABLE_LIGHT_STATE,
-                      ON_OFF_SWITCH_STATE)
+from ..states import (DIMMABLE_FAN, DIMMABLE_LIGHT, DIMMABLE_LIGHT_MAIN,
+                      ON_OFF_SWITCH_A, ON_OFF_SWITCH_B, ON_OFF_SWITCH_C, ON_OFF_SWITCH_D,
+                      ON_OFF_SWITCH_E, ON_OFF_SWITCH_F, ON_OFF_SWITCH_G, ON_OFF_SWITCH_H,
+                      DIMMABLE_OUTLET)
 from ..states.on_off import OnOff
 from .commands import (OFF_COMMAND, OFF_FAST_COMMAND, ON_COMMAND,
                        ON_FAST_COMMAND, SET_LEDS_COMMAND, STATUS_COMMAND_FAN,
@@ -78,6 +80,11 @@ class DimmableLightingControl_InLineLinc(DimmableLightingControl_SwitchLinc):
 class DimmableLightingControl_OutletLinc(DimmableLightingControl):
     """OutletLinc based dimmable lights."""
 
+    def __init__(self, address, cat, subcat, firmware=0, description='', model=''):
+        buttons = {1: DIMMABLE_OUTLET}
+        super().__init__(address, cat, subcat, firmware=firmware,
+                         description=description, model=model, buttons=buttons)
+
     def _register_operating_flags(self):
         from ..operating_flag import (PROGRAM_LOCK_ON, LED_BLINK_ON_TX_ON, LED_ON)
         from ..extended_property import (X10_HOUSE, X10_UNIT)
@@ -125,8 +132,8 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
     Device Class 0x01 subcat 0x2e
     """
     def __init__(self, address, cat, subcat, firmware=0, description='', model=''):
-        buttons = [1, 2]
-        self._button_names = [DIMMABLE_LIGHT_STATE, DIMMABLE_FAN_STATE]
+        buttons = {1: DIMMABLE_LIGHT,
+                   2: DIMMABLE_FAN}
         super().__init__(address, cat, subcat, firmware=firmware, description=description,
                          model=model, buttons=buttons)
 
@@ -293,10 +300,9 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
 class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
     """KeypadLinc base class."""
 
-    def __init__(self, button_list, address, cat, subcat, firmware=0x00, description='', model=''):
+    def __init__(self, address, cat, subcat, firmware=0x00, description='', model='', buttons=None):
         """Init the GeneralController_MiniRemoteBase class."""
-        self._button_list = button_list
-        super().__init__(address, cat, subcat, firmware, description, model, buttons=[1])
+        super().__init__(address, cat, subcat, firmware, description, model, buttons=buttons)
 
     async def async_on(self, on_level: int = 0xff, group: int = 0, fast: bool = False):
         """Turn on the button LED. """
@@ -317,19 +323,19 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
         scene_group = '{}_{}'.format(TRIGGER_SCENE_COMMAND, 1)
         self._handlers[scene_group] = TriggerSceneCommandHandler(self._address, 1)
-        for group in self._button_list:
+        for group in self._buttons:
             scene_group = '{}_{}'.format(TRIGGER_SCENE_COMMAND, group)
             self._handlers[scene_group] = TriggerSceneCommandHandler(self._address, group)
 
     def _register_states(self):
         super()._register_states()
-        for button in self._button_list:
-            name = '{}_{}'.format(ON_OFF_SWITCH_STATE, self._button_list[button])
+        for button in self._buttons:
+            name = self._buttons[button]
             self._states[button] = OnOff(name=name, address=self._address, group=button)
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-        for button in self._button_list:
+        for button in self._buttons:
             self._handlers[SET_LEDS_COMMAND].subscribe(self._states[button].set_value)
 
     def _change_led_status(self, led, on):
@@ -345,9 +351,13 @@ class DimmableLightingControl_KeypadLinc_6(DimmableLightingControl_KeypadLinc):
 
     def __init__(self, address, cat, subcat, firmware=0x00, description='', model=''):
         """Init the DimmableLightingControl_KeypadLinc_6 class."""
-        button_list = {3: 'a', 4: 'b', 5: 'c', 6: 'd'}
-        super().__init__(button_list=button_list, address=address, cat=cat, subcat=subcat,
-                         firmware=firmware, description=description, model=model)
+        buttons = {1: DIMMABLE_LIGHT_MAIN,
+                   3: ON_OFF_SWITCH_A,
+                   4: ON_OFF_SWITCH_B,
+                   5: ON_OFF_SWITCH_C,
+                   6: ON_OFF_SWITCH_D}
+        super().__init__(address=address, cat=cat, subcat=subcat, firmware=firmware,
+                         description=description, model=model, buttons=buttons)
 
 
 class DimmableLightingControl_KeypadLinc_8(DimmableLightingControl_KeypadLinc):
@@ -355,6 +365,13 @@ class DimmableLightingControl_KeypadLinc_8(DimmableLightingControl_KeypadLinc):
 
     def __init__(self, address, cat, subcat, firmware=0x00, description='', model=''):
         """Init the DimmableLightingControl_KeypadLinc_6 class."""
-        button_list = {2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f', 7: 'g', 8: 'h'}
-        super().__init__(button_list=button_list, address=address, cat=cat, subcat=subcat,
-                         firmware=firmware, description=description, model=model)
+        buttons = {1: DIMMABLE_LIGHT_MAIN,
+                   2: ON_OFF_SWITCH_B,
+                   3: ON_OFF_SWITCH_C,
+                   4: ON_OFF_SWITCH_D,
+                   5: ON_OFF_SWITCH_E,
+                   6: ON_OFF_SWITCH_F,
+                   7: ON_OFF_SWITCH_G,
+                   8: ON_OFF_SWITCH_H}
+        super().__init__(address=address, cat=cat, subcat=subcat, firmware=firmware,
+                         description=description, model=model, buttons=buttons)

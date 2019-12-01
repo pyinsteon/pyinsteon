@@ -3,7 +3,7 @@ from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.trigger_scene import TriggerSceneCommandHandler
 from .commands import SET_LEDS_COMMAND, TRIGGER_SCENE_COMMAND, STATUS_COMMAND
 from .on_off_responder_base import OnOffResponderBase
-from ..states import ON_OFF_SWITCH_STATE
+from ..states import ON_OFF_SWITCH
 from ..states.on_off import OnOff
 from ..events import ON_EVENT, ON_FAST_EVENT, OFF_EVENT, OFF_FAST_EVENT
 
@@ -11,7 +11,7 @@ class SwitchedLightingControl(OnOffResponderBase):
     """Switched Lighting Control device."""
 
     def __init__(self, address, cat, subcat, firmware=0x00,
-                 description='', model='', buttons=None, state_name=ON_OFF_SWITCH_STATE,
+                 description='', model='', buttons=None, state_name=ON_OFF_SWITCH,
                  on_event_name=ON_EVENT, off_event_name=OFF_EVENT,
                  on_fast_event_name=ON_FAST_EVENT, off_fast_event_name=OFF_FAST_EVENT):
         """Init the OnOffResponderBase class."""
@@ -149,7 +149,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
 
     def __init__(self, button_list, address, cat, subcat, firmware=0x00, description='', model=''):
         """Init the SwitchedLightingControl_KeypadLinc class."""
-        main_name = '{}_{}'.format(ON_OFF_SWITCH_STATE, 'main')
+        main_name = '{}_{}'.format(ON_OFF_SWITCH, 'main')
         self._button_list = button_list
         super().__init__(address, cat, subcat, firmware, description, model,
                          buttons=[1], state_name=main_name)
@@ -180,7 +180,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
     def _register_states(self):
         super()._register_states()
         for button in self._button_list:
-            name = '{}_{}'.format(ON_OFF_SWITCH_STATE, self._button_list[button])
+            name = '{}_{}'.format(ON_OFF_SWITCH, self._button_list[button])
             self._states[button] = OnOff(name=name, address=self._address, group=button)
 
     def _subscribe_to_handelers_and_managers(self):

@@ -1,7 +1,7 @@
 """Sensor/Actuator devices."""
 from ..events import CLOSE_EVENT, OPEN_EVENT, Event
 from ..managers.on_level_manager import OnLevelManager
-from ..states import OPEN_CLOSE_SENSOR_STATE
+from ..states import OPEN_CLOSE_SENSOR
 from ..states.open_close import NormallyOpen
 from .on_off_responder_base import OnOffResponderBase
 
@@ -26,7 +26,7 @@ class SensorsActuators_IOLink(SensorsActuators):
     def _register_states(self):
         super()._register_states()
         # Off is a Open state and On is an Closed state
-        self._states[SENSOR_GROUP] = NormallyOpen(OPEN_CLOSE_SENSOR_STATE,
+        self._states[SENSOR_GROUP] = NormallyOpen(OPEN_CLOSE_SENSOR,
                                                   self._address, SENSOR_GROUP)
 
     def _register_events(self):

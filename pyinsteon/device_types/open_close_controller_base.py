@@ -4,7 +4,7 @@ from .commands import STATUS_COMMAND
 from ..managers.on_level_manager import OnLevelManager
 from ..handlers.to_device.status_request import StatusRequestCommand
 
-from ..states import OPEN_CLOSE_SENSOR_STATE
+from ..states import OPEN_CLOSE_SENSOR
 from ..states.open_close import NormallyOpen, NormallyClosed
 from ..events import Event, OPEN_EVENT, CLOSE_EVENT
 
@@ -14,7 +14,7 @@ class OpenCloseControllerBase(Device):
 
     def __init__(self, address, cat, subcat, firmware=0x00,
                  description='', model='', normally_open=True,
-                 state_name=OPEN_CLOSE_SENSOR_STATE,
+                 state_name=OPEN_CLOSE_SENSOR,
                  open_event_name=OPEN_EVENT, close_event_name=CLOSE_EVENT):
         """Init the OpenCloseControllerBase class."""
         self._state_name = state_name
@@ -73,7 +73,7 @@ class NormallyOpenControllerBase(OpenCloseControllerBase):
     """Normally open controller base."""
 
     def __init__(self, address, cat, subcat, firmware=0, description='', model='',
-                 state_name=OPEN_CLOSE_SENSOR_STATE,
+                 state_name=OPEN_CLOSE_SENSOR,
                  open_event_name=OPEN_EVENT, close_event_name=CLOSE_EVENT):
         """Init the NormallyOpenControllerBase class."""
         super().__init__(address, cat, subcat, firmware=firmware, description=description,
@@ -85,7 +85,7 @@ class NormallyClosedControllerBase(OpenCloseControllerBase):
     """Normally closed controller base."""
 
     def __init__(self, address, cat, subcat, firmware=0, description='', model='',
-                 state_name=OPEN_CLOSE_SENSOR_STATE,
+                 state_name=OPEN_CLOSE_SENSOR,
                  open_event_name=OPEN_EVENT, close_event_name=CLOSE_EVENT):
         """Init the NormallyClosedControllerBase class."""
         super().__init__(address, cat, subcat, firmware=firmware, description=description,

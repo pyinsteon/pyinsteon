@@ -19,7 +19,8 @@ class GeneralController_ControlLinc(VariableControllerBase):
 
     def __init__(self, address, cat, subcat, firmware=0x00,
                  description='', model=''):
-        super().__init__(address, cat, subcat, firmware, description, model, buttons=range(1, 6))
+        buttons = {1: None, 2: None, 3: None, 4: None, 5: None, 6: None}
+        super().__init__(address, cat, subcat, firmware, description, model, buttons=buttons)
 
 
 class GeneralController_RemoteLinc(BatteryDeviceBase, VariableControllerBase):
@@ -27,8 +28,8 @@ class GeneralController_RemoteLinc(BatteryDeviceBase, VariableControllerBase):
 
     def __init__(self, address, cat, subcat, firmware=0x00,
                  description='', model=''):
-        self._button_names = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F'}
-        super().__init__(address, cat, subcat, firmware, description, model, buttons=range(1, 7))
+        buttons = {1: None, 2: None, 3: None, 4: None, 5: None, 6: None}
+        super().__init__(address, cat, subcat, firmware, description, model, buttons=buttons)
 
     def _register_operating_flags(self):
         from ..operating_flag import (STAY_AWAKE_ON)
@@ -41,7 +42,7 @@ class GeneralController_MiniRemoteBase(BatteryDeviceBase, VariableControllerBase
     """RemoteLinc 2440 device."""
 
     def __init__(self, address, cat, subcat, firmware=0x00,
-                 description='', model='', buttons=range(1, 2)):
+                 description='', model='', buttons=None):
         """Init the GeneralController_MiniRemoteBase class."""
         super().__init__(address, cat, subcat, firmware, description, model, buttons)
         self._database_delta = 0
@@ -71,7 +72,8 @@ class GeneralController_MiniRemote_Switch(GeneralController_MiniRemoteBase):
 
     def __init__(self, address, cat, subcat, firmware=0x00, description='', model=''):
         """Init the GeneralController_MiniRemote_Switch class."""
-        super().__init__(address, cat, subcat, firmware, description, model, buttons=range(1, 2))
+        buttons = {1: None, 2: None}
+        super().__init__(address, cat, subcat, firmware, description, model, buttons=buttons)
 
 
 class GeneralController_MiniRemote_4(GeneralController_MiniRemoteBase):
@@ -79,9 +81,8 @@ class GeneralController_MiniRemote_4(GeneralController_MiniRemoteBase):
 
     def __init__(self, address, cat, subcat, firmware=0x00,
                  description='', model=''):
-        self._button_names = {1: 'A', 2: 'B', 3: 'C', 4: 'D'}
-        super().__init__(address, cat, subcat, firmware, description, model,
-                         buttons=self._button_names.keys())
+        buttons = {1: None, 2: None, 3: None, 4: None}
+        super().__init__(address, cat, subcat, firmware, description, model, buttons=buttons)
 
 
 class GeneralController_MiniRemote_8(GeneralController_MiniRemoteBase):
@@ -89,7 +90,5 @@ class GeneralController_MiniRemote_8(GeneralController_MiniRemoteBase):
 
     def __init__(self, address, cat, subcat, firmware=0x00,
                  description='', model=''):
-        self._button_names = {1: 'B', 2: 'A', 3: 'D', 4: 'C',
-                              5: 'F', 6: 'E', 7: 'H', 8: 'G'}
-        super().__init__(address, cat, subcat, firmware, description, model,
-                         buttons=self._button_names.keys())
+        buttons = {1: None, 2: None, 3: None, 4: None, 5: None, 6: None, 7: None, 8: None}
+        super().__init__(address, cat, subcat, firmware, description, model, buttons=buttons)

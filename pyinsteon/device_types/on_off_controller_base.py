@@ -5,6 +5,8 @@ from ..managers.on_level_manager import OnLevelManager
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..events import Event
 from ..states.on_off import OnOff
+from ..states import ON_OFF_SWITCH
+from ..events import ON_EVENT, OFF_EVENT
 
 ON_LEVEL_MANAGER = 'on_level_manager'
 
@@ -12,20 +14,16 @@ class OnOffControllerBase(Device):
     """Base device for ON/OFF controllers."""
 
     def __init__(self, address, cat, subcat, firmware=0x00,
-                 description='', model='', buttons=None, state_name=None,
-                 on_event_name=None, off_event_name=None,
+                 description='', model='', buttons=None,
+                 on_event_name=ON_EVENT, off_event_name=OFF_EVENT,
                  on_fast_event_name=None, off_fast_event_name=None):
         """Init the OnOffControllerBase class."""
 
-        self._buttons = [1] if buttons is None else buttons
-        self._state_name = state_name
+        self._buttons = {1: ON_OFF_SWITCH} if buttons is None else buttons
         self._on_event_name = on_event_name
         self._off_event_name = off_event_name
         self._on_fast_event_name = on_fast_event_name
         self._off_fast_event_name = off_fast_event_name
-
-        if not hasattr(self, '_button_names'):
-            self._button_names = {}
 
         super().__init__(address, cat, subcat, firmware, description, model)
 
@@ -51,9 +49,10 @@ class OnOffControllerBase(Device):
 
     def _register_states(self):
         super()._register_states()
-        if self._state_name:
-            for group in self._buttons:
-                self._states[group] = OnOff(self._state_name, self._address, group)
+        for group in self._buttons:
+            if self._buttons[group] is not None:
+                name = self._buttons[group]
+                self._states[group] = OnOff(name, self._address, group)
 
     def _register_events(self):
         super()._register_events()
@@ -79,7 +78,7 @@ class OnOffControllerBase(Device):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[STATUS_COMMAND].subscribe(self._handle_status)
         for group in self._buttons:
-            if self._state_name:
+            if self._states.get(group) is not None:
                 self._managers[group][ON_LEVEL_MANAGER].subscribe(self._states[group].set_value)
 
             if self._on_event_name:

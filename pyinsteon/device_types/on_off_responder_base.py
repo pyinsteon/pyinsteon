@@ -5,19 +5,20 @@ from ..handlers.to_device.on_fast import OnFastCommand
 from ..handlers.to_device.off_fast import OffFastCommand
 from .commands import OFF_COMMAND, ON_COMMAND, OFF_FAST_COMMAND, ON_FAST_COMMAND
 from .on_off_controller_base import OnOffControllerBase
+from ..states import ON_OFF_SWITCH
+from ..events import ON_EVENT, OFF_EVENT
 
 
 class OnOffResponderBase(OnOffControllerBase):
     """Switched Lighting Control device."""
 
     def __init__(self, address, cat, subcat, firmware=0x00,
-                 description='', model='', buttons=None, state_name=None,
-                 on_event_name=None, off_event_name=None,
+                 description='', model='', buttons=None,
+                 on_event_name=ON_EVENT, off_event_name=OFF_EVENT,
                  on_fast_event_name=None, off_fast_event_name=None):
         """Init the OnOffResponderBase class."""
-        if buttons is None:
-            buttons = [1]
-        super().__init__(address, cat, subcat, firmware, description, model, buttons, state_name,
+        buttons = {1: ON_OFF_SWITCH} if buttons is None else buttons
+        super().__init__(address, cat, subcat, firmware, description, model, buttons,
                          on_event_name, off_event_name, on_fast_event_name, off_fast_event_name)
 
     def on(self, group: int = 0):
@@ -43,7 +44,7 @@ class OnOffResponderBase(OnOffControllerBase):
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
         for group in self._buttons:
-            if self._state_name is not None:
+            if self._buttons[group] is not None:
                 if self._handlers.get(group) is None:
                     self._handlers[group] = {}
                 self._handlers[group][ON_COMMAND] = OnLevelCommand(self._address, group)
@@ -54,7 +55,7 @@ class OnOffResponderBase(OnOffControllerBase):
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         for group in self._buttons:
-            if self._state_name:
+            if self._states.get(group):
                 self._handlers[group][ON_COMMAND].subscribe(self._states[group].set_value)
                 self._handlers[group][OFF_COMMAND].subscribe(self._states[group].set_value)
                 self._handlers[group][ON_FAST_COMMAND].subscribe(self._states[group].set_value)

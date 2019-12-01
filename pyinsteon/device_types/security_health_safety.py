@@ -9,11 +9,11 @@ from ..events import (
 from ..managers.heartbeat_manager import HeartbeatManager
 from ..managers.low_batter_manager import LowBatteryManager
 from ..managers.on_level_manager import OnLevelManager
-from ..states import (CO_SENSOR_STATE, DOOR_SENSOR_STATE, LEAK_SENSOR_STATE,
-                      LIGHT_SENSOR_STATE, LOW_BATTERY_STATE,
-                      MOTION_SENSOR_STATE, NEW_SENSOR_STATE,
-                      SENSOR_MALFUNCTION_STATE, SMOKE_SENSOR_STATE,
-                      TEST_SENSOR_STATE, HEARTBEAT_STATE)
+from ..states import (CO_SENSOR, DOOR_SENSOR, LEAK_SENSOR,
+                      LIGHT_SENSOR, LOW_BATTERY,
+                      MOTION_SENSOR, NEW_SENSOR,
+                      SENSOR_MALFUNCTION, SMOKE_SENSOR,
+                      TEST_SENSOR, HEARTBEAT)
 from ..states.on_off import Heartbeat, LowBattery, OnOff
 from . import BatteryDeviceBase, Device
 from .commands import (OFF_HEARTBEAT_INBOUND, OFF_INBOUND,
@@ -38,7 +38,7 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
         """Init the SecurityHealthSafety_DoorSensor class."""
         super().__init__(address=address, cat=cat, subcat=subcat, firmware=firmware,
                          description=description, model=model, buttons=[1],
-                         state_name=DOOR_SENSOR_STATE, on_event=OPEN_EVENT,
+                         state_name=DOOR_SENSOR, on_event=OPEN_EVENT,
                          off_event_name=CLOSE_EVENT)
         self._low_battery_manger = LowBatteryManager(address, self.LOW_BATTERY_GROUP)
         self._heartbeat_manger = HeartbeatManager(address, self.HEARTBEAT_GROUP)
@@ -47,11 +47,11 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
         """Register states for the Door Sensor."""
         super()._register_states()
         lb_state = self._states[self.LOW_BATTERY_GROUP] = LowBattery(
-            name=LOW_BATTERY_STATE, address=self._address, group=self.LOW_BATTERY_GROUP)
+            name=LOW_BATTERY, address=self._address, group=self.LOW_BATTERY_GROUP)
         self._low_battery_manger.subscribe(lb_state.set_value)
 
         hb_state = self._states[self.HEARTBEAT_GROUP] = Heartbeat(
-            name=HEARTBEAT_STATE, address=self._address, group=self.HEARTBEAT_GROUP
+            name=HEARTBEAT, address=self._address, group=self.HEARTBEAT_GROUP
         )
         self._heartbeat_manger.subscribe(hb_state.set_value)
 
@@ -131,7 +131,7 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
         """Init the SecurityHealthSafety_DoorSensor class."""
         super().__init__(address=address, cat=cat, subcat=subcat, firmware=firmware,
                          description=description, model=model, buttons=[1],
-                         state_name=MOTION_SENSOR_STATE, on_event_name=MOTION_DETECTED_EVENT,
+                         state_name=MOTION_SENSOR, on_event_name=MOTION_DETECTED_EVENT,
                          off_event_name=MOTION_TIMEOUT_EVENT)
         self._light_manager = OnLevelManager(address, self.LIGHT_GROUP)
         self._low_battery_manager = LowBatteryManager(address, self.LOW_BATTERY_GROUP)
@@ -142,15 +142,15 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
         super()._register_states()
         # This list state may be reversed where 0x11 means no light and 0x13 means light
         state = self._states[self.LIGHT_GROUP] = OnOff(
-            name=LIGHT_SENSOR_STATE, address=self._address, group=self.LIGHT_GROUP)
+            name=LIGHT_SENSOR, address=self._address, group=self.LIGHT_GROUP)
         self._light_manager.subscribe(state.set_value)
 
         state = self._states[self.LOW_BATTERY_GROUP] = LowBattery(
-            name=LOW_BATTERY_STATE, address=self._address, group=self.LOW_BATTERY_GROUP)
+            name=LOW_BATTERY, address=self._address, group=self.LOW_BATTERY_GROUP)
         self._low_battery_manager.subscribe(state.set_value)
 
         state = self._states[self.HEARTBEAT_GROUP] = Heartbeat(
-            name=HEARTBEAT_STATE, address=self._address, group=self.HEARTBEAT_GROUP)
+            name=HEARTBEAT, address=self._address, group=self.HEARTBEAT_GROUP)
         self._heartbeat_manager.subscribe(state.set_value)
 
     def _register_events(self):
@@ -204,7 +204,7 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
 class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
     """Leak Sensor device."""
 
-    STATE_NAME = LEAK_SENSOR_STATE
+    STATE_NAME = LEAK_SENSOR
     DRY_GROUP = 1
     WET_GROUP = 2
     HEARTBEAT_GROUP = 4
@@ -224,7 +224,7 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
             self._address, self.HEARTBEAT_GROUP)
 
         state = self._states[self.HEARTBEAT_GROUP] = Heartbeat(
-            name=HEARTBEAT_STATE, address=self._address, group=self.HEARTBEAT_GROUP)
+            name=HEARTBEAT, address=self._address, group=self.HEARTBEAT_GROUP)
         self._managers[self.HEARTBEAT_GROUP].subscribe(state.set_value)
 
     def _register_events(self):
@@ -321,19 +321,19 @@ class SecurityHealthSafety_Smokebridge(Device):
 
     def _register_states(self):
         self._states[self.SMOKE_DETECTED_GROUP] = OnOff(
-            SMOKE_SENSOR_STATE, self._address, self.SMOKE_DETECTED_GROUP)
+            SMOKE_SENSOR, self._address, self.SMOKE_DETECTED_GROUP)
         self._states[self.CO_DETECTED_GROUP] = OnOff(
-            CO_SENSOR_STATE, self._address, self.CO_DETECTED_GROUP)
+            CO_SENSOR, self._address, self.CO_DETECTED_GROUP)
         self._states[self.TEST_DETECTED_GROUP] = OnOff(
-            TEST_SENSOR_STATE, self._address, self.TEST_DETECTED_GROUP)
+            TEST_SENSOR, self._address, self.TEST_DETECTED_GROUP)
         self._states[self.NEW_DETECTED_GROUP] = OnOff(
-            NEW_SENSOR_STATE, self._address, self.NEW_DETECTED_GROUP)
+            NEW_SENSOR, self._address, self.NEW_DETECTED_GROUP)
         self._states[self.LOW_BATTERY_GROUP] = LowBattery(
-            LOW_BATTERY_STATE, self._address, self.LOW_BATTERY_GROUP)
+            LOW_BATTERY, self._address, self.LOW_BATTERY_GROUP)
         self._states[self.SMOKE_DETECTED_GROUP] = OnOff(
-            SENSOR_MALFUNCTION_STATE, self._address, self.SENSOR_MALFUNCTION_GROUP)
+            SENSOR_MALFUNCTION, self._address, self.SENSOR_MALFUNCTION_GROUP)
         self._states[self.HEARTBEAT_GROUP] = Heartbeat(
-            SENSOR_MALFUNCTION_STATE, self._address, self.HEARTBEAT_GROUP)
+            SENSOR_MALFUNCTION, self._address, self.HEARTBEAT_GROUP)
 
     def _register_events(self):
         self._events[SMOKE_DETECTED_EVENT] = Event(

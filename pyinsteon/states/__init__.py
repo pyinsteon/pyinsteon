@@ -4,23 +4,46 @@ from ..address import Address
 from ..subscriber_base import SubscriberBase
 
 
-DIMMABLE_LIGHT_STATE = 'dimmable_light_state'
-DIMMABLE_FAN_STATE = 'dimmable_fan_state'
-ON_OFF_SWITCH_STATE = 'on_off_switch_state'
-ON_OFF_SWITCH_STATE_BOTTOM = 'on_off_switch_state_bottom'
-LOW_BATTERY_STATE = 'low_battery'
-OPEN_CLOSE_SENSOR_STATE = 'open_close_sensor'
-LIGHT_SENSOR_STATE = 'light_sensor_state'
-LEAK_SENSOR_STATE = 'leak_sensor_state'
-DOOR_SENSOR_STATE = 'door_sensor_state'
-MOTION_SENSOR_STATE = 'motion_sensor_state'
-SMOKE_SENSOR_STATE = 'smoke_sensor_state'
-CO_SENSOR_STATE = 'co_sensor_state'
-TEST_SENSOR_STATE = 'test_sensor_state'
-NEW_SENSOR_STATE = 'new_sensor_state'
-LOW_BATTERY_STATE = 'low_battery_state'
-HEARTBEAT_STATE = 'heartbeat_state'
-SENSOR_MALFUNCTION_STATE = 'sensor_malfunction_state'
+DIMMABLE_LIGHT = 'dimmable_light'
+DIMMABLE_FAN = 'dimmable_fan'
+DIMMABLE_OUTLET = 'dimmable_outlet'
+ON_OFF_SWITCH = 'on_off_switch'
+ON_OFF_OUTLET_TOP = 'on_off_outlet_top'
+ON_OFF_OUTLET_BOTTOM = 'on_off_outlet_bottom'
+LOW_BATTERY = 'low_battery'
+OPEN_CLOSE_SENSOR = 'open_close_sensor'
+LIGHT_SENSOR = 'light_sensor'
+LEAK_SENSOR = 'leak_sensor'
+DOOR_SENSOR = 'door_sensor'
+MOTION_SENSOR = 'motion_sensor'
+SMOKE_SENSOR = 'smoke_sensor'
+CO_SENSOR = 'co_sensor'
+TEST_SENSOR = 'test_sensor'
+NEW_SENSOR = 'new_sensor'
+LOW_BATTERY = 'low_battery'
+HEARTBEAT = 'heartbeat'
+SENSOR_MALFUNCTION = 'sensor_malfunction'
+
+ON_OFF_SWITCH_MAIN = '{}_{}'.format(ON_OFF_SWITCH, 'main')
+ON_OFF_SWITCH_A = '{}_{}'.format(ON_OFF_SWITCH, 'a')
+ON_OFF_SWITCH_B = '{}_{}'.format(ON_OFF_SWITCH, 'b')
+ON_OFF_SWITCH_C = '{}_{}'.format(ON_OFF_SWITCH, 'c')
+ON_OFF_SWITCH_D = '{}_{}'.format(ON_OFF_SWITCH, 'd')
+ON_OFF_SWITCH_E = '{}_{}'.format(ON_OFF_SWITCH, 'e')
+ON_OFF_SWITCH_F = '{}_{}'.format(ON_OFF_SWITCH, 'f')
+ON_OFF_SWITCH_G = '{}_{}'.format(ON_OFF_SWITCH, 'g')
+ON_OFF_SWITCH_H = '{}_{}'.format(ON_OFF_SWITCH, 'h')
+
+DIMMABLE_LIGHT_MAIN = '{}_{}'.format(DIMMABLE_LIGHT, 'main')
+# DIMMABLE_LIGHT_A = '{}_{}'.format(DIMMABLE_LIGHT, 'a')
+# DIMMABLE_LIGHT_B = '{}_{}'.format(DIMMABLE_LIGHT, 'b')
+# DIMMABLE_LIGHT_C = '{}_{}'.format(DIMMABLE_LIGHT, 'c')
+# DIMMABLE_LIGHT_D = '{}_{}'.format(DIMMABLE_LIGHT, 'd')
+# DIMMABLE_LIGHT_E = '{}_{}'.format(DIMMABLE_LIGHT, 'e')
+# DIMMABLE_LIGHT_F = '{}_{}'.format(DIMMABLE_LIGHT, 'f')
+# DIMMABLE_LIGHT_G = '{}_{}'.format(DIMMABLE_LIGHT, 'g')
+# DIMMABLE_LIGHT_H = '{}_{}'.format(DIMMABLE_LIGHT, 'h')
+
 
 class StateBase(SubscriberBase):
     """Device state base class."""
