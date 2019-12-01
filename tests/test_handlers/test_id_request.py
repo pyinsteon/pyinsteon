@@ -18,17 +18,17 @@ class TestIdRequest(unittest.TestCase):
 
     def setUp(self):
         """Set up the test."""
-        self._address = '1a2b3c'
+        self._address = Address('1a2b3c')
         self.id_handler = IdRequestCommand(self._address)
         self.all_link_handler = AssignToAllLinkGroupCommand(self._address)
         self.all_link_handler.subscribe(self.set_id)
         self._cat = None
         self._subcat = None
         self._firmware = None
-        self.ack_topic = 'ack.{}.id_request.direct'.format(self._address)
-        self.direct_ack_topic = '{}.id_request.direct_ack'.format(self._address)
-        self.direct_nak_topic = '{}.id_request.direct_nak'.format(self._address)
-        self.id_response_topic = '{}.{}.broadcast'.format(self._address, ASSIGN_TO_ALL_LINK_GROUP)
+        self.ack_topic = 'ack.{}.id_request.direct'.format(self._address.id)
+        self.direct_ack_topic = '{}.id_request.direct_ack'.format(self._address.id)
+        self.direct_nak_topic = '{}.id_request.direct_nak'.format(self._address.id)
+        self.id_response_topic = '{}.{}.broadcast'.format(self._address.id, ASSIGN_TO_ALL_LINK_GROUP)
         set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def set_id(self, address, cat, subcat, firmware, group, mode):
@@ -39,7 +39,7 @@ class TestIdRequest(unittest.TestCase):
 
     @async_case
     async def test_id_request(self):
-        """Test the ON command."""
+        """Test ID Request command."""
         cmd1 = 0x99
         cmd2 = 0xaa
         topics = [TopicItem(self.ack_topic,

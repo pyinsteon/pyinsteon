@@ -39,7 +39,7 @@ async def write_database():
 
 
 if __name__ == '__main__':
-    set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info')
+    set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
     loop = asyncio.get_event_loop()
     _LOGGER.info('Loading All-Link database for all devices')
     loop.run_until_complete(write_database())

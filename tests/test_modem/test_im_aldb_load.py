@@ -26,7 +26,7 @@ class TestModemALDBLoad(unittest.TestCase):
 
     def setUp(self):
         """Setup the test."""
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=True)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
         _LOGGER.debug('Running setUp')
         self.aldb = ModemALDB('ff11ee')
 

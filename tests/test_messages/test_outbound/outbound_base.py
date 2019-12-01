@@ -18,7 +18,7 @@ class OutboundBase():
         if topic == 'send_standard' and kwargs.get('flags') and kwargs.get('flags').is_extended:
             topic = 'send_extended'
         pub.sendMessage('send.{}'.format(topic), **kwargs)
-        set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def receive_message(self, msg, priority=5):
         """Set the message from the outbound publisher."""
