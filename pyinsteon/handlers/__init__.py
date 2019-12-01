@@ -73,6 +73,10 @@ def ack_handler(wait_response=False, timeout=TIMEOUT):
     def setup(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
+            if hasattr(self, 'group'):
+                group = 1 if not kwargs.get('user_data') else kwargs.get('user_data')['d1']
+                if self.group != group:
+                    return
             if wait_response:
                 asyncio.ensure_future(
                     _wait_response(self.response_lock, self.message_response))
