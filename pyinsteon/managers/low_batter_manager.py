@@ -24,7 +24,7 @@ class LowBatteryManager(SubscriberBase):
         """Init the LowBatteryManager class."""
         self._address = Address(address)
         self._group = group
-        subscriber_topic = 'subscriber_{}_low_battery'.format(self._address)
+        subscriber_topic = 'subscriber_{}_low_battery'.format(self._address.id)
         super().__init__(subscriber_topic)
 
         self._on_low_battery = OnLevelInbound(self._address, self._group)

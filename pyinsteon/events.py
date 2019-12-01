@@ -53,10 +53,10 @@ class Event(SubscriberBase):
 
     def __init__(self, name: str, address: Address, group=0):
         """Init the Event class."""
-        self._address = address
+        self._address = Address(address)
         self._group = group
         self._name = name
-        topic = 'event_{}_{}_{}'.format(repr(address), group, name)
+        topic = 'event_{}_{}_{}'.format(self._address.id, group, name)
         super().__init__(subscriber_topic=topic)
 
     @property
