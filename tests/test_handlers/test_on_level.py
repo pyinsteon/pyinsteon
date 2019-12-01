@@ -54,10 +54,7 @@ class TestOnLevel(unittest.TestCase):
         topics = [TopicItem(ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data": None}, .5),
                   TopicItem(direct_ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data": None}, .5)]
         send_topics(topics)
-        print("cmd2:", cmd2)
         assert await self.handler1.async_send(on_level=cmd2)
-        print("On Level: ", self._on_level_1)
-        print("cmd2:", cmd2)
         assert self._on_level_1 == cmd2
         assert self._on_level_2 is None
         assert self._on_level_3 is None
