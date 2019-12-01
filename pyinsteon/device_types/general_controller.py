@@ -44,7 +44,7 @@ class GeneralController_MiniRemoteBase(BatteryDeviceBase, VariableControllerBase
     def __init__(self, address, cat, subcat, firmware=0x00,
                  description='', model='', buttons=None):
         """Init the GeneralController_MiniRemoteBase class."""
-        super().__init__(address, cat, subcat, firmware, description, model, buttons)
+        super().__init__(address, cat, subcat, firmware, description, model, buttons=buttons)
         self._database_delta = 0
 
 
