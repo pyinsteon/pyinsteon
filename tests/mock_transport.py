@@ -59,6 +59,8 @@ class MockTransport(SubscriberBase, asyncio.Transport):
         """Write data to the transport."""
         from random import randint
         self._write_queue.put_nowait(data)
+        if data.message_id in [0x069, 0x6a]:
+            return
         rand_num = randint(0, 100)
         ack_nak = 0x15 if rand_num < 10 and self._random_nak else 0x06
         ack = bytes(data) + bytes([ack_nak])
