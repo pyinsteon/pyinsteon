@@ -191,7 +191,7 @@ class SwitchedLightingControl_KeypadLinc_6(SwitchedLightingControl_KeypadLinc):
 
     def __init__(self, address, cat, subcat, firmware=0x00, description='', model=''):
         """Init the SwitchedLightingControl_KeypadLinc_6 class."""
-        button_list = {3: 'A', 4: 'B', 5: 'C', 6: 'D'}
+        button_list = {3: 'a', 4: 'b', 5: 'C', 6: 'c'}
         super().__init__(button_list=button_list, address=address, cat=cat, subcat=subcat,
                          firmware=firmware, description=description, model=model)
 
@@ -201,7 +201,7 @@ class SwitchedLightingControl_KeypadLinc_8(SwitchedLightingControl_KeypadLinc):
 
     def __init__(self, address, cat, subcat, firmware=0x00, description='', model=''):
         """Init the SwitchedLightingControl_KeypadLinc_8 class."""
-        button_list = {2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H'}
+        button_list = {2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f', 7: 'g', 8: 'h'}
         super().__init__(button_list=button_list, address=address, cat=cat, subcat=subcat,
                          firmware=firmware, description=description, model=model)
 
