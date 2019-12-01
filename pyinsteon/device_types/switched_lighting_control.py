@@ -3,9 +3,9 @@ from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.trigger_scene import TriggerSceneCommandHandler
 from ..states import (ON_OFF_OUTLET_BOTTOM, ON_OFF_OUTLET_TOP, ON_OFF_SWITCH,
-                      ON_OFF_SWITCH_B, ON_OFF_SWITCH_C, ON_OFF_SWITCH_D,
-                      ON_OFF_SWITCH_E, ON_OFF_SWITCH_F, ON_OFF_SWITCH_G,
-                      ON_OFF_SWITCH_H, ON_OFF_SWITCH_MAIN)
+                      ON_OFF_SWITCH_A, ON_OFF_SWITCH_B, ON_OFF_SWITCH_C,
+                      ON_OFF_SWITCH_D, ON_OFF_SWITCH_E, ON_OFF_SWITCH_F,
+                      ON_OFF_SWITCH_G, ON_OFF_SWITCH_H, ON_OFF_SWITCH_MAIN)
 from ..states.on_off import OnOff
 from .commands import SET_LEDS_COMMAND, STATUS_COMMAND, TRIGGER_SCENE_COMMAND
 from .on_off_responder_base import OnOffResponderBase
