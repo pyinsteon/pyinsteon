@@ -204,7 +204,7 @@ class Device(ABC):
         self._add_operating_flag('bit4', 0, 4, 8, 9)
         self._add_operating_flag('bit5', 0, 5, 10, 11)
         self._add_operating_flag('bit6', 0, 6, 12, 13)
-        self._add_operating_flag('bit7', 0, 6, 14, 15)
+        self._add_operating_flag('bit7', 0, 7, 14, 15)
 
     def _add_operating_flag(self, name, group, bit, set_cmd, unset_cmd):
         flag_type = bool if bit is not None else int
