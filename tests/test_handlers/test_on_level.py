@@ -48,7 +48,7 @@ class TestOnLevel(unittest.TestCase):
         self._on_level_3 = None
 
         ack_topic = 'ack.{}.on.{}.direct'.format(self._address, 1)
-        direct_ack_topic = '{}.on.{}.direct_ack'.format(self._address, 1)
+        direct_ack_topic = '{}.on.direct_ack'.format(self._address)
 
         topics = [TopicItem(ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data": None}, .5),
                   TopicItem(direct_ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data": None}, .5)]
@@ -71,7 +71,7 @@ class TestOnLevel(unittest.TestCase):
         self._on_level_3 = None
 
         ack_topic = 'ack.{}.on.{}.direct'.format(self._address, 2)
-        direct_ack_topic = '{}.on.{}.direct_ack'.format(self._address, 2)
+        direct_ack_topic = '{}.on.direct_ack'.format(self._address)
 
         topics = [TopicItem(ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data": {'d1': 2}}, .5),
                   TopicItem(direct_ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data":  None}, .5)]
@@ -88,7 +88,7 @@ class TestOnLevel(unittest.TestCase):
         cmd2 = 0xaa
 
         ack_topic = 'ack.{}.on.{}.direct'.format(self._address, 2)
-        direct_nak_topic = '{}.on.{}.direct_nak'.format(self._address, 2)
+        direct_nak_topic = '{}.on.direct_nak'.format(self._address)
 
         topics = [TopicItem(ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data": {'d1': 2}}, .5),
                   TopicItem(direct_nak_topic, {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data":  None}, .5)]

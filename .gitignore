@@ -2,7 +2,7 @@
 pyinsteon/topics/command_topics.csv
 pyinsteon/topics/csv_to_yaml.py
 samples/*.json
-*.json
+insteon_devices*.json
 secret.yaml
 
 # Byte-compiled / optimized / DLL files
@@ -108,5 +108,4 @@ ENV/
 /settings.json
 /.vscode
 /.vscode/settings.json
-samples/insteon_devices.json
 /.idea

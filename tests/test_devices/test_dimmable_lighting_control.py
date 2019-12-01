@@ -5,7 +5,8 @@ from pyinsteon.address import Address
 from pyinsteon.handlers import ResponseStatus
 from pyinsteon.device_types.dimmable_lighting_control import DimmableLightingControl
 from pyinsteon.topics import ON, OFF, ON_FAST, OFF_FAST
-from tests.utils import async_case, send_topics, make_command_response_messages
+from tests.utils import async_case, send_topics, TopicItem, cmd_kwargs
+from tests import set_log_levels
 
 
 class TestDimmableLIghtingControl(unittest.TestCase):
@@ -21,6 +22,7 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         self.address = Address('1a2b3c')
         self.device = DimmableLightingControl(self.address, 0x01, 0x02, 0x03, 'Test', 'Modem 1')
         self.device.states[1].subscribe(self.state_updated)
+        set_log_levels('info', 'info', 'debug', True)
 
     @async_case
     async def test_on_command(self):
@@ -30,8 +32,10 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         cmd2 = 0x23
         target = Address('4d5e6f')
         user_data = None
-        topic = '{}.{}'.format(ON, 1)
-        responses = make_command_response_messages(self.address, topic, cmd1, cmd2, target, user_data)
+        ack = 'ack.{}.{}.1.direct'.format(self.device.address.id, ON)
+        direct_ack = '{}.{}.direct_ack'.format(self.device.address.id, ON)
+        responses = [TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), .25),
+                     TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), .25)]
         send_topics(responses)
 
         response = await self.device.async_on(on_level=cmd2, fast=False)
@@ -46,9 +50,10 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         cmd2 = 0x23
         target = Address('4d5e6f')
         user_data = None
-        topic = '{}.{}'.format(ON_FAST, 1)
-        responses = make_command_response_messages(self.address, topic, cmd1,
-                                                   cmd2, target, user_data)
+        ack = 'ack.{}.{}.1.direct'.format(self.device.address.id, ON_FAST)
+        direct_ack = '{}.{}.direct_ack'.format(self.device.address.id, ON_FAST)
+        responses = [TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), .25),
+                     TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), .25)]
         send_topics(responses)
 
         response = await self.device.async_on(on_level=cmd2, fast=True)
@@ -63,9 +68,10 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         cmd2 = 0x23
         target = Address('4d5e6f')
         user_data = None
-        topic = '{}.{}'.format(OFF_FAST, 1)
-        responses = make_command_response_messages(self.address, topic, cmd1, cmd2,
-                                                   target, user_data)
+        ack = 'ack.{}.{}.1.direct'.format(self.device.address.id, OFF_FAST)
+        direct_ack = '{}.{}.direct_ack'.format(self.device.address.id, OFF_FAST)
+        responses = [TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), .25),
+                     TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), .25)]
         send_topics(responses)
 
         response = await self.device.async_off(fast=True)
@@ -80,8 +86,10 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         cmd2 = 0x23
         target = Address('4d5e6f')
         user_data = None
-        topic = '{}.{}'.format(OFF, 1)
-        responses = make_command_response_messages(self.address, topic, cmd1, cmd2, target, user_data)
+        ack = 'ack.{}.{}.1.direct'.format(self.device.address.id, OFF)
+        direct_ack = '{}.{}.direct_ack'.format(self.device.address.id, OFF)
+        responses = [TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), .25),
+                TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), .25)]
         send_topics(responses)
 
         response = await self.device.async_off(fast=False)

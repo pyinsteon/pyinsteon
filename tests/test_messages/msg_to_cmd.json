@@ -1,0 +1,1042 @@
+{
+    "ASSIGN_TO_ALL_LINK_GROUP-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "01",
+        "cmd2": "01",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.assign_to_all_link_group.direct"
+    },
+    "DELETE_FROM_ALL_LINK_GROUP-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "02",
+        "cmd2": "02",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.delete_from_all_link_group.direct"
+    },
+    "PRODUCT_DATA_REQUEST-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "03",
+        "cmd2": "00",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.product_data_request.direct"
+    },
+    "FX_USERNAME-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "03",
+        "cmd2": "01",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.fx_username.direct"
+    },
+    "DEVICE_TEXT_STRING_REQUEST-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "03",
+        "cmd2": "02",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.device_text_string_request.direct"
+    },
+    "ALL_LINK_CLEANUP_STATUS_REPORT-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "06",
+        "cmd2": "03",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.all_link_cleanup_status_report.direct"
+    },
+    "ENTER_LINKING_MODE-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "09",
+        "cmd2": "04",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.enter_linking_mode.direct"
+    },
+    "ENTER_UNLINKING_MODE-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "0a",
+        "cmd2": "05",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.enter_unlinking_mode.direct"
+    },
+    "GET_INSTEON_ENGINE_VERSION-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "0d",
+        "cmd2": "06",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.get_insteon_engine_version.direct"
+    },
+    "PING-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "0f",
+        "cmd2": "07",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.ping.direct"
+    },
+    "ID_REQUEST-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "10",
+        "cmd2": "08",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.id_request.direct"
+    },
+    "ON-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "11",
+        "cmd2": "09",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.on.1.direct"
+    },
+    "ON_FAST-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "12",
+        "cmd2": "10",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.on_fast.1.direct"
+    },
+    "OFF-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "13",
+        "cmd2": "11",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.off.1.direct"
+    },
+    "OFF_FAST-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "14",
+        "cmd2": "12",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.off_fast.1.direct"
+    },
+    "BRIGHTEN_ONE_STEP-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "15",
+        "cmd2": "13",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.brighten_one_step.1.direct"
+    },
+    "DIM_ONE_STEP-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "16",
+        "cmd2": "14",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.dim_one_step.1.direct"
+    },
+    "START_MANUAL_CHANGE_DOWN-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "17",
+        "cmd2": "00",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.start_manual_change_down.1.direct"
+    },
+    "START_MANUAL_CHANGE_UP-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "17",
+        "cmd2": "01",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.start_manual_change_up.1.direct"
+    },
+    "STOP_MANUAL_CHANGE-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "18",
+        "cmd2": "15",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.stop_manual_change.1.direct"
+    },
+    "STATUS_REQUEST-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "19",
+        "cmd2": "16",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.status_request.direct"
+    },
+    "GET_OPERATING_FLAGS-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "1f",
+        "cmd2": "17",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.get_operating_flags.direct"
+    },
+    "SET_OPERATING_FLAGS-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "20",
+        "cmd2": "18",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.set_operating_flags.direct"
+    },
+    "INSTANT_CHANGE-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "21",
+        "cmd2": "19",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.instant_change.1.direct"
+    },
+    "MANUALLY_TURNED_OFF-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "22",
+        "cmd2": "20",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.manually_turned_off.1.direct"
+    },
+    "MANUALLY_TURNED_ON-DIRECT": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "23",
+        "cmd2": "21",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.manually_turned_on.1.direct"
+    },
+    "ASSIGN_TO_ALL_LINK_GROUP-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "01",
+        "cmd2": "01",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.assign_to_all_link_group.all_link_cleanup"
+    },
+    "DELETE_FROM_ALL_LINK_GROUP-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "02",
+        "cmd2": "02",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.delete_from_all_link_group.all_link_cleanup"
+    },
+    "PRODUCT_DATA_REQUEST-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "03",
+        "cmd2": "00",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.product_data_request.all_link_cleanup"
+    },
+    "FX_USERNAME-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "03",
+        "cmd2": "01",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.fx_username.all_link_cleanup"
+    },
+    "DEVICE_TEXT_STRING_REQUEST-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "03",
+        "cmd2": "02",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.device_text_string_request.all_link_cleanup"
+    },
+    "ALL_LINK_CLEANUP_STATUS_REPORT-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "06",
+        "cmd2": "03",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.all_link_cleanup_status_report.all_link_cleanup"
+    },
+    "ENTER_LINKING_MODE-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "09",
+        "cmd2": "04",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.enter_linking_mode.all_link_cleanup"
+    },
+    "ENTER_UNLINKING_MODE-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "0a",
+        "cmd2": "05",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.enter_unlinking_mode.all_link_cleanup"
+    },
+    "GET_INSTEON_ENGINE_VERSION-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "0d",
+        "cmd2": "06",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.get_insteon_engine_version.all_link_cleanup"
+    },
+    "PING-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "0f",
+        "cmd2": "07",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.ping.all_link_cleanup"
+    },
+    "ID_REQUEST-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "10",
+        "cmd2": "08",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.id_request.all_link_cleanup"
+    },
+    "ON-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "11",
+        "cmd2": "09",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.on.9.all_link_cleanup"
+    },
+    "ON_FAST-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "12",
+        "cmd2": "10",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.on_fast.16.all_link_cleanup"
+    },
+    "OFF-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "13",
+        "cmd2": "11",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.off.17.all_link_cleanup"
+    },
+    "OFF_FAST-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "14",
+        "cmd2": "12",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.off_fast.18.all_link_cleanup"
+    },
+    "BRIGHTEN_ONE_STEP-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "15",
+        "cmd2": "13",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.brighten_one_step.19.all_link_cleanup"
+    },
+    "DIM_ONE_STEP-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "16",
+        "cmd2": "14",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.dim_one_step.20.all_link_cleanup"
+    },
+    "START_MANUAL_CHANGE_DOWN-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "17",
+        "cmd2": "00",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.start_manual_change_down.0.all_link_cleanup"
+    },
+    "START_MANUAL_CHANGE_UP-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "17",
+        "cmd2": "01",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.start_manual_change_up.1.all_link_cleanup"
+    },
+    "STOP_MANUAL_CHANGE-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "18",
+        "cmd2": "15",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.stop_manual_change.21.all_link_cleanup"
+    },
+    "STATUS_REQUEST-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "19",
+        "cmd2": "16",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.status_request.all_link_cleanup"
+    },
+    "GET_OPERATING_FLAGS-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "1f",
+        "cmd2": "17",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.get_operating_flags.all_link_cleanup"
+    },
+    "SET_OPERATING_FLAGS-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "20",
+        "cmd2": "18",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.set_operating_flags.all_link_cleanup"
+    },
+    "INSTANT_CHANGE-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "21",
+        "cmd2": "19",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.instant_change.25.all_link_cleanup"
+    },
+    "MANUALLY_TURNED_OFF-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "22",
+        "cmd2": "20",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.manually_turned_off.32.all_link_cleanup"
+    },
+    "MANUALLY_TURNED_ON-ALL_LINK_CLEANUP": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "40",
+        "cmd1": "23",
+        "cmd2": "21",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.manually_turned_on.33.all_link_cleanup"
+    },
+    "ASSIGN_TO_ALL_LINK_GROUP-BROADCAST": {
+        "address": "010203",
+        "target": "000001",
+        "flags": "80",
+        "cmd1": "01",
+        "cmd2": "01",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.assign_to_all_link_group.broadcast"
+    },
+    "DELETE_FROM_ALL_LINK_GROUP-BROADCAST": {
+        "address": "010203",
+        "target": "000002",
+        "flags": "80",
+        "cmd1": "02",
+        "cmd2": "02",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.delete_from_all_link_group.broadcast"
+    },
+    "PRODUCT_DATA_REQUEST-BROADCAST": {
+        "address": "010203",
+        "target": "000003",
+        "flags": "80",
+        "cmd1": "03",
+        "cmd2": "00",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.product_data_request.broadcast"
+    },
+    "FX_USERNAME-BROADCAST": {
+        "address": "010203",
+        "target": "000004",
+        "flags": "80",
+        "cmd1": "03",
+        "cmd2": "01",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.fx_username.broadcast"
+    },
+    "DEVICE_TEXT_STRING_REQUEST-BROADCAST": {
+        "address": "010203",
+        "target": "000005",
+        "flags": "80",
+        "cmd1": "03",
+        "cmd2": "02",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.device_text_string_request.broadcast"
+    },
+    "ALL_LINK_CLEANUP_STATUS_REPORT-BROADCAST": {
+        "address": "010203",
+        "target": "000006",
+        "flags": "80",
+        "cmd1": "06",
+        "cmd2": "03",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.all_link_cleanup_status_report.broadcast"
+    },
+    "ENTER_LINKING_MODE-BROADCAST": {
+        "address": "010203",
+        "target": "000007",
+        "flags": "80",
+        "cmd1": "09",
+        "cmd2": "04",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.enter_linking_mode.broadcast"
+    },
+    "ENTER_UNLINKING_MODE-BROADCAST": {
+        "address": "010203",
+        "target": "000008",
+        "flags": "80",
+        "cmd1": "0a",
+        "cmd2": "05",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.enter_unlinking_mode.broadcast"
+    },
+    "GET_INSTEON_ENGINE_VERSION-BROADCAST": {
+        "address": "010203",
+        "target": "000009",
+        "flags": "80",
+        "cmd1": "0d",
+        "cmd2": "06",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.get_insteon_engine_version.broadcast"
+    },
+    "PING-BROADCAST": {
+        "address": "010203",
+        "target": "000010",
+        "flags": "80",
+        "cmd1": "0f",
+        "cmd2": "07",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.ping.broadcast"
+    },
+    "ID_REQUEST-BROADCAST": {
+        "address": "010203",
+        "target": "000011",
+        "flags": "80",
+        "cmd1": "10",
+        "cmd2": "08",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.id_request.broadcast"
+    },
+    "ON-BROADCAST": {
+        "address": "010203",
+        "target": "000012",
+        "flags": "80",
+        "cmd1": "11",
+        "cmd2": "09",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.on.18.broadcast"
+    },
+    "ON_FAST-BROADCAST": {
+        "address": "010203",
+        "target": "000013",
+        "flags": "80",
+        "cmd1": "12",
+        "cmd2": "10",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.on_fast.19.broadcast"
+    },
+    "OFF-BROADCAST": {
+        "address": "010203",
+        "target": "000014",
+        "flags": "80",
+        "cmd1": "13",
+        "cmd2": "11",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.off.20.broadcast"
+    },
+    "OFF_FAST-BROADCAST": {
+        "address": "010203",
+        "target": "000015",
+        "flags": "80",
+        "cmd1": "14",
+        "cmd2": "12",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.off_fast.21.broadcast"
+    },
+    "BRIGHTEN_ONE_STEP-BROADCAST": {
+        "address": "010203",
+        "target": "000016",
+        "flags": "80",
+        "cmd1": "15",
+        "cmd2": "13",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.brighten_one_step.22.broadcast"
+    },
+    "DIM_ONE_STEP-BROADCAST": {
+        "address": "010203",
+        "target": "000017",
+        "flags": "80",
+        "cmd1": "16",
+        "cmd2": "14",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.dim_one_step.23.broadcast"
+    },
+    "START_MANUAL_CHANGE_DOWN-BROADCAST": {
+        "address": "010203",
+        "target": "000018",
+        "flags": "80",
+        "cmd1": "17",
+        "cmd2": "00",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.start_manual_change_down.24.broadcast"
+    },
+    "START_MANUAL_CHANGE_UP-BROADCAST": {
+        "address": "010203",
+        "target": "000019",
+        "flags": "80",
+        "cmd1": "17",
+        "cmd2": "01",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.start_manual_change_up.25.broadcast"
+    },
+    "STOP_MANUAL_CHANGE-BROADCAST": {
+        "address": "010203",
+        "target": "000020",
+        "flags": "80",
+        "cmd1": "18",
+        "cmd2": "15",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.stop_manual_change.32.broadcast"
+    },
+    "STATUS_REQUEST-BROADCAST": {
+        "address": "010203",
+        "target": "000021",
+        "flags": "80",
+        "cmd1": "19",
+        "cmd2": "16",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.status_request.broadcast"
+    },
+    "GET_OPERATING_FLAGS-BROADCAST": {
+        "address": "010203",
+        "target": "000022",
+        "flags": "80",
+        "cmd1": "1f",
+        "cmd2": "17",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.get_operating_flags.broadcast"
+    },
+    "SET_OPERATING_FLAGS-BROADCAST": {
+        "address": "010203",
+        "target": "000023",
+        "flags": "80",
+        "cmd1": "20",
+        "cmd2": "18",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.set_operating_flags.broadcast"
+    },
+    "INSTANT_CHANGE-BROADCAST": {
+        "address": "010203",
+        "target": "000024",
+        "flags": "80",
+        "cmd1": "21",
+        "cmd2": "19",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.instant_change.36.broadcast"
+    },
+    "MANUALLY_TURNED_OFF-BROADCAST": {
+        "address": "010203",
+        "target": "000025",
+        "flags": "80",
+        "cmd1": "22",
+        "cmd2": "20",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.manually_turned_off.37.broadcast"
+    },
+    "MANUALLY_TURNED_ON-BROADCAST": {
+        "address": "010203",
+        "target": "000026",
+        "flags": "80",
+        "cmd1": "23",
+        "cmd2": "21",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.manually_turned_on.38.broadcast"
+    },
+    "ASSIGN_TO_ALL_LINK_GROUP-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "01",
+        "cmd2": "01",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.assign_to_all_link_group.direct_ack"
+    },
+    "DELETE_FROM_ALL_LINK_GROUP-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "02",
+        "cmd2": "02",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.delete_from_all_link_group.direct_ack"
+    },
+    "PRODUCT_DATA_REQUEST-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "03",
+        "cmd2": "00",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.product_data_request.direct_ack"
+    },
+    "FX_USERNAME-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "03",
+        "cmd2": "01",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.fx_username.direct_ack"
+    },
+    "DEVICE_TEXT_STRING_REQUEST-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "03",
+        "cmd2": "02",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.device_text_string_request.direct_ack"
+    },
+    "ALL_LINK_CLEANUP_STATUS_REPORT-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "06",
+        "cmd2": "03",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.all_link_cleanup_status_report.direct_ack"
+    },
+    "ENTER_LINKING_MODE-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "09",
+        "cmd2": "04",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.enter_linking_mode.direct_ack"
+    },
+    "ENTER_UNLINKING_MODE-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "0a",
+        "cmd2": "05",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.enter_unlinking_mode.direct_ack"
+    },
+    "GET_INSTEON_ENGINE_VERSION-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "0d",
+        "cmd2": "06",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.get_insteon_engine_version.direct_ack"
+    },
+    "PING-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "0f",
+        "cmd2": "07",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.ping.direct_ack"
+    },
+    "ID_REQUEST-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "10",
+        "cmd2": "08",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.id_request.direct_ack"
+    },
+    "ON-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "11",
+        "cmd2": "09",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.on.direct_ack"
+    },
+    "ON_FAST-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "12",
+        "cmd2": "10",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.on_fast.direct_ack"
+    },
+    "OFF-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "13",
+        "cmd2": "11",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.off.direct_ack"
+    },
+    "OFF_FAST-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "14",
+        "cmd2": "12",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.off_fast.direct_ack"
+    },
+    "BRIGHTEN_ONE_STEP-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "15",
+        "cmd2": "13",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.brighten_one_step.direct_ack"
+    },
+    "DIM_ONE_STEP-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "16",
+        "cmd2": "14",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.dim_one_step.direct_ack"
+    },
+    "START_MANUAL_CHANGE_DOWN-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "17",
+        "cmd2": "00",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.start_manual_change_down.direct_ack"
+    },
+    "START_MANUAL_CHANGE_UP-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "17",
+        "cmd2": "01",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.start_manual_change_up.direct_ack"
+    },
+    "STOP_MANUAL_CHANGE-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "18",
+        "cmd2": "15",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.stop_manual_change.direct_ack"
+    },
+    "STATUS_REQUEST-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "19",
+        "cmd2": "16",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.status_request.direct_ack"
+    },
+    "GET_OPERATING_FLAGS-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "1f",
+        "cmd2": "17",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.get_operating_flags.direct_ack"
+    },
+    "SET_OPERATING_FLAGS-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "20",
+        "cmd2": "18",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.set_operating_flags.direct_ack"
+    },
+    "INSTANT_CHANGE-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "21",
+        "cmd2": "19",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.instant_change.direct_ack"
+    },
+    "MANUALLY_TURNED_OFF-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "22",
+        "cmd2": "20",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.manually_turned_off.direct_ack"
+    },
+    "MANUALLY_TURNED_ON-DIRECT_ACK": {
+        "address": "010203",
+        "target": "040506",
+        "flags": "20",
+        "cmd1": "23",
+        "cmd2": "21",
+        "user_data": "",
+        "ack": "",
+        "topic": "010203.manually_turned_on.direct_ack"
+    }
+}

@@ -1,0 +1,444 @@
+    {
+        "on": {
+            "command": {
+                "class": ".on_level.OnLevelCommand",
+                "params": {
+                    "address": "112233",
+                    "group": 1
+                },
+                "send_params": {
+                    "on_level": 255
+                }
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 17,
+                    "cmd2": 255,
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {
+                "on_level": 255
+            }
+        },
+        "on_fast": {
+            "command": {
+                "class": ".on_fast.OnFastCommand",
+                "params": {
+                    "address": "112233",
+                    "group": 1
+                },
+                "send_params": {
+                    "on_level": 100
+                }
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 18,
+                    "cmd2": 100,
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {
+                "on_level": 100
+            }
+        },
+        "off": {
+            "command": {
+                "class": ".off.OffCommand",
+                "params": {
+                    "address": "112233",
+                    "group": 1
+                },
+                "send_params": {}
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 19,
+                    "cmd2": 0,
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {
+                "on_level": 0
+            }
+        },
+        "off_fast": {
+            "command": {
+                "class": ".off_fast.OffFastCommand",
+                "params": {
+                    "address": "112233",
+                    "group": 1
+                },
+                "send_params": {}
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 20,
+                    "cmd2": 0,
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {
+                "on_level": 0
+            }
+        },
+        "enter_linking_mode": {
+            "command": {
+                "class": ".enter_linking_mode.EnterLinkingModeCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "group": 3
+                }
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 9,
+                    "cmd2": 3,
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {}
+        },
+        "enter_unlinking_mode": {
+            "command": {
+                "class": ".enter_unlinking_mode.EnterUnlinkingModeCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "group": 3
+                }
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 10,
+                    "cmd2": 3,
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {}
+        },
+        "extended_get": {
+            "command": {
+                "class": ".extended_get.ExtendedGetCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "group": 3
+                }
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 48,
+                    "cmd1": 46,
+                    "cmd2": 0,
+                    "user_data": {"d1": 3, "d2": 1, "d3": 3, "d4": 4, "d5": 5, "d6": 6, "d7": 7, "d8": 8, "d9": 9, "d10": 10, "d11": 11, "d12": 12, "d13": 13, "d14": 14},
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {
+                "data": {"data1": 3, "data2": 1, "data3": 3, "data4": 4, "data5": 5, "data6": 6, "data7": 7, "data8": 8, "data9": 9, "data10": 10, "data11": 11, "data12": 12, "data13": 13, "data14": 14}
+            }
+        },
+        "extended_set": {
+            "command": {
+                "class": ".extended_set.ExtendedSetCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "group": 1,
+                    "action": 2,
+                    "data3": 3,
+                    "data4": 4,
+                    "data5": 5,
+                    "data6": 6,
+                    "data7": 7,
+                    "data8": 8,
+                    "data9": 9,
+                    "data10": 10,
+                    "data11": 11,
+                    "data12": 12,
+                    "data13": 13,
+                    "data14": 14
+                }
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 46,
+                    "cmd2": 0,
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {}
+        },
+        "get_operating_flags": {
+            "command": {
+                "class": ".get_operating_flags.GetOperatingFlagsCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "flags_requested": 1
+                }
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 31,
+                    "cmd2": 170,
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {
+                "flags": 170
+            }
+        },
+        "id_request": {
+            "command": {
+                "class": ".id_request.IdRequestCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {}
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 16,
+                    "cmd2": 0,
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {}
+        },
+        "off_all_link_broadcast": {
+            "command": {
+                "class": ".off_all_link_broadcast.OffAllLinkBroadcastCommand",
+                "params": {
+                    "group": 10
+                },
+                "send_params": {}
+            },
+            "messages": {},
+            "response": 1,
+            "assert_tests": {}
+        },
+        "off_all_link_cleanup": {
+            "command": {
+                "class": ".off_all_link_cleanup.OffAllLinkCleanupCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "group": 1
+                }
+            },
+            "messages": {
+                "cleanup_ack": {
+                    "address": "112233",
+                    "flags": 96,
+                    "cmd1": 19,
+                    "cmd2": 1,
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {}
+        },
+        "on_level_all_link_broadcast": {
+            "command": {
+                "class": ".on_level_all_link_broadcast.OnLevelAllLinkBroadcastCommand",
+                "params": {
+                    "group": 10
+                },
+                "send_params": {}
+            },
+            "messages": {},
+            "response": 1,
+            "assert_tests": {}
+        },
+        "on_all_link_cleanup": {
+            "command": {
+                "class": ".on_level_all_link_cleanup.OnLevelAllLinkCleanupCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "group": 1
+                }
+            },
+            "messages": {
+                "cleanup_ack": {
+                    "address": "112233",
+                    "flags": 96,
+                    "cmd1": 17,
+                    "cmd2": 1,
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {}
+        },
+        "product_data_request": {
+            "command": {
+                "class": ".product_data_request.ProductDataRequestCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {}
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 48,
+                    "cmd1": 3,
+                    "cmd2": 0,
+                    "user_data": {"d1": 0, "d2": 2, "d3": 3, "d4": 4, "d5": 5, "d6": 6, "d7": 7, "d8": 8, "d9": 0, "d10": 0, "d11": 0, "d12": 0, "d13": 0, "d14": 0},
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {
+                "product_id": 131844,
+                "cat": 5,
+                "subcat": 6
+            }
+        },
+        "read_aldb": {
+            "command": {
+                "class": ".read_aldb.ReadALDBCommandHandler",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {}
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 48,
+                    "cmd1": 47,
+                    "cmd2": 0,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {
+                "product_id": 131844,
+                "cat": 5,
+                "subcat": 6
+            }
+        },
+        "set_operating_flags": {
+            "command": {
+                "class": ".set_operating_flags.SetOperatingFlagsCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "cmd": 5
+                }
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 32,
+                    "cmd2": 5,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {}
+        },
+        "status_request": {
+            "command": {
+                "class": ".status_request.StatusRequestCommand",
+                "params": {
+                    "address": "112233",
+                    "status_type": 5
+                },
+                "send_params": {}
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 33,
+                    "cmd2": 22,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {
+                "status": 22
+            }
+        },
+        "write_aldb": {
+            "command": {
+                "class": ".write_aldb.WriteALDBCommandHandler",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "mem_addr": 8191,
+                    "controller": true,
+                    "group": 1,
+                    "target": "1a2b3c",
+                    "data1": 11,
+                    "data2": 22,
+                    "data3": 33,
+                    "in_use": true,
+                    "high_water_mark": true,
+                    "bit5": 1,
+                    "bit4": 1
+                }
+            },
+            "messages": {
+                "direct_ack": {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 47,
+                    "cmd2": 0,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            },
+            "response": 1,
+            "assert_tests": {}
+        }
+    }
