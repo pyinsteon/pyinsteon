@@ -1,18 +1,7 @@
 """Base class for testing outbound messages."""
 
-import logging
-import sys
-
 from pyinsteon import pub
-
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
-
-
-stream_handler = logging.StreamHandler(sys.stdout)
-_LOGGER.addHandler(stream_handler)
-_INSTEON_LOGGER.addHandler(stream_handler)
+from tests import set_log_levels
 
 
 class OutboundBase():
@@ -29,8 +18,9 @@ class OutboundBase():
         if topic == 'send_standard' and kwargs.get('flags') and kwargs.get('flags').is_extended:
             topic = 'send_extended'
         pub.sendMessage('send.{}'.format(topic), **kwargs)
+        set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
-    def receive_message(self, msg):
+    def receive_message(self, msg, priority=5):
         """Set the message from the outbound publisher."""
         self.msg = msg
 

@@ -4,15 +4,13 @@ Any device that is triggered will be identified.
 """
 import asyncio
 
-from pyinsteon import async_connect, devices, async_close
-from . import _LOGGER, set_log_levels, PATH
+from pyinsteon import async_connect, async_close, devices
+from samples import _LOGGER, set_log_levels, PATH, get_hub_config
 
 
 # DEVICE = '/dev/ttyS5'
 DEVICE = 'COM5'
-HOST = '192.168.1.136'
-USERNAME = 'username'
-PASSWORD = 'password'
+USERNAME, PASSWORD, HOST = get_hub_config()
 
 async def send_messages():
     """Send the messages to mimic triggering."""
@@ -27,14 +25,14 @@ async def send_messages():
 async def load_database():
     """Load the device databae."""
     await async_connect(device=DEVICE)
-    # modem = await async_connect(host=HOST,
-    #                             username=USERNAME,
-    #                             password=PASSWORD)
+    # await async_connect(host=HOST,
+    #                     username=USERNAME,
+    #                     password=PASSWORD)
 
     await devices.async_load(workdir=PATH, id_devices=0)
     _LOGGER.info('Trigger the device now...')
     # Uncomment the line below to mock a device sending a message.
-    # asyncio.ensure_future(send_messages())
+    asyncio.ensure_future(send_messages())
     await asyncio.sleep(10)
     for address in devices:
         device = devices[address]

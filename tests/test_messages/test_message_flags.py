@@ -1,14 +1,9 @@
-from binascii import unhexlify
-import logging
+"""Test message flags data type."""
 import unittest
-import sys
 
-from pyinsteon.constants import (MessageId, MESSAGE_ACK, MESSAGE_NAK,
-                                 MessageFlagType)
-from pyinsteon.protocol.messages.message_flags import MessageFlags, create, create_template
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
+from pyinsteon.constants import MessageFlagType
+from pyinsteon.protocol.messages.message_flags import MessageFlags, create
+from tests import _LOGGER, set_log_levels
 
 
 class TestMessageFlags(unittest.TestCase):
@@ -38,11 +33,7 @@ class TestMessageFlags(unittest.TestCase):
         self.assigned_hops.max_hops = 3
 
         self.create = create(MessageFlagType.ALL_LINK_CLEANUP, True, 3, 2)
-        self.template = create_template()
-
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
-        # _LOGGER.setLevel(logging.DEBUG)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_direct(self):
         assert self.direct.is_direct
@@ -95,21 +86,6 @@ class TestMessageFlags(unittest.TestCase):
 
     def test_created(self):
         assert str(self.create) == "{'message_type': 'all_link_cleanup', 'extended': True, 'hops_left': 3, 'max_hops': 2}"
-
-    def test_template_message_type(self):
-        assert self.template.message_type == None
-
-    def test_template_extended(self):
-        assert self.template.extended == None
-
-    def test_template_hops_left(self):
-        assert self.template.hops_left == None
-
-    def test_template_max_hops(self):
-        assert self.template.max_hops == None
-
-    def test_complex_template_eq(self):
-        assert self.complex == self.template
 
     def test_complex_direct_ne(self):
         assert self.complex != self.direct

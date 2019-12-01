@@ -1,15 +1,11 @@
 from binascii import unhexlify
-import logging
+from tests import _LOGGER, set_log_levels
 import unittest
 import sys
 
 from pyinsteon.constants import MessageId, DeviceCategory
 from pyinsteon.protocol.messages.outbound import set_host_dev_cat
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
-
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestSetHostDeviceCategory(unittest.TestCase, OutboundBase):
@@ -29,9 +25,7 @@ class TestSetHostDeviceCategory(unittest.TestCase, OutboundBase):
         super(TestSetHostDeviceCategory, self).base_setup(self.message_id,
                                                           unhexlify(self.hex),
                                                           **kwargs)
-
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_cat(self):
         assert self.msg.cat == self.cat

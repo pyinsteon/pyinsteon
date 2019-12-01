@@ -20,7 +20,8 @@ class TestTopicFromMsg(unittest.TestCase):
         self.bytes_data = bytearray(unhexlify(self.hex_data))
 
         (self.msg, _) = create(self.bytes_data)
-        (self.topic, self.kwargs) = convert_to_topic(self.msg)
+        for (self.topic, self.kwargs) in convert_to_topic(self.msg):
+            pass
 
     def test_topic(self):
         """The topic is correct."""

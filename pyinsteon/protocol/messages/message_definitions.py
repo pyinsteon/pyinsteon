@@ -38,7 +38,7 @@ FLD_X10_SEND_REC_ACK.append(MessageField('ack', 1, AckNak))
 # ALL-Linking Completed 0x53
 FLD_ALL_LINK_COMPLETE = [MessageField("mode", 1, AllLinkMode),
                          MessageField("group", 1, int),
-                         MessageField("address", 3, Address),
+                         MessageField("target", 3, Address),
                          MessageField("cat", 1, DeviceCategory),
                          MessageField("subcat", 1, int),
                          MessageField("firmware", 1, int)]
@@ -52,17 +52,18 @@ FLD_USER_RESET_REC = []
 # ALL-Link Cleanup Failure Report 0x56
 FLD_ALL_LINK_CLEANUP_FAILURE = [MessageField("error", 1, int),
                                 MessageField("group", 1, int),
-                                MessageField("address", 3, Address)]
+                                MessageField("target", 3, Address)]
 
 # ALL-Link Record Response 0x57
 FLD_ALL_LINK_RECORD_RESP = [MessageField("flags", 1, AllLinkRecordFlags),
                             MessageField("group", 1, int),
-                            MessageField("address", 3, Address),
+                            MessageField("target", 3, Address),
                             MessageField("data1", 1, int),
                             MessageField("data2", 1, int),
                             MessageField("data3", 1, int)]
 
 # All-Link Cleanup Status Report 0x58
+FLD_All_LINK_CLEANUP_REPORT = []
 FLD_All_LINK_CLEANUP_REPORT_ACK = [MessageField("ack", 1, AckNak)]
 
 # Get IM Info 0x60
@@ -146,7 +147,7 @@ FLD_LED_ON_OFF_ACK = [MessageField('ack', 1, AckNak)]
 FLD_MANAGE_ALL_LINK_RECORD = [MessageField('action', 1, ManageAllLinkRecordAction),
                               MessageField('flags', 1, AllLinkRecordFlags),
                               MessageField('group', 1, int),
-                              MessageField('address', 3, Address),
+                              MessageField('target', 3, Address),
                               MessageField("data1", 1, int),
                               MessageField("data2", 1, int),
                               MessageField("data3", 1, int)]
@@ -261,6 +262,9 @@ INBOUND_MSG_DEF[MessageId.GET_IM_CONFIGURATION] = MessageDefinition(
     FLD_GET_IM_CONFIG_ACK)
 
 OUTBOUND_MSG_DEF = {}
+OUTBOUND_MSG_DEF[MessageId.ALL_LINK_CLEANUP_STATUS_REPORT] = MessageDefinition(
+    MessageId.ALL_LINK_CLEANUP_STATUS_REPORT,
+    FLD_All_LINK_CLEANUP_REPORT)
 OUTBOUND_MSG_DEF[MessageId.GET_IM_INFO] = MessageDefinition(
     MessageId.GET_IM_INFO,
     FLD_GET_IM_INFO_SEND)

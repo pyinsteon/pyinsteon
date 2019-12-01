@@ -1,5 +1,5 @@
 from binascii import unhexlify
-import logging
+from tests import _LOGGER, set_log_levels
 import unittest
 import sys
 
@@ -7,10 +7,6 @@ from pyinsteon.constants import MessageId, AckNak
 from pyinsteon.protocol.messages.im_config_flags import IMConfigurationFlags
 from pyinsteon.protocol.messages.outbound import set_im_configuration
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
-
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestSetImConfiguration(unittest.TestCase, OutboundBase):
@@ -21,14 +17,15 @@ class TestSetImConfiguration(unittest.TestCase, OutboundBase):
         self.message_id = MessageId.SET_IM_CONFIGURATION
         self.flags = IMConfigurationFlags(0x30)
 
-        kwargs = {'flags': self.flags}
+        kwargs = {'disable_auto_linking': self.flags.is_auto_link,
+                  'monitor_mode': self.flags.is_monitor_mode,
+                  'auto_led': self.flags.is_auto_led,
+                  'deadman': self.flags.is_disable_deadman}
 
         super(TestSetImConfiguration, self).base_setup(self.message_id,
                                                        unhexlify(self.hex),
                                                        **kwargs)
-
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_flags(self):
         assert self.msg.flags == self.flags

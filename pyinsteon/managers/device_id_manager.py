@@ -8,13 +8,14 @@ from ..subscriber_base import SubscriberBase
 from ..address import Address
 from ..handlers.to_device.id_request import IdRequestCommand
 from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
+from ..handlers.from_device.delete_from_all_link_group import DeleteFromAllLinkGroupCommand
 
 _LOGGER = logging.getLogger(__name__)
 MAX_RETRIES = 5
 RETRY_PAUSE = 2
 
 
-DeviceId = namedtuple('DeviceId', 'address cat subcat firmware')
+DeviceId = namedtuple('DeviceId', 'address cat subcat firmware')  # product_id')
 
 
 class DeviceIdManager(SubscriberBase):
@@ -22,7 +23,7 @@ class DeviceIdManager(SubscriberBase):
 
     def __init__(self):
         """Init the DeviceIdManager class."""
-        super().__init__()
+        super().__init__(subscriber_topic='device_id')
         self._unknown_devices = []
         self._device_ids = {}
         self._awake_devices = []
@@ -32,9 +33,7 @@ class DeviceIdManager(SubscriberBase):
     def __getitem__(self, address):
         """Return the unknown device list."""
         address = Address(address)
-        device_id = self._device_ids.get(address)
-        if not device_id:
-            self.append(address)
+        return self._device_ids.get(address)
 
     def start(self):
         """Start the ID manager for unknown devices."""
@@ -59,6 +58,7 @@ class DeviceIdManager(SubscriberBase):
 
     def set_device_id(self, address: Address, cat: int, subcat: int, firmware: int = 0x00):
         """Set the device ID of a device."""
+        from .. import devices
         address = Address(address)
         cat = int(cat)
         subcat = int(subcat)
@@ -69,7 +69,9 @@ class DeviceIdManager(SubscriberBase):
             pass
         device_id = DeviceId(address, cat, subcat, firmware)
         self._device_ids[address] = device_id
-        self._call_subscribers(device_id=device_id)
+        device = devices[address]
+        if not device:
+            self._call_subscribers(device_id=device_id)
 
     async def async_id_devices(self, refresh: bool = False):
         """Identify the devices in the unknown device list."""
@@ -97,12 +99,16 @@ class DeviceIdManager(SubscriberBase):
         id_handler = IdRequestCommand(address)
         id_response_handler = AssignToAllLinkGroupCommand(address)
         id_response_handler.subscribe(self._id_response)
+        id_response_handler_alt = DeleteFromAllLinkGroupCommand(address)
+        id_response_handler_alt.subscribe(self._id_response)
         retries = 0
         while self._device_ids[address].cat is None and retries <= MAX_RETRIES:
+            # TODO check for success or failure
             await id_handler.async_send()
             retries += 1
             await asyncio.sleep(RETRY_PAUSE)
         id_response_handler.unsubscribe(self._id_response)
+        id_response_handler_alt.unsubscribe(self._id_response)
         if self._id_device_lock.locked():
             self._id_device_lock.release()
         return self._device_ids[address]
@@ -118,19 +124,34 @@ class DeviceIdManager(SubscriberBase):
         pub.unsubscribe(self._device_awake, address.id)
         self._call_subscribers(device_id=device_id)
 
+    def _set_device_info(self, address, cat=None, subcat=None, firmware=None, product_id=None):
+        """Set the device ID info."""
+        device_id = self._device_ids.get(address)
+        if device_id is None:
+            new_id = DeviceId(address, cat, subcat, firmware)
+        else:
+            new_id = DeviceId(address,
+                              cat if cat else device_id.cat,
+                              subcat if subcat else device_id.subcat,
+                              firmware if firmware else device_id.firmware)  # ,
+                              # product_id if product_id else device_id.product_id)
+        self._device_ids[address] = new_id
+
     async def _id_awake_devices(self):
         """Loop on devices that wake up and send a message."""
         while True:
             address = await self._awake_devices_queue.get()
             if address is None:
                 break
+            await asyncio.sleep(.5)
             await self.async_id_device(address=address)
             await asyncio.sleep(2)
             self._check_awake_device(address)
 
     def _check_awake_device(self, address):
         """Check if an awake device has been identified."""
-        if not self._device_ids.get(address):
+        dev_id = self._device_ids.get(address)
+        if dev_id is None or dev_id.cat is None:
             pub.subscribe(self._device_awake, address.id)
         try:
             self._awake_devices.remove(address)

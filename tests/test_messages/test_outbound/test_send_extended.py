@@ -1,24 +1,18 @@
-from binascii import unhexlify
-import logging
-import unittest
-import sys
+"""Test sending extended message."""
 
-from pyinsteon.protocol.messages.outbound import send_extended
+import unittest
+
+from binascii import unhexlify
+from tests import set_log_levels
+from tests.test_messages.test_outbound.outbound_base import OutboundBase
+
 from pyinsteon.address import Address
 from pyinsteon.protocol.messages.message_flags import MessageFlags
 from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.user_data import UserData
+#pylint: disable=unused-import
+from pyinsteon.protocol.messages.outbound import send_extended
 
-try:
-    from .outbound_base import OutboundBase
-except ImportError:
-    import outbound_base
-    OutboundBase = outbound_base.OutboundBase
-
-
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestSendExtended(unittest.TestCase, OutboundBase):
@@ -40,10 +34,7 @@ class TestSendExtended(unittest.TestCase, OutboundBase):
 
         super(TestSendExtended, self).base_setup(MessageId.SEND_EXTENDED,
                                                  unhexlify(self.hex), **kwargs)
-
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
-        # _LOGGER.setLevel(logging.DEBUG)
+        set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info', logger_topics=True)
 
     def test_address(self):
         assert self.msg.address == self.address

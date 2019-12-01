@@ -1,52 +1,27 @@
 """ALDB Records."""
 
 from ..address import Address
-from .control_flags import ControlFlags, create_from_byte
-from ..protocol.messages.all_link_record_flags import AllLinkRecordFlags
-from ..protocol.messages.user_data import UserData
 
-
-def create_from_userdata(userdata: UserData):
-    """Create ALDB Record from the userdata dictionary."""
-    memhi = userdata.get('d3')
-    memlo = userdata.get('d4')
-    memory = memhi << 8 | memlo
-    control_flags = userdata.get('d6')
-    group = userdata.get('d7')
-    addrhi = userdata.get('d8')
-    addrmed = userdata.get('d9')
-    addrlo = userdata.get('d10')
-    addr = Address(bytearray([addrhi, addrmed, addrlo]))
-    data1 = userdata.get('d11')
-    data2 = userdata.get('d12')
-    data3 = userdata.get('d13')
-    return ALDBRecord(memory, control_flags, group, addr,
-                      data1, data2, data3)
 
 class ALDBRecord():
     """Represents an ALDB record."""
 
-    def __init__(self, memory: int, control_flags: ControlFlags, group: int,
-                 address: Address, data1: int, data2: int, data3: int):
+    def __init__(self, memory: int, controller: bool, group: int, target: Address,
+                 data1: int, data2: int, data3: int,
+                 in_use: bool = True, high_water_mark: bool = False,
+                 bit5: bool = False, bit4: bool = False):
         """Initialze the ALDBRecord class."""
         self._memoryLocation = memory
-        self._address = Address(address)
+        self._target = Address(target)
         self._group = group
         self._data1 = data1
         self._data2 = data2
         self._data3 = data3
-        if isinstance(control_flags, ControlFlags):
-            self._control_flags = control_flags
-        elif isinstance(control_flags, AllLinkRecordFlags):
-            from ..constants import AllLinkMode
-            is_controller = control_flags.mode == AllLinkMode.CONTROLLER
-            self._control_flags = ControlFlags(control_flags.is_in_use,
-                                               is_controller,
-                                               control_flags.used_before,
-                                               control_flags.is_bit_5_set,
-                                               control_flags.is_bit_4_set)
-        else:
-            self._control_flags = create_from_byte(control_flags)
+        self._controller = controller
+        self._in_use = in_use
+        self._high_water_mark = high_water_mark
+        self._bit5 = bit5
+        self._bit4 = bit4
 
     def __str__(self):
         """Return the string representation of an ALDB record."""
@@ -71,16 +46,21 @@ class ALDBRecord():
 
     def __dict___(self):
         """Return a dictionary object of the ALDB Record."""
+        control_flags = int(self._in_use) << 7 \
+            | int(self._controller) << 6 \
+            | int(self._bit5) << 5 \
+            | int(self._bit4) << 4 \
+            | int(not self._high_water_mark) << 1
         return {'d1': 0x00,
                 'd2': 0x00,
                 'd3': self.memhi,
                 'd4': self.memlo,
                 'd5': 0x00,
-                'd6': self.control_flags,
+                'd6': control_flags,
                 'd7': self.group,
-                'd8': bytes(self.address)[2],
-                'd9': bytes(self.address)[1],
-                'd10': bytes(self.address)[0],
+                'd8': self.target.low,
+                'd9': self.target.middle,
+                'd10': self.target.high,
                 'd11': self.data1,
                 'd12': self.data2,
                 'd13': self.data3,
@@ -112,19 +92,14 @@ class ALDBRecord():
         return self._memoryLocation & 0xff
 
     @property
-    def address(self):
+    def target(self):
         """Return the address of the device the record points to."""
-        return self._address
+        return self._target
 
     @property
     def group(self):
         """Return the group the record responds to."""
         return self._group
-
-    @property
-    def control_flags(self):
-        """Return the record control flags."""
-        return self._control_flags
 
     @property
     def data1(self):
@@ -141,17 +116,49 @@ class ALDBRecord():
         """Return the data3 field of the ALDB record."""
         return self._data3
 
+    @property
+    def is_controller(self):
+        """Return if the record is a controller record."""
+        return self._controller
+
+    @property
+    def is_responder(self):
+        """Return if the record is a responder."""
+        return not self._controller
+
+    @property
+    def is_in_use(self):
+        """Return if the record is in use."""
+        return self._in_use
+
+    @property
+    def is_high_water_mark(self):
+        """Return if this is the high water mark record."""
+        return self._high_water_mark
+
+    @property
+    def is_bit5_set(self):
+        """Return if control flag bit 5 is set."""
+        return self._bit5
+
+    @property
+    def is_bit4_set(self):
+        """Return if control flag bit 4 is set."""
+        return self._bit4
+
     def _record_properties(self):
-        if self._control_flags.is_controller:
+        if self._controller:
             mode = 'C'
         else:
             mode = 'R'
         rec = [{'memory': self._memoryLocation},
-               {'inuse': self._control_flags.is_in_use},
+               {'inuse': self._in_use},
                {'mode': mode},
-               {'highwater': self._control_flags.is_high_water_mark},
+               {'bit5': self._bit5},
+               {'bit4': self._bit4},
+               {'highwater': self._high_water_mark},
                {'group': self.group},
-               {'address': self.address},
+               {'target': self.target},
                {'data1': self.data1},
                {'data2': self.data2},
                {'data3': self.data3}]

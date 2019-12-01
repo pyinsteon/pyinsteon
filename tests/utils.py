@@ -2,6 +2,7 @@
 import asyncio
 from binascii import unhexlify
 from collections import namedtuple
+from functools import wraps
 
 from pyinsteon import pub
 from pyinsteon.protocol.messages.inbound import create
@@ -36,6 +37,7 @@ def check_fields_match(msg1, msg2):
 
 def async_case(f):
     """Wrap a test cast around a wrapper to execute the test."""
+    @wraps(f)
     def wrapper(*args, **kwargs):
         coro = asyncio.coroutine(f)
         future = coro(*args, **kwargs)
@@ -54,21 +56,80 @@ def send_topics(topic_items):
             pub.sendMessage(item.topic, **item.kwargs)
     asyncio.ensure_future(async_send_topics(topic_items))
 
-def cmd_kwargs(cmd2, user_data, target=None):
-    """Return a kwargs dict for a standard messsage command."""
-    if target:
-        return {'cmd2': cmd2,
-                'target': target,
-                'user_data': user_data}
-    return {'cmd2': cmd2,
-            'user_data': user_data}
 
-def make_command_response_messages(address, topic, cmd2, target='000000', user_data=None):
+DataItem = namedtuple('DataItem', 'data, delay')
+
+
+def send_data(data_items, queue):
+    """Send data to a mock connection."""
+    async def async_send_data(data_items, queue):
+        for item in data_items:
+            await asyncio.sleep(item.delay)
+            _LOGGER_MESSAGES.debug('RX: %s', item.data.hex())
+            await queue.put(item.data)
+    asyncio.ensure_future(async_send_data(data_items, queue))
+
+
+def create_std_ext_msg(address, flags, cmd1, cmd2, user_data=None, target=None, ack=0):
+    """"Create a standard or extended message."""
+    from pyinsteon.address import Address
+    from pyinsteon.protocol.messages.user_data import UserData
+    address = Address(address)
+    data = bytearray()
+    data.append(0x02)
+    if target:
+        target = Address(target)
+        msg_type = 0x51 if user_data else 0x50
+    else:
+        msg_type = 0x62
+    data.append(msg_type)
+    data.append(address.high)
+    data.append(address.middle)
+    data.append(address.low)
+    if target:
+        data.append(target.high)
+        data.append(target.middle)
+        data.append(target.low)
+    data.append(flags)
+    data.append(cmd1)
+    data.append(cmd2)
+    if user_data:
+        user_data = UserData(user_data)
+        for byte in user_data:
+            data.append(user_data[byte])
+    if ack:
+        data.append(ack)
+    return bytes(data)
+
+
+def cmd_kwargs(cmd1, cmd2, user_data, target=None, address=None):
+    """Return a kwargs dict for a standard messsage command."""
+    from pyinsteon.address import Address
+    kwargs = {'cmd1': cmd1,
+              'cmd2': cmd2,
+              'user_data': user_data}
+    if target:
+        kwargs['target'] = Address(target)
+    if address:
+        kwargs['address'] = Address(address)
+    return kwargs
+
+
+def make_command_response_messages(address, topic, cmd1, cmd2, target='000000', user_data=None):
     """Return a colleciton of ACK and Direct ACK responses to commands."""
     from pyinsteon.address import Address
 
     address = Address(address)
     ack = 'ack.{}.{}'.format(address.id, topic)
     direct_ack = '{}.{}.direct_ack'.format(address.id, topic)
-    return [TopicItem(ack, cmd_kwargs(cmd2, user_data), .25),
-            TopicItem(direct_ack, cmd_kwargs(cmd2, user_data, target), .25)]
+    return [TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), .25),
+            TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), .25)]
+
+
+def get_class_or_method(main_module, name):
+    """Return the class or method from a string."""
+    components = name.split('.')
+    mod = main_module
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod

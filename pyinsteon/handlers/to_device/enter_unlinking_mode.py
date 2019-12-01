@@ -1,7 +1,7 @@
 """Get Device Info command handler."""
 from .direct_command import DirectCommandHandlerBase
-from ..address import Address
-from ..topics import ENTER_UNLINKING_MODE
+from ...address import Address
+from ...topics import ENTER_UNLINKING_MODE
 
 
 class EnterUnlinkingModeCommand(DirectCommandHandlerBase):
@@ -14,5 +14,4 @@ class EnterUnlinkingModeCommand(DirectCommandHandlerBase):
     #pylint: disable=arguments-differ
     async def async_send(self, group: int = 0):
         """Send the ENTER_UNLINKING_MODE request asyncronously."""
-        return await super().async_send(address=self._address, group=group)
-        
+        return await super().async_send(group=group)

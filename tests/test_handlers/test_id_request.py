@@ -1,6 +1,6 @@
 """Test the on_level command handler."""
 import asyncio
-import logging
+from tests import _LOGGER, set_log_levels
 import sys
 import unittest
 
@@ -29,10 +29,7 @@ class TestIdRequest(unittest.TestCase):
         self.direct_ack_topic = '{}.id_request.direct_ack'.format(self._address)
         self.direct_nak_topic = '{}.id_request.direct_nak'.format(self._address)
         self.id_response_topic = '{}.{}.broadcast'.format(self._address, ASSIGN_TO_ALL_LINK_GROUP)
-
-        # _LOGGER.setLevel(logging.DEBUG)
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def set_id(self, address, cat, subcat, firmware, group, mode):
         """Callback to on_level direct_ack."""
@@ -43,13 +40,15 @@ class TestIdRequest(unittest.TestCase):
     @async_case
     async def test_id_request(self):
         """Test the ON command."""
+        cmd1 = 0x99
         cmd2 = 0xaa
         topics = [TopicItem(self.ack_topic,
-                            {"cmd2": cmd2, "target": None, "user_data": None}, .5),
+                            {"cmd1": cmd1, "cmd2": cmd2, "target": None, "user_data": None}, .5),
                   TopicItem(self.direct_ack_topic,
-                            {"cmd2": cmd2, "target": None, "user_data": None}, .5),
+                            {"cmd1": cmd1, "cmd2": cmd2, "target": None, "user_data": None}, .5),
                   TopicItem(self.id_response_topic,
-                            {'cmd2': cmd2, 'target': Address('010203'), 'user_data': None}, .5)]
+                            {'cmd1': cmd1, 'cmd2': cmd2, 'target': Address('010203'),
+                             'user_data': None}, .5)]
         send_topics(topics)
         assert await self.id_handler.async_send()
         await asyncio.sleep(1)
@@ -60,13 +59,15 @@ class TestIdRequest(unittest.TestCase):
     @async_case
     async def test_id_request_nak(self):
         """Test the ON command."""
+        cmd1 = 0x99
         cmd2 = 0xaa
         topics = [TopicItem(self.ack_topic,
-                            {"cmd2": cmd2, "target": None, "user_data": None}, .5),
+                            {'cmd1': cmd1, "cmd2": cmd2, "target": None, "user_data": None}, .5),
                   TopicItem(self.direct_nak_topic,
-                            {"cmd2": cmd2, "target": None, "user_data": None}, .5)]
+                            {'cmd1': cmd1, "cmd2": cmd2, "target": None, "user_data": None}, .5)]
         send_topics(topics)
-        assert await self.id_handler.async_send() == ResponseStatus.UNCLEAR
+        result = await self.id_handler.async_send()
+        assert result == ResponseStatus.UNCLEAR
 
 if __name__ == '__main__':
     unittest.main()

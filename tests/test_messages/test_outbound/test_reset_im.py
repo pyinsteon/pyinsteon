@@ -1,5 +1,5 @@
 from binascii import unhexlify
-import logging
+from tests import _LOGGER, set_log_levels
 import unittest
 import sys
 
@@ -8,19 +8,13 @@ from pyinsteon.protocol.messages.outbound import reset_im
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
-
-
 class TestResetIm(unittest.TestCase, OutboundBase):
 
     def setUp(self):
         self.hex = '0267'
         super(TestResetIm, self).base_setup(MessageId.RESET_IM,
                                             unhexlify(self.hex))
-
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
 
 if __name__ == '__main__':

@@ -1,163 +1,135 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
-from . import Device
-from ..handlers.to_device.on_level import OnLevelCommand
-from ..handlers.from_device.on_level import OnLevelInbound
-from ..handlers.to_device.off import OffCommand
-from ..handlers.from_device.off import OffInbound
-from ..handlers.to_device.on_fast import OnFastCommand
-from ..handlers.from_device.on_fast import OnFastInbound
-from ..handlers.to_device.off_fast import OffFastCommand
-from ..handlers.from_device.off_fast import OffFastInbound
-from ..handlers.to_device.status_request import (StatusRequestCommand,
-                                                 StatusRequest3Command)
-from ..states import DIMMABLE_LIGHT_STATE, DIMMABLE_FAN_STATE
-from ..states.on_level import OnLevel
-from ..events import (Event, ON_EVENT, ON_FAST_EVENT, OFF_EVENT, OFF_FAST_EVENT)  # ,
-#                      FAN_ON_EVENT, FAN_ON_FAST_EVENT, FAN_OFF_EVENT,
-#                      FAN_OFF_FAST_EVENT)
 from ..constants import FanSpeed
+from ..handlers.to_device.set_leds import SetLedsCommandHandler
+from ..handlers.to_device.status_request import StatusRequestCommand
+from ..handlers.to_device.trigger_scene import TriggerSceneCommandHandler
+from ..states import (DIMMABLE_FAN_STATE, DIMMABLE_LIGHT_STATE,
+                      ON_OFF_SWITCH_STATE)
+from ..states.on_off import OnOff
+from .commands import (OFF_COMMAND, OFF_FAST_COMMAND, ON_COMMAND,
+                       ON_FAST_COMMAND, SET_LEDS_COMMAND, STATUS_COMMAND_FAN,
+                       TRIGGER_SCENE_COMMAND)
+from .variable_responder_base import VariableResponderBase
 
 
-ON_COMMAND = 'on_command'
-ON_INBOUND = 'on_inbound'
-OFF_COMMAND = 'off_command'
-OFF_INBOUND = 'off_inbound'
-ON_FAST_COMMAND = 'on_fast_command'
-ON_FAST_INBOUND = 'on_fast_inbound'
-OFF_FAST_COMMAND = 'off_fast_command'
-OFF_FAST_INBOUND = 'off_fast_inbound'
-STATUS_COMMAND = 'status_command'
-STATUS_3_COMMAND = 'status_3_command'
-
-
-class DimmableLightingControl(Device):
+class DimmableLightingControl(VariableResponderBase):
     """Dimmable Lighting Control Device."""
 
-    def on(self, on_level=0xff, fast=False):
-        """Turn on the device.
 
-        Parameters:
-            on_level: Default 0xff (full on). Set the device on level.
-            fast: Default False. If True, bypass device ramp rate otherwise
-            turn on at the ramp rate.
-        """
-        command = ON_FAST_COMMAND if fast else ON_COMMAND
-        self._handlers[command].send(on_level=on_level, group=0)
+class DimmableLightingControl_LampLinc(DimmableLightingControl):
+    """LampLinc based dimmable lights."""
 
-    async def async_on(self, on_level=0xff, fast=False):
-        """Turn on the device.
+    def _register_operating_flags(self):
+        from ..operating_flag import (PROGRAM_LOCK_ON, LED_BLINK_ON_TX_ON, RESUME_DIM_ON,
+                                      LED_ON, LOAD_SENSE_ON)
+        from ..extended_property import (LED_DIMMING, ON_LEVEL, X10_HOUSE, X10_UNIT, RAMP_RATE)
 
-        Parameters:
-            on_level: Default 0xff (full on). Set the device on level.
-            fast: Default False. If True, bypass device ramp rate otherwise
-            turn on at the ramp rate.
+        super()._register_operating_flags()
+        self._remove_operating_flag('bit0', 0)  # 01
+        self._remove_operating_flag('bit1', 0)  # 02
+        self._remove_operating_flag('bit2', 0)  # 04
+        self._remove_operating_flag('bit4', 0)  # 10
+        self._remove_operating_flag('bit5', 0)  # 20
+        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
+        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
+        self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9)
+        self._add_operating_flag(LOAD_SENSE_ON, 0, 5, 0x0a, 0x0b)
 
-        Returns a ResponseStatus value
-            FAILURE: Device did not acknowledge the message
-            SUCCESS: Device acknowledged the message
-            UNCLEAR: Device received the message but did not confirm the action
-        """
-        command = ON_FAST_COMMAND if fast else ON_COMMAND
-        return await self._handlers[command].async_send(on_level=on_level, group=0)
-
-    def off(self, fast=False):
-        """Turn off the device.
-
-        Parameters:
-            fast: Default False. If True, bypass device ramp rate otherwise
-            turn on at the ramp rate.
-        """
-        command = OFF_FAST_COMMAND if fast else OFF_COMMAND
-        self._handlers[command].send()
-
-    async def async_off(self, fast=False):
-        """Turn off the device.
-
-        Parameters:
-            fast: Default False. If True, bypass device ramp rate otherwise
-            turn on at the ramp rate.
-
-        Returns a ResponseStatus value
-            FAILURE: Device did not acknowledge the message
-            SUCCESS: Device acknowledged the message
-            UNCLEAR: Device received the message but did not confirm the action
-        """
-        command = OFF_FAST_COMMAND if fast else OFF_COMMAND
-        return await self._handlers[command].async_send()
-
-    def status(self):
-        """Request the status of the device."""
-        self._handlers[STATUS_COMMAND].send()
-
-    async def async_status(self):
-        """Request the status of the device.
-
-        Returns a ResponseStatus value
-            FAILURE: Device did not acknowledge the message
-            SUCCESS: Device acknowledged the message
-            UNCLEAR: Device received the message but did not confirm the action
-        """
-        await self._handlers[STATUS_COMMAND].async_send()
-
-    def _register_default_links(self):
-        pass
-
-    def _register_handlers(self):
-        self._handlers[ON_COMMAND] = OnLevelCommand(self._address)
-        self._handlers[ON_INBOUND] = OnLevelInbound(self._address)
-        self._handlers[OFF_COMMAND] = OffCommand(self._address)
-        self._handlers[OFF_INBOUND] = OffInbound(self._address)
-
-        self._handlers[ON_FAST_COMMAND] = OnFastCommand(self._address)
-        self._handlers[ON_FAST_INBOUND] = OnFastInbound(self._address)
-        self._handlers[OFF_FAST_COMMAND] = OffFastCommand(self._address)
-        self._handlers[OFF_FAST_INBOUND] = OffFastInbound(self._address)
-
-        self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address)
-
-    def _register_states(self):
-        self._states[DIMMABLE_LIGHT_STATE] = OnLevel(
-            name=DIMMABLE_LIGHT_STATE,
-            address=self._address,
-            handlers=[self._handlers[ON_COMMAND],
-                      self._handlers[ON_INBOUND],
-                      self._handlers[OFF_COMMAND],
-                      self._handlers[OFF_INBOUND],
-                      self._handlers[ON_FAST_COMMAND],
-                      self._handlers[ON_FAST_INBOUND],
-                      self._handlers[OFF_FAST_COMMAND],
-                      self._handlers[OFF_FAST_INBOUND]],
-            group=0)
-        self._handlers[STATUS_COMMAND].subscribe(self._set_status)
-
-    def _register_events(self):
-        self._events[ON_EVENT] = Event(name=ON_EVENT,
-                                       address=self._address,
-                                       handlers=[self._handlers[ON_COMMAND],
-                                                 self._handlers[ON_INBOUND]])
-        self._events[OFF_EVENT] = Event(name=OFF_EVENT,
-                                        address=self._address,
-                                        handlers=[self._handlers[OFF_COMMAND],
-                                                  self._handlers[OFF_INBOUND]])
-        self._events[ON_FAST_EVENT] = Event(name=ON_FAST_EVENT,
-                                            address=self._address,
-                                            handlers=[self._handlers[ON_FAST_COMMAND],
-                                                      self._handlers[ON_FAST_INBOUND]])
-        self._events[OFF_FAST_EVENT] = Event(name=OFF_FAST_EVENT,
-                                             address=self._address,
-                                             handlers=[self._handlers[OFF_FAST_COMMAND],
-                                                       self._handlers[OFF_FAST_INBOUND]])
-
-    def _set_status(self, status):
-        """Set the status of the dimmable_switch state."""
-        self._states[DIMMABLE_LIGHT_STATE].value = status
+        self._add_property(LED_DIMMING, 3, 3)
+        self._add_property(X10_HOUSE, 5, None)
+        self._add_property(X10_UNIT, 6, None)
+        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(ON_LEVEL, 8, 6)
 
 
-class DimmableLightingControl_2475F(DimmableLightingControl):
+class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
+    """SwichLinc based dimmable lights."""
+
+    def _register_operating_flags(self):
+        from ..operating_flag import (PROGRAM_LOCK_ON, LED_BLINK_ON_TX_ON, RESUME_DIM_ON,
+                                      LED_ON, KEY_BEEP_ON, LED_BLINK_ON_ERROR_ON)
+        from ..extended_property import (LED_DIMMING, ON_LEVEL, X10_HOUSE, X10_UNIT,
+                                         RAMP_RATE)
+        super()._register_operating_flags()
+        self._remove_operating_flag('bit0', 0)  # 01
+        self._remove_operating_flag('bit1', 0)  # 02
+        self._remove_operating_flag('bit2', 0)  # 04
+        self._remove_operating_flag('bit4', 0)  # 10
+        self._remove_operating_flag('bit5', 0)  # 20
+        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
+        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
+        self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9)
+        self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0a, 0x0b)
+        self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
+
+        self._add_property(LED_DIMMING, 3, 3)
+        self._add_property(X10_HOUSE, 5, None)
+        self._add_property(X10_UNIT, 6, None)
+        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(ON_LEVEL, 8, 6)
+
+
+class DimmableLightingControl_InLineLinc(DimmableLightingControl_SwitchLinc):
+    """InLineLinc based dimmable lights."""
+
+
+class DimmableLightingControl_OutletLinc(DimmableLightingControl):
+    """OutletLinc based dimmable lights."""
+
+    def _register_operating_flags(self):
+        from ..operating_flag import (PROGRAM_LOCK_ON, LED_BLINK_ON_TX_ON, LED_ON)
+        from ..extended_property import (X10_HOUSE, X10_UNIT)
+
+        super()._register_operating_flags()
+        self._remove_operating_flag('bit0', 0)  # 01
+        self._remove_operating_flag('bit1', 0)  # 02
+        self._remove_operating_flag('bit4', 0)  # 10
+        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
+        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9)
+
+        self._add_property(X10_HOUSE, 5, None)
+        self._add_property(X10_UNIT, 6, None)
+
+
+class DimmableLightingControl_DinRail(DimmableLightingControl):
+    """DINRail based dimmable lights."""
+
+    def _register_operating_flags(self):
+        from ..operating_flag import (PROGRAM_LOCK_ON, LED_BLINK_ON_TX_ON, LED_ON, KEY_BEEP_ON)
+        from ..extended_property import (LED_DIMMING, ON_LEVEL, X10_HOUSE, X10_UNIT,
+                                         RAMP_RATE)
+
+        super()._register_operating_flags()
+        self._remove_operating_flag('bit0', 0)  # 01
+        self._remove_operating_flag('bit1', 0)  # 02
+        self._remove_operating_flag('bit4', 0)  # 10
+        self._remove_operating_flag('bit5', 0)  # 20
+        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
+        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9)
+        self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0a, 0x0b)
+
+        self._add_property(LED_DIMMING, 3, 3)
+        self._add_property(X10_HOUSE, 5, None)
+        self._add_property(X10_UNIT, 6, None)
+        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(ON_LEVEL, 8, 6)
+
+
+class DimmableLightingControl_FanLinc(DimmableLightingControl):
     """FanLinc model 2475F Dimmable Lighting Control.
 
     Device Class 0x01 subcat 0x2e
     """
+    def __init__(self, address, cat, subcat, firmware=0, description='', model=''):
+        buttons = [1, 2]
+        self._button_names = [DIMMABLE_LIGHT_STATE, DIMMABLE_FAN_STATE]
+        super().__init__(address, cat, subcat, firmware=firmware, description=description,
+                         model=model, buttons=buttons)
+
     def fan_on(self, on_level: FanSpeed = FanSpeed.HIGH, fast=False):
         """Turn on the fan.
 
@@ -167,8 +139,10 @@ class DimmableLightingControl_2475F(DimmableLightingControl):
             turn on at the ramp rate.
         """
         command = ON_FAST_COMMAND if fast else ON_COMMAND
+        command_group = '{}_2'.format(command)
+        fan_speed = int(on_level)
         # The send command converts to int
-        self._handlers[command].send(on_level=on_level, group=2)
+        self._handlers[command_group].send(on_level=fan_speed)
 
     async def async_fan_on(self, on_level: FanSpeed = FanSpeed.HIGH, fast=False):
         """Turn on the device.
@@ -184,8 +158,10 @@ class DimmableLightingControl_2475F(DimmableLightingControl):
             UNCLEAR: Device received the message but did not confirm the action
         """
         command = ON_FAST_COMMAND if fast else ON_COMMAND
+        command_group = '{}_2'.format(command)
+        fan_speed = int(on_level)
         # The send command converts to int
-        return await self._handlers[command].async_send(on_level=on_level, group=2)
+        return await self._handlers[command_group].async_send(on_level=fan_speed)
 
     def fan_off(self, fast=False):
         """Turn off the device.
@@ -195,7 +171,8 @@ class DimmableLightingControl_2475F(DimmableLightingControl):
             turn on at the ramp rate.
         """
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
-        self._handlers[command].send(group=2)
+        command_group = '{}_2'.format(command)
+        self._handlers[command_group].send()
 
     async def async_fan_off(self, fast=False):
         """Turn off the device.
@@ -210,7 +187,8 @@ class DimmableLightingControl_2475F(DimmableLightingControl):
             UNCLEAR: Device received the message but did not confirm the action
         """
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
-        return await self._handlers[command].async_send(group=2)
+        command_group = '{}_2'.format(command)
+        return await self._handlers[command_group].async_send(group=2)
 
     def status(self):
         """Request the status of the light and the fan."""
@@ -238,7 +216,7 @@ class DimmableLightingControl_2475F(DimmableLightingControl):
 
     def fan_status(self):
         """Request the status of the fan."""
-        self._handlers[STATUS_3_COMMAND].send()
+        self._handlers[STATUS_COMMAND_FAN].send()
 
     async def async_fan_status(self):
         """Request the status of the fan.
@@ -248,39 +226,135 @@ class DimmableLightingControl_2475F(DimmableLightingControl):
             SUCCESS: Device acknowledged the message
             UNCLEAR: Device received the message but did not confirm the action
         """
-        await self._handlers[STATUS_3_COMMAND].async_send()
+        return await self._handlers[STATUS_COMMAND_FAN].async_send()
+
+    def _register_handlers_and_managers(self):
+        super()._register_handlers_and_managers()
+        self._handlers[STATUS_COMMAND_FAN] = StatusRequestCommand(self._address, 3)
+
+    def _subscribe_to_handelers_and_managers(self):
+        super()._subscribe_to_handelers_and_managers()
+        self._handlers[STATUS_COMMAND_FAN].subscribe(self._handle_fan_status)
 
     #pylint: disable=useless-super-delegation
     def _register_default_links(self):
         """Register default links."""
         super()._register_default_links()
 
-    def _register_handlers(self):
-        super()._register_handlers()
-        self._handlers[STATUS_3_COMMAND] = StatusRequest3Command(self._address)
+    def _register_operating_flags(self):
+        from ..operating_flag import (
+            PROGRAM_LOCK_ON, LED_BLINK_ON_TX_ON, RESUME_DIM_ON, LED_OFF,
+            KEY_BEEP_ON, RF_DISABLE_ON, POWERLINE_DISABLE_ON, DATABASE_DELTA, CRC_ERROR_COUNT,
+            SIGNAL_TO_NOISE_FAILURE_COUNT, X10_OFF, LED_BLINK_ON_ERROR_ON, CLEANUP_REPORT_ON)
+        from ..extended_property import ON_LEVEL, X10_HOUSE, X10_UNIT, RAMP_RATE
+
+        super()._register_operating_flags()
+        self._remove_operating_flag('bit0', 0)  # 01
+        self._remove_operating_flag('bit1', 0)  # 02
+        self._remove_operating_flag('bit4', 0)  # 10
+        self._remove_operating_flag('bit5', 0)  # 20
+        self._remove_operating_flag('bit6', 0)  # 40
+        self._remove_operating_flag('bit7', 0)  # 80
+
+        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
+        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
+        self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
+        self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
+        self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0a, 0x0b)
+        self._add_operating_flag(RF_DISABLE_ON, 0, 6, 0x0c, 0x0d)
+        self._add_operating_flag(POWERLINE_DISABLE_ON, 0, 7, 0x0e, 0x0f)
+
+        self._add_operating_flag(DATABASE_DELTA, 1, None, None, None)
+        self._add_operating_flag(CRC_ERROR_COUNT, 2, None, None, None)
+        self._add_operating_flag(SIGNAL_TO_NOISE_FAILURE_COUNT, 3, None, None, None)
+
+        self._add_operating_flag(X10_OFF, 5, 1, 0x12, 0x13)
+        self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
+        self._add_operating_flag(CLEANUP_REPORT_ON, 5, 3, 0x16, 0x17)
+
+        self._add_property(X10_HOUSE, 5, None)
+        self._add_property(X10_UNIT, 6, None)
+        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(ON_LEVEL, 8, 6)
+
+    def _handle_fan_status(self, db_version, status):
+        if int(status) == 0:
+            self._states[2].set_value(FanSpeed.OFF)
+        elif int(status) <= int(FanSpeed.LOW):
+            self._states[2].set_value(FanSpeed.LOW)
+        elif int(status) <= int(FanSpeed.MEDIUM):
+            self._states[2].set_value(FanSpeed.MEDIUM)
+        else:
+            self._states[2].set_value(FanSpeed.HIGH)
+
+
+# TODO setup operating flags for each KPL button
+# TODO trigger scenes
+class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
+    """KeypadLinc base class."""
+
+    def __init__(self, button_list, address, cat, subcat, firmware=0x00, description='', model=''):
+        """Init the GeneralController_MiniRemoteBase class."""
+        self._button_list = button_list
+        super().__init__(address, cat, subcat, firmware, description, model, buttons=[1])
+
+    async def async_on(self, on_level: int = 0xff, group: int = 0, fast: bool = False):
+        """Turn on the button LED. """
+        if group in [0, 1]:
+            return await super().async_on(on_level=on_level, group=group, fast=fast)
+        kwargs = self._change_led_status(led=group, on=True)
+        return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+
+    async def async_off(self, group: int = 0, fast: bool = False):
+        """Turn on the button LED. """
+        if group in [0, 1]:
+            return await super().async_off(group=group, fast=fast)
+        kwargs = self._change_led_status(led=group, on=False)
+        return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+
+    def _register_handlers_and_managers(self):
+        super()._register_handlers_and_managers()
+        self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
+        scene_group = '{}_{}'.format(TRIGGER_SCENE_COMMAND, 1)
+        self._handlers[scene_group] = TriggerSceneCommandHandler(self._address, 1)
+        for group in self._button_list:
+            scene_group = '{}_{}'.format(TRIGGER_SCENE_COMMAND, group)
+            self._handlers[scene_group] = TriggerSceneCommandHandler(self._address, group)
 
     def _register_states(self):
         super()._register_states()
-        self._states[DIMMABLE_FAN_STATE] = OnLevel(
-            name=DIMMABLE_FAN_STATE,
-            address=self._address,
-            handlers=[self._handlers[ON_COMMAND],
-                      self._handlers[ON_INBOUND],
-                      self._handlers[OFF_COMMAND],
-                      self._handlers[OFF_INBOUND],
-                      self._handlers[ON_FAST_COMMAND],
-                      self._handlers[ON_FAST_INBOUND],
-                      self._handlers[OFF_FAST_COMMAND],
-                      self._handlers[OFF_FAST_INBOUND]],
-            group=2)
-        self._handlers[STATUS_3_COMMAND].subscribe(self._set_fan_status)
+        for button in self._button_list:
+            name = '{}_{}'.format(ON_OFF_SWITCH_STATE, self._button_list[button])
+            self._states[button] = OnOff(name=name, address=self._address, group=button)
 
-    def _register_events(self):
-        super()._register_events()
+    def _subscribe_to_handelers_and_managers(self):
+        super()._subscribe_to_handelers_and_managers()
+        for button in self._button_list:
+            self._handlers[SET_LEDS_COMMAND].subscribe(self._states[button].set_value)
 
-    def _set_fan_status(self, status):
-        """Set the status of the dimmable_switch state."""
-        self._states[DIMMABLE_FAN_STATE].value = status
+    def _change_led_status(self, led, on):
+        leds = {}
+        for curr_led in range(1, 9):
+            var = 'group{}'.format(curr_led)
+            leds[var] = on if curr_led == led else bool(self._states.get(curr_led))
+        return leds
 
-#                                                         DimmableLightingControl_2334_222_6,
-#                                                         DimmableLightingControl_2334_222_8)
+
+class DimmableLightingControl_KeypadLinc_6(DimmableLightingControl_KeypadLinc):
+    """KeypadLinc 6 button dimmer."""
+
+    def __init__(self, address, cat, subcat, firmware=0x00, description='', model=''):
+        """Init the DimmableLightingControl_KeypadLinc_6 class."""
+        button_list = {3: 'A', 4: 'B', 5: 'C', 6: 'D'}
+        super().__init__(button_list=button_list, address=address, cat=cat, subcat=subcat,
+                         firmware=firmware, description=description, model=model)
+
+
+class DimmableLightingControl_KeypadLinc_8(DimmableLightingControl_KeypadLinc):
+    """KeypadLinc 8 button dimmer."""
+
+    def __init__(self, address, cat, subcat, firmware=0x00, description='', model=''):
+        """Init the DimmableLightingControl_KeypadLinc_6 class."""
+        button_list = {2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H'}
+        super().__init__(button_list=button_list, address=address, cat=cat, subcat=subcat,
+                         firmware=firmware, description=description, model=model)

@@ -8,6 +8,17 @@ from .. import pub
 _LOGGER = logging.getLogger(__name__)
 
 
+def topic_to_message_type(topic):
+    """Return MessageFlagType from the topic."""
+    from ..constants import MessageFlagType
+    subtopics = topic.name.split('.')
+    flag = 'direct' if len(subtopics) < 3 else subtopics[2]
+    for flag_type in MessageFlagType:
+        if flag.lower() == str(flag_type):
+            return flag_type
+    return MessageFlagType(0)
+
+
 def topic_to_message_handler(topic):
     """Decorator to register handler to topic."""
     def register(func):
@@ -60,9 +71,8 @@ async def async_connect_http(host, username, password, protocol, port=None):
     """Connect to the Hub Version 2 via HTTP."""
     from .http_transport import HttpTransport
     port = 25105 if not port else port
-    loop = asyncio.get_event_loop()
     transport = HttpTransport(protocol=protocol, host=host, port=port,
-                              username=username, password=password, loop=loop)
+                              username=username, password=password)
     if await transport.async_test_connection():
         protocol.connection_made(transport)
     return transport
@@ -87,17 +97,17 @@ async def async_modem_connect(device=None, host=None, port=None, username=None,
     """
     from .protocol import Protocol
     from ..handlers.get_im_info import GetImInfoHandler
-    address = '000000'
-    cat = 0x03
-    subcat = 0x00
-    firmware = 0x00
+    modem_address = '000000'
+    modem_cat = 0x03
+    modem_subcat = 0x00
+    modem_firmware = 0x00
 
-    def set_im_info(address_in, cat_in, subcat_in, firmware_in):
-        nonlocal address, cat, subcat, firmware
-        address = address_in
-        cat = cat_in
-        subcat = subcat_in
-        firmware = firmware_in
+    def set_im_info(address, cat, subcat, firmware):
+        nonlocal modem_address, modem_cat, modem_subcat, modem_firmware
+        modem_address = address
+        modem_cat = cat
+        modem_subcat = subcat
+        modem_firmware = firmware
 
     transport = None
     if not device and not host:
@@ -127,8 +137,11 @@ async def async_modem_connect(device=None, host=None, port=None, username=None,
 
     get_im_info = GetImInfoHandler()
     get_im_info.subscribe(set_im_info)
+    # TODO check for success or failure
     await get_im_info.async_send()
-    modem = Modem(protocol=protocol, transport=transport, address=address,
-                  cat=cat, subcat=subcat, firmware=firmware)
+    modem = Modem(address=modem_address, cat=modem_cat, subcat=modem_subcat,
+                  firmware=modem_firmware)
+    modem.protocol = protocol
+    modem.transport = transport
     # Pause to allow connection_made to be called:
     return modem

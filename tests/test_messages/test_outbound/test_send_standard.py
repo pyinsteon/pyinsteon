@@ -1,23 +1,15 @@
-from binascii import unhexlify
-import logging
+"""Test sending standard message."""
+
 import unittest
-import sys
+from binascii import unhexlify
 
-from pyinsteon.protocol.messages.outbound import send_standard
 from pyinsteon.address import Address
+from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.message_flags import MessageFlags
-from pyinsteon.constants import MessageId, MESSAGE_NAK
-
-try:
-    from .outbound_base import OutboundBase
-except ImportError:
-    import outbound_base
-    OutboundBase = outbound_base.OutboundBase
-
-
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
+#pylint: disable=unused-import
+from pyinsteon.protocol.messages.outbound import send_standard
+from tests import set_log_levels
+from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 class TestSendStandard(unittest.TestCase, OutboundBase):
@@ -37,10 +29,7 @@ class TestSendStandard(unittest.TestCase, OutboundBase):
 
         super(TestSendStandard, self).base_setup(MessageId.SEND_STANDARD,
                                                  unhexlify(self.hex), **kwargs)
-
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
-        # _LOGGER.setLevel(logging.DEBUG)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_address(self):
         assert self.msg.address == self.address

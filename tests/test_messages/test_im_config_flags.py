@@ -1,12 +1,9 @@
 from binascii import unhexlify
-import logging
+from tests import _LOGGER, set_log_levels
 import unittest
 import sys
 
 from pyinsteon.protocol.messages.im_config_flags import IMConfigurationFlags, create
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
-
 
 class TestIMConfigFlags(unittest.TestCase):
 
@@ -26,10 +23,7 @@ class TestIMConfigFlags(unittest.TestCase):
         self.monitor_mode_create = create(False, True, False, False)
         self.auto_led_create = create(False, False, True, False)
         self.disable_deadman_create = create(False, False, False, True)
-        
-        stream_handler = logging.StreamHandler(sys.stdout)
-        # _LOGGER.setLevel(logging.DEBUG)
-        _LOGGER.addHandler(stream_handler)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_all_on_create_bytes(self):
         assert bytes(self.all_on_create) == bytes([0xf0])
@@ -99,7 +93,7 @@ class TestIMConfigFlags(unittest.TestCase):
         assert not self.disable_deadman_create.is_auto_led
         assert self.disable_deadman_create.is_disable_deadman
 
-    
+
 
 
 if __name__ == '__main__':

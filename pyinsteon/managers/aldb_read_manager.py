@@ -15,6 +15,7 @@ _LOGGER = logging.getLogger(__name__)
 READ_ALL = 1
 READ_ONE = 2
 WRITE = 3
+CANCEL = 0
 
 class ALDBReadManager():
     """ALDB Read Manager."""
@@ -35,7 +36,7 @@ class ALDBReadManager():
         self._last_mem_addr = 0
         self._read_handler = ReadALDBCommandHandler(self._aldb.address)
         self._record_handler = ReceiveALDBRecordHandler(self._aldb.address)
-        self._read_handler.subscribe(self._receive_record)
+        self._read_handler.subscribe(self._receive_direct_ack)
         self._record_handler.subscribe(self._receive_record)
         self._timer_lock = asyncio.Lock()
 
@@ -63,16 +64,31 @@ class ALDBReadManager():
         else:
             retries = self._retries_one
         _LOGGER.debug('Attempting to read %x', mem_addr)
+        # TODO check for success or failure
         await self._read_handler.async_send(mem_addr=mem_addr, num_recs=num_recs)
         timer = TIMER + retries * TIMER_INCREMENT
         asyncio.ensure_future(self._timer(timer, mem_addr, num_recs))
 
-    def _receive_record(self, is_response: bool, record: ALDBRecord):
+    def _receive_direct_ack(self, ack_response):
+        """Receive the response from the direct ACK."""
+        IM_NOT_IN_DEVICE_ALDB = 0xff
+        CHECKSUM_ERROR = 0xfd
+        ILLEGAL_VALUE_IN_COMMAND = 0xfb
+        if ack_response in [IM_NOT_IN_DEVICE_ALDB,
+                            CHECKSUM_ERROR,
+                            ILLEGAL_VALUE_IN_COMMAND]:
+            _LOGGER.error('ALDB Load error: 0x%02x', ack_response)
+            self._last_command = CANCEL
+            self._records.put_nowait(None)
+
+    def _receive_record(self, memory, controller, group, target,
+                        data1, data2, data3, in_use,
+                        high_water_mark, bit5, bit4):
         """Receive an ALDB record."""
-        num_recs = len(self._aldb)
+        record = ALDBRecord(memory=memory, controller=controller, group=group, target=target,
+                            data1=data1, data2=data2, data3=data3, in_use=in_use,
+                            high_water_mark=high_water_mark, bit5=bit5, bit4=bit4)
         self._records.put_nowait(record)
-        if num_recs != len(self._aldb):
-            _LOGGER.info('Received %d records', len(self._aldb))
         asyncio.ensure_future(self._release_timer())
 
     async def _release_timer(self):
@@ -94,7 +110,7 @@ class ALDBReadManager():
             pass
         if self._last_command == READ_ALL:
             self._manage_get_all_cmd(mem_addr, num_recs)
-        else:
+        elif self._last_command == READ_ONE:
             self._manage_get_one_cmd(mem_addr, num_recs)
 
     def _manage_get_all_cmd(self, mem_addr, num_recs):
@@ -159,7 +175,7 @@ class ALDBReadManager():
             return self._aldb.first_mem_addr
         for mem_addr in self._aldb:
             rec = self._aldb[mem_addr]
-            if rec.control_flags.is_high_water_mark:
+            if rec.is_high_water_mark:
                 return None
             if last_addr != 0:
                 if not last_addr - 8 == mem_addr:

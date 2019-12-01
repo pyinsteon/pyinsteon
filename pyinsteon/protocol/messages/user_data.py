@@ -127,7 +127,7 @@ class UserData():
         byteout = bytearray()
         for i in range(1, 15):
             key = 'd' + str(i)
-            if self._user_data[key] is not None:
+            if self._user_data.get(key) is not None:
                 byteout.append(self._user_data[key])
             else:
                 byteout.append(0x00)

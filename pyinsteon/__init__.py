@@ -3,9 +3,10 @@
 from pubsub import pub
 from .protocol import async_modem_connect
 from .managers.device_manager import DeviceManager
-
+from .listener_exception_handler import ListenerExceptionHandler
 
 devices = DeviceManager()
+# pub.setListenerExcHandler(ListenerExceptionHandler())
 
 
 async def async_connect(device=None, host=None, port=None, username=None,
@@ -27,11 +28,14 @@ async def async_connect(device=None, host=None, port=None, username=None,
                                       hub_version=hub_version, **kwargs)
     devices.modem = modem
     devices.id_manager.start()
-    return modem
+    return devices
 
 async def async_close():
     """Close the connection and stop all tasks."""
     import asyncio
     await devices.modem.async_close()
+    for addr in devices:
+        if devices[addr].is_battery:
+            devices[addr].close()
     devices.id_manager.close()
     await asyncio.sleep(.1)

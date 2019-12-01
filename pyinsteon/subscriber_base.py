@@ -1,27 +1,23 @@
 """Base class for all subscribable classes."""
 from abc import ABC
 from typing import Callable
+from . import pub
 
 class SubscriberBase(ABC):
-    """Event class to manage triggering of events.
+    """Event class to manage triggering of events."""
 
-    TODO: Use weak references.
-    """
-
-    def __init__(self):
+    def __init__(self, subscriber_topic):
         """Init the Event class."""
-        self._subscribers = []
+        self._subscriber_topic = subscriber_topic
 
     def subscribe(self, callback: Callable):
         """Subscribe to the event."""
-        self._subscribers.append(callback)
+        pub.subscribe(callback, topicName=self._subscriber_topic)
 
     def unsubscribe(self, callback):
         """Unsubscribe to the event."""
-        if callback in self._subscribers:
-            self._subscribers.remove(callback)
+        pub.unsubscribe(callback, topicName=self._subscriber_topic)
 
     def _call_subscribers(self, **kwargs):
         """Call subscribers to the event."""
-        for subscriber in self._subscribers:
-            subscriber(**kwargs)
+        pub.sendMessage(topicName=self._subscriber_topic, **kwargs)

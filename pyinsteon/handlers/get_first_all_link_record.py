@@ -20,10 +20,8 @@ class GetFirstAllLinkRecordHandler(OutboundHandlerBase):
 
     @ack_handler()
     def handle_ack(self):
-        """Receive the ACK message and return True."""
-        _LOGGER.debug('Got ACK')
+        """Handle the ACK message and return True."""
 
     @nak_handler
-    def handle_nak(self):
+    def handle_nak(self, **kwargs):
         """Receive the NAK message and return False."""
-        _LOGGER.debug('Got NAK')

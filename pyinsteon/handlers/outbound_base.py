@@ -3,6 +3,7 @@ import asyncio
 from abc import ABCMeta
 from .. import pub
 from .inbound_base import InboundHandlerBase
+from . import ResponseStatus
 
 
 TIMEOUT = 60 * 3  # It should not take more than 3 minutes for a message send (I hope)
@@ -36,4 +37,9 @@ class OutboundHandlerBase(InboundHandlerBase):
             except asyncio.QueueEmpty:
                 pass
         pub.sendMessage('send.{}'.format(self._send_topic), **kwargs)
-        return await self._message_response.get()
+        try:
+            test = await asyncio.wait_for(
+                self._message_response.get(), TIMEOUT)
+            return test
+        except asyncio.TimeoutError:
+            return ResponseStatus.UNSENT

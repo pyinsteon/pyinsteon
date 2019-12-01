@@ -20,7 +20,7 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
         super().__init__('{}.{}'.format(self._address.id, command))
         # We override the _send_topic to ensrue the address does not go as
         # part of the topic. Address is a key word argument for Direct Commands
-        self._send_topic = command
+        self._send_topic = '{}.direct'.format(command)
 
     @property
     def response_lock(self) -> asyncio.Lock:
@@ -29,21 +29,17 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
 
     async def async_send(self, **kwargs):
         """Send the command and wait for a direct_nak."""
-        if self.response_lock.locked():
-            self.response_lock.release()
-        await self.response_lock.acquire()
-        response = await super().async_send(address=self._address, **kwargs)
-        self.response_lock.release()
-        return response
+        return await super().async_send(address=self._address, **kwargs)
 
+    #pylint: disable=arguments-differ
     @ack_handler(wait_response=True)
-    def handle_ack(self, cmd2, user_data):
+    def handle_ack(self, cmd1, cmd2, user_data):
         """Handle the message ACK."""
 
     @direct_nak_handler
-    def handle_direct_nak(self, cmd2, target, user_data):
+    def handle_direct_nak(self, cmd1, cmd2, target, user_data):
         """Handle the message ACK."""
 
     @direct_ack_handler
-    def handle_direct_ack(self, cmd2, target, user_data):
+    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
         """Handle the direct ACK."""

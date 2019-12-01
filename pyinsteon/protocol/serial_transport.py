@@ -25,6 +25,10 @@ class SerialTransport(SerialTransportBase):
         except SerialException as exc:
             self._protocol.connection_lost(exc)
 
+    async def async_write(self, data):
+        """Asyncronous write method."""
+        self.write(data)
+
     async def async_connect(self, protocol, device=None, loop=None):
         """Connect to a serial device asycrounously."""
         from . import async_connect_serial

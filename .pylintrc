@@ -42,7 +42,7 @@ reports=no
 
 [TYPECHECK]
 # For attrs
-ignored-classes=Inbound, Outbound, Template
+ignored-classes=Inbound, Outbound, Template, OperatingFlags
 generated-members=
 
 [EXCEPTIONS]
