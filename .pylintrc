@@ -1,3 +1,6 @@
+[MASTER]
+ignore-patterns=./samples/**/*.py, ./tests/**/*.py
+
 [MESSAGES CONTROL]
 # Reasons disabled:
 # locally-disabled - it spams too much
