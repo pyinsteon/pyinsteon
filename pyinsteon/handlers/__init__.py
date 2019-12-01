@@ -25,6 +25,20 @@ async def _async_post_response(obj, response: ResponseStatus, func=None, args=No
             func(obj, *args, **kwargs)
 
 
+def _remove_group_from_topic(topic: str):
+    """Check if the last element of the topic is an integer and strip it."""
+    parse_topic = topic.split(".")
+    last_topic = parse_topic[-1]
+    try:
+        int(last_topic)
+        strip_topic = parse_topic[0]
+        for next_topic in parse_topic[1:-1]:
+            strip_topic = '{}.{}'.format(strip_topic, next_topic)
+        return strip_topic
+    except ValueError:
+        return topic
+
+
 def inbound_handler(func):
     """Decorator function for any inbound message handler."""
     def register_topic(instance_func, topic):
@@ -59,10 +73,6 @@ def ack_handler(wait_response=False, timeout=TIMEOUT):
     def setup(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
-            if hasattr(self, 'group'):
-                group = 1 if not kwargs.get('user_data') else kwargs.get('user_data')['d1']
-                if self.group != group:
-                    return
             if wait_response:
                 asyncio.ensure_future(
                     _wait_response(self.response_lock, self.message_response))
@@ -118,6 +128,7 @@ def response_handler(response_topic=None):
 def direct_ack_handler(func):
     """Decorator function to register the DIRECT_ACK response handler."""
     def register_topic(instance_func, topic):
+        topic = _remove_group_from_topic(topic)
         topic = '{}.direct_ack'.format(topic)
         pub.subscribe(instance_func, topic)
     @wraps(func)
@@ -127,7 +138,6 @@ def direct_ack_handler(func):
         )
     wrapper.register_topic = register_topic
     return wrapper
-
 
 def status_handler(func):
     """Decorator function to register the status response handler."""
@@ -149,6 +159,7 @@ def status_handler(func):
 def direct_nak_handler(func):
     """Decorator function to register the DIRECT_NAK response handler."""
     def register_topic(instance_func, topic):
+        topic = _remove_group_from_topic(topic)
         topic = '{}.direct_nak'.format(topic)
         pub.subscribe(instance_func, topic)
     @wraps(func)
@@ -205,6 +216,7 @@ def all_link_cleanup_handler(func):
 def all_link_cleanup_ack_handler(func):
     """Decorator function to register the all_link_cleanup ACK response handler."""
     def register_topic(instance_func, topic):
+        topic = _remove_group_from_topic(topic)
         topic = '{}.all_link_cleanup_ack'.format(topic)
         pub.subscribe(instance_func, topic)
     @wraps(func)
@@ -219,6 +231,7 @@ def all_link_cleanup_ack_handler(func):
 def all_link_cleanup_nak_handler(func):
     """Decorator function to register the all_link_cleanup NAK response handler."""
     def register_topic(instance_func, topic):
+        topic = _remove_group_from_topic(topic)
         topic = '{}.all_link_cleanup_nak'.format(topic)
         pub.subscribe(instance_func, topic)
     @wraps(func)
