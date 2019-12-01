@@ -36,10 +36,10 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
     def __init__(self, address, cat, subcat, firmware=0x00,
                  description='', model=''):
         """Init the SecurityHealthSafety_DoorSensor class."""
+        buttons = {1: DOOR_SENSOR}
         super().__init__(address=address, cat=cat, subcat=subcat, firmware=firmware,
-                         description=description, model=model, buttons=[1],
-                         state_name=DOOR_SENSOR, on_event=OPEN_EVENT,
-                         off_event_name=CLOSE_EVENT)
+                         description=description, model=model, buttons=buttons,
+                         on_event=OPEN_EVENT, off_event_name=CLOSE_EVENT)
         self._low_battery_manger = LowBatteryManager(address, self.LOW_BATTERY_GROUP)
         self._heartbeat_manger = HeartbeatManager(address, self.HEARTBEAT_GROUP)
 
@@ -129,10 +129,10 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
     def __init__(self, address, cat, subcat, firmware=0x00,
                  description='', model=''):
         """Init the SecurityHealthSafety_DoorSensor class."""
+        buttons = {1: MOTION_SENSOR}
         super().__init__(address=address, cat=cat, subcat=subcat, firmware=firmware,
-                         description=description, model=model, buttons=[1],
-                         state_name=MOTION_SENSOR, on_event_name=MOTION_DETECTED_EVENT,
-                         off_event_name=MOTION_TIMEOUT_EVENT)
+                         description=description, model=model, buttons=buttons,
+                         on_event_name=MOTION_DETECTED_EVENT, off_event_name=MOTION_TIMEOUT_EVENT)
         self._light_manager = OnLevelManager(address, self.LIGHT_GROUP)
         self._low_battery_manager = LowBatteryManager(address, self.LOW_BATTERY_GROUP)
         self._heartbeat_manager = HeartbeatManager(address, self.HEARTBEAT_GROUP)

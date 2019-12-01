@@ -1,11 +1,15 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
+from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.trigger_scene import TriggerSceneCommandHandler
-from .commands import SET_LEDS_COMMAND, TRIGGER_SCENE_COMMAND, STATUS_COMMAND
-from .on_off_responder_base import OnOffResponderBase
-from ..states import ON_OFF_SWITCH
+from ..states import (ON_OFF_OUTLET_BOTTOM, ON_OFF_OUTLET_TOP, ON_OFF_SWITCH,
+                      ON_OFF_SWITCH_B, ON_OFF_SWITCH_C, ON_OFF_SWITCH_D,
+                      ON_OFF_SWITCH_E, ON_OFF_SWITCH_F, ON_OFF_SWITCH_G,
+                      ON_OFF_SWITCH_H, ON_OFF_SWITCH_MAIN)
 from ..states.on_off import OnOff
-from ..events import ON_EVENT, ON_FAST_EVENT, OFF_EVENT, OFF_FAST_EVENT
+from .commands import SET_LEDS_COMMAND, STATUS_COMMAND, TRIGGER_SCENE_COMMAND
+from .on_off_responder_base import OnOffResponderBase
+
 
 class SwitchedLightingControl(OnOffResponderBase):
     """Switched Lighting Control device."""
@@ -15,9 +19,8 @@ class SwitchedLightingControl(OnOffResponderBase):
                  on_event_name=ON_EVENT, off_event_name=OFF_EVENT,
                  on_fast_event_name=ON_FAST_EVENT, off_fast_event_name=OFF_FAST_EVENT):
         """Init the OnOffResponderBase class."""
-        if buttons is None:
-            buttons = [1]
-        super().__init__(address, cat, subcat, firmware, description, model, buttons, state_name,
+        buttons = {1: ON_OFF_SWITCH} if buttons is None else buttons
+        super().__init__(address, cat, subcat, firmware, description, model, buttons,
                          on_event_name, off_event_name, on_fast_event_name, off_fast_event_name)
 
     def _register_default_links(self):
@@ -147,12 +150,8 @@ class SwitchedLightingControl_DinRail(SwitchedLightingControl):
 class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
     """KeypadLinc base class."""
 
-    def __init__(self, button_list, address, cat, subcat, firmware=0x00, description='', model=''):
-        """Init the SwitchedLightingControl_KeypadLinc class."""
-        main_name = '{}_{}'.format(ON_OFF_SWITCH, 'main')
-        self._button_list = button_list
-        super().__init__(address, cat, subcat, firmware, description, model,
-                         buttons=[1], state_name=main_name)
+    def __init__(self, address, cat, subcat, firmware=0x00, description='', model='', buttons=None):
+        super().__init__(address, cat, subcat, firmware, description, model, buttons=buttons)
 
     async def async_on(self, group: int = 0):
         """Turn on the button LED. """
@@ -201,9 +200,13 @@ class SwitchedLightingControl_KeypadLinc_6(SwitchedLightingControl_KeypadLinc):
 
     def __init__(self, address, cat, subcat, firmware=0x00, description='', model=''):
         """Init the SwitchedLightingControl_KeypadLinc_6 class."""
-        button_list = {3: 'a', 4: 'b', 5: 'c', 6: 'd'}
-        super().__init__(button_list=button_list, address=address, cat=cat, subcat=subcat,
-                         firmware=firmware, description=description, model=model)
+        buttons = {1: ON_OFF_SWITCH_MAIN,
+                   3: ON_OFF_SWITCH_A,
+                   4: ON_OFF_SWITCH_B,
+                   5: ON_OFF_SWITCH_C,
+                   6: ON_OFF_SWITCH_D}
+        super().__init__(address=address, cat=cat, subcat=subcat, firmware=firmware,
+                         description=description, model=model, buttons=buttons)
 
 
 class SwitchedLightingControl_KeypadLinc_8(SwitchedLightingControl_KeypadLinc):
@@ -211,9 +214,16 @@ class SwitchedLightingControl_KeypadLinc_8(SwitchedLightingControl_KeypadLinc):
 
     def __init__(self, address, cat, subcat, firmware=0x00, description='', model=''):
         """Init the SwitchedLightingControl_KeypadLinc_8 class."""
-        button_list = {2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f', 7: 'g', 8: 'h'}
-        super().__init__(button_list=button_list, address=address, cat=cat, subcat=subcat,
-                         firmware=firmware, description=description, model=model)
+        buttons = {1: ON_OFF_SWITCH_MAIN,
+                   2: ON_OFF_SWITCH_B,
+                   3: ON_OFF_SWITCH_C,
+                   4: ON_OFF_SWITCH_D,
+                   5: ON_OFF_SWITCH_E,
+                   6: ON_OFF_SWITCH_F,
+                   7: ON_OFF_SWITCH_G,
+                   8: ON_OFF_SWITCH_H}
+        super().__init__(address=address, cat=cat, subcat=subcat, firmware=firmware,
+                         description=description, model=model, button=buttons)
 
 class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc):
     """On/Off outlet model 2663-222 Switched Lighting Control.
@@ -223,7 +233,8 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
 
     def __init__(self, address, cat, subcat, firmware=0x00, description='', model=''):
         """Init the SwitchedLightingControl_KeypadLinc class."""
-        super().__init__(address, cat, subcat, firmware, description, model, buttons=[1, 2])
+        buttons = {1: ON_OFF_OUTLET_TOP, 2: ON_OFF_OUTLET_BOTTOM}
+        super().__init__(address, cat, subcat, firmware, description, model, buttons=buttons)
 
     def status(self, group=None):
         """Request the status of the device."""
