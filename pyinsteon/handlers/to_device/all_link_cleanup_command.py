@@ -18,10 +18,11 @@ class AllLinkCleanupCommandHandlerBase(OutboundHandlerBase):
         self._address = Address(address)
         self._response_lock = asyncio.Lock()
         msg_type = str(MessageFlagType.ALL_LINK_CLEANUP)
-        super().__init__('{}.{}.{}'.format(self._address.id, command, msg_type))
+        super().__init__('{}.{}'.format(self._address.id, command))
         # We override the _send_topic to ensrue the address does not go as
         # part of the topic. Address is a key word argument for Direct Commands
-        self._send_topic = '{}.{}'.format(command, msg_type)
+        # For All-Link Cleanup they always look like group 1 to the protocol parser
+        self._send_topic = '{}.1.{}'.format(command, msg_type)
 
     async def async_send(self, **kwargs):
         """Send the command and wait for a direct_nak."""

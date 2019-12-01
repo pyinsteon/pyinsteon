@@ -28,10 +28,10 @@ class StateBase(SubscriberBase):
     def __init__(self, name: str, address: Address, group=0,
                  default=None, value_type: type = int):
         """Init the StateBase class."""
-        topic = 'state_{}_{}_{}'.format(repr(address), name, group)
+        self._address = Address(address)
+        topic = 'state_{}_{}_{}'.format(self._address.id, name, group)
         super().__init__(subscriber_topic=topic)
         self._name = name
-        self._address = address
         self._group = group
         self._value = int(default) if default is not None else None
         self._type = value_type

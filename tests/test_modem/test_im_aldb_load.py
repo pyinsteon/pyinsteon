@@ -28,7 +28,7 @@ class TestModemALDBLoad(unittest.TestCase):
         """Setup the test."""
         set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
         _LOGGER.debug('Running setUp')
-        self.aldb = ModemALDB('010101')
+        self.aldb = ModemALDB('ff11ee')
 
     @async_case
     async def test_load(self):
@@ -41,22 +41,22 @@ class TestModemALDBLoad(unittest.TestCase):
             nak_topic = 'nak.{}'.format(GET_NEXT_ALL_LINK_RECORD)
             rec_topic = ALL_LINK_RECORD_RESPONSE
             topics = [
-                TopicItem(ack_first_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x01, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(ack_first_topic, {}, 3),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x01, '11ff22', 0x02, 0x03, 0x04), 1),
                 TopicItem(ack_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x02, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x02, '11ff22', 0x02, 0x03, 0x04), 1),
                 TopicItem(ack_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x03, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x03, '11ff22', 0x02, 0x03, 0x04), 1),
                 TopicItem(ack_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x04, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x04, '11ff22', 0x02, 0x03, 0x04), 1),
                 TopicItem(ack_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x05, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x05, '11ff22', 0x02, 0x03, 0x04), 1),
                 TopicItem(ack_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x06, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x06, '11ff22', 0x02, 0x03, 0x04), 1),
                 TopicItem(ack_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x07, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x07, '11ff22', 0x02, 0x03, 0x04), 1),
                 TopicItem(ack_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x08, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x08, '11ff22', 0x02, 0x03, 0x04), 1),
                 TopicItem(nak_topic, {}, 1),
                 TopicItem(nak_topic, {}, 1),
                 TopicItem(nak_topic, {}, 1)]

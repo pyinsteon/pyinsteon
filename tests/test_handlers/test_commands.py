@@ -47,7 +47,7 @@ async def import_commands():
         json_file = await afp.read()
     return json.loads(json_file)
 
-def create_message(msg_dict):
+def create_message(msg_dict, delay=1):
     """Create a message from a dictionary."""
     address = msg_dict.get('address')
     flags = msg_dict.get('flags')
@@ -58,7 +58,7 @@ def create_message(msg_dict):
     target = msg_dict.get('target')
     msg = create_std_ext_msg(address, flags, cmd1, cmd2,
                              user_data=user_data, target=target, ack=ack)
-    return DataItem(msg, 1)
+    return DataItem(msg, delay)
 
 
 class TestDirectCommands(unittest.TestCase):
@@ -117,7 +117,6 @@ class TestDirectCommands(unittest.TestCase):
 
             send_data(msgs, self._read_queue)
             try:
-                # TODO check for success or failure
                 response = await cmd.async_send(**send_params)
             except Exception as e:
                 raise Exception('Failed test {} with error: {}'.format(self._current_test, str(e)))

@@ -34,7 +34,7 @@ class TestSendExtended(unittest.TestCase, OutboundBase):
 
         super(TestSendExtended, self).base_setup(MessageId.SEND_EXTENDED,
                                                  unhexlify(self.hex), **kwargs)
-        set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info', logger_topics=True)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_address(self):
         assert self.msg.address == self.address
