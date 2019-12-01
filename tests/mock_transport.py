@@ -5,12 +5,13 @@ from pyinsteon.subscriber_base import SubscriberBase
 class MockTransport(SubscriberBase, asyncio.Transport):
     """Mock transport for testing."""
 
-    def __init__(self, protocol, read_queue: asyncio.Queue, write_queue: asyncio.Queue):
+    def __init__(self, protocol, read_queue: asyncio.Queue, write_queue: asyncio.Queue, random_nak=True):
         """Init the MockTransport class."""
-        super().__init__()
+        super().__init__(subscriber_topic='mock_transport')
         self._protocol = protocol
         self._read_queue = read_queue
         self._write_queue = write_queue
+        self._random_nak = random_nak
         self._closing = False
         asyncio.ensure_future(self._process_read_queue())
 
@@ -59,7 +60,7 @@ class MockTransport(SubscriberBase, asyncio.Transport):
         from random import randint
         self._write_queue.put_nowait(data)
         rand_num = randint(0, 100)
-        ack_nak = 0x06 if rand_num > 10 else 0x15
+        ack_nak = 0x15 if rand_num < 10 and self._random_nak else 0x06
         ack = bytes(data) + bytes([ack_nak])
         self._protocol.data_received(ack)
 

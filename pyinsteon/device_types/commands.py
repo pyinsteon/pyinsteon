@@ -6,11 +6,14 @@ ON_FAST_INBOUND = 'on_fast_inbound'
 OFF_FAST_INBOUND = 'off_fast_inbound'
 ON_ALL_LINK_CLEANUP = 'on_all_link_cleanup'
 OFF_ALL_LINK_CLEANUP = 'off_all_link_cleanup'
+OPEN_INBOUND = 'open_inbound'
+CLOSE_INBOUND = 'close_inbound'
+
+ON_HEARTBEAT_INBOUND = 'on_heartbeat_inbound'
+OFF_HEARTBEAT_INBOUND = 'off_heartbeat_inbound'
 
 STATUS_COMMAND = 'status_command'
-STATUS_1_COMMAND = 'status_1_command'
-STATUS_2_COMMAND = 'status_2_command'
-STATUS_3_COMMAND = 'status_3_command'
+STATUS_COMMAND_FAN = 'status_command_fan'
 
 ON_COMMAND = 'on_command'
 OFF_COMMAND = 'off_command'
@@ -23,7 +26,7 @@ EXTENDED_GET_COMMAND = 'extended_get'
 EXTENDED_SET_COMMAND = 'extended_set'
 EXTENDED_GET_RESPONSE = 'extended_get_response'
 
-SET_LEDS_COMMAND ='set_leds'
+SET_LEDS_COMMAND = 'set_leds'
 TRIGGER_SCENE_COMMAND = 'trigger_scene'
 
 GET_IM_CONFIG_COMMAND = 'get_im_config'

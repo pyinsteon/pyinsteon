@@ -11,6 +11,16 @@ ON_OFF_SWITCH_STATE_BOTTOM = 'on_off_switch_state_bottom'
 LOW_BATTERY_STATE = 'low_battery'
 OPEN_CLOSE_SENSOR_STATE = 'open_close_sensor'
 LIGHT_SENSOR_STATE = 'light_sensor_state'
+LEAK_SENSOR_STATE = 'leak_sensor_state'
+DOOR_SENSOR_STATE = 'door_sensor_state'
+MOTION_SENSOR_STATE = 'motion_sensor_state'
+SMOKE_SENSOR_STATE = 'smoke_sensor_state'
+CO_SENSOR_STATE = 'co_sensor_state'
+TEST_SENSOR_STATE = 'test_sensor_state'
+NEW_SENSOR_STATE = 'new_sensor_state'
+LOW_BATTERY_STATE = 'low_battery_state'
+HEARTBEAT_STATE = 'heartbeat_state'
+SENSOR_MALFUNCTION_STATE = 'sensor_malfunction_state'
 
 class StateBase(SubscriberBase):
     """Device state base class."""
@@ -18,7 +28,8 @@ class StateBase(SubscriberBase):
     def __init__(self, name: str, address: Address, group=0,
                  default=None, value_type: type = int):
         """Init the StateBase class."""
-        super().__init__()
+        topic = 'state_{}_{}_{}'.format(repr(address), name, group)
+        super().__init__(subscriber_topic=topic)
         self._name = name
         self._address = address
         self._group = group
@@ -47,10 +58,6 @@ class StateBase(SubscriberBase):
             self._call_subscribers(name=self._name, address=self._address,
                                    value=self._value, group=self._group)
 
-    def add_handler(self, handler):
-        """Subscribe to a handler to set the value of the state."""
-        handler.subscribe(self._set_value)
-
     @abstractmethod
-    def _set_value(self, **kwargs):
+    def set_value(self, **kwargs):
         """Set the value of the state from a Handler."""

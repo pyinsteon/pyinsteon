@@ -1,5 +1,6 @@
 """Representaton of an extended property of a device."""
 from .device_flag import DeviceFlagBase
+from .address import Address
 
 RAMP_RATE = 'ramp_rate'
 X10_HOUSE = 'x10_house'
@@ -24,7 +25,14 @@ LIGHT_SENSITIVITY = 'light_sensitivity'
 HARDWARE_TIMEOUT = 'hardware_timeout'
 HARDWARE_LIGHT_SENSITIVITY = 'hardware_light_sensitivity'
 AMBIENT_LIGHT_INTENSITY = 'ambient_light_intensity'
-
+DELAY = 'delay'
+PRESCALER = 'prescaler'
 
 class ExtendedProperty(DeviceFlagBase):
     """Representaton of an extended property of a device."""
+
+    def __init__(self, address, name, flag_type: type):
+        """Init the ExtendedProperty class."""
+        self._address = Address(address)
+        topic = '{}.property.{}'.format(self._address.id, name)
+        super().__init__(topic, name, flag_type)

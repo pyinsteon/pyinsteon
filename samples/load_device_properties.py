@@ -16,7 +16,7 @@ async def load_device_properties():
                                   username=USERNAME,
                                   password=PASSWORD)
 
-    await devices.async_load(workdir=PATH)
+    await devices.async_load(workdir=PATH, id_devices=2)
     await devices.async_save(workdir=PATH)
     for address in devices:
         device = devices[address]

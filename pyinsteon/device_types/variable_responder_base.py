@@ -3,20 +3,14 @@ from ..handlers.to_device.off import OffCommand
 from ..handlers.to_device.off_fast import OffFastCommand
 from ..handlers.to_device.on_fast import OnFastCommand
 from ..handlers.to_device.on_level import OnLevelCommand
+from ..handlers.to_device.status_request import StatusRequestCommand
 from .commands import (OFF_COMMAND, OFF_FAST_COMMAND, ON_COMMAND,
-                       ON_FAST_COMMAND)
+                       ON_FAST_COMMAND, STATUS_COMMAND)
 from .variable_controller_base import VariableControllerBase
 
 
 class VariableResponderBase(VariableControllerBase):
     """Variable Responder Base Device."""
-
-    def __init__(self, address, cat, subcat, firmware=0x00,
-                 description='', model='', buttons=1):
-        """Init the VariableResponderBase class."""
-        super().__init__(address, cat, subcat, firmware, description, model, buttons)
-        for button in range(1, buttons + 1):
-            self._setup_button(button)
 
     def on(self, on_level=0xff, group=0, fast=False):
         """Turn on the device.
@@ -26,8 +20,9 @@ class VariableResponderBase(VariableControllerBase):
             fast: Default False. If True, bypass device ramp rate otherwise
             turn on at the ramp rate.
         """
+        group = 1 if not group else group
         command = ON_FAST_COMMAND if fast else ON_COMMAND
-        self._handlers[command].send(on_level=on_level, group=group)
+        self._handlers[group][command].send(on_level=on_level)
 
     async def async_on(self, on_level=0xff, group=0, fast=False):
         """Turn on the device.
@@ -42,8 +37,9 @@ class VariableResponderBase(VariableControllerBase):
             SUCCESS: Device acknowledged the message
             UNCLEAR: Device received the message but did not confirm the action
         """
+        group = 1 if not group else group
         command = ON_FAST_COMMAND if fast else ON_COMMAND
-        return await self._handlers[command].async_send(on_level=on_level, group=group)
+        return await self._handlers[group][command].async_send(on_level)
 
     def off(self, group=0, fast=False):
         """Turn off the device.
@@ -52,8 +48,9 @@ class VariableResponderBase(VariableControllerBase):
             fast: Default False. If True, bypass device ramp rate otherwise
             turn on at the ramp rate.
         """
+        group = 1 if not group else group
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
-        self._handlers[command].send(group=group)
+        self._handlers[group][command].send()
 
     async def async_off(self, group=0, fast=False):
         """Turn off the device.
@@ -67,21 +64,35 @@ class VariableResponderBase(VariableControllerBase):
             SUCCESS: Device acknowledged the message
             UNCLEAR: Device received the message but did not confirm the action
         """
+        group = 1 if not group else group
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
-        return await self._handlers[command].async_send(group=group)
+        return await self._handlers[group][command].async_send()
 
-    def _register_handlers(self):
-        super()._register_handlers()
-        self._handlers[ON_COMMAND] = OnLevelCommand(self._address)
-        self._handlers[OFF_COMMAND] = OffCommand(self._address)
+    def status(self):
+        """Get the status of the device state."""
+        self._handlers[STATUS_COMMAND].send()
 
-        self._handlers[ON_FAST_COMMAND] = OnFastCommand(self._address)
-        self._handlers[OFF_FAST_COMMAND] = OffFastCommand(self._address)
+    async def async_status(self):
+        """Get the status of the device state."""
+        return await self._handlers[STATUS_COMMAND].async_send()
 
-    def _setup_button(self, group):
-        super()._setup_button(group)
-        state = self._states[group]
-        state.add_handler(self._handlers[ON_COMMAND])
-        state.add_handler(self._handlers[OFF_COMMAND])
-        state.add_handler(self._handlers[ON_FAST_COMMAND])
-        state.add_handler(self._handlers[OFF_FAST_COMMAND])
+    def _register_handlers_and_managers(self):
+        super()._register_handlers_and_managers()
+        self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address)
+        for group in self._buttons:
+            if self._handlers.get(group) is None:
+                self._handlers[group] = {}
+            self._handlers[group][ON_COMMAND] = OnLevelCommand(self._address, group)
+            self._handlers[group][OFF_COMMAND] = OffCommand(self._address, group)
+            self._handlers[group][ON_FAST_COMMAND] = OnFastCommand(self._address, group)
+            self._handlers[group][OFF_FAST_COMMAND] = OffFastCommand(self._address, group)
+
+    def _subscribe_to_handelers_and_managers(self):
+        super()._subscribe_to_handelers_and_managers()
+        for group in self._buttons:
+            state = self._states[group]
+
+            self._handlers[group][ON_COMMAND].subscribe(state.set_value)
+            self._handlers[group][OFF_COMMAND].subscribe(state.set_value)
+            self._handlers[group][ON_FAST_COMMAND].subscribe(state.set_value)
+            self._handlers[group][OFF_FAST_COMMAND].subscribe(state.set_value)

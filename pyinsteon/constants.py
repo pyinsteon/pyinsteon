@@ -174,6 +174,25 @@ class FanSpeed(IntEnum):
     HIGH = 0xff
 
 
+class RelayMode(IntEnum):
+    """Relay mode used by Sensor Actuator device class 0x07."""
+
+    def __repr__(self):
+        """Emit the representation of the Enum."""
+        return '0x{0:02x}'.format(self.value)
+
+    def __str__(self):
+        """Emit the string of the Enum."""
+        #pylint: disable=no-member
+        return self.name.lower()
+
+    UNKNOWN = 0
+    LATCHING = 1
+    MOMENTARY_A = 2
+    MOMENTARY_B = 3
+    MOMENTARY_C = 4
+
+
 class X10Commands(IntEnum):
     """X10 Commands."""
 

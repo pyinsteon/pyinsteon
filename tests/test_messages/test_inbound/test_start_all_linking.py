@@ -1,13 +1,10 @@
 from binascii import unhexlify
-import logging
+from tests import _LOGGER, set_log_levels
 import unittest
 import sys
 
 from pyinsteon.constants import MessageId, AckNak, AllLinkMode
 from tests.utils import hex_to_inbound_message
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestStartAllLinking(unittest.TestCase):
@@ -21,9 +18,7 @@ class TestStartAllLinking(unittest.TestCase):
         self.ack = AckNak(0x06)
 
         self.msg, self.msg_bytes = hex_to_inbound_message(self.hex_ack)
-        
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_id(self):
         assert self.msg.message_id == self.message_id

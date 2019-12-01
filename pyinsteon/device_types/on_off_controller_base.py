@@ -1,29 +1,33 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
 from . import Device
-from .commands import (STATUS_COMMAND, ON_INBOUND, OFF_INBOUND,
-                       ON_FAST_INBOUND, OFF_FAST_INBOUND)
-from ..handlers.from_device.on_level import OnLevelInbound
-from ..handlers.from_device.off import OffInbound
-from ..handlers.from_device.on_fast import OnFastInbound
-from ..handlers.from_device.off_fast import OffFastInbound
+from .commands import STATUS_COMMAND
+from ..managers.on_level_manager import OnLevelManager
 from ..handlers.to_device.status_request import StatusRequestCommand
-
-from ..states import ON_OFF_SWITCH_STATE
+from ..events import Event
 from ..states.on_off import OnOff
-from ..events import Event, ON_EVENT, ON_FAST_EVENT, OFF_EVENT, OFF_FAST_EVENT
 
+ON_LEVEL_MANAGER = 'on_level_manager'
 
 class OnOffControllerBase(Device):
     """Base device for ON/OFF controllers."""
 
     def __init__(self, address, cat, subcat, firmware=0x00,
-                 description='', model='', buttons=1):
+                 description='', model='', buttons=None, state_name=None,
+                 on_event_name=None, off_event_name=None,
+                 on_fast_event_name=None, off_fast_event_name=None):
         """Init the OnOffControllerBase class."""
-        super().__init__(address, cat, subcat, firmware, description, model)
+
+        self._buttons = [1] if buttons is None else buttons
+        self._state_name = state_name
+        self._on_event_name = on_event_name
+        self._off_event_name = off_event_name
+        self._on_fast_event_name = on_fast_event_name
+        self._off_fast_event_name = off_fast_event_name
+
         if not hasattr(self, '_button_names'):
             self._button_names = {}
-        for button in range(1, buttons + 1):
-            self._setup_button(button)
+
+        super().__init__(address, cat, subcat, firmware, description, model)
 
     def status(self, group=None):
         """Request the status of the device."""
@@ -36,41 +40,67 @@ class OnOffControllerBase(Device):
     def _register_default_links(self):
         pass
 
-    def _register_handlers(self):
-        super()._register_handlers()
-        self._handlers[ON_INBOUND] = OnLevelInbound(self._address)
-        self._handlers[OFF_INBOUND] = OffInbound(self._address)
+    def _register_handlers_and_managers(self):
+        super()._register_handlers_and_managers()
 
-        self._handlers[ON_FAST_INBOUND] = OnFastInbound(self._address)
-        self._handlers[OFF_FAST_INBOUND] = OffFastInbound(self._address)
+        self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address, 0)
+        for group in self._buttons:
+            if self._managers.get(group) is None:
+                self._managers[group] = {}
+            self._managers[group][ON_LEVEL_MANAGER] = OnLevelManager(self._address, group)
 
-        self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address)
-        self._handlers[STATUS_COMMAND].subscribe(self._set_status)
+    def _register_states(self):
+        super()._register_states()
+        if self._state_name:
+            for group in self._buttons:
+                self._states[group] = OnOff(self._state_name, self._address, group)
 
-    def _set_status(self, status):
-        """Set the status of the dimmable_switch state."""
-        self._states[1].value = status
+    def _register_events(self):
+        super()._register_events()
+        for group in self._buttons:
+            self._events[group] = {}
+            if self._on_event_name:
+                self._events[group][self._on_event_name] = Event(
+                    self._on_event_name, self._address, group)
 
-    def _setup_button(self, group):
-        self._states[group] = OnOff(name=ON_OFF_SWITCH_STATE,
-                                    address=self._address,
-                                    group=group)
-        state = self._states[group]
-        state.add_handler(self._handlers[ON_INBOUND])
-        state.add_handler(self._handlers[OFF_INBOUND])
-        state.add_handler(self._handlers[ON_FAST_INBOUND])
-        state.add_handler(self._handlers[OFF_FAST_INBOUND])
+            if self._off_event_name:
+                self._events[group][self._off_event_name] = Event(
+                    self._off_event_name, self._address, group)
 
-        self._events[ON_INBOUND] = Event(name=ON_EVENT, address=self._address, group=group)
-        self._events[ON_INBOUND].add_handler(self._handlers[ON_INBOUND])
+            if self._on_fast_event_name:
+                self._events[group][self._on_fast_event_name] = Event(
+                    self._on_fast_event_name, self._address, group)
 
-        self._events[OFF_INBOUND] = Event(name=OFF_EVENT, address=self._address, group=group)
-        self._events[OFF_INBOUND].add_handler(self._handlers[OFF_INBOUND])
+            if self._off_fast_event_name:
+                self._events[group][self._off_fast_event_name] = Event(
+                    self._off_fast_event_name, self._address, group)
 
-        self._events[ON_FAST_INBOUND] = Event(name=ON_FAST_EVENT, address=self._address,
-                                              group=group)
-        self._events[ON_FAST_INBOUND].add_handler(self._handlers[ON_FAST_INBOUND])
+    def _subscribe_to_handelers_and_managers(self):
+        super()._subscribe_to_handelers_and_managers()
+        self._handlers[STATUS_COMMAND].subscribe(self._handle_status)
+        for group in self._buttons:
+            if self._state_name:
+                self._managers[group][ON_LEVEL_MANAGER].subscribe(self._states[group].set_value)
 
-        self._events[OFF_FAST_INBOUND] = Event(name=OFF_FAST_EVENT, address=self._address,
-                                               group=group)
-        self._events[OFF_FAST_INBOUND].add_handler(self._handlers[OFF_FAST_INBOUND])
+            if self._on_event_name:
+                event = self._events[group][self._on_event_name]
+                self._managers[group][ON_LEVEL_MANAGER].subscribe_on(event.trigger)
+
+            if self._off_event_name:
+                event = self._events[group][self._off_event_name]
+                self._managers[group][ON_LEVEL_MANAGER].subscribe_off(event.trigger)
+
+            if self._on_fast_event_name:
+                event = self._events[group][self._on_fast_event_name]
+                self._managers[group][ON_LEVEL_MANAGER].subscribe_on_fast(event.trigger)
+
+            if self._off_fast_event_name:
+                event = self._events[group][self._off_fast_event_name]
+                self._managers[group][ON_LEVEL_MANAGER].subscribe_off_fast(event.trigger)
+
+    def _handle_status(self, db_version, status):
+        """Handle status response."""
+        # Add this to a separate handler for devices that the cmd1 field
+        # returns the ALDB Versioh
+        # self.aldb.version = db_version
+        self._states[1].set_value(status)

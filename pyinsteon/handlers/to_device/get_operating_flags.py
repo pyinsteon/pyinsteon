@@ -23,8 +23,7 @@ class GetOperatingFlagsCommand(DirectCommandHandlerBase):
     #pylint: disable=arguments-differ
     async def async_send(self, flags_requested=0):
         """Send Get Operating Flags message asyncronously."""
-        result = await super().async_send(flags_requested=0)
-        return result
+        return await super().async_send(flags_requested=0)
 
     @direct_ack_handler
     def handle_direct_ack(self, cmd1, cmd2, target, user_data):

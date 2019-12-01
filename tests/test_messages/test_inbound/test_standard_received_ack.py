@@ -1,15 +1,11 @@
 from binascii import unhexlify
-import logging
+from tests import _LOGGER, set_log_levels
 import unittest
 
 from pyinsteon.address import Address
 from pyinsteon.protocol.messages.message_flags import MessageFlags
 from pyinsteon.protocol.messages.inbound import Inbound, create
 from tests.utils import hex_to_inbound_message
-
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestStandardReceived(unittest.TestCase):
@@ -25,6 +21,7 @@ class TestStandardReceived(unittest.TestCase):
         self.cmd2 = int(0x09)
 
         self.msg, self.msg_bytes = hex_to_inbound_message(self.hex_data)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_id(self):
         assert self.msg.message_id == self.message_id

@@ -1,14 +1,10 @@
-from binascii import unhexlify
-import logging
 import unittest
-import sys
+from binascii import unhexlify
 
-from pyinsteon.constants import MessageId
 from pyinsteon.address import Address
+from pyinsteon.constants import MessageId
+from tests import _LOGGER, set_log_levels
 from tests.utils import hex_to_inbound_message
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestAllLinkCleanupFailureReport(unittest.TestCase):
@@ -21,9 +17,7 @@ class TestAllLinkCleanupFailureReport(unittest.TestCase):
         self.address = Address('050607')
 
         self.msg, self.msg_bytes = hex_to_inbound_message(self.hex)
-        
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_id(self):
         assert self.msg.message_id == self.message_id

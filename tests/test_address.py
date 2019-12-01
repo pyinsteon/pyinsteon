@@ -1,12 +1,8 @@
 from binascii import unhexlify
-import logging
+from tests import set_log_levels
 import unittest
-import sys
 
 from pyinsteon.address import Address
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestAddress(unittest.TestCase):
@@ -15,10 +11,7 @@ class TestAddress(unittest.TestCase):
         self.hex = '010203'
         self.address = Address(self.hex)
         self.address_bytes = Address(bytearray(unhexlify(self.hex)))
-
-        # _LOGGER.setLevel(logging.DEBUG)
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_bytes(self):
         assert bytes(self.address) == unhexlify(self.hex)
@@ -28,6 +21,7 @@ class TestAddress(unittest.TestCase):
         assert self.address[1] == 0x02
         assert self.address[2] == 0x03
         try:
+            #pylint: disable=unused-variable
             failtest = self.address[3]
             assert False
         except ValueError:

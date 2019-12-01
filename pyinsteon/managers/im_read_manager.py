@@ -66,6 +66,7 @@ class ImReadManager():
         response = ResponseStatus.FAILURE
         self._retries = 0
         while response != ResponseStatus.SUCCESS and not self._max_retries():
+            # TODO check for success or failure
             response = await self._get_next_handler.async_send()
             self._retries += 1
         if self._max_retries() and self._load_lock.locked():

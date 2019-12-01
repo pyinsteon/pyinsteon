@@ -23,7 +23,7 @@ class DeviceIdManager(SubscriberBase):
 
     def __init__(self):
         """Init the DeviceIdManager class."""
-        super().__init__()
+        super().__init__(subscriber_topic='device_id')
         self._unknown_devices = []
         self._device_ids = {}
         self._awake_devices = []
@@ -103,6 +103,7 @@ class DeviceIdManager(SubscriberBase):
         id_response_handler_alt.subscribe(self._id_response)
         retries = 0
         while self._device_ids[address].cat is None and retries <= MAX_RETRIES:
+            # TODO check for success or failure
             await id_handler.async_send()
             retries += 1
             await asyncio.sleep(RETRY_PAUSE)

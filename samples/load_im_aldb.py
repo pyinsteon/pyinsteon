@@ -11,10 +11,10 @@ USERNAME, PASSWORD, HOST = get_hub_config()
 async def do_run():
     """Connect to the PLM and load the ALDB."""
     devices = await async_connect(device=DEVICE)
-    modem = devices.modem
     # modem = await async_connect(host=HOST,
     #                             username=USERNAME,
     #                             password=PASSWORD)
+    modem = devices.modem
     _LOGGER.info('Connected')
     _LOGGER.info('Modem Address: %s', modem.address)
     _LOGGER.info('Loading ALDB')

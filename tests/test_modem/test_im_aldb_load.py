@@ -21,14 +21,14 @@ def fill_rec(flags, group, target, data1, data2, data3):
     return kwargs
 
 
-class TestModemALDB(unittest.TestCase):
+class TestModemALDBLoad(unittest.TestCase):
     """Test the ModemALDB class."""
 
     def setUp(self):
         """Setup the test."""
-        set_log_levels(logger='info', logger_pyinsteon='info', logger_messages='info')
-        self.address = Address('000000')
-        self.aldb = ModemALDB(self.address)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        _LOGGER.debug('Running setUp')
+        self.aldb = ModemALDB('010101')
 
     @async_case
     async def test_load(self):
@@ -44,19 +44,19 @@ class TestModemALDB(unittest.TestCase):
                 TopicItem(ack_first_topic, {}, 1),
                 TopicItem(rec_topic, fill_rec(0x2e, 0x01, '010102', 0x02, 0x03, 0x04), 1),
                 TopicItem(ack_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x01, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x02, '010102', 0x02, 0x03, 0x04), 1),
                 TopicItem(ack_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x01, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x03, '010102', 0x02, 0x03, 0x04), 1),
                 TopicItem(ack_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x01, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x04, '010102', 0x02, 0x03, 0x04), 1),
                 TopicItem(ack_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x01, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x05, '010102', 0x02, 0x03, 0x04), 1),
                 TopicItem(ack_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x01, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x06, '010102', 0x02, 0x03, 0x04), 1),
                 TopicItem(ack_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x01, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x07, '010102', 0x02, 0x03, 0x04), 1),
                 TopicItem(ack_topic, {}, 1),
-                TopicItem(rec_topic, fill_rec(0x2e, 0x01, '010102', 0x02, 0x03, 0x04), 1),
+                TopicItem(rec_topic, fill_rec(0x2e, 0x08, '010102', 0x02, 0x03, 0x04), 1),
                 TopicItem(nak_topic, {}, 1),
                 TopicItem(nak_topic, {}, 1),
                 TopicItem(nak_topic, {}, 1)]
@@ -69,25 +69,6 @@ class TestModemALDB(unittest.TestCase):
         _LOGGER.debug('Status: %s', response.name)
         assert self.aldb.is_loaded
         assert len(self.aldb) == 8
-
-    @async_case
-    async def test_empty_aldb(self):
-        """Test for an empty ALDB."""
-
-        def create_messages():
-            """Send 3 NAK messages."""
-            nak_topic = 'nak.{}'.format(GET_FIRST_ALL_LINK_RECORD)
-            topics = [TopicItem(nak_topic, {}, 1),
-                      TopicItem(nak_topic, {}, 1),
-                      TopicItem(nak_topic, {}, 1)]
-            return topics
-
-        responses = create_messages()
-        send_topics(responses)
-        response = await self.aldb.async_load()
-        _LOGGER.debug('Done LOAD function.')
-        _LOGGER.debug('Status: %s', response.name)
-        assert self.aldb.is_loaded
 
 
 if __name__ == '__main__':

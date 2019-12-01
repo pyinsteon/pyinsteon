@@ -14,5 +14,4 @@ class EnterUnlinkingModeCommand(DirectCommandHandlerBase):
     #pylint: disable=arguments-differ
     async def async_send(self, group: int = 0):
         """Send the ENTER_UNLINKING_MODE request asyncronously."""
-        return await super().async_send(address=self._address, group=group)
-        
+        return await super().async_send(group=group)

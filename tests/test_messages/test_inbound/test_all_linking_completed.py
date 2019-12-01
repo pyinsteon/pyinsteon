@@ -1,14 +1,11 @@
 from binascii import unhexlify
-import logging
+from tests import _LOGGER, set_log_levels
 import unittest
 import sys
 
 from pyinsteon.address import Address
 from pyinsteon.constants import MessageId, AllLinkMode, DeviceCategory
 from tests.utils import hex_to_inbound_message
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestAllLinkingCompleted(unittest.TestCase):
@@ -24,9 +21,7 @@ class TestAllLinkingCompleted(unittest.TestCase):
         self.firmware = int(0x0a)
 
         self.msg, self.msg_bytes = hex_to_inbound_message(self.hex)
-        
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_id(self):
         assert self.msg.message_id == self.message_id

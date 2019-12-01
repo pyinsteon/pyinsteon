@@ -34,7 +34,7 @@ async def do_run():
     devices.subscribe(device_added)
     await async_enter_linking_mode(is_controller=True, group=0)
     _LOGGER.info('Press device SET button')
-    await asyncio.sleep(20 * 60)
+    await asyncio.sleep(60)
     await async_close()
 
 

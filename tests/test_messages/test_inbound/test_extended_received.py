@@ -1,5 +1,5 @@
 from binascii import unhexlify
-import logging
+from tests import _LOGGER, set_log_levels
 import unittest
 import sys
 
@@ -8,10 +8,6 @@ from pyinsteon.protocol.messages.inbound import Inbound, create
 from pyinsteon.protocol.messages.message_flags import MessageFlags
 from pyinsteon.protocol.messages.user_data import UserData
 from tests.utils import hex_to_inbound_message
-
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestExtendedSendAck(unittest.TestCase):
@@ -28,10 +24,7 @@ class TestExtendedSendAck(unittest.TestCase):
         self.user_data = UserData(unhexlify('a1a2a3a4a5a6a7a8a9aaabacadae'))
 
         self.msg, self.msg_bytes = hex_to_inbound_message(self.hex_data)
-        
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
-        _INSTEON_LOGGER.addHandler(stream_handler)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_id(self):
         assert self.msg.message_id == self.message_id

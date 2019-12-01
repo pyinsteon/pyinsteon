@@ -59,20 +59,26 @@ def send_topics(topic_items):
 
 DataItem = namedtuple('DataItem', 'data, delay')
 
+
 def send_data(data_items, queue):
     """Send data to a mock connection."""
     async def async_send_data(data_items, queue):
         for item in data_items:
             await asyncio.sleep(item.delay)
             _LOGGER_MESSAGES.debug('RX: %s', item.data.hex())
-            queue.put_nowait(item.data)
+            await queue.put(item.data)
     asyncio.ensure_future(async_send_data(data_items, queue))
+
 
 def create_std_ext_msg(address, flags, cmd1, cmd2, user_data=None, target=None, ack=0):
     """"Create a standard or extended message."""
+    from pyinsteon.address import Address
+    from pyinsteon.protocol.messages.user_data import UserData
+    address = Address(address)
     data = bytearray()
     data.append(0x02)
     if target:
+        target = Address(target)
         msg_type = 0x51 if user_data else 0x50
     else:
         msg_type = 0x62
@@ -88,11 +94,13 @@ def create_std_ext_msg(address, flags, cmd1, cmd2, user_data=None, target=None, 
     data.append(cmd1)
     data.append(cmd2)
     if user_data:
+        user_data = UserData(user_data)
         for byte in user_data:
-            data.append(byte)
+            data.append(user_data[byte])
     if ack:
         data.append(ack)
     return bytes(data)
+
 
 def cmd_kwargs(cmd1, cmd2, user_data, target=None, address=None):
     """Return a kwargs dict for a standard messsage command."""
@@ -106,6 +114,7 @@ def cmd_kwargs(cmd1, cmd2, user_data, target=None, address=None):
         kwargs['address'] = Address(address)
     return kwargs
 
+
 def make_command_response_messages(address, topic, cmd1, cmd2, target='000000', user_data=None):
     """Return a colleciton of ACK and Direct ACK responses to commands."""
     from pyinsteon.address import Address
@@ -115,3 +124,12 @@ def make_command_response_messages(address, topic, cmd1, cmd2, target='000000', 
     direct_ack = '{}.{}.direct_ack'.format(address.id, topic)
     return [TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), .25),
             TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), .25)]
+
+
+def get_class_or_method(main_module, name):
+    """Return the class or method from a string."""
+    components = name.split('.')
+    mod = main_module
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod

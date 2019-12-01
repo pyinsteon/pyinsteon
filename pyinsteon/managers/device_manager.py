@@ -33,7 +33,7 @@ class DeviceManager(SubscriberBase):
 
     def __init__(self):
         """Init the DeviceManager class."""
-        super().__init__()
+        super().__init__(subscriber_topic='device_added')
         self._devices = {}
         self._modem = None
         self._id_manager = DeviceIdManager()

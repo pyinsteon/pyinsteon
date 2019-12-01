@@ -137,6 +137,7 @@ async def async_modem_connect(device=None, host=None, port=None, username=None,
 
     get_im_info = GetImInfoHandler()
     get_im_info.subscribe(set_im_info)
+    # TODO check for success or failure
     await get_im_info.async_send()
     modem = Modem(address=modem_address, cat=modem_cat, subcat=modem_subcat,
                   firmware=modem_firmware)

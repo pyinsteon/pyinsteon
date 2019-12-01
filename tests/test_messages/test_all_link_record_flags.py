@@ -1,15 +1,11 @@
 from binascii import unhexlify
-import logging
+from tests import _LOGGER, set_log_levels
 import unittest
 import sys
 
 from binascii import hexlify, unhexlify
 from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
 from pyinsteon.constants import AllLinkMode
-
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestAllLinkRecordFlags(unittest.TestCase):
@@ -30,9 +26,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         self.flags_3D = AllLinkRecordFlags(unhexlify(self.hex_data_3D))
         self.flags_C2 = AllLinkRecordFlags(unhexlify(self.hex_data_C2))
         self.flags_FF = AllLinkRecordFlags(unhexlify(self.hex_data_FF))
-
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_flags_00(self):
         self._check_flags(self.flags_00, False, AllLinkMode.RESPONDER, False,
@@ -75,7 +69,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
 
     def _check_flags_in_use(self, flags, in_use):
         assert flags.is_in_use == in_use
-    
+
     def _check_flags_mode(self, flags, mode):
         assert flags.mode == mode
 

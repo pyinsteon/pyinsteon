@@ -1,5 +1,6 @@
 """Operating flags list."""
 from .device_flag import DeviceFlagBase
+from .address import Address
 
 PROGRAM_LOCK_ON = 'program_lock_on'
 LED_ON = 'led_on'
@@ -34,6 +35,12 @@ SOFTWARE_SUPPORT_ON = 'software_support_on'
 HARDWARE_SEND_ON_ONLY = 'hardware_send_on_only'
 HARDWARE_NIGHT_MODE = 'hardware_night_mode'
 HARDWARE_LED_OFF = 'hardware_led_off'
+RELAY_ON_SENSE_ON = 'relay_on_sense_on'
+MOMENTARY_MODE_ON = 'momentary_on'
+MOMENTARY_ON_OFF_TRIGGER = 'momentary_on_off_trigger'
+SENSE_SENDS_OFF = 'sense_sends_off'
+MOMENTARY_FOLLOW_SENSE = 'momentary_follow_sense'
+
 
 DUAL_LINE_ON = 'dual_line_on'
 LATCHING_ON = 'latching_on'
@@ -49,3 +56,9 @@ DATABASE_DELTA = 'database_delta'
 
 class OperatingFlag(DeviceFlagBase):
     """Operating flag for a device."""
+
+    def __init__(self, address, name, flag_type: type):
+        """Init the OperatingFlag class."""
+        self._address = Address(address)
+        topic = '{}.operating_flag.{}'.format(self._address.id, name)
+        super().__init__(topic, name, flag_type)

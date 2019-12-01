@@ -1,14 +1,10 @@
 """Test UserData data type."""
 from binascii import unhexlify
-import logging
+from tests import _LOGGER, set_log_levels
 import unittest
 import sys
 
 from pyinsteon.protocol.messages.user_data import UserData, create_empty
-
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestUserData(unittest.TestCase):
@@ -38,9 +34,7 @@ class TestUserData(unittest.TestCase):
         for itm in range(1, 15):
             key = 'd{}'.format(itm)
             self.values_user_data[key] = itm + 0xa0
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
-        # _LOGGER.setLevel(logging.DEBUG)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_user_data_items(self):
         """Test each UserData item for proper mapping."""

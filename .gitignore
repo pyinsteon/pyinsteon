@@ -109,3 +109,4 @@ ENV/
 /.vscode
 /.vscode/settings.json
 samples/insteon_devices.json
+/.idea

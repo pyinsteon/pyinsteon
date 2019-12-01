@@ -30,6 +30,6 @@ class SetImConfigurationHandler(OutboundHandlerBase):
             disable_auto_linking=disable_auto_linking, monitor_mode=monitor_mode,
             auto_led=auto_led, deadman=deadman)
 
-    @ack_handler()
+    @ack_handler(wait_response=False)
     def handle_ack(self, disable_auto_linking, monitor_mode, auto_led, deadman):
         """Receive the ACK message and return True."""

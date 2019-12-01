@@ -30,15 +30,15 @@ from .switched_lighting_control import (SwitchedLightingControl,
                                         SwitchedLightingControl_KeypadLinc_8,
                                         SwitchedLightingControl_OnOffOutlet)
 # from ..climateControl import ClimateControl_2441th
-from ..security_health_safety import (SecurityHealthSafety,
-                                      SecurityHealthSafety_OpenCloseSensor,
-                                      SecurityHealthSafety_MotionSensor,
-                                      SecurityHealthSafety_DoorSensor)
-                                      # Light sensor
-                                      # Smokebridge
+from .security_health_safety import (SecurityHealthSafety,
+                                     SecurityHealthSafety_OpenCloseSensor,
+                                     SecurityHealthSafety_MotionSensor,
+                                     SecurityHealthSafety_DoorSensor,
+                                     SecurityHealthSafety_LeakSensor,
+                                     SecurityHealthSafety_Smokebridge)
                                       # Motion Sensor II
-# from ..sensorsActuators import (SensorsActuators,
-#                                 SensorsActuators_2450)
+from .sensors_actuators import (SensorsActuators,
+                                SensorsActuators_IOLink)
 # from ..windowCoverings import WindowCovering
 # from ..x10 import (X10OnOff, X10Dimmable, X10Sensor,
 #                    X10AllUnitsOff, X10AllLightsOn,
@@ -61,7 +61,7 @@ class IPDB():
 
     # pylint disable=line-too-long
     _products = [
-        # Product(None, None, None, 'Unknown Device', '', UnknownDevice),
+        Product(None, None, None, 'Unknown Device', '', UnknownDevice),
 
         Product(0x00, None, None, 'Generic General Controller', '', GeneralController),
         Product(0x00, 0x04, None, 'ControLinc', '2430', GeneralController_ControlLinc),
@@ -281,22 +281,22 @@ class IPDB():
         Product(0x06, None, None, 'Generic Pool Controller', '', UnknownDevice),
         Product(0x06, 0x00, 0x000003, 'EZPool', '', UnknownDevice),
 
-        # Product(0x07, None, None, 'Generic Sensor Actuator', '', SensorsActuators),
-        # Product(0x07, 0x00, None, 'I/O Linc', '2450', SensorsActuators_2450),
-        # Product(0x07, 0x01, 0x000004, 'EZSns1W', '', SensorsActuators),
-        # Product(0x07, 0x02, 0x0000012, 'EZIO8T I/O Module', '', SensorsActuators),
-        # Product(0x07, 0x03, 0x0000005, 'EZIO2X4', '', SensorsActuators),
-        # Product(0x07, 0x04, 0x0000013, 'EZIO8SA', '', SensorsActuators),
-        # Product(0x07, 0x05, 0x0000014, 'EZSnsRF', '', SensorsActuators),
-        # Product(0x07, 0x06, 0x0000015, 'EZISnsRf', '', SensorsActuators),
-        # Product(0x07, 0x07, 0x0000014, 'EZIO6I', '', SensorsActuators),
-        # Product(0x07, 0x08, 0x0000014, 'EZIO4O', '', SensorsActuators),
-        # Product(0x07, 0x09, 0x0000000, 'SynchroLinc', '2423A5', SensorsActuators),
-        # Product(0x07, 0x0D, None, 'I/O Linc', '2450-50-60', SensorsActuators_2450),
-        # Product(0x07, 0x0E, None, 'I/O Module', '2248-222', SensorsActuators),
-        # Product(0x07, 0x0F, None, 'I/O Module', '2248-422', SensorsActuators),
-        # Product(0x07, 0x10, None, 'I/O Module', '2248-442', SensorsActuators),
-        # Product(0x07, 0x11, None, 'I/O Module', '2248-522', SensorsActuators),
+        Product(0x07, None, None, 'Generic Sensor Actuator', '', SensorsActuators),
+        Product(0x07, 0x00, None, 'I/O Linc', '2450', SensorsActuators_IOLink),
+        Product(0x07, 0x01, 0x000004, 'EZSns1W', '', SensorsActuators),
+        Product(0x07, 0x02, 0x0000012, 'EZIO8T I/O Module', '', SensorsActuators),
+        Product(0x07, 0x03, 0x0000005, 'EZIO2X4', '', SensorsActuators),
+        Product(0x07, 0x04, 0x0000013, 'EZIO8SA', '', SensorsActuators),
+        Product(0x07, 0x05, 0x0000014, 'EZSnsRF', '', SensorsActuators),
+        Product(0x07, 0x06, 0x0000015, 'EZISnsRf', '', SensorsActuators),
+        Product(0x07, 0x07, 0x0000014, 'EZIO6I', '', SensorsActuators),
+        Product(0x07, 0x08, 0x0000014, 'EZIO4O', '', SensorsActuators),
+        Product(0x07, 0x09, 0x0000000, 'SynchroLinc', '2423A5', SensorsActuators),
+        Product(0x07, 0x0D, None, 'I/O Linc', '2450-50-60', SensorsActuators_IOLink),
+        Product(0x07, 0x0E, None, 'I/O Module', '2248-222', SensorsActuators),
+        Product(0x07, 0x0F, None, 'I/O Module', '2248-422', SensorsActuators),
+        Product(0x07, 0x10, None, 'I/O Module', '2248-442', SensorsActuators),
+        Product(0x07, 0x11, None, 'I/O Module', '2248-522', SensorsActuators),
 
         Product(0x09, None, None, 'Generic Energy Management Controller', '', UnknownDevice),
         Product(0x09, 0x00, 0x0000006, 'EZEnergy', '', UnknownDevice),
@@ -337,16 +337,16 @@ class IPDB():
         Product(0x10, 0x05, None, 'Motion Sensor', '2842-522', SecurityHealthSafety_MotionSensor),
         Product(0x10, 0x06, None, 'Open/Close Sensor', '2843-422', SecurityHealthSafety_OpenCloseSensor),
         Product(0x10, 0x07, None, 'Open/Close Sensor', '2843-522', SecurityHealthSafety_OpenCloseSensor),
-        # Product(0x10, 0x08, None, 'Leak Sensor', '2852-222', SecurityHealthSafety_2852_222),
+        Product(0x10, 0x08, None, 'Leak Sensor', '2852-222', SecurityHealthSafety_LeakSensor),
         Product(0x10, 0x09, None, 'Door Sensor', '2843-232', SecurityHealthSafety_DoorSensor),
-        # Product(0x10, 0x0A, None, 'Smoke Bridge', '2982-222', SecurityHealthSafety_2982_222),
+        Product(0x10, 0x0A, None, 'Smoke Bridge', '2982-222', SecurityHealthSafety_Smokebridge),
         Product(0x10, 0x11, None, 'Door Sensor', '2845-222', SecurityHealthSafety_DoorSensor),
         Product(0x10, 0x14, None, 'Door Sensor', '2845-422', SecurityHealthSafety_DoorSensor),
         Product(0x10, 0x15, None, 'Door Sensor', '2845-522', SecurityHealthSafety_DoorSensor),
         Product(0x10, 0x16, None, 'Motion Sensor II', '2844-222', SecurityHealthSafety_MotionSensor),
 
-        # Product(0xFF, 0x00, None, 'Unrecognized INSTEON Device', '', UnknownDevice),
-        # Product(0xFF, 0x01, None, 'Unknown Device', '', UnknownDevice),
+        Product(0xFF, 0x00, None, 'Unrecognized INSTEON Device', '', UnknownDevice),
+        Product(0xFF, 0x01, None, 'Unknown Device', '', UnknownDevice),
     ]
 
     _x10_products = [
@@ -379,8 +379,6 @@ class IPDB():
 
         # We failed to find a device in the database, so we will make a best
         # guess from the cat and return the generic class
-        #
-
         if not device_product:
             for product in self._products:
                 if cat == product.cat and product.subcat is None:

@@ -1,11 +1,12 @@
 """Operating flag or Extended Property for all device types."""
-from abc import ABC
+from .subscriber_base import SubscriberBase
 
-class DeviceFlagBase(ABC):
+class DeviceFlagBase(SubscriberBase):
     """Operating flag or Extended Property."""
 
-    def __init__(self, name, flag_type: type):
+    def __init__(self, topic, name, flag_type: type):
         """Init the DeviceFlag class."""
+        super().__init__(topic)
         self._name = name
         self._value = None
         self._type = flag_type
@@ -55,10 +56,11 @@ class DeviceFlagBase(ABC):
         Only use this method to update the value of the flag from the value
         of the device.
 
-        This method updates the `is_loaded` property and clears the `new value and
+        This method updates the `is_loaded` property and clears the `new value` and
         `is_dirty` properties.
         """
         self._value = self._type(value) if value is not None else self._type(0)
         self._is_dirty = False
         self._new_value = None
         self._is_loaded = True
+        self._call_subscribers(flag=self)

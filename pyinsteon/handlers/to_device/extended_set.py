@@ -20,8 +20,8 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
                          data6=0, data7=0, data8=0, data9=0, data10=0,
                          data11=0, data12=0, data13=0, data14=0):
         """Send Get Operating Flags message asyncronously."""
-        if group in [0, 1]:
-            _LOGGER.debug('Extended Set sent with bad group number: %d', group)
+        if action in [0, 1]:
+            _LOGGER.debug('Extended Set sent with bad action number: %d', group)
             return 0
         kwargs = {'data1': group,
                   'data2': action}

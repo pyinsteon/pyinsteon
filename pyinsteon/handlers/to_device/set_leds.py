@@ -1,17 +1,21 @@
 """KeypadLinc command handler to set the LED on/off values."""
-from . import direct_ack_handler, DirectCommandHandlerBase
+from ..to_device.direct_command import DirectCommandHandlerBase
+from .. import direct_ack_handler
 from ...topics import EXTENDED_GET_SET
 
 class SetLedsCommandHandler(DirectCommandHandlerBase):
-    """Set the LED values of a KeypadLinc device."""
+    """Set the LED values of a KeypadLinc device.
+
+    TODO make compatable with the single handler per group model.
+    """
 
     def __init__(self, address):
         """Init the SetLedCommandHandler class."""
-        super().__init__(address=address, topic=EXTENDED_GET_SET)
+        super().__init__(address=address, command=EXTENDED_GET_SET)
         self._last_bitmask = 0
 
     #pylint: disable=arguments-differ
-    async def async_send(self, group1: bool, group2: bool, group3:bool,
+    async def async_send(self, group1: bool, group2: bool, group3: bool,
                          group4: bool, group5: bool, group6: bool,
                          group7: bool, group8: bool):
         """Set the LED values of the KPL."""
@@ -32,4 +36,3 @@ class SetLedsCommandHandler(DirectCommandHandlerBase):
         for group in range(0, 8):
             value = bool(self._last_bitmask & 1 << group)
             self._call_subscribers(group=group + 1, value=value)
-    

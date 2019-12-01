@@ -1,16 +1,12 @@
 
 from binascii import unhexlify
-import logging
+from tests import _LOGGER, set_log_levels
 import unittest
 import sys
 
 from pyinsteon.constants import MessageId, AckNak
 from pyinsteon.protocol.messages.outbound import set_ack_message_two_bytes
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
-
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class PauseSetInsteonAckMessageTwoBytes(unittest.TestCase, OutboundBase):
@@ -27,9 +23,7 @@ class PauseSetInsteonAckMessageTwoBytes(unittest.TestCase, OutboundBase):
             MessageId.SET_ACK_MESSAGE_TWO_BYTES, unhexlify(self.hex), **kwargs)
 
         self.msg = set_ack_message_two_bytes(self.cmd1, self.cmd2)
-
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_cmd1(self):
         assert self.msg.cmd1 == self.cmd1

@@ -4,12 +4,12 @@ from abc import ABCMeta
 import asyncio
 from ..outbound_base import OutboundHandlerBase
 from ...address import Address
-from .. import ack_handler
+from .. import ack_handler, all_link_cleanup_nak_handler, all_link_cleanup_ack_handler
 from ...constants import MessageFlagType
 
 
 class AllLinkCleanupCommandHandlerBase(OutboundHandlerBase):
-    """Abstract base class for outbound All-Link broadcast message handling."""
+    """Abstract base class for outbound All-Link clean-up message handling."""
 
     __meta__ = ABCMeta
 
@@ -31,3 +31,11 @@ class AllLinkCleanupCommandHandlerBase(OutboundHandlerBase):
     @ack_handler(wait_response=False)
     def handle_ack(self, cmd1, cmd2, user_data):
         """Handle the message ACK."""
+
+    @all_link_cleanup_ack_handler
+    def handle_all_link_ack(self, target, cmd1, cmd2, user_data):
+        """Handle the All-LInk Command ACK."""
+
+    @all_link_cleanup_nak_handler
+    def handle_all_link_nak(self, target, cmd1, cmd2, user_data):
+        """Handle the All-LInk Command NAK."""

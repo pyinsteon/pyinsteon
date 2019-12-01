@@ -1,14 +1,24 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
-from ..handlers.kpl.set_leds import SetLedsCommandHandler
-from ..handlers.kpl.trigger_scene import TriggerSceneCommandHandler
+from ..handlers.to_device.set_leds import SetLedsCommandHandler
+from ..handlers.to_device.trigger_scene import TriggerSceneCommandHandler
 from .commands import SET_LEDS_COMMAND, TRIGGER_SCENE_COMMAND, STATUS_COMMAND
 from .on_off_responder_base import OnOffResponderBase
-from ..states import ON_OFF_SWITCH_STATE, ON_OFF_SWITCH_STATE_BOTTOM
+from ..states import ON_OFF_SWITCH_STATE
 from ..states.on_off import OnOff
-
+from ..events import ON_EVENT, ON_FAST_EVENT, OFF_EVENT, OFF_FAST_EVENT
 
 class SwitchedLightingControl(OnOffResponderBase):
     """Switched Lighting Control device."""
+
+    def __init__(self, address, cat, subcat, firmware=0x00,
+                 description='', model='', buttons=None, state_name=ON_OFF_SWITCH_STATE,
+                 on_event_name=ON_EVENT, off_event_name=OFF_EVENT,
+                 on_fast_event_name=ON_FAST_EVENT, off_fast_event_name=OFF_FAST_EVENT):
+        """Init the OnOffResponderBase class."""
+        if buttons is None:
+            buttons = [1]
+        super().__init__(address, cat, subcat, firmware, description, model, buttons, state_name,
+                         on_event_name, off_event_name, on_fast_event_name, off_fast_event_name)
 
     def _register_default_links(self):
         from ..managers.link_manager import DefaultLink
@@ -139,7 +149,9 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
 
     def __init__(self, button_list, address, cat, subcat, firmware=0x00, description='', model=''):
         """Init the SwitchedLightingControl_KeypadLinc class."""
-        super().__init__(address, cat, subcat, firmware, description, model, buttons=[1])
+        main_name = '{}_{}'.format(ON_OFF_SWITCH_STATE, 'main')
+        super().__init__(address, cat, subcat, firmware, description, model,
+                         buttons=[1], state_name=main_name)
         for button in button_list:
             name = '{}_{}'.format(ON_OFF_SWITCH_STATE, button_list[button])
             self._states[button] = OnOff(name=name, address=self._address, group=button)
@@ -165,8 +177,8 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
             kwargs[var] = False if curr_group == group else bool(self._states.get(curr_group))
         return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
 
-    def _register_handlers(self):
-        super()._register_handlers()
+    def _register_handlers_and_managers(self):
+        super()._register_handlers_and_managers()
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
         self._handlers[TRIGGER_SCENE_COMMAND] = TriggerSceneCommandHandler(address=self._address)
 
@@ -199,7 +211,7 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
     Device Class 0x02 subcat 0x39
     """
 
-    def __init__(self, button_list, address, cat, subcat, firmware=0x00, description='', model=''):
+    def __init__(self, address, cat, subcat, firmware=0x00, description='', model=''):
         """Init the SwitchedLightingControl_KeypadLinc class."""
         super().__init__(address, cat, subcat, firmware, description, model, buttons=[1, 2])
 

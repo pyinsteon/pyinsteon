@@ -24,10 +24,40 @@ def convert_to_topic(msg: Inbound) -> (str, {}):
     converter = MSG_CONVERTER[msg.message_id]
     return converter(msg)
 
+def _msg_group(message_type, target, cmd2, user_data):
+    """Derive the group number of the message from the message type.
+
+    message_flag_type: MessageFlagType 0 to 7:
+        DIRECT = 0: Group number is 1 unless extended then group number in d1
+        DIRECT_ACK = 1: Group not applicable
+        ALL_LINK_CLEANUP = 2: Group number is cmd2
+        ALL_LINK_CLEANUP_ACK = 3: Not applicable
+        BROADCAST = 4: Group number is in the lower byte of the target field
+        DIRECT_NAK = 5: Not applicable
+        ALL_LINK_BROADCAST = 6: Not applicable
+        ALL_LINK_CLEANUP_NAK = 7: Not applicable
+    """
+    from ..constants import MessageFlagType
+    if message_type == MessageFlagType.DIRECT:
+        if user_data:
+            return user_data['d1']
+        return 1
+    if message_type == MessageFlagType.ALL_LINK_CLEANUP:
+        return cmd2
+    if message_type == MessageFlagType.BROADCAST:
+        return target.low
+    return None
+
 
 def _create_rcv_std_ext_msg(topic, address, flags, cmd1, cmd2, target, user_data):
-    msg_type = flags.message_type.name.lower()
-    topic = '{}.{}.{}'.format(address.id, topic, msg_type)
+    if commands.use_group(topic):
+        group = _msg_group(flags.message_type, target, cmd2, user_data)
+    else:
+        group = None
+    if group is not None:
+        topic = '{}.{}.{}.{}'.format(address.id, topic, group, flags.message_type.name.lower())
+    else:
+        topic = '{}.{}.{}'.format(address.id, topic, flags.message_type.name.lower())
     kwargs = {'cmd1': cmd1,
               'cmd2': cmd2,
               'target': target,
@@ -140,13 +170,22 @@ def send_all_link_command(msg: Inbound) -> (str, {}):
               'mode': msg.mode}
     yield (topic, kwargs)
 
+
 def _create_send_std_ext(topic, address, flags, cmd1, cmd2, user_data, ack):
     msg_type = flags.message_type.name.lower()
-    topic = '{}.{}.{}.{}'.format(ack.name.lower(), address.id, topic, msg_type)
+    if commands.use_group(topic):
+        group = _msg_group(flags.message_type, None, cmd2, user_data)
+    else:
+        group = None
+    if group is not None:
+        topic = '{}.{}.{}.{}.{}'.format(ack.name.lower(), address.id, topic, group, msg_type)
+    else:
+        topic = '{}.{}.{}.{}'.format(ack.name.lower(), address.id, topic, msg_type)
     kwargs = {'cmd1': cmd1,
               'cmd2': cmd2,
               'user_data': None}
     return (topic, kwargs)
+
 
 def send_standard_or_extended_message(msg: Inbound) -> (str, {}):
     """Convert standard and extended messages to topic."""
@@ -226,15 +265,15 @@ def get_next_all_link_record(msg: Inbound) -> (str, {}):
 def set_im_configuration(msg: Inbound) -> (str, {}):
     """Create a topic from an set_im_configuration message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), SET_IM_CONFIGURATION)
-    disable_auto_linking = bool(msg.flags & 1 << 7)
-    monitor_mode = bool(msg.flags & 1 << 6)
-    auto_led = bool(msg.flags & 1 << 5)
-    deadman = bool(msg.flags & 1 << 4)
+    # disable_auto_linking = bool(msg.flags & 1 << 7)
+    # monitor_mode = bool(msg.flags & 1 << 6)
+    # auto_led = bool(msg.flags & 1 << 5)
+    # deadman = bool(msg.flags & 1 << 4)
 
-    kwargs = {'disable_auto_linking':disable_auto_linking,
-              'monitor_mode':monitor_mode,
-              'auto_led':auto_led,
-              'deadman':deadman}
+    kwargs = {'disable_auto_linking': msg.flags.is_auto_link,
+              'monitor_mode':msg.flags.is_monitor_mode,
+              'auto_led':msg.flags.is_auto_led,
+              'deadman':msg.flags.is_disable_deadman}
     yield (topic, kwargs)
 
 
@@ -297,15 +336,15 @@ def rf_sleep(msg: Inbound) -> (str, {}):
 def get_im_configuration(msg: Inbound) -> (str, {}):
     """Create a topic from an get_im_configuration message."""
     topic = '{}.{}'.format(msg.ack.name.lower(), GET_IM_CONFIGURATION)
-    disable_auto_linking = bool(msg.flags & 1 << 7)
-    monitor_mode = bool(msg.flags & 1 << 6)
-    auto_led = bool(msg.flags & 1 << 5)
-    deadman = bool(msg.flags & 1 << 4)
+    #disable_auto_linking = bool(msg.flags & 1 << 7)
+    #monitor_mode = bool(msg.flags & 1 << 6)
+    #auto_led = bool(msg.flags & 1 << 5)
+    #deadman = bool(msg.flags & 1 << 4)
 
-    kwargs = {'disable_auto_linking':disable_auto_linking,
-              'monitor_mode':monitor_mode,
-              'auto_led':auto_led,
-              'deadman':deadman}
+    kwargs = {'disable_auto_linking':msg.flags.is_auto_link,
+              'monitor_mode':msg.flags.is_monitor_mode,
+              'auto_led':msg.flags.is_auto_led,
+              'deadman':msg.flags.is_disable_deadman}
     yield (topic, kwargs)
 
 

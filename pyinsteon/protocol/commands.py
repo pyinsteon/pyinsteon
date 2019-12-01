@@ -105,10 +105,12 @@ class Commands():
         """Init the Commands class."""
         self._topics = {}
         self._commands = {}
+        self._use_group = {}
 
-    def add(self, topic: str, cmd1: int, cmd2: int, extended: bool):
+    def add(self, topic: str, cmd1: int, cmd2: int, extended: bool, use_group: bool = False):
         """Add a command to the list."""
         self._topics[topic] = (cmd1, cmd2, extended)
+        self._use_group[topic] = use_group
         self._commands[(cmd1, cmd2, extended)] = topic
 
     def get_cmd1_cmd2(self, topic: str) -> (int, int, bool):
@@ -117,6 +119,10 @@ class Commands():
         Returns (cmd1, cmd2, extended)
         """
         return self._topics.get(topic, (None, None, None))
+
+    def use_group(self, topic):
+        """Return if a topic requires a group number."""
+        return self._use_group.get(topic)
 
     def get_topics(self, cmd1, cmd2, extended=None) -> str:
         """Generate a topic from a cmd1, cmd2 and extended flag."""
@@ -139,7 +145,7 @@ commands = Commands()
 
 commands.add(ASSIGN_TO_ALL_LINK_GROUP, 0x01, None, False)
 commands.add(DELETE_FROM_ALL_LINK_GROUP, 0x02, None, False)
-commands.add(PRODUCT_DATA_REQUEST, 0x03, 0x00, False)
+commands.add(PRODUCT_DATA_REQUEST, 0x03, 0x00, None)
 commands.add(FX_USERNAME, 0x03, 0x01, False)
 commands.add(DEVICE_TEXT_STRING_REQUEST, 0x03, 0x02, False)
 commands.add(SET_DEVICE_TEXT_STRING, 0x03, 0x03, True)
@@ -151,21 +157,21 @@ commands.add(ENTER_UNLINKING_MODE, 0x0a, None, False)
 commands.add(GET_INSTEON_ENGINE_VERSION, 0x0d, None, False)
 commands.add(PING, 0x0f, None, False)
 commands.add(ID_REQUEST, 0x10, None, False)
-commands.add(ON, 0x11, None, None)
-commands.add(ON_FAST, 0x12, None, None)
-commands.add(OFF, 0x13, None, None)
-commands.add(OFF_FAST, 0x14, None, None)
-commands.add(BRIGHTEN_ONE_STEP, 0x15, None, False)
-commands.add(DIM_ONE_STEP, 0x16, None, False)
-commands.add(START_MANUAL_CHANGE_DOWN, 0x17, 0x00, False)
-commands.add(START_MANUAL_CHANGE_UP, 0x17, 0x01, False)
-commands.add(STOP_MANUAL_CHANGE, 0x18, None, False)
+commands.add(ON, 0x11, None, None, True)
+commands.add(ON_FAST, 0x12, None, None, True)
+commands.add(OFF, 0x13, None, None, True)
+commands.add(OFF_FAST, 0x14, None, None, True)
+commands.add(BRIGHTEN_ONE_STEP, 0x15, None, False, True)
+commands.add(DIM_ONE_STEP, 0x16, None, False, True)
+commands.add(START_MANUAL_CHANGE_DOWN, 0x17, 0x00, False, True)
+commands.add(START_MANUAL_CHANGE_UP, 0x17, 0x01, False, True)
+commands.add(STOP_MANUAL_CHANGE, 0x18, None, False, True)
 commands.add(STATUS_REQUEST, 0x19, None, None)
 commands.add(GET_OPERATING_FLAGS, 0x1f, None, False)
 commands.add(SET_OPERATING_FLAGS, 0x20, None, False)
 commands.add(INSTANT_CHANGE, 0x21, None, False)
-commands.add(MANUALLY_TURNED_OFF, 0x22, None, False)
-commands.add(MANUALLY_TURNED_ON, 0x23, None, False)
+commands.add(MANUALLY_TURNED_OFF, 0x22, None, False, True)
+commands.add(MANUALLY_TURNED_ON, 0x23, None, False, True)
 commands.add(REMOTE_SET_BUTTON_TAP1_TAP, 0x25, 0x01, False)
 commands.add(REMOTE_SET_BUTTON_TAP2_TAP, 0x25, 0x02, False)
 commands.add(SET_STATUS, 0x27, None, False)
@@ -175,9 +181,9 @@ commands.add(PEEK_ONE_BYTE, 0x2b, None, False)
 commands.add(PEEK_ONE_BYTE_INTERNAL, 0x2c, None, False)
 commands.add(POKE_ONE_BYTE_INTERNAL, 0x2d, None, False)
 
-commands.add(ON_AT_RAMP_RATE, 0x2e, None, False)  # cmd2 ne 0x00 => no confict w/ ext get set
+commands.add(ON_AT_RAMP_RATE, 0x2e, None, False, True)  # cmd2 ne 0x00 => no confict w/ ext get set
 commands.add(EXTENDED_GET_SET, 0x2e, None, None)  # Check if direct_ack is sd or ed message
-commands.add(OFF_AT_RAMP_RATE, 0x2f, None, False)  # cmd2 ne 0x00 => no confict w/ read aldb
+commands.add(OFF_AT_RAMP_RATE, 0x2f, None, False, True)  # cmd2 ne 0x00 => no confict w/ read aldb
 commands.add(EXTENDED_READ_WRITE_ALDB, 0x2f, None, None)  # direct_ack is sd msg
 commands.add(EXTENDED_TRIGGER_ALL_LINK, 0x30, None, None)  # Check direct_ack sd or ed msg
 

@@ -4,6 +4,7 @@ from abc import ABC
 import asyncio
 from datetime import datetime
 from functools import partial
+import logging
 
 from .. import pub
 from ..address import Address
@@ -11,8 +12,6 @@ from ..aldb import ALDB
 from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
 from ..handlers.to_device.extended_set import ExtendedSetCommand
-from ..handlers.from_device.on_level_all_link_cleanup_ack import OnLevelAllLinkCleanupAckInbound
-from ..handlers.from_device.off_all_link_cleanup_ack import OffAllLinkCleanupAckInbound
 from ..operating_flag import OperatingFlag
 from ..extended_property import ExtendedProperty
 from .commands import (EXTENDED_GET_COMMAND, EXTENDED_SET_COMMAND,
@@ -21,12 +20,13 @@ from .commands import (EXTENDED_GET_COMMAND, EXTENDED_SET_COMMAND,
                        EXTENDED_GET_RESPONSE, ON_ALL_LINK_CLEANUP,
                        OFF_ALL_LINK_CLEANUP)
 
+_LOGGER = logging.getLogger(__name__)
 
 class Device(ABC):
     """INSTEON Device Class."""
 
     def __init__(self, address, cat, subcat, firmware=0x00,
-                 description='', model=''):
+                 description='', model='', buttons=None):
         """Init the Device class."""
         self._address = Address(address)
         self._cat = cat
@@ -42,6 +42,7 @@ class Device(ABC):
         self._product_data_in_aldb = False
         self._states = {}
         self._handlers = {}
+        self._managers = {}
         self._events = {}
 
         self._aldb = ALDB(self._address)
@@ -51,9 +52,10 @@ class Device(ABC):
         self._op_flags_manager = GetSetOperatingFlagsManager(self._address)
         self._ext_property_manager = GetSetExtendedPropertyManager(self._address)
 
-        self._register_handlers()
+        self._register_handlers_and_managers()
         self._register_states()
         self._register_events()
+        self._subscribe_to_handelers_and_managers()
         self._register_default_links()
         self._register_operating_flags()
 
@@ -181,13 +183,11 @@ class Device(ABC):
     def _register_states(self):
         """Add the states to the device."""
 
-    def _register_handlers(self):
+    def _register_handlers_and_managers(self):
         """Add all handlers to the device and register listeners."""
-        self._handlers[ON_ALL_LINK_CLEANUP] = OnLevelAllLinkCleanupAckInbound(self._address)
-        self._handlers[ON_ALL_LINK_CLEANUP].subscribe(self._handle_all_link_cleanup_ack)
 
-        self._handlers[OFF_ALL_LINK_CLEANUP] = OffAllLinkCleanupAckInbound(self._address)
-        self._handlers[OFF_ALL_LINK_CLEANUP].subscribe(self._handle_all_link_cleanup_ack)
+    def _subscribe_to_handelers_and_managers(self):
+        """Subscribe states and events to handlers and managers."""
 
     def _register_default_links(self):
         """Add default links for linking the device to the modem."""
@@ -208,24 +208,20 @@ class Device(ABC):
 
     def _add_operating_flag(self, name, group, bit, set_cmd, unset_cmd):
         flag_type = bool if bit is not None else int
-        self._operating_flags[name] = OperatingFlag(name=name, flag_type=flag_type)
+        self._operating_flags[name] = OperatingFlag(self._address, name, flag_type)
         flag = self._operating_flags[name]
         self._op_flags_manager.subscribe(flag, flag.load, group, bit,
                                          set_cmd, unset_cmd)
 
     def _add_property(self, name, data_field, set_cmd, group=0, bit=None):
         prop_type = bool if bit is not None else int
-        self._properties[name] = ExtendedProperty(name=name, flag_type=prop_type)
+        self._properties[name] = ExtendedProperty(self._address, name, prop_type)
         prop = self._properties[name]
         self._ext_property_manager.subscribe(prop, prop.load, group, data_field, bit, set_cmd)
 
     def _remove_operating_flag(self, name, group):
         self._op_flags_manager.unsubscribe(name, group)
         self._operating_flags.pop(name)
-
-    def _handle_all_link_cleanup_ack(self, cmd1, group):
-        """Get status after an All-Link Cleanup report is received."""
-        self.status()
 
     def _handle_product_data(self, product_id, cat, subcat):
         """Receive and set the product data information."""
@@ -269,8 +265,10 @@ class BatteryDeviceBase():
         """Get the device extended properties."""
         self._run_on_wake(super(BatteryDeviceBase, self).async_get_extended_properties)
 
-    async def async_keep_awake(self):
+    async def async_keep_awake(self, awake_time=0xff):
         """Keep the device awake to ensure commands are heard."""
+        cmd = ExtendedSetCommand(self._address)
+        return await cmd.async_send(group=0, action=0x04, data3=awake_time)
 
     def _device_awake(self, topic=pub.AUTO_TOPIC, **kwargs):
         """Execute the commands that were requested while sleeping."""
@@ -278,6 +276,9 @@ class BatteryDeviceBase():
 
     async def _run_commands(self):
         from inspect import iscoroutinefunction, iscoroutine
+        if not self._commands_queue.empty():
+            _LOGGER.debug('Sending commands to battery operated device %s', self._address)
+            await self.async_keep_awake()
         while not self._commands_queue.empty():
             command = await self._commands_queue.get()
             if isinstance(command, partial):

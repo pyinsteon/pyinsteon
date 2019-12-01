@@ -68,6 +68,7 @@ class GetSetOperatingFlagsManager():
             if flag.is_dirty or force:
                 cmd = flag.set_cmd if flag.new_value else flag.unset_cmd
                 if cmd is not None:  # The operating flag is read only
+                    # TODO  check for success or failure
                     result = await self._set_command.async_send(cmd=cmd)
                     if int(result) == 1:
                         flag.update_method(flag.new_value)
@@ -91,6 +92,7 @@ class GetSetOperatingFlagsManager():
                     value = flags  # the flag is the full byte
                 flag_info.update_method(value=value)
         self._get_command.subscribe(_update_flags)
+        # TODO check for success or failure
         await self._get_command.async_send(flags_requested=group)
         self._get_command.unsubscribe(_update_flags)
 

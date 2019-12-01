@@ -7,24 +7,26 @@ from ...topics import ON
 class OnLevelCommand(DirectCommandHandlerBase):
     """Manage an outbound ON command to a device."""
 
-    def __init__(self, address):
+    def __init__(self, address, group):
         """Init the OnLevelCommand class."""
-        super().__init__(address, ON)
+        topic = '{}.{}'.format(ON, group)
+        super().__init__(address, topic)
+        # put the following commands in a subclass!
+        self._group = group
+        # self._subscriber_topic = '{}.{}'.format(self._subscriber_topic, self._group)
 
     #pylint: disable=arguments-differ
-    def send(self, on_level=0xff, group=0):
+    def send(self, on_level=0xff):
         """Send the ON command."""
-        super().send(on_level=on_level, group=group)
+        super().send(on_level=on_level, group=self._group)
 
     #pylint: disable=arguments-differ
-    async def async_send(self, on_level=0xff, group=0x00):
+    async def async_send(self, on_level=0xff):
         """Send the ON command async."""
-        return await super().async_send(on_level=on_level, group=group)
+        return await super().async_send(on_level=on_level, group=self._group)
 
     @direct_ack_handler
     def handle_direct_ack(self, cmd1, cmd2, target, user_data):
         """Handle the ON response direct ACK."""
-        group = 1
-        if user_data:
-            group = user_data.get('d1')
-        self._call_subscribers(on_level=cmd2 if cmd2 else 0xff, group=group)
+        if self._response_lock.locked():
+            self._call_subscribers(on_level=cmd2 if cmd2 else 0xff)

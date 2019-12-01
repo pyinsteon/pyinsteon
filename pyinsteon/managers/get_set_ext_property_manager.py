@@ -47,6 +47,7 @@ class GetSetExtendedPropertyManager():
 
     async def async_get(self, group=None):
         """Get the properties for a group."""
+        # TODO return success or failure
         if group is None:
             for curr_group in self._groups:
                 await self._get_command.async_send(group=curr_group)
@@ -69,6 +70,7 @@ class GetSetExtendedPropertyManager():
             else:
                 set_cmd, data = _calc_flag_value(self._groups[group][field])
             if set_cmd is not None:
+                # TODO check for success or failure
                 await self._set_command.async_send(group=group, action=set_cmd, data3=data)
 
     def _update_flags(self, group, data):

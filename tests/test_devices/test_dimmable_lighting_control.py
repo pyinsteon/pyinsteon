@@ -11,9 +11,9 @@ from tests.utils import async_case, send_topics, make_command_response_messages
 class TestDimmableLIghtingControl(unittest.TestCase):
     """Test dimmable lighting control device."""
 
-    def state_updated(self, **kwargs):
+    def state_updated(self, value, group, name, address):
         """Run when the state is updated."""
-        self.state_value = kwargs.get('value')
+        self.state_value = value
 
     def setUp(self):
         """Setup the test."""
@@ -30,7 +30,8 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         cmd2 = 0x23
         target = Address('4d5e6f')
         user_data = None
-        responses = make_command_response_messages(self.address, ON, cmd1, cmd2, target, user_data)
+        topic = '{}.{}'.format(ON, 1)
+        responses = make_command_response_messages(self.address, topic, cmd1, cmd2, target, user_data)
         send_topics(responses)
 
         response = await self.device.async_on(on_level=cmd2, fast=False)
@@ -45,7 +46,9 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         cmd2 = 0x23
         target = Address('4d5e6f')
         user_data = None
-        responses = make_command_response_messages(self.address, ON_FAST, cmd1, cmd2, target, user_data)
+        topic = '{}.{}'.format(ON_FAST, 1)
+        responses = make_command_response_messages(self.address, topic, cmd1,
+                                                   cmd2, target, user_data)
         send_topics(responses)
 
         response = await self.device.async_on(on_level=cmd2, fast=True)
@@ -60,7 +63,9 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         cmd2 = 0x23
         target = Address('4d5e6f')
         user_data = None
-        responses = make_command_response_messages(self.address, OFF_FAST, cmd1, cmd2, target, user_data)
+        topic = '{}.{}'.format(OFF_FAST, 1)
+        responses = make_command_response_messages(self.address, topic, cmd1, cmd2,
+                                                   target, user_data)
         send_topics(responses)
 
         response = await self.device.async_off(fast=True)
@@ -75,7 +80,8 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         cmd2 = 0x23
         target = Address('4d5e6f')
         user_data = None
-        responses = make_command_response_messages(self.address, OFF, cmd1, cmd2, target, user_data)
+        topic = '{}.{}'.format(OFF, 1)
+        responses = make_command_response_messages(self.address, topic, cmd1, cmd2, target, user_data)
         send_topics(responses)
 
         response = await self.device.async_off(fast=False)

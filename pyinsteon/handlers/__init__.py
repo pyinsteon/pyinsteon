@@ -41,7 +41,7 @@ def ack_handler(wait_response=False, timeout=TIMEOUT):
 
     async def _wait_response(lock: asyncio.Lock, queue: asyncio.Queue):
         """Wait for the direct ACK message, and post False if timeout reached."""
-        # Need to consider the risk of this. We may be unlocking a prior send command.
+        # TODO: Need to consider the risk of this. We may be unlocking a prior send command.
         # This would mean that the prior command will terminate. What happens when the
         # prior command returns a direct ACK then this command returns a direct ACK?
         # Do not believe this is an issue but need to test.
@@ -59,6 +59,10 @@ def ack_handler(wait_response=False, timeout=TIMEOUT):
     def setup(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
+            if hasattr(self, 'group'):
+                group = 1 if not kwargs.get('user_data') else kwargs.get('user_data')['d1']
+                if self.group != group:
+                    return
             if wait_response:
                 asyncio.ensure_future(
                     _wait_response(self.response_lock, self.message_response))
@@ -177,8 +181,9 @@ def broadcast_handler(func):
     wrapper.register_topic = register_topic
     return wrapper
 
+
 def all_link_cleanup_handler(func):
-    """Decorator function to register the BROADCAST message handler."""
+    """Decorator function to register the c message handler."""
     from datetime import datetime
     last_command = datetime(1, 1, 1)
     def register_topic(instance_func, topic):
@@ -193,5 +198,33 @@ def all_link_cleanup_handler(func):
         if tdelta.seconds >= 2:
             return func(self, *args, **kwargs)
 
+    wrapper.register_topic = register_topic
+    return wrapper
+
+
+def all_link_cleanup_ack_handler(func):
+    """Decorator function to register the all_link_cleanup ACK response handler."""
+    def register_topic(instance_func, topic):
+        topic = '{}.all_link_cleanup_ack'.format(topic)
+        pub.subscribe(instance_func, topic)
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        asyncio.ensure_future(
+            _async_post_response(self, ResponseStatus.FAILURE, func, args, kwargs)
+        )
+    wrapper.register_topic = register_topic
+    return wrapper
+
+
+def all_link_cleanup_nak_handler(func):
+    """Decorator function to register the all_link_cleanup NAK response handler."""
+    def register_topic(instance_func, topic):
+        topic = '{}.all_link_cleanup_nak'.format(topic)
+        pub.subscribe(instance_func, topic)
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        asyncio.ensure_future(
+            _async_post_response(self, ResponseStatus.FAILURE, func, args, kwargs)
+        )
     wrapper.register_topic = register_topic
     return wrapper

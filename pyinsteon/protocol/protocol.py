@@ -215,6 +215,7 @@ class Protocol(asyncio.Protocol):
             if last_buffer == self._buffer or not self._buffer:
                 break
 
+    #pylint: disable=broad-except
     def _publish_message(self, msg):
         _LOGGER_MSG.debug('RX: %s', repr(msg))
         try:
@@ -224,7 +225,6 @@ class Protocol(asyncio.Protocol):
                 else:
                     try:
                         pub.sendMessage(topic, **kwargs)
-                    #pylint: disable=broad-except
                     except Exception as e:
                         _LOGGER.error('An issue occured distributing the following message')
                         _LOGGER.error('MSG: %s', msg)
@@ -234,6 +234,10 @@ class Protocol(asyncio.Protocol):
         except ValueError:
             # No topic was found for this message
             _LOGGER.debug('No topic found for message %r', msg)
+        except Exception as e:
+            _LOGGER.error('An issue occured distributing the following message')
+            _LOGGER.error('MSG: %s', msg)
+            _LOGGER.error('Error: %s', str(e))
 
     def connection_lost(self, exc):
         """Notify listeners that the serial connection is lost."""
@@ -306,4 +310,4 @@ class Protocol(asyncio.Protocol):
                 _LOGGER_MSG.debug('TX: %s', repr(msg))
                 await self._transport.async_write(msg)
                 await asyncio.sleep(WRITE_WAIT)
-        _LOGGER.debug('Hub writer stopped.')
+        _LOGGER.debug('Modem writer stopped.')

@@ -64,6 +64,7 @@ class ALDBReadManager():
         else:
             retries = self._retries_one
         _LOGGER.debug('Attempting to read %x', mem_addr)
+        # TODO check for success or failure
         await self._read_handler.async_send(mem_addr=mem_addr, num_recs=num_recs)
         timer = TIMER + retries * TIMER_INCREMENT
         asyncio.ensure_future(self._timer(timer, mem_addr, num_recs))

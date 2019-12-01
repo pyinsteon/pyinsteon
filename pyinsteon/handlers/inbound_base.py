@@ -9,9 +9,12 @@ class InboundHandlerBase(SubscriberBase):
 
     __meta__ = ABCMeta
 
-    def __init__(self, topic):
+    def __init__(self, topic, subscriber_topic=None):
         """Init the InboundHandlerBase class."""
-        super().__init__()
+        if subscriber_topic is None:
+            subscriber_topic = 'subscriber.{}'.format(topic)
+        subscriber_topic = subscriber_topic.replace('.', '_')
+        super().__init__(subscriber_topic=subscriber_topic)
         self._topic = topic
         for attr_str in dir(self):
             attr = getattr(self, attr_str)

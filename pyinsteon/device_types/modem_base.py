@@ -127,7 +127,7 @@ class ModemBase(Device, metaclass=ABCMeta):
     def _register_default_links(self):
         """No default links for modems."""
 
-    def _register_handlers(self):
+    def _register_handlers_and_managers(self):
         """Register command handlers for modems."""
         from ..handlers.get_im_configuration import GetImConfigurationHandler
         self._handlers[GET_IM_CONFIG_COMMAND] = GetImConfigurationHandler()

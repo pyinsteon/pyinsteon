@@ -1,12 +1,9 @@
 from binascii import unhexlify
-import logging
+from tests import _LOGGER, set_log_levels
 import unittest
 import sys
 
 from pyinsteon.x10_address import X10Address, create
-
-_LOGGER = logging.getLogger(__name__)
-_INSTEON_LOGGER = logging.getLogger('pyinsteon')
 
 
 class TestX10Address(unittest.TestCase):
@@ -19,13 +16,10 @@ class TestX10Address(unittest.TestCase):
         self.address = X10Address(bytearray([self.housecode_byte,
                                              self.unitcode_byte]))
         self.address_create = create(self.housecode, self.unitcode)
-        
-        # _LOGGER.setLevel(logging.DEBUG)
-        stream_handler = logging.StreamHandler(sys.stdout)
-        _LOGGER.addHandler(stream_handler)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def test_bytes(self):
-        byte_out = bytes(bytearray([self.housecode_byte, 
+        byte_out = bytes(bytearray([self.housecode_byte,
                                     self.unitcode_byte]))
         assert bytes(self.address) == byte_out
 

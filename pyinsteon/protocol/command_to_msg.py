@@ -204,7 +204,7 @@ def id_request(address: Address, topic=pub.AUTO_TOPIC):
 def on(address: Address, on_level: int, group=0, topic=pub.AUTO_TOPIC):
     """Create a ON command."""
     user_data = None
-    if group:
+    if group and group > 1:
         user_data = UserData({'d1': group})
     _create_direct_message(topic=topic, address=address, cmd2=on_level, user_data=user_data)
 
@@ -213,7 +213,7 @@ def on(address: Address, on_level: int, group=0, topic=pub.AUTO_TOPIC):
 def on_fast(address: Address, on_level: int, group: int, topic=pub.AUTO_TOPIC):
     """Create a ON_FAST command."""
     user_data = None
-    if group:
+    if group and group > 1:
         user_data = UserData({'d1': group})
     _create_direct_message(topic=topic, address=address, cmd2=on_level, user_data=user_data)
 
@@ -222,7 +222,7 @@ def on_fast(address: Address, on_level: int, group: int, topic=pub.AUTO_TOPIC):
 def off(address: Address, group: int, cmd2: int = 0, topic=pub.AUTO_TOPIC):
     """Create a OFF command."""
     user_data = None
-    if group:
+    if group and group > 1:
         user_data = UserData({'d1': group})
     _create_direct_message(topic=topic, address=address, cmd2=cmd2, user_data=user_data)
 
@@ -231,7 +231,7 @@ def off(address: Address, group: int, cmd2: int = 0, topic=pub.AUTO_TOPIC):
 def off_fast(address: Address, group: int, topic=pub.AUTO_TOPIC):
     """Create a OFF_FAST command."""
     user_data = None
-    if group:
+    if group and group > 1:
         user_data = UserData({'d1': group})
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 

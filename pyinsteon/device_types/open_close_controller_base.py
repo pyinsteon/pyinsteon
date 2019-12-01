@@ -1,9 +1,7 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
 from . import Device
-from .commands import (STATUS_COMMAND, ON_INBOUND, OFF_INBOUND,
-                       ON_FAST_INBOUND, OFF_FAST_INBOUND)
-from ..handlers.from_device.on_level import OnLevelInbound
-from ..handlers.from_device.off import OffInbound
+from .commands import STATUS_COMMAND
+from ..managers.on_level_manager import OnLevelManager
 from ..handlers.to_device.status_request import StatusRequestCommand
 
 from ..states import OPEN_CLOSE_SENSOR_STATE
@@ -15,8 +13,14 @@ class OpenCloseControllerBase(Device):
     """Base device for Open/Close controllers."""
 
     def __init__(self, address, cat, subcat, firmware=0x00,
-                 description='', model='', buttons=1):
+                 description='', model='', normally_open=True,
+                 state_name=OPEN_CLOSE_SENSOR_STATE,
+                 open_event_name=OPEN_EVENT, close_event_name=CLOSE_EVENT):
         """Init the OpenCloseControllerBase class."""
+        self._state_name = state_name
+        self._open_event_name = open_event_name
+        self._close_event_name = close_event_name
+        self._normally_open = normally_open
         super().__init__(address, cat, subcat, firmware, description, model)
 
     def status(self, group=None):
@@ -30,51 +34,61 @@ class OpenCloseControllerBase(Device):
     def _register_default_links(self):
         pass
 
-    def _register_handlers(self):
-        super()._register_handlers()
-        self._handlers[ON_INBOUND] = OnLevelInbound(self._address)
-        self._handlers[OFF_INBOUND] = OffInbound(self._address)
+    def _register_handlers_and_managers(self):
+        super()._register_handlers_and_managers()
+        self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address, 0)
+        self._managers[1] = OnLevelManager(self._address, 1)
 
-        self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address)
-        self._handlers[STATUS_COMMAND].subscribe(self._set_status)
+    def _register_states(self):
+        """Register a Normally Open state."""
+        if self._normally_open:
+            self._states[1] = NormallyOpen(self._state_name, self._address, 1)
+        else:
+            self._states[1] = NormallyClosed(self._state_name, self._address, 1)
 
-    def _set_status(self, status):
+    def _register_events(self):
+        self._events[1] = {}
+        self._events[1][self._open_event_name] = Event(self._open_event_name, self._address, 1)
+        self._events[1][self._close_event_name] = Event(self._close_event_name, self._address, 1)
+
+    def _subscribe_to_handelers_and_managers(self):
+        super()._subscribe_to_handelers_and_managers()
+        self._handlers[STATUS_COMMAND].subscribe(self._handle_status)
+        self._managers[1].subscribe(self._states[1].set_value)
+        if self._normally_open:
+            # Open is OFF and Close is ON
+            self._managers[1].subscribe_off(self._events[self._open_event_name].trigger)
+            self._managers[1].subscribe_on(self._events[self._close_event_name].trigger)
+        else:
+            # Close is OFF and Open is ON
+            self._managers[1].subscribe_on(self._events[self._open_event_name].trigger)
+            self._managers[1].subscribe_off(self._events[self._close_event_name].trigger)
+
+    def _handle_status(self, db_version, status):
         """Set the status of the dimmable_switch state."""
         self._states[1].value = status
 
-    def _subscribe_to_handlers(self, group, normally_open=True):
-        state = self._states[group]
-        state.add_handler(self._handlers[ON_INBOUND])
-        state.add_handler(self._handlers[OFF_INBOUND])
-        state.add_handler(self._handlers[ON_FAST_INBOUND])
-        state.add_handler(self._handlers[OFF_FAST_INBOUND])
-
-        if normally_open:
-            open_inbound = ON_INBOUND
-            close_inbound = OFF_INBOUND
-        else:
-            open_inbound = OFF_INBOUND
-            close_inbound = ON_INBOUND
-
-        self._events[OPEN_EVENT] = Event(name=OPEN_EVENT, address=self._address, group=group)
-        self._events[OPEN_EVENT].add_handler(self._handlers[open_inbound])
-
-        self._events[CLOSE_EVENT] = Event(name=CLOSE_EVENT, address=self._address, group=group)
-        self._events[CLOSE_EVENT].add_handler(self._handlers[close_inbound])
 
 class NormallyOpenControllerBase(OpenCloseControllerBase):
     """Normally open controller base."""
 
-    def _register_states(self):
-        """Register a Normally Open state."""
-        self._states[1] = NormallyOpen(name=OPEN_CLOSE_SENSOR_STATE, address=self._address, group=1)
-        self._subscribe_to_handlers(group=1, normally_open=True)
+    def __init__(self, address, cat, subcat, firmware=0, description='', model='',
+                 state_name=OPEN_CLOSE_SENSOR_STATE,
+                 open_event_name=OPEN_EVENT, close_event_name=CLOSE_EVENT):
+        """Init the NormallyOpenControllerBase class."""
+        super().__init__(address, cat, subcat, firmware=firmware, description=description,
+                         model=model, normally_open=True,
+                         state_name=state_name, open_event_name=open_event_name,
+                         close_event_name=close_event_name)
 
 class NormallyClosedControllerBase(OpenCloseControllerBase):
     """Normally closed controller base."""
 
-    def _register_states(self):
-        """Register a Normally Open state."""
-        self._states[1] = NormallyClosed(
-            name=OPEN_CLOSE_SENSOR_STATE, address=self._address, group=1)
-        self._subscribe_to_handlers(group=1, normally_open=False)
+    def __init__(self, address, cat, subcat, firmware=0, description='', model='',
+                 state_name=OPEN_CLOSE_SENSOR_STATE,
+                 open_event_name=OPEN_EVENT, close_event_name=CLOSE_EVENT):
+        """Init the NormallyClosedControllerBase class."""
+        super().__init__(address, cat, subcat, firmware=firmware, description=description,
+                         model=model, normally_open=False,
+                         state_name=state_name, open_event_name=open_event_name,
+                         close_event_name=close_event_name)

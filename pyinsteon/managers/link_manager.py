@@ -24,6 +24,7 @@ async def async_enter_linking_mode(is_controller: bool, group: int):
     mode = AllLinkMode.CONTROLLER if is_controller else AllLinkMode.RESPONDER
     response = await link_cmd.async_send(mode=mode, group=group)
     _LOGGER.info('Enter linking mode response: %s', str(response))
+    return response
 
 
 async def async_enter_unlinking_mode(group: int):
@@ -32,6 +33,7 @@ async def async_enter_unlinking_mode(group: int):
     mode = AllLinkMode.DELETE
     response = await link_cmd.async_send(mode=mode, group=group)
     _LOGGER.info('Enter linking mode response: %s', str(response))
+    return response
 
 
 async def async_link_devices(controller: Device, responder: Device, group: int = 0):
