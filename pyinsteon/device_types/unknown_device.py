@@ -1,6 +1,6 @@
 """Dummy device used for testing."""
 
-from . import Device
+from .device_base import Device
 
 
 class UnknownDevice(Device):

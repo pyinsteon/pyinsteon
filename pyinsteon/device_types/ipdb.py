@@ -2,18 +2,16 @@
 import logging
 import collections
 
-from .unknown_device import UnknownDevice
-from .hub import Hub
-from .plm import PLM
-from .general_controller import (
+from . import (
+    UnknownDevice,
+    Hub,
+    PLM,
     GeneralController,
     GeneralController_ControlLinc,
     GeneralController_RemoteLinc,
     GeneralController_MiniRemote_Switch,
     GeneralController_MiniRemote_4,
     GeneralController_MiniRemote_8,
-)
-from .dimmable_lighting_control import (
     DimmableLightingControl,
     DimmableLightingControl_LampLinc,
     DimmableLightingControl_SwitchLinc,
@@ -23,8 +21,6 @@ from .dimmable_lighting_control import (
     DimmableLightingControl_FanLinc,
     DimmableLightingControl_KeypadLinc_6,
     DimmableLightingControl_KeypadLinc_8,
-)
-from .switched_lighting_control import (
     SwitchedLightingControl,
     SwitchedLightingControl_ApplianceLinc,
     SwitchedLightingControl_SwitchLinc,
@@ -34,28 +30,23 @@ from .switched_lighting_control import (
     SwitchedLightingControl_KeypadLinc_6,
     SwitchedLightingControl_KeypadLinc_8,
     SwitchedLightingControl_OnOffOutlet,
-)
-
-# from ..climateControl import ClimateControl_2441th
-from .security_health_safety import (
     SecurityHealthSafety,
     SecurityHealthSafety_OpenCloseSensor,
     SecurityHealthSafety_MotionSensor,
     SecurityHealthSafety_DoorSensor,
     SecurityHealthSafety_LeakSensor,
     SecurityHealthSafety_Smokebridge,
+    SensorsActuators,
+    SensorsActuators_IOLink,
+    # WindowCovering,
+    # X10OnOff,
+    # X10Dimmable,
+    # X10Sensor,
+    # X10AllUnitsOff,
+    # X10AllLightsOn,
+    # X10AllLightsOff
 )
 
-# Motion Sensor II
-from .sensors_actuators import SensorsActuators, SensorsActuators_IOLink
-
-# from ..windowCoverings import WindowCovering
-# from ..x10 import (X10OnOff, X10Dimmable, X10Sensor,
-#                    X10AllUnitsOff, X10AllLightsOn,
-#                    X10AllLightsOff)
-
-# pylint: disable=line-too-long
-# pylint: disable=too-few-public-methods
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -71,7 +62,6 @@ X10Product = collections.namedtuple("X10Product", "feature deviceclass")
 class IPDB:
     """Embodies the INSTEON Product Database static data and access methods."""
 
-    # pylint disable=line-too-long
     _products = [
         Product(None, None, None, "Unknown Device", "", UnknownDevice),
         Product(0x00, None, None, "Generic General Controller", "", GeneralController),

@@ -1,7 +1,7 @@
 """Insteon Modem Base Class."""
 from abc import ABCMeta
 import asyncio
-from . import Device
+from .device_base import Device
 from ..aldb.modem_aldb import ModemALDB
 
 from .commands import GET_IM_CONFIG_COMMAND

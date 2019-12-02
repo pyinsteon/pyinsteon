@@ -1,5 +1,5 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
-from . import Device
+from .device_base import Device
 from .commands import STATUS_COMMAND
 from ..managers.on_level_manager import OnLevelManager
 from ..handlers.to_device.status_request import StatusRequestCommand
