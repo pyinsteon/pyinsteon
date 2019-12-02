@@ -20,7 +20,6 @@ SMOKE_SENSOR = 'smoke_sensor'
 CO_SENSOR = 'co_sensor'
 TEST_SENSOR = 'test_sensor'
 NEW_SENSOR = 'new_sensor'
-LOW_BATTERY = 'low_battery'
 HEARTBEAT = 'heartbeat'
 SENSOR_MALFUNCTION = 'sensor_malfunction'
 
