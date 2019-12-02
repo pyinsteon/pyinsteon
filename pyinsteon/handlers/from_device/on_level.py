@@ -19,4 +19,4 @@ class OnLevelInbound(BroadcastCommandHandlerBase):
         """Handle the ON command from a device."""
         group = target.low
         if group == self._group:
-            self._call_subscribers(on_level=cmd2 if cmd2 else 0xff)
+            self._call_subscribers(on_level=cmd2 if cmd2 else 0xFF)

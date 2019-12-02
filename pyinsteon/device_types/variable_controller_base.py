@@ -8,23 +8,32 @@ from ..states import DIMMABLE_LIGHT
 from ..states.on_level import OnLevel
 from ..events import Event, ON_EVENT, ON_FAST_EVENT, OFF_EVENT, OFF_FAST_EVENT
 
-ON_LEVEL_MANAGER = 'on_level_manager'
+ON_LEVEL_MANAGER = "on_level_manager"
+
 
 class VariableControllerBase(Device):
     """Variable state value controller device."""
 
-    def __init__(self, address, cat, subcat, firmware=0x00,
-                 description='', model='', buttons=None):
+    def __init__(
+        self,
+        address,
+        cat,
+        subcat,
+        firmware=0x00,
+        description="",
+        model="",
+        buttons=None,
+    ):
         """Init the VariableControllerBase class."""
         self._buttons = {1: DIMMABLE_LIGHT} if buttons is None else buttons
         super().__init__(address, cat, subcat, firmware, description, model)
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     def status(self):
         """Request the status of the device."""
         self._handlers[STATUS_COMMAND].send()
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     async def async_status(self):
         """Request the status of the device.
 
@@ -44,15 +53,15 @@ class VariableControllerBase(Device):
         for group in self._buttons:
             if self._managers.get(group) is None:
                 self._managers[group] = {}
-            self._managers[group][ON_LEVEL_MANAGER] = OnLevelManager(self._address, group)
+            self._managers[group][ON_LEVEL_MANAGER] = OnLevelManager(
+                self._address, group
+            )
 
     def _register_states(self):
         super()._register_states()
         for group in self._buttons:
             name = self._buttons[group]
-            self._states[group] = OnLevel(name=name,
-                                          address=self._address,
-                                          group=group)
+            self._states[group] = OnLevel(name=name, address=self._address, group=group)
 
     def _register_events(self):
         super()._register_events()
@@ -61,8 +70,12 @@ class VariableControllerBase(Device):
                 self._events[group] = {}
             self._events[group][ON_EVENT] = Event(ON_EVENT, self._address, group)
             self._events[group][OFF_EVENT] = Event(OFF_EVENT, self._address, group)
-            self._events[group][ON_FAST_EVENT] = Event(ON_FAST_EVENT, self._address, group)
-            self._events[group][OFF_FAST_EVENT] = Event(OFF_FAST_EVENT, self._address, group)
+            self._events[group][ON_FAST_EVENT] = Event(
+                ON_FAST_EVENT, self._address, group
+            )
+            self._events[group][OFF_FAST_EVENT] = Event(
+                OFF_FAST_EVENT, self._address, group
+            )
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()

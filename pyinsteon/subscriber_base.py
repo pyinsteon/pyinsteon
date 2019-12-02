@@ -3,6 +3,7 @@ from abc import ABC
 from typing import Callable
 from . import pub
 
+
 class SubscriberBase(ABC):
     """Event class to manage triggering of events."""
 

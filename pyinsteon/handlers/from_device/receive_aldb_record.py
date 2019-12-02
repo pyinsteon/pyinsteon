@@ -18,33 +18,43 @@ class ReceiveALDBRecordHandler(InboundHandlerBase):
 
     def __init__(self, address: Address):
         """Init the ReceiveALDBRecordHandler class."""
-        topic = '{}.{}.direct'.format(address.id, EXTENDED_READ_WRITE_ALDB)
+        topic = "{}.{}.direct".format(address.id, EXTENDED_READ_WRITE_ALDB)
         super().__init__(topic)
 
     @inbound_handler
     def handle_response(self, cmd1, cmd2, target, user_data):
         """Handle the inbound message."""
-        _LOGGER.debug('ALDB Read direct message received')
-        if user_data is not None and user_data.get('d2') == 0x01:
-            memhi = user_data.get('d3')
-            memlo = user_data.get('d4')
+        _LOGGER.debug("ALDB Read direct message received")
+        if user_data is not None and user_data.get("d2") == 0x01:
+            memhi = user_data.get("d3")
+            memlo = user_data.get("d4")
             memory = memhi << 8 | memlo
-            control_flags = user_data.get('d6')
+            control_flags = user_data.get("d6")
             if isinstance(control_flags, bytes):
-                control_flags = int.from_bytes(control_flags, 'big')
+                control_flags = int.from_bytes(control_flags, "big")
             in_use = bool(control_flags & 1 << 7)
             controller = bool(control_flags & 1 << 6)
             bit5 = bool(control_flags & 1 << 5)
             bit4 = bool(control_flags & 1 << 4)
             high_water_mark = not bool(control_flags & 1 << 1)
-            group = user_data.get('d7')
-            addrhi = user_data.get('d8')
-            addrmed = user_data.get('d9')
-            addrlo = user_data.get('d10')
+            group = user_data.get("d7")
+            addrhi = user_data.get("d8")
+            addrmed = user_data.get("d9")
+            addrlo = user_data.get("d10")
             target = Address(bytearray([addrhi, addrmed, addrlo]))
-            data1 = user_data.get('d11')
-            data2 = user_data.get('d12')
-            data3 = user_data.get('d13')
-            self._call_subscribers(memory=memory, controller=controller, group=group, target=target,
-                                   data1=data1, data2=data2, data3=data3, in_use=in_use,
-                                   high_water_mark=high_water_mark, bit5=bit5, bit4=bit4)
+            data1 = user_data.get("d11")
+            data2 = user_data.get("d12")
+            data3 = user_data.get("d13")
+            self._call_subscribers(
+                memory=memory,
+                controller=controller,
+                group=group,
+                target=target,
+                data1=data1,
+                data2=data2,
+                data3=data3,
+                in_use=in_use,
+                high_water_mark=high_water_mark,
+                bit5=bit5,
+                bit4=bit4,
+            )

@@ -8,8 +8,7 @@ class SerialTransport(SerialTransportBase):
 
     def __init__(self, loop, protocol, serial_instance, device):
         """Init the SerialTransport class."""
-        super().__init__(loop=loop, protocol=protocol,
-                         serial_instance=serial_instance)
+        super().__init__(loop=loop, protocol=protocol, serial_instance=serial_instance)
         self._device = device
 
     @property
@@ -32,6 +31,7 @@ class SerialTransport(SerialTransportBase):
     async def async_connect(self, protocol, device=None, loop=None):
         """Connect to a serial device asycrounously."""
         from . import async_connect_serial
+
         device = device if device else self._device
         transport = async_connect_serial(device=device, protocol=protocol)
         return transport

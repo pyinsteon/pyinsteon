@@ -5,10 +5,16 @@ from ...utils import bit_is_set, set_bit, test_values_eq
 from ...constants import AllLinkMode
 
 
-def create(in_use: bool, controller: bool, hwm: bool,
-           bit5: bool = False, bit4: bool = False,
-           bit3: bool = False, bit2: bool = False,
-           bit0: bool = False):
+def create(
+    in_use: bool,
+    controller: bool,
+    hwm: bool,
+    bit5: bool = False,
+    bit4: bool = False,
+    bit3: bool = False,
+    bit2: bool = False,
+    bit0: bool = False,
+):
     """Create an AllLinkRecordFlags entity."""
     flags = 0x00
     flags = set_bit(flags, 7, in_use)
@@ -28,7 +34,7 @@ def _normalize(data):
     return data
 
 
-class AllLinkRecordFlags():
+class AllLinkRecordFlags:
     """All-Link Record Flags."""
 
     def __init__(self, data: int):
@@ -63,18 +69,20 @@ class AllLinkRecordFlags():
 
     def __int__(self):
         """Return the integer representation of the flags."""
-        return int.from_bytes(bytes(self), byteorder='big')
+        return int.from_bytes(bytes(self), byteorder="big")
 
     def __repr__(self):
         """Return the hex representation of the flags."""
-        val = {'in use': 1 if self.is_in_use else 0,
-               'mode': 1 if bool(self.mode.value) else 0,
-               'bit5': 1 if self.is_bit_5_set else 0,
-               'bit4': 1 if self.is_bit_4_set else 0,
-               'bit3': 1 if self.is_bit_3_set else 0,
-               'bit2': 1 if self.is_bit_2_set else 0,
-               'hwm': 0 if self.is_hwm else 1,
-               'bit0': 1 if self.is_bit_0_set else 0}
+        val = {
+            "in use": 1 if self.is_in_use else 0,
+            "mode": 1 if bool(self.mode.value) else 0,
+            "bit5": 1 if self.is_bit_5_set else 0,
+            "bit4": 1 if self.is_bit_4_set else 0,
+            "bit3": 1 if self.is_bit_3_set else 0,
+            "bit2": 1 if self.is_bit_2_set else 0,
+            "hwm": 0 if self.is_hwm else 1,
+            "bit0": 1 if self.is_bit_0_set else 0,
+        }
         return str(val)
 
     def __str__(self):

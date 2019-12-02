@@ -9,8 +9,15 @@ devices = DeviceManager()
 # pub.setListenerExcHandler(ListenerExceptionHandler())
 
 
-async def async_connect(device=None, host=None, port=None, username=None,
-                        password=None, hub_version=2, **kwargs):
+async def async_connect(
+    device=None,
+    host=None,
+    port=None,
+    username=None,
+    password=None,
+    hub_version=2,
+    **kwargs
+):
     """Connect to the Insteon Modem.
 
     Parameters:
@@ -23,19 +30,27 @@ async def async_connect(device=None, host=None, port=None, username=None,
 
     Returns an Insteon Modem (PLM or Hub).
     """
-    modem = await async_modem_connect(device=device, host=host, port=port,
-                                      username=username, password=password,
-                                      hub_version=hub_version, **kwargs)
+    modem = await async_modem_connect(
+        device=device,
+        host=host,
+        port=port,
+        username=username,
+        password=password,
+        hub_version=hub_version,
+        **kwargs
+    )
     devices.modem = modem
     devices.id_manager.start()
     return devices
 
+
 async def async_close():
     """Close the connection and stop all tasks."""
     import asyncio
+
     await devices.modem.async_close()
     for addr in devices:
         if devices[addr].is_battery:
             devices[addr].close()
     devices.id_manager.close()
-    await asyncio.sleep(.1)
+    await asyncio.sleep(0.1)

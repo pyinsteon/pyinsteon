@@ -1,6 +1,7 @@
 """Class to define the message definitions."""
 
-class MessageDefinition():
+
+class MessageDefinition:
     """Insteon message defintion."""
 
     def __init__(self, message_id, message_fields: []):

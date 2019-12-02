@@ -5,7 +5,7 @@ from ..topics import START_ALL_LINKING
 from ..constants import AllLinkMode
 
 
-#pylint: disable=arguments-differ
+# pylint: disable=arguments-differ
 class StartAllLinkingCommandHandler(OutboundHandlerBase):
     """Start All-Linking Command."""
 

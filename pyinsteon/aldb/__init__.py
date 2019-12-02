@@ -17,10 +17,11 @@ from .. import pub
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class ALDBBase(ABC):
     """Represents a base class for a device All-Link database."""
 
-    def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0fff):
+    def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0FFF):
         """Instantiate the ALL-Link Database object."""
         self._records = {}
         self._status = ALDBStatus.EMPTY
@@ -52,7 +53,7 @@ class ALDBBase(ABC):
     def __repr__(self):
         """Human representation of a device from the ALDB."""
         attrs = vars(self)
-        return ', '.join("%s: %r" % item for item in attrs.items())
+        return ", ".join("%s: %r" % item for item in attrs.items())
 
     @property
     def address(self) -> Address:
@@ -114,10 +115,11 @@ class ALDBBase(ABC):
 class ALDB(ALDBBase):
     """All-Link Database for a device."""
 
-    def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0fff):
+    def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0FFF):
         """Init the ALDB class."""
         from ..managers.aldb_read_manager import ALDBReadManager
         from ..managers.aldb_write_manager import ALDBWriteManager
+
         super().__init__(address=address, version=version, mem_addr=mem_addr)
         self._read_manager = ALDBReadManager(self)
         self._write_manager = ALDBWriteManager(self)
@@ -134,15 +136,22 @@ class ALDB(ALDBBase):
         self._cb_aldb_loaded = callback
         asyncio.ensure_future(self.async_load(refresh))
 
-    #pylint: disable=arguments-differ
-    async def async_load(self, mem_addr: int = 0x00, num_recs: int = 0x00,
-                         refresh: bool = False, callback: Callable = None):
+    # pylint: disable=arguments-differ
+    async def async_load(
+        self,
+        mem_addr: int = 0x00,
+        num_recs: int = 0x00,
+        refresh: bool = False,
+        callback: Callable = None,
+    ):
         """Load the All-Link Database."""
-        _LOGGER.debug('Loading the ALDB async')
+        _LOGGER.debug("Loading the ALDB async")
         self._status = ALDBStatus.LOADING
         if refresh:
             self._records = {}
-        async for rec in self._read_manager.async_read(mem_addr=mem_addr, num_recs=num_recs):
+        async for rec in self._read_manager.async_read(
+            mem_addr=mem_addr, num_recs=num_recs
+        ):
             self._records[rec.mem_addr] = rec
         self._set_load_status()
         if callback:
@@ -160,13 +169,15 @@ class ALDB(ALDBBase):
         Returns a tuple of (completed, failed) record counts.
         """
         from ..handlers import ResponseStatus
+
         completed = []
         failed = []
         while self._dirty_records:
             record = self._dirty_records.pop()
             if record.mem_addr == 0x0000:
-                mem_addr = self._existing_link(record.is_controller,
-                                               record.group, record.target)
+                mem_addr = self._existing_link(
+                    record.is_controller, record.group, record.target
+                )
                 if mem_addr is None:
                     mem_addr = self._get_next_mem_addr()
                 record.mem_addr = mem_addr
@@ -185,9 +196,17 @@ class ALDB(ALDBBase):
             self._dirty_records.append(record)
         return len(completed), len(self._dirty_records)
 
-    def add(self, group: int, target: Address, controller: bool = False,
-            data1: int = 0x00, data2: int = 0x00, data3: int = 0x00,
-            bit5: int = True, bit4: int = False):
+    def add(
+        self,
+        group: int,
+        target: Address,
+        controller: bool = False,
+        data1: int = 0x00,
+        data2: int = 0x00,
+        data3: int = 0x00,
+        bit5: int = True,
+        bit4: int = False,
+    ):
         """Add an All-Link record.
 
         This method does not write to the device. To write modifications to the device
@@ -195,29 +214,50 @@ class ALDB(ALDBBase):
         """
         mem_addr = 0x0000
 
-        rec = ALDBRecord(memory=mem_addr, in_use=True, controller=controller, high_water_mark=False,
-                         group=group, target=target, data1=data1, data2=data2, data3=data3,
-                         bit5=bit5, bit4=bit4)
+        rec = ALDBRecord(
+            memory=mem_addr,
+            in_use=True,
+            controller=controller,
+            high_water_mark=False,
+            group=group,
+            target=target,
+            data1=data1,
+            data2=data2,
+            data3=data3,
+            bit5=bit5,
+            bit4=bit4,
+        )
         self._dirty_records.append(rec)
 
     def remove(self, mem_addr: int):
         """Remove an All-Link record."""
         rec = self._records.get(mem_addr)
         if not rec:
-            raise IndexError('Memory location not found.')
-        new_rec = ALDBRecord(memory=rec.mem_addr, in_use=False, controller=rec.is_controller,
-                             high_water_mark=rec.is_high_water_mark, group=rec.group,
-                             target=rec.target, data1=rec.data1, data2=rec.data2,
-                             data3=rec.data3, bit5=rec.is_bit5_set, bit4=rec.is_bit4_set)
+            raise IndexError("Memory location not found.")
+        new_rec = ALDBRecord(
+            memory=rec.mem_addr,
+            in_use=False,
+            controller=rec.is_controller,
+            high_water_mark=rec.is_high_water_mark,
+            group=rec.group,
+            target=rec.target,
+            data1=rec.data1,
+            data2=rec.data2,
+            data3=rec.data3,
+            bit5=rec.is_bit5_set,
+            bit4=rec.is_bit4_set,
+        )
         self._dirty_records.append(new_rec)
 
     def _existing_link(self, is_controller, group, address):
         """Test if a link exists in a device ALDB."""
         for mem_addr in self._records:
             rec = self._records[mem_addr]
-            if (rec.is_controller == is_controller and
-                    rec.target == address and
-                    rec.group == group):
+            if (
+                rec.is_controller == is_controller
+                and rec.target == address
+                and rec.group == group
+            ):
                 return rec.mem_addr
         return None
 
@@ -244,7 +284,7 @@ class ALDB(ALDBBase):
         first = True
         for mem_addr in sorted(self._records, reverse=True):
             if first:
-                _LOGGER.debug('First Addr: 0x%4x', mem_addr)
+                _LOGGER.debug("First Addr: 0x%4x", mem_addr)
             if mem_addr == self._mem_addr:
                 has_first = True
             if self._records[mem_addr].is_high_water_mark:
@@ -252,13 +292,13 @@ class ALDB(ALDBBase):
             if last_addr != 0x0000:
                 has_all = (last_addr - mem_addr) == 8
             last_addr = mem_addr
-        _LOGGER.debug('Has First is %s', has_first)
-        _LOGGER.debug('Has Last is %s', has_last)
-        _LOGGER.debug('Has All is %s', has_all)
+        _LOGGER.debug("Has First is %s", has_first)
+        _LOGGER.debug("Has Last is %s", has_last)
+        _LOGGER.debug("Has All is %s", has_all)
         return has_first and has_all and has_last
 
     def _set_load_status(self):
-        _LOGGER.debug('Setting the load status')
+        _LOGGER.debug("Setting the load status")
         if self.calc_load_status():
             self._status = ALDBStatus.LOADED
         elif self._records:

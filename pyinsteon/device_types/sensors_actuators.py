@@ -5,7 +5,7 @@ from ..states import OPEN_CLOSE_SENSOR
 from ..states.open_close import NormallyOpen
 from .on_off_responder_base import OnOffResponderBase
 
-ON_LEVEL_MANAGER = 'on_level_manager'
+ON_LEVEL_MANAGER = "on_level_manager"
 SENSOR_GROUP = 2
 
 
@@ -20,33 +20,50 @@ class SensorsActuators_IOLink(SensorsActuators):
         super()._register_handlers_and_managers()
         if self._managers.get(SENSOR_GROUP) is None:
             self._managers[SENSOR_GROUP] = {}
-        self._managers[SENSOR_GROUP][ON_LEVEL_MANAGER] = OnLevelManager(self._address,
-                                                                        SENSOR_GROUP)
+        self._managers[SENSOR_GROUP][ON_LEVEL_MANAGER] = OnLevelManager(
+            self._address, SENSOR_GROUP
+        )
 
     def _register_states(self):
         super()._register_states()
         # Off is a Open state and On is an Closed state
-        self._states[SENSOR_GROUP] = NormallyOpen(OPEN_CLOSE_SENSOR,
-                                                  self._address, SENSOR_GROUP)
+        self._states[SENSOR_GROUP] = NormallyOpen(
+            OPEN_CLOSE_SENSOR, self._address, SENSOR_GROUP
+        )
 
     def _register_events(self):
         super()._register_events()
         if self._events.get(SENSOR_GROUP) is None:
             self._events[SENSOR_GROUP] = {}
-        self._events[SENSOR_GROUP][OPEN_EVENT] = Event(OPEN_EVENT, self._address, SENSOR_GROUP)
-        self._events[SENSOR_GROUP][CLOSE_EVENT] = Event(CLOSE_EVENT, self._address, SENSOR_GROUP)
+        self._events[SENSOR_GROUP][OPEN_EVENT] = Event(
+            OPEN_EVENT, self._address, SENSOR_GROUP
+        )
+        self._events[SENSOR_GROUP][CLOSE_EVENT] = Event(
+            CLOSE_EVENT, self._address, SENSOR_GROUP
+        )
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         self._managers[SENSOR_GROUP].subscribe(self._states[SENSOR_GROUP].set_value)
-        self._managers[SENSOR_GROUP].subscribe_off(self._events[SENSOR_GROUP][OPEN_EVENT].trigger)
-        self._managers[SENSOR_GROUP].subscribe_on(self._events[SENSOR_GROUP][CLOSE_EVENT].trigger)
+        self._managers[SENSOR_GROUP].subscribe_off(
+            self._events[SENSOR_GROUP][OPEN_EVENT].trigger
+        )
+        self._managers[SENSOR_GROUP].subscribe_on(
+            self._events[SENSOR_GROUP][CLOSE_EVENT].trigger
+        )
 
     def _register_operating_flags(self):
-        from ..operating_flag import (PROGRAM_LOCK_ON, LED_BLINK_ON_TX_ON, RELAY_ON_SENSE_ON,
-                                      MOMENTARY_MODE_ON, MOMENTARY_ON_OFF_TRIGGER, SENSE_SENDS_OFF,
-                                      MOMENTARY_FOLLOW_SENSE, X10_OFF)
-        from ..extended_property import (X10_HOUSE, X10_UNIT, DELAY, PRESCALER)
+        from ..operating_flag import (
+            PROGRAM_LOCK_ON,
+            LED_BLINK_ON_TX_ON,
+            RELAY_ON_SENSE_ON,
+            MOMENTARY_MODE_ON,
+            MOMENTARY_ON_OFF_TRIGGER,
+            SENSE_SENDS_OFF,
+            MOMENTARY_FOLLOW_SENSE,
+            X10_OFF,
+        )
+        from ..extended_property import X10_HOUSE, X10_UNIT, DELAY, PRESCALER
 
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)

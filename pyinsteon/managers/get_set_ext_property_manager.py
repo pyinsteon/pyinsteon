@@ -7,7 +7,9 @@ from pyinsteon.handlers.to_device.extended_set import ExtendedSetCommand
 from pyinsteon.handlers.from_device.ext_get_response import ExtendedGetResponseHandler
 
 
-PropertyInfo = namedtuple("PropertyInfo", "flag update_method group data_field bit set_cmd")
+PropertyInfo = namedtuple(
+    "PropertyInfo", "flag update_method group data_field bit set_cmd"
+)
 
 
 def _calc_flag_value(field):
@@ -21,7 +23,7 @@ def _calc_flag_value(field):
     return set_cmd, data
 
 
-class GetSetExtendedPropertyManager():
+class GetSetExtendedPropertyManager:
     """Get and Set extended properties for a device."""
 
     def __init__(self, address: Address):
@@ -71,7 +73,9 @@ class GetSetExtendedPropertyManager():
                 set_cmd, data = _calc_flag_value(self._groups[group][field])
             if set_cmd is not None:
                 # TODO check for success or failure
-                await self._set_command.async_send(group=group, action=set_cmd, data3=data)
+                await self._set_command.async_send(
+                    group=group, action=set_cmd, data3=data
+                )
 
     def _update_flags(self, group, data):
         """Update each flag."""
@@ -80,7 +84,7 @@ class GetSetExtendedPropertyManager():
         if self._groups.get(group) is None:
             return
         for field in self._groups[group]:
-            value = data.get('data{}'.format(field))
+            value = data.get("data{}".format(field))
             if isinstance(self._groups[group][field], PropertyInfo):
                 flag_info = self._groups[group][field]
                 flag_info.update_method(value=value)

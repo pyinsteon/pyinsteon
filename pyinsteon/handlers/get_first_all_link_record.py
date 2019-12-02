@@ -1,5 +1,5 @@
 """Modem command to get next ALDB record."""
-#pylint: disable=no-self-use
+# pylint: disable=no-self-use
 import logging
 
 from .outbound_base import OutboundHandlerBase
@@ -16,7 +16,7 @@ class GetFirstAllLinkRecordHandler(OutboundHandlerBase):
     def __init__(self):
         """Init the GetNextAldbRecordNak class."""
         super().__init__(topic=GET_FIRST_ALL_LINK_RECORD)
-        _LOGGER.debug('Setup GetFirstAllLinkRecordHandler')
+        _LOGGER.debug("Setup GetFirstAllLinkRecordHandler")
 
     @ack_handler()
     def handle_ack(self):

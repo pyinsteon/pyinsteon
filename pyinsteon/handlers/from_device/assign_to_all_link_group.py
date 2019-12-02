@@ -18,5 +18,11 @@ class AssignToAllLinkGroupCommand(BroadcastCommandHandlerBase):
         cat = target.high
         subcat = target.middle
         firmware = target.low
-        self._call_subscribers(address=self._address, cat=cat, subcat=subcat,
-                               firmware=firmware, group=cmd2, mode=None)
+        self._call_subscribers(
+            address=self._address,
+            cat=cat,
+            subcat=subcat,
+            firmware=firmware,
+            group=cmd2,
+            mode=None,
+        )

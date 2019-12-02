@@ -8,14 +8,16 @@ from ..subscriber_base import SubscriberBase
 from ..address import Address
 from ..handlers.to_device.id_request import IdRequestCommand
 from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
-from ..handlers.from_device.delete_from_all_link_group import DeleteFromAllLinkGroupCommand
+from ..handlers.from_device.delete_from_all_link_group import (
+    DeleteFromAllLinkGroupCommand,
+)
 
 _LOGGER = logging.getLogger(__name__)
 MAX_RETRIES = 5
 RETRY_PAUSE = 2
 
 
-DeviceId = namedtuple('DeviceId', 'address cat subcat firmware')  # product_id')
+DeviceId = namedtuple("DeviceId", "address cat subcat firmware")  # product_id')
 
 
 class DeviceIdManager(SubscriberBase):
@@ -23,7 +25,7 @@ class DeviceIdManager(SubscriberBase):
 
     def __init__(self):
         """Init the DeviceIdManager class."""
-        super().__init__(subscriber_topic='device_id')
+        super().__init__(subscriber_topic="device_id")
         self._unknown_devices = []
         self._device_ids = {}
         self._awake_devices = []
@@ -56,9 +58,12 @@ class DeviceIdManager(SubscriberBase):
             self._unknown_devices.append(address)
             pub.subscribe(self._device_awake, address.id)
 
-    def set_device_id(self, address: Address, cat: int, subcat: int, firmware: int = 0x00):
+    def set_device_id(
+        self, address: Address, cat: int, subcat: int, firmware: int = 0x00
+    ):
         """Set the device ID of a device."""
         from .. import devices
+
         address = Address(address)
         cat = int(cat)
         subcat = int(subcat)
@@ -124,17 +129,21 @@ class DeviceIdManager(SubscriberBase):
         pub.unsubscribe(self._device_awake, address.id)
         self._call_subscribers(device_id=device_id)
 
-    def _set_device_info(self, address, cat=None, subcat=None, firmware=None, product_id=None):
+    def _set_device_info(
+        self, address, cat=None, subcat=None, firmware=None, product_id=None
+    ):
         """Set the device ID info."""
         device_id = self._device_ids.get(address)
         if device_id is None:
             new_id = DeviceId(address, cat, subcat, firmware)
         else:
-            new_id = DeviceId(address,
-                              cat if cat else device_id.cat,
-                              subcat if subcat else device_id.subcat,
-                              firmware if firmware else device_id.firmware)  # ,
-                              # product_id if product_id else device_id.product_id)
+            new_id = DeviceId(
+                address,
+                cat if cat else device_id.cat,
+                subcat if subcat else device_id.subcat,
+                firmware if firmware else device_id.firmware,
+            )  # ,
+            # product_id if product_id else device_id.product_id)
         self._device_ids[address] = new_id
 
     async def _id_awake_devices(self):
@@ -143,7 +152,7 @@ class DeviceIdManager(SubscriberBase):
             address = await self._awake_devices_queue.get()
             if address is None:
                 break
-            await asyncio.sleep(.5)
+            await asyncio.sleep(0.5)
             await self.async_id_device(address=address)
             await asyncio.sleep(2)
             self._check_awake_device(address)
@@ -163,7 +172,7 @@ class DeviceIdManager(SubscriberBase):
         if self._id_device_lock.locked():
             return
         try:
-            address = Address(topic.name.split('.')[0])
+            address = Address(topic.name.split(".")[0])
         except ValueError:
             pass
         else:

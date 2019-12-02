@@ -1,7 +1,12 @@
 """Insteon device address class."""
 import logging
 
-from .utils import byte_to_housecode, byte_to_unitcode, housecode_to_byte, unitcode_to_byte
+from .utils import (
+    byte_to_housecode,
+    byte_to_unitcode,
+    housecode_to_byte,
+    unitcode_to_byte,
+)
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -9,14 +14,30 @@ _LOGGER = logging.getLogger(__name__)
 
 def create(housecode: str, unitcode: int):
     """Create an X10 device address."""
-    if housecode.lower() in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
-                             'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p']:
+    if housecode.lower() in [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h",
+        "i",
+        "j",
+        "k",
+        "l",
+        "m",
+        "n",
+        "o",
+        "p",
+    ]:
         byte_housecode = housecode_to_byte(housecode)
     else:
         if isinstance(housecode, str):
-            str_error = 'X10 house code invalid: {}'.format(housecode)
+            str_error = "X10 house code invalid: {}".format(housecode)
         else:
-            str_error = 'X10 house code is not a string'
+            str_error = "X10 house code is not a string"
             raise ValueError(str_error)
 
     # 20, 21 and 22 for All Units Off, All Lights On and All Lights Off
@@ -25,38 +46,38 @@ def create(housecode: str, unitcode: int):
         byte_unitcode = unitcode_to_byte(unitcode)
     else:
         if isinstance(unitcode, int):
-            str_error = 'X10 unit code error: {}'.format(unitcode)
+            str_error = "X10 unit code error: {}".format(unitcode)
         else:
-            str_error = 'X10 unit code is not an integer 1 - 16'
+            str_error = "X10 unit code is not an integer 1 - 16"
             raise ValueError(str_error)
 
     addr = X10Address(bytearray([byte_housecode, byte_unitcode]))
     return addr
 
 
-class X10Address():
+class X10Address:
     """Datatype definition for an X10 device address."""
 
     def __init__(self, housecode_unitcode: bytearray):
         """Create an X10 device address."""
         if len(housecode_unitcode) != 2:
-            raise ValueError('housecode_unitcode must be 2 bytes')
+            raise ValueError("housecode_unitcode must be 2 bytes")
         self._housecode_byte = housecode_unitcode[0]
         self._unitcode_byte = housecode_unitcode[1]
         valid = self._check_housecode_unitcode()
         if not valid:
-            raise ValueError('Invalid housecode or unitcode byte')
+            raise ValueError("Invalid housecode or unitcode byte")
 
     def __repr__(self):
         """Return the string representation of an X10 device address."""
         hex_housecode = hex(self._housecode_byte)
         hex_unitcode = hex(self._unitcode_byte)
-        str_rep = {'housecode': hex_housecode, 'unitcode': hex_unitcode}
+        str_rep = {"housecode": hex_housecode, "unitcode": hex_unitcode}
         return str(str_rep)
 
     def __str__(self):
         """Return the string representation of an X10 device address."""
-        str_rep = {'housecode': self.housecode, 'unitcode': self.unitcode}
+        str_rep = {"housecode": self.housecode, "unitcode": self.unitcode}
         return str(str_rep)
 
     def __bytes__(self):
@@ -75,7 +96,7 @@ class X10Address():
             return self.housecode_byte
         if byte == 1:
             return self.unitcode_byte
-        err = 'Item index must be 0 or 1: {}'.format(byte)
+        err = "Item index must be 0 or 1: {}".format(byte)
         raise ValueError(err)
 
     def _check_housecode_unitcode(self):

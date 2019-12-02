@@ -12,5 +12,5 @@ class AllLinkCleanupCommandHandlerBase(InboundHandlerBase):
         self._address = Address(address)
         self._group = group
         msg_type = str(MessageFlagType.ALL_LINK_CLEANUP)
-        topic = '{}.{}.{}.{}'.format(self._address.id, command, group, msg_type)
+        topic = "{}.{}.{}.{}".format(self._address.id, command, group, msg_type)
         super().__init__(topic)

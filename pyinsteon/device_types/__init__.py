@@ -14,19 +14,32 @@ from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManage
 from ..handlers.to_device.extended_set import ExtendedSetCommand
 from ..operating_flag import OperatingFlag
 from ..extended_property import ExtendedProperty
-from .commands import (EXTENDED_GET_COMMAND, EXTENDED_SET_COMMAND,
-                       GET_OPERATING_FLAGS_COMMAND,
-                       SET_OPERATING_FLAGS_COMMAND,
-                       EXTENDED_GET_RESPONSE, ON_ALL_LINK_CLEANUP,
-                       OFF_ALL_LINK_CLEANUP)
+from .commands import (
+    EXTENDED_GET_COMMAND,
+    EXTENDED_SET_COMMAND,
+    GET_OPERATING_FLAGS_COMMAND,
+    SET_OPERATING_FLAGS_COMMAND,
+    EXTENDED_GET_RESPONSE,
+    ON_ALL_LINK_CLEANUP,
+    OFF_ALL_LINK_CLEANUP,
+)
 
 _LOGGER = logging.getLogger(__name__)
+
 
 class Device(ABC):
     """INSTEON Device Class."""
 
-    def __init__(self, address, cat, subcat, firmware=0x00,
-                 description='', model='', buttons=None):
+    def __init__(
+        self,
+        address,
+        cat,
+        subcat,
+        firmware=0x00,
+        description="",
+        model="",
+        buttons=None,
+    ):
         """Init the Device class."""
         self._address = Address(address)
         self._cat = cat
@@ -178,6 +191,7 @@ class Device(ABC):
     async def async_get_product_id(self):
         """Get the product ID."""
         from ..handlers.to_device.product_data_request import ProductDataRequestCommand
+
         return await ProductDataRequestCommand(self._address).async_send()
 
     def _register_states(self):
@@ -197,27 +211,30 @@ class Device(ABC):
 
     def _register_operating_flags(self):
         """Add operating flags to the device."""
-        self._add_operating_flag('bit0', 0, 0, 0, 1)
-        self._add_operating_flag('bit1', 0, 1, 2, 3)
-        self._add_operating_flag('bit2', 0, 2, 4, 5)
-        self._add_operating_flag('bit3', 0, 3, 6, 7)
-        self._add_operating_flag('bit4', 0, 4, 8, 9)
-        self._add_operating_flag('bit5', 0, 5, 10, 11)
-        self._add_operating_flag('bit6', 0, 6, 12, 13)
-        self._add_operating_flag('bit7', 0, 7, 14, 15)
+        self._add_operating_flag("bit0", 0, 0, 0, 1)
+        self._add_operating_flag("bit1", 0, 1, 2, 3)
+        self._add_operating_flag("bit2", 0, 2, 4, 5)
+        self._add_operating_flag("bit3", 0, 3, 6, 7)
+        self._add_operating_flag("bit4", 0, 4, 8, 9)
+        self._add_operating_flag("bit5", 0, 5, 10, 11)
+        self._add_operating_flag("bit6", 0, 6, 12, 13)
+        self._add_operating_flag("bit7", 0, 7, 14, 15)
 
     def _add_operating_flag(self, name, group, bit, set_cmd, unset_cmd):
         flag_type = bool if bit is not None else int
         self._operating_flags[name] = OperatingFlag(self._address, name, flag_type)
         flag = self._operating_flags[name]
-        self._op_flags_manager.subscribe(flag, flag.load, group, bit,
-                                         set_cmd, unset_cmd)
+        self._op_flags_manager.subscribe(
+            flag, flag.load, group, bit, set_cmd, unset_cmd
+        )
 
     def _add_property(self, name, data_field, set_cmd, group=0, bit=None):
         prop_type = bool if bit is not None else int
         self._properties[name] = ExtendedProperty(self._address, name, prop_type)
         prop = self._properties[name]
-        self._ext_property_manager.subscribe(prop, prop.load, group, data_field, bit, set_cmd)
+        self._ext_property_manager.subscribe(
+            prop, prop.load, group, data_field, bit, set_cmd
+        )
 
     def _remove_operating_flag(self, name, group):
         self._op_flags_manager.unsubscribe(name, group)
@@ -230,24 +247,31 @@ class Device(ABC):
         # self._subcat = subcat
 
 
-#pylint: disable=no-member
-class BatteryDeviceBase():
+# pylint: disable=no-member
+class BatteryDeviceBase:
     """Base class for battery operated devices."""
 
-    def __init__(self, address, cat, subcat, firmware=0x00,
-                 description='', model='', **kwargs):
+    def __init__(
+        self, address, cat, subcat, firmware=0x00, description="", model="", **kwargs
+    ):
         """Init the DeviceBattery class."""
         from ..aldb.aldb_battery import ALDBBattery
 
         # The super class is the non-battery base class such as OnOffControllerBase
-        super(BatteryDeviceBase, self).__init__(address=address, cat=cat, subcat=subcat,
-                                                firmware=0x00, description='', model='',
-                                                **kwargs)
+        super(BatteryDeviceBase, self).__init__(
+            address=address,
+            cat=cat,
+            subcat=subcat,
+            firmware=0x00,
+            description="",
+            model="",
+            **kwargs
+        )
         self._aldb = ALDBBattery(address=address)
         self._commands_queue = asyncio.Queue()
         pub.subscribe(self._device_awake, self._address.id)
-        pub.subscribe(self._load_aldb, '{}.aldb.load'.format(self._address.id))
-        pub.subscribe(self._write_aldb, '{}.aldb.write'.format(self._address.id))
+        pub.subscribe(self._load_aldb, "{}.aldb.load".format(self._address.id))
+        pub.subscribe(self._write_aldb, "{}.aldb.write".format(self._address.id))
 
     def _run_on_wake(self, command, **kwargs):
         cmd = partial(command, **kwargs)
@@ -265,7 +289,7 @@ class BatteryDeviceBase():
         """Get the device extended properties."""
         self._run_on_wake(super(BatteryDeviceBase, self).async_get_extended_properties)
 
-    async def async_keep_awake(self, awake_time=0xff):
+    async def async_keep_awake(self, awake_time=0xFF):
         """Keep the device awake to ensure commands are heard."""
         cmd = ExtendedSetCommand(self._address)
         return await cmd.async_send(group=0, action=0x04, data3=awake_time)
@@ -276,8 +300,11 @@ class BatteryDeviceBase():
 
     async def _run_commands(self):
         from inspect import iscoroutinefunction, iscoroutine
+
         if not self._commands_queue.empty():
-            _LOGGER.debug('Sending commands to battery operated device %s', self._address)
+            _LOGGER.debug(
+                "Sending commands to battery operated device %s", self._address
+            )
             await self.async_keep_awake()
         while not self._commands_queue.empty():
             command = await self._commands_queue.get()
@@ -292,8 +319,13 @@ class BatteryDeviceBase():
                 command()
 
     def _load_aldb(self, mem_addr, num_recs, refresh, callback):
-        cmd = partial(self._aldb.async_load, mem_addr=mem_addr, num_recs=num_recs,
-                      refresh=refresh, callback=callback)
+        cmd = partial(
+            self._aldb.async_load,
+            mem_addr=mem_addr,
+            num_recs=num_recs,
+            refresh=refresh,
+            callback=callback,
+        )
         self._commands_queue.put_nowait(cmd)
 
     def _write_aldb(self):

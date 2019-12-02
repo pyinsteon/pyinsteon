@@ -10,6 +10,7 @@ from ..handlers.from_device.off import OffInbound
 
 WAIT_TIME = 5
 
+
 class LowBatteryManager(SubscriberBase):
     """Low battery manager."""
 
@@ -24,7 +25,7 @@ class LowBatteryManager(SubscriberBase):
         """Init the LowBatteryManager class."""
         self._address = Address(address)
         self._group = group
-        subscriber_topic = 'subscriber_{}_low_battery'.format(self._address.id)
+        subscriber_topic = "subscriber_{}_low_battery".format(self._address.id)
         super().__init__(subscriber_topic)
 
         self._on_low_battery = OnLevelInbound(self._address, self._group)
@@ -33,9 +34,12 @@ class LowBatteryManager(SubscriberBase):
         self._off_low_battery.subscribe(self._low_battery)
         self._low_battery_recd = False
         self._low_battery_state = False
-        self._low_battery_event = self.LowBatterySubscriber('{}.true'.format(subscriber_topic))
+        self._low_battery_event = self.LowBatterySubscriber(
+            "{}.true".format(subscriber_topic)
+        )
         self._low_battery_clear_event = self.LowBatterySubscriber(
-            '{}.false'.format(subscriber_topic))
+            "{}.false".format(subscriber_topic)
+        )
         pub.subscribe(self._all_device_messages, self._address)
 
     def subscribe_low_battery_event(self, callback):
@@ -49,7 +53,7 @@ class LowBatteryManager(SubscriberBase):
     def _all_device_messages(self, **kwargs):
         """Capture all messages for this device."""
         loop = asyncio.get_event_loop()
-        target = kwargs.get('target')
+        target = kwargs.get("target")
         # stop if this is a low battery message
         if target and Address(target).low == self._group:
             return

@@ -13,7 +13,8 @@ from ..handlers.to_device.off_all_link_cleanup_ack import OffAllLinkCleanupAckCo
 
 TIMEOUT = 5  # number of seconds to define duplicate time inteval
 
-class OnLevelManager():
+
+class OnLevelManager:
     """Manage the inbound messages that trigger a variable state's on level.
 
     The manager is used in all variable state devices. These include:
@@ -35,7 +36,7 @@ class OnLevelManager():
             """Call subscribers to this manager for the event type."""
             self._call_subscribers(on_level=on_level)
 
-    def __init__(self, address, group, default_on_level=0xff):
+    def __init__(self, address, group, default_on_level=0xFF):
         """Init the OnLevelManager class."""
         self._address = Address(address)
         self._group = int(group)
@@ -43,14 +44,18 @@ class OnLevelManager():
         self._last_event = datetime(1, 1, 1, 1, 1, 1)
 
         # Setup event managers that will manange the subscribers to specific events
-        self._on = self.Subscriber('subscriber_{}_on_{}_broadcast'.format(
-            self._address, self._group))
-        self._off = self.Subscriber('subscriber_{}_off_{}_broadcast'.format(
-            self._address, self._group))
-        self._on_fast = self.Subscriber('subscriber_{}_on_fast_{}_broadcast'.format(
-            self._address, self._group))
-        self._off_fast = self.Subscriber('subscriber_{}_off_fast_{}_broadcast'.format(
-            self._address, self._group))
+        self._on = self.Subscriber(
+            "subscriber_{}_on_{}_broadcast".format(self._address, self._group)
+        )
+        self._off = self.Subscriber(
+            "subscriber_{}_off_{}_broadcast".format(self._address, self._group)
+        )
+        self._on_fast = self.Subscriber(
+            "subscriber_{}_on_fast_{}_broadcast".format(self._address, self._group)
+        )
+        self._off_fast = self.Subscriber(
+            "subscriber_{}_off_fast_{}_broadcast".format(self._address, self._group)
+        )
 
         # Register the handlers to listen to
         self._on_handler = OnLevelInbound(self._address, self._group)

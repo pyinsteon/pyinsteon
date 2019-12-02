@@ -7,6 +7,7 @@ from .direct_command import DirectCommandHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class SetOperatingFlagsCommand(DirectCommandHandlerBase):
     """Handle sending a read request for ALDB records."""
 
@@ -14,12 +15,12 @@ class SetOperatingFlagsCommand(DirectCommandHandlerBase):
         """Init the ReadALDBCommandHandler."""
         super().__init__(address, SET_OPERATING_FLAGS)
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     def send(self, cmd: int):
         """Send Get Operating Flags message."""
         super().send(cmd=cmd)
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     async def async_send(self, cmd: int):
         """Send Get Operating Flags message asyncronously."""
         return await super().async_send(cmd=cmd)

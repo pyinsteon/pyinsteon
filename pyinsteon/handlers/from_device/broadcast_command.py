@@ -9,4 +9,4 @@ class BroadcastCommandHandlerBase(InboundHandlerBase):
     def __init__(self, address, command):
         """Init the BroadcastHandlerBase class."""
         self._address = Address(address)
-        super().__init__('{}.{}'.format(self._address.id, command))
+        super().__init__("{}.{}".format(self._address.id, command))

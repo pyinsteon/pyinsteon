@@ -1,6 +1,7 @@
 """Manage Insteon Scenes."""
 from .. import devices
 
+
 class Scenes:
     """Manage a list of scenes."""
 
@@ -26,7 +27,9 @@ class Scenes:
             for device in scene:
                 yield device
 
+
 scenes = Scenes()
+
 
 def identify_scenes():
     """Look through device All-Link databases and find scenes."""
@@ -35,10 +38,12 @@ def identify_scenes():
         device = devices[address]
         for mem_addr in device.aldb:
             rec = device.aldb[mem_addr]
-            if (rec.group != 0 and
-                    rec.is_responder and
-                    rec.target == modem.address and
-                    rec.is_in_use):
+            if (
+                rec.group != 0
+                and rec.is_responder
+                and rec.target == modem.address
+                and rec.is_in_use
+            ):
                 scenes[rec.group] = device
     for mem_addr in modem.aldb:
         rec = modem.aldb[mem_addr]
@@ -46,7 +51,9 @@ def identify_scenes():
             scenes[rec.group] = devices[rec.target]
 
 
-async def add_device_to_scene(group: int, device, on_level=0xff, ramp_rate=0x28, button=0):
+async def add_device_to_scene(
+    group: int, device, on_level=0xFF, ramp_rate=0x28, button=0
+):
     """Create a new scene.
 
     Parameters:
@@ -54,47 +61,69 @@ async def add_device_to_scene(group: int, device, on_level=0xff, ramp_rate=0x28,
     - device_scene_info: Iterable colleciton of SceneInfo objects.
     """
     from ..device_types.plm import PLM
+
     if isinstance(devices.modem, PLM):
         await _plm_add_device_to_scene(group, device, on_level, ramp_rate, button)
     else:
         pass
 
+
 async def trigger_scene_on(group):
     """Trigger an Insteon scene."""
-    from ..handlers.to_device.on_level_all_link_broadcast import OnLevelAllLinkBroadcastCommand
-    from ..handlers.to_device.on_level_all_link_cleanup import OnLevelAllLinkCleanupCommand
+    from ..handlers.to_device.on_level_all_link_broadcast import (
+        OnLevelAllLinkBroadcastCommand,
+    )
+    from ..handlers.to_device.on_level_all_link_cleanup import (
+        OnLevelAllLinkCleanupCommand,
+    )
+
     await OnLevelAllLinkBroadcastCommand(group=group).async_send()
     for device in scenes.get_devices(group):
         # TODO check for success or failure
-        await OnLevelAllLinkCleanupCommand(address=device.address).async_send(group=group)
+        await OnLevelAllLinkCleanupCommand(address=device.address).async_send(
+            group=group
+        )
+
 
 async def trigger_scene_off(group):
     """Trigger an Insteon scene."""
     from ..handlers.to_device.off_all_link_broadcast import OffAllLinkBroadcastCommand
     from ..handlers.to_device.off_all_link_cleanup import OffAllLinkCleanupCommand
+
     await OffAllLinkBroadcastCommand(group=group).async_send()
     for device in scenes.get_devices(group):
         # TODO check for success or failure
         await OffAllLinkCleanupCommand(address=device.address).async_send(group=group)
 
+
 async def _plm_add_device_to_scene(group, device, on_level, ramp_rate, button):
     modem = devices.modem
-    device.aldb.add(group=group, target=modem.address, controller=False,
-                    data1=on_level, data2=ramp_rate, data3=button)
-    modem.aldb.add(group=group, target=device.address, controller=True,
-                   data1=0, data2=0, data3=0)
+    device.aldb.add(
+        group=group,
+        target=modem.address,
+        controller=False,
+        data1=on_level,
+        data2=ramp_rate,
+        data3=button,
+    )
+    modem.aldb.add(
+        group=group, target=device.address, controller=True, data1=0, data2=0, data3=0
+    )
     # TODO check for success or failure
     await device.aldb.async_write_records()
     await modem.aldb.async_write_records()
 
+
 async def _hub_add_device_to_scene(group, device, on_level, ramp_rate, button):
     from .link_manager import async_link_devices
+
     # TODO check for success or failure
     await device.async_status()
     curr_state = device.states[group].value
     await _set_device_state(device, on_level, button)
     await async_link_devices(devices.modem, device, group)
     await _set_device_state(device, curr_state, button)
+
 
 async def _set_device_state(device, on_level, button):
     if device.cat == 0x01:

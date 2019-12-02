@@ -9,16 +9,17 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
 
     def __init__(self, address):
         """Init the OffInbound class."""
-        topic = '{}.{}.direct'.format(address.id, EXTENDED_GET_SET)
+        topic = "{}.{}.direct".format(address.id, EXTENDED_GET_SET)
         super().__init__(topic)
 
     @inbound_handler
     def handle_response(self, cmd1, cmd2, target, user_data):
         """Handle the Extended Get response from a device."""
         from collections import OrderedDict
-        if user_data is None or user_data['d2'] != 0x01:
+
+        if user_data is None or user_data["d2"] != 0x01:
             return
         data = OrderedDict()
         for i in range(3, 15):
-            data['data{}'.format(i)] = user_data['d{}'.format(i)]
-        self._call_subscribers(group=user_data['d1'], data=data)
+            data["data{}".format(i)] = user_data["d{}".format(i)]
+        self._call_subscribers(group=user_data["d1"], data=data)

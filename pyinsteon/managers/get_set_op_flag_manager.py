@@ -7,10 +7,13 @@ from pyinsteon.address import Address
 from pyinsteon.handlers.to_device.get_operating_flags import GetOperatingFlagsCommand
 from pyinsteon.handlers.to_device.set_operating_flags import SetOperatingFlagsCommand
 
-OperatingFlagInfo = namedtuple("FlagInfo", "flag update_method group bit set_cmd unset_cmd")
+OperatingFlagInfo = namedtuple(
+    "FlagInfo", "flag update_method group bit set_cmd unset_cmd"
+)
 _LOGGER = logging.getLogger(__name__)
 
-class GetSetOperatingFlagsManager():
+
+class GetSetOperatingFlagsManager:
     """Manager to get operating flags."""
 
     def __init__(self, address: Address):
@@ -23,7 +26,9 @@ class GetSetOperatingFlagsManager():
 
     def subscribe(self, flag, update_method, group, bit, set_cmd, unset_cmd):
         """Subscribe to updates."""
-        flag_info = OperatingFlagInfo(flag, update_method, group, bit, set_cmd, unset_cmd)
+        flag_info = OperatingFlagInfo(
+            flag, update_method, group, bit, set_cmd, unset_cmd
+        )
         if group not in self._groups.keys():
             self._groups[group] = {}
         key = bit if bit is not None else 0
@@ -91,6 +96,7 @@ class GetSetOperatingFlagsManager():
                 else:
                     value = flags  # the flag is the full byte
                 flag_info.update_method(value=value)
+
         self._get_command.subscribe(_update_flags)
         # TODO check for success or failure
         await self._get_command.async_send(flags_requested=group)
@@ -99,6 +105,7 @@ class GetSetOperatingFlagsManager():
     def is_dirty(self, group=None):
         """Return if the underlying flags need to be updated on the device."""
         from functools import reduce
+
         if group is None:
             test = [False]
             test.extend([k for k in self._groups])
@@ -108,6 +115,7 @@ class GetSetOperatingFlagsManager():
     def _is_group_dirty(self, group):
         """Return if the flags in a group need to be updated on the device."""
         from functools import reduce
+
         flags = self._groups.get(group)
         if not flags:
             return False

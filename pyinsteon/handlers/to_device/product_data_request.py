@@ -11,12 +11,12 @@ class ProductDataRequestCommand(DirectCommandHandlerBase):
         """Init the OnLevelCommand class."""
         super().__init__(address, PRODUCT_DATA_REQUEST)
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     def send(self):
         """Send the OFF command."""
         super().send()
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     async def async_send(self):
         """Send the OFF command async."""
         return await super().async_send()
@@ -26,8 +26,8 @@ class ProductDataRequestCommand(DirectCommandHandlerBase):
         """Handle the OFF response direct ACK."""
         if user_data is None:
             return
-        product_bytes = bytearray([user_data['d2'], user_data['d3'], user_data['d4']])
-        product_id = int.from_bytes(product_bytes, byteorder='big')
-        cat = user_data['d5']
-        subcat = user_data['d6']
+        product_bytes = bytearray([user_data["d2"], user_data["d3"], user_data["d4"]])
+        product_id = int.from_bytes(product_bytes, byteorder="big")
+        cat = user_data["d5"]
+        subcat = user_data["d6"]
         self._call_subscribers(product_id=product_id, cat=cat, subcat=subcat)

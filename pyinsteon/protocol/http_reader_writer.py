@@ -5,23 +5,25 @@ import aiohttp
 
 _LOGGER = logging.getLogger(__name__)
 
+
 def _log_error(status):
     if status == 401:
-        _LOGGER.error('Athentication error, check your configuration')
-        _LOGGER.error('If configuration is correct and restart the Hub')
-        _LOGGER.error('System must be restared to reconnect to hub')
+        _LOGGER.error("Athentication error, check your configuration")
+        _LOGGER.error("If configuration is correct and restart the Hub")
+        _LOGGER.error("System must be restared to reconnect to hub")
     elif status == 404:
-        _LOGGER.error('Hub not found, check configuration')
+        _LOGGER.error("Hub not found, check configuration")
     elif status in range(500, 600):
-        _LOGGER.error('Hub returned a server error')
-        _LOGGER.error('Restart the Hub and try again')
+        _LOGGER.error("Hub returned a server error")
+        _LOGGER.error("Restart the Hub and try again")
     else:
-        _LOGGER.error('An unknown error has occured')
-        _LOGGER.error('Check the configuration and restart the Hub and '
-                      'the application')
+        _LOGGER.error("An unknown error has occured")
+        _LOGGER.error(
+            "Check the configuration and restart the Hub and " "the application"
+        )
 
 
-class HttpReaderWriter():
+class HttpReaderWriter:
     """HTTP reader and writer."""
 
     def __init__(self, auth):
@@ -38,23 +40,26 @@ class HttpReaderWriter():
                     if response:
                         response_status = response.status
                         if response.status == 200:
-                            _LOGGER.debug('Test connection status is %d',
-                                          response.status)
+                            _LOGGER.debug(
+                                "Test connection status is %d", response.status
+                            )
                             return True
                         _log_error(response.status)
-                        _LOGGER.debug('Connection test failed')
+                        _LOGGER.debug("Connection test failed")
                         return False
 
         # pylint: disable=broad-except
         except Exception as e:
-            _LOGGER.error('An aiohttp error occurred: %s with status %s',
-                          str(e), response_status)
-        _LOGGER.debug('Connection test failed')
+            _LOGGER.error(
+                "An aiohttp error occurred: %s with status %s", str(e), response_status
+            )
+        _LOGGER.debug("Connection test failed")
         return False
 
     async def async_read(self, session, url):
         """Read from the url."""
         from .http_transport import HubConnectionException
+
         try:
             async with session.get(url) as response:
                 # _LOGGER.debug("Reader status: %d", response.status)
@@ -63,10 +68,11 @@ class HttpReaderWriter():
                 else:
                     _log_error(response.status)
                     raise HubConnectionException(
-                        'Connection status error: {}'.format(response.status))
+                        "Connection status error: {}".format(response.status)
+                    )
         except (asyncio.TimeoutError, aiohttp.ClientError) as e:
             await session.close()
-            _LOGGER.error('Session error: %s', str(e))
+            _LOGGER.error("Session error: %s", str(e))
             raise HubConnectionException(str(e))
         return await self._parse_buffer(html)
 
@@ -84,9 +90,9 @@ class HttpReaderWriter():
                     else:
                         _log_error(response.status)
         except aiohttp.ClientError:
-            _LOGGER.error('Hub write failure (ClienError)')
+            _LOGGER.error("Hub write failure (ClienError)")
         except asyncio.TimeoutError:
-            _LOGGER.error('Hub write failure (TimeoutError)')
+            _LOGGER.error("Hub write failure (TimeoutError)")
 
         return return_status
 
@@ -98,28 +104,27 @@ class HttpReaderWriter():
         last_stop = 0
         if not self._last_read.empty():
             last_stop = self._last_read.get_nowait()
-        buffer = ''
-        raw_text = html.replace('<response><BS>', '')
-        raw_text = raw_text.replace('</BS></response>', '')
+        buffer = ""
+        raw_text = html.replace("<response><BS>", "")
+        raw_text = raw_text.replace("</BS></response>", "")
         raw_text = raw_text.strip()
-        if raw_text[:199] == '0' * 200:
+        if raw_text[:199] == "0" * 200:
             # Likely the buffer was cleared
             return None
         this_stop = int(raw_text[-2:], 16)
         if this_stop > last_stop:
-            _LOGGER.debug('Raw buffer: %s', raw_text)
-            _LOGGER.debug('Buffer from %d to %d', last_stop, this_stop)
+            _LOGGER.debug("Raw buffer: %s", raw_text)
+            _LOGGER.debug("Buffer from %d to %d", last_stop, this_stop)
             buffer = raw_text[last_stop:this_stop]
         elif this_stop < last_stop:
-            _LOGGER.debug('Raw buffer: %s', raw_text)
-            _LOGGER.debug('Buffer from %d to 200 and 0 to %d',
-                          last_stop, this_stop)
+            _LOGGER.debug("Raw buffer: %s", raw_text)
+            _LOGGER.debug("Buffer from %d to 200 and 0 to %d", last_stop, this_stop)
             buffer_hi = raw_text[last_stop:200]
-            if buffer_hi == '0' * len(buffer_hi):
+            if buffer_hi == "0" * len(buffer_hi):
                 # The buffer was probably reset since the last read
-                buffer_hi = ''
+                buffer_hi = ""
             buffer_low = raw_text[0:this_stop]
-            buffer = '{:s}{:s}'.format(buffer_hi, buffer_low)
+            buffer = "{:s}{:s}".format(buffer_hi, buffer_low)
         else:
             buffer = None
         await self._set_last_read(this_stop)

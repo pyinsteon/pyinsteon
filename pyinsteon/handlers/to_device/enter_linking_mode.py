@@ -13,7 +13,7 @@ class EnterLinkingModeCommand(DirectCommandHandlerBase):
         super().__init__(address, ENTER_LINKING_MODE)
         self._link_complete_handler = AssignToAllLinkGroupCommand(address)
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     async def async_send(self, group: int = 0):
         """Send the device ID request asyncronously."""
         return await super().async_send(group=group)

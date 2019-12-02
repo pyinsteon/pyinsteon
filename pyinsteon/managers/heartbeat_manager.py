@@ -8,6 +8,7 @@ from ..address import Address
 from ..handlers.from_device.off import OffInbound
 from ..handlers.from_device.on_level import OnLevelInbound
 
+
 class HeartbeatManager(SubscriberBase):
     """Heartbeat manager."""
 
@@ -16,7 +17,7 @@ class HeartbeatManager(SubscriberBase):
         self._address = Address(address)
         self._group = group
         self._max_duration = max_duration
-        subscriber_topic = 'subscriber_{}_heartbeat'.format(self._address.id)
+        subscriber_topic = "subscriber_{}_heartbeat".format(self._address.id)
         super().__init__(subscriber_topic)
 
         self._on_hb = OnLevelInbound(self._address, self._group)
@@ -42,5 +43,7 @@ class HeartbeatManager(SubscriberBase):
     def _schedule_next_check(self):
         """Schedule the next time we check for the heartbeat."""
         loop = asyncio.get_event_loop()
-        next_test_time = self._last_heartbeat + timedelta(minutes=self._max_duration + 5)
+        next_test_time = self._last_heartbeat + timedelta(
+            minutes=self._max_duration + 5
+        )
         loop.call_at(next_test_time.timestamp(), self._check_heartbeat)

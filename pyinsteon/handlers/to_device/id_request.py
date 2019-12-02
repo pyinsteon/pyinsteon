@@ -11,13 +11,13 @@ class IdRequestCommand(DirectCommandHandlerBase):
         """Init the IdRequest class."""
         super().__init__(address, ID_REQUEST)
 
-    #pylint: disable=arguments-differ
-    #pylint: disable=useless-super-delegation
+    # pylint: disable=arguments-differ
+    # pylint: disable=useless-super-delegation
     def send(self):
         """Send the Device ID request."""
         super().send()
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     async def async_send(self):
         """Send the device ID request asyncronously."""
         return await super().async_send()

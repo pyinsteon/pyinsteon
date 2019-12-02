@@ -71,7 +71,7 @@ def create(raw_data: bytearray) -> (Inbound, bytearray):
 
     def _remaining_data(msg, raw_data):
         if msg is not None:
-            return raw_data[len(msg):]
+            return raw_data[len(msg) :]
         return raw_data
 
     def _create_message(msg_def, raw_data):
@@ -86,28 +86,28 @@ def create(raw_data: bytearray) -> (Inbound, bytearray):
 
     def _standard_message(raw_data):
         from .message_definitions import FLD_STD_SEND_ACK, FLD_EXT_SEND_ACK
+
         FLAG_BYTE = 5
         flags = MessageFlags(raw_data[FLAG_BYTE])
         if flags.is_extended:
-            msg_def = MessageDefinition(MessageId.SEND_EXTENDED,
-                                        FLD_EXT_SEND_ACK)
+            msg_def = MessageDefinition(MessageId.SEND_EXTENDED, FLD_EXT_SEND_ACK)
             msg, remaining_data = _create_message(msg_def, raw_data)
         else:
             msg_def = MessageDefinition(MessageId.SEND_STANDARD, FLD_STD_SEND_ACK)
             msg, remaining_data = _create_message(msg_def, raw_data)
         return msg, remaining_data
 
-    _LOGGER.debug('IN CREATE: %s', raw_data.hex())
+    _LOGGER.debug("IN CREATE: %s", raw_data.hex())
     data_bytes = trim_data(raw_data)
     if len(data_bytes) < 2:
-        _LOGGER.debug('Message less than 2 bytes')
+        _LOGGER.debug("Message less than 2 bytes")
         return None, raw_data
     try:
         msg_id = MessageId(data_bytes[1])
         msg_def = INBOUND_MSG_DEF.get(msg_id)
         if msg_def is not None:
             if len(data_bytes) < len(msg_def):
-                _LOGGER.debug('Full message not received')
+                _LOGGER.debug("Full message not received")
                 return None, raw_data
             if msg_def.message_id == MessageId.SEND_STANDARD:
                 msg, remaining_data = _standard_message(data_bytes)
@@ -116,7 +116,7 @@ def create(raw_data: bytearray) -> (Inbound, bytearray):
             return msg, bytearray(remaining_data)
     except ValueError:
         _LOGGER.debug("Message ID not found: 0x%02x", data_bytes[1])
-        _LOGGER.debug('Bad Data: %s', raw_data.hex())
+        _LOGGER.debug("Bad Data: %s", raw_data.hex())
         truncate = 1 if data_bytes[1] == 0x02 else 2
         return None, bytearray(data_bytes[truncate:])
 

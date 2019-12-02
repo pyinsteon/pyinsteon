@@ -19,24 +19,23 @@ def _normalize(addr):
         normalize = addr
 
     elif isinstance(addr, str):
-        addr_clean = addr.replace('.', '')
+        addr_clean = addr.replace(".", "")
         try:
             if len(addr_clean) != 6:
-                raise ValueError('Improper address value: {}'.format(addr))
+                raise ValueError("Improper address value: {}".format(addr))
             normalize = binascii.unhexlify(addr_clean.lower())
         except binascii.Error:
-            raise ValueError('Improper address value: {}'.format(addr))
+            raise ValueError("Improper address value: {}".format(addr))
 
     elif addr is None:
         normalize = None
 
     else:
-        _LOGGER.warning('Address class init with unknown type %s: %r',
-                        type(addr), addr)
+        _LOGGER.warning("Address class init with unknown type %s: %r", type(addr), addr)
     return normalize
 
 
-class Address():
+class Address:
     """Datatype definition for INSTEON device address handling."""
 
     def __init__(self, addr):
@@ -49,9 +48,9 @@ class Address():
 
     def __str__(self):
         """Emit the address in human-readible format (AA.BB.CC)."""
-        return '{}.{}.{}'.format(self.__repr__()[0:2],
-                                 self.__repr__()[2:4],
-                                 self.__repr__()[4:6]).upper()
+        return "{}.{}.{}".format(
+            self.__repr__()[0:2], self.__repr__()[2:4], self.__repr__()[4:6]
+        ).upper()
 
     def __bytes__(self):
         """Return the bytes representation of the address."""
@@ -89,7 +88,7 @@ class Address():
         """Return a btye within the Address object."""
         if byte in [0, 1, 2]:
             return self._addr[byte]
-        raise ValueError('Item index must be 0, 1 or 2')
+        raise ValueError("Item index must be 0, 1 or 2")
 
     @property
     def id(self):

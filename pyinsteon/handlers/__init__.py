@@ -10,9 +10,11 @@ TIMEOUT = 3  # Time out between ACK and Direct ACK
 _LOGGER = logging.getLogger(__name__)
 
 
-async def _async_post_response(obj, response: ResponseStatus, func=None, args=None, kwargs=None):
+async def _async_post_response(
+    obj, response: ResponseStatus, func=None, args=None, kwargs=None
+):
     """Post a response status to the resonse queue."""
-    if hasattr(obj, 'response_lock'):
+    if hasattr(obj, "response_lock"):
         if obj.response_lock.locked():
             await obj.message_response.put(response)
             if func is not None:
@@ -33,7 +35,7 @@ def _remove_group_from_topic(topic: str):
         int(last_topic)
         strip_topic = parse_topic[0]
         for next_topic in parse_topic[1:-1]:
-            strip_topic = '{}.{}'.format(strip_topic, next_topic)
+            strip_topic = "{}.{}".format(strip_topic, next_topic)
         return strip_topic
     except ValueError:
         return topic
@@ -41,16 +43,19 @@ def _remove_group_from_topic(topic: str):
 
 def inbound_handler(func):
     """Decorator function for any inbound message handler."""
+
     def register_topic(instance_func, topic):
         pub.subscribe(instance_func, topic)
+
     func.register_topic = register_topic
     return func
 
 
 def ack_handler(wait_response=False, timeout=TIMEOUT):
     """Decorator function to register the message ACK handler."""
+
     def register_topic(instance_func, topic):
-        topic = 'ack.{}'.format(topic)
+        topic = "ack.{}".format(topic)
         pub.subscribe(instance_func, topic)
 
     async def _wait_response(lock: asyncio.Lock, queue: asyncio.Queue):
@@ -73,19 +78,25 @@ def ack_handler(wait_response=False, timeout=TIMEOUT):
     def setup(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
-            if hasattr(self, 'group'):
-                group = 1 if not kwargs.get('user_data') else kwargs.get('user_data')['d1']
+            if hasattr(self, "group"):
+                group = (
+                    1 if not kwargs.get("user_data") else kwargs.get("user_data")["d1"]
+                )
                 if self.group != group:
                     return
             if wait_response:
                 asyncio.ensure_future(
-                    _wait_response(self.response_lock, self.message_response))
+                    _wait_response(self.response_lock, self.message_response)
+                )
             else:
                 asyncio.ensure_future(
-                    _async_post_response(self, ResponseStatus.SUCCESS))
+                    _async_post_response(self, ResponseStatus.SUCCESS)
+                )
             return func(self, *args, **kwargs)
+
         wrapper.register_topic = register_topic
         return wrapper
+
     return setup
 
 
@@ -96,13 +107,17 @@ def nak_handler(func):
     handler. Under normal conditions all NAK responses are resent by the
     Protocol.
     """
+
     def register_topic(instance_func, topic):
-        topic = 'nak.{}'.format(topic)
+        topic = "nak.{}".format(topic)
         pub.subscribe(instance_func, topic)
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         asyncio.ensure_future(
-            _async_post_response(self, ResponseStatus.FAILURE, func, args, kwargs))
+            _async_post_response(self, ResponseStatus.FAILURE, func, args, kwargs)
+        )
+
     wrapper.register_topic = register_topic
     return wrapper
 
@@ -114,63 +129,78 @@ def response_handler(response_topic=None):
         response_topic: Used when the response topic is different than the
         send topic.
     """
+
     def register_topic(instance_func, topic):
         nonlocal response_topic
         topic = response_topic if response_topic is not None else topic
         pub.subscribe(instance_func, topic)
+
     def setup(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             asyncio.ensure_future(
                 _async_post_response(self, ResponseStatus.SUCCESS, func, args, kwargs)
             )
+
         wrapper.register_topic = register_topic
         return wrapper
+
     return setup
 
 
 def direct_ack_handler(func):
     """Decorator function to register the DIRECT_ACK response handler."""
+
     def register_topic(instance_func, topic):
         topic = _remove_group_from_topic(topic)
-        topic = '{}.direct_ack'.format(topic)
+        topic = "{}.direct_ack".format(topic)
         pub.subscribe(instance_func, topic)
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         asyncio.ensure_future(
             _async_post_response(self, ResponseStatus.SUCCESS, func, args, kwargs)
         )
+
     wrapper.register_topic = register_topic
     return wrapper
 
+
 def status_handler(func):
     """Decorator function to register the status response handler."""
+
     def register_status(instance_func, address):
         from ..address import Address
+
         # This registers all messages for a device but only triggers on
         # status messages if they return within the TIMEOUT period
         address = Address(address)
         pub.subscribe(instance_func, address.id)
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         asyncio.ensure_future(
             _async_post_response(self, ResponseStatus.SUCCESS, func, args, kwargs)
         )
+
     wrapper.register_status = register_status
     return wrapper
 
 
 def direct_nak_handler(func):
     """Decorator function to register the DIRECT_NAK response handler."""
+
     def register_topic(instance_func, topic):
         topic = _remove_group_from_topic(topic)
-        topic = '{}.direct_nak'.format(topic)
+        topic = "{}.direct_nak".format(topic)
         pub.subscribe(instance_func, topic)
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         asyncio.ensure_future(
             _async_post_response(self, ResponseStatus.UNCLEAR, func, args, kwargs)
         )
+
     wrapper.register_topic = register_topic
     return wrapper
 
@@ -178,12 +208,15 @@ def direct_nak_handler(func):
 def broadcast_handler(func):
     """Decorator function to register the BROADCAST message handler."""
     from datetime import datetime
+
     last_command = datetime(1, 1, 1)
+
     def register_topic(instance_func, topic):
-        topic_broadcast = '{}.broadcast'.format(topic)
-        topic_all_link_broadcast = '{}.all_link_broadcast'.format(topic)
+        topic_broadcast = "{}.broadcast".format(topic)
+        topic_all_link_broadcast = "{}.all_link_broadcast".format(topic)
         pub.subscribe(instance_func, topic_broadcast)
         pub.subscribe(instance_func, topic_all_link_broadcast)
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         nonlocal last_command
@@ -200,10 +233,13 @@ def broadcast_handler(func):
 def all_link_cleanup_handler(func):
     """Decorator function to register the c message handler."""
     from datetime import datetime
+
     last_command = datetime(1, 1, 1)
+
     def register_topic(instance_func, topic):
-        topic = '{}.all_link_cleanup'.format(topic)
+        topic = "{}.all_link_cleanup".format(topic)
         pub.subscribe(instance_func, topic)
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         nonlocal last_command
@@ -219,29 +255,35 @@ def all_link_cleanup_handler(func):
 
 def all_link_cleanup_ack_handler(func):
     """Decorator function to register the all_link_cleanup ACK response handler."""
+
     def register_topic(instance_func, topic):
         topic = _remove_group_from_topic(topic)
-        topic = '{}.all_link_cleanup_ack'.format(topic)
+        topic = "{}.all_link_cleanup_ack".format(topic)
         pub.subscribe(instance_func, topic)
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         asyncio.ensure_future(
             _async_post_response(self, ResponseStatus.FAILURE, func, args, kwargs)
         )
+
     wrapper.register_topic = register_topic
     return wrapper
 
 
 def all_link_cleanup_nak_handler(func):
     """Decorator function to register the all_link_cleanup NAK response handler."""
+
     def register_topic(instance_func, topic):
         topic = _remove_group_from_topic(topic)
-        topic = '{}.all_link_cleanup_nak'.format(topic)
+        topic = "{}.all_link_cleanup_nak".format(topic)
         pub.subscribe(instance_func, topic)
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         asyncio.ensure_future(
             _async_post_response(self, ResponseStatus.FAILURE, func, args, kwargs)
         )
+
     wrapper.register_topic = register_topic
     return wrapper

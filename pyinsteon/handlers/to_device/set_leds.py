@@ -3,6 +3,7 @@ from ..to_device.direct_command import DirectCommandHandlerBase
 from .. import direct_ack_handler
 from ...topics import EXTENDED_GET_SET
 
+
 class SetLedsCommandHandler(DirectCommandHandlerBase):
     """Set the LED values of a KeypadLinc device.
 
@@ -14,19 +15,25 @@ class SetLedsCommandHandler(DirectCommandHandlerBase):
         super().__init__(address=address, command=EXTENDED_GET_SET)
         self._last_bitmask = 0
 
-    #pylint: disable=arguments-differ
-    async def async_send(self, group1: bool, group2: bool, group3: bool,
-                         group4: bool, group5: bool, group6: bool,
-                         group7: bool, group8: bool):
+    # pylint: disable=arguments-differ
+    async def async_send(
+        self,
+        group1: bool,
+        group2: bool,
+        group3: bool,
+        group4: bool,
+        group5: bool,
+        group6: bool,
+        group7: bool,
+        group8: bool,
+    ):
         """Set the LED values of the KPL."""
         bitmask = 0x00
         for group in range(0, 8):
-            val = 1 if locals()['group{}'.format(group + 1)] else 0
+            val = 1 if locals()["group{}".format(group + 1)] else 0
             bitmask = bitmask + val << group
         self._last_bitmask = bitmask
-        kwargs = {'data1': 0x01,
-                  'data2': 0x09,
-                  'data3': bitmask}
+        kwargs = {"data1": 0x01, "data2": 0x09, "data3": bitmask}
 
         return await super().async_send(**kwargs)
 

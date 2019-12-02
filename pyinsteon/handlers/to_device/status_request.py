@@ -4,6 +4,7 @@ from .. import status_handler
 from .direct_command import DirectCommandHandlerBase
 from ...topics import STATUS_REQUEST
 
+
 class StatusRequestCommand(DirectCommandHandlerBase):
     """Manage an outbound Status command to a device.
 
@@ -17,12 +18,12 @@ class StatusRequestCommand(DirectCommandHandlerBase):
         super().__init__(address, STATUS_REQUEST)
         self._status_type = status_type
 
-    #pylint: disable=arguments-differ, useless-super-delegation
+    # pylint: disable=arguments-differ, useless-super-delegation
     def send(self):
         """Send the ON command."""
         super().send(status_type=self._status_type)
 
-    #pylint: disable=arguments-differ, useless-super-delegation
+    # pylint: disable=arguments-differ, useless-super-delegation
     async def async_send(self):
         """Send the ON command async."""
         return await super().async_send(status_type=self._status_type)
@@ -30,7 +31,7 @@ class StatusRequestCommand(DirectCommandHandlerBase):
     @status_handler
     def handle_direct_ack(self, topic=pub.AUTO_TOPIC, **kwargs):
         """Handle the ON response direct ACK."""
-        cmd1 = kwargs.get('cmd1')
-        cmd2 = kwargs.get('cmd2')
+        cmd1 = kwargs.get("cmd1")
+        cmd2 = kwargs.get("cmd2")
         if cmd2 is not None:
             self._call_subscribers(db_version=cmd1, status=cmd2)

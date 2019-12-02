@@ -4,15 +4,20 @@ from ..handlers.to_device.off_fast import OffFastCommand
 from ..handlers.to_device.on_fast import OnFastCommand
 from ..handlers.to_device.on_level import OnLevelCommand
 from ..handlers.to_device.status_request import StatusRequestCommand
-from .commands import (OFF_COMMAND, OFF_FAST_COMMAND, ON_COMMAND,
-                       ON_FAST_COMMAND, STATUS_COMMAND)
+from .commands import (
+    OFF_COMMAND,
+    OFF_FAST_COMMAND,
+    ON_COMMAND,
+    ON_FAST_COMMAND,
+    STATUS_COMMAND,
+)
 from .variable_controller_base import VariableControllerBase
 
 
 class VariableResponderBase(VariableControllerBase):
     """Variable Responder Base Device."""
 
-    def on(self, on_level=0xff, group=0, fast=False):
+    def on(self, on_level=0xFF, group=0, fast=False):
         """Turn on the device.
 
         Parameters:
@@ -24,7 +29,7 @@ class VariableResponderBase(VariableControllerBase):
         command = ON_FAST_COMMAND if fast else ON_COMMAND
         self._handlers[group][command].send(on_level=on_level)
 
-    async def async_on(self, on_level=0xff, group=0, fast=False):
+    async def async_on(self, on_level=0xFF, group=0, fast=False):
         """Turn on the device.
 
         Parameters:
@@ -85,7 +90,9 @@ class VariableResponderBase(VariableControllerBase):
             self._handlers[group][ON_COMMAND] = OnLevelCommand(self._address, group)
             self._handlers[group][OFF_COMMAND] = OffCommand(self._address, group)
             self._handlers[group][ON_FAST_COMMAND] = OnFastCommand(self._address, group)
-            self._handlers[group][OFF_FAST_COMMAND] = OffFastCommand(self._address, group)
+            self._handlers[group][OFF_FAST_COMMAND] = OffFastCommand(
+                self._address, group
+            )
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
