@@ -19,7 +19,6 @@ class HeartbeatManager(SubscriberBase):
             """Call subscribers to the event."""
             self._call_subscribers(on_level=on_level)
 
-
     def __init__(self, address, group, max_duration=1275):
         """Init the HeartbeatManager class."""
         self._address = Address(address)
@@ -49,7 +48,7 @@ class HeartbeatManager(SubscriberBase):
         """Listen for ON messages from device."""
         self._last_heartbeat = datetime.now()
         self._call_subscribers(heartbeat=True)
-        self._on_event.call_subscribers(on_level=0xff)
+        self._on_event.call_subscribers(on_level=0xFF)
 
     def _off_heartbeat_received(self, on_level):
         """Listen for OFF messages from device."""
