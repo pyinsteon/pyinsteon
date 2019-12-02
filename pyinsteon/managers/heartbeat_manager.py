@@ -12,6 +12,14 @@ from ..handlers.from_device.on_level import OnLevelInbound
 class HeartbeatManager(SubscriberBase):
     """Heartbeat manager."""
 
+    class OnOffHeartbeat(SubscriberBase):
+        """On / Off events for subscribers."""
+
+        def call_subscribers(self, on_level):
+            """Call subscribers to the event."""
+            self._call_subscribers(on_level=on_level)
+
+
     def __init__(self, address, group, max_duration=1275):
         """Init the HeartbeatManager class."""
         self._address = Address(address)
@@ -22,14 +30,32 @@ class HeartbeatManager(SubscriberBase):
 
         self._on_hb = OnLevelInbound(self._address, self._group)
         self._off_hb = OffInbound(self._address, self._group)
-        self._on_hb.subscribe(self._heartbeat_received)
-        self._off_hb.subscribe(self._heartbeat_received)
+        self._on_hb.subscribe(self._on_heartbeat_received)
+        self._off_hb.subscribe(self._off_heartbeat_received)
+        self._on_event = OnOffHeartbeat(self._address, self._group)
+        self._off_event = OnOffHeartbeat(self._address, self._group)
         self._last_heartbeat = datetime.now() - timedelta(hours=12)
         self._schedule_next_check()
 
-    def _heartbeat_received(self, on_level):
-        """Listen for all messages from device."""
+    def subscribe_on(self, callback):
+        """Subscribe to ON heartbeat events."""
+        self._on_event.subscribe(callback)
+
+    def subscribe_off(self, callback):
+        """Subscribe to OFF heartbeat events."""
+        self._off_event.subscribe(callback)
+
+    def _on_heartbeat_received(self, on_level):
+        """Listen for ON messages from device."""
         self._last_heartbeat = datetime.now()
+        self._call_subscribers(heartbeat=True)
+        self._on_event.call_subscribers(on_level=0xff)
+
+    def _off_heartbeat_received(self, on_level):
+        """Listen for OFF messages from device."""
+        self._last_heartbeat = datetime.now()
+        self._call_subscribers(heartbeat=True)
+        self._off_event.call_subscribers(on_level=0)
 
     def _check_heartbeat(self):
         """Check if a heartbeat as arrived since max_duration."""
