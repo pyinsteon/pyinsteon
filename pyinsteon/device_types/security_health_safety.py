@@ -101,7 +101,7 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
         )
         self._low_battery_manger.subscribe_low_battery_event(lb_event.trigger)
 
-        hb_event = self._events[HEARTBEAT_EVENT] = Event(
+        hb_event = self._events[HEARTBEAT_EVENT] = HeartbeatEvent(
             name=HEARTBEAT_EVENT, address=self._address, group=self.HEARTBEAT_GROUP
         )
         self._heartbeat_manger.subscribe(hb_event.trigger)
@@ -344,7 +344,7 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
         self._events[LEAK_WET_EVENT] = Event(
             LEAK_WET_EVENT, self._address, self.WET_GROUP
         )
-        self._events[HEARTBEAT_EVENT] = Event(
+        self._events[HEARTBEAT_EVENT] = HeartbeatEvent(
             HEARTBEAT_EVENT, self._address, self.HEARTBEAT_GROUP
         )
 
@@ -482,13 +482,13 @@ class SecurityHealthSafety_Smokebridge(Device):
         self._events[ALL_CLEAR_EVENT] = Event(
             ALL_CLEAR_EVENT, self._address, self.ALL_CLEAR_GROUP
         )
-        self._events[LOW_BATTERY_EVENT] = Event(
+        self._events[LOW_BATTERY_EVENT] = LowBatteryEvent(
             LOW_BATTERY_EVENT, self._address, self.LOW_BATTERY_GROUP
         )
         self._events[SENSOR_MALFUNCTION_EVENT] = Event(
             SENSOR_MALFUNCTION_EVENT, self._address, self.SENSOR_MALFUNCTION_GROUP
         )
-        self._events[HEARTBEAT_EVENT] = Event(
+        self._events[HEARTBEAT_EVENT] = HeartbeatEvent(
             HEARTBEAT_EVENT, self._address, self.HEARTBEAT_GROUP
         )
 
