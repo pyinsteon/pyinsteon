@@ -31,6 +31,7 @@ def create_device(device_id: DeviceId):
     return device
 
 
+# TODO remove devices
 class DeviceManager(SubscriberBase):
     """Manages the list of active devices."""
 
@@ -163,5 +164,13 @@ class DeviceManager(SubscriberBase):
             return
         if device_id.cat is not None:
             device = create_device(device_id)
+            if self[device_id.address]:
+                # If the device is already in the devices list and the cat and subcat
+                # are the same, do not add the device again
+                if (
+                    device_id.cat == self[device_id.address].cat
+                    and device_id.subcat == self._devices[device_id.address].subcat
+                ):
+                    return
             self[device_id.address] = device
             _LOGGER.debug("Device %s added", device.address)
