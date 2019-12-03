@@ -44,11 +44,11 @@ class SensorsActuators_IOLink(SensorsActuators):
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-        self._managers[SENSOR_GROUP].subscribe(self._states[SENSOR_GROUP].set_value)
-        self._managers[SENSOR_GROUP].subscribe_off(
+        self._managers[SENSOR_GROUP][ON_LEVEL_MANAGER].subscribe(self._states[SENSOR_GROUP].set_value)
+        self._managers[SENSOR_GROUP][ON_LEVEL_MANAGER].subscribe_off(
             self._events[SENSOR_GROUP][OPEN_EVENT].trigger
         )
-        self._managers[SENSOR_GROUP].subscribe_on(
+        self._managers[SENSOR_GROUP][ON_LEVEL_MANAGER].subscribe_on(
             self._events[SENSOR_GROUP][CLOSE_EVENT].trigger
         )
 
