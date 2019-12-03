@@ -1,9 +1,11 @@
 """Python module for controlling Insteon devices."""
-
+import logging
 from pubsub import pub
 from .protocol import async_modem_connect
 from .managers.device_manager import DeviceManager
 from .listener_exception_handler import ListenerExceptionHandler
+
+_LOGGER_TOPICS = logging.getLogger('pyinsteon.topics')
 
 devices = DeviceManager()
 # pub.setListenerExcHandler(ListenerExceptionHandler())
@@ -54,3 +56,11 @@ async def async_close():
             devices[addr].close()
     devices.id_manager.close()
     await asyncio.sleep(0.1)
+
+
+def _log_all_topics(topic=pub.AUTO_TOPIC, **kwargs):
+    """Log all topics from pyinsteon."""
+    _LOGGER_TOPICS.debug('Topic: %s data: %s', topic.name, kwargs)
+
+
+pub.subscribe(_log_all_topics, pub.ALL_TOPICS)
