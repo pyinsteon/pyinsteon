@@ -45,16 +45,16 @@ class OnLevelManager:
 
         # Setup event managers that will manange the subscribers to specific events
         self._on = self.Subscriber(
-            "subscriber_{}_on_{}_broadcast".format(self._address, self._group)
+            "subscriber_{}_on_{}_broadcast".format(self._address.id, self._group)
         )
         self._off = self.Subscriber(
-            "subscriber_{}_off_{}_broadcast".format(self._address, self._group)
+            "subscriber_{}_off_{}_broadcast".format(self._address.id, self._group)
         )
         self._on_fast = self.Subscriber(
-            "subscriber_{}_on_fast_{}_broadcast".format(self._address, self._group)
+            "subscriber_{}_on_fast_{}_broadcast".format(self._address.id, self._group)
         )
         self._off_fast = self.Subscriber(
-            "subscriber_{}_off_fast_{}_broadcast".format(self._address, self._group)
+            "subscriber_{}_off_fast_{}_broadcast".format(self._address.id, self._group)
         )
 
         # Register the handlers to listen to
