@@ -2,7 +2,7 @@
 import asyncio
 from collections import namedtuple
 import logging
-from ..device_types import Device
+from ..device_types.device_base import Device
 from .. import devices
 from ..constants import AllLinkMode
 from ..handlers.to_device.enter_linking_mode import EnterLinkingModeCommand

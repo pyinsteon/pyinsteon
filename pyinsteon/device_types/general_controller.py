@@ -1,5 +1,6 @@
 """General controller devices (cat: 0x00)."""
-from . import BatteryDeviceBase, Device
+from .battery_base import BatteryDeviceBase
+from .device_base import Device
 from .variable_controller_base import VariableControllerBase
 
 

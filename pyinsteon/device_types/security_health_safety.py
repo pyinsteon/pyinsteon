@@ -38,7 +38,8 @@ from ..states import (
     HEARTBEAT,
 )
 from ..states.on_off import Heartbeat, LowBattery, OnOff
-from . import BatteryDeviceBase, Device
+from .battery_base import BatteryDeviceBase
+from .device_base import Device
 from .commands import (
     OFF_HEARTBEAT_INBOUND,
     OFF_INBOUND,

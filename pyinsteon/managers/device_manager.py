@@ -3,7 +3,7 @@ from asyncio import Lock
 import logging
 
 from ..subscriber_base import SubscriberBase
-from ..device_types import Device
+from ..device_types.device_base import Device
 from ..address import Address
 from ..managers.device_id_manager import DeviceIdManager, DeviceId
 
@@ -105,6 +105,10 @@ class DeviceManager(SubscriberBase):
         """
         address = Address(address)
         self._id_manager.set_device_id(address, cat, subcat, firmware)
+
+    def add_x10_device(self, house_code, unit_code, x10_type):
+        """Add an X10 device."""
+        return self.modem
 
     async def async_close(self):
         """Close the device ID listener."""
