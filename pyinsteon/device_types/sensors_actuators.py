@@ -4,6 +4,7 @@ from ..managers.on_level_manager import OnLevelManager
 from ..states import OPEN_CLOSE_SENSOR
 from ..states.open_close import NormallyOpen
 from .on_off_responder_base import OnOffResponderBase
+from ..handlers.to_device.status_request import StatusRequestCommand, STATUS_REQUEST
 
 ON_LEVEL_MANAGER = "on_level_manager"
 SENSOR_GROUP = 2
@@ -23,6 +24,43 @@ class SensorsActuators_IOLink(SensorsActuators):
         self._managers[SENSOR_GROUP][ON_LEVEL_MANAGER] = OnLevelManager(
             self._address, SENSOR_GROUP
         )
+        if self._handlers.get(SENSOR_GROUP):
+            self._handlers[SENSOR_GROUP] = {}
+        self._handlers[SENSOR_GROUP][STATUS_REQUEST] = StatusRequestCommand(self.address, 1)
+
+    def status(self, group=None):
+        """Get the status of the relay and/or the sensor."""
+        if group in [1, None]:
+            super().status()
+        if group == [2, None]:
+            self.sensor_status()
+
+    async def async_status(self, group=None):
+        """Get the status of the relay and/or the sensor."""
+        from ..utils import multiple_status
+        response_1 = None
+        response_2 = None
+        if group in [1, None]:
+            response_1 = await super().async_status()
+        if group == [2, None]:
+            response_2 = await self.async_sensor_status()
+        return multiple_status(response_1, response_2)
+
+    def relay_status(self):
+        """Get the status of the relay switch."""
+        super().status()
+
+    async def async_relay_status(self):
+        """Get the status of the relay switch."""
+        return await super().async_status()
+
+    def sensor_status(self):
+        """Get the status of the sensor."""
+        self._handlers[SENSOR_GROUP][STATUS_REQUEST].send()
+
+    async def async_sensor_status(self):
+        """Get the status of the sensor."""
+        return await self._handlers[SENSOR_GROUP][STATUS_REQUEST].async_send()
 
     def _register_states(self):
         super()._register_states()
