@@ -2,6 +2,7 @@
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.trigger_scene import TriggerSceneCommandHandler
+from ..handlers.to_device.status_request import StatusRequestCommand
 from ..states import (
     ON_OFF_OUTLET_BOTTOM,
     ON_OFF_OUTLET_TOP,
@@ -329,6 +330,9 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
     Device Class 0x02 subcat 0x39
     """
 
+    TOP_GROUP = 1
+    BOTTOM_GROUP = 2
+
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the SwitchedLightingControl_KeypadLinc class."""
         buttons = {1: ON_OFF_OUTLET_TOP, 2: ON_OFF_OUTLET_BOTTOM}
@@ -338,13 +342,45 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
 
     def status(self, group=None):
         """Request the status of the device."""
-        self._handlers[STATUS_COMMAND].send(status_type=1)
+        if group is None:
+            self._handlers[STATUS_COMMAND].send()
+        if group in [1, 2]:
+            self._handlers[group][STATUS_COMMAND].send()
 
     async def async_status(self, group=None):
         """Request the status of the device."""
-        return await self._handlers[STATUS_COMMAND].async_send(status_type=1)
+        if group is None:
+            return await self._handlers[STATUS_COMMAND].async_send()
+        if group in [1, 2]:
+            return await self._handlers[group][STATUS_COMMAND].async_send()
 
-    def _set_status(self, status):
-        """Set the status of the dimmable_switch state."""
-        self._states[1].value = status & 0x02
-        self._states[2].value = status & 0x01
+    def _register_handlers_and_managers(self):
+        super()._register_handlers_and_managers()
+        self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address, 1)
+
+        if self._handlers.get(self.TOP_GROUP) is None:
+            self._handlers[self.TOP_GROUP] = {}
+        self._handlers[self.TOP_GROUP][STATUS_COMMAND] = StatusRequestCommand(self._address, 0)
+
+        if self._handlers.get(self.BOTTOM_GROUP) is None:
+            self._handlers[self.BOTTOM_GROUP] = {}
+        self._handlers[self.BOTTOM_GROUP][STATUS_COMMAND] = StatusRequestCommand(self._address, 0)
+
+    def _subscribe_to_handelers_and_managers(self):
+        super()._subscribe_to_handelers_and_managers()
+
+        self._handlers[self.TOP_GROUP][STATUS_COMMAND].subscribe(self._handle_top_status)
+        self._handlers[self.TOP_GROUP][STATUS_COMMAND].subscribe(self._handle_bottom_status)
+
+    def _handle_status(self, db_version, status):
+        """Set the status of the top and bottom outlets state."""
+        self._states[self.TOP_GROUP].value = status & 0x02
+        self._states[self.BOTTOM_GROUP].value = status & 0x01
+
+    def _handle_top_status(self, db_version, status):
+        """Set the status of the top outlet."""
+        self._states[self.TOP_GROUP].value = status
+
+    def _handle_bottom_status(self, db_version, status):
+        """Set the status of the bottom outlet."""
+        self._states[self.BOTTOM_GROUP].value = status
