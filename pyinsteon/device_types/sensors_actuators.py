@@ -24,7 +24,7 @@ class SensorsActuators_IOLink(SensorsActuators):
         self._managers[SENSOR_GROUP][ON_LEVEL_MANAGER] = OnLevelManager(
             self._address, SENSOR_GROUP
         )
-        if self._handlers.get(SENSOR_GROUP):
+        if self._handlers.get(SENSOR_GROUP) is None:
             self._handlers[SENSOR_GROUP] = {}
         self._handlers[SENSOR_GROUP][STATUS_REQUEST] = StatusRequestCommand(self.address, 1)
 
