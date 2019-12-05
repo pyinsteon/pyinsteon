@@ -2,7 +2,7 @@
 from typing import Iterable
 
 
-from .constants import HC_LOOKUP, UC_LOOKUP, X10Commands, X10CommandType
+from .constants import HC_LOOKUP, UC_LOOKUP, X10Commands, X10CommandType, ResponseStatus
 
 
 def housecode_to_byte(housecode: str) -> int:
@@ -128,3 +128,15 @@ def test_values_eq(val1, val2) -> bool:
     if val1 == val2:
         return True
     return False
+
+def multiple_status(*args):
+    """Return the proper status based on the worst case of all status responses."""
+    worst_response = 1
+    for response in args:
+        if response is None:
+            continue
+        if int(response) == 0 or worst_response == 0:
+            worst_response = 0
+        elif int(response) > worst_response:
+            worst_response = int(response)
+    return ResponseStatus(worst_response)
