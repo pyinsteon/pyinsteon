@@ -38,7 +38,7 @@ from . import (
     SecurityHealthSafety_Smokebridge,
     SensorsActuators,
     SensorsActuators_IOLink,
-    # WindowCovering,
+    WindowCovering,
     # X10OnOff,
     # X10Dimmable,
     # X10Sensor,
@@ -1124,9 +1124,9 @@ class IPDB:
         Product(
             0x0E, 0x00, 0x000000B, "Somfy Drape Controller RF Bridge", "", UnknownDevice
         ),
-        # Product(0x0E, 0x01, 0x0000000, 'Micro Open/Close', '2444-222', WindowCovering),
-        # Product(0x0E, 0x02, 0x0000000, 'Micro Open/Close', '2444-422', WindowCovering),
-        # Product(0x0E, 0x03, 0x0000000, 'Micro Open/Close', '2444-522', WindowCovering),
+        Product(0x0E, 0x01, 0x0000000, 'Micro Open/Close', '2444-222', WindowCovering),
+        Product(0x0E, 0x02, 0x0000000, 'Micro Open/Close', '2444-422', WindowCovering),
+        Product(0x0E, 0x03, 0x0000000, 'Micro Open/Close', '2444-522', WindowCovering),
         Product(0x0F, None, None, "Generic Plumbing Controller", "", UnknownDevice),
         Product(
             0x0F,

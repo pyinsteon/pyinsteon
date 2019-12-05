@@ -27,7 +27,8 @@ HARDWARE_LIGHT_SENSITIVITY = "hardware_light_sensitivity"
 AMBIENT_LIGHT_INTENSITY = "ambient_light_intensity"
 DELAY = "delay"
 PRESCALER = "prescaler"
-
+DURATION_HIGH = "duration_high"
+DURATION_LOW = "duration_low"
 
 class ExtendedProperty(DeviceFlagBase):
     """Representaton of an extended property of a device."""

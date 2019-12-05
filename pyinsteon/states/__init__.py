@@ -22,6 +22,7 @@ TEST_SENSOR = "test_sensor"
 NEW_SENSOR = "new_sensor"
 HEARTBEAT = "heartbeat"
 SENSOR_MALFUNCTION = "sensor_malfunction"
+COVER = 'cover'
 
 ON_OFF_SWITCH_MAIN = "{}_{}".format(ON_OFF_SWITCH, "main")
 ON_OFF_SWITCH_A = "{}_{}".format(ON_OFF_SWITCH, "a")
@@ -82,7 +83,7 @@ class StateBase(SubscriberBase):
         else:
             self._call_subscribers(
                 name=self._name,
-                address=self._address,
+                address=self._address.id,
                 value=self._value,
                 group=self._group,
             )
