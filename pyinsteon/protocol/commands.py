@@ -248,19 +248,16 @@ commands.add(PEEK_ONE_BYTE, 0x2B, None, False)
 commands.add(PEEK_ONE_BYTE_INTERNAL, 0x2C, None, False)
 commands.add(POKE_ONE_BYTE_INTERNAL, 0x2D, None, False)
 
-commands.add(
-    ON_AT_RAMP_RATE, 0x2E, None, False, True
-)  # cmd2 ne 0x00 => no confict w/ ext get set
-commands.add(
-    EXTENDED_GET_SET, 0x2E, None, None
-)  # Check if direct_ack is sd or ed message
-commands.add(
-    OFF_AT_RAMP_RATE, 0x2F, None, False, True
-)  # cmd2 ne 0x00 => no confict w/ read aldb
-commands.add(EXTENDED_READ_WRITE_ALDB, 0x2F, None, None)  # direct_ack is sd msg
-commands.add(
-    EXTENDED_TRIGGER_ALL_LINK, 0x30, None, None
-)  # Check direct_ack sd or ed msg
+# cmd2 ne 0x00 => no confict w/ ext get set
+commands.add(ON_AT_RAMP_RATE, 0x2E, None, False, True)
+# Check if direct_ack is sd or ed message
+commands.add(EXTENDED_GET_SET, 0x2E, None, None)
+# cmd2 ne 0x00 => no confict w/ read aldb
+commands.add(OFF_AT_RAMP_RATE, 0x2F, None, False, True)
+# direct_ack is sd msg
+commands.add(EXTENDED_READ_WRITE_ALDB, 0x2F, None, None)
+# Check direct_ack sd or ed msg
+commands.add(EXTENDED_TRIGGER_ALL_LINK, 0x30, None, None)
 
 commands.add(SET_SPRINKLER_PROGRAM, 0x40, None, True)
 commands.add(SPRINKLER_VALVE_ON, 0x40, None, False)
