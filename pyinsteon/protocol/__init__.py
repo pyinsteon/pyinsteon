@@ -1,9 +1,12 @@
 """Protocol classes to interface with serial, socket and http devices."""
 import asyncio
-from functools import partial
 import logging
+from functools import partial
+
+import serial
 
 from .. import pub
+from .serial_transport import SerialTransport
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,9 +51,6 @@ async def async_connect_serial(device, protocol):
         port – Device name.
         protocol - Insteon Modem Protocol instance.
     """
-    import serial
-    from .serial_transport import SerialTransport
-
     loop = asyncio.get_event_loop()
     try:
         ser = serial.serial_for_url(url=device, baudrate=19200)
@@ -63,8 +63,6 @@ async def async_connect_serial(device, protocol):
 
 async def async_connect_socket(host, protocol, port=None):
     """Connect to the Hub Version 1 via TCP Socket."""
-    import serial
-    from .serial_transport import SerialTransport
 
     port = 9761 if not port else port
     loop = asyncio.get_event_loop()
