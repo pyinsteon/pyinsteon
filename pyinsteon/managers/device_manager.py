@@ -66,7 +66,7 @@ class DeviceManager(SubscriberBase):
         self._id_manager.set_device_id(
             device.address, device.cat, device.subcat, device.firmware
         )
-        self._call_subscribers(address=device.address)
+        self._call_subscribers(address=device.address.id)
 
     def __len__(self):
         """Return the number of devices."""
