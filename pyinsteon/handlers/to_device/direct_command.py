@@ -1,10 +1,13 @@
 """Handle an outbound direct message to a device."""
 
-from abc import ABCMeta
 import asyncio
-from ..outbound_base import OutboundHandlerBase
+from abc import ABCMeta
+
 from ...address import Address
-from .. import ack_handler, direct_nak_handler, direct_ack_handler
+from ...constants import MessageFlagType
+from ...utils import build_topic
+from .. import ack_handler, direct_ack_handler, direct_nak_handler
+from ..outbound_base import OutboundHandlerBase
 
 TIMEOUT = 3  # Wait time for device response
 
@@ -14,14 +17,12 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
 
     __meta__ = ABCMeta
 
-    def __init__(self, address, command):
+    def __init__(self, topic, address, group=None):
         """Init the DirectCommandHandlerBase class."""
         self._address = Address(address)
+        self._group = group
         self._response_lock = asyncio.Lock()
-        super().__init__("{}.{}".format(self._address.id, command))
-        # We override the _send_topic to ensrue the address does not go as
-        # part of the topic. Address is a key word argument for Direct Commands
-        self._send_topic = "{}.direct".format(command)
+        super().__init__(topic, address=address, group=group, message_type=MessageFlagType.DIRECT)
 
     @property
     def response_lock(self) -> asyncio.Lock:
@@ -40,6 +41,7 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
     @direct_nak_handler
     def handle_direct_nak(self, cmd1, cmd2, target, user_data):
         """Handle the message ACK."""
+        pass
 
     @direct_ack_handler
     def handle_direct_ack(self, cmd1, cmd2, target, user_data):

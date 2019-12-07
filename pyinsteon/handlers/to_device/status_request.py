@@ -15,7 +15,7 @@ class StatusRequestCommand(DirectCommandHandlerBase):
 
     def __init__(self, address, status_type: int = 0):
         """Init the OnLevelCommand class."""
-        super().__init__(address, STATUS_REQUEST)
+        super().__init__(topic=STATUS_REQUEST, address=address)
         self._status_type = status_type
 
     # pylint: disable=arguments-differ, useless-super-delegation

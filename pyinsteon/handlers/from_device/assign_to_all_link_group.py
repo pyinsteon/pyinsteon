@@ -10,7 +10,8 @@ class AssignToAllLinkGroupCommand(BroadcastCommandHandlerBase):
 
     def __init__(self, address: Address):
         """Init the AssignToAllLinkGroupCommand class."""
-        super().__init__(address, ASSIGN_TO_ALL_LINK_GROUP)
+        self._address = Address(address)
+        super().__init__(topic=ASSIGN_TO_ALL_LINK_GROUP, address=self._address)
 
     @broadcast_handler
     def receive_id(self, cmd1, cmd2, target, user_data):

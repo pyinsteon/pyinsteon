@@ -42,7 +42,7 @@ class TestProtocol(unittest.TestCase):
         await self._protocol.async_connect()
         send_topics(topics)
         await asyncio.sleep(2)
-        assert self._last_topic == 'ack.{}.on.1.direct'.format(address.id)
+        assert self._last_topic == 'ack.{}.1.on.direct'.format(address.id)
         self._protocol.close()
         await asyncio.sleep(.1)
 
@@ -56,7 +56,7 @@ class TestProtocol(unittest.TestCase):
         await self._protocol.async_connect()
         send_data(data, self._read_queue)
         await asyncio.sleep(2)
-        assert self._last_topic == '{}.on.{}.broadcast'.format(address.id, 1)
+        assert self._last_topic == '{}.{}.on.broadcast'.format(address.id, 1)
         self._protocol.close()
         await asyncio.sleep(.1)
 

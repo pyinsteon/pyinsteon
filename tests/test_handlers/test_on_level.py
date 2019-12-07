@@ -25,7 +25,7 @@ class TestOnLevel(unittest.TestCase):
         self._on_level_2 = None
         self._on_level_3 = None
 
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=True)
 
     def set_on_level_group_1(self, on_level, group=None):
         """Callback to on_level direct_ack."""
@@ -48,10 +48,10 @@ class TestOnLevel(unittest.TestCase):
         self._on_level_2 = None
         self._on_level_3 = None
 
-        ack_topic = 'ack.{}.on.{}.direct'.format(self._address.id, 1)
+        ack_topic = 'ack.{}.{}.on.direct'.format(self._address.id, 1)
         direct_ack_topic = '{}.on.direct_ack'.format(self._address.id)
 
-        topics = [TopicItem(ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data": None}, .5),
+        topics = [TopicItem(ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}, .5),
                   TopicItem(direct_ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data": None}, .5)]
         send_topics(topics)
         assert await self.handler1.async_send(on_level=cmd2)
@@ -68,10 +68,10 @@ class TestOnLevel(unittest.TestCase):
         self._on_level_2 = None
         self._on_level_3 = None
 
-        ack_topic = 'ack.{}.on.{}.direct'.format(self._address.id, 2)
+        ack_topic = 'ack.{}.{}.on.direct'.format(self._address.id, 2)
         direct_ack_topic = '{}.on.direct_ack'.format(self._address.id)
 
-        topics = [TopicItem(ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data": {'d1': 2}}, .5),
+        topics = [TopicItem(ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": {'d1': 2}}, .5),
                   TopicItem(direct_ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data":  None}, .5)]
         send_topics(topics)
         assert await self.handler2.async_send(on_level=cmd2)
@@ -85,13 +85,14 @@ class TestOnLevel(unittest.TestCase):
         cmd1 = 0x11
         cmd2 = 0xaa
 
-        ack_topic = 'ack.{}.on.{}.direct'.format(self._address.id, 2)
+        ack_topic = 'ack.{}.{}.on.direct'.format(self._address.id, 3)
         direct_nak_topic = '{}.on.direct_nak'.format(self._address.id)
 
-        topics = [TopicItem(ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data": {'d1': 2}}, .5),
+        topics = [TopicItem(ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": {'d1': 3}}, .5),
                   TopicItem(direct_nak_topic, {"cmd1": cmd1, "cmd2": cmd2, "target": '4d5e6f', "user_data":  None}, .5)]
         send_topics(topics)
-        assert await self.handler2.async_send(on_level=cmd2) == ResponseStatus.UNCLEAR
+        response = await self.handler3.async_send(on_level=cmd2)
+        assert response == ResponseStatus.UNCLEAR
 
 if __name__ == '__main__':
     unittest.main()

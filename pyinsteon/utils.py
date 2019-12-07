@@ -1,9 +1,9 @@
 """Utility methods."""
 from typing import Iterable
 
-
-from .constants import HC_LOOKUP, UC_LOOKUP, X10Commands, X10CommandType, ResponseStatus
-
+from .address import Address
+from .constants import HC_LOOKUP, UC_LOOKUP, X10Commands, X10CommandType, ResponseStatus, MessageFlagType
+from .protocol.commands import commands
 
 def housecode_to_byte(housecode: str) -> int:
     """Return the byte value of an X10 housecode."""
@@ -128,6 +128,62 @@ def test_values_eq(val1, val2) -> bool:
     if val1 == val2:
         return True
     return False
+
+
+def _include_address(prefix, topic, address, message_type):
+    """Test if we should include the address in the topic build."""
+    if address is None:
+        return False
+
+    if isinstance(message_type, str):
+        message_type = getattr(MessageFlagType, str(message_type).upper())
+
+    if prefix is 'send' and message_type == MessageFlagType.DIRECT:
+        return False
+
+    # if message_type in [MessageFlagType.ALL_LINK_CLEANUP,
+    #                     MessageFlagType.DIRECT_ACK,
+    #                     MessageFlagType.DIRECT_NAK]:
+    #     return False
+
+    if commands.get(topic) is None:
+        return False
+
+    return True
+
+
+def _include_group(topic, group, message_type):
+    if group is None:
+        return False
+
+    if not commands.use_group(topic):
+        return False
+
+    if message_type in [MessageFlagType.ALL_LINK_CLEANUP]:
+        return False
+
+    return True
+
+
+def build_topic(topic, prefix=None, address=None, group=None, message_type=None):
+    """Build a full topic from components."""
+    full_topic = ''
+    if prefix is not None:
+        # Adding the . separator since there must be something after a prefix
+        full_topic = '{}.'.format(str(prefix))
+
+    if _include_address(prefix, topic, address, message_type):
+        addr = address.id if isinstance(address, Address) else address
+        full_topic = '{}{}.'.format(full_topic, addr)
+        if commands.use_group(topic) and group is not None:
+            group = group if group else 1
+            full_topic = '{}{}.'.format(full_topic, group)
+
+    full_topic = '{}{}'.format(full_topic, topic)
+    if message_type is not None:
+        full_topic = '{}.{}'.format(full_topic, str(message_type))
+    return full_topic
+
 
 def multiple_status(*args):
     """Return the proper status based on the worst case of all status responses."""

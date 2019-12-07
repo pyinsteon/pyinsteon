@@ -9,7 +9,7 @@ class OffAllLinkBroadcastCommand(AllLinkBroadcastCommandHandlerBase):
 
     def __init__(self, group):
         """Init the OnLevelCommand class."""
-        super().__init__(group, command=OFF)
+        super().__init__(topic=OFF, group=group)
 
     # pylint: disable=arguments-differ
     def send(self):

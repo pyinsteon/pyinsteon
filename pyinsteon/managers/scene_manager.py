@@ -93,7 +93,7 @@ async def trigger_scene_off(group):
     await OffAllLinkBroadcastCommand(group=group).async_send()
     for device in scenes.get_devices(group):
         # TODO check for success or failure
-        await OffAllLinkCleanupCommand(address=device.address).async_send(group=group)
+        await OffAllLinkCleanupCommand(address=device.address, group=group).async_send()
 
 
 async def _plm_add_device_to_scene(group, device, on_level, ramp_rate, button):

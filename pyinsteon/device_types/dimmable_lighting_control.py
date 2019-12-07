@@ -427,7 +427,7 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         for button in self._buttons:
-            self._handlers[SET_LEDS_COMMAND].subscribe(self._states[button].set_value)
+            self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
 
     def _change_led_status(self, led, on):
         leds = {}
@@ -436,6 +436,8 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
             leds[var] = on if curr_led == led else bool(self._states.get(curr_led))
         return leds
 
+    def _update_leds(self, group, value):
+        self._states[group].value = value
 
 class DimmableLightingControl_KeypadLinc_6(DimmableLightingControl_KeypadLinc):
     """KeypadLinc 6 button dimmer."""

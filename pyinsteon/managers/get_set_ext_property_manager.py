@@ -52,9 +52,9 @@ class GetSetExtendedPropertyManager:
         # TODO return success or failure
         if group is None:
             for curr_group in self._groups:
-                await self._get_command.async_send(group=curr_group)
+                return await self._get_command.async_send(group=curr_group)
         else:
-            await self._get_command.async_send(group=group)
+            return await self._get_command.async_send(group=group)
 
     async def async_set(self, group=None, force=False):
         """Set the properties for a group."""

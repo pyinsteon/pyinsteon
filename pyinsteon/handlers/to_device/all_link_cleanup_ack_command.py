@@ -10,18 +10,18 @@ from ...constants import MessageFlagType
 class AllLinkCleanupAckCommandHandlerBase(OutboundHandlerBase):
     """Abstract base class for outbound All-Link Cleanup ACK message handling."""
 
-    def __init__(self, address, group, command):
+    def __init__(self, topic, address, group):
         """Init the DirectCommandHandlerBase class."""
         self._address = Address(address)
         self._group = group
         self._response_lock = asyncio.Lock()
         msg_type = str(MessageFlagType.ALL_LINK_CLEANUP_ACK)
         super().__init__(
-            "{}.{}.{}.{}".format(self._address.id, command, group, msg_type)
+            topic=topic,
+            address=self._address,
+            group=self._group,
+            message_type=MessageFlagType.ALL_LINK_CLEANUP_ACK,
         )
-        # We override the _send_topic to ensrue the address does not go as
-        # part of the topic. Address is a key word argument for Direct Commands
-        self._send_topic = "{}.{}".format(command, msg_type)
 
     async def async_send(self, **kwargs):
         """Send the command and wait for a direct_nak."""

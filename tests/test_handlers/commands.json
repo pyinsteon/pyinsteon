@@ -259,11 +259,10 @@
             "command": {
                 "class": ".off_all_link_cleanup.OffAllLinkCleanupCommand",
                 "params": {
-                    "address": "112233"
-                },
-                "send_params": {
+                    "address": "112233",
                     "group": 1
-                }
+                },
+                "send_params": {}
             },
             "messages": {
                 "cleanup_ack": {
@@ -293,11 +292,10 @@
             "command": {
                 "class": ".on_level_all_link_cleanup.OnLevelAllLinkCleanupCommand",
                 "params": {
-                    "address": "112233"
-                },
-                "send_params": {
+                    "address": "112233",
                     "group": 1
-                }
+                },
+                "send_params": {}
             },
             "messages": {
                 "cleanup_ack": {

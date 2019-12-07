@@ -9,7 +9,7 @@ class OnAllLinkCleanupAckCommand(AllLinkCleanupAckCommandHandlerBase):
 
     def __init__(self, address, group):
         """Init the OnLevelCommand class."""
-        super().__init__(address=address, group=group, command=ON)
+        super().__init__(topic=ON, address=address, group=group)
 
     # pylint: disable=arguments-differ
     def send(self):

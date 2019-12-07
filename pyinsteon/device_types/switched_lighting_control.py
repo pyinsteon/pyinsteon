@@ -265,7 +265,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         for button in self._button_list:
-            self._handlers[SET_LEDS_COMMAND].subscribe(self._states[button].set_value)
+            self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
 
     def _change_led_status(self, led, on):
         leds = {}
@@ -273,6 +273,9 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
             var = "group{}".format(curr_led)
             leds[var] = on if curr_led == led else bool(self._states.get(curr_led))
         return leds
+
+    def _update_leds(self, group, value):
+        self._states[group].value = value
 
 
 class SwitchedLightingControl_KeypadLinc_6(SwitchedLightingControl_KeypadLinc):

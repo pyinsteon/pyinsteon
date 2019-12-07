@@ -9,7 +9,7 @@ class ProductDataRequestCommand(DirectCommandHandlerBase):
 
     def __init__(self, address):
         """Init the OnLevelCommand class."""
-        super().__init__(address, PRODUCT_DATA_REQUEST)
+        super().__init__(topic=PRODUCT_DATA_REQUEST, address=address)
 
     # pylint: disable=arguments-differ
     def send(self):

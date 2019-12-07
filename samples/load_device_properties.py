@@ -11,12 +11,12 @@ USERNAME, PASSWORD, HOST = get_hub_config()
 
 async def load_device_properties():
     """Load the device databae."""
-    # devices = await async_connect(device=DEVICE)
-    devices = await async_connect(host=HOST,
-                                  username=USERNAME,
-                                  password=PASSWORD)
+    devices = await async_connect(device=DEVICE)
+    #vdevices = await async_connect(host=HOST,
+    #                               username=USERNAME,
+    #                               password=PASSWORD)
 
-    await devices.async_load(workdir=PATH, id_devices=2)
+    await devices.async_load(workdir=PATH, id_devices=0)
     await devices.async_save(workdir=PATH)
     for address in devices:
         device = devices[address]
@@ -36,7 +36,7 @@ async def load_device_properties():
 
 if __name__ == '__main__':
     set_log_levels(logger='info', logger_pyinsteon='info',
-                   logger_messages='info', logger_topics=False)
+                   logger_messages='info', logger_topics=True)
     loop = asyncio.get_event_loop()
     _LOGGER.info('Loading All-Link database for all devices')
     loop.run_until_complete(load_device_properties())

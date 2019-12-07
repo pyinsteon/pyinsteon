@@ -4,6 +4,7 @@ from functools import wraps
 import logging
 from .. import pub
 from ..constants import AckNak, MessageFlagType, ResponseStatus
+from ..utils import build_topic
 
 
 TIMEOUT = 3  # Time out between ACK and Direct ACK
@@ -27,25 +28,33 @@ async def _async_post_response(
             func(obj, *args, **kwargs)
 
 
-def _remove_group_from_topic(topic: str):
-    """Check if the last element of the topic is an integer and strip it."""
-    parse_topic = topic.split(".")
-    last_topic = parse_topic[-1]
-    try:
-        int(last_topic)
-        strip_topic = parse_topic[0]
-        for next_topic in parse_topic[1:-1]:
-            strip_topic = "{}.{}".format(strip_topic, next_topic)
-        return strip_topic
-    except ValueError:
-        return topic
+def _register_handler(
+    instance_func, topic, prefix=None, address=None, group=None, message_type=None
+):
+    full_topic = build_topic(
+        topic=topic,
+        prefix=prefix,
+        address=address,
+        group=group,
+        message_type=message_type,
+    )
+    pub.subscribe(instance_func, full_topic)
 
 
 def inbound_handler(func):
     """Decorator function for any inbound message handler."""
 
-    def register_topic(instance_func, topic):
-        pub.subscribe(instance_func, topic)
+    def register_topic(
+        instance_func, topic, address=None, group=None, message_type=None
+    ):
+        _register_handler(
+            instance_func,
+            topic,
+            prefix=None,
+            address=address,
+            group=None,
+            message_type=message_type,
+        )
 
     func.register_topic = register_topic
     return func
@@ -54,9 +63,18 @@ def inbound_handler(func):
 def ack_handler(wait_response=False, timeout=TIMEOUT):
     """Decorator function to register the message ACK handler."""
 
-    def register_topic(instance_func, topic):
-        topic = "ack.{}".format(topic)
-        pub.subscribe(instance_func, topic)
+    def register_topic(
+        instance_func, topic, address=None, group=None, message_type=None
+    ):
+        """Register an inbound ACK message."""
+        _register_handler(
+            instance_func,
+            topic,
+            prefix="ack",
+            address=address,
+            group=group,
+            message_type=message_type,
+        )
 
     async def _wait_response(lock: asyncio.Lock, queue: asyncio.Queue):
         """Wait for the direct ACK message, and post False if timeout reached."""
@@ -108,9 +126,18 @@ def nak_handler(func):
     Protocol.
     """
 
-    def register_topic(instance_func, topic):
-        topic = "nak.{}".format(topic)
-        pub.subscribe(instance_func, topic)
+    def register_topic(
+        instance_func, topic, address=None, group=None, message_type=None
+    ):
+        """Register an inbound ACK message."""
+        _register_handler(
+            instance_func,
+            topic,
+            prefix="nak",
+            address=address,
+            group=group,
+            message_type=message_type,
+        )
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -122,39 +149,21 @@ def nak_handler(func):
     return wrapper
 
 
-def response_handler(response_topic=None):
-    """Decorator function to register the response handler.
-
-    Parameter:
-        response_topic: Used when the response topic is different than the
-        send topic.
-    """
-
-    def register_topic(instance_func, topic):
-        nonlocal response_topic
-        topic = response_topic if response_topic is not None else topic
-        pub.subscribe(instance_func, topic)
-
-    def setup(func):
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            asyncio.ensure_future(
-                _async_post_response(self, ResponseStatus.SUCCESS, func, args, kwargs)
-            )
-
-        wrapper.register_topic = register_topic
-        return wrapper
-
-    return setup
-
-
 def direct_ack_handler(func):
     """Decorator function to register the DIRECT_ACK response handler."""
 
-    def register_topic(instance_func, topic):
-        topic = _remove_group_from_topic(topic)
-        topic = "{}.direct_ack".format(topic)
-        pub.subscribe(instance_func, topic)
+    def register_topic(
+        instance_func, topic, address=None, group=None, message_type=None
+    ):
+        """Register an inbound ACK message."""
+        _register_handler(
+            instance_func,
+            topic,
+            prefix=None,
+            address=address,
+            group=None,
+            message_type=MessageFlagType.DIRECT_ACK,
+        )
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -190,10 +199,18 @@ def status_handler(func):
 def direct_nak_handler(func):
     """Decorator function to register the DIRECT_NAK response handler."""
 
-    def register_topic(instance_func, topic):
-        topic = _remove_group_from_topic(topic)
-        topic = "{}.direct_nak".format(topic)
-        pub.subscribe(instance_func, topic)
+    def register_topic(
+        instance_func, topic, address=None, group=None, message_type=None
+    ):
+        """Register an inbound DIRECT NAK message."""
+        _register_handler(
+            instance_func,
+            topic,
+            prefix=None,
+            address=address,
+            group=None,
+            message_type=MessageFlagType.DIRECT_NAK,
+        )
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -211,11 +228,26 @@ def broadcast_handler(func):
 
     last_command = datetime(1, 1, 1)
 
-    def register_topic(instance_func, topic):
-        topic_broadcast = "{}.broadcast".format(topic)
-        topic_all_link_broadcast = "{}.all_link_broadcast".format(topic)
-        pub.subscribe(instance_func, topic_broadcast)
-        pub.subscribe(instance_func, topic_all_link_broadcast)
+    def register_topic(
+        instance_func, topic, address=None, group=None, message_type=None
+    ):
+        """Register an inbound BROADCAST message."""
+        _register_handler(
+            instance_func,
+            topic,
+            prefix=None,
+            address=address,
+            group=group,
+            message_type=MessageFlagType.BROADCAST,
+        )
+        _register_handler(
+            instance_func,
+            topic,
+            prefix=None,
+            address=address,
+            group=group,
+            message_type=MessageFlagType.ALL_LINK_BROADCAST,
+        )
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -256,10 +288,18 @@ def all_link_cleanup_handler(func):
 def all_link_cleanup_ack_handler(func):
     """Decorator function to register the all_link_cleanup ACK response handler."""
 
-    def register_topic(instance_func, topic):
-        topic = _remove_group_from_topic(topic)
-        topic = "{}.all_link_cleanup_ack".format(topic)
-        pub.subscribe(instance_func, topic)
+    def register_topic(
+        instance_func, topic, address=None, group=None, message_type=None
+    ):
+        """Register an inbound BROADCAST message."""
+        _register_handler(
+            instance_func,
+            topic,
+            prefix=None,
+            address=address,
+            group=None,
+            message_type=MessageFlagType.ALL_LINK_CLEANUP_ACK,
+        )
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -274,10 +314,18 @@ def all_link_cleanup_ack_handler(func):
 def all_link_cleanup_nak_handler(func):
     """Decorator function to register the all_link_cleanup NAK response handler."""
 
-    def register_topic(instance_func, topic):
-        topic = _remove_group_from_topic(topic)
-        topic = "{}.all_link_cleanup_nak".format(topic)
-        pub.subscribe(instance_func, topic)
+    def register_topic(
+        instance_func, topic, address=None, group=None, message_type=None
+    ):
+        """Register an inbound BROADCAST message."""
+        _register_handler(
+            instance_func,
+            topic,
+            prefix=None,
+            address=address,
+            group=None,
+            message_type=MessageFlagType.ALL_LINK_CLEANUP_NAK,
+        )
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):

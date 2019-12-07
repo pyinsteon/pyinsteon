@@ -2,6 +2,9 @@
 from .. import inbound_handler
 from ..inbound_base import InboundHandlerBase
 from ...topics import EXTENDED_GET_SET
+from ...address import Address
+from ...utils import build_topic
+from ...constants import MessageFlagType
 
 
 class ExtendedGetResponseHandler(InboundHandlerBase):
@@ -9,8 +12,17 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
 
     def __init__(self, address):
         """Init the OffInbound class."""
-        topic = "{}.{}.direct".format(address.id, EXTENDED_GET_SET)
-        super().__init__(topic)
+        self._address = Address(address)
+        super().__init__(
+            topic=EXTENDED_GET_SET,
+            address=self._address,
+            message_type=MessageFlagType.DIRECT,
+        )
+        self._subscriber_topic = build_topic(
+            prefix="subscriber.{}".format(self._address), # Force address
+            topic="ext_get_response",
+            message_type=MessageFlagType.DIRECT,
+        )
 
     @inbound_handler
     def handle_response(self, cmd1, cmd2, target, user_data):

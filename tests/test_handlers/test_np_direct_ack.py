@@ -19,7 +19,7 @@ class TestNoDirectAck(unittest.TestCase):
         self.handler.subscribe(self.set_on_level)
         self._on_level = None
         self._group = None
-        self.ack_topic = 'ack.{}.on.{}.direct'.format(self._address.id, 1)
+        self.ack_topic = 'ack.{}.{}.on.direct'.format(self._address.id, 1)
         set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
 
     def set_on_level(self, on_level, group):
@@ -33,7 +33,7 @@ class TestNoDirectAck(unittest.TestCase):
         cmd1 = 0x99
         cmd2 = 0xaa
         topics = [TopicItem(self.ack_topic,
-                            {'cmd1': cmd1, 'cmd2': cmd2, "target": '4d5e6f',
+                            {'cmd1': cmd1, 'cmd2': cmd2,
                              'user_data': None}, .5)]
         send_topics(topics)
         assert await self.handler.async_send(on_level=cmd2) == ResponseStatus.FAILURE

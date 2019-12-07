@@ -30,6 +30,7 @@ from ..topics import (
 )
 from .commands import commands
 from .messages.inbound import Inbound
+from ..utils import build_topic
 
 MSG_CONVERTER = {}
 _LOGGER = logging.getLogger(__name__)
@@ -72,12 +73,13 @@ def _create_rcv_std_ext_msg(topic, address, flags, cmd1, cmd2, target, user_data
         group = _msg_group(flags.message_type, target, cmd2, user_data)
     else:
         group = None
-    if group is not None:
-        topic = "{}.{}.{}.{}".format(
-            address.id, topic, group, flags.message_type.name.lower()
-        )
-    else:
-        topic = "{}.{}.{}".format(address.id, topic, flags.message_type.name.lower())
+    topic = build_topic(
+        topic=topic,
+        prefix=None,
+        address=address,
+        group=group,
+        message_type=flags.message_type,
+    )
     kwargs = {"cmd1": cmd1, "cmd2": cmd2, "target": target, "user_data": user_data}
     return (topic, kwargs)
 
@@ -170,14 +172,14 @@ def all_link_record_response(msg: Inbound) -> (str, {}):
 
 def all_link_cleanup_status_report(msg: Inbound) -> (str, {}):
     """Create a topic from an ALL_LINK_CLEANUP_STATUS_REPORT message."""
-    topic = "{}.{}".format(ALL_LINK_CLEANUP_STATUS_REPORT, msg.ack.name.lower())
+    topic = build_topic(ALL_LINK_CLEANUP_STATUS_REPORT, prefix=msg.ack)
     kwargs = {}
     yield (topic, kwargs)
 
 
 def get_im_info(msg: Inbound) -> (str, {}):
     """Create a topic from an GET_IM_INFO message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), GET_IM_INFO)
+    topic = build_topic(prefix=msg.ack, topic=GET_IM_INFO)
     kwargs = {
         "address": msg.address,
         "cat": msg.cat,
@@ -189,7 +191,7 @@ def get_im_info(msg: Inbound) -> (str, {}):
 
 def send_all_link_command(msg: Inbound) -> (str, {}):
     """Create a topic from an SEND_ALL_LINK_COMMAND message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), SEND_ALL_LINK_COMMAND)
+    topic = build_topic(prefix=msg.ack, topic=SEND_ALL_LINK_COMMAND)
     kwargs = {"group": msg.group, "mode": msg.mode}
     yield (topic, kwargs)
 
@@ -200,12 +202,14 @@ def _create_send_std_ext(topic, address, flags, cmd1, cmd2, user_data, ack):
         group = _msg_group(flags.message_type, None, cmd2, user_data)
     else:
         group = None
-    if group is not None:
-        topic = "{}.{}.{}.{}.{}".format(
-            ack.name.lower(), address.id, topic, group, msg_type
-        )
-    else:
-        topic = "{}.{}.{}.{}".format(ack.name.lower(), address.id, topic, msg_type)
+
+    topic = build_topic(
+        topic=topic,
+        prefix=str(ack),
+        address=address,
+        group=group,
+        message_type=flags.message_type,
+    )
     kwargs = {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}
     return (topic, kwargs)
 
@@ -229,63 +233,63 @@ def send_standard_or_extended_message(msg: Inbound) -> (str, {}):
 
 def x10_send(msg: Inbound) -> (str, {}):
     """Create a topic from an X10_SEND message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), X10_SEND)
+    topic = build_topic(prefix=msg.ack, topic=X10_SEND)
     kwargs = {"raw_x10": msg.raw_x10, "x10_flag": msg.x10_flag}
     yield (topic, kwargs)
 
 
 def start_all_linking(msg: Inbound) -> (str, {}):
     """Create a topic from an start_all_linking message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), START_ALL_LINKING)
+    topic = build_topic(prefix=msg.ack, topic=START_ALL_LINKING)
     kwargs = {"mode": msg.mode, "group": msg.group}
     yield (topic, kwargs)
 
 
 def cancel_all_linking(msg: Inbound) -> (str, {}):
     """Create a topic from an cancel_all_linking message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), CANCEL_ALL_LINKING)
+    topic = build_topic(prefix=msg.ack, topic=CANCEL_ALL_LINKING)
     kwargs = {}
     yield (topic, kwargs)
 
 
 def set_host_dev_cat(msg: Inbound) -> (str, {}):
     """Create a topic from an set_host_dev_cat message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), SET_HOST_DEV_CAT)
+    topic = build_topic(prefix=msg.ack, topic=SET_HOST_DEV_CAT)
     kwargs = {"cat": msg.cat, "subcat": msg.subcat, "firmware": msg.firmware}
     yield (topic, kwargs)
 
 
 def reset_im(msg: Inbound) -> (str, {}):
     """Create a topic from an reset_im message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), RESET_IM)
+    topic = build_topic(prefix=msg.ack, topic=RESET_IM)
     kwargs = {}
     yield (topic, kwargs)
 
 
 def set_ack_message_byte(msg: Inbound) -> (str, {}):
     """Create a topic from an set_ack_message_byte message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), SET_ACK_MESSAGE_BYTE)
+    topic = build_topic(prefix=msg.ack, topic=SET_ACK_MESSAGE_BYTE)
     kwargs = {"cmd2": msg.cmd2}
     yield (topic, kwargs)
 
 
 def get_first_all_link_record(msg: Inbound) -> (str, {}):
     """Create a topic from an get_first_all_link_record message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), GET_FIRST_ALL_LINK_RECORD)
+    topic = build_topic(prefix=msg.ack, topic=GET_FIRST_ALL_LINK_RECORD)
     kwargs = {}
     yield (topic, kwargs)
 
 
 def get_next_all_link_record(msg: Inbound) -> (str, {}):
     """Create a topic from an get_next_all_link_record message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), GET_NEXT_ALL_LINK_RECORD)
+    topic = build_topic(prefix=msg.ack, topic=GET_NEXT_ALL_LINK_RECORD)
     kwargs = {}
     yield (topic, kwargs)
 
 
 def set_im_configuration(msg: Inbound) -> (str, {}):
     """Create a topic from an set_im_configuration message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), SET_IM_CONFIGURATION)
+    topic = build_topic(prefix=msg.ack, topic=SET_IM_CONFIGURATION)
     # disable_auto_linking = bool(msg.flags & 1 << 7)
     # monitor_mode = bool(msg.flags & 1 << 6)
     # auto_led = bool(msg.flags & 1 << 5)
@@ -302,28 +306,28 @@ def set_im_configuration(msg: Inbound) -> (str, {}):
 
 def get_all_link_record_for_sender(msg: Inbound) -> (str, {}):
     """Create a topic from an get_all_link_record_for_sender message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), GET_ALL_LINK_RECORD_FOR_SENDER)
+    topic = build_topic(prefix=msg.ack, topic=GET_ALL_LINK_RECORD_FOR_SENDER)
     kwargs = {}
     yield (topic, kwargs)
 
 
 def led_on(msg: Inbound) -> (str, {}):
     """Create a topic from an led_on message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), LED_ON)
+    topic = build_topic(prefix=msg.ack, topic=LED_ON)
     kwargs = {}
     yield (topic, kwargs)
 
 
 def led_off(msg: Inbound) -> (str, {}):
     """Create a topic from an led_off message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), LED_OFF)
+    topic = build_topic(prefix=msg.ack, topic=LED_OFF)
     kwargs = {}
     yield (topic, kwargs)
 
 
 def manage_all_link_record(msg: Inbound) -> (str, {}):
     """Create a topic from an manage_all_link_record message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), MANAGE_ALL_LINK_RECORD)
+    topic = build_topic(prefix=msg.ack, topic=MANAGE_ALL_LINK_RECORD)
     kwargs = {
         "action": msg.action,
         "flags": msg.flags,
@@ -338,28 +342,28 @@ def manage_all_link_record(msg: Inbound) -> (str, {}):
 
 def set_nak_message_byte(msg: Inbound) -> (str, {}):
     """Create a topic from an set_nak_message_byte message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), SET_NAK_MESSAGE_BYTE)
+    topic = build_topic(prefix=msg.ack, topic=SET_NAK_MESSAGE_BYTE)
     kwargs = {"cmd2": msg.cmd2}
     yield (topic, kwargs)
 
 
 def set_ack_message_two_bytes(msg: Inbound) -> (str, {}):
     """Create a topic from an set_ack_message_two_bytes message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), SET_ACK_MESSAGE_TWO_BYTES)
+    topic = build_topic(prefix=msg.ack, topic=SET_ACK_MESSAGE_TWO_BYTES)
     kwargs = {"cmd1": msg.cmd1, "cmd2": msg.cmd2}
     yield (topic, kwargs)
 
 
 def rf_sleep(msg: Inbound) -> (str, {}):
     """Create a topic from an rf_sleep message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), RF_SLEEP)
+    topic = build_topic(prefix=msg.ack, topic=RF_SLEEP)
     kwargs = {}
     yield (topic, kwargs)
 
 
 def get_im_configuration(msg: Inbound) -> (str, {}):
     """Create a topic from an get_im_configuration message."""
-    topic = "{}.{}".format(msg.ack.name.lower(), GET_IM_CONFIGURATION)
+    topic = build_topic(prefix=msg.ack, topic=GET_IM_CONFIGURATION)
     # disable_auto_linking = bool(msg.flags & 1 << 7)
     # monitor_mode = bool(msg.flags & 1 << 6)
     # auto_led = bool(msg.flags & 1 << 5)

@@ -180,6 +180,10 @@ class Commands:
         self._use_group[topic] = use_group
         self._commands[(cmd1, cmd2, extended)] = topic
 
+    def get(self, topic: str):
+        """Get the command elements of teh topic."""
+        return self._topics.get(topic)
+
     def get_cmd1_cmd2(self, topic: str) -> (int, int, bool):
         """Get cmd1 and cmd2 from a topic.
 

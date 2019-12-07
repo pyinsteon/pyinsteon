@@ -10,11 +10,12 @@ class OnLevelCommand(DirectCommandHandlerBase):
 
     def __init__(self, address, group):
         """Init the OnLevelCommand class."""
-        topic = "{}.{}".format(ON, group)
-        super().__init__(address, topic)
-        # put the following commands in a subclass!
-        self._group = group
-        # self._subscriber_topic = '{}.{}'.format(self._subscriber_topic, self._group)
+        super().__init__(topic=ON, address=address, group=group)
+
+    @property
+    def group(self):
+        """Command group."""
+        return self._group
 
     # pylint: disable=arguments-differ
     def send(self, on_level=0xFF):

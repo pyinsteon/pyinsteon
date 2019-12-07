@@ -2,6 +2,8 @@
 from ..to_device.direct_command import DirectCommandHandlerBase
 from .. import direct_ack_handler
 from ...topics import EXTENDED_GET_SET
+from ...utils import build_topic
+from ...constants import MessageFlagType
 
 
 class SetLedsCommandHandler(DirectCommandHandlerBase):
@@ -12,8 +14,13 @@ class SetLedsCommandHandler(DirectCommandHandlerBase):
 
     def __init__(self, address):
         """Init the SetLedCommandHandler class."""
-        super().__init__(address=address, command=EXTENDED_GET_SET)
+        super().__init__(topic=EXTENDED_GET_SET, address=address)
         self._last_bitmask = 0
+        self._subscriber_topic = build_topic(
+            prefix="subscriber.{}".format(self._address), # Force address
+            topic="set_leds_command",
+            message_type=MessageFlagType.DIRECT,
+        )
 
     # pylint: disable=arguments-differ
     async def async_send(

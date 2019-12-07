@@ -18,8 +18,8 @@ class ReceiveALDBRecordHandler(InboundHandlerBase):
 
     def __init__(self, address: Address):
         """Init the ReceiveALDBRecordHandler class."""
-        topic = "{}.{}.direct".format(address.id, EXTENDED_READ_WRITE_ALDB)
-        super().__init__(topic)
+        self._address = Address(address)
+        super().__init__(topic=EXTENDED_READ_WRITE_ALDB, address=self._address)
 
     @inbound_handler
     def handle_response(self, cmd1, cmd2, target, user_data):

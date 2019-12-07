@@ -43,9 +43,9 @@ class TestIdRequest(unittest.TestCase):
         cmd1 = 0x99
         cmd2 = 0xaa
         topics = [TopicItem(self.ack_topic,
-                            {"cmd1": cmd1, "cmd2": cmd2, "target": None, "user_data": None}, .5),
+                            {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}, .5),
                   TopicItem(self.direct_ack_topic,
-                            {"cmd1": cmd1, "cmd2": cmd2, "target": None, "user_data": None}, .5),
+                            {"cmd1": cmd1, "cmd2": cmd2, "target": "112233", "user_data": None}, .5),
                   TopicItem(self.id_response_topic,
                             {'cmd1': cmd1, 'cmd2': cmd2, 'target': Address('010203'),
                              'user_data': None}, .5)]
@@ -62,9 +62,9 @@ class TestIdRequest(unittest.TestCase):
         cmd1 = 0x99
         cmd2 = 0xaa
         topics = [TopicItem(self.ack_topic,
-                            {'cmd1': cmd1, "cmd2": cmd2, "target": None, "user_data": None}, .5),
+                            {'cmd1': cmd1, "cmd2": cmd2, "user_data": None}, .5),
                   TopicItem(self.direct_nak_topic,
-                            {'cmd1': cmd1, "cmd2": cmd2, "target": None, "user_data": None}, .5)]
+                            {'cmd1': cmd1, "cmd2": cmd2, "target": "aabbcc", "user_data": None}, .5)]
         send_topics(topics)
         result = await self.id_handler.async_send()
         assert result == ResponseStatus.UNCLEAR

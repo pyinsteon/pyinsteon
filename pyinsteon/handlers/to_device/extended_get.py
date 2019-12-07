@@ -5,6 +5,8 @@ from .. import direct_ack_handler
 from ...address import Address
 from ...topics import EXTENDED_GET_SET
 from .direct_command import DirectCommandHandlerBase
+from ...utils import build_topic
+from ...constants import MessageFlagType
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -14,7 +16,12 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
 
     def __init__(self, address: Address):
         """Init the ReadALDBCommandHandler."""
-        super().__init__(address, EXTENDED_GET_SET)
+        super().__init__(topic=EXTENDED_GET_SET, address=address)
+        self._subscriber_topic = build_topic(
+            prefix="subscriber.{}".format(self._address), # Force address
+            topic="ext_get_command",
+            message_type=MessageFlagType.DIRECT,
+        )
 
     # pylint: disable=arguments-differ
     def send(self, group=0):

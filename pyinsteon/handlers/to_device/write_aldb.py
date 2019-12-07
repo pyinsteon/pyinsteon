@@ -13,7 +13,7 @@ class WriteALDBCommandHandler(DirectCommandHandlerBase):
 
     def __init__(self, address: Address):
         """Init the ReadALDBCommandHandler."""
-        super().__init__(address, EXTENDED_READ_WRITE_ALDB)
+        super().__init__(topic=EXTENDED_READ_WRITE_ALDB, address=address)
 
     # pylint: disable=arguments-differ
     async def async_send(

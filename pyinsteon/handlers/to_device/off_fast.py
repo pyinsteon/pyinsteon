@@ -9,11 +9,7 @@ class OffFastCommand(DirectCommandHandlerBase):
 
     def __init__(self, address, group):
         """Init the OnLevelCommand class."""
-        topic = "{}.{}".format(OFF_FAST, group)
-        super().__init__(address, topic)
-        # put the following commands in a subclass!
-        self._group = group
-        # self._subscriber_topic = '{}.{}'.format(self._subscriber_topic, self._group)
+        super().__init__(topic=OFF_FAST, address=address, group=group)
 
     # pylint: disable=arguments-differ
     def send(self):

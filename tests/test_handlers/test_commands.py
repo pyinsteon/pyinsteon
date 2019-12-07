@@ -76,7 +76,7 @@ class TestDirectCommands(unittest.TestCase):
                                        random_nak=False)
         self._protocol = Protocol(connect_method=self._connect_method)
         set_log_levels(logger='info', logger_pyinsteon='info',
-                       logger_messages='info', logger_topics=False)
+                       logger_messages='info', logger_topics=True)
 
     def validate_values(self, topic=pub.ALL_TOPICS, **kwargs):
         """Validate what should be returned from the handler."""

@@ -9,7 +9,7 @@ class EnterUnlinkingModeCommand(DirectCommandHandlerBase):
 
     def __init__(self, address: Address):
         """Init the EnterUnlinkingModeCommand class."""
-        super().__init__(address, ENTER_UNLINKING_MODE)
+        super().__init__(topic=ENTER_UNLINKING_MODE, address=address)
 
     # pylint: disable=arguments-differ
     async def async_send(self, group: int = 0):

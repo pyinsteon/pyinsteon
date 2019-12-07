@@ -1,10 +1,18 @@
 """Test extended property management."""
+import asyncio
 import unittest
 
 from pyinsteon.address import Address
-from pyinsteon.managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
+from pyinsteon.managers.get_set_ext_property_manager import (
+    GetSetExtendedPropertyManager,
+)
+from pyinsteon.protocol.commands import EXTENDED_GET_SET
+from pyinsteon.utils import build_topic
+from tests import set_log_levels
+from tests.utils import TopicItem, async_case, cmd_kwargs, send_topics
 
-class DataValue():
+
+class DataValue:
     def __init__(self):
         self._value = None
 
@@ -15,14 +23,17 @@ class DataValue():
     def update(self, value):
         self._value = value
 
+
 class TestExtendedPropertyManager(unittest.TestCase):
     """Text extended property management."""
 
     def setUp(self):
-        self._address = Address('010203')
+        self._address = Address("010203")
         self._epm = GetSetExtendedPropertyManager(self._address)
+        set_log_levels(logger_topics=True)
 
-    def test_data_update(self):
+    @async_case
+    async def test_data_update(self):
         """Test data updates."""
         from pyinsteon import pub
         from pyinsteon.protocol.messages.user_data import UserData
@@ -54,28 +65,55 @@ class TestExtendedPropertyManager(unittest.TestCase):
         self._epm.subscribe(prop101, prop101.update, 0, 10, 1, None)
         self._epm.subscribe(prop102, prop102.update, 0, 10, 2, None)
         self._epm.subscribe(prop103, prop103.update, 0, 10, 3, None)
-        pub.sendMessage('010203.extended_get_set.direct',
-                        cmd1=0x2e,
-                        cmd2=0x00,
-                        target=Address('030405'),
-                        user_data=UserData({'d1': 0x00,
-                                            'd2': 0x01,
-                                            'd3': 0x03,
-                                            'd4': 0x04,
-                                            'd5': 0x05,
-                                            'd6': 0x06,
-                                            'd7': 0x07,
-                                            'd8': 0x08,
-                                            'd9': 0x09,
-                                            'd10': 0x0a,
-                                            'd11': 0x0b,
-                                            'd12': 0x0c,
-                                            'd13': 0x0d,
-                                            'd14': 0x0e}))
+
+        address = "a1b2b3"
+        user_data = UserData(
+            {
+                "d1": 0x00,
+                "d2": 0x01,
+                "d3": 0x03,
+                "d4": 0x04,
+                "d5": 0x05,
+                "d6": 0x06,
+                "d7": 0x07,
+                "d8": 0x08,
+                "d9": 0x09,
+                "d10": 0x0A,
+                "d11": 0x0B,
+                "d12": 0x0C,
+                "d13": 0x0D,
+                "d14": 0x0E,
+            }
+        )
+        ack = build_topic(
+            prefix="ack",
+            topic=EXTENDED_GET_SET,
+            address=self._address,
+            message_type="direct",
+        )
+        dir_ack = build_topic(
+            topic=EXTENDED_GET_SET, address=self._address, message_type="direct_ack"
+        )
+        resp = build_topic(
+            topic=EXTENDED_GET_SET, address=self._address, message_type="direct"
+        )
+
+        topic_ack = TopicItem(ack, cmd_kwargs(0x2E, 0x00, None), 1)
+        topic_dir_ack = TopicItem(
+            dir_ack, cmd_kwargs(0x2E, 0x00, None, target="030405"), 1
+        )
+        topic_resp = TopicItem(
+            resp, cmd_kwargs(0x2E, 0x00, user_data, target="030405"), 0.2
+        )
+        send_topics([topic_ack, topic_dir_ack, topic_resp])
+        result = await self._epm.async_get(group=1)
+        assert int(result) == 1
+        await asyncio.sleep(1)
         assert prop1.value is None
         assert prop3.value == 0x03
         assert prop101.value
         assert not prop102.value
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

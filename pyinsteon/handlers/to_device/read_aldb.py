@@ -14,7 +14,7 @@ class ReadALDBCommandHandler(DirectCommandHandlerBase):
 
     def __init__(self, address: Address):
         """Init the ReadALDBCommandHandler."""
-        super().__init__(address, EXTENDED_READ_WRITE_ALDB)
+        super().__init__(topic=EXTENDED_READ_WRITE_ALDB, address=address)
 
     # pylint: disable=arguments-differ
     def send(self, mem_addr: int = 0x0000, num_recs: int = 0):

@@ -14,7 +14,7 @@ class GetOperatingFlagsCommand(DirectCommandHandlerBase):
 
     def __init__(self, address: Address):
         """Init the ReadALDBCommandHandler."""
-        super().__init__(address, GET_OPERATING_FLAGS)
+        super().__init__(topic=GET_OPERATING_FLAGS, address=address)
 
     # pylint: disable=arguments-differ
     def send(self, flags_requested=0):
