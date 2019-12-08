@@ -20,9 +20,6 @@ class OutboundHandlerBase(InboundHandlerBase):
     def __init__(self, topic, address=None, group=None, message_type=None):
         """Init the MessageManager."""
         self._message_response = asyncio.Queue()
-        # if message_type:
-        #     if not isinstance(message_type, MessageFlagType):
-        #         message_type = getattr(MessageFlagType, message_type)
         self._message_type = message_type
         super().__init__(topic, address=address, group=group, message_type=message_type)
 
