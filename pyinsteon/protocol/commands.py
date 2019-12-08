@@ -113,6 +113,10 @@ from ..topics import (
     SPRINKLER_SKIP_FORWARD,
     SPRINKLER_VALVE_OFF,
     SPRINKLER_VALVE_ON,
+    STANDARD_RECEIVED,
+    SEND_STANDARD,
+    EXTENDED_RECEIVED,
+    SEND_EXTENDED,
     START_MANUAL_CHANGE_DOWN,
     START_MANUAL_CHANGE_UP,
     STATUS_REQUEST,
@@ -189,31 +193,50 @@ class Commands:
 
         Returns (cmd1, cmd2, extended)
         """
-        return self._topics.get(topic, (None, None, None))
+        return self._topics.get(topic)
 
     def use_group(self, topic):
         """Return if a topic requires a group number."""
         return self._use_group.get(topic)
 
-    def get_topics(self, cmd1, cmd2, extended=None) -> str:
+    def get_topics(self, cmd1, cmd2, extended=None, send=False) -> str:
         """Generate a topic from a cmd1, cmd2 and extended flag."""
+        found = False
         topic = self._commands.get((cmd1, cmd2, extended))
         if topic:
+            found = True
             yield topic
         topic = self._commands.get((cmd1, cmd2, None))
         if topic:
+            found = True
             yield topic
         topic = self._commands.get((cmd1, None, extended))
         if topic:
+            found = True
             yield topic
         topic = self._commands.get((cmd1, None, None))
         if topic:
+            found = True
             yield topic
+        if not found:
+            if send:
+                yield self._commands.get((-2, None, extended))
+                return
+            yield self._commands.get((-1, None, extended))
+
+    def _cmd(self, cmd1, cmd2, extended):
+        """Return a string representing the command set."""
+        return f'{cmd1}_{cmd2}_{extended}'
+
 
 
 commands = Commands()
 
 
+commands.add(STANDARD_RECEIVED, -1, None, False)
+commands.add(EXTENDED_RECEIVED, -1, None, True)
+commands.add(SEND_STANDARD, -2, None, False)
+commands.add(SEND_EXTENDED, -2, None, True)
 commands.add(ASSIGN_TO_ALL_LINK_GROUP, 0x01, None, False)
 commands.add(DELETE_FROM_ALL_LINK_GROUP, 0x02, None, False)
 commands.add(PRODUCT_DATA_REQUEST, 0x03, 0x00, None)
