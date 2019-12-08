@@ -13,7 +13,7 @@ class InboundHandlerBase(SubscriberBase):
     def __init__(self, topic, address=None, group=None, message_type=None):
         """Init the InboundHandlerBase class."""
         subscriber_topic = build_topic(
-            prefix="subscriber",
+            prefix="handler",
             topic=topic,
             address=address,
             group=group,
