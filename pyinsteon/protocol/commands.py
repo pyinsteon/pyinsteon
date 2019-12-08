@@ -26,6 +26,7 @@ from ..topics import (
     EXTENDED_GET_SET,
     EXTENDED_READ_WRITE_ALDB,
     EXTENDED_TRIGGER_ALL_LINK,
+    BEEP,
     FX_USERNAME,
     GET_INSTEON_ENGINE_VERSION,
     GET_OPERATING_FLAGS,
@@ -285,6 +286,7 @@ commands.add(OFF_AT_RAMP_RATE, 0x2F, None, False, True)
 commands.add(EXTENDED_READ_WRITE_ALDB, 0x2F, None, None)
 # Check direct_ack sd or ed msg
 commands.add(EXTENDED_TRIGGER_ALL_LINK, 0x30, None, None)
+commands.add(BEEP, 0x30, None, None)
 
 commands.add(SET_SPRINKLER_PROGRAM, 0x40, None, True)
 commands.add(SPRINKLER_VALVE_ON, 0x40, None, False)

@@ -73,6 +73,7 @@ EXTENDED_GET_SET = "extended_get_set"
 OFF_AT_RAMP_RATE = "off_at_ramp_rate"
 EXTENDED_READ_WRITE_ALDB = "extended_read_write_aldb"
 EXTENDED_TRIGGER_ALL_LINK = "extended_trigger_all_link"
+BEEP = 'beep'
 SPRINKLER_VALVE_ON = "sprinkler_valve_on"
 SPRINKLER_VALVE_OFF = "sprinkler_valve_off"
 SPRINKLER_PROGRAM_ON = "sprinkler_program_on"
