@@ -17,11 +17,6 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
     def __init__(self, address: Address):
         """Init the ReadALDBCommandHandler."""
         super().__init__(topic=EXTENDED_GET_SET, address=address)
-        self._subscriber_topic = build_topic(
-            prefix="subscriber.{}".format(self._address), # Force address
-            topic="ext_get_command",
-            message_type=MessageFlagType.DIRECT,
-        )
 
     # pylint: disable=arguments-differ
     def send(self, group=0):
@@ -32,15 +27,3 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
     async def async_send(self, group=0):
         """Send Get Operating Flags message asyncronously."""
         return await super().async_send(data1=group)
-
-    @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
-        """Handle the direct ACK message."""
-        from collections import OrderedDict
-
-        if not user_data or not user_data["d2"] == 0x01:
-            return
-        data = OrderedDict()
-        for i in range(1, 15):
-            data["data{}".format(i)] = user_data["d{}".format(i)]
-        self._call_subscribers(data=data)
