@@ -15,6 +15,6 @@ class BroadcastCommandHandlerBase(InboundHandlerBase):
             topic=topic,
             address=self._address,
             group=self._group,
-            message_type=MessageFlagType.BROADCAST,
+            message_type=MessageFlagType.ALL_LINK_BROADCAST,
         )
 

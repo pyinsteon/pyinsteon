@@ -63,7 +63,7 @@ def _msg_group(message_type, target, cmd2, user_data):
         return 1
     if message_type == MessageFlagType.ALL_LINK_CLEANUP:
         return cmd2
-    if message_type == MessageFlagType.BROADCAST:
+    if message_type in [MessageFlagType.BROADCAST, MessageFlagType.ALL_LINK_BROADCAST]:
         return target.low
     return None
 
@@ -92,11 +92,11 @@ def standard_received(msg: Inbound) -> (str, {}):
         yield _create_rcv_std_ext_msg(
             topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, None
         )
-    if not found_topic:
-        topic = "standard_received"
-        yield _create_rcv_std_ext_msg(
-            topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, None
-        )
+    # if not found_topic:
+    #     topic = "standard_received"
+    #     yield _create_rcv_std_ext_msg(
+    #         topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, None
+    #     )
 
 
 def extended_received(msg: Inbound) -> (str, {}):
@@ -107,11 +107,11 @@ def extended_received(msg: Inbound) -> (str, {}):
         yield _create_rcv_std_ext_msg(
             topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, msg.user_data
         )
-    if not found_topic:
-        topic = "extended_received"
-        yield _create_rcv_std_ext_msg(
-            topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, msg.user_data
-        )
+    # if not found_topic:
+    #     topic = "extended_received"
+    #     yield _create_rcv_std_ext_msg(
+    #         topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, msg.user_data
+    #     )
 
 
 def x10_received(msg: Inbound) -> (str, {}):
