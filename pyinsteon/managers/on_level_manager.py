@@ -97,33 +97,28 @@ class OnLevelManager:
         self._off_fast.subscribe(callback)
 
     def _on_event(self, on_level):
-        self._last_event = datetime.now()
-        self._on.call_subscribers(on_level=on_level)
+        self._process_event(on_level=on_level)
 
     def _off_event(self, on_level):
-        self._last_event = datetime.now()
-        self._off.call_subscribers(on_level=on_level)
+        self._process_event(on_level=0)
 
     def _on_fast_event(self, on_level):
-        self._last_event = datetime.now()
-        self._on_fast.call_subscribers(on_level=on_level)
+        self._process_event(on_level=on_level)
 
     def _off_fast_event(self, on_level):
-        self._last_event = datetime.now()
-        self._off_fast.call_subscribers(on_level=on_level)
+        self._process_event(on_level=0)
 
     def _on_cleanup_event(self):
-        now = datetime.now()
         OnAllLinkCleanupAckCommand(self._address, self._group).send()
-        if (now - self._last_event) < timedelta(0, TIMEOUT):
-            return
-        self._last_event = now
-        self._on.call_subscribers(on_level=self._default_on_level)
+        self._process_event(on_level=self._default_on_level)
 
     def _off_cleanup_event(self):
-        now = datetime.now()
         OffAllLinkCleanupAckCommand(self._address, self._group).send()
-        if (now - self._last_event) < timedelta(0, TIMEOUT):
+        self._process_event(on_level=0)
+
+    def _process_event(self, on_level):
+        last_event = self._last_event
+        self._last_event = now = datetime.now()
+        if (now - last_event) < timedelta(0, TIMEOUT):
             return
-        self._last_event = now
-        self._on.call_subscribers(on_level=0)
+        self._on.call_subscribers(on_level=on_level)
