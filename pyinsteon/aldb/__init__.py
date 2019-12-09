@@ -21,7 +21,7 @@ _LOGGER = logging.getLogger(__name__)
 class ALDBBase(ABC):
     """Represents a base class for a device All-Link database."""
 
-    def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0FFF):
+    def __init__(self, address, version=ALDBVersion.V2, mem_addr=0x0FFF):
         """Instantiate the ALL-Link Database object."""
         self._records = {}
         self._status = ALDBStatus.EMPTY
@@ -115,7 +115,7 @@ class ALDBBase(ABC):
 class ALDB(ALDBBase):
     """All-Link Database for a device."""
 
-    def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0FFF):
+    def __init__(self, address, version=ALDBVersion.V2, mem_addr=0x0FFF):
         """Init the ALDB class."""
         from ..managers.aldb_read_manager import ALDBReadManager
         from ..managers.aldb_write_manager import ALDBWriteManager

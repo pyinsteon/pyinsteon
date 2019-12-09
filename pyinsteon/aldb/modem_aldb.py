@@ -20,7 +20,7 @@ class ModemALDB(ALDBBase):
     modem.aldb.load: Triggers the loading of the ALDB.
     """
 
-    def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0000):
+    def __init__(self, address, version=ALDBVersion.V2, mem_addr=0x0000):
         """Init the ModemALDB."""
         from ..managers.im_read_manager import ImReadManager
 
