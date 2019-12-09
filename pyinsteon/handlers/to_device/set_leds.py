@@ -1,7 +1,8 @@
 """Set the LEDs of a KeyPadLinc."""
 
-from .extended_set import ExtendedSetCommand
+from .extended_set import ExtendedSetCommand, EXTENDED_GET_SET
 from ...utils import build_topic
+from ...constants import MessageFlagType
 
 
 class SetLedsCommandHandler(ExtendedSetCommand):
@@ -9,9 +10,7 @@ class SetLedsCommandHandler(ExtendedSetCommand):
 
     def __init__(self, address):
         """Init the SetLedsCommandHandler class."""
-        super().__init__(
-            topic=EXTENDED_GET_SET, address=address, data1=0x01, data2=0x09
-        )
+        super().__init__(address=address, data1=0x01, data2=0x09)
         self._subscriber_topic = build_topic(
             prefix="handler.{}".format(self._address), # Force address
             topic="set_leds",
