@@ -23,7 +23,7 @@ class ModemBase(Device, metaclass=ABCMeta):
     ):
         """Init the Modem class."""
         super().__init__(address, cat, subcat, firmware, description, model)
-        self._aldb = ModemALDB(self._address)
+        self._aldb = None # ModemALDB(self._address)
         self._subscribe_topics()
         self._protocol = None
         self._transport = None
