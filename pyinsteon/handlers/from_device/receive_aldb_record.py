@@ -5,6 +5,7 @@ from ...topics import EXTENDED_READ_WRITE_ALDB
 from .. import inbound_handler
 from ...address import Address
 from ...protocol.messages.user_data import UserData
+from ...utils import build_topic
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,6 +21,11 @@ class ReceiveALDBRecordHandler(InboundHandlerBase):
         """Init the ReceiveALDBRecordHandler class."""
         self._address = Address(address)
         super().__init__(topic=EXTENDED_READ_WRITE_ALDB, address=self._address)
+        self._subscriber_topic = build_topic(
+            prefix=f'handler.{self._address}',
+            topic='aldb_record_received',
+            message_type='direct'
+        )
 
     @inbound_handler
     def handle_response(self, cmd1, cmd2, target, user_data):
