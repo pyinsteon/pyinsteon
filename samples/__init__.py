@@ -35,7 +35,7 @@ def _setup_logger(logger, level):
     logger.setLevel(_text_to_log_level(level))
     if not logger.hasHandlers():
         stream_handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
         stream_handler.setFormatter(formatter)
         logger.addHandler(stream_handler)
 
