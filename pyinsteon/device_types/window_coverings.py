@@ -54,10 +54,6 @@ class WindowCovering(OpenCloseResponderBase):
         )
 
         super()._register_operating_flags()
-        self._remove_operating_flag("bit0", 0)  # 01
-        self._remove_operating_flag("bit1", 0)  # 02
-        self._remove_operating_flag("bit4", 0)  # 02
-        self._remove_operating_flag("bit5", 0)  # 10
 
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)

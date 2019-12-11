@@ -137,11 +137,6 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
         )
 
         super()._register_operating_flags()
-        self._remove_operating_flag("bit0", 0)  # 01
-        self._remove_operating_flag("bit1", 0)  # 02
-        self._remove_operating_flag("bit3", 0)  # 02
-        self._remove_operating_flag("bit4", 0)  # 10
-        self._remove_operating_flag("bit5", 0)  # 20
 
         self._add_operating_flag(CLEANUP_REPORT_ON, 0, 1, 16, 17)
         self._add_operating_flag(TWO_GROUPS_ON, 0, 1, 4, 5)

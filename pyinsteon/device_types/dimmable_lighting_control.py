@@ -2,7 +2,8 @@
 from ..constants import FanSpeed
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
-from ..handlers.to_device.trigger_scene import TriggerSceneCommandHandler
+from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
+from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
 from ..states import (
     DIMMABLE_FAN,
     DIMMABLE_LIGHT,
@@ -54,11 +55,6 @@ class DimmableLightingControl_LampLinc(DimmableLightingControl):
         )
 
         super()._register_operating_flags()
-        self._remove_operating_flag("bit0", 0)  # 01
-        self._remove_operating_flag("bit1", 0)  # 02
-        self._remove_operating_flag("bit2", 0)  # 04
-        self._remove_operating_flag("bit4", 0)  # 10
-        self._remove_operating_flag("bit5", 0)  # 20
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
@@ -93,11 +89,6 @@ class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
         )
 
         super()._register_operating_flags()
-        self._remove_operating_flag("bit0", 0)  # 01
-        self._remove_operating_flag("bit1", 0)  # 02
-        self._remove_operating_flag("bit2", 0)  # 04
-        self._remove_operating_flag("bit4", 0)  # 10
-        self._remove_operating_flag("bit5", 0)  # 20
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
@@ -136,9 +127,6 @@ class DimmableLightingControl_OutletLinc(DimmableLightingControl):
         from ..extended_property import X10_HOUSE, X10_UNIT
 
         super()._register_operating_flags()
-        self._remove_operating_flag("bit0", 0)  # 01
-        self._remove_operating_flag("bit1", 0)  # 02
-        self._remove_operating_flag("bit4", 0)  # 10
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_ON, 0, 4, 8, 9)
@@ -166,10 +154,6 @@ class DimmableLightingControl_DinRail(DimmableLightingControl):
         )
 
         super()._register_operating_flags()
-        self._remove_operating_flag("bit0", 0)  # 01
-        self._remove_operating_flag("bit1", 0)  # 02
-        self._remove_operating_flag("bit4", 0)  # 10
-        self._remove_operating_flag("bit5", 0)  # 20
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_ON, 0, 4, 8, 9)
@@ -334,12 +318,6 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         from ..extended_property import ON_LEVEL, X10_HOUSE, X10_UNIT, RAMP_RATE
 
         super()._register_operating_flags()
-        self._remove_operating_flag("bit0", 0)  # 01
-        self._remove_operating_flag("bit1", 0)  # 02
-        self._remove_operating_flag("bit4", 0)  # 10
-        self._remove_operating_flag("bit5", 0)  # 20
-        self._remove_operating_flag("bit6", 0)  # 40
-        self._remove_operating_flag("bit7", 0)  # 80
 
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
@@ -411,12 +389,12 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         super()._register_handlers_and_managers()
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
         scene_group = "{}_{}".format(TRIGGER_SCENE_COMMAND, 1)
-        self._handlers[scene_group] = TriggerSceneCommandHandler(self._address, 1)
-        for group in self._buttons:
-            scene_group = "{}_{}".format(TRIGGER_SCENE_COMMAND, group)
-            self._handlers[scene_group] = TriggerSceneCommandHandler(
-                self._address, group
-            )
+        # self._handlers[scene_group] = TriggerSceneCommandHandler(self._address, 1)
+        # for group in self._buttons:
+        #     scene_group = "{}_{}".format(TRIGGER_SCENE_COMMAND, group)
+        #     self._handlers[scene_group] = TriggerSceneCommandHandler(
+        #         self._address, group
+        #     )
 
     def _register_states(self):
         super()._register_states()

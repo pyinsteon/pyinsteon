@@ -8,6 +8,7 @@ from .direct_command import DirectCommandHandlerBase
 from ...utils import build_topic
 from ...constants import MessageFlagType
 
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -33,7 +34,7 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
         self._group = None
         return response
 
-    @ack_handler
+    @ack_handler(wait_response=True)
     def handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK response.
 
@@ -45,4 +46,5 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
             or not user_data["data2"] == self._data2
         ):
             return
+        _LOGGER.error('Extended Get message sent')
         super().handle_ack(cmd1, cmd2, user_data)

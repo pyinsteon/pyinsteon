@@ -1,7 +1,8 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
-from ..handlers.to_device.trigger_scene import TriggerSceneCommandHandler
+from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
+from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..states import (
     ON_OFF_OUTLET_BOTTOM,
@@ -75,9 +76,6 @@ class SwitchedLightingControl_ApplianceLinc(SwitchedLightingControl):
         from ..operating_flag import PROGRAM_LOCK_ON, LED_BLINK_ON_TX_ON, LED_ON
 
         super()._register_operating_flags()
-        self._remove_operating_flag("bit0", 0)  # 01
-        self._remove_operating_flag("bit1", 0)  # 02
-        self._remove_operating_flag("bit4", 0)  # 10
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_ON, 0, 4, 8, 9)
@@ -104,11 +102,6 @@ class SwitchedLightingControl_SwitchLinc(SwitchedLightingControl):
         )
 
         super()._register_operating_flags()
-        self._remove_operating_flag("bit0", 0)  # 01
-        self._remove_operating_flag("bit1", 0)  # 02
-        self._remove_operating_flag("bit2", 0)  # 04
-        self._remove_operating_flag("bit4", 0)  # 10
-        self._remove_operating_flag("bit5", 0)  # 20
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
@@ -135,9 +128,6 @@ class SwitchedLightingControl_OutletLinc(SwitchedLightingControl):
         from ..extended_property import X10_HOUSE, X10_UNIT
 
         super()._register_operating_flags()
-        self._remove_operating_flag("bit0", 0)  # 01
-        self._remove_operating_flag("bit1", 0)  # 02
-        self._remove_operating_flag("bit4", 0)  # 10
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_ON, 0, 4, 8, 9)
@@ -163,9 +153,6 @@ class SwitchedLightingControl_Micro(SwitchedLightingControl):
         )
 
         super()._register_operating_flags()
-        self._remove_operating_flag("bit0", 0)  # 01
-        self._remove_operating_flag("bit1", 0)  # 02
-        self._remove_operating_flag("bit4", 0)  # 10
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_ON, 0, 4, 8, 9)
@@ -198,10 +185,6 @@ class SwitchedLightingControl_DinRail(SwitchedLightingControl):
         )
 
         super()._register_operating_flags()
-        self._remove_operating_flag("bit0", 0)  # 01
-        self._remove_operating_flag("bit1", 0)  # 02
-        self._remove_operating_flag("bit4", 0)  # 10
-        self._remove_operating_flag("bit5", 0)  # 20
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_ON, 0, 4, 8, 9)
@@ -249,12 +232,12 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         super()._register_handlers_and_managers()
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
         scene_group = "{}_{}".format(TRIGGER_SCENE_COMMAND, 1)
-        self._handlers[scene_group] = TriggerSceneCommandHandler(self._address, 1)
-        for group in self._button_list:
-            scene_group = "{}_{}".format(TRIGGER_SCENE_COMMAND, group)
-            self._handlers[scene_group] = TriggerSceneCommandHandler(
-                self._address, group
-            )
+        # self._handlers[scene_group] = TriggerSceneCommandHandler(self._address, 1)
+        # for group in self._button_list:
+        #     scene_group = "{}_{}".format(TRIGGER_SCENE_COMMAND, group)
+        #     self._handlers[scene_group] = TriggerSceneCommandHandler(
+        #         self._address, group
+        #     )
 
     def _register_states(self):
         super()._register_states()

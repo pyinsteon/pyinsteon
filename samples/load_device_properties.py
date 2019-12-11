@@ -16,18 +16,12 @@ async def load_device_properties():
     #                               username=USERNAME,
     #                               password=PASSWORD)
 
-    await devices.async_load(workdir=PATH, id_devices=0)
+    await devices.async_load(workdir=PATH)
     await devices.async_save(workdir=PATH)
     for address in devices:
         device = devices[address]
-        if not device.aldb.is_loaded:
-            _LOGGER.info('Starting DB load for %s', address)
-            await device.aldb.async_load()
-        _LOGGER.info('ALDB load status for %s: %s', device.address, device.aldb.status.name)
         _LOGGER.info('Loading device properties')
-        await device.async_get_operating_flags()
-        await device.async_get_extended_properties()
-        await asyncio.sleep(3) # Give the device some time to respond to get ext prop
+        await device.async_read_config()
 
         await devices.async_save(workdir=PATH)
         _LOGGER.info('')
@@ -36,7 +30,7 @@ async def load_device_properties():
 
 if __name__ == '__main__':
     set_log_levels(logger='info', logger_pyinsteon='info',
-                   logger_messages='info', logger_topics=True)
+                   logger_messages='debug', logger_topics=True)
     loop = asyncio.get_event_loop()
     _LOGGER.info('Loading All-Link database for all devices')
     loop.run_until_complete(load_device_properties())

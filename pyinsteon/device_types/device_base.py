@@ -62,8 +62,12 @@ class Device(ABC):
         self._default_links = []
         self._operating_flags = {}
         self._properties = {}
-        self._op_flags_manager = GetSetOperatingFlagsManager(self._address)
-        self._ext_property_manager = GetSetExtendedPropertyManager(self._address)
+        self._op_flags_manager = GetSetOperatingFlagsManager(
+            self._address, self._operating_flags
+        )
+        self._ext_property_manager = GetSetExtendedPropertyManager(
+            self._address, self._properties
+        )
 
         self._register_handlers_and_managers()
         self._register_states()
@@ -164,7 +168,7 @@ class Device(ABC):
     async def async_status(self, group=None):
         """Get the status of the device."""
 
-    async def async_get_configuration(self):
+    async def async_read_config(self):
         """Get all configuration settings.
 
         This includes:
@@ -172,23 +176,27 @@ class Device(ABC):
         - Extended properties
         - All-Link Database records.
         """
-        await self.async_get_operating_flags()
-        await self.async_get_extended_properties()
+        await self.async_read_op_flags()
+        await self.async_read_ext_properties()
         await self._aldb.async_load()
 
-    async def async_get_operating_flags(self, group=None):
+    async def async_read_op_flags(self, group=None):
         """Read the device operating flags."""
-        return await self._op_flags_manager.async_get(group=group)
+        return await self._op_flags_manager.async_read(group=group)
 
-    async def async_set_operating_flags(self, group=None, force=False):
+    async def async_write_op_flags(self):
         """Write the operating flags to the device."""
-        return await self._op_flags_manager.async_set(group=group, force=force)
+        return await self._op_flags_manager.async_write()
 
-    async def async_get_extended_properties(self, group=None):
+    async def async_read_ext_properties(self):
         """Get the device extended properties."""
-        return await self._ext_property_manager.async_get(group=group)
+        return await self._ext_property_manager.async_read()
 
-    async def async_get_product_id(self):
+    async def async_write_ext_properties(self):
+        """Write the extended properties."""
+        return await self._ext_property_manager.async_write()
+
+    async def async_read_product_id(self):
         """Get the product ID."""
         from ..handlers.to_device.product_data_request import ProductDataRequestCommand
 
@@ -211,33 +219,20 @@ class Device(ABC):
 
     def _register_operating_flags(self):
         """Add operating flags to the device."""
-        self._add_operating_flag("bit0", 0, 0, 0, 1)
-        self._add_operating_flag("bit1", 0, 1, 2, 3)
-        self._add_operating_flag("bit2", 0, 2, 4, 5)
-        self._add_operating_flag("bit3", 0, 3, 6, 7)
-        self._add_operating_flag("bit4", 0, 4, 8, 9)
-        self._add_operating_flag("bit5", 0, 5, 10, 11)
-        self._add_operating_flag("bit6", 0, 6, 12, 13)
-        self._add_operating_flag("bit7", 0, 7, 14, 15)
 
     def _add_operating_flag(self, name, group, bit, set_cmd, unset_cmd):
         flag_type = bool if bit is not None else int
         self._operating_flags[name] = OperatingFlag(self._address, name, flag_type)
         flag = self._operating_flags[name]
-        self._op_flags_manager.subscribe(
-            flag, flag.load, group, bit, set_cmd, unset_cmd
-        )
+        self._op_flags_manager.subscribe(name, group, bit, set_cmd, unset_cmd)
 
-    def _add_property(self, name, data_field, set_cmd, group=0, bit=None):
+    def _add_property(self, name, data_field, set_cmd, group=1, bit=None):
         prop_type = bool if bit is not None else int
-        self._properties[name] = ExtendedProperty(self._address, name, prop_type)
-        prop = self._properties[name]
-        self._ext_property_manager.subscribe(
-            prop, prop.load, group, data_field, bit, set_cmd
-        )
+        prop = self._properties[name] = ExtendedProperty(self._address, name, prop_type)
+        self._ext_property_manager.subscribe(name, group, data_field, bit, set_cmd)
 
-    def _remove_operating_flag(self, name, group):
-        self._op_flags_manager.unsubscribe(name, group)
+    def _remove_operating_flag(self, name, group=None):
+        self._op_flags_manager.unsubscribe(name)
         self._operating_flags.pop(name)
 
     def _handle_product_data(self, product_id, cat, subcat):

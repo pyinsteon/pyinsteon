@@ -38,7 +38,6 @@ class GeneralController_RemoteLinc(BatteryDeviceBase, VariableControllerBase):
         from ..operating_flag import STAY_AWAKE_ON
 
         super()._register_operating_flags()
-        self._remove_operating_flag("bit3", 0)
         self._add_operating_flag(STAY_AWAKE_ON, 0, 3, 6, 7)
 
 
@@ -72,12 +71,6 @@ class GeneralController_MiniRemoteBase(BatteryDeviceBase, VariableControllerBase
         )
 
         super()._register_operating_flags()
-        self._remove_operating_flag("bit0", 0)
-        self._remove_operating_flag("bit1", 0)
-        self._remove_operating_flag("bit2", 0)
-        self._remove_operating_flag("bit3", 0)
-        self._remove_operating_flag("bit4", 0)
-        self._remove_operating_flag("bit6", 0)
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_ON, 0, 1, 2, 3)
         self._add_operating_flag(KEY_BEEP_ON, 0, 2, 4, 5)

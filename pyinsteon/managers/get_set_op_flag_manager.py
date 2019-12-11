@@ -3,122 +3,127 @@ import asyncio
 from collections import namedtuple
 import logging
 
-from pyinsteon.address import Address
-from pyinsteon.handlers.to_device.get_operating_flags import GetOperatingFlagsCommand
-from pyinsteon.handlers.to_device.set_operating_flags import SetOperatingFlagsCommand
+from ..address import Address
+from ..handlers.to_device.get_operating_flags import GetOperatingFlagsCommand
+from ..handlers.to_device.set_operating_flags import SetOperatingFlagsCommand
+from ..utils import multiple_status
+from ..constants import ResponseStatus
+
 
 OperatingFlagInfo = namedtuple(
-    "FlagInfo", "flag update_method group bit set_cmd unset_cmd"
+    "FlagInfo", "name group bit set_cmd unset_cmd"
 )
 _LOGGER = logging.getLogger(__name__)
-
+MAX_RETRIES = 5
 
 class GetSetOperatingFlagsManager:
     """Manager to get operating flags."""
 
-    def __init__(self, address: Address):
+    def __init__(self, address: Address, op_flags):
         """Init the GetOperatingFlagsManager class."""
         self._address = Address(address)
+        self._op_flags = op_flags
         self._groups = {}
+        self._flags = {}
         self._get_command = GetOperatingFlagsCommand(self._address)
         self._set_command = SetOperatingFlagsCommand(self._address)
+        self._get_command.subscribe(self._update_flags)
         self._send_lock = asyncio.Lock()
 
-    def subscribe(self, flag, update_method, group, bit, set_cmd, unset_cmd):
+    def subscribe(self, name, group, bit, set_cmd, unset_cmd):
         """Subscribe to updates."""
         flag_info = OperatingFlagInfo(
-            flag, update_method, group, bit, set_cmd, unset_cmd
+            name, group, bit, set_cmd, unset_cmd
         )
-        if group not in self._groups.keys():
-            self._groups[group] = {}
-        key = bit if bit is not None else 0
-        self._groups[group][key] = flag_info
-
-    def unsubscribe(self, name, group):
-        """Remove a flag from updates."""
         if self._groups.get(group) is None:
-            return
-        flag_key = None
-        for key in self._groups.get(group):
-            flag_info = self._groups[group][key]
-            if flag_info.flag.name == name:
-                flag_key = key
-                break
-        if flag_key is not None:
-            self._groups[group].pop(flag_key)
-            if not self._groups[group]:
+            self._groups[group] = {}
+        if bit is not None:
+            self._groups[group][bit] = flag_info
+        else:
+            self._groups[group] = flag_info
+        self._flags[name] = flag_info
+
+    def unsubscribe(self, name):
+        """Remove a flag from updates."""
+        flag_info = self._flags.get(name)
+        if flag_info:
+            group = flag_info.group
+            bit = flag_info.bit
+            self._remove(name, group, bit)
+
+    def _remove(self, name, group, bit=None):
+        try:
+            if bit is not None:
+                self._groups[group].pop(bit)
+            else:
                 self._groups.pop(group)
+        except KeyError:
+            pass
 
-    async def async_get(self, group=None):
+        try:
+            self._flags.pop(name)
+        except KeyError:
+            pass
+
+    async def async_read(self, group=None):
         """Get the operating flags."""
+        results = []
         if group is None:
             for curr_group in self._groups:
-                await self._fetch_flags_in_group(curr_group)
+                result = await self._async_read(curr_group)
+                results.append(result)
+            return multiple_status(*results)
         else:
-            await self._fetch_flags_in_group(group)
+            return await self._async_read(group)
 
-    async def async_set(self, group=None, force=False):
+    async def _async_read(self, group):
+        retries = 0
+        result = ResponseStatus.UNSENT
+        while retries < MAX_RETRIES and result != ResponseStatus.SUCCESS:
+            result = await self._get_command.async_send(group)
+            retries += 1
+        return result
+
+    async def async_write(self):
         """Set the operating flags."""
-        if group is None:
-            for curr_group in self._groups:
-                self._set_flags_in_group(curr_group, force)
-        else:
-            self._set_flags_in_group(curr_group, force)
+        results = []
+        for name in self._op_flags:
+            if self._op_flags[name].is_dirty:
+                flat_info = self._flags[name]
+                result = await self._async_write(flat_info)
+                results.append(result)
 
-    async def _set_flags_in_group(self, group, force):
-        flags = self._groups[group]
-        for key in flags:
-            flag_info = flags[key]
-            flag = flag_info.flag
-            if flag.is_dirty or force:
-                cmd = flag.set_cmd if flag.new_value else flag.unset_cmd
-                if cmd is not None:  # The operating flag is read only
-                    # TODO  check for success or failure
-                    result = await self._set_command.async_send(cmd=cmd)
-                    if int(result) == 1:
-                        flag.update_method(flag.new_value)
+    async def _async_write(self, flag_info):
+        flag = self._op_flags[flag_info.name]
+        cmd = flag_info.set_cmd if flag.new_value else flag_info.unset_cmd
+        if cmd is not None:  # The operating flag is read only
+            retries = 0
+            result = ResponseStatus.UNSENT
 
-    def _calc_flag_value(self, group):
-        flags = 0x00
-        for flag in self._groups[group]:
-            bit = flag.bit
-            value = 1 if bool(flag.flag) else 0
-            flags = flags | value << bit
-        return flags
+            while retries < MAX_RETRIES and result != ResponseStatus.SUCCESS:
+                result = await self._set_command.async_send(cmd=cmd)
+                retries += 1
 
-    async def _fetch_flags_in_group(self, group):
-        def _update_flags(flags):
-            """Update each flag."""
-            for key in self._groups[group]:
-                flag_info = self._groups[group][key]
-                if flag_info.bit is not None:
-                    value = bool(flags & 1 << flag_info.bit)
-                else:
-                    value = flags  # the flag is the full byte
-                flag_info.update_method(value=value)
+            if result == ResponseStatus.SUCCESS:
+                flag.load(flag.new_value)
+            return result
 
-        self._get_command.subscribe(_update_flags)
-        # TODO check for success or failure
-        await self._get_command.async_send(flags_requested=group)
-        self._get_command.unsubscribe(_update_flags)
+        # Reset the read only flag to original value
+        flag.load(flag.value)
+        return ResponseStatus.SUCCESS
 
-    def is_dirty(self, group=None):
-        """Return if the underlying flags need to be updated on the device."""
-        from functools import reduce
+    def _update_flags(self, group, flags):
+        """Update each flag."""
+        if not self._groups.get(group):
+            return
 
-        if group is None:
-            test = [False]
-            test.extend([k for k in self._groups])
-            return reduce((lambda x, y: x or self._is_group_dirty(y)), test)
-        return self._is_group_dirty(group)
+        if isinstance(self._groups[group], OperatingFlagInfo):
+            flag_info = self._groups[group]
+            flag = self._op_flags[flag_info.name]
+            flag.load(flags)
 
-    def _is_group_dirty(self, group):
-        """Return if the flags in a group need to be updated on the device."""
-        from functools import reduce
-
-        flags = self._groups.get(group)
-        if not flags:
-            return False
-        test = [False]
-        test.extend([f.flag for f in flags])
-        return reduce((lambda x, y: x or y.is_dirty), test)
+        for bit in self._groups[group]:
+                flag_info = self._groups[group][bit]
+                flag = self._op_flags[flag_info.name]
+                value = bool(flags & 1 << flag_info.bit)
+                flag.load(value)
