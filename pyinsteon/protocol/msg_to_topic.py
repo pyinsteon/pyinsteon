@@ -210,7 +210,7 @@ def _create_send_std_ext(topic, address, flags, cmd1, cmd2, user_data, ack):
         group=group,
         message_type=flags.message_type,
     )
-    kwargs = {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}
+    kwargs = {"cmd1": cmd1, "cmd2": cmd2, "user_data": user_data}
     return (topic, kwargs)
 
 
