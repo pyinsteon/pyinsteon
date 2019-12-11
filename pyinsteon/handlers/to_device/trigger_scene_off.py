@@ -29,7 +29,7 @@ class TriggerSceneOffCommandHandler(DirectCommandHandlerBase):
 
         return await super().async_send(**kwargs)
 
-    @ack_handler
+    @ack_handler(wait_response=True)
     def handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK response.
 
