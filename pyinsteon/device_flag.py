@@ -64,4 +64,4 @@ class DeviceFlagBase(SubscriberBase):
         self._is_dirty = False
         self._new_value = None
         self._is_loaded = True
-        self._call_subscribers(flag=self)
+        self._call_subscribers(name=self._name, value=self._value)
