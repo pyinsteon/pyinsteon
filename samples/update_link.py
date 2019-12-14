@@ -62,7 +62,18 @@ async def run():
 
     for addr in device.aldb:
         rec = device.aldb[addr]
-        print(rec)
+        print("{},{},{},{},{},{},{},{},{},{},{}".format(
+            rec.mem_addr,
+            rec.is_in_use,
+            rec.is_controller,
+            rec.is_high_water_mark,
+            rec.is_bit5_set,
+            rec.is_bit4_set,
+            rec.group,
+            rec.target.id,
+            rec.data1,
+            rec.data2,
+            rec.data3))
 
     await async_close()
 

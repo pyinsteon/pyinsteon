@@ -11,10 +11,10 @@ USERNAME, PASSWORD, HOST = get_hub_config()
 
 async def load_device_properties():
     """Load the device databae."""
-    devices = await async_connect(device=DEVICE)
-    #vdevices = await async_connect(host=HOST,
-    #                               username=USERNAME,
-    #                               password=PASSWORD)
+    # devices = await async_connect(device=DEVICE)
+    devices = await async_connect(host=HOST,
+                                  username=USERNAME,
+                                  password=PASSWORD)
 
     await devices.async_load(workdir=PATH)
     await devices.async_save(workdir=PATH)

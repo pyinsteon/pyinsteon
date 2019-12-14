@@ -10,16 +10,18 @@ from samples import set_log_levels, _LOGGER, PATH, get_hub_config
 # DEVICE = '/dev/ttyS5'
 DEVICE = 'COM5'
 USERNAME, PASSWORD, HOST  = get_hub_config()
+DONE = False
 
 async def async_setup_device(address):
     from pyinsteon import devices
     device = devices[address]
-    await async_create_default_links(device)
     await device.aldb.async_load(refresh=True)
     await device.async_get_operating_flags()
     await device.async_get_extended_properties()
+    await device.async_add_default_links()
     await asyncio.sleep(3)
     await devices.async_save(workdir=PATH)
+    DONE = True
 
 def device_added(address):
     asyncio.ensure_future(async_setup_device(address))
@@ -34,7 +36,8 @@ async def do_run():
     devices.subscribe(device_added)
     await async_enter_linking_mode(is_controller=True, group=0)
     _LOGGER.info('Press device SET button')
-    await asyncio.sleep(60)
+    while not DONE:
+        await asyncio.sleep(5)
     await async_close()
 
 

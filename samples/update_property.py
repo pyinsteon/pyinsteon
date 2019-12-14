@@ -22,28 +22,29 @@ async def run():
     await devices.async_load(workdir=PATH, id_devices=0)
     await devices.async_save(workdir=PATH)
 
-    address = '133696'
+    address = '453194'
     device = devices[address]
 
     if device:
         await device.async_read_op_flags()
         await device.async_read_ext_properties()
-        from pyinsteon.operating_flag import LED_BLINK_ON_TX_ON
-        from pyinsteon.extended_property import RAMP_RATE
-        _LOGGER.info('LED_BLINK_ON_TX_ON: %s', device.operating_flags[LED_BLINK_ON_TX_ON].value)
-        _LOGGER.info('RAMP_RATE: %s',  device.properties[RAMP_RATE].value)
+        from pyinsteon.operating_flag import MOMENTARY_ON_OFF_TRIGGER
+        #from pyinsteon.extended_property import RAMP_RATE
+        _LOGGER.info('LED_BLINK_ON_TX_ON: %s', device.operating_flags[MOMENTARY_ON_OFF_TRIGGER].value)
+        #_LOGGER.info('RAMP_RATE: %s',  device.properties[RAMP_RATE].value)
 
-        device.operating_flags[LED_BLINK_ON_TX_ON].new_value = True
-        device.properties[RAMP_RATE].new_value = 28
+        device.operating_flags[MOMENTARY_ON_OFF_TRIGGER].new_value = True
+        #device.properties[RAMP_RATE].new_value = 28
 
         await device.async_write_op_flags()
         await device.async_write_ext_properties()
         await device.async_read_op_flags()
         await device.async_read_ext_properties()
-        _LOGGER.info('LED_BLINK_ON_TX_ON: %s', device.operating_flags[LED_BLINK_ON_TX_ON].value)
-        _LOGGER.info('RAMP_RATE: %s',  device.properties[RAMP_RATE].value)
+        _LOGGER.info('LED_BLINK_ON_TX_ON: %s', device.operating_flags[MOMENTARY_ON_OFF_TRIGGER].value)
+        #_LOGGER.info('RAMP_RATE: %s',  device.properties[RAMP_RATE].value)
     else:
         _LOGGER.info('No device found for address: %s', address)
+    await devices.async_save(workdir=PATH)
     await async_close()
 
 if __name__ == '__main__':

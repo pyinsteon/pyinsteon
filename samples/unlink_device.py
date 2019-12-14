@@ -2,7 +2,7 @@
 
 import asyncio
 from pyinsteon import async_connect, async_close
-from pyinsteon.managers.link_manager import async_link_devices
+from pyinsteon.managers.link_manager import async_unlink_devices
 from samples import _LOGGER, set_log_levels, PATH, get_hub_config
 
 # DEVICE = '/dev/ttyS5'
@@ -27,14 +27,15 @@ async def do_run():
     await devices.async_load(workdir=PATH, id_devices=0)
     controller = devices.get('45.31.94')
     responder = devices.get('13.36.96')
-    link_result = await async_link_devices(controller, responder, 1)
-    await asyncio.sleep(10)
+    await controller.aldb.async_load(refresh=True)
+    await responder.aldb.async_load(refresh=True)
+    link_result = await async_unlink_devices(controller, responder, 1)
     if link_result:
         _LOGGER.info(link_result)
     await async_close()
 
 
 if __name__ == '__main__':
-    set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='debug', logger_topics=True)
+    set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=True)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(do_run())
