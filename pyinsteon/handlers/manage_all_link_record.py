@@ -1,5 +1,5 @@
 """Command handler for message ID 0x6f Manage All-Link Record."""
-from . import ack_handler
+from . import ack_handler, nak_handler
 from .outbound_base import OutboundHandlerBase
 from ..address import Address
 from ..topics import MANAGE_ALL_LINK_RECORD
@@ -50,3 +50,7 @@ class ManageAllLinkRecordCommand(OutboundHandlerBase):
     @ack_handler()
     def handle_ack(self, action, flags, group, target, data1, data2, data3):
         """Handle ACK response."""
+
+    @nak_handler
+    def handle_nak(self, action, flags, group, target, data1, data2, data3):
+        """Handle NAK response."""
