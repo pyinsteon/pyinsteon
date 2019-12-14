@@ -107,7 +107,7 @@ class SensorsActuators_IOLink(SensorsActuators):
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RELAY_ON_SENSE_ON, 0, 2, 4, 5)
         self._add_operating_flag(MOMENTARY_MODE_ON, 0, 3, 6, 7)
-        self._add_operating_flag(MOMENTARY_ON_OFF_TRIGGER, 0, 4, 8, 9)
+        self._add_operating_flag(MOMENTARY_ON_OFF_TRIGGER, 0, 4, 9, 8)
         self._add_operating_flag(X10_OFF, 0, 5, 10, 11)
         self._add_operating_flag(MOMENTARY_FOLLOW_SENSE, 0, 6, 12, 13)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 7, 14, 15)
