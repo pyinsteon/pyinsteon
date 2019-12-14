@@ -4,6 +4,8 @@ from ..address import Address
 from .aldb_record import ALDBRecord
 
 
+MAX_RETRIES = 5
+
 class PlmALDB(ModemALDB):
     """"All-Link database for PLM based devices."""
 
@@ -51,7 +53,7 @@ class PlmALDB(ModemALDB):
                 action = ManageAllLinkRecordAction.MOD_FIRST_RESP_OR_ADD
             retries = 0
             response = ResponseStatus.UNSENT
-            while response != ResponseStatus.SUCCESS and retries < 3:
+            while response != ResponseStatus.SUCCESS and retries < MAX_RETRIES:
                 response = await cmd.async_send(
                     action=action,
                     controller=rec.is_controller,
