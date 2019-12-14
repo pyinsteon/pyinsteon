@@ -235,7 +235,8 @@ def set_all_link(address: Address, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
 @topic_to_command_handler(topic=ENTER_LINKING_MODE)
 def enter_linking_mode(address: Address, group: int, topic=pub.AUTO_TOPIC):
     """Create a ENTER_LINKING_MODE command."""
-    _create_direct_message(topic=topic, address=address, cmd2=group)
+    user_data = UserData()
+    _create_direct_message(topic=topic, address=address, cmd2=group, user_data=user_data)
 
 
 @topic_to_command_handler(topic=ENTER_UNLINKING_MODE)
