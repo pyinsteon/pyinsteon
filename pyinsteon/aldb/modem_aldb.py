@@ -6,8 +6,10 @@ from . import ALDBBase
 from .aldb_version import ALDBVersion
 from .aldb_status import ALDBStatus
 from .aldb_record import ALDBRecord
+from ..address import Address
 
 _LOGGER = logging.getLogger(__name__)
+MAX_RETRIES = 3
 
 
 class ModemALDB(ALDBBase):
@@ -69,7 +71,23 @@ class ModemALDB(ALDBBase):
         )
         self._dirty_records.append(record)
 
-    async def async_write_records(self):
+    def remove(self, controller, group, target):
+        """Remove a record to the All-Link database."""
+        record = ALDBRecord(
+            memory=0,
+            in_use=False,
+            controller=controller,
+            high_water_mark=False,
+            bit5=True,
+            group=group,
+            target=target,
+            data1=0,
+            data2=0,
+            data3=0,
+        )
+        self._dirty_records.append(record)
+
+    async def async_write(self):
         """Write modified records to the device.
 
         Returns a tuple of (completed, failed) record counts.
@@ -81,9 +99,12 @@ class ModemALDB(ALDBBase):
         completed = []
         failed = []
         cmd = ManageAllLinkRecordCommand()
+        self._id_recs_to_restore()
         while self._dirty_records:
             rec = self._dirty_records.pop()
-            if rec.is_controller:
+            if not rec.is_in_use:
+                action = ManageAllLinkRecordAction.DELETE_FIRST
+            elif rec.is_controller:
                 action = ManageAllLinkRecordAction.MOD_FIRST_CTRL_OR_ADD
             else:
                 action = ManageAllLinkRecordAction.MOD_FIRST_RESP_OR_ADD
@@ -108,6 +129,46 @@ class ModemALDB(ALDBBase):
                 completed.append(rec)
             else:
                 failed.append(rec)
-        for rec in failed:
-            self._dirty_records.append(rec)
-        return len(completed), len(self._dirty_records)
+
+        return len(completed), len(failed)
+
+    def _id_recs_to_restore(self):
+        """Find matching records to delete and restore.
+
+        When deleting a record it is required to delete all that match the target and group
+        then restore all the ones that do not match the controller. (yes it is stupid)
+        """
+        deleted_recs = []
+        restore_recs = []
+        multi_delete = []
+        for rec in self._dirty_records:
+            if not rec.is_in_use:
+                deleted_recs.append(rec)
+
+        for del_rec in deleted_recs:
+            found_restore = False
+            for mem_addr in self._records:
+                rec = self._records[mem_addr]
+                if rec.target == del_rec.target and rec.group == del_rec.group:
+                    new_rec = self._set_not_in_use(rec)
+                    multi_delete.append(new_rec)
+                    if not rec.is_controller == del_rec.is_controller and not found_restore:
+                        # We only need one controller or responder for a target and group
+                        restore_recs.append(rec)
+        self._dirty_records.extend(multi_delete)
+        self._dirty_records.extend(restore_recs)
+
+    def _set_not_in_use(self, rec):
+        new_rec = ALDBRecord(
+            memory=rec.mem_addr,
+            controller=rec.is_controller,
+            group=rec.group,
+            target=rec.target,
+            data1=rec.data1,
+            data2=rec.data2,
+            data3=rec.data3,
+            in_use=False,
+            high_water_mark=False,
+            bit4=True,
+            bit5=False)
+        return new_rec
