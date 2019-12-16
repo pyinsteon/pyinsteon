@@ -25,6 +25,7 @@ from .commands import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+TIMEOUT = 2
 
 
 # pylint: disable=no-member
@@ -47,47 +48,45 @@ class BatteryDeviceBase:
             model="",
             **kwargs
         )
-        self._aldb = ALDBBattery(address=address)
         self._commands_queue = asyncio.Queue()
+        self._aldb = ALDBBattery(address=address, run_command=self._run_on_wake)
+        self._last_run = None
         pub.subscribe(self._device_awake, self._address.id)
-        pub.subscribe(self._load_aldb, "{}.aldb.load".format(self._address.id))
-        pub.subscribe(self._write_aldb, "{}.aldb.write".format(self._address.id))
+        asyncio.ensure_future(self.async_keep_awake())
 
     def _run_on_wake(self, command, **kwargs):
         cmd = partial(command, **kwargs)
         self._commands_queue.put_nowait(cmd)
 
-    async def async_get_operating_flags(self):
+    async def async_read_op_flags(self):
         """Read the device operating flags."""
-        self._run_on_wake(super(BatteryDeviceBase, self).async_get_operating_flags)
+        self._run_on_wake(super(BatteryDeviceBase, self).async_read_op_flags)
 
-    async def async_set_operating_flags(self):
+    async def async_write_op_flags(self):
         """Write the operating flags to the device."""
-        self._run_on_wake(super(BatteryDeviceBase, self).async_set_operating_flags)
+        self._run_on_wake(super(BatteryDeviceBase, self).async_write_op_flags)
 
-    async def async_get_extended_properties(self):
+    async def async_read_ext_properties(self):
         """Get the device extended properties."""
-        self._run_on_wake(super(BatteryDeviceBase, self).async_get_extended_properties)
+        self._run_on_wake(super(BatteryDeviceBase, self).async_read_ext_properties)
 
     async def async_keep_awake(self, awake_time=0xFF):
         """Keep the device awake to ensure commands are heard."""
-        cmd = ExtendedSetCommand(self._address)
-        return await cmd.async_send(group=0, action=0x04, data3=awake_time)
+        cmd = ExtendedSetCommand(self._address, data1=0, data2=0x04)
+        return await cmd.async_send(data3=awake_time)
 
     def _device_awake(self, topic=pub.AUTO_TOPIC, **kwargs):
         """Execute the commands that were requested while sleeping."""
-        asyncio.ensure_future(self._run_commands())
+        if self._last_run is None or self._last_run.done():
+            self._last_run = asyncio.ensure_future(self._run_commands())
 
     async def _run_commands(self):
         from inspect import iscoroutinefunction, iscoroutine
 
-        if not self._commands_queue.empty():
-            _LOGGER.debug(
-                "Sending commands to battery operated device %s", self._address
-            )
-            await self.async_keep_awake()
-        while not self._commands_queue.empty():
-            command = await self._commands_queue.get()
+        await self.async_keep_awake()
+        await asyncio.sleep(2)
+        try:
+            command = await asyncio.wait_for(self._commands_queue.get(), TIMEOUT)
             if isinstance(command, partial):
                 if iscoroutine(command.func) or iscoroutinefunction(command.func):
                     await command()
@@ -97,17 +96,5 @@ class BatteryDeviceBase:
                 await command()
             else:
                 command()
-
-    def _load_aldb(self, mem_addr, num_recs, refresh, callback):
-        cmd = partial(
-            self._aldb.async_load,
-            mem_addr=mem_addr,
-            num_recs=num_recs,
-            refresh=refresh,
-            callback=callback,
-        )
-        self._commands_queue.put_nowait(cmd)
-
-    def _write_aldb(self):
-        cmd = partial(self._aldb.async_write_records)
-        self._commands_queue.put_nowait(cmd)
+        except asyncio.TimeoutError:
+            pass
