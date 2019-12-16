@@ -45,7 +45,24 @@ class VariableControllerBase(Device):
         return await self._handlers[STATUS_COMMAND].async_send()
 
     def _register_default_links(self):
-        pass
+        """Default links:
+
+        is_controller group dev_data1 dev_data2 dev_data3 modem_data1 modem_data2 modem_data3
+        """
+        from ..default_link import DefaultLink
+        super()._register_default_links()
+        for group in self._buttons:
+            link = DefaultLink(
+                is_controller=True,
+                group = group,
+                dev_data1 = 255,
+                dev_data2 = 28,
+                dev_data3 = group,
+                modem_data1 = 0,
+                modem_data2 = 0,
+                modem_data3 = 0
+            )
+            self._default_links.append(link)
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()

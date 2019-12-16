@@ -47,7 +47,22 @@ class OnOffControllerBase(Device):
         return await self._handlers[STATUS_COMMAND].async_send()
 
     def _register_default_links(self):
-        pass
+        """Register default links for the device."""
+        from ..default_link import DefaultLink
+
+        super()._register_default_links()
+        for group in self._buttons:
+            link = DefaultLink(
+                is_controller=True,
+                group=group,
+                dev_data1=255,
+                dev_data2=28,
+                dev_data3=group,
+                modem_data1=0,
+                modem_data2=0,
+                modem_data3=0,
+            )
+            self._default_links.append(link)
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
@@ -99,7 +114,6 @@ class OnOffControllerBase(Device):
                 self._managers[group][ON_LEVEL_MANAGER].subscribe(
                     self._states[group].set_value
                 )
-
             if self._on_event_name:
                 event = self._events[group][self._on_event_name]
                 self._managers[group][ON_LEVEL_MANAGER].subscribe_on(event.trigger)

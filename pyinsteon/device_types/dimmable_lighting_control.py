@@ -294,11 +294,6 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[STATUS_COMMAND_FAN].subscribe(self._handle_fan_status)
 
-    # pylint: disable=useless-super-delegation
-    def _register_default_links(self):
-        """Register default links."""
-        super()._register_default_links()
-
     def _register_operating_flags(self):
         from ..operating_flag import (
             PROGRAM_LOCK_ON,

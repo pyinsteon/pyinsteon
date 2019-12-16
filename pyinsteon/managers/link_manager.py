@@ -1,133 +1,139 @@
 """Manage links beteween devices."""
-import asyncio
-from collections import namedtuple
 import logging
 from ..device_types.device_base import Device
 from .. import devices
-from ..constants import AllLinkMode
+from ..constants import AllLinkMode, ResponseStatus
 from ..handlers.to_device.enter_linking_mode import EnterLinkingModeCommand
 from ..handlers.to_device.enter_unlinking_mode import EnterUnlinkingModeCommand
 from ..handlers.start_all_linking import StartAllLinkingCommandHandler
 from ..handlers.all_link_completed import AllLinkCompletedHandler
+from ..utils import multiple_status
+from ..aldb import ALDBRecord
 
-link_queue = asyncio.Queue()
+
 TIMEOUT = 3
-LinkInfo = namedtuple("LinkInfo", "controller responder group cat subcat firmware")
-DefaultLink = namedtuple(
-    "DefaultLink",
-    "controller group dev_data1 dev_data2 dev_data3 "
-    "modem_data1 modem_data2 modem_data3",
-)
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_enter_linking_mode(is_controller: bool, group: int):
     """Put the Insteon Modem into linking mode."""
-    link_cmd = _set_linking_command(devices.modem)
+    link_cmd = StartAllLinkingCommandHandler()
     mode = AllLinkMode.CONTROLLER if is_controller else AllLinkMode.RESPONDER
     response = await link_cmd.async_send(mode=mode, group=group)
-    _LOGGER.info("Enter linking mode response: %s", str(response))
+    _LOGGER.debug("Enter linking mode response: %s", str(response))
     return response
 
 
 async def async_enter_unlinking_mode(group: int):
     """Put the Insteon Modem into unlinking mode."""
-    link_cmd = _set_unlinking_command(devices.modem)
+    link_cmd = StartAllLinkingCommandHandler()
     mode = AllLinkMode.DELETE
     response = await link_cmd.async_send(mode=mode, group=group)
     _LOGGER.info("Enter linking mode response: %s", str(response))
     return response
 
 
-async def async_link_devices(controller: Device, responder: Device, group: int = 0):
+async def async_link_devices(
+    controller: Device, responder: Device, group: int = 0, data1=255, data2=28, data3=1
+):
     """Link two devices."""
     from ..handlers import ResponseStatus
 
-    c_link_cmd = _set_linking_command(controller)
-    r_link_cmd = _set_linking_command(responder)
-    c_response = await _send_linking_command(c_link_cmd, AllLinkMode.CONTROLLER, group)
-    if not c_response == ResponseStatus.SUCCESS:
-        return False
-    r_response = await _send_linking_command(r_link_cmd, AllLinkMode.RESPONDER, group)
-    if not r_response == ResponseStatus.SUCCESS:
-        return False
-    try:
-        response1, response2 = await asyncio.wait_for(
-            _wait_for_link_complete(), timeout=TIMEOUT
-        )
-    except asyncio.TimeoutError:
-        return None
-    return _parse_responses(controller, responder, group, response1, response2)
+    if _add_link_to_device(
+        device=controller,
+        target=responder.address,
+        group=group,
+        is_controller=True,
+        data1=responder.cat,
+        data2=responder.subcat,
+        data3=responder.firmware,
+    ) and _add_link_to_device(
+        device=responder,
+        target=controller.address,
+        group=group,
+        is_controller=False,
+        data1=data1,
+        data2=data2,
+        data3=data3,
+    ):
+        written_1, failed_1 = await controller.aldb.async_write()
+        written_2, failed_2 = await responder.aldb.async_write()
+        if failed_1 or failed_2:
+            return ResponseStatus.FAILURE
+        return ResponseStatus.SUCCESS
 
 
 async def async_unlink_devices(controller: Device, responder: Device, group: int = 0):
     """Unlink two devices."""
-    c_link_cmd = _set_unlinking_command(controller)
-    r_link_cmd = _set_unlinking_command(responder)
-    c_link_cmd.subscribe(_link_complete)
-    r_link_cmd.subscribe(_link_complete)
-    _send_unlinking_command(c_link_cmd, group)
-    await asyncio.sleep(0.1)
-    _send_unlinking_command(r_link_cmd, group)
-    try:
-        response1, response2 = asyncio.wait_for(
-            _wait_for_link_complete(), timeout=TIMEOUT
-        )
-    except asyncio.TimeoutError:
-        return None
-    return _parse_responses(controller, responder, group, response1, response2)
+    if _remove_link_from_device(
+        device=controller, is_controller=True, group=group, target=responder.address
+    ) and _remove_link_from_device(
+        device=responder, is_controller=False, group=group, target=controller.address
+    ):
+        write_1, failed_1 = await controller.aldb.async_write()
+        write_2, failed_2 = await responder.aldb.async_write()
+        if failed_1 or failed_2:
+            return ResponseStatus.FAILURE
+        return ResponseStatus.SUCCESS
+    return ResponseStatus.FAILURE
+
+
+async def async_add_default_links(device: Device):
+    """Setup the default links for a device."""
+    for link in device.default_links:
+        if link.is_controller:
+            controller = device
+            responder = devices.modem
+            data1 = link.modem_data1
+            data2 = link.modem_data2
+            data3 = link.modem_data3
+        else:
+            controller = devices.modem
+            responder = device
+            data1 = link.dev_data1
+            data2 = link.dev_data2
+            data3 = link.dev_data3
+        await async_link_devices(controller, responder, link.group, data1, data2, data3)
+
+
+def _remove_link_from_device(device, is_controller, group, target):
+    found_rec = None
+    for addr in device.aldb:
+        rec = device.aldb[addr]
+        if (
+            rec.target == target
+            and rec.is_controller == is_controller
+            and rec.group == group
+        ):
+            found_rec = rec
+    if found_rec:
+        device.aldb.remove(found_rec.mem_addr)
+    return True
 
 
 async def async_create_default_links(device: Device):
     """Establish default links between the modem and device."""
-    modem = devices.modem
-    retry = 0
-    while not device.aldb.is_loaded and retry < 3:
+
+    if not device.aldb.is_loaded:
         await device.aldb.async_load()
-        retry += 1
+
     if not device.aldb.is_loaded:
         return False
+
+    results = []
     for link_info in device.default_links:
-        is_controller = link_info.controller == AllLinkMode.CONTROLLER
-
-        # if not _has_existing_link(modem, not is_controller, link_info.group, device.address):
-        _add_link_to_device(
-            modem,
-            not is_controller,
-            link_info.group,
-            device.address,
-            link_info.modem_data1,
-            link_info.modem_data2,
-            link_info.modem_data3,
-        )
-
-        # if not _has_existing_link(device, is_controller, link_info.group, device.address):
-        _add_link_to_device(
-            device,
-            is_controller,
-            link_info.group,
-            modem.address,
-            link_info.dev_data1,
-            link_info.dev_data2,
-            link_info.dev_data3,
-        )
-        result_modem = await modem.aldb.async_write_records()
-        result_device = await device.aldb.async_write_records()
-        _LOGGER.info("Modem: %s", str(result_modem))
-        _LOGGER.info("Device: %s", str(result_device))
-
-
-def _existing_link(device, is_controller, group, address):
-    """Test if a link exists in a device ALDB."""
-    for mem_addr in device.aldb:
-        rec = device.aldb[mem_addr]
-        if (
-            rec.is_controller == is_controller
-            and rec.target == device.address
-            and rec.group == group
-        ):
-            return rec.mem_addr
-    return None
+        is_controller = link_info.is_controller
+        group = link_info.group
+        data1 = link_info.data1
+        data2 = link_info.data2
+        data3 = link_info.data3
+        if is_controller:
+            controller = device
+            responder = devices.modem
+        else:
+            controller = devices.modem
+            responder = device
+        await async_link_devices(controller, responder, group, data1, data2, data3)
 
 
 def _add_link_to_device(device, is_controller, group, target, data1, data2, data3):
@@ -144,57 +150,3 @@ def _add_link_to_device(device, is_controller, group, target, data1, data2, data
     except NotImplementedError:
         return False
     return True
-
-
-def _set_linking_command(device):
-    if device == devices.modem:
-        return StartAllLinkingCommandHandler()
-    cmd = EnterLinkingModeCommand(device.address)
-    cmd.subscribe(_link_complete)
-    return cmd
-
-
-def _set_unlinking_command(device):
-    if device == devices.modem:
-        return StartAllLinkingCommandHandler()
-    return EnterUnlinkingModeCommand(device.address)
-
-
-async def _send_linking_command(cmd, mode, group):
-    if isinstance(cmd, StartAllLinkingCommandHandler):
-        return await cmd.async_send(mode=mode, group=group)
-    return await cmd.async_send(group=group)
-
-
-async def _send_unlinking_command(cmd, group):
-    if isinstance(cmd, StartAllLinkingCommandHandler):
-        return await cmd.async_send(mode=AllLinkMode.DELETE, group=group)
-    return await cmd.async_send(group=group)
-
-
-def _link_complete(**kwargs):
-    """Wait for the linking command to complete."""
-    link_queue.put_nowait(kwargs)
-
-
-async def _wait_for_link_complete():
-    response1 = await link_queue.get()
-    response2 = await link_queue.get()
-    return (response1, response2)
-
-
-def _parse_responses(controller, responder, group, response1, response2):
-    cat = response1.get("cat") if response1.get("cat") else response2.get("cat")
-    subcat = (
-        response1.get("subcat") if response1.get("subcat") else response2.get("subcat")
-    )
-    firmware = (
-        response1.get("firmware")
-        if response1.get("firmware")
-        else response2.get("firmware")
-    )
-    return LinkInfo(controller, responder, group, cat, subcat, firmware)
-
-
-all_link_complete_handler = AllLinkCompletedHandler()
-all_link_complete_handler.subscribe(_link_complete)

@@ -3,7 +3,6 @@ from .device_base import Device
 from .commands import STATUS_COMMAND
 from ..managers.on_level_manager import OnLevelManager
 from ..handlers.to_device.status_request import StatusRequestCommand
-
 from ..states import OPEN_CLOSE_SENSOR
 from ..states.open_close import NormallyOpen, NormallyClosed
 from ..events import Event, OPEN_EVENT, CLOSE_EVENT
@@ -41,7 +40,19 @@ class OpenCloseControllerBase(Device):
         return await self._handlers[STATUS_COMMAND].async_send()
 
     def _register_default_links(self):
-        pass
+        from ..default_link import DefaultLink
+        super()._register_default_links()
+        link = DefaultLink(
+            is_controller=True,
+            group=1,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=1,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
+        self._default_links.append(link)
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()

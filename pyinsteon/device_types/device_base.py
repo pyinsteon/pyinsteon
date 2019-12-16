@@ -24,6 +24,7 @@ from .commands import (
     OFF_ALL_LINK_CLEANUP,
 )
 
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -202,6 +203,11 @@ class Device(ABC):
 
         return await ProductDataRequestCommand(self._address).async_send()
 
+    async def async_add_default_links(self):
+        """Add the default links betweent he modem and the device."""
+        from ..managers.link_manager import async_add_default_links
+        return await async_add_default_links(self)
+
     def _register_states(self):
         """Add the states to the device."""
 
@@ -213,6 +219,18 @@ class Device(ABC):
 
     def _register_default_links(self):
         """Add default links for linking the device to the modem."""
+        from ..default_link import DefaultLink
+        link_0 = DefaultLink(
+            is_controller=False,
+            group = 0,
+            dev_data1 = 0,
+            dev_data2 = 0,
+            dev_data3 = 0,
+            modem_data1 = self.cat,
+            modem_data2 = self.subcat,
+            modem_data3 = self.firmware
+        )
+        link_0 = self._default_links.append(link_0)
 
     def _register_events(self):
         """Add events that are triggered when events are fired from the device."""

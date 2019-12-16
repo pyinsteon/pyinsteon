@@ -57,17 +57,6 @@ class SwitchedLightingControl(OnOffResponderBase):
             off_fast_event_name,
         )
 
-    def _register_default_links(self):
-        from ..managers.link_manager import DefaultLink
-
-        super()._register_default_links()
-        link0 = DefaultLink(
-            False, 0, 0x00, 0x00, 0x00, self._cat, self.subcat, self.firmware
-        )
-        link1 = DefaultLink(True, 1, 0xFF, 0x1C, 0x01, 0x00, 0x00, 0x00)
-        self._default_links.append(link0)
-        self._default_links.append(link1)
-
 
 class SwitchedLightingControl_ApplianceLinc(SwitchedLightingControl):
     """ApplianceLinc based dimmable lights."""
