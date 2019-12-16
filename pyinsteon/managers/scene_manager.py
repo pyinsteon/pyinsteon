@@ -110,8 +110,8 @@ async def _plm_add_device_to_scene(group, device, on_level, ramp_rate, button):
         group=group, target=device.address, controller=True, data1=0, data2=0, data3=0
     )
     # TODO check for success or failure
-    await device.aldb.async_write_records()
-    await modem.aldb.async_write_records()
+    await device.aldb.async_write()
+    await modem.aldb.async_write()
 
 
 async def _hub_add_device_to_scene(group, device, on_level, ramp_rate, button):
