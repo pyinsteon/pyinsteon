@@ -33,10 +33,7 @@ class ALDBWriteManager:
                 "All-Link databased must be loaded before writing."
             )
 
-        if (
-            record.mem_addr > self._aldb.first_mem_addr
-            or record.mem_addr < self._aldb.high_water_mark_mem_addr
-        ):
+        if (record.mem_addr > self._aldb.first_mem_addr):
             raise ALDBWriteException("All-link record memory address out of range.")
 
         # If we get a direct ACK, we assume the ALDB has been written.
