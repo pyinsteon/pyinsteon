@@ -40,15 +40,15 @@ class LowBatteryManager(SubscriberBase):
         self._low_battery_clear_event = self.LowBatterySubscriber(
             "{}.false".format(subscriber_topic)
         )
-        pub.subscribe(self._all_device_messages, self._address)
+        pub.subscribe(self._all_device_messages, self._address.id)
 
     def subscribe_low_battery_event(self, callback):
         """Subscribe to low battery event."""
-        pub.subscribe(callback, self._low_battery_event)
+        self._low_battery_event.subscribe(callback)
 
     def subscribe_low_battery_clear_event(self, callback):
         """Subscribe to low battery event."""
-        pub.subscribe(callback, self._low_battery_clear_event)
+        self._low_battery_clear_event.subscribe(callback)
 
     def _all_device_messages(self, **kwargs):
         """Capture all messages for this device."""
