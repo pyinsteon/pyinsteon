@@ -1,6 +1,7 @@
 """Load saved devices to provide quick startup."""
 
 import asyncio
+import traceback
 from pyinsteon import async_connect, async_close
 from pyinsteon.managers.link_manager import (
     async_enter_linking_mode, async_create_default_links)
@@ -10,18 +11,24 @@ from samples import set_log_levels, _LOGGER, PATH, get_hub_config
 # DEVICE = '/dev/ttyS5'
 DEVICE = 'COM5'
 USERNAME, PASSWORD, HOST  = get_hub_config()
-DONE = False
+done = asyncio.Queue()
 
 async def async_setup_device(address):
     from pyinsteon import devices
     device = devices[address]
     await device.aldb.async_load(refresh=True)
-    await device.async_get_operating_flags()
-    await device.async_get_extended_properties()
+    await device.async_read_op_flags()
+    await device.async_read_ext_properties()
+    max_wait = 300
+    wait = 0
+    sleep_for = 5
+    while not device.aldb.is_loaded and wait < max_wait:
+        await asyncio.sleep(sleep_for)
+        wait += sleep_for
     await device.async_add_default_links()
-    await asyncio.sleep(3)
+    await asyncio.sleep(sleep_for)
     await devices.async_save(workdir=PATH)
-    DONE = True
+    done.put_nowait('done')
 
 def device_added(address):
     asyncio.ensure_future(async_setup_device(address))
@@ -36,8 +43,7 @@ async def do_run():
     devices.subscribe(device_added)
     await async_enter_linking_mode(is_controller=True, group=0)
     _LOGGER.info('Press device SET button')
-    while not DONE:
-        await asyncio.sleep(5)
+    await done.get()
     await async_close()
 
 
