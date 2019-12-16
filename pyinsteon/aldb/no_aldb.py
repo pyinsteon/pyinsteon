@@ -30,7 +30,7 @@ class NoALDB(ALDBBase):
             callback()
         return ALDBStatus.LOADED
 
-    async def async_write_records(self):
+    async def async_write(self):
         """Write modified records to the device."""
         return 0
 

@@ -158,12 +158,12 @@ class ALDB(ALDBBase):
             callback()
         return self._status
 
-    def write_records(self):
+    def write(self):
         """Write modified records to the device."""
         if self.is_loaded:
-            asyncio.ensure_future(self.async_write_records())
+            asyncio.ensure_future(self.async_write())
 
-    async def async_write_records(self):
+    async def async_write(self):
         """Write modified records to the device.
 
         Returns a tuple of (completed, failed) record counts.
@@ -210,7 +210,7 @@ class ALDB(ALDBBase):
         """Add an All-Link record.
 
         This method does not write to the device. To write modifications to the device
-        use `write_records` or `async_write_records`.
+        use `write` or `async_write`.
         """
         mem_addr = 0x0000
 
