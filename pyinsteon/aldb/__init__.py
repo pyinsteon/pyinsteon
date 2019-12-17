@@ -12,6 +12,12 @@ from ..address import Address
 from .aldb_status import ALDBStatus
 from .aldb_version import ALDBVersion
 from .aldb_record import ALDBRecord
+from ..topics import (
+    DEVICE_LINK_CONTROLLER_CREATED,
+    DEVICE_LINK_RESPONDER_CREATED,
+    DEVICE_LINK_CONTROLLER_REMOVED,
+    DEVICE_LINK_RESPONDER_REMOVED,
+)
 from .. import pub
 
 
@@ -93,6 +99,13 @@ class ALDBBase(ABC):
         """Get the record at address 'mem_addr'."""
         return self._records.get(mem_addr, default)
 
+    def get_responders(self, group):
+        """Return all responders to this device for a group."""
+        for mem_addr in self._records:
+            rec = self._records[mem_addr]
+            if rec.is_controller and rec.group == group:
+                yield rec.target
+
     @abstractmethod
     async def async_load(self, *args, **kwargs):
         """Load the All-Link Database."""
@@ -106,10 +119,38 @@ class ALDBBase(ABC):
         for mem_addr in records:
             record = records[mem_addr]
             self._records[mem_addr] = record
+            self._notify_change(record)
         if self.is_loaded and self._records:
             keys = list(self._records.keys())
             keys.sort(reverse=True)
             self._mem_addr = keys[0]
+
+    def _notify_change(self, record):
+        from .. import devices
+        target = record.target
+        group = record.group
+        if group == 0 or target == devices.modem.address:
+            return
+        if record.is_controller and record.is_in_use:
+            self._send_change(
+                DEVICE_LINK_CONTROLLER_CREATED, self._address, target, group
+            )
+        elif record.is_controller and not record.is_in_use:
+            self._send_change(
+                DEVICE_LINK_CONTROLLER_REMOVED, self._address, target, group
+            )
+        elif not record.is_controller and record.is_in_use:
+            self._send_change(
+                DEVICE_LINK_RESPONDER_CREATED, self._address, target, group
+            )
+        else:
+            self._send_change(
+                DEVICE_LINK_RESPONDER_REMOVED, self._address, target, group
+            )
+
+    @classmethod
+    def _send_change(cls, topic, controller, responder, group):
+        pub.sendMessage(topic, controller=controller, responder=responder, group=group)
 
 
 class ALDB(ALDBBase):
@@ -153,6 +194,7 @@ class ALDB(ALDBBase):
             mem_addr=mem_addr, num_recs=num_recs
         ):
             self._records[rec.mem_addr] = rec
+            self._notify_change(rec)
         self._set_load_status()
         if callback:
             callback()
