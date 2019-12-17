@@ -118,6 +118,7 @@ class ALDBBase(ABC):
             self._status = ALDBStatus(status)
         for mem_addr in records:
             record = records[mem_addr]
+            self._notify_change(record, force_delete=True)
             self._records[mem_addr] = record
             self._notify_change(record)
         if self.is_loaded and self._records:
@@ -125,21 +126,22 @@ class ALDBBase(ABC):
             keys.sort(reverse=True)
             self._mem_addr = keys[0]
 
-    def _notify_change(self, record):
+    def _notify_change(self, record, force_delete=False):
         from .. import devices
         target = record.target
         group = record.group
+        is_in_use = True if force_delete else record.is_in_use
         if group == 0 or target == devices.modem.address:
             return
-        if record.is_controller and record.is_in_use:
+        if record.is_controller and is_in_use:
             self._send_change(
                 DEVICE_LINK_CONTROLLER_CREATED, self._address, target, group
             )
-        elif record.is_controller and not record.is_in_use:
+        elif record.is_controller and not is_in_use:
             self._send_change(
                 DEVICE_LINK_CONTROLLER_REMOVED, self._address, target, group
             )
-        elif not record.is_controller and record.is_in_use:
+        elif not record.is_controller and is_in_use:
             self._send_change(
                 DEVICE_LINK_RESPONDER_CREATED, self._address, target, group
             )
@@ -189,10 +191,14 @@ class ALDB(ALDBBase):
         _LOGGER.debug("Loading the ALDB async")
         self._status = ALDBStatus.LOADING
         if refresh:
+            for mem_addr in self._records:
+                self._notify_change(self._records[mem_addr], force_delete=True)
             self._records = {}
         async for rec in self._read_manager.async_read(
             mem_addr=mem_addr, num_recs=num_recs
         ):
+            if self._records.get(rec.mem_addr):
+                self._notify_change(self._records[rec.mem_addr], force_delete=True)
             self._records[rec.mem_addr] = rec
             self._notify_change(rec)
         self._set_load_status()
