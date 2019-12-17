@@ -46,7 +46,7 @@ def _device_to_dict(device_list):
             for mem in device.aldb:
                 rec = device.aldb[mem]
                 if rec:
-                    aldbRec = {
+                    aldb_rec = {
                         "memory": mem,
                         "in_use": rec.is_in_use,
                         "controller": rec.is_controller,
@@ -59,14 +59,14 @@ def _device_to_dict(device_list):
                         "data2": rec.data2,
                         "data3": rec.data3,
                     }
-                    aldb[mem] = aldbRec
+                    aldb[mem] = aldb_rec
             operating_flags = {}
             for flag in device.operating_flags:
                 operating_flags[flag] = device.operating_flags[flag].value
             properties = {}
             for flag in device.properties:
                 properties[flag] = device.properties[flag].value
-            deviceInfo = {
+            device_info = {
                 "address": device.address.id,
                 "cat": device.cat,
                 "subcat": device.subcat,
@@ -76,7 +76,7 @@ def _device_to_dict(device_list):
                 "operating_flags": operating_flags,
                 "properties": properties,
             }
-            devices.append(deviceInfo)
+            devices.append(device_info)
     return devices
 
 
@@ -186,6 +186,6 @@ class SavedDeviceManager:
                 out_json = json.dumps(devices, indent=2)
                 await afp.write(out_json)
                 await afp.fsync()
-        except FileNotFoundError as e:
+        except FileNotFoundError as ex:
             _LOGGER.error("Cannot write to file %s", device_file)
-            _LOGGER.error("Exception: %s", str(e))
+            _LOGGER.error("Exception: %s", str(ex))

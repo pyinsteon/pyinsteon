@@ -5,7 +5,6 @@ from abc import ABCMeta
 
 from ...address import Address
 from ...constants import MessageFlagType
-from ...utils import build_topic
 from .. import ack_handler, direct_ack_handler, direct_nak_handler
 from ..outbound_base import OutboundHandlerBase
 

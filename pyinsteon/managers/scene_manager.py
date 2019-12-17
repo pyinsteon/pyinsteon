@@ -22,8 +22,8 @@ class Scenes:
 
     def get_devices(self, group):
         """Return the devices associated with a scene (group controller tuple)."""
-        for group in self._scenes:
-            scene = self._scenes[group]
+        scene = self._scenes.get(group)
+        if scene:
             for device in scene:
                 yield device
 
@@ -80,9 +80,7 @@ async def trigger_scene_on(group):
     await OnLevelAllLinkBroadcastCommand(group=group).async_send()
     for device in scenes.get_devices(group):
         # TODO check for success or failure
-        await OnLevelAllLinkCleanupCommand(address=device.address).async_send(
-            group=group
-        )
+        await OnLevelAllLinkCleanupCommand(device.address, group).async_send()
 
 
 async def trigger_scene_off(group):

@@ -1,8 +1,8 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
-from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
-from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
+# from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
+# from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..states import (
     ON_OFF_OUTLET_BOTTOM,
@@ -19,7 +19,7 @@ from ..states import (
     ON_OFF_SWITCH_MAIN,
 )
 from ..states.on_off import OnOff
-from .commands import SET_LEDS_COMMAND, STATUS_COMMAND, TRIGGER_SCENE_COMMAND
+from .commands import SET_LEDS_COMMAND, STATUS_COMMAND
 from .on_off_responder_base import OnOffResponderBase
 
 
@@ -220,24 +220,17 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
-        scene_group = "{}_{}".format(TRIGGER_SCENE_COMMAND, 1)
-        # self._handlers[scene_group] = TriggerSceneCommandHandler(self._address, 1)
-        # for group in self._button_list:
-        #     scene_group = "{}_{}".format(TRIGGER_SCENE_COMMAND, group)
-        #     self._handlers[scene_group] = TriggerSceneCommandHandler(
-        #         self._address, group
-        #     )
+
 
     def _register_states(self):
         super()._register_states()
-        for button in self._button_list:
-            name = "{}_{}".format(ON_OFF_SWITCH, self._button_list[button])
+        for button in self._buttons:
+            name = self._buttons[button]
             self._states[button] = OnOff(name=name, address=self._address, group=button)
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-        for button in self._button_list:
-            self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
+        self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
 
     def _change_led_status(self, led, on):
         leds = {}

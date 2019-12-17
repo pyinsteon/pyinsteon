@@ -5,7 +5,6 @@ from .. import pub
 from .inbound_base import InboundHandlerBase
 from . import ResponseStatus
 from ..utils import build_topic
-from ..constants import MessageFlagType
 
 
 # It should not take more than 3 minutes for a message send (I hope)

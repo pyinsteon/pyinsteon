@@ -2,8 +2,8 @@
 from ..constants import FanSpeed
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
-from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
-from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
+# from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
+# from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
 from ..states import (
     DIMMABLE_FAN,
     DIMMABLE_LIGHT,
@@ -26,7 +26,8 @@ from .commands import (
     ON_FAST_COMMAND,
     SET_LEDS_COMMAND,
     STATUS_COMMAND_FAN,
-    TRIGGER_SCENE_COMMAND,
+    # TRIGGER_SCENE_ON_COMMAND,
+    # TRIGGER_SCENE_OFF_COMMAND,
 )
 from .variable_responder_base import VariableResponderBase
 
@@ -370,26 +371,19 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         """Turn on the button LED. """
         if group in [0, 1]:
             return await super().async_on(on_level=on_level, group=group, fast=fast)
-        kwargs = self._change_led_status(led=group, on=True)
+        kwargs = self._change_led_status(led=group, is_on=True)
         return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
 
     async def async_off(self, group: int = 0, fast: bool = False):
         """Turn on the button LED. """
         if group in [0, 1]:
             return await super().async_off(group=group, fast=fast)
-        kwargs = self._change_led_status(led=group, on=False)
+        kwargs = self._change_led_status(led=group, is_on=False)
         return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
-        scene_group = "{}_{}".format(TRIGGER_SCENE_COMMAND, 1)
-        # self._handlers[scene_group] = TriggerSceneCommandHandler(self._address, 1)
-        # for group in self._buttons:
-        #     scene_group = "{}_{}".format(TRIGGER_SCENE_COMMAND, group)
-        #     self._handlers[scene_group] = TriggerSceneCommandHandler(
-        #         self._address, group
-        #     )
 
     def _register_states(self):
         super()._register_states()
@@ -398,19 +392,19 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
             self._states[button] = OnOff(name=name, address=self._address, group=button)
 
     def _subscribe_to_handelers_and_managers(self):
-        super()._subscribe_to_handelers_and_managers()
-        for button in self._buttons:
-            self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
+         super()._subscribe_to_handelers_and_managers()
+         self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
 
-    def _change_led_status(self, led, on):
+    def _change_led_status(self, led, is_on):
         leds = {}
         for curr_led in range(1, 9):
             var = "group{}".format(curr_led)
-            leds[var] = on if curr_led == led else bool(self._states.get(curr_led))
+            leds[var] = is_on if curr_led == led else bool(self._states.get(curr_led))
         return leds
 
     def _update_leds(self, group, value):
         self._states[group].value = value
+
 
 class DimmableLightingControl_KeypadLinc_6(DimmableLightingControl_KeypadLinc):
     """KeypadLinc 6 button dimmer."""

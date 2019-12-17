@@ -86,32 +86,18 @@ def _create_rcv_std_ext_msg(topic, address, flags, cmd1, cmd2, target, user_data
 
 def standard_received(msg: Inbound) -> (str, {}):
     """Create a topic from a STANDARD_RECEIVED message."""
-    found_topic = False
     for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags.is_extended):
-        found_topic = True
         yield _create_rcv_std_ext_msg(
             topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, None
         )
-    # if not found_topic:
-    #     topic = "standard_received"
-    #     yield _create_rcv_std_ext_msg(
-    #         topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, None
-    #     )
 
 
 def extended_received(msg: Inbound) -> (str, {}):
     """Create a topic from a EXTENDED_RECEIVED message."""
-    found_topic = False
     for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags.is_extended):
-        found_topic = True
         yield _create_rcv_std_ext_msg(
             topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, msg.user_data
         )
-    # if not found_topic:
-    #     topic = "extended_received"
-    #     yield _create_rcv_std_ext_msg(
-    #         topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, msg.user_data
-    #     )
 
 
 def x10_received(msg: Inbound) -> (str, {}):
@@ -197,7 +183,6 @@ def send_all_link_command(msg: Inbound) -> (str, {}):
 
 
 def _create_send_std_ext(topic, address, flags, cmd1, cmd2, user_data, ack):
-    msg_type = flags.message_type.name.lower()
     if commands.use_group(topic):
         group = _msg_group(flags.message_type, None, cmd2, user_data)
     else:

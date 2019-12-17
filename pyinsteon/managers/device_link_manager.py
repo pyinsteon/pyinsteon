@@ -82,7 +82,8 @@ class DeviceLinkManager:
                 devices[responder].states[group].set_value(on_level)
                 asyncio.ensure_future(devices[responder].async_status())
 
-    def _check_controller(self, on_level, topic=pub.AUTO_TOPIC):
+    @classmethod
+    def _check_controller(cls, on_level, topic=pub.AUTO_TOPIC):
         controller, group, msg_type = _topic_to_addr_group(topic)
         if msg_type != MessageFlagType.ALL_LINK_BROADCAST:
             return

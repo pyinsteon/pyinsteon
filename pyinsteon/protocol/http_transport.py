@@ -160,12 +160,12 @@ class HttpTransport(asyncio.Transport):
                     _LOGGER.error("Closing connection Hub after 30 retries")
                     self.close()
 
-            except (asyncio.CancelledError, GeneratorExit) as e:
-                _LOGGER.debug("Stop connection to Hub: %s", e)
+            except (asyncio.CancelledError, GeneratorExit) as ex:
+                _LOGGER.debug("Stop connection to Hub: %s", ex)
                 self.close()
 
-            except Exception as e:
-                _LOGGER.debug("Stop reading due to %s", str(e))
+            except Exception as ex:
+                _LOGGER.debug("Stop reading due to %s", str(ex))
                 self.close()
             else:
                 if buffer:

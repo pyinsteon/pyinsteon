@@ -73,8 +73,7 @@ class GetSetOperatingFlagsManager:
                 result = await self._async_read(curr_group)
                 results.append(result)
             return multiple_status(*results)
-        else:
-            return await self._async_read(group)
+        return await self._async_read(group)
 
     async def _async_read(self, group):
         retries = 0

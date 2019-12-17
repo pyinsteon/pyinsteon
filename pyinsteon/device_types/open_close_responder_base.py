@@ -73,10 +73,12 @@ class OpenCloseResponderBase(OpenCloseControllerBase):
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
         return await self._handlers[group][command].async_send()
 
+    #pylint: disable=arguments-differ
     def status(self):
         """Get the status of the device state."""
         self._handlers[STATUS_COMMAND].send()
 
+    #pylint: disable=arguments-differ
     async def async_status(self):
         """Get the status of the device state."""
         return await self._handlers[STATUS_COMMAND].async_send()
@@ -84,22 +86,22 @@ class OpenCloseResponderBase(OpenCloseControllerBase):
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
         self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address)
-        for group in self._buttons:
-            if self._handlers.get(group) is None:
-                self._handlers[group] = {}
-            self._handlers[group][ON_COMMAND] = OnLevelCommand(self._address, group)
-            self._handlers[group][OFF_COMMAND] = OffCommand(self._address, group)
-            self._handlers[group][ON_FAST_COMMAND] = OnFastCommand(self._address, group)
-            self._handlers[group][OFF_FAST_COMMAND] = OffFastCommand(
-                self._address, group
-            )
+        group = 1
+        if self._handlers.get(group) is None:
+            self._handlers[group] = {}
+        self._handlers[group][ON_COMMAND] = OnLevelCommand(self._address, group)
+        self._handlers[group][OFF_COMMAND] = OffCommand(self._address, group)
+        self._handlers[group][ON_FAST_COMMAND] = OnFastCommand(self._address, group)
+        self._handlers[group][OFF_FAST_COMMAND] = OffFastCommand(
+            self._address, group
+        )
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-        for group in self._buttons:
-            state = self._states[group]
+        group = 1
+        state = self._states[group]
 
-            self._handlers[group][ON_COMMAND].subscribe(state.set_value)
-            self._handlers[group][OFF_COMMAND].subscribe(state.set_value)
-            self._handlers[group][ON_FAST_COMMAND].subscribe(state.set_value)
-            self._handlers[group][OFF_FAST_COMMAND].subscribe(state.set_value)
+        self._handlers[group][ON_COMMAND].subscribe(state.set_value)
+        self._handlers[group][OFF_COMMAND].subscribe(state.set_value)
+        self._handlers[group][ON_FAST_COMMAND].subscribe(state.set_value)
+        self._handlers[group][OFF_FAST_COMMAND].subscribe(state.set_value)

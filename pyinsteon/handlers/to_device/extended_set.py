@@ -1,12 +1,10 @@
 """Handle sending a read request for ALDB records."""
 import logging
 
-from .. import direct_ack_handler, ack_handler
+from .. import ack_handler
 from ...address import Address
 from ...topics import EXTENDED_GET_SET
 from .direct_command import DirectCommandHandlerBase
-from ...utils import build_topic
-from ...constants import MessageFlagType
 
 _LOGGER = logging.getLogger(__name__)
 

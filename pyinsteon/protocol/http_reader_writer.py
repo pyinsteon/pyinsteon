@@ -49,9 +49,9 @@ class HttpReaderWriter:
                         return False
 
         # pylint: disable=broad-except
-        except Exception as e:
+        except Exception as ex:
             _LOGGER.error(
-                "An aiohttp error occurred: %s with status %s", str(e), response_status
+                "An aiohttp error occurred: %s with status %s", str(ex), response_status
             )
         _LOGGER.debug("Connection test failed")
         return False
@@ -70,10 +70,10 @@ class HttpReaderWriter:
                     raise HubConnectionException(
                         "Connection status error: {}".format(response.status)
                     )
-        except (asyncio.TimeoutError, aiohttp.ClientError) as e:
+        except (asyncio.TimeoutError, aiohttp.ClientError) as ex:
             await session.close()
-            _LOGGER.error("Session error: %s", str(e))
-            raise HubConnectionException(str(e))
+            _LOGGER.error("Session error: %s", str(ex))
+            raise HubConnectionException(str(ex))
         return await self._parse_buffer(html)
 
     async def async_write(self, url):

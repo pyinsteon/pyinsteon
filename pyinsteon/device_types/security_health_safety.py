@@ -40,12 +40,6 @@ from ..states import (
 from ..states.on_off import Heartbeat, LowBattery, OnOff
 from .battery_base import BatteryDeviceBase
 from .device_base import Device
-from .commands import (
-    OFF_HEARTBEAT_INBOUND,
-    OFF_INBOUND,
-    ON_HEARTBEAT_INBOUND,
-    ON_INBOUND,
-)
 from .on_off_controller_base import OnOffControllerBase
 from .open_close_controller_base import NormallyOpenControllerBase
 
@@ -87,11 +81,11 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
     def _register_states(self):
         """Register states for the Door Sensor."""
         super()._register_states()
-        lb_state = self._states[self.LOW_BATTERY_GROUP] = LowBattery(
+        self._states[self.LOW_BATTERY_GROUP] = LowBattery(
             name=LOW_BATTERY, address=self._address, group=self.LOW_BATTERY_GROUP
         )
 
-        hb_state = self._states[self.HEARTBEAT_GROUP] = Heartbeat(
+        self._states[self.HEARTBEAT_GROUP] = Heartbeat(
             name=HEARTBEAT, address=self._address, group=self.HEARTBEAT_GROUP
         )
 
@@ -728,7 +722,7 @@ class SecurityHealthSafety_Smokebridge(Device):
                 group = self.LOW_BATTERY_GROUP,
                 dev_data1 = 255,
                 dev_data2 = 28,
-                dev_data3 = self.LOW_BATTERY,
+                dev_data3 = self.LOW_BATTERY_GROUP,
                 modem_data1 = 0,
                 modem_data2 = 0,
                 modem_data3 = 0

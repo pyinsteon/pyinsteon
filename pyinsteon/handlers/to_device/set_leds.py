@@ -1,8 +1,16 @@
 """Set the LEDs of a KeyPadLinc."""
 
-from .extended_set import ExtendedSetCommand, EXTENDED_GET_SET
+from .extended_set import ExtendedSetCommand
 from ...utils import build_topic
 from ...constants import MessageFlagType
+
+
+def _bitmask(self, *args):
+    bitmask = 0x00
+    for group in range(0, 8):
+        val = 1 if args[group] else 0
+        bitmask = bitmask + val << group
+    return bitmask
 
 
 class SetLedsCommandHandler(ExtendedSetCommand):
@@ -30,7 +38,7 @@ class SetLedsCommandHandler(ExtendedSetCommand):
         group8: bool,
     ):
         """Set the LED values of the KPL."""
-        bitmask = self._bitmask(
+        bitmask = _bitmask(
             group1, group2, group3, group4, group5, group6, group7, group8
         )
         kwargs = {"data1": self._data1, "data2": self._data2, "data3": bitmask}
@@ -49,15 +57,8 @@ class SetLedsCommandHandler(ExtendedSetCommand):
         group8: bool,
     ):
         """Set the LED values of the KPL."""
-        bitmask = self._bitmask(
+        bitmask = _bitmask(
             group1, group2, group3, group4, group5, group6, group7, group8
         )
         kwargs = {"data1": self._data1, "data2": self._data2, "data3": bitmask}
         return await super().async_send(**kwargs)
-
-    def _bitmask(self, *args):
-        bitmask = 0x00
-        for group in range(0, 8):
-            val = 1 if args[group] else 0
-            bitmask = bitmask + val << group
-        return bitmask

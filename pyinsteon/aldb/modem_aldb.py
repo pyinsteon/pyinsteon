@@ -158,7 +158,8 @@ class ModemALDB(ALDBBase):
         self._dirty_records.extend(multi_delete)
         self._dirty_records.extend(restore_recs)
 
-    def _set_not_in_use(self, rec):
+    @classmethod
+    def _set_not_in_use(cls, rec):
         new_rec = ALDBRecord(
             memory=rec.mem_addr,
             controller=rec.is_controller,

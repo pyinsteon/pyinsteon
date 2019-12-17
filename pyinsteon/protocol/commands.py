@@ -225,11 +225,6 @@ class Commands:
                 return
             yield self._commands.get((-1, None, extended))
 
-    def _cmd(self, cmd1, cmd2, extended):
-        """Return a string representing the command set."""
-        return f'{cmd1}_{cmd2}_{extended}'
-
-
 
 commands = Commands()
 

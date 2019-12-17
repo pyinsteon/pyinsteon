@@ -4,9 +4,10 @@ ignore=tests, samples
 # any too bad. Override on command line as appropriate.
 jobs=2
 persistent=no
+class-naming-style=any
 
 [BASIC]
-good-names=id,ex,devices
+good-names=id,ex,devices,on,off,scenes,commands
 
 [MESSAGES CONTROL]
 # Reasons disabled:
@@ -31,6 +32,7 @@ disable=
   abstract-method,
   cyclic-import,
   duplicate-code,
+  fixme,
   global-statement,
   import-outside-toplevel,
   inconsistent-return-statements,

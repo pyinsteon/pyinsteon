@@ -17,6 +17,10 @@ READ_ONE = 2
 WRITE = 3
 CANCEL = 0
 
+IM_NOT_IN_DEVICE_ALDB = 0xFF
+CHECKSUM_ERROR = 0xFD
+ILLEGAL_VALUE_IN_COMMAND = 0xFB
+
 
 class ALDBReadManager:
     """ALDB Read Manager."""
@@ -55,8 +59,7 @@ class ALDBReadManager:
             record = await self._records.get()
             if record is None:
                 break
-            else:
-                await yield_(record)
+            await yield_(record)
 
     async def _async_read(self, mem_addr: int = 0x00, num_recs: int = 0):
         """Perform the device read function."""
@@ -72,9 +75,6 @@ class ALDBReadManager:
 
     def _receive_direct_ack(self, ack_response):
         """Receive the response from the direct ACK."""
-        IM_NOT_IN_DEVICE_ALDB = 0xFF
-        CHECKSUM_ERROR = 0xFD
-        ILLEGAL_VALUE_IN_COMMAND = 0xFB
         if ack_response in [
             IM_NOT_IN_DEVICE_ALDB,
             CHECKSUM_ERROR,

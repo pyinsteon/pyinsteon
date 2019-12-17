@@ -27,6 +27,7 @@ EXTENDED_SET_COMMAND = "extended_set"
 EXTENDED_GET_RESPONSE = "extended_get_response"
 
 SET_LEDS_COMMAND = "set_leds"
-TRIGGER_SCENE_COMMAND = "trigger_scene"
+TRIGGER_SCENE_ON_COMMAND = "trigger_scene_on"
+TRIGGER_SCENE_OFF_COMMAND = "trigger_scene_off"
 
 GET_IM_CONFIG_COMMAND = "get_im_config"

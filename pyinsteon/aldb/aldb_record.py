@@ -21,7 +21,7 @@ class ALDBRecord:
         bit4: bool = False,
     ):
         """Initialze the ALDBRecord class."""
-        self._memoryLocation = memory
+        self._memory_location = memory
         self._target = Address(target)
         self._group = group
         self._data1 = data1
@@ -83,7 +83,7 @@ class ALDBRecord:
     @property
     def mem_addr(self):
         """Return the memory address of the database record."""
-        return self._memoryLocation
+        return self._memory_location
 
     @mem_addr.setter
     def mem_addr(self, value):
@@ -93,17 +93,17 @@ class ALDBRecord:
         except ValueError:
             raise ValueError("Memory address must be an integer.")
         else:
-            self._memoryLocation = mem
+            self._memory_location = mem
 
     @property
     def memhi(self):
         """Return the memory address MSB."""
-        return self._memoryLocation >> 8
+        return self._memory_location >> 8
 
     @property
     def memlo(self):
         """Return the memory address LSB."""
-        return self._memoryLocation & 0xFF
+        return self._memory_location & 0xFF
 
     @property
     def target(self):
@@ -166,7 +166,7 @@ class ALDBRecord:
         else:
             mode = "R"
         rec = [
-            {"memory": self._memoryLocation},
+            {"memory": self._memory_location},
             {"inuse": self._in_use},
             {"mode": mode},
             {"bit5": self._bit5},

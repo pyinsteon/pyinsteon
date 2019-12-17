@@ -2,8 +2,6 @@
 from ..to_device.direct_command import DirectCommandHandlerBase
 from .. import direct_ack_handler, ack_handler
 from ...topics import EXTENDED_TRIGGER_ALL_LINK
-from ...utils import build_topic
-from ...constants import MessageFlagType
 
 
 class TriggerSceneOnCommandHandler(DirectCommandHandlerBase):

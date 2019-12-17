@@ -18,7 +18,6 @@ class AllLinkCleanupCommandHandlerBase(OutboundHandlerBase):
         self._address = Address(address)
         self._group = group
         self._response_lock = asyncio.Lock()
-        msg_type = str(MessageFlagType.ALL_LINK_CLEANUP_ACK)
         super().__init__(
             topic=topic,
             address=self._address,

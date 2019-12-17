@@ -1,9 +1,6 @@
 """All-Link database for battery oppertated devices."""
 from collections import namedtuple
-from typing import Callable
-from functools import partial
 import logging
-from .. import pub
 from . import ALDBVersion
 from . import ALDB
 
@@ -26,6 +23,7 @@ class ALDBBattery(ALDB):
         self._commands = []
         self._run_command = run_command
 
+    #pylint: disable=arguments-differ
     async def async_load(
         self,
         mem_addr: int = 0x00,

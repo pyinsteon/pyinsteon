@@ -87,8 +87,8 @@ def create(raw_data: bytearray) -> (Inbound, bytearray):
     def _standard_message(raw_data):
         from .message_definitions import FLD_STD_SEND_ACK, FLD_EXT_SEND_ACK
 
-        FLAG_BYTE = 5
-        flags = MessageFlags(raw_data[FLAG_BYTE])
+        flag_byte = 5
+        flags = MessageFlags(raw_data[flag_byte])
         if flags.is_extended:
             msg_def = MessageDefinition(MessageId.SEND_EXTENDED, FLD_EXT_SEND_ACK)
             msg, remaining_data = _create_message(msg_def, raw_data)

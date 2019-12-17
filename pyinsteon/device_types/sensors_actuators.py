@@ -97,7 +97,6 @@ class SensorsActuators_IOLink(SensorsActuators):
             RELAY_ON_SENSE_ON,
             MOMENTARY_MODE_ON,
             MOMENTARY_ON_OFF_TRIGGER,
-            SENSE_SENDS_OFF,
             MOMENTARY_FOLLOW_SENSE,
             X10_OFF,
         )

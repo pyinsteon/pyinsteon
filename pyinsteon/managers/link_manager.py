@@ -3,13 +3,8 @@ import logging
 from ..device_types.device_base import Device
 from .. import devices
 from ..constants import AllLinkMode, ResponseStatus
-from ..handlers.to_device.enter_linking_mode import EnterLinkingModeCommand
-from ..handlers.to_device.enter_unlinking_mode import EnterUnlinkingModeCommand
 from ..handlers.start_all_linking import StartAllLinkingCommandHandler
-from ..handlers.all_link_completed import AllLinkCompletedHandler
 from ..utils import multiple_status
-from ..aldb import ALDBRecord
-
 
 TIMEOUT = 3
 _LOGGER = logging.getLogger(__name__)
@@ -37,8 +32,6 @@ async def async_link_devices(
     controller: Device, responder: Device, group: int = 0, data1=255, data2=28, data3=1
 ):
     """Link two devices."""
-    from ..handlers import ResponseStatus
-
     if _add_link_to_device(
         device=controller,
         target=responder.address,
@@ -56,8 +49,8 @@ async def async_link_devices(
         data2=data2,
         data3=data3,
     ):
-        written_1, failed_1 = await controller.aldb.async_write()
-        written_2, failed_2 = await responder.aldb.async_write()
+        _, failed_1 = await controller.aldb.async_write()
+        _, failed_2 = await responder.aldb.async_write()
         if failed_1 or failed_2:
             return ResponseStatus.FAILURE
         return ResponseStatus.SUCCESS
@@ -70,8 +63,8 @@ async def async_unlink_devices(controller: Device, responder: Device, group: int
     ) and _remove_link_from_device(
         device=responder, is_controller=False, group=group, target=controller.address
     ):
-        write_1, failed_1 = await controller.aldb.async_write()
-        write_2, failed_2 = await responder.aldb.async_write()
+        _, failed_1 = await controller.aldb.async_write()
+        _, failed_2 = await responder.aldb.async_write()
         if failed_1 or failed_2:
             return ResponseStatus.FAILURE
         return ResponseStatus.SUCCESS
@@ -133,7 +126,9 @@ async def async_create_default_links(device: Device):
         else:
             controller = devices.modem
             responder = device
-        await async_link_devices(controller, responder, group, data1, data2, data3)
+        result = await async_link_devices(controller, responder, group, data1, data2, data3)
+        results.append(result)
+    return multiple_status(*results)
 
 
 def _add_link_to_device(device, is_controller, group, target, data1, data2, data3):

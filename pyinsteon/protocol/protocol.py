@@ -202,8 +202,8 @@ def _has_listeners(topic):
     then resend the message. Otherwise it is assumed the NAK
     specific listner is resending if necessary.
     """
-    topicManager = pub.getDefaultTopicMgr()
-    pub_topic = topicManager.getTopic(name=topic, okIfNone=True)
+    topic_manager = pub.getDefaultTopicMgr()
+    pub_topic = topic_manager.getTopic(name=topic, okIfNone=True)
     if pub_topic and pub_topic.getListeners():
         return True
     return False
@@ -224,12 +224,12 @@ def _publish_broadcast(topic, **kwargs):
         try:
             pub.sendMessage(str(msg_type), **kwargs)
         # pylint: disable=broad-except
-        except Exception as e:
+        except Exception as ex:
             _LOGGER.error(
                 "An issue occured distributing the following broadcast message"
             )
             _LOGGER.error("Topic: %s data: %s", topic, kwargs)
-            _LOGGER.error("Error: %s", str(e))
+            _LOGGER.error("Error: %s", str(ex))
 
 
 class TransportStatus(Enum):
@@ -293,21 +293,21 @@ class Protocol(asyncio.Protocol):
                 else:
                     try:
                         pub.sendMessage(topic, **kwargs)
-                    except Exception as e:
+                    except Exception as ex:
                         _LOGGER.error(
                             "An issue occured distributing the following message"
                         )
                         _LOGGER.error("MSG: %s", msg)
                         _LOGGER.error("Topic: %s data: %s", topic, kwargs)
-                        _LOGGER.error("Error: %s", str(e))
+                        _LOGGER.error("Error: %s", str(ex))
                     # _publish_broadcast(topic, **kwargs)
         except ValueError:
             # No topic was found for this message
             _LOGGER.debug("No topic found for message %r", msg)
-        except Exception as e:
+        except Exception as ex:
             _LOGGER.error("An issue occured distributing the following message")
             _LOGGER.error("MSG: %s", msg)
-            _LOGGER.error("Error: %s", str(e))
+            _LOGGER.error("Error: %s", str(ex))
 
     def connection_lost(self, exc):
         """Notify listeners that the serial connection is lost."""
@@ -319,11 +319,11 @@ class Protocol(asyncio.Protocol):
 
     async def async_connect(self):
         """Connect to the transport asyncrously."""
-        WAIT_TIME = 0.1
+        wait_time = 0.1
         while self._should_reconnect and not self.connected:
             self._transport = await self._connect_method(protocol=self)
-            await asyncio.sleep(WAIT_TIME)
-            WAIT_TIME = min(300, 1.5 * WAIT_TIME)
+            await asyncio.sleep(wait_time)
+            wait_time = min(300, 1.5 * wait_time)
 
     def pause_writing(self):
         """Pause writing to the transport."""

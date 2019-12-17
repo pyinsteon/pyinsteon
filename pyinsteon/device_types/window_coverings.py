@@ -14,19 +14,16 @@ class WindowCovering(OpenCloseResponderBase):
         subcat,
         firmware=0x00,
         description="",
-        model="",
-        buttons=None,
+        model=""
     ):
         """Init the WindowCovering class."""
-        buttons = {1: COVER}
-        super().__init__(address, cat, subcat, firmware, description, model, buttons)
+        super().__init__(address, cat, subcat, firmware, description, model, state_name=COVER)
 
     def _register_operating_flags(self):
         """Register the operating and properties."""
         from ..extended_property import (
             ON_LEVEL,
             RAMP_RATE,
-            LED_BRIGHTNESS,
             X10_HOUSE,
             X10_UNIT,
             DURATION_HIGH,
@@ -35,21 +32,12 @@ class WindowCovering(OpenCloseResponderBase):
         from ..operating_flag import (
             PROGRAM_LOCK_ON,
             LED_BLINK_ON_TX_ON,
-            RESUME_DIM_ON,
             LED_ON,
             KEY_BEEP_ON,
-            RF_DISABLE_ON,
-            INSTEON_OFF,
-            TEND_ON,
-            X10_OFF,
             LED_BLINK_ON_ERROR_OFF,
-            CLEANUP_REPORT_OFF,
-            CHECKSUM_OFF,
-            STANDARD_HOLDOFF,
             DUAL_LINE_ON,
             MOMENTARY_LINE_ON,
             NOT_3_WAY,
-            SMART_HOPS_ON,
             FORWARD_ON,
         )
 

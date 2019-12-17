@@ -27,10 +27,14 @@ class HeartbeatManager(SubscriberBase):
         subscriber_topic = "subscriber_{}_heartbeat".format(self._address.id)
         super().__init__(subscriber_topic)
 
-        self._on_hb = OnLevelInbound(self._address, self._group)
-        self._off_hb = OffInbound(self._address, self._group)
-        self._on_hb.subscribe(self._on_heartbeat_received)
-        self._off_hb.subscribe(self._off_heartbeat_received)
+        self._on_inbound = OnLevelInbound(self._address, self._group)
+        self._off_inbound = OffInbound(self._address, self._group)
+        self._on_inbound.subscribe(self._on_heartbeat_received)
+        self._off_inbound.subscribe(self._off_heartbeat_received)
+
+        self._on_hb = self.OnOffHeartbeat("{}.{}".format(subscriber_topic, "on"))
+        self._off_hb = self.OnOffHeartbeat("{}.{}".format(subscriber_topic, "off"))
+
         self._last_heartbeat = datetime.now() - timedelta(hours=12)
         self._schedule_next_check()
 

@@ -215,21 +215,21 @@ def device_text_string_request(address: Address, topic=pub.AUTO_TOPIC):
 
 
 @topic_to_command_handler(topic=SET_DEVICE_TEXT_STRING)
-def set_device_text_string(address: Address, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def set_device_text_string(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a SET_DEVICE_TEXT_STRING command."""
-    _create_direct_message(topic=topic, address=address, user_data=OTHER_EXT_DATA)
+    _create_direct_message(topic=topic, address=address, user_data=user_data)
 
 
 @topic_to_command_handler(topic=SET_ALL_LINK_COMMAND_ALIAS)
-def set_all_link_command_alias(address: Address, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def set_all_link_command_alias(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a SET_ALL_LINK_COMMAND_ALIAS command."""
-    _create_direct_message(topic=topic, address=address, user_data=OTHER_EXT_DATA)
+    _create_direct_message(topic=topic, address=address, user_data=user_data)
 
 
 @topic_to_command_handler(topic=SET_ALL_LINK)
-def set_all_link(address: Address, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def set_all_link(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a SET_ALL_LINK command."""
-    _create_direct_message(topic=topic, address=address, user_data=OTHER_EXT_DATA)
+    _create_direct_message(topic=topic, address=address, user_data=user_data)
 
 
 @topic_to_command_handler(topic=ENTER_LINKING_MODE)
@@ -410,8 +410,8 @@ def extended_get_set(
     """Create a EXTENDED_GET_SET command."""
     data = {}
     items = locals()
-    for i in range(1, 15):
-        data["d{}".format(i)] = items["data{}".format(i)]
+    for index in range(1, 15):
+        data["d{}".format(index)] = items["data{}".format(index)]
     user_data = UserData(data)
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
@@ -520,20 +520,20 @@ def extended_read_write_aldb(
 
 
 @topic_to_command_handler(topic=EXTENDED_TRIGGER_ALL_LINK)
-def extended_trigger_all_link(address: Address, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def extended_trigger_all_link(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a EXTENDED_TRIGGER_ALL_LINK command."""
     _create_direct_message(
-        topic=topic, address=address, cmd2=0, user_data=OTHER_EXT_DATA
+        topic=topic, address=address, cmd2=0, user_data=user_data
     )
 
 
 @topic_to_command_handler(topic=SET_SPRINKLER_PROGRAM)
 def set_sprinkler_program(
-    address: Address, program: int, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC
+    address: Address, program: int, user_data, topic=pub.AUTO_TOPIC
 ):
     """Create a SET_SPRINKLER_PROGRAM command."""
     _create_direct_message(
-        topic=topic, address=address, cmd2=program, user_data=OTHER_EXT_DATA
+        topic=topic, address=address, cmd2=program, user_data=user_data
     )
 
 
@@ -545,11 +545,11 @@ def sprinkler_valve_on(address: Address, valve: int, topic=pub.AUTO_TOPIC):
 
 @topic_to_command_handler(topic=SPRINKLER_GET_PROGRAM_RESPONSE)
 def sprinkler_get_program_response(
-    address: Address, program: int, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC
+    address: Address, program: int, user_data, topic=pub.AUTO_TOPIC
 ):
     """Create a SPRINKLER_GET_PROGRAM_RESPONSE command."""
     _create_direct_message(
-        topic=topic, address=address, cmd2=program, user_data=OTHER_EXT_DATA
+        topic=topic, address=address, cmd2=program, user_data=user_data
     )
 
 
@@ -718,11 +718,11 @@ def io_set_sensor_1_nominal_value(address: Address, value: int, topic=pub.AUTO_T
 
 @topic_to_command_handler(topic=IO_SET_SENSOR_NOMINAL_VALUE)
 def io_set_sensor_nominal_value(
-    address: Address, value: int, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC
+    address: Address, value: int, user_data, topic=pub.AUTO_TOPIC
 ):
     """Create a IO_SET_SENSOR_NOMINAL_VALUE command."""
     _create_direct_message(
-        topic=topic, address=address, cmd2=value, user_data=OTHER_EXT_DATA
+        topic=topic, address=address, cmd2=value, user_data=user_data
     )
 
 
@@ -739,9 +739,9 @@ def io_get_sensor_alarm_delta(
 
 
 @topic_to_command_handler(topic=IO_ALARM_DATA_RESPONSE)
-def io_alarm_data_response(address: Address, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def io_alarm_data_response(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a IO_ALARM_DATA_RESPONSE command."""
-    _create_direct_message(topic=topic, address=address, user_data=OTHER_EXT_DATA)
+    _create_direct_message(topic=topic, address=address, user_data=user_data)
 
 
 @topic_to_command_handler(topic=IO_WRITE_CONFIGURATION_PORT)
@@ -856,11 +856,11 @@ def pool_device_on(address: Address, device_num: int, topic=pub.AUTO_TOPIC):
 
 @topic_to_command_handler(topic=POOL_SET_DEVICE_TEMPERATURE)
 def pool_set_device_temperature(
-    address: Address, device_num: int, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC
+    address: Address, device_num: int, user_data, topic=pub.AUTO_TOPIC
 ):
     """Create a POOL_SET_DEVICE_TEMPERATURE command."""
     _create_direct_message(
-        topic=topic, address=address, cmd2=device_num, user_data=OTHER_EXT_DATA
+        topic=topic, address=address, cmd2=device_num, user_data=user_data
     )
 
 
@@ -872,11 +872,11 @@ def pool_device_off(address: Address, device_num: int, topic=pub.AUTO_TOPIC):
 
 @topic_to_command_handler(topic=POOL_SET_DEVICE_HYSTERESIS)
 def pool_set_device_hysteresis(
-    address: Address, device_num: int, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC
+    address: Address, device_num: int, user_data, topic=pub.AUTO_TOPIC
 ):
     """Create a POOL_SET_DEVICE_HYSTERESIS command."""
     _create_direct_message(
-        topic=topic, address=address, cmd2=device_num, user_data=OTHER_EXT_DATA
+        topic=topic, address=address, cmd2=device_num, user_data=user_data
     )
 
 
@@ -1054,11 +1054,11 @@ def thermostat_temperature_up(address: Address, degrees: int, topic=pub.AUTO_TOP
 
 @topic_to_command_handler(topic=THERMOSTAT_ZONE_TEMPERATURE_UP)
 def thermostat_zone_temperature_up(
-    address: Address, zone: int, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC
+    address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
 ):
     """Create a THERMOSTAT_ZONE_TEMPERATURE_UP command."""
     _create_direct_message(
-        topic=topic, address=address, cmd2=zone, user_data=OTHER_EXT_DATA
+        topic=topic, address=address, cmd2=zone, user_data=user_data
     )
 
 
@@ -1071,11 +1071,11 @@ def thermostat_temperature_down(address: Address, degrees: int, topic=pub.AUTO_T
 
 @topic_to_command_handler(topic=THERMOSTAT_ZONE_TEMPERATURE_DOWN)
 def thermostat_zone_temperature_down(
-    address: Address, zone: int, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC
+    address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
 ):
     """Create a THERMOSTAT_ZONE_TEMPERATURE_DOWN command."""
     _create_direct_message(
-        topic=topic, address=address, cmd2=zone, user_data=OTHER_EXT_DATA
+        topic=topic, address=address, cmd2=zone, user_data=user_data
     )
 
 
@@ -1252,11 +1252,11 @@ def thermostat_set_cool_setpoint(address: Address, degrees: int, topic=pub.AUTO_
 
 @topic_to_command_handler(topic=THERMOSTAT_SET_ZONE_COOL_SETPOINT)
 def thermostat_set_zone_cool_setpoint(
-    address: Address, zone: int, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC
+    address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
 ):
     """Create a THERMOSTAT_SET_ZONE_COOL_SETPOINT command."""
     _create_direct_message(
-        topic=topic, address=address, cmd2=zone, user_data=OTHER_EXT_DATA
+        topic=topic, address=address, cmd2=zone, user_data=user_data
     )
 
 
@@ -1269,11 +1269,11 @@ def thermostat_set_heat_setpoint(address: Address, degrees: int, topic=pub.AUTO_
 
 @topic_to_command_handler(topic=THERMOSTAT_SET_ZONE_HEAT_SETPOINT)
 def thermostat_set_zone_heat_setpoint(
-    address: Address, zone: int, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC
+    address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
 ):
     """Create a THERMOSTAT_SET_ZONE_HEAT_SETPOINT command."""
     _create_direct_message(
-        topic=topic, address=address, cmd2=zone, user_data=OTHER_EXT_DATA
+        topic=topic, address=address, cmd2=zone, user_data=user_data
     )
 
 

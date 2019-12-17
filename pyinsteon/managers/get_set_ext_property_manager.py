@@ -1,5 +1,5 @@
 """Get and Set extended properties for a device."""
-from asyncio import Queue, TimeoutError, wait_for
+import asyncio
 from collections import namedtuple
 import logging
 
@@ -43,7 +43,7 @@ class GetSetExtendedPropertyManager:
         self._get_response.subscribe(self._update_all_fields)
         self._groups = {}
         self._flags = {}
-        self._response_queue = Queue()
+        self._response_queue = asyncio.Queue()
 
     def subscribe(self, name, group, data_field, bit, set_cmd):
         """Subscribe a device property to Get and Set values.
@@ -71,8 +71,7 @@ class GetSetExtendedPropertyManager:
                 result = await self._async_read(group=curr_group)
                 results.append(result)
             return multiple_status(*results)
-        else:
-            return await self._async_read(group=group)
+        return await self._async_read(group=group)
 
     async def _async_read(self, group):
         retry = 0
@@ -97,8 +96,8 @@ class GetSetExtendedPropertyManager:
     async def _wait_for_get(self):
         """Wait for the get response message."""
         try:
-            return await wait_for(self._response_queue.get(), TIMEOUT)
-        except TimeoutError:
+            return await asyncio.wait_for(self._response_queue.get(), TIMEOUT)
+        except asyncio.TimeoutError:
             return ResponseStatus.FAILURE
 
     async def _write_flag(self, name, group, field):

@@ -55,8 +55,8 @@ async def async_connect_serial(device, protocol):
     try:
         ser = serial.serial_for_url(url=device, baudrate=19200)
         transport = SerialTransport(loop, protocol, ser, device=device)
-    except OSError as e:
-        _LOGGER.warning("Unable to connect to %s: %s", device, e)
+    except OSError as ex:
+        _LOGGER.warning("Unable to connect to %s: %s", device, ex)
         transport = None
     return transport
 

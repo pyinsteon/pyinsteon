@@ -94,11 +94,11 @@ class MessageFlags:
     def __bytes__(self):
         """Return a byte representation of the message flags."""
         message_type = (self._type.value << 5) if self._type else 0
-        extendedBit = (1 << 4) if self._extended else 0
-        hopsLeft = (self._hops_left << 2) if self._hops_left else 0
-        hopsMax = self._max_hops if self._max_hops else 0
-        flagByte = message_type | extendedBit | hopsLeft | hopsMax
-        return bytes([flagByte])
+        extended_bit = (1 << 4) if self._extended else 0
+        hops_left = (self._hops_left << 2) if self._hops_left else 0
+        hops_max = self._max_hops if self._max_hops else 0
+        flag_byte = message_type | extended_bit | hops_left | hops_max
+        return bytes([flag_byte])
 
     def __eq__(self, other):
         """Test for equality.
@@ -266,13 +266,13 @@ class MessageFlags:
 
     def _set_properties(self, flags):
         """Set the properties of the message flags based on a byte input."""
-        flagByte = self._normalize(flags)
+        flag_byte = self._normalize(flags)
 
-        if flagByte is not None:
-            self._type = MessageFlagType((flagByte[0] & 0xE0) >> 5)
-            self._extended = (flagByte[0] & _EXTENDED_MESSAGE) >> 4
-            self._hops_left = (flagByte[0] & 0x0C) >> 2
-            self._max_hops = flagByte[0] & 0x03
+        if flag_byte is not None:
+            self._type = MessageFlagType((flag_byte[0] & 0xE0) >> 5)
+            self._extended = (flag_byte[0] & _EXTENDED_MESSAGE) >> 4
+            self._hops_left = (flag_byte[0] & 0x0C) >> 2
+            self._max_hops = flag_byte[0] & 0x03
         else:
             self._type = None
             self._extended = None

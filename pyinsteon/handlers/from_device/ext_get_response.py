@@ -37,6 +37,6 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
         if user_data is None or user_data["d2"] != 0x01:
             return
         data = OrderedDict()
-        for i in range(3, 15):
-            data["data{}".format(i)] = user_data["d{}".format(i)]
+        for item in range(3, 15):
+            data["data{}".format(item)] = user_data["d{}".format(item)]
         self._call_subscribers(group=user_data["d1"], data=data)

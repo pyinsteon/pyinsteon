@@ -2,7 +2,6 @@
 from abc import ABCMeta
 import asyncio
 from .device_base import Device
-from ..aldb.modem_aldb import ModemALDB
 
 from .commands import GET_IM_CONFIG_COMMAND
 
@@ -23,7 +22,7 @@ class ModemBase(Device, metaclass=ABCMeta):
     ):
         """Init the Modem class."""
         super().__init__(address, cat, subcat, firmware, description, model)
-        self._aldb = None # ModemALDB(self._address)
+        self._aldb = None
         self._subscribe_topics()
         self._protocol = None
         self._transport = None
@@ -94,10 +93,10 @@ class ModemBase(Device, metaclass=ABCMeta):
         # pub.unsubscribe(self.connect, 'connection.lost')
         if self._protocol:
             self._protocol.close()
-            WAIT_TIME = 0.0001
+            wait_time = 0.0001
             while self.connected:
-                await asyncio.sleep(WAIT_TIME)
-                WAIT_TIME = min(300, 1.5 * WAIT_TIME)
+                await asyncio.sleep(wait_time)
+                wait_time = min(300, 1.5 * wait_time)
 
     async def async_get_configuration(self):
         """Get the modem flags."""
