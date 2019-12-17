@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Setup for oyinsteon module."""
-from setuptools import setup, find_packages
+from set'uptools import setup, find_packages
 
 
 def readme():
@@ -30,7 +30,8 @@ setup(
         'aiohttp',
         'pypubsub',
         'aiofile',
-        'async_generator'
+        'async_generator',
+        'pyyaml'
         ],
     entry_points={
         'console_scripts': ['insteon_monitor = pyinsteon.tools:monitor',
