@@ -193,3 +193,8 @@ THERMOSTAT_ZONE_TEMPERATURE_UP = "thermostat_zone_temperature_up"
 THERMOSTAT_ZONE_TEMPERATURE_DOWN = "thermostat_zone_temperature_down"
 THERMOSTAT_SET_ZONE_HEAT_SETPOINT = "thermostat_set_zone_heat_setpoint"
 THERMOSTAT_SET_ZONE_COOL_SETPOINT = "thermostat_set_zone_cool_setpoint"
+
+DEVICE_LINK_CONTROLLER_CREATED = 'device_link_controller_created'
+DEVICE_LINK_CONTROLLER_REMOVED = 'device_link_controller_removed'
+DEVICE_LINK_RESPONDER_CREATED = 'device_link_responder_created'
+DEVICE_LINK_RESPONDER_REMOVED = 'device_link_responder_removed'

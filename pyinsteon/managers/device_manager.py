@@ -5,7 +5,8 @@ import logging
 from ..subscriber_base import SubscriberBase
 from ..device_types.device_base import Device
 from ..address import Address
-from ..managers.device_id_manager import DeviceIdManager, DeviceId
+from .device_id_manager import DeviceIdManager, DeviceId
+from .device_link_manager import DeviceLinkManager
 
 DEVICE_INFO_FILE = "insteon_devices.json"
 _LOGGER = logging.getLogger(__name__)
@@ -43,6 +44,7 @@ class DeviceManager(SubscriberBase):
         self._id_manager = DeviceIdManager()
         self._id_manager.subscribe(self._device_identified)
         self._loading_saved_lock = Lock()
+        self._link_manager = DeviceLinkManager()
 
     def __getitem__(self, address) -> Device:
         """Return a a device from the device address."""
