@@ -1,6 +1,6 @@
 """Manages links between devices to identify device state of responders."""
 import asyncio
-from .. import pub, devices
+from .. import pub
 from ..address import Address
 from ..topics import (
     DEVICE_LINK_CONTROLLER_CREATED,
@@ -16,7 +16,7 @@ def _controller_group_topic(responder, group):
 
 
 def _topic_to_addr_group(topic):
-    elements = topic.name.split('.')
+    elements = topic.name.split(".")
     try:
         address = Address(elements[0])
         group = int(elements[1])
@@ -39,39 +39,58 @@ class DeviceLinkManager:
 
     def _controller_link_created(self, controller, responder, group):
         controller_group = _controller_group_topic(controller, group)
-        if not pub.isSubscribed(
-            self._check_responder, controller_group
-        ) and not pub.isSubscribed(self._check_controller, controller_group):
+        try:
+            topic = pub.getDefaultTopicMgr().getTopic(controller_group)
+        except pub.TopicNameError:
+            topic = None
+        if not topic or (
+            not pub.isSubscribed(self._check_responder, controller_group)
+            and not pub.isSubscribed(self._check_controller, controller_group)
+        ):
             pub.subscribe(self._check_controller, controller_group)
 
-    def _responder_link_created(self, controller, reesponder, group):
+    def _responder_link_created(self, controller, responder, group):
         controller_group = _controller_group_topic(controller, group)
-        if pub.isSubscribed(self._check_controller, controller_group):
+        try:
+            topic = pub.getDefaultTopicMgr().getTopic(controller_group)
+        except pub.TopicNameError:
+            topic = None
+        if topic and pub.isSubscribed(self._check_controller, controller_group):
             pub.unsubscribe(self._check_controller, controller_group)
-        if not pub.isSubscribed(self._check_responder, controller_group):
+        if not topic or not pub.isSubscribed(self._check_responder, controller_group):
             pub.subscribe(self._check_responder, controller_group)
 
         if self._responders.get(controller) is None:
             self._responders[controller] = {}
         if self._responders[controller].get(group) is None:
             self._responders[controller][group] = []
-        self._responders[controller][group].append(reesponder)
+        self._responders[controller][group].append(responder)
 
     def _controller_link_removed(self, controller, responder, group):
         controller_group = _controller_group_topic(controller, group)
-        if pub.isSubscribed(self._check_controller, controller_group):
+        try:
+            topic = pub.getDefaultTopicMgr().getTopic(controller_group)
+        except pub.TopicNameError:
+            topic = None
+        if topic and pub.isSubscribed(self._check_controller, controller_group):
             pub.subscribe(self._check_controller, controller_group)
 
     def _responder_link_removed(self, controller, responder, group):
         controller_group = _controller_group_topic(controller, group)
-        if pub.isSubscribed(self._check_responder, controller_group):
+        try:
+            topic = pub.getDefaultTopicMgr().getTopic(controller_group)
+        except pub.TopicNameError:
+            topic = None
+        if topic and pub.isSubscribed(self._check_responder, controller_group):
             pub.subscribe(self._check_responder, controller_group)
 
         groups = self._responders.get(controller)
-        if groups:
-            groups.remove(responder)
+        if groups and groups.get(group):
+            groups[group].remove(responder)
 
     def _check_responder(self, on_level, topic=pub.AUTO_TOPIC):
+        from .. import devices
+
         controller, group, msg_type = _topic_to_addr_group(topic)
         if msg_type != MessageFlagType.ALL_LINK_BROADCAST:
             return
@@ -84,6 +103,8 @@ class DeviceLinkManager:
 
     @classmethod
     def _check_controller(cls, on_level, topic=pub.AUTO_TOPIC):
+        from .. import devices
+
         controller, group, msg_type = _topic_to_addr_group(topic)
         if msg_type != MessageFlagType.ALL_LINK_BROADCAST:
             return
