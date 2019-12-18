@@ -32,8 +32,8 @@ class HeartbeatManager(SubscriberBase):
         self._on_inbound.subscribe(self._on_heartbeat_received)
         self._off_inbound.subscribe(self._off_heartbeat_received)
 
-        self._on_hb = self.OnOffHeartbeat("{}.{}".format(subscriber_topic, "on"))
-        self._off_hb = self.OnOffHeartbeat("{}.{}".format(subscriber_topic, "off"))
+        self._on_hb = self.OnOffHeartbeat("{}_{}".format(subscriber_topic, "on"))
+        self._off_hb = self.OnOffHeartbeat("{}_{}".format(subscriber_topic, "off"))
 
         self._last_heartbeat = datetime.now() - timedelta(hours=12)
         self._schedule_next_check()
