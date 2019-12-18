@@ -191,8 +191,8 @@ class ALDB(ALDBBase):
         _LOGGER.debug("Loading the ALDB async")
         self._status = ALDBStatus.LOADING
         if refresh:
-            for mem_addr in self._records:
-                self._notify_change(self._records[mem_addr], force_delete=True)
+            for maddr in self._records:
+                self._notify_change(self._records[maddr], force_delete=True)
             self._records = {}
         async for rec in self._read_manager.async_read(
             mem_addr=mem_addr, num_recs=num_recs
