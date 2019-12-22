@@ -193,6 +193,7 @@ class Device(ABC):
     async def async_add_default_links(self):
         """Add the default links betweent he modem and the device."""
         from ..managers.link_manager import async_add_default_links
+
         return await async_add_default_links(self)
 
     def _register_states(self):
@@ -207,15 +208,16 @@ class Device(ABC):
     def _register_default_links(self):
         """Add default links for linking the device to the modem."""
         from ..default_link import DefaultLink
+
         link_0 = DefaultLink(
             is_controller=False,
-            group = 0,
-            dev_data1 = 0,
-            dev_data2 = 0,
-            dev_data3 = 0,
-            modem_data1 = self.cat,
-            modem_data2 = self.subcat,
-            modem_data3 = self.firmware
+            group=0,
+            dev_data1=0,
+            dev_data2=0,
+            dev_data3=0,
+            modem_data1=self.cat,
+            modem_data2=self.subcat,
+            modem_data3=self.firmware,
         )
         link_0 = self._default_links.append(link_0)
 
@@ -231,9 +233,9 @@ class Device(ABC):
         self._op_flags_manager.subscribe(name, group, bit, set_cmd, unset_cmd)
 
     def _add_property(self, name, data_field, set_cmd, group=1, bit=None):
-        prop_type = bool if bit is not None else int
-        self._properties[name] = ExtendedProperty(self._address, name, prop_type)
-        self._ext_property_manager.subscribe(name, group, data_field, bit, set_cmd)
+        self._properties[name] = self._ext_property_manager.create(
+            name, group, data_field, bit, set_cmd
+        )
 
     def _remove_operating_flag(self, name, group=None):
         self._op_flags_manager.unsubscribe(name)

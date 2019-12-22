@@ -3,6 +3,7 @@ import asyncio
 from collections import namedtuple
 import logging
 
+from ..extended_property import ExtendedProperty
 from ..address import Address
 from ..handlers.to_device.extended_get import ExtendedGetCommand
 from ..handlers.to_device.extended_set import ExtendedSetCommand
@@ -34,10 +35,10 @@ def _calc_flag_value(field):
 class GetSetExtendedPropertyManager:
     """Get and Set extended properties for a device."""
 
-    def __init__(self, address: Address, properties):
+    def __init__(self, address: Address):
         """Init the GetSetExtendedPropertyManager class."""
         self._address = Address(address)
-        self._properties = properties
+        self._properties = {}
         self._get_command = ExtendedGetCommand(address=self._address)
         self._get_response = ExtendedGetResponseHandler(address=self._address)
         self._get_response.subscribe(self._update_all_fields)
@@ -45,11 +46,12 @@ class GetSetExtendedPropertyManager:
         self._flags = {}
         self._response_queue = asyncio.Queue()
 
-    def subscribe(self, name, group, data_field, bit, set_cmd):
+    def create(self, name, group, data_field, bit, set_cmd):
         """Subscribe a device property to Get and Set values.
 
         data is stored in self._groups[group][data_field]<[bit]>
         """
+        prop_type = bool if bit is not None else int
         flag_info = PropertyInfo(name, group, data_field, bit, set_cmd)
         flags = self._groups.get(group, {})
         field = flags.get(data_field, {})
@@ -60,6 +62,8 @@ class GetSetExtendedPropertyManager:
         flags[data_field] = field
         self._groups[group] = flags
         self._flags[name] = flag_info
+        self._properties[name] = ExtendedProperty(self._address, name, prop_type)
+        return self._properties[name]
 
     async def async_read(self, group=None):
         """Get the properties for a group."""
