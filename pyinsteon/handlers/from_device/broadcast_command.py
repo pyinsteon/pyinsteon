@@ -17,4 +17,3 @@ class BroadcastCommandHandlerBase(InboundHandlerBase):
             group=self._group,
             message_type=MessageFlagType.ALL_LINK_BROADCAST,
         )
-

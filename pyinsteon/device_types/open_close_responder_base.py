@@ -73,12 +73,12 @@ class OpenCloseResponderBase(OpenCloseControllerBase):
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
         return await self._handlers[group][command].async_send()
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     def status(self):
         """Get the status of the device state."""
         self._handlers[STATUS_COMMAND].send()
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     async def async_status(self):
         """Get the status of the device state."""
         return await self._handlers[STATUS_COMMAND].async_send()
@@ -92,9 +92,7 @@ class OpenCloseResponderBase(OpenCloseControllerBase):
         self._handlers[group][ON_COMMAND] = OnLevelCommand(self._address, group)
         self._handlers[group][OFF_COMMAND] = OffCommand(self._address, group)
         self._handlers[group][ON_FAST_COMMAND] = OnFastCommand(self._address, group)
-        self._handlers[group][OFF_FAST_COMMAND] = OffFastCommand(
-            self._address, group
-        )
+        self._handlers[group][OFF_FAST_COMMAND] = OffFastCommand(self._address, group)
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()

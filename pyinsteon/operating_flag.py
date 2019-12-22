@@ -42,16 +42,16 @@ MOMENTARY_MODE_ON = "momentary_on"
 MOMENTARY_ON_OFF_TRIGGER = "momentary_on_off_trigger"
 SENSE_SENDS_OFF = "sense_sends_off"
 MOMENTARY_FOLLOW_SENSE = "momentary_follow_sense"
-INSTEON_OFF = 'insteon_off'
-CHECKSUM_OFF = 'checksum_off'
-STANDARD_HOLDOFF ='standard_holdoff'
+INSTEON_OFF = "insteon_off"
+CHECKSUM_OFF = "checksum_off"
+STANDARD_HOLDOFF = "standard_holdoff"
 
 
 DUAL_LINE_ON = "dual_line_on"
 LATCHING_ON = "latching_on"
 THREE_WAY_ON = "three_way_on"
 REVERSED_ON = "reversed_on"
-FORWARD_ON = 'forward_on'
+FORWARD_ON = "forward_on"
 MOMENTARY_LINE_ON = "momentary_line_on"
 NOT_3_WAY = "not_3_way"
 

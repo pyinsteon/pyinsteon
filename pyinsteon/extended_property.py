@@ -30,6 +30,7 @@ PRESCALER = "prescaler"
 DURATION_HIGH = "duration_high"
 DURATION_LOW = "duration_low"
 
+
 class ExtendedProperty(DeviceFlagBase):
     """Representaton of an extended property of a device."""
 

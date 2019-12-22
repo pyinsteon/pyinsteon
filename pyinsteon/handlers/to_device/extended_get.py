@@ -1,7 +1,7 @@
 """Handle sending a read request for ALDB records."""
 import logging
 
-from .. import  ack_handler
+from .. import ack_handler
 from ...address import Address
 from ...topics import EXTENDED_GET_SET
 from .direct_command import DirectCommandHandlerBase
@@ -45,5 +45,5 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
             or not user_data["data2"] == self._data2
         ):
             return
-        _LOGGER.error('Extended Get message sent')
+        _LOGGER.error("Extended Get message sent")
         super().handle_ack(cmd1, cmd2, user_data)

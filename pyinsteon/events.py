@@ -78,9 +78,7 @@ class Event(SubscriberBase):
     def trigger(self, on_level):
         """Trigger the event."""
         self._call_subscribers(
-                name=self._name,
-                address=self._address.id,
-                group=self._group
+            name=self._name, address=self._address.id, group=self._group
         )
 
 
@@ -90,9 +88,7 @@ class LowBatteryEvent(Event):
     # pylint: disable=arguments-differ
     def trigger(self, low_battery):
         self._call_subscribers(
-                name=self._name,
-                address=self._address.id,
-                group=self._group
+            name=self._name, address=self._address.id, group=self._group
         )
 
 
@@ -102,7 +98,5 @@ class HeartbeatEvent(Event):
     # pylint: disable=arguments-differ
     def trigger(self, heartbeat):
         self._call_subscribers(
-                name=self._name,
-                address=self._address.id,
-                group=self._group
+            name=self._name, address=self._address.id, group=self._group
         )

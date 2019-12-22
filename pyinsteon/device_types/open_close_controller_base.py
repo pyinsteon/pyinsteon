@@ -41,6 +41,7 @@ class OpenCloseControllerBase(Device):
 
     def _register_default_links(self):
         from ..default_link import DefaultLink
+
         super()._register_default_links()
         link = DefaultLink(
             is_controller=True,

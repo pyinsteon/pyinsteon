@@ -26,7 +26,9 @@ class SensorsActuators_IOLink(SensorsActuators):
         )
         if self._handlers.get(SENSOR_GROUP) is None:
             self._handlers[SENSOR_GROUP] = {}
-        self._handlers[SENSOR_GROUP][STATUS_REQUEST] = StatusRequestCommand(self.address, 1)
+        self._handlers[SENSOR_GROUP][STATUS_REQUEST] = StatusRequestCommand(
+            self.address, 1
+        )
 
     def status(self, group=None):
         """Get the status of the relay and/or the sensor."""
@@ -38,6 +40,7 @@ class SensorsActuators_IOLink(SensorsActuators):
     async def async_status(self, group=None):
         """Get the status of the relay and/or the sensor."""
         from ..utils import multiple_status
+
         response_1 = None
         response_2 = None
         if group in [1, None]:
@@ -82,7 +85,9 @@ class SensorsActuators_IOLink(SensorsActuators):
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-        self._managers[SENSOR_GROUP][ON_LEVEL_MANAGER].subscribe(self._states[SENSOR_GROUP].set_value)
+        self._managers[SENSOR_GROUP][ON_LEVEL_MANAGER].subscribe(
+            self._states[SENSOR_GROUP].set_value
+        )
         self._managers[SENSOR_GROUP][ON_LEVEL_MANAGER].subscribe_off(
             self._events[SENSOR_GROUP][OPEN_EVENT].trigger
         )

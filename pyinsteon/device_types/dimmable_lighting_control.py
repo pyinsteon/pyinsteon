@@ -2,6 +2,7 @@
 from ..constants import FanSpeed
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
+
 # from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
 # from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
 from ..states import (
@@ -392,8 +393,8 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
             self._states[button] = OnOff(name=name, address=self._address, group=button)
 
     def _subscribe_to_handelers_and_managers(self):
-         super()._subscribe_to_handelers_and_managers()
-         self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
+        super()._subscribe_to_handelers_and_managers()
+        self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
 
     def _change_led_status(self, led, is_on):
         leds = {}

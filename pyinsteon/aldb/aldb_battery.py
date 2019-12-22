@@ -23,19 +23,13 @@ class ALDBBattery(ALDB):
         self._commands = []
         self._run_command = run_command
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     async def async_load(
-        self,
-        mem_addr: int = 0x00,
-        num_recs: int = 0x00,
-        refresh: bool = False
+        self, mem_addr: int = 0x00, num_recs: int = 0x00, refresh: bool = False
     ):
         """Load the All-Link Database."""
         self._run_command(
-            super().async_load,
-            mem_addr=mem_addr,
-            num_recs=num_recs,
-            refresh=refresh
+            super().async_load, mem_addr=mem_addr, num_recs=num_recs, refresh=refresh
         )
         return True
 

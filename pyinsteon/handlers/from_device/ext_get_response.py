@@ -23,7 +23,7 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
             message_type=MessageFlagType.DIRECT,
         )
         self._subscriber_topic = build_topic(
-            prefix="handler.{}".format(self._address), # Force address
+            prefix="handler.{}".format(self._address),  # Force address
             topic="ext_get_response",
             message_type=MessageFlagType.DIRECT,
         )
@@ -33,7 +33,7 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
         """Handle the Extended Get response from a device."""
         from collections import OrderedDict
 
-        _LOGGER.error('Extended Get Response received in handler')
+        _LOGGER.error("Extended Get Response received in handler")
         if user_data is None or user_data["d2"] != 0x01:
             return
         data = OrderedDict()

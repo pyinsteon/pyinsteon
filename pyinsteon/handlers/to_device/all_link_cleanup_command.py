@@ -25,7 +25,6 @@ class AllLinkCleanupCommandHandlerBase(OutboundHandlerBase):
             message_type=MessageFlagType.ALL_LINK_CLEANUP,
         )
 
-
     async def async_send(self, **kwargs):
         """Send the command and wait for a direct_nak."""
         return await super().async_send(address=self._address, **kwargs)

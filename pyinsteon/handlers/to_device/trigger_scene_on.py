@@ -36,7 +36,7 @@ class TriggerSceneOnCommandHandler(DirectCommandHandlerBase):
 
         Required since the BEEP command uses the same cmd1, cmd2 values.
         """
-        if not user_data and not user_data['data1'] == self._group:
+        if not user_data and not user_data["data1"] == self._group:
             return
         return super().handle_ack(cmd1, cmd2, user_data)
 

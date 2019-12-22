@@ -10,11 +10,10 @@ from ..utils import multiple_status
 from ..constants import ResponseStatus
 
 
-OperatingFlagInfo = namedtuple(
-    "FlagInfo", "name group bit set_cmd unset_cmd"
-)
+OperatingFlagInfo = namedtuple("FlagInfo", "name group bit set_cmd unset_cmd")
 _LOGGER = logging.getLogger(__name__)
 MAX_RETRIES = 5
+
 
 class GetSetOperatingFlagsManager:
     """Manager to get operating flags."""
@@ -32,9 +31,7 @@ class GetSetOperatingFlagsManager:
 
     def subscribe(self, name, group, bit, set_cmd, unset_cmd):
         """Subscribe to updates."""
-        flag_info = OperatingFlagInfo(
-            name, group, bit, set_cmd, unset_cmd
-        )
+        flag_info = OperatingFlagInfo(name, group, bit, set_cmd, unset_cmd)
         if self._groups.get(group) is None:
             self._groups[group] = {}
         if bit is not None:
@@ -122,7 +119,7 @@ class GetSetOperatingFlagsManager:
             flag.load(flags)
 
         for bit in self._groups[group]:
-                flag_info = self._groups[group][bit]
-                flag = self._op_flags[flag_info.name]
-                value = bool(flags & 1 << flag_info.bit)
-                flag.load(value)
+            flag_info = self._groups[group][bit]
+            flag = self._op_flags[flag_info.name]
+            value = bool(flags & 1 << flag_info.bit)
+            flag.load(value)

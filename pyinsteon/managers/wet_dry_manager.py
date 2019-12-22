@@ -45,4 +45,4 @@ class WetDryManager(SubscriberBase):
 
     def _wet(self, on_level):
         """Dry event received."""
-        self._wet_events.call_subscribers(wet=0xff)
+        self._wet_events.call_subscribers(wet=0xFF)

@@ -21,7 +21,9 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
         self._address = Address(address)
         self._group = group
         self._response_lock = asyncio.Lock()
-        super().__init__(topic, address=address, group=group, message_type=MessageFlagType.DIRECT)
+        super().__init__(
+            topic, address=address, group=group, message_type=MessageFlagType.DIRECT
+        )
 
     @property
     def response_lock(self) -> asyncio.Lock:

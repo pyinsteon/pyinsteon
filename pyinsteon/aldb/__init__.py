@@ -128,6 +128,7 @@ class ALDBBase(ABC):
 
     def _notify_change(self, record, force_delete=False):
         from .. import devices
+
         target = record.target
         group = record.group
         is_in_use = True if force_delete else record.is_in_use

@@ -152,7 +152,10 @@ class ModemALDB(ALDBBase):
                 if rec.target == del_rec.target and rec.group == del_rec.group:
                     new_rec = self._set_not_in_use(rec)
                     multi_delete.append(new_rec)
-                    if not rec.is_controller == del_rec.is_controller and not found_restore:
+                    if (
+                        not rec.is_controller == del_rec.is_controller
+                        and not found_restore
+                    ):
                         # We only need one controller or responder for a target and group
                         restore_recs.append(rec)
         self._dirty_records.extend(multi_delete)
@@ -171,5 +174,6 @@ class ModemALDB(ALDBBase):
             in_use=False,
             high_water_mark=False,
             bit4=True,
-            bit5=False)
+            bit5=False,
+        )
         return new_rec

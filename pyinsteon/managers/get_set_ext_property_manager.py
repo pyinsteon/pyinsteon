@@ -16,9 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 TIMEOUT = 2
 RETRIES = 20
 
-PropertyInfo = namedtuple(
-    "PropertyInfo", "name group data_field bit set_cmd"
-)
+PropertyInfo = namedtuple("PropertyInfo", "name group data_field bit set_cmd")
 
 
 def _calc_flag_value(field):
@@ -121,7 +119,7 @@ class GetSetExtendedPropertyManager:
 
     def _update_all_fields(self, group, data):
         """Update each flag."""
-        _LOGGER.error('Found a new extended flag set')
+        _LOGGER.error("Found a new extended flag set")
         if self._groups.get(group) is None and group == 1:
             group = 0
         if self._groups.get(group) is None:

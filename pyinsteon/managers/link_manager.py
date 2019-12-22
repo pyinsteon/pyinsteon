@@ -126,7 +126,9 @@ async def async_create_default_links(device: Device):
         else:
             controller = devices.modem
             responder = device
-        result = await async_link_devices(controller, responder, group, data1, data2, data3)
+        result = await async_link_devices(
+            controller, responder, group, data1, data2, data3
+        )
         results.append(result)
     return multiple_status(*results)
 

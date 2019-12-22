@@ -151,29 +151,31 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
 
     def _register_default_links(self):
         from ..default_link import DefaultLink
+
         super()._register_default_links()
         link_battery = DefaultLink(
-                is_controller=True,
-                group = self.LOW_BATTERY_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.LOW_BATTERY_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.LOW_BATTERY_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.LOW_BATTERY_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         link_heartbeat = DefaultLink(
-                is_controller=True,
-                group = self.HEARTBEAT_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.HEARTBEAT_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.HEARTBEAT_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.HEARTBEAT_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         self._default_links.append(link_battery)
         self._default_links.append(link_heartbeat)
+
 
 class SecurityHealthSafety_OpenCloseSensor(
     BatteryDeviceBase, NormallyOpenControllerBase
@@ -272,12 +274,18 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
         )
         self._heartbeat_manager.subscribe(self._states[self.HEARTBEAT_GROUP].set_value)
 
-        self._light_manager.subscribe_on(self._events[self.LIGHT_GROUP][LIGHT_DETECTED_EVENT].trigger)
-        self._light_manager.subscribe_off(self._events[self.LIGHT_GROUP][DARK_DETECTED_EVENT].trigger)
+        self._light_manager.subscribe_on(
+            self._events[self.LIGHT_GROUP][LIGHT_DETECTED_EVENT].trigger
+        )
+        self._light_manager.subscribe_off(
+            self._events[self.LIGHT_GROUP][DARK_DETECTED_EVENT].trigger
+        )
         self._low_battery_manager.subscribe_low_battery_event(
             self._events[self.LOW_BATTERY_GROUP][LOW_BATTERY_EVENT].trigger
         )
-        self._heartbeat_manager.subscribe(self._events[self.HEARTBEAT_GROUP][HEARTBEAT_EVENT].trigger)
+        self._heartbeat_manager.subscribe(
+            self._events[self.HEARTBEAT_GROUP][HEARTBEAT_EVENT].trigger
+        )
 
     def _register_operating_flags(self):
         super()._register_operating_flags()
@@ -325,37 +333,38 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
 
     def _register_default_links(self):
         from ..default_link import DefaultLink
+
         super()._register_default_links()
         link_light = DefaultLink(
-                is_controller=True,
-                group = self.LIGHT_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.LIGHT_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.LIGHT_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.LIGHT_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         link_battery = DefaultLink(
-                is_controller=True,
-                group = self.LOW_BATTERY_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.LOW_BATTERY_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.LOW_BATTERY_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.LOW_BATTERY_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         link_heartbeat = DefaultLink(
-                is_controller=True,
-                group = self.HEARTBEAT_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.HEARTBEAT_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.HEARTBEAT_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.HEARTBEAT_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         self._default_links.append(link_light)
         self._default_links.append(link_battery)
         self._default_links.append(link_heartbeat)
@@ -461,40 +470,42 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
 
     def _register_default_links(self):
         from ..default_link import DefaultLink
+
         super()._register_default_links()
         link_dry = DefaultLink(
-                is_controller=True,
-                group = self.DRY_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.DRY_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.DRY_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.DRY_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         link_wet = DefaultLink(
-                is_controller=True,
-                group = self.WET_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.WET_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.WET_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.WET_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         link_heartbeat = DefaultLink(
-                is_controller=True,
-                group = self.HEARTBEAT_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.HEARTBEAT_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.HEARTBEAT_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.HEARTBEAT_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         self._default_links.append(link_dry)
         self._default_links.append(link_wet)
         self._default_links.append(link_heartbeat)
+
 
 class SecurityHealthSafety_Smokebridge(Device):
     """Smokebridge device."""
@@ -665,88 +676,89 @@ class SecurityHealthSafety_Smokebridge(Device):
 
     def _register_default_links(self):
         from ..default_link import DefaultLink
+
         super()._register_default_links()
 
         link_smoke = DefaultLink(
-                is_controller=True,
-                group = self.SMOKE_DETECTED_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.SMOKE_DETECTED_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.SMOKE_DETECTED_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.SMOKE_DETECTED_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         link_co = DefaultLink(
-                is_controller=True,
-                group = self.CO_DETECTED_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.CO_DETECTED_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.CO_DETECTED_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.CO_DETECTED_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         link_test = DefaultLink(
-                is_controller=True,
-                group = self.TEST_DETECTED_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.TEST_DETECTED_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.TEST_DETECTED_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.TEST_DETECTED_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         link_new = DefaultLink(
-                is_controller=True,
-                group = self.NEW_DETECTED_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.NEW_DETECTED_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.NEW_DETECTED_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.NEW_DETECTED_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         link_clear = DefaultLink(
-                is_controller=True,
-                group = self.ALL_CLEAR_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.ALL_CLEAR_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.ALL_CLEAR_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.ALL_CLEAR_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         link_battery = DefaultLink(
-                is_controller=True,
-                group = self.LOW_BATTERY_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.LOW_BATTERY_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.LOW_BATTERY_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.LOW_BATTERY_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         link_malfunction = DefaultLink(
-                is_controller=True,
-                group = self.SENSOR_MALFUNCTION_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.SENSOR_MALFUNCTION_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.SENSOR_MALFUNCTION_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.SENSOR_MALFUNCTION_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
         link_heartbeat = DefaultLink(
-                is_controller=True,
-                group = self.HEARTBEAT_GROUP,
-                dev_data1 = 255,
-                dev_data2 = 28,
-                dev_data3 = self.HEARTBEAT_GROUP,
-                modem_data1 = 0,
-                modem_data2 = 0,
-                modem_data3 = 0
-            )
+            is_controller=True,
+            group=self.HEARTBEAT_GROUP,
+            dev_data1=255,
+            dev_data2=28,
+            dev_data3=self.HEARTBEAT_GROUP,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
 
         self._default_links.append(link_smoke)
         self._default_links.append(link_co)

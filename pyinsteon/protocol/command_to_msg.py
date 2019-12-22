@@ -236,7 +236,9 @@ def set_all_link(address: Address, user_data, topic=pub.AUTO_TOPIC):
 def enter_linking_mode(address: Address, group: int, topic=pub.AUTO_TOPIC):
     """Create a ENTER_LINKING_MODE command."""
     user_data = UserData()
-    _create_direct_message(topic=topic, address=address, cmd2=group, user_data=user_data)
+    _create_direct_message(
+        topic=topic, address=address, cmd2=group, user_data=user_data
+    )
 
 
 @topic_to_command_handler(topic=ENTER_UNLINKING_MODE)
@@ -522,9 +524,7 @@ def extended_read_write_aldb(
 @topic_to_command_handler(topic=EXTENDED_TRIGGER_ALL_LINK)
 def extended_trigger_all_link(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a EXTENDED_TRIGGER_ALL_LINK command."""
-    _create_direct_message(
-        topic=topic, address=address, cmd2=0, user_data=user_data
-    )
+    _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
 @topic_to_command_handler(topic=SET_SPRINKLER_PROGRAM)
@@ -1057,9 +1057,7 @@ def thermostat_zone_temperature_up(
     address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
 ):
     """Create a THERMOSTAT_ZONE_TEMPERATURE_UP command."""
-    _create_direct_message(
-        topic=topic, address=address, cmd2=zone, user_data=user_data
-    )
+    _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=user_data)
 
 
 @topic_to_command_handler(topic=THERMOSTAT_TEMPERATURE_DOWN)
@@ -1074,9 +1072,7 @@ def thermostat_zone_temperature_down(
     address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
 ):
     """Create a THERMOSTAT_ZONE_TEMPERATURE_DOWN command."""
-    _create_direct_message(
-        topic=topic, address=address, cmd2=zone, user_data=user_data
-    )
+    _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=user_data)
 
 
 @topic_to_command_handler(topic=THERMOSTAT_GET_ZONE_INFORMATION)
@@ -1255,9 +1251,7 @@ def thermostat_set_zone_cool_setpoint(
     address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
 ):
     """Create a THERMOSTAT_SET_ZONE_COOL_SETPOINT command."""
-    _create_direct_message(
-        topic=topic, address=address, cmd2=zone, user_data=user_data
-    )
+    _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=user_data)
 
 
 @topic_to_command_handler(topic=THERMOSTAT_SET_HEAT_SETPOINT)
@@ -1272,9 +1266,7 @@ def thermostat_set_zone_heat_setpoint(
     address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
 ):
     """Create a THERMOSTAT_SET_ZONE_HEAT_SETPOINT command."""
-    _create_direct_message(
-        topic=topic, address=address, cmd2=zone, user_data=user_data
-    )
+    _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=user_data)
 
 
 @topic_to_command_handler(topic=ASSIGN_TO_COMPANION_GROUP)

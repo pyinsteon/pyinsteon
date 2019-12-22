@@ -1,6 +1,7 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
+
 # from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
 # from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
@@ -221,7 +222,6 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         super()._register_handlers_and_managers()
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
 
-
     def _register_states(self):
         super()._register_states()
         for button in self._buttons:
@@ -328,17 +328,25 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
 
         if self._handlers.get(self.TOP_GROUP) is None:
             self._handlers[self.TOP_GROUP] = {}
-        self._handlers[self.TOP_GROUP][STATUS_COMMAND] = StatusRequestCommand(self._address, 0)
+        self._handlers[self.TOP_GROUP][STATUS_COMMAND] = StatusRequestCommand(
+            self._address, 0
+        )
 
         if self._handlers.get(self.BOTTOM_GROUP) is None:
             self._handlers[self.BOTTOM_GROUP] = {}
-        self._handlers[self.BOTTOM_GROUP][STATUS_COMMAND] = StatusRequestCommand(self._address, 0)
+        self._handlers[self.BOTTOM_GROUP][STATUS_COMMAND] = StatusRequestCommand(
+            self._address, 0
+        )
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
 
-        self._handlers[self.TOP_GROUP][STATUS_COMMAND].subscribe(self._handle_top_status)
-        self._handlers[self.TOP_GROUP][STATUS_COMMAND].subscribe(self._handle_bottom_status)
+        self._handlers[self.TOP_GROUP][STATUS_COMMAND].subscribe(
+            self._handle_top_status
+        )
+        self._handlers[self.TOP_GROUP][STATUS_COMMAND].subscribe(
+            self._handle_bottom_status
+        )
 
     def _handle_status(self, db_version, status):
         """Set the status of the top and bottom outlets state."""

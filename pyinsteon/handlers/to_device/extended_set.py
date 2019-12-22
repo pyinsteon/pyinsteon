@@ -16,7 +16,7 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
         """Init the ReadALDBCommandHandler."""
         if data2 in [0, 1]:
             _LOGGER.error("Extended Set sent with bad action number: %d", data1)
-            raise(Exception('Error creating extended set command'))
+            raise (Exception("Error creating extended set command"))
         super().__init__(topic=EXTENDED_GET_SET, address=address, group=0)
         self._data1 = data1
         self._data2 = data2
@@ -52,5 +52,5 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
     @ack_handler(wait_response=True)
     def handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK."""
-        if user_data['data1'] == self._data1 and user_data['data2'] == self._data2:
+        if user_data["data1"] == self._data1 and user_data["data2"] == self._data2:
             super().handle_ack(cmd1, cmd2, user_data)
