@@ -8,14 +8,18 @@ from tests.utils import hex_to_inbound_message
 
 
 class TestAllLinkCleanupStatusReport(unittest.TestCase):
-
     def setUp(self):
-        self.hex = '025806'
+        self.hex = "025806"
         self.message_id = MessageId(0x58)
         self.ack = AckNak(0x06)
 
         self.msg, self.msg_bytes = hex_to_inbound_message(self.hex)
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     def test_id(self):
         assert self.msg.message_id == self.message_id
@@ -27,5 +31,5 @@ class TestAllLinkCleanupStatusReport(unittest.TestCase):
         assert bytes(self.msg) == unhexlify(self.hex)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

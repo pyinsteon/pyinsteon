@@ -5,21 +5,24 @@ from pyinsteon import pub
 from pyinsteon.handlers.send_all_link import SendAllLinkingCommandHandler
 from tests.utils import async_case, send_topics, TopicItem
 
+
 class TestSendAllLinkingCommandHandler(unittest.TestCase):
     """Test the SendAllLink command handler."""
 
     def setUp(self):
         """Setup the test."""
-        self.ack_message = 'ack.send_all_link_command'
+        self.ack_message = "ack.send_all_link_command"
         self.handler = SendAllLinkingCommandHandler()
         self.received = False
-        pub.subscribe(self.send_listener, 'send_all_link_command')
+        pub.subscribe(self.send_listener, "send_all_link_command")
         self._sent = False
 
     @async_case
     async def test_async_send(self):
         """Test the async_send method."""
-        topics = [TopicItem('ack.send_all_link_command', {"group": 0x01, "mode": 0x01 }, .5 )]
+        topics = [
+            TopicItem("ack.send_all_link_command", {"group": 0x01, "mode": 0x01}, 0.5)
+        ]
         send_topics(topics)
         assert await self.handler.async_send()
 
@@ -28,5 +31,5 @@ class TestSendAllLinkingCommandHandler(unittest.TestCase):
         self._sent = True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -2,12 +2,19 @@
 import asyncio
 from pyinsteon.subscriber_base import SubscriberBase
 
+
 class MockTransport(SubscriberBase, asyncio.Transport):
     """Mock transport for testing."""
 
-    def __init__(self, protocol, read_queue: asyncio.Queue, write_queue: asyncio.Queue, random_nak=True):
+    def __init__(
+        self,
+        protocol,
+        read_queue: asyncio.Queue,
+        write_queue: asyncio.Queue,
+        random_nak=True,
+    ):
         """Init the MockTransport class."""
-        super().__init__(subscriber_topic='mock_transport')
+        super().__init__(subscriber_topic="mock_transport")
         self._protocol = protocol
         self._read_queue = read_queue
         self._write_queue = write_queue
@@ -52,14 +59,18 @@ class MockTransport(SubscriberBase, asyncio.Transport):
 
     def set_write_buffer_limits(self, high=None, low=None):
         """Not implemented."""
-        raise NotImplementedError(
-            "HTTP connections do not support write buffer limits")
+        raise NotImplementedError("HTTP connections do not support write buffer limits")
 
     def write(self, data):
         """Write data to the transport."""
         from random import randint
+
+        if isinstance(data, bytes):
+            test_id = data[1]
+        else:
+            test_id = data.message_id
         self._write_queue.put_nowait(data)
-        if data.message_id in [0x069, 0x6a]:
+        if test_id in [0x69, 0x6A]:
             return
         rand_num = randint(0, 100)
         ack_nak = 0x15 if rand_num < 10 and self._random_nak else 0x06

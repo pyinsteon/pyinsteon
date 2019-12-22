@@ -12,7 +12,7 @@ class TestSendAllLinkingCommandHandler(unittest.TestCase):
 
     def setUp(self):
         """Setup the test."""
-        self.ack_message = 'ack.{}'.format(START_ALL_LINKING)
+        self.ack_message = "ack.{}".format(START_ALL_LINKING)
         self.handler = StartAllLinkingCommandHandler()
         self.received = False
         pub.subscribe(self.send_listener, START_ALL_LINKING)
@@ -21,7 +21,11 @@ class TestSendAllLinkingCommandHandler(unittest.TestCase):
     @async_case
     async def test_async_send(self):
         """Test the async_send method."""
-        topics = [TopicItem(self.ack_message, {"mode": AllLinkMode.CONTROLLER, "group": 0x01}, .5 )]
+        topics = [
+            TopicItem(
+                self.ack_message, {"mode": AllLinkMode.CONTROLLER, "group": 0x01}, 0.5
+            )
+        ]
         send_topics(topics)
         assert await self.handler.async_send(mode=AllLinkMode.CONTROLLER, group=0x01)
 
@@ -30,5 +34,5 @@ class TestSendAllLinkingCommandHandler(unittest.TestCase):
         self._sent = True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

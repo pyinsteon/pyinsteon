@@ -11,20 +11,24 @@ from tests.utils import hex_to_inbound_message
 
 
 class TestExtendedSendAck(unittest.TestCase):
-
     def setUp(self):
-        self.hex_data = '0251112233445566778899a1a2a3a4a5a6a7a8a9aaabacadae'
+        self.hex_data = "0251112233445566778899a1a2a3a4a5a6a7a8a9aaabacadae"
         self.message_id = 0x51
         self.bytes_data = bytearray(unhexlify(self.hex_data))
-        self.address = Address('112233')
-        self.target = Address('445566')
+        self.address = Address("112233")
+        self.target = Address("445566")
         self.flags = MessageFlags(0x77)
         self.cmd1 = int(0x88)
         self.cmd2 = int(0x99)
-        self.user_data = UserData(unhexlify('a1a2a3a4a5a6a7a8a9aaabacadae'))
+        self.user_data = UserData(unhexlify("a1a2a3a4a5a6a7a8a9aaabacadae"))
 
         self.msg, self.msg_bytes = hex_to_inbound_message(self.hex_data)
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     def test_id(self):
         assert self.msg.message_id == self.message_id
@@ -54,6 +58,6 @@ class TestExtendedSendAck(unittest.TestCase):
         assert len(self.msg) == 25
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # _INSTEON_LOGGER.setLevel(logging.DEBUG)
     unittest.main()

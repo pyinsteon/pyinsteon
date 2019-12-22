@@ -11,28 +11,35 @@ from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 class TestManageAllLinkRecord(unittest.TestCase, OutboundBase):
-
     def setUp(self):
-        self.hex = '026F400405060708090a0b'
+        self.hex = "026F400405060708090a0b"
         self.action = ManageAllLinkRecordAction(0x40)
         self.flags = AllLinkRecordFlags(0x04)
         self.group = int(0x05)
-        self.target = Address('060708')
+        self.target = Address("060708")
         self.data1 = int(0x09)
-        self.data2 = int(0x0a)
-        self.data3 = int(0x0b)
+        self.data2 = int(0x0A)
+        self.data3 = int(0x0B)
 
-        kwargs = {"action": self.action,
-                  "flags": self.flags,
-                  "group": self.group,
-                  "target": self.target,
-                  "data1": self.data1,
-                  "data2": self.data2,
-                  "data3": self.data3}
+        kwargs = {
+            "action": self.action,
+            "flags": self.flags,
+            "group": self.group,
+            "target": self.target,
+            "data1": self.data1,
+            "data2": self.data2,
+            "data3": self.data3,
+        }
 
-        super(TestManageAllLinkRecord, self).base_setup(MessageId.MANAGE_ALL_LINK_RECORD,
-                                                        unhexlify(self.hex), **kwargs)
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        super(TestManageAllLinkRecord, self).base_setup(
+            MessageId.MANAGE_ALL_LINK_RECORD, unhexlify(self.hex), **kwargs
+        )
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     def test_action(self):
         assert self.msg.action == self.action
@@ -56,5 +63,5 @@ class TestManageAllLinkRecord(unittest.TestCase, OutboundBase):
         assert self.msg.data3 == self.data3
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

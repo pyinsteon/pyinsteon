@@ -9,10 +9,9 @@ from tests.utils import hex_to_inbound_message
 
 
 class TestGetImConfiguration(unittest.TestCase):
-
     def setUp(self):
-        self.hex = '0273'
-        self.hex_ack = '027330040506'
+        self.hex = "0273"
+        self.hex_ack = "027330040506"
         self.message_id = MessageId(0x73)
         self.flags = IMConfigurationFlags(0x30)
         self.spare1 = int(0x04)
@@ -20,7 +19,12 @@ class TestGetImConfiguration(unittest.TestCase):
         self.ack = AckNak(0x06)
 
         self.msg, self.msg_bytes = hex_to_inbound_message(self.hex_ack)
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     def test_id(self):
         assert self.msg.message_id == self.message_id

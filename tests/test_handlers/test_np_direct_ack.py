@@ -14,13 +14,18 @@ class TestNoDirectAck(unittest.TestCase):
 
     def setUp(self):
         """Set up the test."""
-        self._address = Address('234567')
+        self._address = Address("234567")
         self.handler = OnLevelCommand(self._address, group=1)
         self.handler.subscribe(self.set_on_level)
         self._on_level = None
         self._group = None
-        self.ack_topic = 'ack.{}.{}.on.direct'.format(self._address.id, 1)
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        self.ack_topic = "ack.{}.{}.on.direct".format(self._address.id, 1)
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     def set_on_level(self, on_level, group):
         """Callback to on_level direct_ack."""
@@ -31,14 +36,16 @@ class TestNoDirectAck(unittest.TestCase):
     async def test_no_direct_ack(self):
         """Test no direct ACK received."""
         cmd1 = 0x99
-        cmd2 = 0xaa
-        topics = [TopicItem(self.ack_topic,
-                            {'cmd1': cmd1, 'cmd2': cmd2,
-                             'user_data': None}, .5)]
+        cmd2 = 0xAA
+        topics = [
+            TopicItem(
+                self.ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}, 0.5
+            )
+        ]
         send_topics(topics)
         assert await self.handler.async_send(on_level=cmd2) == ResponseStatus.FAILURE
         assert self._on_level is None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

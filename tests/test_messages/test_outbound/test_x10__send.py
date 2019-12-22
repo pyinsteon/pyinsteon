@@ -1,4 +1,3 @@
-
 from binascii import unhexlify
 from tests import _LOGGER, set_log_levels
 import unittest
@@ -11,19 +10,22 @@ from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 class TestX10Send(unittest.TestCase, OutboundBase):
-
     def setUp(self):
-        self.hex = '02630102'
+        self.hex = "02630102"
         self.raw_x10 = int(0x01)
         self.x10_flag = int(0x02)
 
-        kwargs = {'raw_x10': self.raw_x10,
-                  'x10_flag': self.x10_flag}
+        kwargs = {"raw_x10": self.raw_x10, "x10_flag": self.x10_flag}
 
-        super(TestX10Send, self).base_setup(MessageId.X10_SEND,
-                                            unhexlify(self.hex),
-                                            **kwargs)
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        super(TestX10Send, self).base_setup(
+            MessageId.X10_SEND, unhexlify(self.hex), **kwargs
+        )
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     def test_raw_x10(self):
         assert self.msg.raw_x10 == self.raw_x10
@@ -32,5 +34,5 @@ class TestX10Send(unittest.TestCase, OutboundBase):
         assert self.msg.x10_flag == self.x10_flag
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -7,7 +7,6 @@ from tests import _LOGGER, set_log_levels
 
 
 class TestMessageFlags(unittest.TestCase):
-
     def setUp(self):
         self.direct = MessageFlags(0x00)
         self.broadcast = MessageFlags(0x80)
@@ -33,7 +32,12 @@ class TestMessageFlags(unittest.TestCase):
         self.assigned_hops.max_hops = 3
 
         self.create = create(MessageFlagType.ALL_LINK_CLEANUP, True, 3, 2)
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     def test_direct(self):
         assert self.direct.is_direct
@@ -85,12 +89,15 @@ class TestMessageFlags(unittest.TestCase):
         assert self.assigned_hops.max_hops == 3
 
     def test_created(self):
-        assert str(self.create) == "{'message_type': 'all_link_cleanup', 'extended': True, 'hops_left': 3, 'max_hops': 2}"
+        assert (
+            str(self.create)
+            == "{'message_type': 'all_link_cleanup', 'extended': True, 'hops_left': 3, 'max_hops': 2}"
+        )
 
     def test_complex_direct_ne(self):
         assert self.complex != self.direct
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # _INSTEON_LOGGER.setLevel(logging.DEBUG)
     unittest.main(buffer=False)

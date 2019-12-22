@@ -7,20 +7,22 @@ from pyinsteon.x10_address import X10Address, create
 
 
 class TestX10Address(unittest.TestCase):
-
     def setUp(self):
-        self.housecode = 'C'
+        self.housecode = "C"
         self.housecode_byte = 0x02
         self.unitcode = 6
         self.unitcode_byte = 0x09
-        self.address = X10Address(bytearray([self.housecode_byte,
-                                             self.unitcode_byte]))
+        self.address = X10Address(bytearray([self.housecode_byte, self.unitcode_byte]))
         self.address_create = create(self.housecode, self.unitcode)
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     def test_bytes(self):
-        byte_out = bytes(bytearray([self.housecode_byte,
-                                    self.unitcode_byte]))
+        byte_out = bytes(bytearray([self.housecode_byte, self.unitcode_byte]))
         assert bytes(self.address) == byte_out
 
     def test_getitem(self):
@@ -43,5 +45,5 @@ class TestX10Address(unittest.TestCase):
         assert bytes(self.address_create) == test_bytes
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

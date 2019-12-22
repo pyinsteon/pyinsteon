@@ -19,10 +19,17 @@ class TestDimmableLIghtingControl(unittest.TestCase):
     def setUp(self):
         """Setup the test."""
         self.state_value = None
-        self.address = Address('1a2b3c')
-        self.device = DimmableLightingControl(self.address, 0x01, 0x02, 0x03, 'Test', 'Modem 1')
+        self.address = Address("1a2b3c")
+        self.device = DimmableLightingControl(
+            self.address, 0x01, 0x02, 0x03, "Test", "Modem 1"
+        )
         self.device.states[1].subscribe(self.state_updated)
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     @async_case
     async def test_on_command(self):
@@ -30,12 +37,14 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         self.device.states[1].value = 0
         cmd1 = 0x22
         cmd2 = 0x23
-        target = Address('4d5e6f')
+        target = Address("4d5e6f")
         user_data = None
-        ack = 'ack.{}.1.{}.direct'.format(self.device.address.id, ON)
-        direct_ack = '{}.{}.direct_ack'.format(self.device.address.id, ON)
-        responses = [TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), .25),
-                     TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), .25)]
+        ack = "ack.{}.1.{}.direct".format(self.device.address.id, ON)
+        direct_ack = "{}.{}.direct_ack".format(self.device.address.id, ON)
+        responses = [
+            TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), 0.25),
+            TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), 0.25),
+        ]
         send_topics(responses)
 
         response = await self.device.async_on(on_level=cmd2, fast=False)
@@ -48,12 +57,14 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         self.device.states[1].value = 0
         cmd1 = 0x22
         cmd2 = 0x23
-        target = Address('4d5e6f')
+        target = Address("4d5e6f")
         user_data = None
-        ack = 'ack.{}.1.{}.direct'.format(self.device.address.id, ON_FAST)
-        direct_ack = '{}.{}.direct_ack'.format(self.device.address.id, ON_FAST)
-        responses = [TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), .25),
-                     TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), .25)]
+        ack = "ack.{}.1.{}.direct".format(self.device.address.id, ON_FAST)
+        direct_ack = "{}.{}.direct_ack".format(self.device.address.id, ON_FAST)
+        responses = [
+            TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), 0.25),
+            TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), 0.25),
+        ]
         send_topics(responses)
 
         response = await self.device.async_on(on_level=cmd2, fast=True)
@@ -66,12 +77,14 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         self.device.states[1].value = 255
         cmd1 = 0x22
         cmd2 = 0x23
-        target = Address('4d5e6f')
+        target = Address("4d5e6f")
         user_data = None
-        ack = 'ack.{}.1.{}.direct'.format(self.device.address.id, OFF_FAST)
-        direct_ack = '{}.{}.direct_ack'.format(self.device.address.id, OFF_FAST)
-        responses = [TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), .25),
-                     TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), .25)]
+        ack = "ack.{}.1.{}.direct".format(self.device.address.id, OFF_FAST)
+        direct_ack = "{}.{}.direct_ack".format(self.device.address.id, OFF_FAST)
+        responses = [
+            TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), 0.25),
+            TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), 0.25),
+        ]
         send_topics(responses)
 
         response = await self.device.async_off(fast=True)
@@ -84,12 +97,14 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         self.device.states[1].value = 255
         cmd1 = 0x22
         cmd2 = 0x23
-        target = Address('4d5e6f')
+        target = Address("4d5e6f")
         user_data = None
-        ack = 'ack.{}.1.{}.direct'.format(self.device.address.id, OFF)
-        direct_ack = '{}.{}.direct_ack'.format(self.device.address.id, OFF)
-        responses = [TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), .25),
-                TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), .25)]
+        ack = "ack.{}.1.{}.direct".format(self.device.address.id, OFF)
+        direct_ack = "{}.{}.direct_ack".format(self.device.address.id, OFF)
+        responses = [
+            TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), 0.25),
+            TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), 0.25),
+        ]
         send_topics(responses)
 
         response = await self.device.async_off(fast=False)
