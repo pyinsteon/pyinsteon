@@ -3,15 +3,25 @@
 from ..address import Address
 
 
-class ALDBRecord():
+class ALDBRecord:
     """Represents an ALDB record."""
 
-    def __init__(self, memory: int, controller: bool, group: int, target: Address,
-                 data1: int, data2: int, data3: int,
-                 in_use: bool = True, high_water_mark: bool = False,
-                 bit5: bool = False, bit4: bool = False):
+    def __init__(
+        self,
+        memory: int,
+        controller: bool,
+        group: int,
+        target: Address,
+        data1: int,
+        data2: int,
+        data3: int,
+        in_use: bool = True,
+        high_water_mark: bool = False,
+        bit5: bool = False,
+        bit4: bool = False,
+    ):
         """Initialze the ALDBRecord class."""
-        self._memoryLocation = memory
+        self._memory_location = memory
         self._target = Address(target)
         self._group = group
         self._data1 = data1
@@ -30,46 +40,50 @@ class ALDBRecord():
         first = True
         for prop in props:
             if not first:
-                msgstr = '{}, '.format(msgstr)
+                msgstr = "{}, ".format(msgstr)
             for key, val in prop.items():
                 if isinstance(val, Address):
                     msgstr = "{}'{}': {}".format(msgstr, key, val)
-                elif key == 'memory':
+                elif key == "memory":
                     msgstr = "{}'{}': 0x{:04x}".format(msgstr, key, val)
                 elif isinstance(val, int):
                     msgstr = "{}'{}': 0x{:02x}".format(msgstr, key, val)
                 else:
                     msgstr = "{}'{}': {}".format(msgstr, key, val)
             first = False
-        msgstr = "{}{}".format(msgstr, '}')
+        msgstr = "{}{}".format(msgstr, "}")
         return msgstr
 
     def __dict___(self):
         """Return a dictionary object of the ALDB Record."""
-        control_flags = int(self._in_use) << 7 \
-            | int(self._controller) << 6 \
-            | int(self._bit5) << 5 \
-            | int(self._bit4) << 4 \
+        control_flags = (
+            int(self._in_use) << 7
+            | int(self._controller) << 6
+            | int(self._bit5) << 5
+            | int(self._bit4) << 4
             | int(not self._high_water_mark) << 1
-        return {'d1': 0x00,
-                'd2': 0x00,
-                'd3': self.memhi,
-                'd4': self.memlo,
-                'd5': 0x00,
-                'd6': control_flags,
-                'd7': self.group,
-                'd8': self.target.low,
-                'd9': self.target.middle,
-                'd10': self.target.high,
-                'd11': self.data1,
-                'd12': self.data2,
-                'd13': self.data3,
-                'd14': 0x00}
+        )
+        return {
+            "d1": 0x00,
+            "d2": 0x00,
+            "d3": self.memhi,
+            "d4": self.memlo,
+            "d5": 0x00,
+            "d6": control_flags,
+            "d7": self.group,
+            "d8": self.target.low,
+            "d9": self.target.middle,
+            "d10": self.target.high,
+            "d11": self.data1,
+            "d12": self.data2,
+            "d13": self.data3,
+            "d14": 0x00,
+        }
 
     @property
     def mem_addr(self):
         """Return the memory address of the database record."""
-        return self._memoryLocation
+        return self._memory_location
 
     @mem_addr.setter
     def mem_addr(self, value):
@@ -77,19 +91,19 @@ class ALDBRecord():
         try:
             mem = int(value)
         except ValueError:
-            raise ValueError('Memory address must be an integer.')
+            raise ValueError("Memory address must be an integer.")
         else:
-            self._memoryLocation = mem
+            self._memory_location = mem
 
     @property
     def memhi(self):
         """Return the memory address MSB."""
-        return self._memoryLocation >> 8
+        return self._memory_location >> 8
 
     @property
     def memlo(self):
         """Return the memory address LSB."""
-        return self._memoryLocation & 0xff
+        return self._memory_location & 0xFF
 
     @property
     def target(self):
@@ -148,18 +162,20 @@ class ALDBRecord():
 
     def _record_properties(self):
         if self._controller:
-            mode = 'C'
+            mode = "C"
         else:
-            mode = 'R'
-        rec = [{'memory': self._memoryLocation},
-               {'inuse': self._in_use},
-               {'mode': mode},
-               {'bit5': self._bit5},
-               {'bit4': self._bit4},
-               {'highwater': self._high_water_mark},
-               {'group': self.group},
-               {'target': self.target},
-               {'data1': self.data1},
-               {'data2': self.data2},
-               {'data3': self.data3}]
+            mode = "R"
+        rec = [
+            {"memory": self._memory_location},
+            {"inuse": self._in_use},
+            {"mode": mode},
+            {"bit5": self._bit5},
+            {"bit4": self._bit4},
+            {"highwater": self._high_water_mark},
+            {"group": self.group},
+            {"target": self.target},
+            {"data1": self.data1},
+            {"data2": self.data2},
+            {"data3": self.data3},
+        ]
         return rec

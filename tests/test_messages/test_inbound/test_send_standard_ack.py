@@ -11,20 +11,24 @@ from tests.utils import hex_to_inbound_message
 
 
 class TestStandardSendAck(unittest.TestCase):
-
     def setUp(self):
         self.buffer = False
-        self.hex_data = '026201020304050615'
+        self.hex_data = "026201020304050615"
         self.bytes_data = unhexlify(self.hex_data)
         self.message_id = MessageId.SEND_STANDARD.value
-        self.address = Address('010203')
+        self.address = Address("010203")
         self.flags = MessageFlags(0x04)
         self.cmd1 = int(0x05)
         self.cmd2 = int(0x06)
         self.ack = MESSAGE_NAK
 
         self.msg, self.msg_bytes = hex_to_inbound_message(self.hex_data)
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     def test_id(self):
         assert self.msg.message_id == self.message_id
@@ -52,6 +56,6 @@ class TestStandardSendAck(unittest.TestCase):
         assert len(self.msg) == 9
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # _INSTEON_LOGGER.setLevel(logging.DEBUG)
     unittest.main(buffer=False)

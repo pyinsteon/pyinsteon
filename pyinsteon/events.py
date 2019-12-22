@@ -14,31 +14,32 @@ triggering the event.
 from .subscriber_base import SubscriberBase
 from .address import Address
 
-ON_EVENT = 'on_event'
-ON_FAST_EVENT = 'on_fast_event'
-OFF_EVENT = 'off_event'
-OFF_FAST_EVENT = 'off_fast_event'
+ON_EVENT = "on_event"
+ON_FAST_EVENT = "on_fast_event"
+OFF_EVENT = "off_event"
+OFF_FAST_EVENT = "off_fast_event"
 # FAN_ON_EVENT = 'fan_on_event'
 # FAN_ON_FAST_EVENT = 'fan_on_fast_event'
 # FAN_OFF_EVENT = 'fan_off_event'
 # FAN_OFF_FAST_EVENT = 'fan_off_fast_event'
-LOW_BATTERY_EVENT = 'low_battery_event'
-HEARTBEAT_EVENT = 'heartbeat_event'
-OPEN_EVENT = 'open_event'
-CLOSE_EVENT = 'close_event'
-LEAK_DRY_EVENT = 'leak_dry_event'
-LEAK_WET_EVENT = 'leak_wet_event'
-MOTION_DETECTED_EVENT = 'motion_detected_event'
-MOTION_TIMEOUT_EVENT = 'motion_timeout_event'
-LIGHT_DETECTED_EVENT = 'light_detected_event'
-DARK_DETECTED_EVENT = 'dark_detected_event'
-SMOKE_DETECTED_EVENT = 'smoke_detected_event'
-CO_DETECTED_EVENT = 'co_detected_event'
-TEST_DETECTED_EVENT = 'test_detected_event'
-NEW_DETECTED_EVENT = 'new_detected_event'
-LOW_BATTERY_EVENT = 'low_battery_event'
-SENSOR_MALFUNCTION_EVENT = 'sensor_malfunction_event'
-ALL_CLEAR_EVENT = 'all_clear_event'
+LOW_BATTERY_EVENT = "low_battery_event"
+HEARTBEAT_EVENT = "heartbeat_event"
+OPEN_EVENT = "open_event"
+CLOSE_EVENT = "close_event"
+LEAK_DRY_EVENT = "leak_dry_event"
+LEAK_WET_EVENT = "leak_wet_event"
+MOTION_DETECTED_EVENT = "motion_detected_event"
+MOTION_TIMEOUT_EVENT = "motion_timeout_event"
+LIGHT_DETECTED_EVENT = "light_detected_event"
+DARK_DETECTED_EVENT = "dark_detected_event"
+SMOKE_DETECTED_EVENT = "smoke_detected_event"
+CO_DETECTED_EVENT = "co_detected_event"
+TEST_DETECTED_EVENT = "test_detected_event"
+NEW_DETECTED_EVENT = "new_detected_event"
+LOW_BATTERY_EVENT = "low_battery_event"
+SENSOR_MALFUNCTION_EVENT = "sensor_malfunction_event"
+ALL_CLEAR_EVENT = "all_clear_event"
+
 
 class Event(SubscriberBase):
     """Event class to manage triggering of events.
@@ -56,7 +57,7 @@ class Event(SubscriberBase):
         self._address = Address(address)
         self._group = group
         self._name = name
-        topic = 'event_{}_{}_{}'.format(self._address.id, group, name)
+        topic = "event_{}_{}_{}".format(self._address.id, group, name)
         super().__init__(subscriber_topic=topic)
 
     @property
@@ -76,20 +77,26 @@ class Event(SubscriberBase):
 
     def trigger(self, on_level):
         """Trigger the event."""
-        self._call_subscribers(event=self)
+        self._call_subscribers(
+            name=self._name, address=self._address.id, group=self._group
+        )
 
 
 class LowBatteryEvent(Event):
     """Low battery event."""
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     def trigger(self, low_battery):
-        self._call_subscribers(event=self)
+        self._call_subscribers(
+            name=self._name, address=self._address.id, group=self._group
+        )
 
 
 class HeartbeatEvent(Event):
     """Heartbeat event."""
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     def trigger(self, heartbeat):
-        self._call_subscribers(event=self)
+        self._call_subscribers(
+            name=self._name, address=self._address.id, group=self._group
+        )

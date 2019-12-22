@@ -4,8 +4,7 @@ from binascii import hexlify
 from ...utils import bit_is_set, set_bit
 
 
-def create(auto_link: bool, monitor_mode: bool, auto_led: bool,
-           disable_deadman: bool):
+def create(auto_link: bool, monitor_mode: bool, auto_led: bool, disable_deadman: bool):
     """Create an IM Configuration Flag entity."""
     flags = IMConfigurationFlags(0x00)
     flags.is_auto_link = auto_link
@@ -15,8 +14,12 @@ def create(auto_link: bool, monitor_mode: bool, auto_led: bool,
     return flags
 
 
-def create_template(auto_link: bool = None, monitor_mode: bool = None,
-                    auto_led: bool = None, disable_deadman: bool = None):
+def create_template(
+    auto_link: bool = None,
+    monitor_mode: bool = None,
+    auto_led: bool = None,
+    disable_deadman: bool = None,
+):
     """Create an IM Configuration Flag entity."""
     flags = IMConfigurationFlags(0x00)
     flags.is_auto_link = auto_link
@@ -32,7 +35,7 @@ def _normalize(data):
     return data
 
 
-class IMConfigurationFlags():
+class IMConfigurationFlags:
     """IM Configuration Flags."""
 
     def __init__(self, data: int):
@@ -55,10 +58,12 @@ class IMConfigurationFlags():
 
     def __repr__(self):
         """Return the hex representation of the flags."""
-        val = {'auto link': 1 if self._auto_link else 0,
-               'monitor mode': 1 if self._monitor_mode else 0,
-               'auto led': 1 if self._auto_led else 0,
-               'disable deadman': 1 if self._disable_deadman else 0}
+        val = {
+            "auto link": 1 if self._auto_link else 0,
+            "monitor mode": 1 if self._monitor_mode else 0,
+            "auto led": 1 if self._auto_led else 0,
+            "disable deadman": 1 if self._disable_deadman else 0,
+        }
         return str(val)
 
     def __str__(self):
@@ -69,10 +74,12 @@ class IMConfigurationFlags():
         """Check if this is equal to other."""
         if not isinstance(other, IMConfigurationFlags):
             return False
-        return (self.is_auto_link == other.is_auto_link and
-                self.is_monitor_mode == other.is_monitor_mode and
-                self.is_auto_led == other.is_auto_led and
-                self.is_disable_deadman == other.is_disable_deadman)
+        return (
+            self.is_auto_link == other.is_auto_link
+            and self.is_monitor_mode == other.is_monitor_mode
+            and self.is_auto_led == other.is_auto_led
+            and self.is_disable_deadman == other.is_disable_deadman
+        )
 
     def __hash__(self):
         """Represent the IMConfigurationFlags class as a hash."""

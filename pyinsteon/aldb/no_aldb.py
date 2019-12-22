@@ -17,20 +17,32 @@ class NoALDB(ALDBBase):
         """Always returns loaded."""
         return ALDBStatus.LOADED
 
-    #pylint: disable=arguments-differ
-    async def async_load(self, mem_addr: int = 0x00, num_recs: int = 0x00,
-                         refresh: bool = False, callback: Callable = None):
+    # pylint: disable=arguments-differ
+    async def async_load(
+        self,
+        mem_addr: int = 0x00,
+        num_recs: int = 0x00,
+        refresh: bool = False,
+        callback: Callable = None,
+    ):
         """Load the All-Link Database."""
         if callback:
             callback()
         return ALDBStatus.LOADED
 
-    async def async_write_records(self):
+    async def async_write(self):
         """Write modified records to the device."""
         return 0
 
-    def add(self, group: int, target: Address, controller: bool = False,
-            data1: int = 0x00, data2: int = 0x00, data3: int = 0x00):
+    def add(
+        self,
+        group: int,
+        target: Address,
+        controller: bool = False,
+        data1: int = 0x00,
+        data2: int = 0x00,
+        data3: int = 0x00,
+    ):
         """Add an All-Link record."""
 
     def remove(self, mem_addr: int):

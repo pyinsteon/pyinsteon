@@ -8,6 +8,7 @@ from . import nak_handler, ack_handler
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class GetNextAllLinkRecordHandler(OutboundHandlerBase):
     """Handle Get Next All Link Record commands"""
 

@@ -9,20 +9,23 @@ from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 class TestStartAllLinking(unittest.TestCase, OutboundBase):
-
     def setUp(self):
-        self.hex = '02640304'
+        self.hex = "02640304"
         self.message_id = MessageId.START_ALL_LINKING
         self.mode = AllLinkMode(0x03)
         self.group = int(0x04)
 
-        kwargs = {"group": self.group,
-                  "mode": self.mode}
+        kwargs = {"group": self.group, "mode": self.mode}
 
-        super(TestStartAllLinking, self).base_setup(self.message_id,
-                                                    unhexlify(self.hex),
-                                                    **kwargs)
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        super(TestStartAllLinking, self).base_setup(
+            self.message_id, unhexlify(self.hex), **kwargs
+        )
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     def test_mode(self):
         assert self.msg.mode == self.mode
@@ -31,5 +34,5 @@ class TestStartAllLinking(unittest.TestCase, OutboundBase):
         assert self.msg.group == self.group
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

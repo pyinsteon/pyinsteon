@@ -1,17 +1,36 @@
 """Create outbound messages."""
 from ... import pub
 from ...address import Address
-from ...constants import (AllLinkMode, DeviceCategory,
-                          ManageAllLinkRecordAction, MessageId)
-from ...topics import (ALL_LINK_CLEANUP_STATUS_REPORT, CANCEL_ALL_LINKING,
-                       GET_ALL_LINK_RECORD_FOR_SENDER,
-                       GET_FIRST_ALL_LINK_RECORD, GET_IM_CONFIGURATION,
-                       GET_IM_INFO, GET_NEXT_ALL_LINK_RECORD, LED_OFF, LED_ON,
-                       MANAGE_ALL_LINK_RECORD, RESET_IM, RF_SLEEP,
-                       SEND_ALL_LINK_COMMAND, SEND_EXTENDED, SEND_STANDARD,
-                       SET_ACK_MESSAGE_BYTE, SET_ACK_MESSAGE_TWO_BYTES,
-                       SET_HOST_DEV_CAT, SET_IM_CONFIGURATION,
-                       SET_NAK_MESSAGE_BYTE, START_ALL_LINKING, X10_SEND)
+from ...constants import (
+    AllLinkMode,
+    DeviceCategory,
+    ManageAllLinkRecordAction,
+    MessageId,
+)
+from ...topics import (
+    ALL_LINK_CLEANUP_STATUS_REPORT,
+    CANCEL_ALL_LINKING,
+    GET_ALL_LINK_RECORD_FOR_SENDER,
+    GET_FIRST_ALL_LINK_RECORD,
+    GET_IM_CONFIGURATION,
+    GET_IM_INFO,
+    GET_NEXT_ALL_LINK_RECORD,
+    LED_OFF,
+    LED_ON,
+    MANAGE_ALL_LINK_RECORD,
+    RESET_IM,
+    RF_SLEEP,
+    SEND_ALL_LINK_COMMAND,
+    SEND_EXTENDED,
+    SEND_STANDARD,
+    SET_ACK_MESSAGE_BYTE,
+    SET_ACK_MESSAGE_TWO_BYTES,
+    SET_HOST_DEV_CAT,
+    SET_IM_CONFIGURATION,
+    SET_NAK_MESSAGE_BYTE,
+    START_ALL_LINKING,
+    X10_SEND,
+)
 from .. import topic_to_message_handler
 from . import MessageBase
 from .all_link_record_flags import AllLinkRecordFlags
@@ -56,18 +75,18 @@ class Outbound(MessageBase):
 
 def _create_outbound_message(topic, priority=5, **kwargs) -> Outbound:
     """Create an Outbound message."""
-    topic = topic.name.split('.')[1]
+    topic = topic.name.split(".")[1]
     msg_id = getattr(MessageId, topic.upper())
     msg_def = OUTBOUND_MSG_DEF[msg_id]
     msg = Outbound(msg_def, **kwargs)
-    pub.sendMessage('send_message.{}'.format(topic),
-                    msg=msg, priority=priority)
+    pub.sendMessage("send_message.{}".format(topic), msg=msg, priority=priority)
 
 
 @topic_to_message_handler(topic=ALL_LINK_CLEANUP_STATUS_REPORT)
 def all_link_cleanup_status_report(topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a ALL_LINK_CLEANUP_STATUS_REPORT outbound message."""
     _create_outbound_message(topic=topic, priority=1)
+
 
 @topic_to_message_handler(topic=GET_IM_INFO)
 def get_im_info(topic=pub.AUTO_TOPIC) -> Outbound:
@@ -76,7 +95,9 @@ def get_im_info(topic=pub.AUTO_TOPIC) -> Outbound:
 
 
 @topic_to_message_handler(topic=SEND_ALL_LINK_COMMAND)
-def send_all_link_command(group: int, mode: AllLinkMode, topic=pub.AUTO_TOPIC) -> Outbound:
+def send_all_link_command(
+    group: int, mode: AllLinkMode, topic=pub.AUTO_TOPIC
+) -> Outbound:
     """Create a SEND_ALL_LINK_COMMAND outbound message."""
     _create_outbound_message(group=group, mode=mode, topic=topic, priority=7)
 
@@ -84,41 +105,59 @@ def send_all_link_command(group: int, mode: AllLinkMode, topic=pub.AUTO_TOPIC) -
 def _create_flags(topic, extended):
     from .message_flags import create as create_flags
     from .. import topic_to_message_type
+
     msg_type = topic_to_message_type(topic)
     return create_flags(msg_type, extended=extended)
 
+
 @topic_to_message_handler(topic=SEND_STANDARD)
-def send_standard(address: Address, cmd1: int, cmd2: int, flags: MessageFlags = None,
-                  priority=5, topic=pub.AUTO_TOPIC) -> Outbound:
+def send_standard(
+    address: Address,
+    cmd1: int,
+    cmd2: int,
+    flags: MessageFlags = None,
+    priority=5,
+    topic=pub.AUTO_TOPIC,
+) -> Outbound:
     """Create a SEND_STANDARD outbound message."""
-    subtopics = topic.name.split('.')
+    subtopics = topic.name.split(".")
     main_topic = subtopics[1]
     msg_type = None if len(subtopics) < 3 else subtopics[2]
     flags = flags if flags is not None else _create_flags(topic, False)
-    kwargs = {'address': address,
-              'flags': flags,
-              'cmd1': cmd1,
-              'cmd2': cmd2}
+    kwargs = {"address": address, "flags": flags, "cmd1": cmd1, "cmd2": cmd2}
     msg_def = MessageDefinition(MessageId.SEND_EXTENDED, FLD_STD_SEND)
-    send_topic = 'send_message.{}'.format(main_topic)
+    send_topic = "send_message.{}".format(main_topic)
     if msg_type is not None:
-        send_topic = '{}.{}'.format(send_topic, msg_type)
+        send_topic = "{}.{}".format(send_topic, msg_type)
     pub.sendMessage(send_topic, msg=Outbound(msg_def, **kwargs), priority=priority)
 
+
 @topic_to_message_handler(topic=SEND_EXTENDED)
-def send_extended(address: Address, cmd1: int, cmd2: int, user_data: UserData,
-                  flags: MessageFlags = None, priority=5, topic=pub.AUTO_TOPIC) -> Outbound:
+def send_extended(
+    address: Address,
+    cmd1: int,
+    cmd2: int,
+    user_data: UserData,
+    flags: MessageFlags = None,
+    priority=5,
+    topic=pub.AUTO_TOPIC,
+) -> Outbound:
     """Create a SEND_EXTENDED outbound message."""
-    main_topic = topic.name.split('.')[1]
+    main_topic = topic.name.split(".")[1]
     flags = flags if flags is not None else _create_flags(topic, True)
-    kwargs = {'address': address,
-              'flags': flags,
-              'cmd1': cmd1,
-              'cmd2': cmd2,
-              'user_data': user_data}
+    kwargs = {
+        "address": address,
+        "flags": flags,
+        "cmd1": cmd1,
+        "cmd2": cmd2,
+        "user_data": user_data,
+    }
     msg_def = MessageDefinition(MessageId.SEND_EXTENDED, FLD_EXT_SEND)
-    pub.sendMessage('send_message.{}'.format(main_topic),
-                    msg=Outbound(msg_def, **kwargs), priority=priority)
+    pub.sendMessage(
+        "send_message.{}".format(main_topic),
+        msg=Outbound(msg_def, **kwargs),
+        priority=priority,
+    )
 
 
 @topic_to_message_handler(topic=X10_SEND)
@@ -140,11 +179,13 @@ def cancel_all_linking(topic=pub.AUTO_TOPIC) -> Outbound:
 
 
 @topic_to_message_handler(topic=SET_HOST_DEV_CAT)
-def set_host_dev_cat(cat: DeviceCategory, subcat: int, firmware: int,
-                     topic=pub.AUTO_TOPIC) -> Outbound:
+def set_host_dev_cat(
+    cat: DeviceCategory, subcat: int, firmware: int, topic=pub.AUTO_TOPIC
+) -> Outbound:
     """Create a SET_HOST_DEV_CAT outbound message."""
-    _create_outbound_message(cat=cat, subcat=subcat, firmware=firmware,
-                             topic=topic, priority=7)
+    _create_outbound_message(
+        cat=cat, subcat=subcat, firmware=firmware, topic=topic, priority=7
+    )
 
 
 @topic_to_message_handler(topic=RESET_IM)
@@ -172,9 +213,13 @@ def get_next_all_link_record(topic=pub.AUTO_TOPIC) -> Outbound:
 
 
 @topic_to_message_handler(topic=SET_IM_CONFIGURATION)
-def set_im_configuration(disable_auto_linking: bool, monitor_mode: bool,
-                         auto_led: bool, deadman: bool,
-                         topic=pub.AUTO_TOPIC) -> Outbound:
+def set_im_configuration(
+    disable_auto_linking: bool,
+    monitor_mode: bool,
+    auto_led: bool,
+    deadman: bool,
+    topic=pub.AUTO_TOPIC,
+) -> Outbound:
     """Create a SET_IM_CONFIGURATION outbound message."""
     flag_byte = 0x00
     flag_byte = flag_byte | (1 if disable_auto_linking else 0) << 7
@@ -204,14 +249,28 @@ def led_off(topic=pub.AUTO_TOPIC) -> Outbound:
 
 
 @topic_to_message_handler(topic=MANAGE_ALL_LINK_RECORD)
-def manage_all_link_record(action: ManageAllLinkRecordAction,
-                           flags: AllLinkRecordFlags, group: int,
-                           target: Address, data1: int, data2: int,
-                           data3: int, topic=pub.AUTO_TOPIC) -> Outbound:
+def manage_all_link_record(
+    action: ManageAllLinkRecordAction,
+    flags: AllLinkRecordFlags,
+    group: int,
+    target: Address,
+    data1: int,
+    data2: int,
+    data3: int,
+    topic=pub.AUTO_TOPIC,
+) -> Outbound:
     """Create a MANAGE_ALL_LINK_RECORD outbound message."""
-    _create_outbound_message(action=action, flags=flags, group=group,
-                             target=target, data1=data1, data2=data2,
-                             data3=data3, topic=topic, priority=10)
+    _create_outbound_message(
+        action=action,
+        flags=flags,
+        group=group,
+        target=target,
+        data1=data1,
+        data2=data2,
+        data3=data3,
+        topic=topic,
+        priority=10,
+    )
 
 
 @topic_to_message_handler(topic=SET_NAK_MESSAGE_BYTE)

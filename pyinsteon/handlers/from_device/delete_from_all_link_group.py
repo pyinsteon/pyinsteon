@@ -10,7 +10,8 @@ class DeleteFromAllLinkGroupCommand(BroadcastCommandHandlerBase):
 
     def __init__(self, address: Address):
         """Init the DeleteFromAllLinkGroupCommand class."""
-        super().__init__(address, DELETE_FROM_ALL_LINK_GROUP)
+        self._address = Address(address)
+        super().__init__(topic=DELETE_FROM_ALL_LINK_GROUP, address=self._address)
 
     @broadcast_handler
     def receive_id(self, cmd1, cmd2, target, user_data):
@@ -18,5 +19,11 @@ class DeleteFromAllLinkGroupCommand(BroadcastCommandHandlerBase):
         cat = target.high
         subcat = target.middle
         firmware = target.low
-        self._call_subscribers(address=self._address, cat=cat, subcat=subcat,
-                               firmware=firmware, group=cmd2, mode=None)
+        self._call_subscribers(
+            address=self._address,
+            cat=cat,
+            subcat=subcat,
+            firmware=firmware,
+            group=cmd2,
+            mode=None,
+        )

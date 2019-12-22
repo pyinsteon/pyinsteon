@@ -1,7 +1,8 @@
 """Manage inbound ON command from device."""
-from .. import  broadcast_handler
+from .. import broadcast_handler
 from .broadcast_command import BroadcastCommandHandlerBase
 from ...topics import OFF_FAST
+from ...address import Address
 
 
 class OffFastInbound(BroadcastCommandHandlerBase):
@@ -9,13 +10,11 @@ class OffFastInbound(BroadcastCommandHandlerBase):
 
     def __init__(self, address, group):
         """Init the OffFastInbound class."""
-        super().__init__(address, OFF_FAST)
-        # put the following commands in a subclass!
+        self._address = Address(address)
         self._group = group
+        super().__init__(topic=OFF_FAST, address=self._address, group=self._group)
 
     @broadcast_handler
     def handle_command(self, cmd1, cmd2, target, user_data):
         """Handle the OFF command from a device."""
-        group = target.low
-        if group == self._group:
-            self._call_subscribers(on_level=0)
+        self._call_subscribers(on_level=0)

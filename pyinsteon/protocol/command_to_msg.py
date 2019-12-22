@@ -3,99 +3,154 @@ from . import topic_to_command_handler
 from .. import pub
 from ..address import Address
 from ..constants import RampRate
-from ..topics import (ASSIGN_TO_ALL_LINK_GROUP, ASSIGN_TO_COMPANION_GROUP,
-                      BRIGHTEN_ONE_STEP,
-                      DELETE_FROM_ALL_LINK_GROUP, DEVICE_TEXT_STRING_REQUEST,
-                      DIM_ONE_STEP, DOOR_MOVE_CLOSE_DOOR, DOOR_MOVE_LOWER_DOOR,
-                      DOOR_MOVE_OPEN_DOOR, DOOR_MOVE_RAISE_DOOR,
-                      DOOR_MOVE_SINGLE_DOOR_CLOSE, DOOR_MOVE_SINGLE_DOOR_OPEN,
-                      DOOR_MOVE_STOP_DOOR, DOOR_STATUS_REPORT_CLOSE_DOOR,
-                      DOOR_STATUS_REPORT_LOWER_DOOR,
-                      DOOR_STATUS_REPORT_OPEN_DOOR,
-                      DOOR_STATUS_REPORT_RAISE_DOOR,
-                      DOOR_STATUS_REPORT_SINGLE_DOOR_CLOSE,
-                      DOOR_STATUS_REPORT_SINGLE_DOOR_OPEN,
-                      DOOR_STATUS_REPORT_STOP_DOOR, ENTER_LINKING_MODE,
-                      ENTER_UNLINKING_MODE, EXTENDED_GET_SET,
-                      EXTENDED_READ_WRITE_ALDB, EXTENDED_TRIGGER_ALL_LINK,
-                      FX_USERNAME, GET_INSTEON_ENGINE_VERSION,
-                      GET_OPERATING_FLAGS,
-                      ID_REQUEST, INSTANT_CHANGE, IO_ALARM_DATA_REQUEST,
-                      IO_ALARM_DATA_RESPONSE, IO_GET_SENSOR_ALARM_DELTA,
-                      IO_GET_SENSOR_VALUE, IO_MODULE_DIAGNOSTICS_OFF,
-                      IO_MODULE_DIAGNOSTICS_ON,
-                      IO_MODULE_DISABLE_STATUS_CHANGE_MESSAGE,
-                      IO_MODULE_ENABLE_STATUS_CHANGE_MESSAGE,
-                      IO_MODULE_LOAD_EEPROM_FROM_RAM,
-                      IO_MODULE_LOAD_INITIALIZATION_VALUES,
-                      IO_MODULE_LOAD_RAM_FROM_EEPROM,
-                      IO_MODULE_READ_ANALOG_ALWAYS, IO_MODULE_READ_ANALOG_ONCE,
-                      IO_MODULE_SENSOR_OFF, IO_MODULE_SENSOR_ON,
-                      IO_MODULE_STATUS_REQUEST, IO_OUTPUT_OFF, IO_OUTPUT_ON,
-                      IO_READ_CONFIGURATION_PORT, IO_READ_INPUT_PORT,
-                      IO_SET_SENSOR_1_NOMINAL_VALUE,
-                      IO_SET_SENSOR_NOMINAL_VALUE, IO_WRITE_CONFIGURATION_PORT,
-                      IO_WRITE_OUTPUT_PORT,
-                      OFF, OFF_AT_RAMP_RATE, OFF_FAST,
-                      ON, ON_AT_RAMP_RATE, ON_FAST, PEEK_ONE_BYTE,
-                      PEEK_ONE_BYTE_INTERNAL, PING, POKE_ONE_BYTE,
-                      POKE_ONE_BYTE_INTERNAL, POOL_DEVICE_OFF, POOL_DEVICE_ON,
-                      POOL_GET_AMBIENT_TEMPERATURE, POOL_GET_PH,
-                      POOL_GET_POOL_MODE, POOL_GET_WATER_TEMPERATURE,
-                      POOL_LOAD_EEPROM_FROM_RAM,
-                      POOL_LOAD_INITIALIZATION_VALUES,
-                      POOL_SET_DEVICE_HYSTERESIS, POOL_SET_DEVICE_TEMPERATURE,
-                      POOL_TEMPERATURE_DOWN, POOL_TEMPERATURE_UP,
-                      PRODUCT_DATA_REQUEST,
-                      SET_ADDRESS_MSB, SET_ALL_LINK,
-                      SET_ALL_LINK_COMMAND_ALIAS, SET_DEVICE_TEXT_STRING,
-                      SET_OPERATING_FLAGS,
-                      SET_SPRINKLER_PROGRAM, SET_STATUS,
-                      SPRINKLER_BROADCAST_OFF, SPRINKLER_BROADCAST_ON,
-                      SPRINKLER_DIAGNOSTICS_OFF, SPRINKLER_DIAGNOSTICS_ON,
-                      SPRINKLER_DISABLE_PUMP_ON_V8,
-                      SPRINKLER_ENABLE_PUMP_ON_V8,
-                      SPRINKLER_GET_PROGRAM_REQUEST,
-                      SPRINKLER_GET_PROGRAM_RESPONSE,
-                      SPRINKLER_GET_VALVE_STATUS,
-                      SPRINKLER_INHIBIT_COMMAND_ACCEPTANCE,
-                      SPRINKLER_LOAD_EEPROM_FROM_RAM,
-                      SPRINKLER_LOAD_INITIALIZATION_VALUES,
-                      SPRINKLER_LOAD_RAM_FROM_EEPROM, SPRINKLER_PROGRAM_OFF,
-                      SPRINKLER_PROGRAM_ON,
-                      SPRINKLER_RESUME_COMMAND_ACCEPTANCE,
-                      SPRINKLER_SENSOR_OFF, SPRINKLER_SENSOR_ON,
-                      SPRINKLER_SKIP_BACK, SPRINKLER_SKIP_FORWARD,
-                      SPRINKLER_VALVE_OFF, SPRINKLER_VALVE_ON,
-                      STATUS_REQUEST,
-                      THERMOSTAT_DISABLE_STATUS_CHANGE_MESSAGE,
-                      THERMOSTAT_ENABLE_STATUS_CHANGE_MESSAGE,
-                      THERMOSTAT_GET_AMBIENT_TEMPERATURE,
-                      THERMOSTAT_GET_EQUIPMENT_STATE,
-                      THERMOSTAT_GET_FAN_ON_SPEED, THERMOSTAT_GET_MODE,
-                      THERMOSTAT_GET_TEMPERATURE_UNITS,
-                      THERMOSTAT_GET_ZONE_INFORMATION,
-                      THERMOSTAT_LOAD_EEPROM_FROM_RAM,
-                      THERMOSTAT_LOAD_INITIALIZATION_VALUES,
-                      THERMOSTAT_OFF_ALL, THERMOSTAT_OFF_FAN,
-                      THERMOSTAT_ON_AUTO, THERMOSTAT_ON_COOL,
-                      THERMOSTAT_ON_FAN, THERMOSTAT_ON_HEAT,
-                      THERMOSTAT_PROGRAM_AUTO, THERMOSTAT_PROGRAM_COOL,
-                      THERMOSTAT_PROGRAM_HEAT, THERMOSTAT_SET_CELSIUS,
-                      THERMOSTAT_SET_COOL_SETPOINT,
-                      THERMOSTAT_SET_EQUIPMENT_STATE,
-                      THERMOSTAT_SET_FAHRENHEIT,
-                      THERMOSTAT_SET_FAN_ON_SPEED_HIGH,
-                      THERMOSTAT_SET_FAN_ON_SPEED_LOW,
-                      THERMOSTAT_SET_FAN_ON_SPEED_MEDIUM,
-                      THERMOSTAT_SET_HEAT_SETPOINT,
-                      THERMOSTAT_SET_ZONE_COOL_SETPOINT,
-                      THERMOSTAT_SET_ZONE_HEAT_SETPOINT,
-                      THERMOSTAT_TEMPERATURE_DOWN, THERMOSTAT_TEMPERATURE_UP,
-                      THERMOSTAT_ZONE_TEMPERATURE_DOWN,
-                      THERMOSTAT_ZONE_TEMPERATURE_UP, WINDOW_COVERING_CLOSE,
-                      WINDOW_COVERING_OPEN, WINDOW_COVERING_POSITION,
-                      WINDOW_COVERING_PROGRAM, WINDOW_COVERING_STOP)
+from ..topics import (
+    ASSIGN_TO_ALL_LINK_GROUP,
+    ASSIGN_TO_COMPANION_GROUP,
+    BRIGHTEN_ONE_STEP,
+    DELETE_FROM_ALL_LINK_GROUP,
+    DEVICE_TEXT_STRING_REQUEST,
+    DIM_ONE_STEP,
+    DOOR_MOVE_CLOSE_DOOR,
+    DOOR_MOVE_LOWER_DOOR,
+    DOOR_MOVE_OPEN_DOOR,
+    DOOR_MOVE_RAISE_DOOR,
+    DOOR_MOVE_SINGLE_DOOR_CLOSE,
+    DOOR_MOVE_SINGLE_DOOR_OPEN,
+    DOOR_MOVE_STOP_DOOR,
+    DOOR_STATUS_REPORT_CLOSE_DOOR,
+    DOOR_STATUS_REPORT_LOWER_DOOR,
+    DOOR_STATUS_REPORT_OPEN_DOOR,
+    DOOR_STATUS_REPORT_RAISE_DOOR,
+    DOOR_STATUS_REPORT_SINGLE_DOOR_CLOSE,
+    DOOR_STATUS_REPORT_SINGLE_DOOR_OPEN,
+    DOOR_STATUS_REPORT_STOP_DOOR,
+    ENTER_LINKING_MODE,
+    ENTER_UNLINKING_MODE,
+    EXTENDED_GET_SET,
+    EXTENDED_READ_WRITE_ALDB,
+    EXTENDED_TRIGGER_ALL_LINK,
+    FX_USERNAME,
+    GET_INSTEON_ENGINE_VERSION,
+    GET_OPERATING_FLAGS,
+    ID_REQUEST,
+    INSTANT_CHANGE,
+    IO_ALARM_DATA_REQUEST,
+    IO_ALARM_DATA_RESPONSE,
+    IO_GET_SENSOR_ALARM_DELTA,
+    IO_GET_SENSOR_VALUE,
+    IO_MODULE_DIAGNOSTICS_OFF,
+    IO_MODULE_DIAGNOSTICS_ON,
+    IO_MODULE_DISABLE_STATUS_CHANGE_MESSAGE,
+    IO_MODULE_ENABLE_STATUS_CHANGE_MESSAGE,
+    IO_MODULE_LOAD_EEPROM_FROM_RAM,
+    IO_MODULE_LOAD_INITIALIZATION_VALUES,
+    IO_MODULE_LOAD_RAM_FROM_EEPROM,
+    IO_MODULE_READ_ANALOG_ALWAYS,
+    IO_MODULE_READ_ANALOG_ONCE,
+    IO_MODULE_SENSOR_OFF,
+    IO_MODULE_SENSOR_ON,
+    IO_MODULE_STATUS_REQUEST,
+    IO_OUTPUT_OFF,
+    IO_OUTPUT_ON,
+    IO_READ_CONFIGURATION_PORT,
+    IO_READ_INPUT_PORT,
+    IO_SET_SENSOR_1_NOMINAL_VALUE,
+    IO_SET_SENSOR_NOMINAL_VALUE,
+    IO_WRITE_CONFIGURATION_PORT,
+    IO_WRITE_OUTPUT_PORT,
+    OFF,
+    OFF_AT_RAMP_RATE,
+    OFF_FAST,
+    ON,
+    ON_AT_RAMP_RATE,
+    ON_FAST,
+    PEEK_ONE_BYTE,
+    PEEK_ONE_BYTE_INTERNAL,
+    PING,
+    POKE_ONE_BYTE,
+    POKE_ONE_BYTE_INTERNAL,
+    POOL_DEVICE_OFF,
+    POOL_DEVICE_ON,
+    POOL_GET_AMBIENT_TEMPERATURE,
+    POOL_GET_PH,
+    POOL_GET_POOL_MODE,
+    POOL_GET_WATER_TEMPERATURE,
+    POOL_LOAD_EEPROM_FROM_RAM,
+    POOL_LOAD_INITIALIZATION_VALUES,
+    POOL_SET_DEVICE_HYSTERESIS,
+    POOL_SET_DEVICE_TEMPERATURE,
+    POOL_TEMPERATURE_DOWN,
+    POOL_TEMPERATURE_UP,
+    PRODUCT_DATA_REQUEST,
+    SET_ADDRESS_MSB,
+    SET_ALL_LINK,
+    SET_ALL_LINK_COMMAND_ALIAS,
+    SET_DEVICE_TEXT_STRING,
+    SET_OPERATING_FLAGS,
+    SET_SPRINKLER_PROGRAM,
+    SET_STATUS,
+    SPRINKLER_BROADCAST_OFF,
+    SPRINKLER_BROADCAST_ON,
+    SPRINKLER_DIAGNOSTICS_OFF,
+    SPRINKLER_DIAGNOSTICS_ON,
+    SPRINKLER_DISABLE_PUMP_ON_V8,
+    SPRINKLER_ENABLE_PUMP_ON_V8,
+    SPRINKLER_GET_PROGRAM_REQUEST,
+    SPRINKLER_GET_PROGRAM_RESPONSE,
+    SPRINKLER_GET_VALVE_STATUS,
+    SPRINKLER_INHIBIT_COMMAND_ACCEPTANCE,
+    SPRINKLER_LOAD_EEPROM_FROM_RAM,
+    SPRINKLER_LOAD_INITIALIZATION_VALUES,
+    SPRINKLER_LOAD_RAM_FROM_EEPROM,
+    SPRINKLER_PROGRAM_OFF,
+    SPRINKLER_PROGRAM_ON,
+    SPRINKLER_RESUME_COMMAND_ACCEPTANCE,
+    SPRINKLER_SENSOR_OFF,
+    SPRINKLER_SENSOR_ON,
+    SPRINKLER_SKIP_BACK,
+    SPRINKLER_SKIP_FORWARD,
+    SPRINKLER_VALVE_OFF,
+    SPRINKLER_VALVE_ON,
+    STATUS_REQUEST,
+    THERMOSTAT_DISABLE_STATUS_CHANGE_MESSAGE,
+    THERMOSTAT_ENABLE_STATUS_CHANGE_MESSAGE,
+    THERMOSTAT_GET_AMBIENT_TEMPERATURE,
+    THERMOSTAT_GET_EQUIPMENT_STATE,
+    THERMOSTAT_GET_FAN_ON_SPEED,
+    THERMOSTAT_GET_MODE,
+    THERMOSTAT_GET_TEMPERATURE_UNITS,
+    THERMOSTAT_GET_ZONE_INFORMATION,
+    THERMOSTAT_LOAD_EEPROM_FROM_RAM,
+    THERMOSTAT_LOAD_INITIALIZATION_VALUES,
+    THERMOSTAT_OFF_ALL,
+    THERMOSTAT_OFF_FAN,
+    THERMOSTAT_ON_AUTO,
+    THERMOSTAT_ON_COOL,
+    THERMOSTAT_ON_FAN,
+    THERMOSTAT_ON_HEAT,
+    THERMOSTAT_PROGRAM_AUTO,
+    THERMOSTAT_PROGRAM_COOL,
+    THERMOSTAT_PROGRAM_HEAT,
+    THERMOSTAT_SET_CELSIUS,
+    THERMOSTAT_SET_COOL_SETPOINT,
+    THERMOSTAT_SET_EQUIPMENT_STATE,
+    THERMOSTAT_SET_FAHRENHEIT,
+    THERMOSTAT_SET_FAN_ON_SPEED_HIGH,
+    THERMOSTAT_SET_FAN_ON_SPEED_LOW,
+    THERMOSTAT_SET_FAN_ON_SPEED_MEDIUM,
+    THERMOSTAT_SET_HEAT_SETPOINT,
+    THERMOSTAT_SET_ZONE_COOL_SETPOINT,
+    THERMOSTAT_SET_ZONE_HEAT_SETPOINT,
+    THERMOSTAT_TEMPERATURE_DOWN,
+    THERMOSTAT_TEMPERATURE_UP,
+    THERMOSTAT_ZONE_TEMPERATURE_DOWN,
+    THERMOSTAT_ZONE_TEMPERATURE_UP,
+    WINDOW_COVERING_CLOSE,
+    WINDOW_COVERING_OPEN,
+    WINDOW_COVERING_POSITION,
+    WINDOW_COVERING_PROGRAM,
+    WINDOW_COVERING_STOP,
+)
 from .commands import commands
 from .messages.message_flags import create as create_flags
 from .messages.outbound import send_extended, send_standard
@@ -105,9 +160,11 @@ from .messages.user_data import UserData
 # The following messages are all send_standard or send_extended messages
 # The topis is based on the cmd1, cmd2 and extended message flags values
 
+
 def _create_direct_message(topic, address, cmd2=None, user_data=None):
     from . import topic_to_message_type
-    main_topic = topic.name.split('.')[1]
+
+    main_topic = topic.name.split(".")[1]
     cmd1, cmd2_std, _ = commands.get_cmd1_cmd2(main_topic)
     extended = user_data is not None
     cmd2 = cmd2_std if cmd2_std is not None else cmd2
@@ -115,11 +172,16 @@ def _create_direct_message(topic, address, cmd2=None, user_data=None):
     flags = create_flags(flag_type, extended)
     if extended:
         user_data.set_checksum(cmd1, cmd2)
-        send_extended(address=address, cmd1=cmd1, cmd2=cmd2, flags=flags,
-                      user_data=user_data, topic=topic)
+        send_extended(
+            address=address,
+            cmd1=cmd1,
+            cmd2=cmd2,
+            flags=flags,
+            user_data=user_data,
+            topic=topic,
+        )
     else:
-        send_standard(address=address, cmd1=cmd1, cmd2=cmd2, flags=flags,
-                      topic=topic)
+        send_standard(address=address, cmd1=cmd1, cmd2=cmd2, flags=flags, topic=topic)
 
 
 @topic_to_command_handler(topic=ASSIGN_TO_ALL_LINK_GROUP)
@@ -153,27 +215,30 @@ def device_text_string_request(address: Address, topic=pub.AUTO_TOPIC):
 
 
 @topic_to_command_handler(topic=SET_DEVICE_TEXT_STRING)
-def set_device_text_string(address: Address, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def set_device_text_string(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a SET_DEVICE_TEXT_STRING command."""
-    _create_direct_message(topic=topic, address=address, user_data=OTHER_EXT_DATA)
+    _create_direct_message(topic=topic, address=address, user_data=user_data)
 
 
 @topic_to_command_handler(topic=SET_ALL_LINK_COMMAND_ALIAS)
-def set_all_link_command_alias(address: Address, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def set_all_link_command_alias(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a SET_ALL_LINK_COMMAND_ALIAS command."""
-    _create_direct_message(topic=topic, address=address, user_data=OTHER_EXT_DATA)
+    _create_direct_message(topic=topic, address=address, user_data=user_data)
 
 
 @topic_to_command_handler(topic=SET_ALL_LINK)
-def set_all_link(address: Address, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def set_all_link(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a SET_ALL_LINK command."""
-    _create_direct_message(topic=topic, address=address, user_data=OTHER_EXT_DATA)
+    _create_direct_message(topic=topic, address=address, user_data=user_data)
 
 
 @topic_to_command_handler(topic=ENTER_LINKING_MODE)
 def enter_linking_mode(address: Address, group: int, topic=pub.AUTO_TOPIC):
     """Create a ENTER_LINKING_MODE command."""
-    _create_direct_message(topic=topic, address=address, cmd2=group)
+    user_data = UserData()
+    _create_direct_message(
+        topic=topic, address=address, cmd2=group, user_data=user_data
+    )
 
 
 @topic_to_command_handler(topic=ENTER_UNLINKING_MODE)
@@ -205,8 +270,10 @@ def on(address: Address, on_level: int, group=0, topic=pub.AUTO_TOPIC):
     """Create a ON command."""
     user_data = None
     if group and group > 1:
-        user_data = UserData({'d1': group})
-    _create_direct_message(topic=topic, address=address, cmd2=on_level, user_data=user_data)
+        user_data = UserData({"d1": group})
+    _create_direct_message(
+        topic=topic, address=address, cmd2=on_level, user_data=user_data
+    )
 
 
 @topic_to_command_handler(topic=ON_FAST)
@@ -214,8 +281,10 @@ def on_fast(address: Address, on_level: int, group: int, topic=pub.AUTO_TOPIC):
     """Create a ON_FAST command."""
     user_data = None
     if group and group > 1:
-        user_data = UserData({'d1': group})
-    _create_direct_message(topic=topic, address=address, cmd2=on_level, user_data=user_data)
+        user_data = UserData({"d1": group})
+    _create_direct_message(
+        topic=topic, address=address, cmd2=on_level, user_data=user_data
+    )
 
 
 @topic_to_command_handler(topic=OFF)
@@ -223,7 +292,7 @@ def off(address: Address, group: int, cmd2: int = 0, topic=pub.AUTO_TOPIC):
     """Create a OFF command."""
     user_data = None
     if group and group > 1:
-        user_data = UserData({'d1': group})
+        user_data = UserData({"d1": group})
     _create_direct_message(topic=topic, address=address, cmd2=cmd2, user_data=user_data)
 
 
@@ -232,7 +301,7 @@ def off_fast(address: Address, group: int, topic=pub.AUTO_TOPIC):
     """Create a OFF_FAST command."""
     user_data = None
     if group and group > 1:
-        user_data = UserData({'d1': group})
+        user_data = UserData({"d1": group})
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
@@ -252,6 +321,7 @@ def dim_one_step(address: Address, topic=pub.AUTO_TOPIC):
 def status_request(address: Address, status_type: int = 0, topic=pub.AUTO_TOPIC):
     """Create a STATUS_REQUEST command."""
     _create_direct_message(topic=topic, address=address, cmd2=status_type)
+
 
 @topic_to_command_handler(topic=GET_OPERATING_FLAGS)
 def get_operating_flags(address: Address, flags_requested: int, topic=pub.AUTO_TOPIC):
@@ -308,33 +378,55 @@ def poke_one_byte_internal(address: Address, byte_to_write: int, topic=pub.AUTO_
 
 
 @topic_to_command_handler(topic=ON_AT_RAMP_RATE)
-def on_at_ramp_rate(address: Address, on_level: int, ramp_rate: RampRate, topic=pub.AUTO_TOPIC):
+def on_at_ramp_rate(
+    address: Address, on_level: int, ramp_rate: RampRate, topic=pub.AUTO_TOPIC
+):
     """Create a ON_AT_RAMP_RATE command."""
     from math import ceil
-    on_level = min(0x10, on_level & 0xf0)
-    ramp_rate = ceil(int(ramp_rate) / 2) + 1 & 0x0f
+
+    on_level = min(0x10, on_level & 0xF0)
+    ramp_rate = ceil(int(ramp_rate) / 2) + 1 & 0x0F
     cmd2 = on_level + ramp_rate
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
 @topic_to_command_handler(topic=EXTENDED_GET_SET)
-def extended_get_set(address: Address, data1=0, data2=0, data3=0, data4=0,
-                     data5=0, data6=0, data7=0, data8=0, data9=0, data10=0,
-                     data11=0, data12=0, data13=0, data14=0, topic=pub.AUTO_TOPIC):
+def extended_get_set(
+    address: Address,
+    data1=0,
+    data2=0,
+    data3=0,
+    data4=0,
+    data5=0,
+    data6=0,
+    data7=0,
+    data8=0,
+    data9=0,
+    data10=0,
+    data11=0,
+    data12=0,
+    data13=0,
+    data14=0,
+    topic=pub.AUTO_TOPIC,
+):
     """Create a EXTENDED_GET_SET command."""
     data = {}
     items = locals()
-    for i in range(1, 15):
-        data['d{}'.format(i)] = items['data{}'.format(i)]
+    for index in range(1, 15):
+        data["d{}".format(index)] = items["data{}".format(index)]
     user_data = UserData(data)
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
+
 @topic_to_command_handler(topic=OFF_AT_RAMP_RATE)
-def off_at_ramp_rate(address: Address, on_level: int, ramp_rate: RampRate, topic=pub.AUTO_TOPIC):
+def off_at_ramp_rate(
+    address: Address, on_level: int, ramp_rate: RampRate, topic=pub.AUTO_TOPIC
+):
     """Create a OFF_AT_RAMP_RATE command."""
     from math import ceil
-    on_level = min(0x10, on_level & 0xf0)
-    ramp_rate = ceil(int(ramp_rate) / 2) + 1 & 0x0f
+
+    on_level = min(0x10, on_level & 0xF0)
+    ramp_rate = ceil(int(ramp_rate) / 2) + 1 & 0x0F
     cmd2 = on_level + ramp_rate
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
@@ -342,52 +434,107 @@ def off_at_ramp_rate(address: Address, on_level: int, ramp_rate: RampRate, topic
 def _read_aldb(address, mem_addr, num_recs, topic):
     # num_recs = 0 if mem_addr == 0x0000 else 1
     mem_hi = mem_addr >> 8
-    mem_lo = mem_addr & 0xff
-    user_data = UserData({'d2': 0x00, 'd3': mem_hi, 'd4': mem_lo, 'd5': num_recs})
+    mem_lo = mem_addr & 0xFF
+    user_data = UserData({"d2": 0x00, "d3": mem_hi, "d4": mem_lo, "d5": num_recs})
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
-def _write_aldb(address, mem_addr, controller, group, target, data1, data2, data3,
-                in_use, high_water_mark, bit5, bit4, topic):
+def _write_aldb(
+    address,
+    mem_addr,
+    controller,
+    group,
+    target,
+    data1,
+    data2,
+    data3,
+    in_use,
+    high_water_mark,
+    bit5,
+    bit4,
+    topic,
+):
     from .messages.all_link_record_flags import create
+
     address = Address(address)
     target = Address(target)
     mem_hi = mem_addr >> 8
-    mem_lo = mem_addr & 0xff
-    flags = create(in_use=in_use, controller=controller, hwm=high_water_mark, bit5=bit5, bit4=bit4)
-    user_data = UserData({'d2': 0x02, 'd3': mem_hi, 'd4': mem_lo, 'd5': 0x08,
-                          'd6': int(flags), 'd7': group, 'd8': target.high, 'd9': target.middle,
-                          'd10': target.low, 'd11': data1, 'd12': data2, 'd13': data3})
+    mem_lo = mem_addr & 0xFF
+    flags = create(
+        in_use=in_use, controller=controller, hwm=high_water_mark, bit5=bit5, bit4=bit4
+    )
+    user_data = UserData(
+        {
+            "d2": 0x02,
+            "d3": mem_hi,
+            "d4": mem_lo,
+            "d5": 0x08,
+            "d6": int(flags),
+            "d7": group,
+            "d8": target.high,
+            "d9": target.middle,
+            "d10": target.low,
+            "d11": data1,
+            "d12": data2,
+            "d13": data3,
+        }
+    )
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
 @topic_to_command_handler(topic=EXTENDED_READ_WRITE_ALDB)
-def extended_read_write_aldb(address: Address, action: int, mem_addr: int,
-                             num_recs: int = 0,
-                             controller: bool = True, group: int = 0x01,
-                             target: Address = None, data1: int = 0x00, data2: int = 0x00,
-                             data3: int = 0x00, in_use: bool = True, high_water_mark: bool = False,
-                             bit5: int = 0, bit4: int = 0, topic=pub.AUTO_TOPIC):
+def extended_read_write_aldb(
+    address: Address,
+    action: int,
+    mem_addr: int,
+    num_recs: int = 0,
+    controller: bool = True,
+    group: int = 0x01,
+    target: Address = None,
+    data1: int = 0x00,
+    data2: int = 0x00,
+    data3: int = 0x00,
+    in_use: bool = True,
+    high_water_mark: bool = False,
+    bit5: int = 0,
+    bit4: int = 0,
+    topic=pub.AUTO_TOPIC,
+):
     """Create a EXTENDED_READ_WRITE_ALDB command."""
     if action == 0x00:
         _read_aldb(address=address, mem_addr=mem_addr, num_recs=num_recs, topic=topic)
     elif action == 0x02:
-        _write_aldb(address=address, mem_addr=mem_addr, controller=controller, group=group,
-                    target=target, data1=data1, data2=data2, data3=data3,
-                    in_use=in_use, high_water_mark=high_water_mark, bit5=bit5, bit4=bit4,
-                    topic=topic)
+        _write_aldb(
+            address=address,
+            mem_addr=mem_addr,
+            controller=controller,
+            group=group,
+            target=target,
+            data1=data1,
+            data2=data2,
+            data3=data3,
+            in_use=in_use,
+            high_water_mark=high_water_mark,
+            bit5=bit5,
+            bit4=bit4,
+            topic=topic,
+        )
 
 
 @topic_to_command_handler(topic=EXTENDED_TRIGGER_ALL_LINK)
-def extended_trigger_all_link(address: Address, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def extended_trigger_all_link(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a EXTENDED_TRIGGER_ALL_LINK command."""
-    _create_direct_message(topic=topic, address=address, cmd2=0, user_data=OTHER_EXT_DATA)
+    _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
 @topic_to_command_handler(topic=SET_SPRINKLER_PROGRAM)
-def set_sprinkler_program(address: Address, program: int, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def set_sprinkler_program(
+    address: Address, program: int, user_data, topic=pub.AUTO_TOPIC
+):
     """Create a SET_SPRINKLER_PROGRAM command."""
-    _create_direct_message(topic=topic, address=address, cmd2=program, user_data=OTHER_EXT_DATA)
+    _create_direct_message(
+        topic=topic, address=address, cmd2=program, user_data=user_data
+    )
 
 
 @topic_to_command_handler(topic=SPRINKLER_VALVE_ON)
@@ -397,10 +544,13 @@ def sprinkler_valve_on(address: Address, valve: int, topic=pub.AUTO_TOPIC):
 
 
 @topic_to_command_handler(topic=SPRINKLER_GET_PROGRAM_RESPONSE)
-def sprinkler_get_program_response(address: Address, program: int,
-                                   OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def sprinkler_get_program_response(
+    address: Address, program: int, user_data, topic=pub.AUTO_TOPIC
+):
     """Create a SPRINKLER_GET_PROGRAM_RESPONSE command."""
-    _create_direct_message(topic=topic, address=address, cmd2=program, user_data=OTHER_EXT_DATA)
+    _create_direct_message(
+        topic=topic, address=address, cmd2=program, user_data=user_data
+    )
 
 
 @topic_to_command_handler(topic=SPRINKLER_VALVE_OFF)
@@ -442,7 +592,7 @@ def sprinkler_get_valve_status(address: Address, topic=pub.AUTO_TOPIC):
 @topic_to_command_handler(topic=SPRINKLER_INHIBIT_COMMAND_ACCEPTANCE)
 def sprinkler_inhibit_command_acceptance(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_INHIBIT_COMMAND_ACCEPTANCE command."""
-    user_data = UserData({'d1': 0x03})
+    user_data = UserData({"d1": 0x03})
     _create_direct_message(topic=topic, address=address, cmd2=0x44, user_data=user_data)
 
 
@@ -541,6 +691,7 @@ def io_alarm_data_request(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_ALARM_DATA_REQUEST command."""
     _create_direct_message(topic=topic, address=address)
 
+
 @topic_to_command_handler(topic=IO_WRITE_OUTPUT_PORT)
 def io_write_output_port(address: Address, value: int, topic=pub.AUTO_TOPIC):
     """Create a IO_WRITE_OUTPUT_PORT command."""
@@ -566,37 +717,56 @@ def io_set_sensor_1_nominal_value(address: Address, value: int, topic=pub.AUTO_T
 
 
 @topic_to_command_handler(topic=IO_SET_SENSOR_NOMINAL_VALUE)
-def io_set_sensor_nominal_value(address: Address, value: int,
-                                OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def io_set_sensor_nominal_value(
+    address: Address, value: int, user_data, topic=pub.AUTO_TOPIC
+):
     """Create a IO_SET_SENSOR_NOMINAL_VALUE command."""
-    _create_direct_message(topic=topic, address=address, cmd2=value, user_data=OTHER_EXT_DATA)
+    _create_direct_message(
+        topic=topic, address=address, cmd2=value, user_data=user_data
+    )
 
 
 @topic_to_command_handler(topic=IO_GET_SENSOR_ALARM_DELTA)
-def io_get_sensor_alarm_delta(address: Address, sensor: int, delta: int,
-                              direction: int, topic=pub.AUTO_TOPIC):
+def io_get_sensor_alarm_delta(
+    address: Address, sensor: int, delta: int, direction: int, topic=pub.AUTO_TOPIC
+):
     """Create a IO_GET_SENSOR_ALARM_DELTA command."""
-    sensor = sensor & 0x0f
+    sensor = sensor & 0x0F
     delta = delta & 0x07 << 4
     direction = 8 if bool(direction) else 0
-    cmd2 = (sensor + delta + direction)
+    cmd2 = sensor + delta + direction
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
 @topic_to_command_handler(topic=IO_ALARM_DATA_RESPONSE)
-def io_alarm_data_response(address: Address, OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def io_alarm_data_response(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a IO_ALARM_DATA_RESPONSE command."""
-    _create_direct_message(topic=topic, address=address, user_data=OTHER_EXT_DATA)
+    _create_direct_message(topic=topic, address=address, user_data=user_data)
 
 
 @topic_to_command_handler(topic=IO_WRITE_CONFIGURATION_PORT)
-def io_write_configuration_port(address: Address, bits_0_1: bool,
-                                bit_2: bool, bit_3: bool, bit_4: bool,
-                                bit_5: bool, bit_6: bool, bit_7: bool
-                                , topic=pub.AUTO_TOPIC):
+def io_write_configuration_port(
+    address: Address,
+    bits_0_1: bool,
+    bit_2: bool,
+    bit_3: bool,
+    bit_4: bool,
+    bit_5: bool,
+    bit_6: bool,
+    bit_7: bool,
+    topic=pub.AUTO_TOPIC,
+):
     """Create a IO_WRITE_CONFIGURATION_PORT command."""
-    cmd2 = (bit_7 << 7 + bit_6 << 6 + bit_5 << 5 + bit_4 << 4 + bit_3 << 3 +
-            bit_2 << 2 + bits_0_1 << 0)
+    cmd2 = (
+        bit_7
+        << 7 + bit_6
+        << 6 + bit_5
+        << 5 + bit_4
+        << 4 + bit_3
+        << 3 + bit_2
+        << 2 + bits_0_1
+        << 0
+    )
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
@@ -685,10 +855,13 @@ def pool_device_on(address: Address, device_num: int, topic=pub.AUTO_TOPIC):
 
 
 @topic_to_command_handler(topic=POOL_SET_DEVICE_TEMPERATURE)
-def pool_set_device_temperature(address: Address, device_num: int,
-                                OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def pool_set_device_temperature(
+    address: Address, device_num: int, user_data, topic=pub.AUTO_TOPIC
+):
     """Create a POOL_SET_DEVICE_TEMPERATURE command."""
-    _create_direct_message(topic=topic, address=address, cmd2=device_num, user_data=OTHER_EXT_DATA)
+    _create_direct_message(
+        topic=topic, address=address, cmd2=device_num, user_data=user_data
+    )
 
 
 @topic_to_command_handler(topic=POOL_DEVICE_OFF)
@@ -698,10 +871,13 @@ def pool_device_off(address: Address, device_num: int, topic=pub.AUTO_TOPIC):
 
 
 @topic_to_command_handler(topic=POOL_SET_DEVICE_HYSTERESIS)
-def pool_set_device_hysteresis(address: Address, device_num: int,
-                               OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def pool_set_device_hysteresis(
+    address: Address, device_num: int, user_data, topic=pub.AUTO_TOPIC
+):
     """Create a POOL_SET_DEVICE_HYSTERESIS command."""
-    _create_direct_message(topic=topic, address=address, cmd2=device_num, user_data=OTHER_EXT_DATA)
+    _create_direct_message(
+        topic=topic, address=address, cmd2=device_num, user_data=user_data
+    )
 
 
 @topic_to_command_handler(topic=POOL_TEMPERATURE_UP)
@@ -793,7 +969,7 @@ def door_move_single_door_open(address: Address, topic=pub.AUTO_TOPIC):
 @topic_to_command_handler(topic=DOOR_MOVE_SINGLE_DOOR_CLOSE)
 def door_move_single_door_close(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_MOVE_SINGLE_DOOR_CLOSE command."""
-    user_data = UserData({'d1': 0x06})
+    user_data = UserData({"d1": 0x06})
     _create_direct_message(topic=topic, address=address, cmd2=0x58, user_data=user_data)
 
 
@@ -877,30 +1053,32 @@ def thermostat_temperature_up(address: Address, degrees: int, topic=pub.AUTO_TOP
 
 
 @topic_to_command_handler(topic=THERMOSTAT_ZONE_TEMPERATURE_UP)
-def thermostat_zone_temperature_up(address: Address, zone: int,
-                                   OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def thermostat_zone_temperature_up(
+    address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
+):
     """Create a THERMOSTAT_ZONE_TEMPERATURE_UP command."""
-    _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=OTHER_EXT_DATA)
+    _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=user_data)
 
 
 @topic_to_command_handler(topic=THERMOSTAT_TEMPERATURE_DOWN)
-def thermostat_temperature_down(address: Address,
-                                degrees: int, topic=pub.AUTO_TOPIC):
+def thermostat_temperature_down(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_TEMPERATURE_DOWN command."""
     cmd2 = degrees * 2
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
 @topic_to_command_handler(topic=THERMOSTAT_ZONE_TEMPERATURE_DOWN)
-def thermostat_zone_temperature_down(address: Address, zone: int,
-                                     OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def thermostat_zone_temperature_down(
+    address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
+):
     """Create a THERMOSTAT_ZONE_TEMPERATURE_DOWN command."""
-    _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=OTHER_EXT_DATA)
+    _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=user_data)
 
 
 @topic_to_command_handler(topic=THERMOSTAT_GET_ZONE_INFORMATION)
-def thermostat_get_zone_information(address: Address, zone: int,
-                                    info: int, topic=pub.AUTO_TOPIC):
+def thermostat_get_zone_information(
+    address: Address, zone: int, info: int, topic=pub.AUTO_TOPIC
+):
     """Create a THERMOSTAT_GET_ZONE_INFORMATION command.
 
     zone: (int) 0 to 31
@@ -911,7 +1089,7 @@ def thermostat_get_zone_information(address: Address, zone: int,
         2 = Deadband
         3 = Humidity
     """
-    zone = zone & 0x0f
+    zone = zone & 0x0F
     info = info & 0x03 << 5
     cmd2 = info + zone
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
@@ -1069,25 +1247,26 @@ def thermostat_set_cool_setpoint(address: Address, degrees: int, topic=pub.AUTO_
 
 
 @topic_to_command_handler(topic=THERMOSTAT_SET_ZONE_COOL_SETPOINT)
-def thermostat_set_zone_cool_setpoint(address: Address, zone: int,
-                                      OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def thermostat_set_zone_cool_setpoint(
+    address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
+):
     """Create a THERMOSTAT_SET_ZONE_COOL_SETPOINT command."""
-    _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=OTHER_EXT_DATA)
+    _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=user_data)
 
 
 @topic_to_command_handler(topic=THERMOSTAT_SET_HEAT_SETPOINT)
-def thermostat_set_heat_setpoint(address: Address,
-                                 degrees: int, topic=pub.AUTO_TOPIC):
+def thermostat_set_heat_setpoint(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_SET_HEAT_SETPOINT command."""
     cmd2 = degrees * 2
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
 @topic_to_command_handler(topic=THERMOSTAT_SET_ZONE_HEAT_SETPOINT)
-def thermostat_set_zone_heat_setpoint(address: Address, zone: int,
-                                      OTHER_EXT_DATA, topic=pub.AUTO_TOPIC):
+def thermostat_set_zone_heat_setpoint(
+    address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
+):
     """Create a THERMOSTAT_SET_ZONE_HEAT_SETPOINT command."""
-    _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=OTHER_EXT_DATA)
+    _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=user_data)
 
 
 @topic_to_command_handler(topic=ASSIGN_TO_COMPANION_GROUP)

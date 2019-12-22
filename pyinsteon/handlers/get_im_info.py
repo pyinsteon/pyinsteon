@@ -8,6 +8,7 @@ from . import ack_handler
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class GetImInfoHandler(OutboundHandlerBase):
     """Handle Get IM Info commands"""
 
@@ -18,4 +19,6 @@ class GetImInfoHandler(OutboundHandlerBase):
     @ack_handler()
     def handle_ack(self, address, cat, subcat, firmware):
         """Receive the ACK message and return True."""
-        self._call_subscribers(address=address, cat=cat, subcat=subcat, firmware=firmware)
+        self._call_subscribers(
+            address=address, cat=cat, subcat=subcat, firmware=firmware
+        )

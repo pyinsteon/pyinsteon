@@ -4,20 +4,23 @@ from abc import ABCMeta
 from .. import pub
 from .inbound_base import InboundHandlerBase
 from . import ResponseStatus
+from ..utils import build_topic
 
 
-TIMEOUT = 60 * 3  # It should not take more than 3 minutes for a message send (I hope)
+# It should not take more than 3 minutes for a message send (I hope)
+TIMEOUT = 60 * 3
+
 
 class OutboundHandlerBase(InboundHandlerBase):
     """Manage a message chain."""
 
     __meta__ = ABCMeta
 
-    def __init__(self, topic):
+    def __init__(self, topic, address=None, group=None, message_type=None):
         """Init the MessageManager."""
         self._message_response = asyncio.Queue()
-        self._send_topic = topic
-        super().__init__(topic)
+        self._message_type = message_type
+        super().__init__(topic, address=address, group=group, message_type=message_type)
 
     @property
     def message_response(self) -> asyncio.Queue:
@@ -36,10 +39,16 @@ class OutboundHandlerBase(InboundHandlerBase):
                 self._message_response.get_nowait()
             except asyncio.QueueEmpty:
                 pass
-        pub.sendMessage('send.{}'.format(self._send_topic), **kwargs)
+        send_topic = build_topic(
+            topic=self._topic,
+            prefix="send",
+            address=None,
+            group=None,
+            message_type=self._message_type,
+        )
+        pub.sendMessage(send_topic, **kwargs)
         try:
-            test = await asyncio.wait_for(
-                self._message_response.get(), TIMEOUT)
+            test = await asyncio.wait_for(self._message_response.get(), TIMEOUT)
             return test
         except asyncio.TimeoutError:
             return ResponseStatus.UNSENT

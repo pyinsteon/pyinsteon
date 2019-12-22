@@ -10,8 +10,12 @@ _LOGGER = logging.getLogger(__name__)
 _EXTENDED_MESSAGE = 0x10
 
 
-def create(message_flag_type: MessageFlagType, extended: bool = False,
-           hops_left: int = 0, max_hops: int = 0):
+def create(
+    message_flag_type: MessageFlagType,
+    extended: bool = False,
+    hops_left: int = 0,
+    max_hops: int = 0,
+):
     """Create message flags.
 
     message_flag_type: MessageFlagType 0 to 7:
@@ -62,7 +66,7 @@ def create(message_flag_type: MessageFlagType, extended: bool = False,
 #     return flags
 
 
-class MessageFlags():
+class MessageFlags:
     """Message Flags class use in Standard and Extended messages."""
 
     def __init__(self, flags=0x00):
@@ -77,23 +81,24 @@ class MessageFlags():
 
     def __repr__(self):
         """Representation of the message flags."""
-        int_self = int.from_bytes(bytes(self), byteorder='big')
-        return '0x{:02x}'.format(int_self)
+        int_self = int.from_bytes(bytes(self), byteorder="big")
+        return "0x{:02x}".format(int_self)
 
     def __str__(self):
         """Return a hexadecimal representation of the message flags."""
         val = "{}'message_type': '{}', 'extended': {}, 'hops_left': {}, 'max_hops': {}{}".format(
-            '{', str(self._type), self._extended, self._hops_left, self._max_hops, '}')
+            "{", str(self._type), self._extended, self._hops_left, self._max_hops, "}"
+        )
         return val
 
     def __bytes__(self):
         """Return a byte representation of the message flags."""
         message_type = (self._type.value << 5) if self._type else 0
-        extendedBit = (1 << 4) if self._extended else 0
-        hopsLeft = (self._hops_left << 2) if self._hops_left else 0
-        hopsMax = self._max_hops if self._max_hops else 0
-        flagByte = message_type | extendedBit | hopsLeft | hopsMax
-        return bytes([flagByte])
+        extended_bit = (1 << 4) if self._extended else 0
+        hops_left = (self._hops_left << 2) if self._hops_left else 0
+        hops_max = self._max_hops if self._max_hops else 0
+        flag_byte = message_type | extended_bit | hops_left | hops_max
+        return bytes([flag_byte])
 
     def __eq__(self, other):
         """Test for equality.
@@ -105,8 +110,7 @@ class MessageFlags():
             return False
 
         match = True
-        match = match & test_values_eq(self.message_type,
-                                       other.message_type)
+        match = match & test_values_eq(self.message_type, other.message_type)
         match = match & test_values_eq(self.extended, other.extended)
         return match
 
@@ -153,7 +157,7 @@ class MessageFlags():
             self._hops_left = val
             return
         else:
-            raise ValueError('hops_left property must be 0-3 or None')
+            raise ValueError("hops_left property must be 0-3 or None")
         self._hops_left = min(3, max(val_int, 0))
 
     @property
@@ -172,11 +176,11 @@ class MessageFlags():
             self._max_hops = val
             return
         else:
-            raise ValueError('max_hops property must be 0-3 or None')
+            raise ValueError("max_hops property must be 0-3 or None")
         self._max_hops = min(3, max(val_int, 0))
 
     @property
-    def extended(self) ->MessageFlagType:
+    def extended(self) -> MessageFlagType:
         """Return the extended flag."""
         return self._extended
 
@@ -189,7 +193,7 @@ class MessageFlags():
             try:
                 self._extended = bool(val)
             except TypeError:
-                raise ValueError('extended property must be True, False or None.')
+                raise ValueError("extended property must be True, False or None.")
 
     @property
     def is_broadcast(self) -> bool:
@@ -199,7 +203,7 @@ class MessageFlags():
     @property
     def is_direct(self) -> bool:
         """Test if the message is a direct message type."""
-        direct = (self._type == MessageFlagType.DIRECT)
+        direct = self._type == MessageFlagType.DIRECT
         if self.is_direct_ack or self.is_direct_nak:
             direct = True
         return direct
@@ -257,19 +261,18 @@ class MessageFlags():
         elif flags is None:
             norm = None
         else:
-            _LOGGER.warning('MessageFlags with unknown type %s: %r',
-                            type(flags), flags)
+            _LOGGER.warning("MessageFlags with unknown type %s: %r", type(flags), flags)
         return norm
 
     def _set_properties(self, flags):
         """Set the properties of the message flags based on a byte input."""
-        flagByte = self._normalize(flags)
+        flag_byte = self._normalize(flags)
 
-        if flagByte is not None:
-            self._type = MessageFlagType((flagByte[0] & 0xe0) >> 5)
-            self._extended = (flagByte[0] & _EXTENDED_MESSAGE) >> 4
-            self._hops_left = (flagByte[0] & 0x0c) >> 2
-            self._max_hops = flagByte[0] & 0x03
+        if flag_byte is not None:
+            self._type = MessageFlagType((flag_byte[0] & 0xE0) >> 5)
+            self._extended = (flag_byte[0] & _EXTENDED_MESSAGE) >> 4
+            self._hops_left = (flag_byte[0] & 0x0C) >> 2
+            self._max_hops = flag_byte[0] & 0x03
         else:
             self._type = None
             self._extended = None

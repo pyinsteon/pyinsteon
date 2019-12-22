@@ -1,6 +1,7 @@
 """Operating flag or Extended Property for all device types."""
 from .subscriber_base import SubscriberBase
 
+
 class DeviceFlagBase(SubscriberBase):
     """Operating flag or Extended Property."""
 
@@ -63,4 +64,4 @@ class DeviceFlagBase(SubscriberBase):
         self._is_dirty = False
         self._new_value = None
         self._is_loaded = True
-        self._call_subscribers(flag=self)
+        self._call_subscribers(name=self._name, value=self._value)

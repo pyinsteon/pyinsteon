@@ -1,8 +1,8 @@
 """Test nothing."""
 import unittest
 
-class TestNothing(unittest.TestCase):
 
+class TestNothing(unittest.TestCase):
     def setUp(self):
         self._nothing = True
 

@@ -11,7 +11,7 @@ class TestTopicFromMsg(unittest.TestCase):
 
     def setUp(self):
         """Setup the tests."""
-        self.hex_data = '0250010203040506272829'
+        self.hex_data = "0250010203040506272829"
         # address: 01.02.03
         # target: 04.05.06
         # flags: 27 (direct_ack)
@@ -25,12 +25,12 @@ class TestTopicFromMsg(unittest.TestCase):
 
     def test_topic(self):
         """The topic is correct."""
-        assert self.topic == '010203.set_address_msb.direct_ack'
+        assert self.topic == "010203.set_address_msb.direct_ack"
 
     def test_cmd2(self):
         """Test cmd2 is correct in kwargs."""
-        assert self.kwargs.get('cmd2') == 0x29
+        assert self.kwargs.get("cmd2") == 0x29
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

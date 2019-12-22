@@ -17,13 +17,19 @@ READ_ONE = 2
 WRITE = 3
 CANCEL = 0
 
-class ALDBReadManager():
+IM_NOT_IN_DEVICE_ALDB = 0xFF
+CHECKSUM_ERROR = 0xFD
+ILLEGAL_VALUE_IN_COMMAND = 0xFB
+
+
+class ALDBReadManager:
     """ALDB Read Manager."""
 
-    def __init__(self, aldb, mem_addr: int = 0x00, num_recs: int = 0): # : ALDB):
+    def __init__(self, aldb, mem_addr: int = 0x00, num_recs: int = 0):  # : ALDB):
         """Init the ALDBReadManager class."""
         from ..handlers.to_device.read_aldb import ReadALDBCommandHandler
         from ..handlers.from_device.receive_aldb_record import ReceiveALDBRecordHandler
+
         self._aldb = aldb
         self._mem_addr = mem_addr
         self._num_recs = num_recs
@@ -53,17 +59,15 @@ class ALDBReadManager():
             record = await self._records.get()
             if record is None:
                 break
-            else:
-                await yield_(record)
+            await yield_(record)
 
     async def _async_read(self, mem_addr: int = 0x00, num_recs: int = 0):
         """Perform the device read function."""
-        if (self._last_command == READ_ALL and
-                self._retries_all < RETRIES_ALL_MAX):
+        if self._last_command == READ_ALL and self._retries_all < RETRIES_ALL_MAX:
             retries = self._retries_all
         else:
             retries = self._retries_one
-        _LOGGER.debug('Attempting to read %x', mem_addr)
+        _LOGGER.debug("Attempting to read %x", mem_addr)
         # TODO check for success or failure
         await self._read_handler.async_send(mem_addr=mem_addr, num_recs=num_recs)
         timer = TIMER + retries * TIMER_INCREMENT
@@ -71,23 +75,43 @@ class ALDBReadManager():
 
     def _receive_direct_ack(self, ack_response):
         """Receive the response from the direct ACK."""
-        IM_NOT_IN_DEVICE_ALDB = 0xff
-        CHECKSUM_ERROR = 0xfd
-        ILLEGAL_VALUE_IN_COMMAND = 0xfb
-        if ack_response in [IM_NOT_IN_DEVICE_ALDB,
-                            CHECKSUM_ERROR,
-                            ILLEGAL_VALUE_IN_COMMAND]:
-            _LOGGER.error('ALDB Load error: 0x%02x', ack_response)
+        if ack_response in [
+            IM_NOT_IN_DEVICE_ALDB,
+            CHECKSUM_ERROR,
+            ILLEGAL_VALUE_IN_COMMAND,
+        ]:
+            _LOGGER.error("ALDB Load error: 0x%02x", ack_response)
             self._last_command = CANCEL
             self._records.put_nowait(None)
 
-    def _receive_record(self, memory, controller, group, target,
-                        data1, data2, data3, in_use,
-                        high_water_mark, bit5, bit4):
+    def _receive_record(
+        self,
+        memory,
+        controller,
+        group,
+        target,
+        data1,
+        data2,
+        data3,
+        in_use,
+        high_water_mark,
+        bit5,
+        bit4,
+    ):
         """Receive an ALDB record."""
-        record = ALDBRecord(memory=memory, controller=controller, group=group, target=target,
-                            data1=data1, data2=data2, data3=data3, in_use=in_use,
-                            high_water_mark=high_water_mark, bit5=bit5, bit4=bit4)
+        record = ALDBRecord(
+            memory=memory,
+            controller=controller,
+            group=group,
+            target=target,
+            data1=data1,
+            data2=data2,
+            data3=data3,
+            in_use=in_use,
+            high_water_mark=high_water_mark,
+            bit5=bit5,
+            bit4=bit4,
+        )
         self._records.put_nowait(record)
         asyncio.ensure_future(self._release_timer())
 
@@ -115,7 +139,7 @@ class ALDBReadManager():
 
     def _manage_get_all_cmd(self, mem_addr, num_recs):
         """Manage the READ_ALL command process."""
-        _LOGGER.debug('In _manage_get_all_cmd')
+        _LOGGER.debug("In _manage_get_all_cmd")
         if self._aldb.calc_load_status():
             # The ALDB is fully loaded so stop
             self._records.put_nowait(None)
@@ -125,7 +149,7 @@ class ALDBReadManager():
             # Attempt to read all records again
             asyncio.ensure_future(self._async_read(0x0000, 0))
             self._retries_all += 1
-            _LOGGER.info('Retry reading all records %d times', self._retries_all)
+            _LOGGER.info("Retry reading all records %d times", self._retries_all)
         else:
             # Read the next missing record
             next_mem_addr = self._next_missing_record()
@@ -138,8 +162,11 @@ class ALDBReadManager():
                 if self._retries_one < RETRIES_ONE_MAX:
                     asyncio.ensure_future(self._async_read(next_mem_addr, 1))
                     self._retries_one += 1
-                    _LOGGER.info('Retry reading 0x%04x record %d times',
-                                 next_mem_addr, self._retries_one)
+                    _LOGGER.info(
+                        "Retry reading 0x%04x record %d times",
+                        next_mem_addr,
+                        self._retries_one,
+                    )
                 else:
                     # Tried to read the same record max times so quit
                     self._records.put_nowait(None)
@@ -157,10 +184,13 @@ class ALDBReadManager():
             self._records.put_nowait(None)
             return
         if self._retries_one < RETRIES_ONE_MAX:
-            asyncio.ensure_future(self._async_read(mem_addr=mem_addr, num_recs=num_recs))
+            asyncio.ensure_future(
+                self._async_read(mem_addr=mem_addr, num_recs=num_recs)
+            )
             self._retries_one += 1
-            _LOGGER.info('Retry reading 0x%04x record %d times',
-                         mem_addr, self._retries_one)
+            _LOGGER.info(
+                "Retry reading 0x%04x record %d times", mem_addr, self._retries_one
+            )
         else:
             # Trigger aldb.loaded but this will check the load status.
             self._records.put_nowait(None)
@@ -169,8 +199,7 @@ class ALDBReadManager():
     def _next_missing_record(self):
         last_addr = 0
         if not self._has_first_record():
-            if (self._last_mem_addr == 0x0000 and
-                    self._retries_one < RETRIES_ONE_MAX):
+            if self._last_mem_addr == 0x0000 and self._retries_one < RETRIES_ONE_MAX:
                 return 0x0000
             return self._aldb.first_mem_addr
         for mem_addr in self._aldb:
@@ -186,7 +215,7 @@ class ALDBReadManager():
     def _has_first_record(self):
         """Test if the first record is loaded."""
         for mem_addr in self._aldb:
-            if mem_addr in [self._aldb.first_mem_addr, 0x0fff]:
-                _LOGGER.debug('Found First record: 0x%04x', mem_addr)
+            if mem_addr in [self._aldb.first_mem_addr, 0x0FFF]:
+                _LOGGER.debug("Found First record: 0x%04x", mem_addr)
                 return True
         return False

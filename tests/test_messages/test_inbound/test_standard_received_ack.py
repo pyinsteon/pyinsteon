@@ -9,19 +9,23 @@ from tests.utils import hex_to_inbound_message
 
 
 class TestStandardReceived(unittest.TestCase):
-
     def setUp(self):
-        self.hex_data = '0250010203040506070809'
+        self.hex_data = "0250010203040506070809"
         self.bytes_data = bytearray(unhexlify(self.hex_data))
         self.message_id = 0x50
-        self.address = Address('010203')
-        self.target = Address('040506')
+        self.address = Address("010203")
+        self.target = Address("040506")
         self.flags = MessageFlags(0x07)
         self.cmd1 = int(0x08)
         self.cmd2 = int(0x09)
 
         self.msg, self.msg_bytes = hex_to_inbound_message(self.hex_data)
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     def test_id(self):
         assert self.msg.message_id == self.message_id
@@ -48,6 +52,6 @@ class TestStandardReceived(unittest.TestCase):
         assert len(self.msg) == 11
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # _INSTEON_LOGGER.setLevel(logging.DEBUG)
     unittest.main()

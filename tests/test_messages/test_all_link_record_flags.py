@@ -9,15 +9,14 @@ from pyinsteon.constants import AllLinkMode
 
 
 class TestAllLinkRecordFlags(unittest.TestCase):
-
     def setUp(self):
-        self.hex_data_00 = '00'  # Not in use, responder, HWM
-        self.hex_data_80 = '80'  # In use, responder, HWM
-        self.hex_data_40 = '40'  # Not in use, controller, not HWM
-        self.hex_data_02 = '02'  # Not in use, responder, not HWM
-        self.hex_data_3D = '3D'  # Not in use, responder HWM, bits 5,4,3,2,0
-        self.hex_data_C2 = 'C2'  # In Use, controller, not HWM
-        self.hex_data_FF = 'FF'  # In use, controller, not HWM, bits 5,4,3,2,0
+        self.hex_data_00 = "00"  # Not in use, responder, HWM
+        self.hex_data_80 = "80"  # In use, responder, HWM
+        self.hex_data_40 = "40"  # Not in use, controller, not HWM
+        self.hex_data_02 = "02"  # Not in use, responder, not HWM
+        self.hex_data_3D = "3D"  # Not in use, responder HWM, bits 5,4,3,2,0
+        self.hex_data_C2 = "C2"  # In Use, controller, not HWM
+        self.hex_data_FF = "FF"  # In use, controller, not HWM, bits 5,4,3,2,0
 
         self.flags_00 = AllLinkRecordFlags(unhexlify(self.hex_data_00))
         self.flags_80 = AllLinkRecordFlags(unhexlify(self.hex_data_80))
@@ -26,38 +25,112 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         self.flags_3D = AllLinkRecordFlags(unhexlify(self.hex_data_3D))
         self.flags_C2 = AllLinkRecordFlags(unhexlify(self.hex_data_C2))
         self.flags_FF = AllLinkRecordFlags(unhexlify(self.hex_data_FF))
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     def test_flags_00(self):
-        self._check_flags(self.flags_00, False, AllLinkMode.RESPONDER, False,
-                          False, False, False, True, False, '00')
+        self._check_flags(
+            self.flags_00,
+            False,
+            AllLinkMode.RESPONDER,
+            False,
+            False,
+            False,
+            False,
+            True,
+            False,
+            "00",
+        )
 
     def test_flags_80(self):
-        self._check_flags(self.flags_80, True, AllLinkMode.RESPONDER, False,
-                          False, False, False, True, False, '80')
+        self._check_flags(
+            self.flags_80,
+            True,
+            AllLinkMode.RESPONDER,
+            False,
+            False,
+            False,
+            False,
+            True,
+            False,
+            "80",
+        )
 
     def test_flags_40(self):
-        self._check_flags(self.flags_40, False, AllLinkMode.CONTROLLER, False,
-                          False, False, False, True, False, '40')
+        self._check_flags(
+            self.flags_40,
+            False,
+            AllLinkMode.CONTROLLER,
+            False,
+            False,
+            False,
+            False,
+            True,
+            False,
+            "40",
+        )
 
     def test_flags_02(self):
-        self._check_flags(self.flags_02, False, AllLinkMode.RESPONDER, False,
-                          False, False, False, False, False, '02')
+        self._check_flags(
+            self.flags_02,
+            False,
+            AllLinkMode.RESPONDER,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            "02",
+        )
 
     def test_flags_3D(self):
-        self._check_flags(self.flags_3D, False, AllLinkMode.RESPONDER, True,
-                          True, True, True, True, True, '3D')
+        self._check_flags(
+            self.flags_3D,
+            False,
+            AllLinkMode.RESPONDER,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            "3D",
+        )
 
     def test_flags_C2(self):
-        self._check_flags(self.flags_C2, True, AllLinkMode.CONTROLLER, False,
-                          False, False, False, False, False, 'C2')
+        self._check_flags(
+            self.flags_C2,
+            True,
+            AllLinkMode.CONTROLLER,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            "C2",
+        )
 
     def test_flags_FF(self):
-        self._check_flags(self.flags_FF, True, AllLinkMode.CONTROLLER, True,
-                          True, True, True, False, True, 'FF')
+        self._check_flags(
+            self.flags_FF,
+            True,
+            AllLinkMode.CONTROLLER,
+            True,
+            True,
+            True,
+            True,
+            False,
+            True,
+            "FF",
+        )
 
-    def _check_flags(self, flags, in_use, mode, bit5, bit4, bit3, bit2, hwm, bit0,
-                     hex):
+    def _check_flags(self, flags, in_use, mode, bit5, bit4, bit3, bit2, hwm, bit0, hex):
         self._check_flags_in_use(flags, in_use)
         self._check_flags_mode(flags, mode)
         self._check_flags_bit_5(flags, bit5)
@@ -95,6 +168,6 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         assert bytes(flags) == val
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # _INSTEON_LOGGER.setLevel(logging.DEBUG)
     unittest.main()

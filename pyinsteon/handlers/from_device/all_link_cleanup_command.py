@@ -7,10 +7,13 @@ from ...constants import MessageFlagType
 class AllLinkCleanupCommandHandlerBase(InboundHandlerBase):
     """Base class to handle inbound All-Link Cleanup messages."""
 
-    def __init__(self, address, group, command):
+    def __init__(self, topic, address, group):
         """Init the BroadcastHandlerBase class."""
         self._address = Address(address)
         self._group = group
-        msg_type = str(MessageFlagType.ALL_LINK_CLEANUP)
-        topic = '{}.{}.{}.{}'.format(self._address.id, command, group, msg_type)
-        super().__init__(topic)
+        super().__init__(
+            topic=topic,
+            address=self._address,
+            group=self._group,
+            message_type=MessageFlagType.ALL_LINK_CLEANUP,
+        )

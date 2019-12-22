@@ -5,13 +5,13 @@ import sys
 
 from pyinsteon.protocol.messages.im_config_flags import IMConfigurationFlags, create
 
-class TestIMConfigFlags(unittest.TestCase):
 
+class TestIMConfigFlags(unittest.TestCase):
     def setUp(self):
         self.all_on_create = create(True, True, True, True)
         self.all_off_create = create(False, False, False, False)
 
-        self.all_set = IMConfigurationFlags(0xf0)
+        self.all_set = IMConfigurationFlags(0xF0)
         self.all_off = IMConfigurationFlags(0x00)
 
         self.auto_link = IMConfigurationFlags(0x80)
@@ -23,16 +23,21 @@ class TestIMConfigFlags(unittest.TestCase):
         self.monitor_mode_create = create(False, True, False, False)
         self.auto_led_create = create(False, False, True, False)
         self.disable_deadman_create = create(False, False, False, True)
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     def test_all_on_create_bytes(self):
-        assert bytes(self.all_on_create) == bytes([0xf0])
+        assert bytes(self.all_on_create) == bytes([0xF0])
 
     def test_all_off_create_bytes(self):
         assert bytes(self.all_off_create) == bytes([0x00])
 
     def test_all_set_bytes(self):
-        assert bytes(self.all_set) == bytes([0xf0])
+        assert bytes(self.all_set) == bytes([0xF0])
 
     def test_all_off_bytes(self):
         assert bytes(self.all_off) == bytes([0x00])
@@ -94,7 +99,5 @@ class TestIMConfigFlags(unittest.TestCase):
         assert self.disable_deadman_create.is_disable_deadman
 
 
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

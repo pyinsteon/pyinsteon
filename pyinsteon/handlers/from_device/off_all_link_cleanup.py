@@ -3,6 +3,7 @@
 from .. import inbound_handler
 from .all_link_cleanup_command import AllLinkCleanupCommandHandlerBase
 from ...topics import OFF
+from ...address import Address
 
 
 class OffAllLinkCleanupInbound(AllLinkCleanupCommandHandlerBase):
@@ -10,7 +11,9 @@ class OffAllLinkCleanupInbound(AllLinkCleanupCommandHandlerBase):
 
     def __init__(self, address, group):
         """Init the OffAllLinkCleanupAckInbound class."""
-        super().__init__(address, group, OFF)
+        self._address = Address(address)
+        self._group = group
+        super().__init__(topic=OFF, address=self._address, group=self._group)
 
     @inbound_handler
     def handle_command(self, cmd1, cmd2, target, user_data):

@@ -9,18 +9,14 @@ class OffCommand(DirectCommandHandlerBase):
 
     def __init__(self, address, group):
         """Init the OnLevelCommand class."""
-        topic = '{}.{}'.format(OFF, group)
-        super().__init__(address, topic)
-        # put the following commands in a subclass!
-        self._group = group
-        # self._subscriber_topic = '{}.{}'.format(self._subscriber_topic, self._group)
+        super().__init__(topic=OFF, address=address, group=group)
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     def send(self):
         """Send the OFF command."""
         super().send(group=self._group)
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     async def async_send(self):
         """Send the OFF command async."""
         return await super().async_send(group=self._group)

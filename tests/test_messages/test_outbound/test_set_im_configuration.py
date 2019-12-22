@@ -10,26 +10,32 @@ from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 class TestSetImConfiguration(unittest.TestCase, OutboundBase):
-
     def setUp(self):
-        self.hex = '026B30'
+        self.hex = "026B30"
         self.bytes_data = unhexlify(self.hex)
         self.message_id = MessageId.SET_IM_CONFIGURATION
         self.flags = IMConfigurationFlags(0x30)
 
-        kwargs = {'disable_auto_linking': self.flags.is_auto_link,
-                  'monitor_mode': self.flags.is_monitor_mode,
-                  'auto_led': self.flags.is_auto_led,
-                  'deadman': self.flags.is_disable_deadman}
+        kwargs = {
+            "disable_auto_linking": self.flags.is_auto_link,
+            "monitor_mode": self.flags.is_monitor_mode,
+            "auto_led": self.flags.is_auto_led,
+            "deadman": self.flags.is_disable_deadman,
+        }
 
-        super(TestSetImConfiguration, self).base_setup(self.message_id,
-                                                       unhexlify(self.hex),
-                                                       **kwargs)
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        super(TestSetImConfiguration, self).base_setup(
+            self.message_id, unhexlify(self.hex), **kwargs
+        )
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
     def test_flags(self):
         assert self.msg.flags == self.flags
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

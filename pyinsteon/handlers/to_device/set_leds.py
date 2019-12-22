@@ -1,38 +1,64 @@
-"""KeypadLinc command handler to set the LED on/off values."""
-from ..to_device.direct_command import DirectCommandHandlerBase
-from .. import direct_ack_handler
-from ...topics import EXTENDED_GET_SET
+"""Set the LEDs of a KeyPadLinc."""
 
-class SetLedsCommandHandler(DirectCommandHandlerBase):
-    """Set the LED values of a KeypadLinc device.
+from .extended_set import ExtendedSetCommand
+from ...utils import build_topic
+from ...constants import MessageFlagType
 
-    TODO make compatable with the single handler per group model.
-    """
+
+def _bitmask(self, *args):
+    bitmask = 0x00
+    for group in range(0, 8):
+        val = 1 if args[group] else 0
+        bitmask = bitmask + val << group
+    return bitmask
+
+
+class SetLedsCommandHandler(ExtendedSetCommand):
+    """Set the LEDs of a KeypadLinc."""
 
     def __init__(self, address):
-        """Init the SetLedCommandHandler class."""
-        super().__init__(address=address, command=EXTENDED_GET_SET)
-        self._last_bitmask = 0
+        """Init the SetLedsCommandHandler class."""
+        super().__init__(address=address, data1=0x01, data2=0x09)
+        self._subscriber_topic = build_topic(
+            prefix="handler.{}".format(self._address),  # Force address
+            topic="set_leds",
+            message_type=MessageFlagType.DIRECT,
+        )
 
-    #pylint: disable=arguments-differ
-    async def async_send(self, group1: bool, group2: bool, group3: bool,
-                         group4: bool, group5: bool, group6: bool,
-                         group7: bool, group8: bool):
+    # pylint: disable=arguments-differ
+    def send(
+        self,
+        group1: bool,
+        group2: bool,
+        group3: bool,
+        group4: bool,
+        group5: bool,
+        group6: bool,
+        group7: bool,
+        group8: bool,
+    ):
         """Set the LED values of the KPL."""
-        bitmask = 0x00
-        for group in range(0, 8):
-            val = 1 if locals()['group{}'.format(group + 1)] else 0
-            bitmask = bitmask + val << group
-        self._last_bitmask = bitmask
-        kwargs = {'data1': 0x01,
-                  'data2': 0x09,
-                  'data3': bitmask}
+        bitmask = _bitmask(
+            group1, group2, group3, group4, group5, group6, group7, group8
+        )
+        kwargs = {"data1": self._data1, "data2": self._data2, "data3": bitmask}
+        super().send(**kwargs)
 
+    # pylint: disable=arguments-differ
+    async def async_send(
+        self,
+        group1: bool,
+        group2: bool,
+        group3: bool,
+        group4: bool,
+        group5: bool,
+        group6: bool,
+        group7: bool,
+        group8: bool,
+    ):
+        """Set the LED values of the KPL."""
+        bitmask = _bitmask(
+            group1, group2, group3, group4, group5, group6, group7, group8
+        )
+        kwargs = {"data1": self._data1, "data2": self._data2, "data3": bitmask}
         return await super().async_send(**kwargs)
-
-    @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
-        """Handle the direct ACK message."""
-        for group in range(0, 8):
-            value = bool(self._last_bitmask & 1 << group)
-            self._call_subscribers(group=group + 1, value=value)

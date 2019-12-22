@@ -117,7 +117,7 @@
         "cmd2": "09",
         "user_data": "",
         "ack": "",
-        "topic": "010203.on.1.direct"
+        "topic": "010203.1.on.direct"
     },
     "ON_FAST-DIRECT": {
         "address": "010203",
@@ -127,7 +127,7 @@
         "cmd2": "10",
         "user_data": "",
         "ack": "",
-        "topic": "010203.on_fast.1.direct"
+        "topic": "010203.1.on_fast.direct"
     },
     "OFF-DIRECT": {
         "address": "010203",
@@ -137,7 +137,7 @@
         "cmd2": "11",
         "user_data": "",
         "ack": "",
-        "topic": "010203.off.1.direct"
+        "topic": "010203.1.off.direct"
     },
     "OFF_FAST-DIRECT": {
         "address": "010203",
@@ -147,7 +147,7 @@
         "cmd2": "12",
         "user_data": "",
         "ack": "",
-        "topic": "010203.off_fast.1.direct"
+        "topic": "010203.1.off_fast.direct"
     },
     "BRIGHTEN_ONE_STEP-DIRECT": {
         "address": "010203",
@@ -157,7 +157,7 @@
         "cmd2": "13",
         "user_data": "",
         "ack": "",
-        "topic": "010203.brighten_one_step.1.direct"
+        "topic": "010203.1.brighten_one_step.direct"
     },
     "DIM_ONE_STEP-DIRECT": {
         "address": "010203",
@@ -167,7 +167,7 @@
         "cmd2": "14",
         "user_data": "",
         "ack": "",
-        "topic": "010203.dim_one_step.1.direct"
+        "topic": "010203.1.dim_one_step.direct"
     },
     "START_MANUAL_CHANGE_DOWN-DIRECT": {
         "address": "010203",
@@ -177,7 +177,7 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "010203.start_manual_change_down.1.direct"
+        "topic": "010203.1.start_manual_change_down.direct"
     },
     "START_MANUAL_CHANGE_UP-DIRECT": {
         "address": "010203",
@@ -187,7 +187,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "010203.start_manual_change_up.1.direct"
+        "topic": "010203.1.start_manual_change_up.direct"
     },
     "STOP_MANUAL_CHANGE-DIRECT": {
         "address": "010203",
@@ -197,7 +197,7 @@
         "cmd2": "15",
         "user_data": "",
         "ack": "",
-        "topic": "010203.stop_manual_change.1.direct"
+        "topic": "010203.1.stop_manual_change.direct"
     },
     "STATUS_REQUEST-DIRECT": {
         "address": "010203",
@@ -237,7 +237,7 @@
         "cmd2": "19",
         "user_data": "",
         "ack": "",
-        "topic": "010203.instant_change.1.direct"
+        "topic": "010203.1.instant_change.direct"
     },
     "MANUALLY_TURNED_OFF-DIRECT": {
         "address": "010203",
@@ -247,7 +247,7 @@
         "cmd2": "20",
         "user_data": "",
         "ack": "",
-        "topic": "010203.manually_turned_off.1.direct"
+        "topic": "010203.1.manually_turned_off.direct"
     },
     "MANUALLY_TURNED_ON-DIRECT": {
         "address": "010203",
@@ -257,7 +257,7 @@
         "cmd2": "21",
         "user_data": "",
         "ack": "",
-        "topic": "010203.manually_turned_on.1.direct"
+        "topic": "010203.1.manually_turned_on.direct"
     },
     "ASSIGN_TO_ALL_LINK_GROUP-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -377,7 +377,7 @@
         "cmd2": "09",
         "user_data": "",
         "ack": "",
-        "topic": "010203.on.9.all_link_cleanup"
+        "topic": "010203.9.on.all_link_cleanup"
     },
     "ON_FAST-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -387,7 +387,7 @@
         "cmd2": "10",
         "user_data": "",
         "ack": "",
-        "topic": "010203.on_fast.16.all_link_cleanup"
+        "topic": "010203.16.on_fast.all_link_cleanup"
     },
     "OFF-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -397,7 +397,7 @@
         "cmd2": "11",
         "user_data": "",
         "ack": "",
-        "topic": "010203.off.17.all_link_cleanup"
+        "topic": "010203.17.off.all_link_cleanup"
     },
     "OFF_FAST-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -407,7 +407,7 @@
         "cmd2": "12",
         "user_data": "",
         "ack": "",
-        "topic": "010203.off_fast.18.all_link_cleanup"
+        "topic": "010203.18.off_fast.all_link_cleanup"
     },
     "BRIGHTEN_ONE_STEP-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -417,7 +417,7 @@
         "cmd2": "13",
         "user_data": "",
         "ack": "",
-        "topic": "010203.brighten_one_step.19.all_link_cleanup"
+        "topic": "010203.19.brighten_one_step.all_link_cleanup"
     },
     "DIM_ONE_STEP-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -427,7 +427,7 @@
         "cmd2": "14",
         "user_data": "",
         "ack": "",
-        "topic": "010203.dim_one_step.20.all_link_cleanup"
+        "topic": "010203.20.dim_one_step.all_link_cleanup"
     },
     "START_MANUAL_CHANGE_DOWN-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -437,7 +437,7 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "010203.start_manual_change_down.0.all_link_cleanup"
+        "topic": "010203.1.start_manual_change_down.all_link_cleanup"
     },
     "START_MANUAL_CHANGE_UP-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -447,7 +447,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "010203.start_manual_change_up.1.all_link_cleanup"
+        "topic": "010203.1.start_manual_change_up.all_link_cleanup"
     },
     "STOP_MANUAL_CHANGE-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -457,7 +457,7 @@
         "cmd2": "15",
         "user_data": "",
         "ack": "",
-        "topic": "010203.stop_manual_change.21.all_link_cleanup"
+        "topic": "010203.21.stop_manual_change.all_link_cleanup"
     },
     "STATUS_REQUEST-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -497,7 +497,7 @@
         "cmd2": "19",
         "user_data": "",
         "ack": "",
-        "topic": "010203.instant_change.25.all_link_cleanup"
+        "topic": "010203.25.instant_change.all_link_cleanup"
     },
     "MANUALLY_TURNED_OFF-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -507,7 +507,7 @@
         "cmd2": "20",
         "user_data": "",
         "ack": "",
-        "topic": "010203.manually_turned_off.32.all_link_cleanup"
+        "topic": "010203.32.manually_turned_off.all_link_cleanup"
     },
     "MANUALLY_TURNED_ON-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -517,7 +517,7 @@
         "cmd2": "21",
         "user_data": "",
         "ack": "",
-        "topic": "010203.manually_turned_on.33.all_link_cleanup"
+        "topic": "010203.33.manually_turned_on.all_link_cleanup"
     },
     "ASSIGN_TO_ALL_LINK_GROUP-BROADCAST": {
         "address": "010203",
@@ -637,7 +637,7 @@
         "cmd2": "09",
         "user_data": "",
         "ack": "",
-        "topic": "010203.on.18.broadcast"
+        "topic": "010203.18.on.broadcast"
     },
     "ON_FAST-BROADCAST": {
         "address": "010203",
@@ -647,7 +647,7 @@
         "cmd2": "10",
         "user_data": "",
         "ack": "",
-        "topic": "010203.on_fast.19.broadcast"
+        "topic": "010203.19.on_fast.broadcast"
     },
     "OFF-BROADCAST": {
         "address": "010203",
@@ -657,7 +657,7 @@
         "cmd2": "11",
         "user_data": "",
         "ack": "",
-        "topic": "010203.off.20.broadcast"
+        "topic": "010203.20.off.broadcast"
     },
     "OFF_FAST-BROADCAST": {
         "address": "010203",
@@ -667,7 +667,7 @@
         "cmd2": "12",
         "user_data": "",
         "ack": "",
-        "topic": "010203.off_fast.21.broadcast"
+        "topic": "010203.21.off_fast.broadcast"
     },
     "BRIGHTEN_ONE_STEP-BROADCAST": {
         "address": "010203",
@@ -677,7 +677,7 @@
         "cmd2": "13",
         "user_data": "",
         "ack": "",
-        "topic": "010203.brighten_one_step.22.broadcast"
+        "topic": "010203.22.brighten_one_step.broadcast"
     },
     "DIM_ONE_STEP-BROADCAST": {
         "address": "010203",
@@ -687,7 +687,7 @@
         "cmd2": "14",
         "user_data": "",
         "ack": "",
-        "topic": "010203.dim_one_step.23.broadcast"
+        "topic": "010203.23.dim_one_step.broadcast"
     },
     "START_MANUAL_CHANGE_DOWN-BROADCAST": {
         "address": "010203",
@@ -697,7 +697,7 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "010203.start_manual_change_down.24.broadcast"
+        "topic": "010203.24.start_manual_change_down.broadcast"
     },
     "START_MANUAL_CHANGE_UP-BROADCAST": {
         "address": "010203",
@@ -707,7 +707,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "010203.start_manual_change_up.25.broadcast"
+        "topic": "010203.25.start_manual_change_up.broadcast"
     },
     "STOP_MANUAL_CHANGE-BROADCAST": {
         "address": "010203",
@@ -717,7 +717,7 @@
         "cmd2": "15",
         "user_data": "",
         "ack": "",
-        "topic": "010203.stop_manual_change.32.broadcast"
+        "topic": "010203.32.stop_manual_change.broadcast"
     },
     "STATUS_REQUEST-BROADCAST": {
         "address": "010203",
@@ -757,7 +757,7 @@
         "cmd2": "19",
         "user_data": "",
         "ack": "",
-        "topic": "010203.instant_change.36.broadcast"
+        "topic": "010203.36.instant_change.broadcast"
     },
     "MANUALLY_TURNED_OFF-BROADCAST": {
         "address": "010203",
@@ -767,7 +767,7 @@
         "cmd2": "20",
         "user_data": "",
         "ack": "",
-        "topic": "010203.manually_turned_off.37.broadcast"
+        "topic": "010203.37.manually_turned_off.broadcast"
     },
     "MANUALLY_TURNED_ON-BROADCAST": {
         "address": "010203",
@@ -777,7 +777,7 @@
         "cmd2": "21",
         "user_data": "",
         "ack": "",
-        "topic": "010203.manually_turned_on.38.broadcast"
+        "topic": "010203.38.manually_turned_on.broadcast"
     },
     "ASSIGN_TO_ALL_LINK_GROUP-DIRECT_ACK": {
         "address": "010203",

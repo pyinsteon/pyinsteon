@@ -9,12 +9,16 @@ from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 class TestRfSleep(unittest.TestCase, OutboundBase):
-
     def setUp(self):
-        self.hex = '0272'
+        self.hex = "0272"
         super(TestRfSleep, self).base_setup(MessageId.RF_SLEEP, unhexlify(self.hex))
-        set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='info', logger_topics=False)
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="info",
+            logger_messages="info",
+            logger_topics=False,
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

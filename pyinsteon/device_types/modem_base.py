@@ -1,21 +1,28 @@
 """Insteon Modem Base Class."""
 from abc import ABCMeta
 import asyncio
-from . import Device
-from ..aldb.modem_aldb import ModemALDB
+from .device_base import Device
 
 from .commands import GET_IM_CONFIG_COMMAND
+
 
 class ModemBase(Device, metaclass=ABCMeta):
     """Base class for insteon Modems (PLM and Hub)."""
 
     __meta__ = ABCMeta
 
-    def __init__(self, address='000000', cat=0x03, subcat=0x00, firmware=0x00,
-                 description='', model=''):
+    def __init__(
+        self,
+        address="000000",
+        cat=0x03,
+        subcat=0x00,
+        firmware=0x00,
+        description="",
+        model="",
+    ):
         """Init the Modem class."""
         super().__init__(address, cat, subcat, firmware, description, model)
-        self._aldb = ModemALDB(self._address)
+        self._aldb = None
         self._subscribe_topics()
         self._protocol = None
         self._transport = None
@@ -60,6 +67,7 @@ class ModemBase(Device, metaclass=ABCMeta):
     def protocol(self, value):
         """Set the protocol."""
         from ..protocol.protocol import Protocol
+
         if isinstance(value, Protocol):
             self._protocol = value
 
@@ -72,6 +80,7 @@ class ModemBase(Device, metaclass=ABCMeta):
     def transport(self, value):
         """Set the transport."""
         from asyncio import Transport
+
         if isinstance(value, Transport):
             self._transport = value
 
@@ -84,29 +93,43 @@ class ModemBase(Device, metaclass=ABCMeta):
         # pub.unsubscribe(self.connect, 'connection.lost')
         if self._protocol:
             self._protocol.close()
-            WAIT_TIME = .0001
+            wait_time = 0.0001
             while self.connected:
-                await asyncio.sleep(WAIT_TIME)
-                WAIT_TIME = min(300, 1.5 * WAIT_TIME)
+                await asyncio.sleep(wait_time)
+                wait_time = min(300, 1.5 * wait_time)
 
     async def async_get_configuration(self):
         """Get the modem flags."""
         return await self._handlers[GET_IM_CONFIG_COMMAND].async_send()
 
-    def _update_flags(self, disable_auto_linking: bool, monitor_mode: bool,
-                      auto_led: bool, deadman: bool):
+    def _update_flags(
+        self,
+        disable_auto_linking: bool,
+        monitor_mode: bool,
+        auto_led: bool,
+        deadman: bool,
+    ):
         self._disable_auto_linking = disable_auto_linking
         self._monitor_mode = monitor_mode
         self._auto_led = auto_led
         self._deadman = deadman
 
-    async def async_set_configuration(self, disable_auto_linking: bool, monitor_mode: bool,
-                                      auto_led: bool, deadman: bool):
+    async def async_set_configuration(
+        self,
+        disable_auto_linking: bool,
+        monitor_mode: bool,
+        auto_led: bool,
+        deadman: bool,
+    ):
         """Set the modem flags."""
         from ..handlers.set_im_configuration import SetImConfigurationHandler
+
         return await SetImConfigurationHandler().async_send(
-            disable_auto_linking=disable_auto_linking, monitor_mode=monitor_mode,
-            auto_led=auto_led, deadman=deadman)
+            disable_auto_linking=disable_auto_linking,
+            monitor_mode=monitor_mode,
+            auto_led=auto_led,
+            deadman=deadman,
+        )
 
     async def async_get_operating_flags(self, group=None):
         """Read the device operating flags."""
@@ -119,6 +142,7 @@ class ModemBase(Device, metaclass=ABCMeta):
 
     def _subscribe_topics(self):
         """Subscribe to modem specific topics."""
+
     #     pub.subscribe(self.connect, "connection.lost")
 
     def _register_states(self):
@@ -130,6 +154,7 @@ class ModemBase(Device, metaclass=ABCMeta):
     def _register_handlers_and_managers(self):
         """Register command handlers for modems."""
         from ..handlers.get_im_configuration import GetImConfigurationHandler
+
         self._handlers[GET_IM_CONFIG_COMMAND] = GetImConfigurationHandler()
         self._handlers[GET_IM_CONFIG_COMMAND].subscribe(self._update_flags)
 

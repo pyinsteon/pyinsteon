@@ -168,11 +168,11 @@
             "command": {
                 "class": ".extended_set.ExtendedSetCommand",
                 "params": {
-                    "address": "112233"
+                    "address": "112233",
+                    "data1": 1,
+                    "data2": 2
                 },
                 "send_params": {
-                    "group": 1,
-                    "action": 2,
                     "data3": 3,
                     "data4": 4,
                     "data5": 5,
@@ -259,11 +259,10 @@
             "command": {
                 "class": ".off_all_link_cleanup.OffAllLinkCleanupCommand",
                 "params": {
-                    "address": "112233"
-                },
-                "send_params": {
+                    "address": "112233",
                     "group": 1
-                }
+                },
+                "send_params": {}
             },
             "messages": {
                 "cleanup_ack": {
@@ -293,11 +292,10 @@
             "command": {
                 "class": ".on_level_all_link_cleanup.OnLevelAllLinkCleanupCommand",
                 "params": {
-                    "address": "112233"
-                },
-                "send_params": {
+                    "address": "112233",
                     "group": 1
-                }
+                },
+                "send_params": {}
             },
             "messages": {
                 "cleanup_ack": {

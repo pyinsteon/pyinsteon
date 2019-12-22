@@ -1,6 +1,7 @@
 """ALDB Status representation."""
 from enum import Enum
 
+
 class ALDBStatus(Enum):
     """All-Link Database load status."""
 

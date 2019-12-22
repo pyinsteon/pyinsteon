@@ -1,31 +1,40 @@
 """All-Link database for battery oppertated devices."""
 from collections import namedtuple
-from typing import Callable
-from .. import pub
+import logging
 from . import ALDBVersion
 from . import ALDB
 
-LoadCommandParams = namedtuple('LoadCommandParams', 'mem_addr num_recs refresh callback')
-Command = namedtuple('Command', 'action params')
+LoadCommandParams = namedtuple(
+    "LoadCommandParams", "mem_addr num_recs refresh callback"
+)
+Command = namedtuple("Command", "action params")
+
+_LOGGER = logging.getLogger(__name__)
+
 
 class ALDBBattery(ALDB):
     """ALDB for battery opperated devices."""
 
-    def __init__(self, address, version=ALDBVersion.v2, mem_addr=0x0fff):
+    def __init__(
+        self, address, version=ALDBVersion.V2, mem_addr=0x0FFF, run_command=None
+    ):
         """Init the ALDBBattery class."""
         super().__init__(address=address, version=version, mem_addr=mem_addr)
         self._commands = []
-        self._load_topic = '{}.aldb.load'.format(self._address.id)
-        self._write_topic = '{}.aldb.write'.format(self._address.id)
+        self._run_command = run_command
 
-    async def async_load(self, mem_addr: int = 0x00, num_recs: int = 0x00,
-                         refresh: bool = False, callback: Callable = None):
+    # pylint: disable=arguments-differ
+    async def async_load(
+        self, mem_addr: int = 0x00, num_recs: int = 0x00, refresh: bool = False
+    ):
         """Load the All-Link Database."""
-        pub.sendMessage(self._load_topic, mem_addr=mem_addr, num_recs=num_recs,
-                        refresh=refresh, callback=callback)
+        self._run_command(
+            super().async_load, mem_addr=mem_addr, num_recs=num_recs, refresh=refresh
+        )
         return True
 
-    async def async_write_records(self):
+    async def async_write(self):
         """Write modified records to the device."""
-        pub.sendMessage(self._write_topic)
-        return True
+        # pub.sendMessage(self._write_topic)
+        self._run_command(super().async_write)
+        return 0, 0

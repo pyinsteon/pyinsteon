@@ -3,6 +3,8 @@ import logging
 import os
 import sys
 
+import yaml
+
 from pyinsteon import pub
 
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, 'pyinsteon'))
@@ -33,7 +35,7 @@ def _setup_logger(logger, level):
     logger.setLevel(_text_to_log_level(level))
     if not logger.hasHandlers():
         stream_handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
         stream_handler.setFormatter(formatter)
         logger.addHandler(stream_handler)
 
@@ -57,7 +59,6 @@ def _text_to_log_level(log_level_text):
 
 def get_hub_config():
     """Read the secrets file and return the username, password and address."""
-    import yaml
     with open("secret.yaml", 'r') as stream:
         try:
             config = yaml.safe_load(stream)
