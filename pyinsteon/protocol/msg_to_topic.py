@@ -64,6 +64,8 @@ def _msg_group(message_type, target, cmd2, user_data):
     if message_type == MessageFlagType.ALL_LINK_CLEANUP:
         return cmd2
     if message_type in [MessageFlagType.BROADCAST, MessageFlagType.ALL_LINK_BROADCAST]:
+        if not target:
+            return None
         return target.low
     return None
 
