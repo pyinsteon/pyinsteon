@@ -9,7 +9,6 @@ from ..aldb import ALDB
 from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
 from ..operating_flag import OperatingFlag
-from ..extended_property import ExtendedProperty
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -53,9 +52,7 @@ class Device(ABC):
         self._op_flags_manager = GetSetOperatingFlagsManager(
             self._address, self._operating_flags
         )
-        self._ext_property_manager = GetSetExtendedPropertyManager(
-            self._address, self._properties
-        )
+        self._ext_property_manager = GetSetExtendedPropertyManager(self._address)
 
         self._register_handlers_and_managers()
         self._register_states()
