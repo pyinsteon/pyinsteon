@@ -4,4 +4,4 @@ aiohttp
 pypubsub
 aiofile
 async_generator
-yaml
+pyyaml
