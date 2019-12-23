@@ -29,5 +29,9 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
+    pylint pyinsteon
+  displayName: 'pylint'
+
+- script: |
     python -m unittest -b -v
-  displayName: 'unittest'
+  displayName: 'Unit test'
