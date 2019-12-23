@@ -30,7 +30,7 @@ steps:
 
 - script: |
     pylint pyinsteon
-  displayName: 'pylint'
+  displayName: 'Lint'
 
 - script: |
     python -m unittest -b -v
