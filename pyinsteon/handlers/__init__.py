@@ -3,7 +3,7 @@ import asyncio
 from functools import wraps
 import logging
 from .. import pub
-from ..constants import AckNak, MessageFlagType, ResponseStatus
+from ..constants import MessageFlagType, ResponseStatus
 from ..utils import build_topic
 
 
