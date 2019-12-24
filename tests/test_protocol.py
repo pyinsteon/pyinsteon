@@ -45,14 +45,14 @@ class TestProtocol(unittest.TestCase):
     @async_case
     async def test_send_on_topic(self):
         """Test sending the ON command."""
-        address = Address("010101")
+        address = Address("010102")
         on_topic = "send.{}.1".format(ON)
         topics = [
-            TopicItem(on_topic, {"address": address, "on_level": 0xFF, "group": 0}, 0.5)
+            TopicItem(on_topic, {"address": address, "on_level": 0xFF, "group": 0}, 0)
         ]
         await self._protocol.async_connect()
         send_topics(topics)
-        await asyncio.sleep(2)
+        await asyncio.sleep(0.05)
         assert self._last_topic == "ack.{}.1.on.direct".format(address.id)
         self._protocol.close()
         await asyncio.sleep(0.1)
