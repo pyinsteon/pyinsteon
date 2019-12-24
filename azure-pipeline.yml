@@ -8,7 +8,7 @@ trigger:
 
 variables:
   - name: PythonMain
-    value: '3.7'
+    value: '3.7.5'
 
 stages:
 - stage: 'Code_check'
