@@ -6,19 +6,21 @@
 trigger:
 - master
 
+variables:
+  - name: PythonMain
+    value: '37'
+
 stages:
 - stage: 'Code check'
   pool:
     vmImage: 'ubuntu-latest'
-  strategy:
-    python.version: '3.7'
   jobs:
   - job: 'pylint'
     steps:
     - task: UsePythonVersion@0
       inputs:
-        versionSpec: '$(python.version)'
-      displayName: 'Use Python $(python.version)'
+        versionSpec: $[ variables['PythonMain'] ]
+      displayName: 'Use Python main version.'
     - script: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
@@ -32,20 +34,20 @@ stages:
       displayName: 'pylint'
 
 - stage: 'Tests'
-  pool:
-    vmImage: 'ubuntu-latest'
-  strategy:
-    matrix:
-      Python35:
-        python.version: '3.5'
-      Python36:
-        python.version: '3.6'
-      Python37:
-        python.version: '3.7'
-      Python38:
-        python.version: '3.8'
   jobs:
   - job: 'PyTest'
+    pool:
+      vmImage: 'ubuntu-latest'
+    strategy:
+      matrix:
+        Python35:
+          python.version: '3.5'
+        Python36:
+          python.version: '3.6'
+        Python37:
+          python.version: '3.7'
+        Python38:
+          python.version: '3.8'
     steps:
     - task: UsePythonVersion@0
       inputs:
