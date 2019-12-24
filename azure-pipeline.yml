@@ -11,7 +11,7 @@ variables:
     value: '37'
 
 stages:
-- stage: 'Code check'
+- stage: 'Code_check'
   pool:
     vmImage: 'ubuntu-latest'
   jobs:
