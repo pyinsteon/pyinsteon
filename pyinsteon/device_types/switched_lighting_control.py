@@ -200,19 +200,20 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         model="",
         buttons=None,
     ):
+        """Init the SwitchedLightingControl_KeypadLinc class."""
         super().__init__(
             address, cat, subcat, firmware, description, model, buttons=buttons
         )
 
     async def async_on(self, group: int = 0):
-        """Turn on the button LED. """
+        """Turn on the button LED."""
         if group in [0, 1]:
             return await super().async_on(group=group)
         kwargs = self._change_led_status(led=group, on=True)
         return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
 
     async def async_off(self, group: int = 0):
-        """Turn on the button LED. """
+        """Turn off the button LED."""
         if group in [0, 1]:
             return await super().async_off(group=group)
         kwargs = self._change_led_status(led=group, on=False)

@@ -14,7 +14,7 @@ class NoALDB(ALDBBase):
 
     @property
     def is_loaded(self) -> bool:
-        """Always returns loaded."""
+        """Return loaded always."""
         return ALDBStatus.LOADED
 
     # pylint: disable=arguments-differ

@@ -3,7 +3,7 @@ import asyncio
 from functools import wraps
 import logging
 from .. import pub
-from ..constants import AckNak, MessageFlagType, ResponseStatus
+from ..constants import MessageFlagType, ResponseStatus
 from ..utils import build_topic
 
 
@@ -42,7 +42,7 @@ def _register_handler(
 
 
 def inbound_handler(func):
-    """Decorator function for any inbound message handler."""
+    """Register any inbound message handler."""
 
     def register_topic(
         instance_func, topic, address=None, group=None, message_type=None
@@ -61,7 +61,7 @@ def inbound_handler(func):
 
 
 def ack_handler(wait_response=False, timeout=TIMEOUT):
-    """Decorator function to register the message ACK handler."""
+    """Register the message ACK handler."""
 
     def register_topic(
         instance_func, topic, address=None, group=None, message_type=None
@@ -119,7 +119,7 @@ def ack_handler(wait_response=False, timeout=TIMEOUT):
 
 
 def nak_handler(func):
-    """Decorator function to register the message NAK handler.
+    """Register the message NAK handler.
 
     This should only be used if the command requires a special NAK
     handler. Under normal conditions all NAK responses are resent by the
@@ -150,7 +150,7 @@ def nak_handler(func):
 
 
 def direct_ack_handler(func):
-    """Decorator function to register the DIRECT_ACK response handler."""
+    """Register the DIRECT_ACK response handler."""
 
     def register_topic(
         instance_func, topic, address=None, group=None, message_type=None
@@ -176,7 +176,7 @@ def direct_ack_handler(func):
 
 
 def status_handler(func):
-    """Decorator function to register the status response handler."""
+    """Register the status response handler."""
 
     def register_status(instance_func, address):
         from ..address import Address
@@ -197,7 +197,7 @@ def status_handler(func):
 
 
 def direct_nak_handler(func):
-    """Decorator function to register the DIRECT_NAK response handler."""
+    """Register the DIRECT_NAK response handler."""
 
     def register_topic(
         instance_func, topic, address=None, group=None, message_type=None
@@ -223,7 +223,7 @@ def direct_nak_handler(func):
 
 
 def broadcast_handler(func):
-    """Decorator function to register the BROADCAST message handler."""
+    """Register the BROADCAST message handler."""
     from datetime import datetime
 
     last_command = datetime(1, 1, 1)
@@ -263,7 +263,7 @@ def broadcast_handler(func):
 
 
 def all_link_cleanup_handler(func):
-    """Decorator function to register the c message handler."""
+    """Register the c message handler."""
     from datetime import datetime
 
     last_command = datetime(1, 1, 1)
@@ -286,7 +286,7 @@ def all_link_cleanup_handler(func):
 
 
 def all_link_cleanup_ack_handler(func):
-    """Decorator function to register the all_link_cleanup ACK response handler."""
+    """Register the all_link_cleanup ACK response handler."""
 
     def register_topic(
         instance_func, topic, address=None, group=None, message_type=None
@@ -312,7 +312,7 @@ def all_link_cleanup_ack_handler(func):
 
 
 def all_link_cleanup_nak_handler(func):
-    """Decorator function to register the all_link_cleanup NAK response handler."""
+    """Register the all_link_cleanup NAK response handler."""
 
     def register_topic(
         instance_func, topic, address=None, group=None, message_type=None

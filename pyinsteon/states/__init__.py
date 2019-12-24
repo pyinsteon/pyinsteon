@@ -48,6 +48,8 @@ DIMMABLE_LIGHT_MAIN = "{}_{}".format(DIMMABLE_LIGHT, "main")
 class StateBase(SubscriberBase):
     """Device state base class."""
 
+    __meta__ = ABC
+
     def __init__(
         self, name: str, address: Address, group=0, default=None, value_type: type = int
     ):

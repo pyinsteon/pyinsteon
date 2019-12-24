@@ -59,6 +59,7 @@ async def add_device_to_scene(
     Parameters:
     - group: Scene number.
     - device_scene_info: Iterable colleciton of SceneInfo objects.
+
     """
     from ..device_types.plm import PLM
 

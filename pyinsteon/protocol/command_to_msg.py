@@ -157,6 +157,17 @@ from .messages.outbound import send_extended, send_standard
 from .messages.user_data import UserData
 
 
+# pylint: disable=invalid-name
+topic_register = {}
+
+
+def register_command_handlers():
+    """Register outbound handlers."""
+    for topic in topic_register:
+        func = topic_register[topic]
+        pub.subscribe(func, topic)
+
+
 # The following messages are all send_standard or send_extended messages
 # The topis is based on the cmd1, cmd2 and extended message flags values
 
@@ -184,55 +195,61 @@ def _create_direct_message(topic, address, cmd2=None, user_data=None):
         send_standard(address=address, cmd1=cmd1, cmd2=cmd2, flags=flags, topic=topic)
 
 
-@topic_to_command_handler(topic=ASSIGN_TO_ALL_LINK_GROUP)
+@topic_to_command_handler(register_list=topic_register, topic=ASSIGN_TO_ALL_LINK_GROUP)
 def assign_to_all_link_group(address: Address, group: int, topic=pub.AUTO_TOPIC):
     """Create a ASSIGN_TO_ALL_LINK_GROUP command."""
     _create_direct_message(topic=topic, address=address, cmd2=group)
 
 
-@topic_to_command_handler(topic=DELETE_FROM_ALL_LINK_GROUP)
+@topic_to_command_handler(
+    register_list=topic_register, topic=DELETE_FROM_ALL_LINK_GROUP
+)
 def delete_from_all_link_group(address: Address, group: int, topic=pub.AUTO_TOPIC):
     """Create a DELETE_FROM_ALL_LINK_GROUP command."""
     _create_direct_message(topic=topic, address=address, cmd2=group)
 
 
-@topic_to_command_handler(topic=PRODUCT_DATA_REQUEST)
+@topic_to_command_handler(register_list=topic_register, topic=PRODUCT_DATA_REQUEST)
 def product_data_request(address: Address, topic=pub.AUTO_TOPIC):
     """Create a PRODUCT_DATA_REQUEST command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=FX_USERNAME)
+@topic_to_command_handler(register_list=topic_register, topic=FX_USERNAME)
 def fx_username(address: Address, topic=pub.AUTO_TOPIC):
     """Create a FX_USERNAME command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=DEVICE_TEXT_STRING_REQUEST)
+@topic_to_command_handler(
+    register_list=topic_register, topic=DEVICE_TEXT_STRING_REQUEST
+)
 def device_text_string_request(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DEVICE_TEXT_STRING_REQUEST command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SET_DEVICE_TEXT_STRING)
+@topic_to_command_handler(register_list=topic_register, topic=SET_DEVICE_TEXT_STRING)
 def set_device_text_string(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a SET_DEVICE_TEXT_STRING command."""
     _create_direct_message(topic=topic, address=address, user_data=user_data)
 
 
-@topic_to_command_handler(topic=SET_ALL_LINK_COMMAND_ALIAS)
+@topic_to_command_handler(
+    register_list=topic_register, topic=SET_ALL_LINK_COMMAND_ALIAS
+)
 def set_all_link_command_alias(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a SET_ALL_LINK_COMMAND_ALIAS command."""
     _create_direct_message(topic=topic, address=address, user_data=user_data)
 
 
-@topic_to_command_handler(topic=SET_ALL_LINK)
+@topic_to_command_handler(register_list=topic_register, topic=SET_ALL_LINK)
 def set_all_link(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a SET_ALL_LINK command."""
     _create_direct_message(topic=topic, address=address, user_data=user_data)
 
 
-@topic_to_command_handler(topic=ENTER_LINKING_MODE)
+@topic_to_command_handler(register_list=topic_register, topic=ENTER_LINKING_MODE)
 def enter_linking_mode(address: Address, group: int, topic=pub.AUTO_TOPIC):
     """Create a ENTER_LINKING_MODE command."""
     user_data = UserData()
@@ -241,31 +258,33 @@ def enter_linking_mode(address: Address, group: int, topic=pub.AUTO_TOPIC):
     )
 
 
-@topic_to_command_handler(topic=ENTER_UNLINKING_MODE)
+@topic_to_command_handler(register_list=topic_register, topic=ENTER_UNLINKING_MODE)
 def enter_unlinking_mode(address: Address, group: int, topic=pub.AUTO_TOPIC):
     """Create a ENTER_UNLINKING_MODE command."""
     _create_direct_message(topic=topic, address=address, cmd2=group)
 
 
-@topic_to_command_handler(topic=GET_INSTEON_ENGINE_VERSION)
+@topic_to_command_handler(
+    register_list=topic_register, topic=GET_INSTEON_ENGINE_VERSION
+)
 def get_insteon_engine_version(address: Address, topic=pub.AUTO_TOPIC):
     """Create a GET_INSTEON_ENGINE_VERSION command."""
     _create_direct_message(topic=topic, address=address, cmd2=0x00)
 
 
-@topic_to_command_handler(topic=PING)
+@topic_to_command_handler(register_list=topic_register, topic=PING)
 def ping(address: Address, topic=pub.AUTO_TOPIC):
     """Create a PING command."""
     _create_direct_message(topic=topic, address=address, cmd2=0x00)
 
 
-@topic_to_command_handler(topic=ID_REQUEST)
+@topic_to_command_handler(register_list=topic_register, topic=ID_REQUEST)
 def id_request(address: Address, topic=pub.AUTO_TOPIC):
     """Create a ID_REQUEST command."""
     _create_direct_message(topic=topic, address=address, cmd2=0x00)
 
 
-@topic_to_command_handler(topic=ON)
+@topic_to_command_handler(register_list=topic_register, topic=ON)
 def on(address: Address, on_level: int, group=0, topic=pub.AUTO_TOPIC):
     """Create a ON command."""
     user_data = None
@@ -276,7 +295,7 @@ def on(address: Address, on_level: int, group=0, topic=pub.AUTO_TOPIC):
     )
 
 
-@topic_to_command_handler(topic=ON_FAST)
+@topic_to_command_handler(register_list=topic_register, topic=ON_FAST)
 def on_fast(address: Address, on_level: int, group: int, topic=pub.AUTO_TOPIC):
     """Create a ON_FAST command."""
     user_data = None
@@ -287,7 +306,7 @@ def on_fast(address: Address, on_level: int, group: int, topic=pub.AUTO_TOPIC):
     )
 
 
-@topic_to_command_handler(topic=OFF)
+@topic_to_command_handler(register_list=topic_register, topic=OFF)
 def off(address: Address, group: int, cmd2: int = 0, topic=pub.AUTO_TOPIC):
     """Create a OFF command."""
     user_data = None
@@ -296,7 +315,7 @@ def off(address: Address, group: int, cmd2: int = 0, topic=pub.AUTO_TOPIC):
     _create_direct_message(topic=topic, address=address, cmd2=cmd2, user_data=user_data)
 
 
-@topic_to_command_handler(topic=OFF_FAST)
+@topic_to_command_handler(register_list=topic_register, topic=OFF_FAST)
 def off_fast(address: Address, group: int, topic=pub.AUTO_TOPIC):
     """Create a OFF_FAST command."""
     user_data = None
@@ -305,79 +324,79 @@ def off_fast(address: Address, group: int, topic=pub.AUTO_TOPIC):
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
-@topic_to_command_handler(topic=BRIGHTEN_ONE_STEP)
+@topic_to_command_handler(register_list=topic_register, topic=BRIGHTEN_ONE_STEP)
 def brighten_one_step(address: Address, topic=pub.AUTO_TOPIC):
     """Create a BRIGHTEN_ONE_STEP command."""
     _create_direct_message(topic=topic, address=address, cmd2=0)
 
 
-@topic_to_command_handler(topic=DIM_ONE_STEP)
+@topic_to_command_handler(register_list=topic_register, topic=DIM_ONE_STEP)
 def dim_one_step(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DIM_ONE_STEP command."""
     _create_direct_message(topic=topic, address=address, cmd2=0)
 
 
-@topic_to_command_handler(topic=STATUS_REQUEST)
+@topic_to_command_handler(register_list=topic_register, topic=STATUS_REQUEST)
 def status_request(address: Address, status_type: int = 0, topic=pub.AUTO_TOPIC):
     """Create a STATUS_REQUEST command."""
     _create_direct_message(topic=topic, address=address, cmd2=status_type)
 
 
-@topic_to_command_handler(topic=GET_OPERATING_FLAGS)
+@topic_to_command_handler(register_list=topic_register, topic=GET_OPERATING_FLAGS)
 def get_operating_flags(address: Address, flags_requested: int, topic=pub.AUTO_TOPIC):
     """Create a GET_OPERATING_FLAGS command."""
     _create_direct_message(topic=topic, address=address, cmd2=flags_requested)
 
 
-@topic_to_command_handler(topic=SET_OPERATING_FLAGS)
+@topic_to_command_handler(register_list=topic_register, topic=SET_OPERATING_FLAGS)
 def set_operating_flags(address: Address, cmd: int, topic=pub.AUTO_TOPIC):
     """Create a SET_OPERATING_FLAGS command."""
     _create_direct_message(topic=topic, address=address, cmd2=cmd)
 
 
-@topic_to_command_handler(topic=INSTANT_CHANGE)
+@topic_to_command_handler(register_list=topic_register, topic=INSTANT_CHANGE)
 def instant_change(address: Address, on_level: int, topic=pub.AUTO_TOPIC):
     """Create a INSTANT_CHANGE command."""
     _create_direct_message(topic=topic, address=address, cmd2=on_level)
 
 
-@topic_to_command_handler(topic=SET_STATUS)
+@topic_to_command_handler(register_list=topic_register, topic=SET_STATUS)
 def set_status(address: Address, on_level: int, topic=pub.AUTO_TOPIC):
     """Create a SET_STATUS command."""
     _create_direct_message(topic=topic, address=address, cmd2=on_level)
 
 
-@topic_to_command_handler(topic=SET_ADDRESS_MSB)
+@topic_to_command_handler(register_list=topic_register, topic=SET_ADDRESS_MSB)
 def set_address_msb(address: Address, high_byte: int, topic=pub.AUTO_TOPIC):
     """Create a SET_ADDRESS_MSB command."""
     _create_direct_message(topic=topic, address=address, cmd2=high_byte)
 
 
-@topic_to_command_handler(topic=POKE_ONE_BYTE)
+@topic_to_command_handler(register_list=topic_register, topic=POKE_ONE_BYTE)
 def poke_one_byte(address: Address, byte_to_write: int, topic=pub.AUTO_TOPIC):
     """Create a POKE_ONE_BYTE command."""
     _create_direct_message(topic=topic, address=address, cmd2=byte_to_write)
 
 
-@topic_to_command_handler(topic=PEEK_ONE_BYTE)
+@topic_to_command_handler(register_list=topic_register, topic=PEEK_ONE_BYTE)
 def peek_one_byte(address: Address, lsb: int, topic=pub.AUTO_TOPIC):
     """Create a PEEK_ONE_BYTE command."""
     _create_direct_message(topic=topic, address=address, cmd2=lsb)
 
 
-@topic_to_command_handler(topic=PEEK_ONE_BYTE_INTERNAL)
+@topic_to_command_handler(register_list=topic_register, topic=PEEK_ONE_BYTE_INTERNAL)
 def peek_one_byte_internal(address: Address, lsb: int, topic=pub.AUTO_TOPIC):
     """Create a PEEK_ONE_BYTE_INTERNAL command."""
     _create_direct_message(topic=topic, address=address, cmd2=lsb)
 
 
-@topic_to_command_handler(topic=POKE_ONE_BYTE_INTERNAL)
+@topic_to_command_handler(register_list=topic_register, topic=POKE_ONE_BYTE_INTERNAL)
 def poke_one_byte_internal(address: Address, byte_to_write: int, topic=pub.AUTO_TOPIC):
     """Create a POKE_ONE_BYTE_INTERNAL command."""
     _create_direct_message(topic=topic, address=address, cmd2=byte_to_write)
 
 
-@topic_to_command_handler(topic=ON_AT_RAMP_RATE)
+@topic_to_command_handler(register_list=topic_register, topic=ON_AT_RAMP_RATE)
 def on_at_ramp_rate(
     address: Address, on_level: int, ramp_rate: RampRate, topic=pub.AUTO_TOPIC
 ):
@@ -390,7 +409,7 @@ def on_at_ramp_rate(
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
-@topic_to_command_handler(topic=EXTENDED_GET_SET)
+@topic_to_command_handler(register_list=topic_register, topic=EXTENDED_GET_SET)
 def extended_get_set(
     address: Address,
     data1=0,
@@ -418,7 +437,7 @@ def extended_get_set(
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
-@topic_to_command_handler(topic=OFF_AT_RAMP_RATE)
+@topic_to_command_handler(register_list=topic_register, topic=OFF_AT_RAMP_RATE)
 def off_at_ramp_rate(
     address: Address, on_level: int, ramp_rate: RampRate, topic=pub.AUTO_TOPIC
 ):
@@ -482,7 +501,7 @@ def _write_aldb(
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
-@topic_to_command_handler(topic=EXTENDED_READ_WRITE_ALDB)
+@topic_to_command_handler(register_list=topic_register, topic=EXTENDED_READ_WRITE_ALDB)
 def extended_read_write_aldb(
     address: Address,
     action: int,
@@ -521,13 +540,13 @@ def extended_read_write_aldb(
         )
 
 
-@topic_to_command_handler(topic=EXTENDED_TRIGGER_ALL_LINK)
+@topic_to_command_handler(register_list=topic_register, topic=EXTENDED_TRIGGER_ALL_LINK)
 def extended_trigger_all_link(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a EXTENDED_TRIGGER_ALL_LINK command."""
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
-@topic_to_command_handler(topic=SET_SPRINKLER_PROGRAM)
+@topic_to_command_handler(register_list=topic_register, topic=SET_SPRINKLER_PROGRAM)
 def set_sprinkler_program(
     address: Address, program: int, user_data, topic=pub.AUTO_TOPIC
 ):
@@ -537,13 +556,15 @@ def set_sprinkler_program(
     )
 
 
-@topic_to_command_handler(topic=SPRINKLER_VALVE_ON)
+@topic_to_command_handler(register_list=topic_register, topic=SPRINKLER_VALVE_ON)
 def sprinkler_valve_on(address: Address, valve: int, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_VALVE_ON command."""
     _create_direct_message(topic=topic, address=address, cmd2=valve)
 
 
-@topic_to_command_handler(topic=SPRINKLER_GET_PROGRAM_RESPONSE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=SPRINKLER_GET_PROGRAM_RESPONSE
+)
 def sprinkler_get_program_response(
     address: Address, program: int, user_data, topic=pub.AUTO_TOPIC
 ):
@@ -553,170 +574,192 @@ def sprinkler_get_program_response(
     )
 
 
-@topic_to_command_handler(topic=SPRINKLER_VALVE_OFF)
+@topic_to_command_handler(register_list=topic_register, topic=SPRINKLER_VALVE_OFF)
 def sprinkler_valve_off(address: Address, valve: int, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_VALVE_OFF command."""
     _create_direct_message(topic=topic, address=address, cmd2=valve)
 
 
-@topic_to_command_handler(topic=SPRINKLER_PROGRAM_ON)
+@topic_to_command_handler(register_list=topic_register, topic=SPRINKLER_PROGRAM_ON)
 def sprinkler_program_on(address: Address, program: int, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_PROGRAM_ON command."""
     _create_direct_message(topic=topic, address=address, cmd2=program)
 
 
-@topic_to_command_handler(topic=SPRINKLER_PROGRAM_OFF)
+@topic_to_command_handler(register_list=topic_register, topic=SPRINKLER_PROGRAM_OFF)
 def sprinkler_program_off(address: Address, program: int, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_PROGRAM_OFF command."""
     _create_direct_message(topic=topic, address=address, cmd2=program)
 
 
-@topic_to_command_handler(topic=SPRINKLER_LOAD_INITIALIZATION_VALUES)
+@topic_to_command_handler(
+    register_list=topic_register, topic=SPRINKLER_LOAD_INITIALIZATION_VALUES
+)
 def sprinkler_load_initialization_values(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_LOAD_INITIALIZATION_VALUES command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_LOAD_EEPROM_FROM_RAM)
+@topic_to_command_handler(
+    register_list=topic_register, topic=SPRINKLER_LOAD_EEPROM_FROM_RAM
+)
 def sprinkler_load_eeprom_from_ram(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_LOAD_EEPROM_FROM_RAM command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_GET_VALVE_STATUS)
+@topic_to_command_handler(
+    register_list=topic_register, topic=SPRINKLER_GET_VALVE_STATUS
+)
 def sprinkler_get_valve_status(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_GET_VALVE_STATUS command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_INHIBIT_COMMAND_ACCEPTANCE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=SPRINKLER_INHIBIT_COMMAND_ACCEPTANCE
+)
 def sprinkler_inhibit_command_acceptance(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_INHIBIT_COMMAND_ACCEPTANCE command."""
     user_data = UserData({"d1": 0x03})
     _create_direct_message(topic=topic, address=address, cmd2=0x44, user_data=user_data)
 
 
-@topic_to_command_handler(topic=SPRINKLER_RESUME_COMMAND_ACCEPTANCE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=SPRINKLER_RESUME_COMMAND_ACCEPTANCE
+)
 def sprinkler_resume_command_acceptance(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_RESUME_COMMAND_ACCEPTANCE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_SKIP_FORWARD)
+@topic_to_command_handler(register_list=topic_register, topic=SPRINKLER_SKIP_FORWARD)
 def sprinkler_skip_forward(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_SKIP_FORWARD command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_SKIP_BACK)
+@topic_to_command_handler(register_list=topic_register, topic=SPRINKLER_SKIP_BACK)
 def sprinkler_skip_back(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_SKIP_BACK command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_ENABLE_PUMP_ON_V8)
+@topic_to_command_handler(
+    register_list=topic_register, topic=SPRINKLER_ENABLE_PUMP_ON_V8
+)
 def sprinkler_enable_pump_on_v8(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_ENABLE_PUMP_ON_V8 command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_DISABLE_PUMP_ON_V8)
+@topic_to_command_handler(
+    register_list=topic_register, topic=SPRINKLER_DISABLE_PUMP_ON_V8
+)
 def sprinkler_disable_pump_on_v8(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_DISABLE_PUMP_ON_V8 command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_BROADCAST_ON)
+@topic_to_command_handler(register_list=topic_register, topic=SPRINKLER_BROADCAST_ON)
 def sprinkler_broadcast_on(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_BROADCAST_ON command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_BROADCAST_OFF)
+@topic_to_command_handler(register_list=topic_register, topic=SPRINKLER_BROADCAST_OFF)
 def sprinkler_broadcast_off(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_BROADCAST_OFF command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_LOAD_RAM_FROM_EEPROM)
+@topic_to_command_handler(
+    register_list=topic_register, topic=SPRINKLER_LOAD_RAM_FROM_EEPROM
+)
 def sprinkler_load_ram_from_eeprom(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_LOAD_RAM_FROM_EEPROM command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_SENSOR_ON)
+@topic_to_command_handler(register_list=topic_register, topic=SPRINKLER_SENSOR_ON)
 def sprinkler_sensor_on(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_SENSOR_ON command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_SENSOR_OFF)
+@topic_to_command_handler(register_list=topic_register, topic=SPRINKLER_SENSOR_OFF)
 def sprinkler_sensor_off(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_SENSOR_OFF command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_DIAGNOSTICS_ON)
+@topic_to_command_handler(register_list=topic_register, topic=SPRINKLER_DIAGNOSTICS_ON)
 def sprinkler_diagnostics_on(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_DIAGNOSTICS_ON command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_DIAGNOSTICS_OFF)
+@topic_to_command_handler(register_list=topic_register, topic=SPRINKLER_DIAGNOSTICS_OFF)
 def sprinkler_diagnostics_off(address: Address, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_DIAGNOSTICS_OFF command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=SPRINKLER_GET_PROGRAM_REQUEST)
+@topic_to_command_handler(
+    register_list=topic_register, topic=SPRINKLER_GET_PROGRAM_REQUEST
+)
 def sprinkler_get_program_request(address: Address, program: int, topic=pub.AUTO_TOPIC):
     """Create a SPRINKLER_GET_PROGRAM_REQUEST command."""
     _create_direct_message(topic=topic, address=address, cmd2=program)
 
 
-@topic_to_command_handler(topic=IO_OUTPUT_ON)
+@topic_to_command_handler(register_list=topic_register, topic=IO_OUTPUT_ON)
 def io_output_on(address: Address, output_num: int, topic=pub.AUTO_TOPIC):
     """Create a IO_OUTPUT_ON command."""
     _create_direct_message(topic=topic, address=address, cmd2=output_num)
 
 
-@topic_to_command_handler(topic=IO_OUTPUT_OFF)
+@topic_to_command_handler(register_list=topic_register, topic=IO_OUTPUT_OFF)
 def io_output_off(address: Address, output_num: int, topic=pub.AUTO_TOPIC):
     """Create a IO_OUTPUT_OFF command."""
     _create_direct_message(topic=topic, address=address, cmd2=output_num)
 
 
-@topic_to_command_handler(topic=IO_ALARM_DATA_REQUEST)
+@topic_to_command_handler(register_list=topic_register, topic=IO_ALARM_DATA_REQUEST)
 def io_alarm_data_request(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_ALARM_DATA_REQUEST command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_WRITE_OUTPUT_PORT)
+@topic_to_command_handler(register_list=topic_register, topic=IO_WRITE_OUTPUT_PORT)
 def io_write_output_port(address: Address, value: int, topic=pub.AUTO_TOPIC):
     """Create a IO_WRITE_OUTPUT_PORT command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_READ_INPUT_PORT)
+@topic_to_command_handler(register_list=topic_register, topic=IO_READ_INPUT_PORT)
 def io_read_input_port(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_READ_INPUT_PORT command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_GET_SENSOR_VALUE)
+@topic_to_command_handler(register_list=topic_register, topic=IO_GET_SENSOR_VALUE)
 def io_get_sensor_value(address: Address, sensor: int, topic=pub.AUTO_TOPIC):
     """Create a IO_GET_SENSOR_VALUE command."""
     _create_direct_message(topic=topic, address=address, cmd2=sensor)
 
 
-@topic_to_command_handler(topic=IO_SET_SENSOR_1_NOMINAL_VALUE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=IO_SET_SENSOR_1_NOMINAL_VALUE
+)
 def io_set_sensor_1_nominal_value(address: Address, value: int, topic=pub.AUTO_TOPIC):
     """Create a IO_SET_SENSOR_1_NOMINAL_VALUE command."""
     _create_direct_message(topic=topic, address=address, cmd2=value)
 
 
-@topic_to_command_handler(topic=IO_SET_SENSOR_NOMINAL_VALUE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=IO_SET_SENSOR_NOMINAL_VALUE
+)
 def io_set_sensor_nominal_value(
     address: Address, value: int, user_data, topic=pub.AUTO_TOPIC
 ):
@@ -726,7 +769,7 @@ def io_set_sensor_nominal_value(
     )
 
 
-@topic_to_command_handler(topic=IO_GET_SENSOR_ALARM_DELTA)
+@topic_to_command_handler(register_list=topic_register, topic=IO_GET_SENSOR_ALARM_DELTA)
 def io_get_sensor_alarm_delta(
     address: Address, sensor: int, delta: int, direction: int, topic=pub.AUTO_TOPIC
 ):
@@ -738,13 +781,15 @@ def io_get_sensor_alarm_delta(
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
-@topic_to_command_handler(topic=IO_ALARM_DATA_RESPONSE)
+@topic_to_command_handler(register_list=topic_register, topic=IO_ALARM_DATA_RESPONSE)
 def io_alarm_data_response(address: Address, user_data, topic=pub.AUTO_TOPIC):
     """Create a IO_ALARM_DATA_RESPONSE command."""
     _create_direct_message(topic=topic, address=address, user_data=user_data)
 
 
-@topic_to_command_handler(topic=IO_WRITE_CONFIGURATION_PORT)
+@topic_to_command_handler(
+    register_list=topic_register, topic=IO_WRITE_CONFIGURATION_PORT
+)
 def io_write_configuration_port(
     address: Address,
     bits_0_1: bool,
@@ -770,91 +815,109 @@ def io_write_configuration_port(
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
-@topic_to_command_handler(topic=IO_READ_CONFIGURATION_PORT)
+@topic_to_command_handler(
+    register_list=topic_register, topic=IO_READ_CONFIGURATION_PORT
+)
 def io_read_configuration_port(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_READ_CONFIGURATION_PORT command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_MODULE_LOAD_INITIALIZATION_VALUES)
+@topic_to_command_handler(
+    register_list=topic_register, topic=IO_MODULE_LOAD_INITIALIZATION_VALUES
+)
 def io_module_load_initialization_values(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_MODULE_LOAD_INITIALIZATION_VALUES command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_MODULE_LOAD_EEPROM_FROM_RAM)
+@topic_to_command_handler(
+    register_list=topic_register, topic=IO_MODULE_LOAD_EEPROM_FROM_RAM
+)
 def io_module_load_eeprom_from_ram(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_MODULE_LOAD_EEPROM_FROM_RAM command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_MODULE_STATUS_REQUEST)
+@topic_to_command_handler(register_list=topic_register, topic=IO_MODULE_STATUS_REQUEST)
 def io_module_status_request(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_MODULE_STATUS_REQUEST command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_MODULE_READ_ANALOG_ONCE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=IO_MODULE_READ_ANALOG_ONCE
+)
 def io_module_read_analog_once(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_MODULE_READ_ANALOG_ONCE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_MODULE_READ_ANALOG_ALWAYS)
+@topic_to_command_handler(
+    register_list=topic_register, topic=IO_MODULE_READ_ANALOG_ALWAYS
+)
 def io_module_read_analog_always(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_MODULE_READ_ANALOG_ALWAYS command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_MODULE_ENABLE_STATUS_CHANGE_MESSAGE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=IO_MODULE_ENABLE_STATUS_CHANGE_MESSAGE
+)
 def io_module_enable_status_change_message(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_MODULE_ENABLE_STATUS_CHANGE_MESSAGE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_MODULE_DISABLE_STATUS_CHANGE_MESSAGE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=IO_MODULE_DISABLE_STATUS_CHANGE_MESSAGE
+)
 def io_module_disable_status_change_message(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_MODULE_DISABLE_STATUS_CHANGE_MESSAGE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_MODULE_LOAD_RAM_FROM_EEPROM)
+@topic_to_command_handler(
+    register_list=topic_register, topic=IO_MODULE_LOAD_RAM_FROM_EEPROM
+)
 def io_module_load_ram_from_eeprom(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_MODULE_LOAD_RAM_FROM_EEPROM command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_MODULE_SENSOR_ON)
+@topic_to_command_handler(register_list=topic_register, topic=IO_MODULE_SENSOR_ON)
 def io_module_sensor_on(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_MODULE_SENSOR_ON command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_MODULE_SENSOR_OFF)
+@topic_to_command_handler(register_list=topic_register, topic=IO_MODULE_SENSOR_OFF)
 def io_module_sensor_off(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_MODULE_SENSOR_OFF command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_MODULE_DIAGNOSTICS_ON)
+@topic_to_command_handler(register_list=topic_register, topic=IO_MODULE_DIAGNOSTICS_ON)
 def io_module_diagnostics_on(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_MODULE_DIAGNOSTICS_ON command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=IO_MODULE_DIAGNOSTICS_OFF)
+@topic_to_command_handler(register_list=topic_register, topic=IO_MODULE_DIAGNOSTICS_OFF)
 def io_module_diagnostics_off(address: Address, topic=pub.AUTO_TOPIC):
     """Create a IO_MODULE_DIAGNOSTICS_OFF command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=POOL_DEVICE_ON)
+@topic_to_command_handler(register_list=topic_register, topic=POOL_DEVICE_ON)
 def pool_device_on(address: Address, device_num: int, topic=pub.AUTO_TOPIC):
     """Create a POOL_DEVICE_ON command."""
     _create_direct_message(topic=topic, address=address, cmd2=device_num)
 
 
-@topic_to_command_handler(topic=POOL_SET_DEVICE_TEMPERATURE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=POOL_SET_DEVICE_TEMPERATURE
+)
 def pool_set_device_temperature(
     address: Address, device_num: int, user_data, topic=pub.AUTO_TOPIC
 ):
@@ -864,13 +927,15 @@ def pool_set_device_temperature(
     )
 
 
-@topic_to_command_handler(topic=POOL_DEVICE_OFF)
+@topic_to_command_handler(register_list=topic_register, topic=POOL_DEVICE_OFF)
 def pool_device_off(address: Address, device_num: int, topic=pub.AUTO_TOPIC):
     """Create a POOL_DEVICE_OFF command."""
     _create_direct_message(topic=topic, address=address, cmd2=device_num)
 
 
-@topic_to_command_handler(topic=POOL_SET_DEVICE_HYSTERESIS)
+@topic_to_command_handler(
+    register_list=topic_register, topic=POOL_SET_DEVICE_HYSTERESIS
+)
 def pool_set_device_hysteresis(
     address: Address, device_num: int, user_data, topic=pub.AUTO_TOPIC
 ):
@@ -880,179 +945,205 @@ def pool_set_device_hysteresis(
     )
 
 
-@topic_to_command_handler(topic=POOL_TEMPERATURE_UP)
+@topic_to_command_handler(register_list=topic_register, topic=POOL_TEMPERATURE_UP)
 def pool_temperature_up(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
     """Create a POOL_TEMPERATURE_UP command."""
     cmd2 = degrees * 2
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
-@topic_to_command_handler(topic=POOL_TEMPERATURE_DOWN)
+@topic_to_command_handler(register_list=topic_register, topic=POOL_TEMPERATURE_DOWN)
 def pool_temperature_down(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
     """Create a POOL_TEMPERATURE_DOWN command."""
     cmd2 = degrees * 2
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
-@topic_to_command_handler(topic=POOL_LOAD_INITIALIZATION_VALUES)
+@topic_to_command_handler(
+    register_list=topic_register, topic=POOL_LOAD_INITIALIZATION_VALUES
+)
 def pool_load_initialization_values(address: Address, topic=pub.AUTO_TOPIC):
     """Create a POOL_LOAD_INITIALIZATION_VALUES command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=POOL_LOAD_EEPROM_FROM_RAM)
+@topic_to_command_handler(register_list=topic_register, topic=POOL_LOAD_EEPROM_FROM_RAM)
 def pool_load_eeprom_from_ram(address: Address, topic=pub.AUTO_TOPIC):
     """Create a POOL_LOAD_EEPROM_FROM_RAM command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=POOL_GET_POOL_MODE)
+@topic_to_command_handler(register_list=topic_register, topic=POOL_GET_POOL_MODE)
 def pool_get_pool_mode(address: Address, topic=pub.AUTO_TOPIC):
     """Create a POOL_GET_POOL_MODE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=POOL_GET_AMBIENT_TEMPERATURE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=POOL_GET_AMBIENT_TEMPERATURE
+)
 def pool_get_ambient_temperature(address: Address, topic=pub.AUTO_TOPIC):
     """Create a POOL_GET_AMBIENT_TEMPERATURE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=POOL_GET_WATER_TEMPERATURE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=POOL_GET_WATER_TEMPERATURE
+)
 def pool_get_water_temperature(address: Address, topic=pub.AUTO_TOPIC):
     """Create a POOL_GET_WATER_TEMPERATURE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=POOL_GET_PH)
+@topic_to_command_handler(register_list=topic_register, topic=POOL_GET_PH)
 def pool_get_ph(address: Address, topic=pub.AUTO_TOPIC):
     """Create a POOL_GET_PH command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=DOOR_MOVE_RAISE_DOOR)
+@topic_to_command_handler(register_list=topic_register, topic=DOOR_MOVE_RAISE_DOOR)
 def door_move_raise_door(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_MOVE_RAISE_DOOR command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=DOOR_MOVE_LOWER_DOOR)
+@topic_to_command_handler(register_list=topic_register, topic=DOOR_MOVE_LOWER_DOOR)
 def door_move_lower_door(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_MOVE_LOWER_DOOR command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=DOOR_MOVE_OPEN_DOOR)
+@topic_to_command_handler(register_list=topic_register, topic=DOOR_MOVE_OPEN_DOOR)
 def door_move_open_door(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_MOVE_OPEN_DOOR command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=DOOR_MOVE_CLOSE_DOOR)
+@topic_to_command_handler(register_list=topic_register, topic=DOOR_MOVE_CLOSE_DOOR)
 def door_move_close_door(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_MOVE_CLOSE_DOOR command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=DOOR_MOVE_STOP_DOOR)
+@topic_to_command_handler(register_list=topic_register, topic=DOOR_MOVE_STOP_DOOR)
 def door_move_stop_door(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_MOVE_STOP_DOOR command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=DOOR_MOVE_SINGLE_DOOR_OPEN)
+@topic_to_command_handler(
+    register_list=topic_register, topic=DOOR_MOVE_SINGLE_DOOR_OPEN
+)
 def door_move_single_door_open(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_MOVE_SINGLE_DOOR_OPEN command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=DOOR_MOVE_SINGLE_DOOR_CLOSE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=DOOR_MOVE_SINGLE_DOOR_CLOSE
+)
 def door_move_single_door_close(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_MOVE_SINGLE_DOOR_CLOSE command."""
     user_data = UserData({"d1": 0x06})
     _create_direct_message(topic=topic, address=address, cmd2=0x58, user_data=user_data)
 
 
-@topic_to_command_handler(topic=DOOR_STATUS_REPORT_RAISE_DOOR)
+@topic_to_command_handler(
+    register_list=topic_register, topic=DOOR_STATUS_REPORT_RAISE_DOOR
+)
 def door_status_report_raise_door(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_STATUS_REPORT_RAISE_DOOR command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=DOOR_STATUS_REPORT_LOWER_DOOR)
+@topic_to_command_handler(
+    register_list=topic_register, topic=DOOR_STATUS_REPORT_LOWER_DOOR
+)
 def door_status_reportlower_door(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_STATUS_REPORT_LOWER_DOOR command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=DOOR_STATUS_REPORT_OPEN_DOOR)
+@topic_to_command_handler(
+    register_list=topic_register, topic=DOOR_STATUS_REPORT_OPEN_DOOR
+)
 def door_status_report_open_door(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_STATUS_REPORT_OPEN_DOOR command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=DOOR_STATUS_REPORT_CLOSE_DOOR)
+@topic_to_command_handler(
+    register_list=topic_register, topic=DOOR_STATUS_REPORT_CLOSE_DOOR
+)
 def door_status_report_close_door(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_STATUS_REPORT_CLOSE_DOOR command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=DOOR_STATUS_REPORT_STOP_DOOR)
+@topic_to_command_handler(
+    register_list=topic_register, topic=DOOR_STATUS_REPORT_STOP_DOOR
+)
 def door_status_report_stop_door(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_STATUS_REPORT_STOP_DOOR command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=DOOR_STATUS_REPORT_SINGLE_DOOR_OPEN)
+@topic_to_command_handler(
+    register_list=topic_register, topic=DOOR_STATUS_REPORT_SINGLE_DOOR_OPEN
+)
 def door_status_report_single_door_open(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_STATUS_REPORT_SINGLE_DOOR_OPEN command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=DOOR_STATUS_REPORT_SINGLE_DOOR_CLOSE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=DOOR_STATUS_REPORT_SINGLE_DOOR_CLOSE
+)
 def door_status_report_single_door_close(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DOOR_STATUS_REPORT_SINGLE_DOOR_CLOSE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=WINDOW_COVERING_OPEN)
+@topic_to_command_handler(register_list=topic_register, topic=WINDOW_COVERING_OPEN)
 def window_covering_open(address: Address, topic=pub.AUTO_TOPIC):
     """Create a WINDOW_COVERING_OPEN command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=WINDOW_COVERING_CLOSE)
+@topic_to_command_handler(register_list=topic_register, topic=WINDOW_COVERING_CLOSE)
 def window_covering_close(address: Address, topic=pub.AUTO_TOPIC):
     """Create a WINDOW_COVERING_CLOSE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=WINDOW_COVERING_STOP)
+@topic_to_command_handler(register_list=topic_register, topic=WINDOW_COVERING_STOP)
 def window_covering_stop(address: Address, topic=pub.AUTO_TOPIC):
     """Create a WINDOW_COVERING_STOP command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=WINDOW_COVERING_PROGRAM)
+@topic_to_command_handler(register_list=topic_register, topic=WINDOW_COVERING_PROGRAM)
 def window_covering_program(address: Address, topic=pub.AUTO_TOPIC):
     """Create a WINDOW_COVERING_PROGRAM command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=WINDOW_COVERING_POSITION)
+@topic_to_command_handler(register_list=topic_register, topic=WINDOW_COVERING_POSITION)
 def window_covering_position(address: Address, position: int, topic=pub.AUTO_TOPIC):
     """Create a WINDOW_COVERING_POSITION command."""
     _create_direct_message(topic=topic, address=address, cmd2=position)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_TEMPERATURE_UP)
+@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_TEMPERATURE_UP)
 def thermostat_temperature_up(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_TEMPERATURE_UP command."""
     cmd2 = degrees * 2
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_ZONE_TEMPERATURE_UP)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_ZONE_TEMPERATURE_UP
+)
 def thermostat_zone_temperature_up(
     address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
 ):
@@ -1060,14 +1151,18 @@ def thermostat_zone_temperature_up(
     _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=user_data)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_TEMPERATURE_DOWN)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_TEMPERATURE_DOWN
+)
 def thermostat_temperature_down(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_TEMPERATURE_DOWN command."""
     cmd2 = degrees * 2
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_ZONE_TEMPERATURE_DOWN)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_ZONE_TEMPERATURE_DOWN
+)
 def thermostat_zone_temperature_down(
     address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
 ):
@@ -1075,7 +1170,9 @@ def thermostat_zone_temperature_down(
     _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=user_data)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_GET_ZONE_INFORMATION)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_GET_ZONE_INFORMATION
+)
 def thermostat_get_zone_information(
     address: Address, zone: int, info: int, topic=pub.AUTO_TOPIC
 ):
@@ -1095,158 +1192,186 @@ def thermostat_get_zone_information(
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_LOAD_INITIALIZATION_VALUES)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_LOAD_INITIALIZATION_VALUES
+)
 def thermostat_load_initialization_values(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_LOAD_INITIALIZATION_VALUES command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_LOAD_EEPROM_FROM_RAM)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_LOAD_EEPROM_FROM_RAM
+)
 def thermostat_load_eeprom_from_ram(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_LOAD_EEPROM_FROM_RAM command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_GET_MODE)
+@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_GET_MODE)
 def thermostat_get_mode(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_GET_MODE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_GET_AMBIENT_TEMPERATURE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_GET_AMBIENT_TEMPERATURE
+)
 def thermostat_get_ambient_temperature(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_GET_AMBIENT_TEMPERATURE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_ON_HEAT)
+@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_ON_HEAT)
 def thermostat_on_heat(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_ON_HEAT command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_ON_COOL)
+@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_ON_COOL)
 def thermostat_on_cool(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_ON_COOL command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_ON_AUTO)
+@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_ON_AUTO)
 def thermostat_on_auto(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_ON_AUTO command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_ON_FAN)
+@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_ON_FAN)
 def thermostat_on_fan(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_ON_FAN command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_OFF_FAN)
+@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_OFF_FAN)
 def thermostat_off_fan(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_OFF_FAN command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_OFF_ALL)
+@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_OFF_ALL)
 def thermostat_off_all(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_OFF_ALL command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_PROGRAM_HEAT)
+@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_PROGRAM_HEAT)
 def thermostat_program_heat(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_PROGRAM_HEAT command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_PROGRAM_COOL)
+@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_PROGRAM_COOL)
 def thermostat_program_cool(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_PROGRAM_COOL command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_PROGRAM_AUTO)
+@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_PROGRAM_AUTO)
 def thermostat_program_auto(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_PROGRAM_AUTO command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_GET_EQUIPMENT_STATE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_GET_EQUIPMENT_STATE
+)
 def thermostat_get_equipment_state(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_GET_EQUIPMENT_STATE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_SET_EQUIPMENT_STATE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_SET_EQUIPMENT_STATE
+)
 def thermostat_set_equipment_state(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_SET_EQUIPMENT_STATE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_GET_TEMPERATURE_UNITS)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_GET_TEMPERATURE_UNITS
+)
 def thermostat_get_temperature_units(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_GET_TEMPERATURE_UNITS command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_SET_FAHRENHEIT)
+@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_SET_FAHRENHEIT)
 def thermostat_set_fahrenheit(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_SET_FAHRENHEIT command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_SET_CELSIUS)
+@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_SET_CELSIUS)
 def thermostat_set_celsius(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_SET_CELSIUS command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_GET_FAN_ON_SPEED)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_GET_FAN_ON_SPEED
+)
 def thermostat_get_fan_on_speed(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_GET_FAN_ON_SPEED command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_SET_FAN_ON_SPEED_LOW)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_SET_FAN_ON_SPEED_LOW
+)
 def thermostat_set_fan_on_speed_low(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_SET_FAN_ON_SPEED_LOW command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_SET_FAN_ON_SPEED_MEDIUM)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_SET_FAN_ON_SPEED_MEDIUM
+)
 def thermostat_set_fan_on_speed_medium(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_SET_FAN_ON_SPEED_MEDIUM command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_SET_FAN_ON_SPEED_HIGH)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_SET_FAN_ON_SPEED_HIGH
+)
 def thermostat_set_fan_on_speed_high(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_SET_FAN_ON_SPEED_HIGH command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_ENABLE_STATUS_CHANGE_MESSAGE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_ENABLE_STATUS_CHANGE_MESSAGE
+)
 def thermostat_enable_status_change_message(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_ENABLE_STATUS_CHANGE_MESSAGE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_DISABLE_STATUS_CHANGE_MESSAGE)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_DISABLE_STATUS_CHANGE_MESSAGE
+)
 def thermostat_disable_status_change_message(address: Address, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_DISABLE_STATUS_CHANGE_MESSAGE command."""
     _create_direct_message(topic=topic, address=address)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_SET_COOL_SETPOINT)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_SET_COOL_SETPOINT
+)
 def thermostat_set_cool_setpoint(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_SET_COOL_SETPOINT command."""
     cmd2 = degrees * 2
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_SET_ZONE_COOL_SETPOINT)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_SET_ZONE_COOL_SETPOINT
+)
 def thermostat_set_zone_cool_setpoint(
     address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
 ):
@@ -1254,14 +1379,18 @@ def thermostat_set_zone_cool_setpoint(
     _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=user_data)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_SET_HEAT_SETPOINT)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_SET_HEAT_SETPOINT
+)
 def thermostat_set_heat_setpoint(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_SET_HEAT_SETPOINT command."""
     cmd2 = degrees * 2
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
-@topic_to_command_handler(topic=THERMOSTAT_SET_ZONE_HEAT_SETPOINT)
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_SET_ZONE_HEAT_SETPOINT
+)
 def thermostat_set_zone_heat_setpoint(
     address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
 ):
@@ -1269,7 +1398,7 @@ def thermostat_set_zone_heat_setpoint(
     _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=user_data)
 
 
-@topic_to_command_handler(topic=ASSIGN_TO_COMPANION_GROUP)
+@topic_to_command_handler(register_list=topic_register, topic=ASSIGN_TO_COMPANION_GROUP)
 def assign_to_companion_group(address: Address, topic=pub.AUTO_TOPIC):
     """Create a ASSIGN_TO_COMPANION_GROUP command."""
     _create_direct_message(topic=topic, address=address)

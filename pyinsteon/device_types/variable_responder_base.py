@@ -24,6 +24,7 @@ class VariableResponderBase(VariableControllerBase):
             on_level: Default 0xff (full on). Set the device on level.
             fast: Default False. If True, bypass device ramp rate otherwise
             turn on at the ramp rate.
+
         """
         group = 1 if not group else group
         command = ON_FAST_COMMAND if fast else ON_COMMAND
@@ -41,6 +42,7 @@ class VariableResponderBase(VariableControllerBase):
             FAILURE: Device did not acknowledge the message
             SUCCESS: Device acknowledged the message
             UNCLEAR: Device received the message but did not confirm the action
+
         """
         group = 1 if not group else group
         command = ON_FAST_COMMAND if fast else ON_COMMAND
@@ -52,6 +54,7 @@ class VariableResponderBase(VariableControllerBase):
         Parameters:
             fast: Default False. If True, bypass device ramp rate otherwise
             turn on at the ramp rate.
+
         """
         group = 1 if not group else group
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
@@ -68,6 +71,7 @@ class VariableResponderBase(VariableControllerBase):
             FAILURE: Device did not acknowledge the message
             SUCCESS: Device acknowledged the message
             UNCLEAR: Device received the message but did not confirm the action
+
         """
         group = 1 if not group else group
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND

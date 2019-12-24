@@ -19,6 +19,7 @@ class GeneralController_ControlLinc(VariableControllerBase):
     """ControLinc 2430 device."""
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
+        """Init the GeneralController_ControlLinc class."""
         buttons = {1: None, 2: None, 3: None, 4: None, 5: None, 6: None}
         super().__init__(
             address, cat, subcat, firmware, description, model, buttons=buttons
@@ -29,6 +30,7 @@ class GeneralController_RemoteLinc(BatteryDeviceBase, VariableControllerBase):
     """RemoteLinc 2440 device."""
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
+        """Init the GeneralController_RemoteLinc class."""
         buttons = {1: None, 2: None, 3: None, 4: None, 5: None, 6: None}
         super().__init__(
             address, cat, subcat, firmware, description, model, buttons=buttons
@@ -95,6 +97,7 @@ class GeneralController_MiniRemote_4(GeneralController_MiniRemoteBase):
     """RemoteLinc 2440 device."""
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
+        """Init the GeneralController_MiniRemote_4 class."""
         buttons = {1: None, 2: None, 3: None, 4: None}
         super().__init__(
             address, cat, subcat, firmware, description, model, buttons=buttons
@@ -105,6 +108,7 @@ class GeneralController_MiniRemote_8(GeneralController_MiniRemoteBase):
     """RemoteLinc 2440 device."""
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
+        """Init the GeneralController_MiniRemote_8 class."""
         buttons = {
             1: None,
             2: None,

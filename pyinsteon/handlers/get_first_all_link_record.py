@@ -11,7 +11,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class GetFirstAllLinkRecordHandler(OutboundHandlerBase):
-    """Handle Get First All Link Record commands"""
+    """Handle Get First All Link Record commands."""
 
     def __init__(self):
         """Init the GetNextAldbRecordNak class."""

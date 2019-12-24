@@ -104,6 +104,7 @@ class DeviceManager(SubscriberBase):
 
         Typical use is to identify devices that do not respond to an ID Request
         such as a battery opperated device.
+
         """
         address = Address(address)
         self._id_manager.set_device_id(address, cat, subcat, firmware)
@@ -132,6 +133,7 @@ class DeviceManager(SubscriberBase):
             new devices (Default=False)
 
         The Modem ALDB is loaded if `refresh` is True or if the saved file has no devices.
+
         """
         from ..managers.saved_devices_manager import SavedDeviceManager
 

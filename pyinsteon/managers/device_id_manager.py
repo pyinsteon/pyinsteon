@@ -93,7 +93,7 @@ class DeviceIdManager(SubscriberBase):
         return self._device_ids
 
     async def async_id_device(self, address: Address, refresh: bool = False):
-        """Call ID Request command for all unknown devices"""
+        """Call ID Request command for all unknown devices."""
         if self._id_device_lock.locked():
             self._id_device_lock.release()
         await self._id_device_lock.acquire()
@@ -168,7 +168,11 @@ class DeviceIdManager(SubscriberBase):
             pass
 
     def _device_awake(self, topic=pub.AUTO_TOPIC, **kwargs):
-        """An unknown device has sent a message so we try to identify it."""
+        """Identify an unknown device.
+
+        An unknown device has sent a message so we try to identify it.
+
+        """
         if self._id_device_lock.locked():
             return
         try:

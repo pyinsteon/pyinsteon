@@ -55,11 +55,15 @@ class HttpTransport(asyncio.Transport):
         self.close()
 
     def can_write_eof(self):
-        """Always return False."""
+        """Return False always."""
         return False
 
     def is_closing(self):
-        """True if the transport is closed or in the process of closing."""
+        """Return the state of the transport.
+
+        True if the transport is closed or in the process of closing.
+
+        """
         return self._closing
 
     def close(self):
@@ -68,7 +72,7 @@ class HttpTransport(asyncio.Transport):
         self._closing = True
 
     def get_write_buffer_size(self):
-        """Always return 0 (i.e. none)."""
+        """Rreturn 0 (i.e. none) always."""
         return 0
 
     def pause_reading(self):
