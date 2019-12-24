@@ -6,35 +6,58 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'ubuntu-latest'
-strategy:
-  matrix:
-    Python35:
-      python.version: '3.5'
-    Python36:
-      python.version: '3.6'
-    Python37:
-      python.version: '3.7'
-    Python38:
-      python.version: '3.8'
+stages:
+- stage: 'Code check'
+  pool:
+    vmImage: 'ubuntu-latest'
+  strategy:
+    python.version: '3.7'
+  jobs:
+  - job: 'pylint'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(python.version)'
+      displayName: 'Use Python $(python.version)'
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements_test.txt
+      displayName: 'Install dependencies'
+    - script: |
+        pylint pyinsteon
+      displayName: 'pylint'
+    - script: |
+        flake8 pyinsteon
+      displayName: 'pylint'
 
-steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '$(python.version)'
-  displayName: 'Use Python $(python.version)'
+- stage: 'Tests'
+  pool:
+    vmImage: 'ubuntu-latest'
+  strategy:
+    matrix:
+      Python35:
+        python.version: '3.5'
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+      Python38:
+        python.version: '3.8'
+  jobs:
+  - job: 'PyTest'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(python.version)'
+      displayName: 'Use Python $(python.version)'
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-    pip install -r requirements_test.txt
-  displayName: 'Install dependencies'
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements_test.txt
+      displayName: 'Install dependencies'
 
-- script: |
-    flake8 pyinsteon
-  displayName: 'Lint'
-
-- script: |
-    python -m unittest -b -v
-  displayName: 'Unit test'
+    - script: |
+        python -m unittest -b -v
+      displayName: 'Unit test'
