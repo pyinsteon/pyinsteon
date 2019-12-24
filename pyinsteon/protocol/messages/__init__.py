@@ -13,7 +13,7 @@ class MessageBase:
         self._fields = msg_def.fields
         for field in self._fields:
             val = kwargs.get(field.name)
-            if not val is None or isinstance(val, field.type):
+            if val is not None and isinstance(val, field.type):
                 val = field.type(val)
             setattr(self, field.name, val)
 
