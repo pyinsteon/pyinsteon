@@ -40,6 +40,16 @@ from .message_definitions import FLD_EXT_SEND, FLD_STD_SEND, OUTBOUND_MSG_DEF
 from .message_flags import MessageFlags
 from .user_data import UserData
 
+# pylint: disable=invalid-name
+topic_register = {}
+
+
+def register_outbound_handlers():
+    """Register outbound handlers."""
+    for topic in topic_register:
+        func = topic_register[topic]
+        pub.subscribe(func, topic)
+
 
 class Outbound(MessageBase):
     """Outbound message class."""
@@ -82,19 +92,21 @@ def _create_outbound_message(topic, priority=5, **kwargs) -> Outbound:
     pub.sendMessage("send_message.{}".format(topic), msg=msg, priority=priority)
 
 
-@topic_to_message_handler(topic=ALL_LINK_CLEANUP_STATUS_REPORT)
+@topic_to_message_handler(
+    register_list=topic_register, topic=ALL_LINK_CLEANUP_STATUS_REPORT
+)
 def all_link_cleanup_status_report(topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a ALL_LINK_CLEANUP_STATUS_REPORT outbound message."""
     _create_outbound_message(topic=topic, priority=1)
 
 
-@topic_to_message_handler(topic=GET_IM_INFO)
+@topic_to_message_handler(register_list=topic_register, topic=GET_IM_INFO)
 def get_im_info(topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a GET_IM_INFO outbound message."""
     _create_outbound_message(topic=topic, priority=1)
 
 
-@topic_to_message_handler(topic=SEND_ALL_LINK_COMMAND)
+@topic_to_message_handler(register_list=topic_register, topic=SEND_ALL_LINK_COMMAND)
 def send_all_link_command(
     group: int, mode: AllLinkMode, topic=pub.AUTO_TOPIC
 ) -> Outbound:
@@ -110,7 +122,7 @@ def _create_flags(topic, extended):
     return create_flags(msg_type, extended=extended)
 
 
-@topic_to_message_handler(topic=SEND_STANDARD)
+@topic_to_message_handler(register_list=topic_register, topic=SEND_STANDARD)
 def send_standard(
     address: Address,
     cmd1: int,
@@ -132,7 +144,7 @@ def send_standard(
     pub.sendMessage(send_topic, msg=Outbound(msg_def, **kwargs), priority=priority)
 
 
-@topic_to_message_handler(topic=SEND_EXTENDED)
+@topic_to_message_handler(register_list=topic_register, topic=SEND_EXTENDED)
 def send_extended(
     address: Address,
     cmd1: int,
@@ -160,25 +172,25 @@ def send_extended(
     )
 
 
-@topic_to_message_handler(topic=X10_SEND)
+@topic_to_message_handler(register_list=topic_register, topic=X10_SEND)
 def x10_send(raw_x10: int, x10_flag: int, topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a X10_SEND outbound message."""
     _create_outbound_message(raw_x10=raw_x10, x10_flag=x10_flag, topic=topic)
 
 
-@topic_to_message_handler(topic=START_ALL_LINKING)
+@topic_to_message_handler(register_list=topic_register, topic=START_ALL_LINKING)
 def start_all_linking(mode: AllLinkMode, group: int, topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a START_ALL_LINKING outbound message."""
     _create_outbound_message(mode=mode, group=group, topic=topic, priority=7)
 
 
-@topic_to_message_handler(topic=CANCEL_ALL_LINKING)
+@topic_to_message_handler(register_list=topic_register, topic=CANCEL_ALL_LINKING)
 def cancel_all_linking(topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a CANCEL_ALL_LINKING outbound message."""
     _create_outbound_message(topic=topic, priority=7)
 
 
-@topic_to_message_handler(topic=SET_HOST_DEV_CAT)
+@topic_to_message_handler(register_list=topic_register, topic=SET_HOST_DEV_CAT)
 def set_host_dev_cat(
     cat: DeviceCategory, subcat: int, firmware: int, topic=pub.AUTO_TOPIC
 ) -> Outbound:
@@ -188,31 +200,31 @@ def set_host_dev_cat(
     )
 
 
-@topic_to_message_handler(topic=RESET_IM)
+@topic_to_message_handler(register_list=topic_register, topic=RESET_IM)
 def reset_im(topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a RESET_IM outbound message."""
     _create_outbound_message(topic=topic, priority=2)
 
 
-@topic_to_message_handler(topic=SET_ACK_MESSAGE_BYTE)
+@topic_to_message_handler(register_list=topic_register, topic=SET_ACK_MESSAGE_BYTE)
 def set_ack_message_byte(cmd2: int, topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a SET_ACK_MESSAGE_BYTE outbound message."""
     _create_outbound_message(cmd2=cmd2, topic=topic, priority=7)
 
 
-@topic_to_message_handler(topic=GET_FIRST_ALL_LINK_RECORD)
+@topic_to_message_handler(register_list=topic_register, topic=GET_FIRST_ALL_LINK_RECORD)
 def get_first_all_link_record(topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a GET_FIRST_ALL_LINK_RECORD outbound message."""
     _create_outbound_message(topic=topic, priority=1)
 
 
-@topic_to_message_handler(topic=GET_NEXT_ALL_LINK_RECORD)
+@topic_to_message_handler(register_list=topic_register, topic=GET_NEXT_ALL_LINK_RECORD)
 def get_next_all_link_record(topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a GET_NEXT_ALL_LINK_RECORD outbound message."""
     _create_outbound_message(topic=topic, priority=1)
 
 
-@topic_to_message_handler(topic=SET_IM_CONFIGURATION)
+@topic_to_message_handler(register_list=topic_register, topic=SET_IM_CONFIGURATION)
 def set_im_configuration(
     disable_auto_linking: bool,
     monitor_mode: bool,
@@ -230,25 +242,27 @@ def set_im_configuration(
     _create_outbound_message(flags=flags, topic=topic, priority=2)
 
 
-@topic_to_message_handler(topic=GET_ALL_LINK_RECORD_FOR_SENDER)
+@topic_to_message_handler(
+    register_list=topic_register, topic=GET_ALL_LINK_RECORD_FOR_SENDER
+)
 def get_all_link_record_for_sender(topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a GET_ALL_LINK_RECORD_FOR_SENDER outbound message."""
     _create_outbound_message(topic=topic, priority=2)
 
 
-@topic_to_message_handler(topic=LED_ON)
+@topic_to_message_handler(register_list=topic_register, topic=LED_ON)
 def led_on(topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a LED_ON outbound message."""
     _create_outbound_message(topic=topic, priority=7)
 
 
-@topic_to_message_handler(topic=LED_OFF)
+@topic_to_message_handler(register_list=topic_register, topic=LED_OFF)
 def led_off(topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a LED_OFF outbound message."""
     _create_outbound_message(topic=topic, priority=7)
 
 
-@topic_to_message_handler(topic=MANAGE_ALL_LINK_RECORD)
+@topic_to_message_handler(register_list=topic_register, topic=MANAGE_ALL_LINK_RECORD)
 def manage_all_link_record(
     action: ManageAllLinkRecordAction,
     flags: AllLinkRecordFlags,
@@ -273,25 +287,25 @@ def manage_all_link_record(
     )
 
 
-@topic_to_message_handler(topic=SET_NAK_MESSAGE_BYTE)
+@topic_to_message_handler(register_list=topic_register, topic=SET_NAK_MESSAGE_BYTE)
 def set_nak_message_byte(cmd2: int, topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a SET_NAK_MESSAGE_BYTE outbound message."""
     _create_outbound_message(cmd2=cmd2, topic=topic, priority=10)
 
 
-@topic_to_message_handler(topic=SET_ACK_MESSAGE_TWO_BYTES)
+@topic_to_message_handler(register_list=topic_register, topic=SET_ACK_MESSAGE_TWO_BYTES)
 def set_ack_message_two_bytes(cmd1: int, cmd2: int, topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a SET_ACK_MESSAGE_TWO_BYTES outbound message."""
     _create_outbound_message(cmd1=cmd1, cmd2=cmd2, topic=topic, priority=10)
 
 
-@topic_to_message_handler(topic=RF_SLEEP)
+@topic_to_message_handler(register_list=topic_register, topic=RF_SLEEP)
 def rf_sleep(topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a RF_SLEEP outbound message."""
     _create_outbound_message(topic=topic, priority=2)
 
 
-@topic_to_message_handler(topic=GET_IM_CONFIGURATION)
+@topic_to_message_handler(register_list=topic_register, topic=GET_IM_CONFIGURATION)
 def get_im_configuration(topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a GET_IM_CONFIGURATION outbound message."""
     _create_outbound_message(topic=topic, priority=7)

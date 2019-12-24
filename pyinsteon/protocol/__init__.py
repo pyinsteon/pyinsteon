@@ -5,7 +5,6 @@ from functools import partial
 
 import serial
 
-from .. import pub
 from .serial_transport import SerialTransport
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,21 +22,21 @@ def topic_to_message_type(topic):
     return MessageFlagType(0)
 
 
-def topic_to_message_handler(topic):
+def topic_to_message_handler(topic, register_list):
     """Decorator to register handler to topic."""
 
     def register(func):
-        pub.subscribe(func, "send.{}".format(topic))
+        register_list["send.{}".format(topic)] = func
         return func
 
     return register
 
 
-def topic_to_command_handler(topic):
+def topic_to_command_handler(topic, register_list):
     """Decorator to register handler to topic."""
 
     def register(func):
-        pub.subscribe(func, "send.{}".format(topic))
+        register_list["send.{}".format(topic)] = func
         return func
 
     return register
