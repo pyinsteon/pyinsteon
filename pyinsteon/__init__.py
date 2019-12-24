@@ -8,7 +8,6 @@ from .listener_exception_handler import ListenerExceptionHandler
 _LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")
 
 devices = DeviceManager()
-# pub.setListenerExcHandler(ListenerExceptionHandler())
 
 
 async def async_connect(
@@ -56,6 +55,14 @@ async def async_close():
             devices[addr].close()
     devices.id_manager.close()
     await asyncio.sleep(0.1)
+
+
+def set_exception_handler():
+    """Setup the pubsub exception handler.
+
+    This should only be run for debugging purposes.
+    """
+    pub.setListenerExcHandler(ListenerExceptionHandler())
 
 
 def _log_all_topics(topic=pub.AUTO_TOPIC, **kwargs):
