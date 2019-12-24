@@ -19,7 +19,7 @@ stages:
     steps:
     - task: UsePythonVersion@0
       inputs:
-        versionSpec: '$(variables["PythonMain"])'
+        versionSpec: '$(PythonMain)'
       displayName: 'Use Python main version.'
     - script: |
         python -m pip install --upgrade pip
