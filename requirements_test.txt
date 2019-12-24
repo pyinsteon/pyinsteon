@@ -2,7 +2,7 @@
 # make new things fail. Manually update these pins when pulling in a
 # new version
 discover
-coveralls==1.2.0
+coveralls==1.9.2
 flake8-docstrings==1.5.0
 flake8==3.7.8
 pydocstyle==4.0.1
