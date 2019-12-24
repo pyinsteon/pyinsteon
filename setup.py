@@ -15,6 +15,7 @@ setup(
     author="The pyinsteon Development Team",
     author_email="pyinsteon@harrisnj.net",
     url="https://github.com/pyinsteon/pyinsteon",
+
     license="MIT License",
     packages=find_packages(exclude=["tests", "tests.*", "topics", "docs", "samples"]),
     scripts=[],
