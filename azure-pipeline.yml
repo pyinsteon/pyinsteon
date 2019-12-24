@@ -8,7 +8,7 @@ trigger:
 
 variables:
   - name: PythonMain
-    value: '3.7.5'
+    value: '3.7'
 
 stages:
 - stage: 'Code_check'
@@ -19,7 +19,7 @@ stages:
     steps:
     - task: UsePythonVersion@0
       inputs:
-        versionSpec: $[ variables['PythonMain'] ]
+        versionSpec: '$[ variables["PythonMain"] ]'
       displayName: 'Use Python main version.'
     - script: |
         python -m pip install --upgrade pip
