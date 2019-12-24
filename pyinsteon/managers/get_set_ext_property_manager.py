@@ -130,7 +130,7 @@ class GetSetExtendedPropertyManager:
         self._response_queue.put_nowait(ResponseStatus.SUCCESS)
 
     def _update_one_field(self, group, field, value):
-        """update one field including bit based fields."""
+        """Update one field including bit based fields."""
         if isinstance(self._groups[group][field], PropertyInfo):
             flag_info = self._groups[group][field]
             flag = self._properties[flag_info.name]

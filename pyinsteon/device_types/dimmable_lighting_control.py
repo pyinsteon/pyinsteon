@@ -113,6 +113,7 @@ class DimmableLightingControl_OutletLinc(DimmableLightingControl):
     """OutletLinc based dimmable lights."""
 
     def __init__(self, address, cat, subcat, firmware=0, description="", model=""):
+        """Init the DimmableLightingControl_OutletLinc class."""
         buttons = {1: DIMMABLE_OUTLET}
         super().__init__(
             address,
@@ -172,9 +173,11 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
     """FanLinc model 2475F Dimmable Lighting Control.
 
     Device Class 0x01 subcat 0x2e
+
     """
 
     def __init__(self, address, cat, subcat, firmware=0, description="", model=""):
+        """Init the DimmableLightingControl_FanLinc class."""
         buttons = {1: DIMMABLE_LIGHT, 2: DIMMABLE_FAN}
         super().__init__(
             address,
@@ -193,6 +196,7 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
             on_level: Default FanSpeed.HIGH (full on). Set the fan on level.
             fast: Default False. If True, bypass device ramp rate otherwise
             turn on at the ramp rate.
+
         """
         command = ON_FAST_COMMAND if fast else ON_COMMAND
         command_group = "{}_2".format(command)
@@ -212,6 +216,7 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
             FAILURE: Device did not acknowledge the message
             SUCCESS: Device acknowledged the message
             UNCLEAR: Device received the message but did not confirm the action
+
         """
         command = ON_FAST_COMMAND if fast else ON_COMMAND
         command_group = "{}_2".format(command)
@@ -225,6 +230,7 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         Parameters:
             fast: Default False. If True, bypass device ramp rate otherwise
             turn on at the ramp rate.
+
         """
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
         command_group = "{}_2".format(command)
@@ -241,6 +247,7 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
             FAILURE: Device did not acknowledge the message
             SUCCESS: Device acknowledged the message
             UNCLEAR: Device received the message but did not confirm the action
+
         """
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
         command_group = "{}_2".format(command)
@@ -285,6 +292,7 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
             FAILURE: Device did not acknowledge the message
             SUCCESS: Device acknowledged the message
             UNCLEAR: Device received the message but did not confirm the action
+
         """
         return await self._handlers[STATUS_COMMAND_FAN].async_send()
 
@@ -369,14 +377,14 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         )
 
     async def async_on(self, on_level: int = 0xFF, group: int = 0, fast: bool = False):
-        """Turn on the button LED. """
+        """Turn on the button LED."""
         if group in [0, 1]:
             return await super().async_on(on_level=on_level, group=group, fast=fast)
         kwargs = self._change_led_status(led=group, is_on=True)
         return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
 
     async def async_off(self, group: int = 0, fast: bool = False):
-        """Turn on the button LED. """
+        """Turn off the button LED."""
         if group in [0, 1]:
             return await super().async_off(group=group, fast=fast)
         kwargs = self._change_led_status(led=group, is_on=False)

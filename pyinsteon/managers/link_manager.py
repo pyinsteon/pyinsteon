@@ -72,7 +72,7 @@ async def async_unlink_devices(controller: Device, responder: Device, group: int
 
 
 async def async_add_default_links(device: Device):
-    """Setup the default links for a device."""
+    """Set up the default links for a device."""
     for link in device.default_links:
         if link.is_controller:
             controller = device

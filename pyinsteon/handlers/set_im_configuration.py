@@ -1,4 +1,4 @@
-"""Modem command to get the IM configuration"""
+"""Modem command to get the IM configuration."""
 import logging
 
 from .outbound_base import OutboundHandlerBase
@@ -10,7 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class SetImConfigurationHandler(OutboundHandlerBase):
-    """Handle Set IM Configuration commands"""
+    """Handle Set IM Configuration commands."""
 
     def __init__(self):
         """Init the GetImConfigurationHandler class."""

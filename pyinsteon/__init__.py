@@ -30,6 +30,7 @@ async def async_connect(
         hub_version: Hub version (default=2)
 
     Returns an Insteon Modem (PLM or Hub).
+
     """
     modem = await async_modem_connect(
         device=device,
@@ -58,7 +59,7 @@ async def async_close():
 
 
 def set_exception_handler():
-    """Setup the pubsub exception handler.
+    """Set the pubsub exception handler.
 
     This should only be run for debugging purposes.
     """

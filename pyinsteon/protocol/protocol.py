@@ -74,7 +74,7 @@ class Protocol(asyncio.Protocol):
         return self._message_queue
 
     def connection_made(self, transport):
-        """Connection to the transport has been made."""
+        """Run when a connection to the transport has been made."""
         self._transport = transport
         self._start_writer()
         self._subscribe()

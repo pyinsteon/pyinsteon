@@ -41,13 +41,16 @@ class VariableControllerBase(Device):
             FAILURE: Device did not acknowledge the message
             SUCCESS: Device acknowledged the message
             UNCLEAR: Device received the message but did not confirm the action
+
         """
         return await self._handlers[STATUS_COMMAND].async_send()
 
     def _register_default_links(self):
-        """Default links:
+        """Register default links.
 
-        is_controller group dev_data1 dev_data2 dev_data3 modem_data1 modem_data2 modem_data3
+        Default links:
+            is_controller group dev_data1 dev_data2 dev_data3 modem_data1 modem_data2 modem_data3
+
         """
         from ..default_link import DefaultLink
 

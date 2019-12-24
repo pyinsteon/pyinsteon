@@ -3,4 +3,4 @@ from .modem_aldb import ModemALDB
 
 
 class PlmALDB(ModemALDB):
-    """"All-Link database for PLM based devices."""
+    """All-Link database for PLM based devices."""

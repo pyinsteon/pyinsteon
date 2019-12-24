@@ -1,4 +1,4 @@
-"""Manage saving and restoring devices from JSON file"""
+"""Manage saving and restoring devices from JSON file."""
 import json
 import logging
 

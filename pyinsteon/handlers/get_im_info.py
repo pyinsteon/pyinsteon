@@ -10,7 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class GetImInfoHandler(OutboundHandlerBase):
-    """Handle Get IM Info commands"""
+    """Handle Get IM Info commands."""
 
     def __init__(self):
         """Init the GetNextAldbRecordNak class."""

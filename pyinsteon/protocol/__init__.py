@@ -23,7 +23,7 @@ def topic_to_message_type(topic):
 
 
 def topic_to_message_handler(topic, register_list):
-    """Decorator to register handler to topic."""
+    """Register handler to topic."""
 
     def register(func):
         register_list["send.{}".format(topic)] = func
@@ -33,7 +33,7 @@ def topic_to_message_handler(topic, register_list):
 
 
 def topic_to_command_handler(topic, register_list):
-    """Decorator to register handler to topic."""
+    """Register handler to topic."""
 
     def register(func):
         register_list["send.{}".format(topic)] = func
@@ -46,9 +46,9 @@ async def async_connect_serial(device, protocol):
     """Connect to the PowerLine Modem via serial port.
 
     Parameters:
-
         port – Device name.
         protocol - Insteon Modem Protocol instance.
+
     """
     loop = asyncio.get_event_loop()
     try:
@@ -89,10 +89,9 @@ async def async_modem_connect(
 ):
     """Connect to the Insteon Modem.
 
-        Returns an Insteon Modem object (PLM, Hub, or Hub1)
+    Returns an Insteon Modem object (PLM, Hub, or Hub1)
 
-        Parameters:
-
+    Parameters:
         device: Serial port device (i.e. /dev/ttyUSB0 or COM5)
         host: Hub IP address (i.e. 192.168.1.100)
         port: Hub port number (Default 25105 for version 2 or 9761 for version 1)
@@ -100,7 +99,8 @@ async def async_modem_connect(
         password: Hub password for the Hub V2
         hub_version: 1 | 2 (Default: 2)
 
-        If the device is a serial device see the serial class parameters.
+    If the device is a serial device see the serial class parameters.
+
     """
     from .protocol import Protocol
     from ..handlers.get_im_info import GetImInfoHandler

@@ -3,4 +3,4 @@ from .modem_aldb import ModemALDB
 
 
 class HubALDB(ModemALDB):
-    """"All-Link database for Hub based devices."""
+    """All-Link database for Hub based devices."""
