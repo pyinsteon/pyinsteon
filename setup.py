@@ -34,7 +34,7 @@ setup(
     entry_points={
         "console_scripts": [
             "insteon_monitor = pyinsteon.tools:monitor",
-            "insteon_tools = " "pyinsteon.tools:tools",
+            "insteon_tools = pyinsteon.tools:tools",
         ]
     },
 )
