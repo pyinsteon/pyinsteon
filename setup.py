@@ -5,8 +5,8 @@ from setuptools import setup, find_packages
 
 def readme():
     """Return README file as a string."""
-    with open('README.rst', 'r') as f:
-        return f.read()
+    with open('README.rst', 'r') as readme_file:
+        return readme_file.read()
 
 
 setup(
