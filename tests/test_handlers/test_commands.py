@@ -62,7 +62,7 @@ async def import_commands():
     return json.loads(json_file)
 
 
-def create_message(msg_dict, delay=1):
+def create_message(msg_dict, delay=.1):
     """Create a message from a dictionary."""
     address = msg_dict.get("address")
     flags = msg_dict.get("flags")
@@ -119,8 +119,13 @@ class TestDirectCommands(unittest.TestCase):
     @async_case
     async def test_command(self):
         """Test direct command."""
+        msgs = []
+        def listen_for_ack():
+            send_data(msgs, self._read_queue)
+
         tests = await import_commands()
         pub.subscribe(self.validate_values, pub.ALL_TOPICS)
+        pub.subscribe(listen_for_ack, 'ack')
         await self._protocol.async_connect()
 
         for test_info in tests:
@@ -141,7 +146,7 @@ class TestDirectCommands(unittest.TestCase):
                 msgs.append(create_message(msg_dict))
             self._assert_tests = test_command.get("assert_tests")
 
-            send_data(msgs, self._read_queue)
+            # send_data(msgs, self._read_queue)
             try:
                 response = await cmd.async_send(**send_params)
             except Exception as e:
@@ -157,7 +162,7 @@ class TestDirectCommands(unittest.TestCase):
                             self._current_test, response
                         )
                     )
-            await sleep(0.5)
+            await sleep(0.1)
         pub.unsubscribe(self.validate_values, pub.ALL_TOPICS)
         self._protocol.close()
         await sleep(0.1)

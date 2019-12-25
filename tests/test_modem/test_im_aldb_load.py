@@ -52,41 +52,41 @@ class TestModemALDBLoad(unittest.TestCase):
             nak_topic = "nak.{}".format(GET_NEXT_ALL_LINK_RECORD)
             rec_topic = ALL_LINK_RECORD_RESPONSE
             topics = [
-                TopicItem(ack_first_topic, {}, 3),
+                TopicItem(ack_first_topic, {}, .5),
                 TopicItem(
-                    rec_topic, fill_rec(0x2E, 0x01, "11ff22", 0x02, 0x03, 0x04), 1
+                    rec_topic, fill_rec(0x2E, 0x01, "11ff22", 0x02, 0x03, 0x04), .1
                 ),
-                TopicItem(ack_topic, {}, 1),
+                TopicItem(ack_topic, {}, .1),
                 TopicItem(
-                    rec_topic, fill_rec(0x2E, 0x02, "11ff22", 0x02, 0x03, 0x04), 1
+                    rec_topic, fill_rec(0x2E, 0x02, "11ff22", 0x02, 0x03, 0x04), .1
                 ),
-                TopicItem(ack_topic, {}, 1),
+                TopicItem(ack_topic, {}, .1),
                 TopicItem(
-                    rec_topic, fill_rec(0x2E, 0x03, "11ff22", 0x02, 0x03, 0x04), 1
+                    rec_topic, fill_rec(0x2E, 0x03, "11ff22", 0x02, 0x03, 0x04), .1
                 ),
-                TopicItem(ack_topic, {}, 1),
+                TopicItem(ack_topic, {}, .1),
                 TopicItem(
-                    rec_topic, fill_rec(0x2E, 0x04, "11ff22", 0x02, 0x03, 0x04), 1
+                    rec_topic, fill_rec(0x2E, 0x04, "11ff22", 0x02, 0x03, 0x04), .1
                 ),
-                TopicItem(ack_topic, {}, 1),
+                TopicItem(ack_topic, {}, .1),
                 TopicItem(
-                    rec_topic, fill_rec(0x2E, 0x05, "11ff22", 0x02, 0x03, 0x04), 1
+                    rec_topic, fill_rec(0x2E, 0x05, "11ff22", 0x02, 0x03, 0x04), .1
                 ),
-                TopicItem(ack_topic, {}, 1),
+                TopicItem(ack_topic, {}, .1),
                 TopicItem(
-                    rec_topic, fill_rec(0x2E, 0x06, "11ff22", 0x02, 0x03, 0x04), 1
+                    rec_topic, fill_rec(0x2E, 0x06, "11ff22", 0x02, 0x03, 0x04), .1
                 ),
-                TopicItem(ack_topic, {}, 1),
+                TopicItem(ack_topic, {}, .1),
                 TopicItem(
-                    rec_topic, fill_rec(0x2E, 0x07, "11ff22", 0x02, 0x03, 0x04), 1
+                    rec_topic, fill_rec(0x2E, 0x07, "11ff22", 0x02, 0x03, 0x04), .1
                 ),
-                TopicItem(ack_topic, {}, 1),
+                TopicItem(ack_topic, {}, .1),
                 TopicItem(
-                    rec_topic, fill_rec(0x2E, 0x08, "11ff22", 0x02, 0x03, 0x04), 1
+                    rec_topic, fill_rec(0x2E, 0x08, "11ff22", 0x02, 0x03, 0x04), .1
                 ),
-                TopicItem(nak_topic, {}, 1),
-                TopicItem(nak_topic, {}, 1),
-                TopicItem(nak_topic, {}, 1),
+                TopicItem(nak_topic, {}, .1),
+                TopicItem(nak_topic, {}, .1),
+                TopicItem(nak_topic, {}, .1),
             ]
             return topics
 
