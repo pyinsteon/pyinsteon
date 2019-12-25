@@ -9,6 +9,8 @@ trigger:
 variables:
   - name: PythonMain
     value: '3.7'
+  - name: BlackVersion
+    value: '19.10b0'
 
 stages:
 - stage: 'Code_check'
@@ -25,6 +27,7 @@ stages:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements_test.txt
+        pip install black=='$(BlackVersion)'
       displayName: 'Install dependencies'
     - script: |
         pylint pyinsteon
@@ -43,6 +46,8 @@ stages:
       vmImage: 'ubuntu-latest'
     strategy:
       matrix:
+        Python35:
+          python.version: '3.5'
         Python36:
           python.version: '3.6'
         Python37:
