@@ -1,0 +1,23 @@
+# This configuration includes the default, minimal set of hooks to be
+# run on all commits. It requires no specific setup and one can just
+# start using pre-commit with it.
+#
+# Use pre-commit
+#   pip install pre-commit
+#   pre-commit install
+
+repos:
+-   repo: https://github.com/psf/black
+    rev: 19.10b0
+    hooks:
+    -   id: black
+        args:
+          - --safe
+          - --quiet
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.7.9
+    hooks:
+    -   id: flake8
+        additional_dependencies:
+          - flake8-docstrings==1.5.0
+          - pydocstyle==4.0.1
