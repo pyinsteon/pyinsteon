@@ -52,7 +52,7 @@ class TestProtocol(unittest.TestCase):
         ]
         await self._protocol.async_connect()
         send_topics(topics)
-        await asyncio.sleep(0.05)
+        await asyncio.sleep(0.5)
         assert self._last_topic == "ack.{}.1.on.direct".format(address.id)
         self._protocol.close()
         await asyncio.sleep(0.1)
