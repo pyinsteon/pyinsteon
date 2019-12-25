@@ -1,7 +1,7 @@
 pyinsteon - Python Insteon Package
 ==================================
 
-|Build Status| |GitHub release| |PyPI|
+|Build status| |GitHub release| |PyPI|
 
 This is a Python package to interface with an Insteon Modem. It has been
 tested to work with most USB or RS-232 serial based devices such as the
@@ -46,8 +46,8 @@ git repository and install from local sources:
 
     cd pyinsteon
     pip install .
-.. |Build Status| image:: https://dev.azure.com/pyinsteon/pyinsteon/_apis/build/status/pyinsteon.pyinsteon?branchName=master
-   :target: https://dev.azure.com/pyinsteon/pyinsteon
+.. |Build status| image:: https://dev.azure.com/pyinsteon/pyinsteon/_apis/build/status/pyinsteon.pyinsteon?branchName=master
+    :target: https://dev.azure.com/pyinsteon/pyinsteon/_build/latest?definitionId=1&branchName=master
 .. |GitHub release| image:: https://img.shields.io/github/release/pyinsteon/pyinsteon.svg
    :target: https://github.com/pyinsteon/pyinsteon/releases
 .. |PyPI| image:: https://img.shields.io/pypi/v/pyinsteon.svg
