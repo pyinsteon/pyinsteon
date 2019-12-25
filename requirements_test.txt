@@ -2,6 +2,6 @@
 # make new things fail. Manually update these pins when pulling in a
 # new version
 flake8-docstrings==1.5.0
-flake8==3.7.8
+flake8==3.7.9
 pydocstyle==4.0.1
 pylint==2.4.4
