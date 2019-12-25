@@ -46,7 +46,7 @@ git repository and install from local sources:
 
     cd pyinsteon
     pip install .
-.. |Build status| image:: https://dev.azure.com/maluuba/bistring/_apis/build/status/pyinsteon.pyinsteon?branchName=master
+.. |Build status| image:: https://dev.azure.com/pyinsteon/pyinsteon/_apis/build/status/pyinsteon.pyinsteon?branchName=master
     :target: https://dev.azure.com/pyinsteon/pyinsteon/_build/latest?definitionId=1&branchName=master
 .. |GitHub release| image:: https://img.shields.io/github/release/pyinsteon/pyinsteon.svg
    :target: https://github.com/pyinsteon/pyinsteon/releases
