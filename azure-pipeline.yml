@@ -31,7 +31,10 @@ stages:
       displayName: 'pylint'
     - script: |
         flake8 pyinsteon
-      displayName: 'pylint'
+      displayName: 'flake8'
+    - script: |
+        black pyinsteon
+      displayName: 'black'
 
 - stage: 'Tests'
   jobs:
