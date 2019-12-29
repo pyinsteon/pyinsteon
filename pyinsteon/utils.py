@@ -34,6 +34,19 @@ def byte_to_unitcode(bytecode: int) -> int:
     return list(UC_LOOKUP.keys())[list(UC_LOOKUP.values()).index(bytecode)]
 
 
+def byte_to_command(bytecode: int) -> int:
+    """Return an X10 unitcode value from a byte value."""
+    cmd = byte_to_int(bytecode)
+    return X10Commands(cmd)
+
+
+def parse_x10(raw_x10, flags):
+    """Convert an X10 message to a dictionary."""
+    cmd_type = X10CommandType(flags)
+    housecode, uc_or_cmd = raw_x10_to_bytes(raw_x10)
+    return housecode, uc_or_cmd, cmd_type
+
+
 def byte_to_int(bytecode: bytes) -> int:
     """Return an int from a byte string."""
     return int.from_bytes(bytecode, byteorder="big")
@@ -54,8 +67,7 @@ def x10_command_type(command: X10Commands) -> X10CommandType:
 
 def raw_x10_to_bytes(raw_x10: int) -> int:
     """Return the byte value of a raw X10 command."""
-    yield raw_x10 >> 4
-    yield raw_x10 & 0x0F
+    return raw_x10 >> 4, raw_x10 & 0x0F
 
 
 def bit_is_set(bitmask: int, bit: int) -> bool:

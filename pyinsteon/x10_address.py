@@ -1,6 +1,8 @@
 """Insteon device address class."""
 import logging
 
+from .constants import HC_LOOKUP
+
 from .utils import (
     byte_to_housecode,
     byte_to_unitcode,
@@ -14,24 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 
 def create(housecode: str, unitcode: int):
     """Create an X10 device address."""
-    if housecode.lower() in [
-        "a",
-        "b",
-        "c",
-        "d",
-        "e",
-        "f",
-        "g",
-        "h",
-        "i",
-        "j",
-        "k",
-        "l",
-        "m",
-        "n",
-        "o",
-        "p",
-    ]:
+    if housecode.lower() in HC_LOOKUP.keys():
         byte_housecode = housecode_to_byte(housecode)
     else:
         if isinstance(housecode, str):
@@ -70,10 +55,10 @@ class X10Address:
 
     def __repr__(self):
         """Return the string representation of an X10 device address."""
-        hex_housecode = hex(self._housecode_byte)
-        hex_unitcode = hex(self._unitcode_byte)
-        str_rep = {"housecode": hex_housecode, "unitcode": hex_unitcode}
-        return str(str_rep)
+        return "x10{}{}".format(
+            byte_to_housecode(self._housecode_byte),
+            byte_to_unitcode(self._unitcode_byte),
+        )
 
     def __str__(self):
         """Return the string representation of an X10 device address."""
@@ -108,6 +93,11 @@ class X10Address:
         return False
 
     @property
+    def id(self):
+        """Return the ID of the X10 address."""
+        return repr(self)
+
+    @property
     def housecode_byte(self):
         """Emit the X10 house code byte value."""
         return self._housecode_byte
@@ -120,7 +110,7 @@ class X10Address:
     @property
     def housecode(self):
         """Emit the X10 house code."""
-        return byte_to_housecode(self._housecode_byte)
+        return byte_to_housecode(self._housecode_byte).upper()
 
     @property
     def unitcode(self):
