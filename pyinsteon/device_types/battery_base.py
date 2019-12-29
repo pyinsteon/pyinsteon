@@ -30,7 +30,7 @@ class BatteryDeviceBase:
             firmware=0x00,
             description="",
             model="",
-            **kwargs
+            **kwargs,
         )
         self._commands_queue = asyncio.Queue()
         self._aldb = ALDBBattery(address=address, run_command=self._run_on_wake)

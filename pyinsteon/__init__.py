@@ -17,7 +17,7 @@ async def async_connect(
     username=None,
     password=None,
     hub_version=2,
-    **kwargs
+    **kwargs,
 ):
     """Connect to the Insteon Modem.
 
@@ -39,7 +39,7 @@ async def async_connect(
         username=username,
         password=password,
         hub_version=hub_version,
-        **kwargs
+        **kwargs,
     )
     devices.modem = modem
     devices.id_manager.start()
