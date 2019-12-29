@@ -133,7 +133,7 @@ class X10CommandType(IntEnum):
         return self.name.lower()
 
     DIRECT = 0
-    BROADCAST = 1
+    BROADCAST = 0x80
 
 
 class ThermostatMode(IntEnum):
