@@ -35,8 +35,7 @@ def byte_to_unitcode(bytecode: int) -> int:
 
 def byte_to_command(bytecode: int) -> int:
     """Return an X10 unitcode value from a byte value."""
-    cmd = byte_to_int(bytecode)
-    return X10Commands(cmd)
+    return X10Commands(bytecode)
 
 
 def parse_x10(raw_x10):
@@ -52,7 +51,9 @@ def byte_to_int(bytecode: bytes) -> int:
 
 def raw_x10_to_bytes(raw_x10: int) -> int:
     """Return the byte value of a raw X10 command."""
-    return raw_x10 >> 4, raw_x10 & 0x0F
+    house_code_byte = raw_x10[0]
+    uc_or_cmd_byte = raw_x10[1]
+    return house_code_byte, uc_or_cmd_byte
 
 
 def bit_is_set(bitmask: int, bit: int) -> bool:

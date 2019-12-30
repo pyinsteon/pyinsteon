@@ -29,24 +29,29 @@ class X10CommandSend(OutboundHandlerBase):
             X10Commands.ALL_LIGHTS_ON,
             X10Commands.ALL_UNITS_OFF,
         ]:
-            x10_flag = int(X10CommandType.COMMAND)
-            raw_x10 = bytes(
-                bytearray([self._address.housecode_byte, bytes([int(self._cmd)])])
+            cmd_int = int(self._cmd)
+            byte_array = bytearray([self._address.housecode_byte])
+            byte_array.append(cmd_int)
+            raw_x10 = bytes(byte_array)
+            return await super().async_send(
+                raw_x10=raw_x10, x10_flag=X10CommandType.COMMAND
             )
-            return await super().async_send(raw_x10=raw_x10, x10_flag=x10_flag)
 
-        x10_flag = int(X10CommandType.UNITCODE)
         raw_x10 = bytes(self._address)
-        uc_result = await super().async_send(raw_x10=raw_x10, x10_flag=x10_flag)
+        uc_result = await super().async_send(
+            raw_x10=raw_x10, x10_flag=X10CommandType.UNITCODE
+        )
 
         if uc_result != ResponseStatus.SUCCESS:
             return uc_result
 
-        x10_flag = int(X10CommandType.COMMAND)
-        raw_x10 = bytes(
-            bytearray([self._address.housecode_byte, bytes([int(self._cmd)])])
+        cmd_int = int(self._cmd)
+        byte_array = bytearray([self._address.housecode_byte])
+        byte_array.append(cmd_int)
+        raw_x10 = bytes(byte_array)
+        return await super().async_send(
+            raw_x10=raw_x10, x10_flag=X10CommandType.COMMAND
         )
-        return await super().async_send(raw_x10=raw_x10, x10_flag=x10_flag)
 
     @ack_handler(wait_response=False)
     def handle_ack(self, raw_x10, x10_flag):
