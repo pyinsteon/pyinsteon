@@ -4,8 +4,10 @@ from pubsub import pub
 from .protocol import async_modem_connect
 from .managers.device_manager import DeviceManager
 from .listener_exception_handler import ListenerExceptionHandler
+from .handlers.from_device.x10_received import X10Received
 
 _LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")
+X10_RECEIVED_HANDLER = X10Received()
 
 devices = DeviceManager()
 
