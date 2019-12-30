@@ -2,19 +2,26 @@
 from .. import pub
 from ..constants import X10Commands
 from ..subscriber_base import SubscriberBase
-from ..x10_address import X10Address
+from ..x10_address import X10Address, create
+from ..handlers.to_device.x10_send import X10CommandSend
 
 
-def all_units_off(housecode: str):
+async def async_x10_all_units_off(housecode: str):
     """Send the X10 All Units OFF command."""
+    cmd = X10CommandSend(create(housecode, 0), X10Commands.ALL_UNITS_OFF)
+    return await cmd.async_send()
 
 
-def all_lights_on(housecode: str):
+async def async_x10_all_lights_on(housecode: str):
     """Send the X10 All Lights ON command."""
+    cmd = X10CommandSend(create(housecode, 0), X10Commands.ALL_LIGHTS_ON)
+    return await cmd.async_send()
 
 
-def all_lights_off(housecode: str):
+async def async_x10_all_lights_off(housecode: str):
     """Send the X10 All Lights OFF command."""
+    cmd = X10CommandSend(create(housecode, 0), X10Commands.ALL_LIGHTS_OFF)
+    return await cmd.async_send()
 
 
 class X10OnOffManager(SubscriberBase):
