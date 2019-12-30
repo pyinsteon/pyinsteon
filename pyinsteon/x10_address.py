@@ -45,6 +45,8 @@ class X10Address:
 
     def __init__(self, housecode_unitcode: bytearray):
         """Create an X10 device address."""
+        if isinstance(housecode_unitcode, X10Address):
+            housecode_unitcode = bytes(housecode_unitcode)
         if len(housecode_unitcode) != 2:
             raise ValueError("housecode_unitcode must be 2 bytes")
         self._housecode_byte = housecode_unitcode[0]
