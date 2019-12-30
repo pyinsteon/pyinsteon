@@ -6,6 +6,7 @@ from ...constants import (
     DeviceCategory,
     ManageAllLinkRecordAction,
     MessageId,
+    X10CommandType,
 )
 from ...topics import (
     ALL_LINK_CLEANUP_STATUS_REPORT,
@@ -173,7 +174,7 @@ def send_extended(
 
 
 @topic_to_message_handler(register_list=topic_register, topic=X10_SEND)
-def x10_send(raw_x10: int, x10_flag: int, topic=pub.AUTO_TOPIC) -> Outbound:
+def x10_send(raw_x10: int, x10_flag: X10CommandType, topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a X10_SEND outbound message."""
     _create_outbound_message(raw_x10=raw_x10, x10_flag=x10_flag, topic=topic)
 

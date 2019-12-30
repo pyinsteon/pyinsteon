@@ -6,7 +6,6 @@ from .constants import (
     HC_LOOKUP,
     UC_LOOKUP,
     X10Commands,
-    X10CommandType,
     ResponseStatus,
     MessageFlagType,
 )
@@ -40,29 +39,15 @@ def byte_to_command(bytecode: int) -> int:
     return X10Commands(cmd)
 
 
-def parse_x10(raw_x10, flags):
+def parse_x10(raw_x10):
     """Convert an X10 message to a dictionary."""
-    cmd_type = X10CommandType(flags)
     housecode, uc_or_cmd = raw_x10_to_bytes(raw_x10)
-    return housecode, uc_or_cmd, cmd_type
+    return byte_to_housecode(housecode), uc_or_cmd
 
 
 def byte_to_int(bytecode: bytes) -> int:
     """Return an int from a byte string."""
     return int.from_bytes(bytecode, byteorder="big")
-
-
-def x10_command_type(command: X10Commands) -> X10CommandType:
-    """Return the X10 command type from an X10 command."""
-    command_type = X10CommandType.DIRECT
-    cmd_val = command.value if isinstance(command, X10Commands) else command
-    if cmd_val in [
-        X10Commands.ALL_UNITS_OFF.value,
-        X10Commands.ALL_LIGHTS_ON.value,
-        X10Commands.ALL_LIGHTS_OFF.value,
-    ]:
-        command_type = X10CommandType.BROADCAST
-    return command_type
 
 
 def raw_x10_to_bytes(raw_x10: int) -> int:

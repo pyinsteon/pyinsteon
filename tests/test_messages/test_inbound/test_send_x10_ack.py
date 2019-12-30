@@ -1,14 +1,18 @@
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
-import unittest
-import sys
+"""Test X10 commands."""
 
-from pyinsteon.constants import MessageId, AckNak
+import unittest
+from binascii import unhexlify
+
+from pyinsteon.constants import AckNak, MessageId
+from tests import set_log_levels
 from tests.utils import hex_to_inbound_message
 
 
 class TestSendX10(unittest.TestCase):
+    """Test the SendX10 command."""
+
     def setUp(self):
+        """Set up the TestSendX10 tests."""
         self.hex = "02630102"
         self.hex_ack = "0263010206"
         self.message_id = MessageId(0x63)
@@ -25,10 +29,13 @@ class TestSendX10(unittest.TestCase):
         )
 
     def test_id(self):
+        """Test X10 message ID."""
         assert self.msg.message_id == self.message_id
 
     def test_ack_nak(self):
+        """Test X10 message ACK/NAK."""
         assert self.msg.ack == self.ack
 
     def test_bytes(self):
+        """Test X10 message to bytes."""
         assert bytes(self.msg) == unhexlify(self.hex_ack)

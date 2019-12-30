@@ -49,6 +49,4 @@ from .sensors_actuators import SensorsActuators, SensorsActuators_IOLink
 
 from .window_coverings import WindowCovering
 
-# from ..x10 import (X10OnOff, X10Dimmable, X10Sensor,
-#                    X10AllUnitsOff, X10AllLightsOn,
-#                    X10AllLightsOff)
+from .x10 import X10OnOff, X10Dimmable, X10OnOffSensor

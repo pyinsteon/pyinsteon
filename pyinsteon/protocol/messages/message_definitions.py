@@ -12,6 +12,7 @@ from ...constants import (
     DeviceCategory,
     ManageAllLinkRecordAction,
     AckNak,
+    X10CommandType,
 )
 from .message_flags import MessageFlags
 from .message_definition import MessageDefinition
@@ -37,7 +38,10 @@ FLD_EXT_REC = FLD_STD_REC.copy()
 FLD_EXT_REC.append(MessageField("user_data", 14, UserData))
 
 # X10 Send / Received 0x63 / 0x52
-FLD_X10_SEND_REC = [MessageField("raw_x10", 1, int), MessageField("x10_flag", 1, int)]
+FLD_X10_SEND_REC = [
+    MessageField("raw_x10", 1, int),
+    MessageField("x10_flag", 1, X10CommandType),
+]
 FLD_X10_SEND_REC_ACK = FLD_X10_SEND_REC.copy()
 FLD_X10_SEND_REC_ACK.append(MessageField("ack", 1, AckNak))
 
