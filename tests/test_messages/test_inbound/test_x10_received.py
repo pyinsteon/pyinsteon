@@ -14,7 +14,7 @@ class TestX10Received(unittest.TestCase):
     def setUp(self):
         """Set up the TextX10Received tests."""
         self.message_id = MessageId(0x52)
-        self.hex = "02520304"
+        self.hex = "02520380"
         self.raw_x10 = int(0x03)
         self.x10_flag = int(0x04)
 

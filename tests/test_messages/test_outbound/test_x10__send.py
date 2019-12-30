@@ -1,19 +1,20 @@
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
+"""Text X10 Send message."""
 import unittest
-import sys
+from binascii import unhexlify
 
 from pyinsteon.constants import MessageId
-from pyinsteon.protocol.messages.outbound import x10_send
-
+from tests import set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 class TestX10Send(unittest.TestCase, OutboundBase):
+    """Test the X10 Send command."""
+
     def setUp(self):
-        self.hex = "02630102"
-        self.raw_x10 = int(0x01)
-        self.x10_flag = int(0x02)
+        """Set up the test."""
+        self.hex = "0263ef00"
+        self.raw_x10 = int(0xEF)
+        self.x10_flag = int(0x00)
 
         kwargs = {"raw_x10": self.raw_x10, "x10_flag": self.x10_flag}
 
@@ -28,9 +29,11 @@ class TestX10Send(unittest.TestCase, OutboundBase):
         )
 
     def test_raw_x10(self):
+        """Test the raw x10 byte."""
         assert self.msg.raw_x10 == self.raw_x10
 
     def test_x10_flag(self):
+        """Test the x10 flag byte."""
         assert self.msg.x10_flag == self.x10_flag
 
 
