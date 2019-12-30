@@ -2,7 +2,7 @@
 import asyncio
 
 from .x10_base import X10DeviceBase
-from ..states import ON_OFF_SWITCH
+from ..states import ON_OFF_SWITCH, DIMMABLE_LIGHT
 from ..managers.x10_manager import (
     X10OnOffManager,
     X10DimBrightenManager,
@@ -10,6 +10,7 @@ from ..managers.x10_manager import (
     X10AllUnitsOffManager,
 )
 from ..states.on_off import OnOff
+from ..states.on_level import OnLevel
 from ..events import Event, ON_EVENT, OFF_EVENT
 from ..handlers.to_device.x10_send import X10CommandSend
 from ..constants import X10Commands, ResponseStatus
@@ -32,7 +33,7 @@ class X10OnOffSensor(X10DeviceBase):
         self._managers[ON_OFF_SWITCH] = X10OnOffManager(self._address)
 
     def _register_states(self):
-        self._states[1] = OnOff(ON_OFF_SWITCH, self._address, group=1)
+        self._states[1] = OnOff(ON_OFF_SWITCH, self._address, 1)
 
     def _register_events(self):
         self._events[1] = {}
@@ -114,6 +115,7 @@ class X10Dimmable(X10OnOff):
         self._description = "X10 Dimmable Switch"
         self._steps = steps
         self._max_level = max_level
+        self._increment = self._max_level / self._steps
 
     @property
     def steps(self):
@@ -136,10 +138,10 @@ class X10Dimmable(X10OnOff):
         if on_level < 1:
             # Assume the user entered a precent on level
             on_level = on_level * self._max_level
-
+        if self._states[1].value is None:
+            self._states[1].set_value(0)
         change = on_level - self._states[1].value
-        increment = self._max_level / self._steps
-        steps = round(abs(change) / increment)
+        steps = round(abs(change) / self._increment)
         method = self.async_bright if change > 0 else self.async_dim
         results = []
         for _ in range(0, steps):
@@ -183,12 +185,15 @@ class X10Dimmable(X10OnOff):
         super()._register_handlers_and_managers()
         self._managers[DIM_BRIGHT] = X10DimBrightenManager(self._address)
 
+    def _register_states(self):
+        self._states[1] = OnLevel(DIMMABLE_LIGHT, self._address, 1, 0)
+
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         self._managers[DIM_BRIGHT].subscribe(self._handle_dim_bright)
 
     def _handle_dim_bright(self, on_level):
         """Handle a dim or bright command from the device."""
-        new_value = self._states[1].value + self._steps * on_level
+        new_value = self._states[1].value + self._increment * on_level
         new_value = min(max(new_value, 0x00), 0xFF)
         self._states[1].set_value(new_value)
