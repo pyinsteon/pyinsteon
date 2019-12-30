@@ -14,7 +14,7 @@ repos:
         args:
           - --safe
           - --quiet
-          - --exclude '(/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|_build|buck-out|build|dist|tests|samples)/|.*ipdb)'
+          - --exclude "(/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|_build|buck-out|build|dist|tests|samples)/|.*ipdb)"
 -   repo: https://gitlab.com/pycqa/flake8
     rev: 3.7.9
     hooks:
