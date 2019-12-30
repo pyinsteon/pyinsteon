@@ -13,8 +13,8 @@ class TestSendX10(unittest.TestCase):
 
     def setUp(self):
         """Set up the TestSendX10 tests."""
-        self.hex = "02630102"
-        self.hex_ack = "0263010206"
+        self.hex = "02630180"
+        self.hex_ack = "0263018006"
         self.message_id = MessageId(0x63)
         self.raw_x10 = int(0x01)
         self.x10_flag = int(0x02)
