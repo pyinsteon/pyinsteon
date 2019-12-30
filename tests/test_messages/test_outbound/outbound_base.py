@@ -1,6 +1,7 @@
 """Base class for testing outbound messages."""
 
 from pyinsteon import pub
+from pyinsteon.protocol.messages.outbound import register_outbound_handlers
 from tests import set_log_levels
 
 
@@ -10,6 +11,13 @@ class OutboundBase:
     # pylint: disable=attribute-defined-outside-init
     def base_setup(self, message_id, bytes_data, **kwargs):
         """Init the OutboundBase class."""
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="debug",
+            logger_messages="debug",
+            logger_topics=True,
+        )
+        register_outbound_handlers()
         self.msg = None
         self.message_id = message_id
         self.bytes_data = bytes_data
@@ -22,12 +30,6 @@ class OutboundBase:
         ):
             topic = "send_extended"
         pub.sendMessage("send.{}".format(topic), **kwargs)
-        set_log_levels(
-            logger="debug",
-            logger_pyinsteon="info",
-            logger_messages="info",
-            logger_topics=False,
-        )
 
     def receive_message(self, msg, priority=5):
         """Set the message from the outbound publisher."""
