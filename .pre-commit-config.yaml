@@ -6,6 +6,7 @@
 #   pip install pre-commit
 #   pre-commit install
 
+exclude: '(/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|_build|buck-out|build|dist|tests|samples)/|.*ipdb)'
 repos:
 -   repo: https://github.com/psf/black
     rev: 19.10b0

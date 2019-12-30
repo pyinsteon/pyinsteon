@@ -1,0 +1,3 @@
+[tool.black]
+target-version = ["py36", "py37", "py38"]
+exclude = '(/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|_build|buck-out|build|dist|tests|samples)/|.*ipdb)'

@@ -4,8 +4,17 @@ from pubsub import pub
 from .protocol import async_modem_connect
 from .managers.device_manager import DeviceManager
 from .listener_exception_handler import ListenerExceptionHandler
+from .handlers.from_device.x10_received import X10Received
+
+# pylint: disable=unused-import
+from .managers.x10_manager import (  # noqa: F401
+    async_x10_all_lights_off,  # noqa: F401
+    async_x10_all_lights_on,  # noqa: F401
+    async_x10_all_units_off,  # noqa: F401
+)  # noqa: F401
 
 _LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")
+X10_RECEIVED_HANDLER = X10Received()
 
 devices = DeviceManager()
 
@@ -17,7 +26,7 @@ async def async_connect(
     username=None,
     password=None,
     hub_version=2,
-    **kwargs
+    **kwargs,
 ):
     """Connect to the Insteon Modem.
 
@@ -39,7 +48,7 @@ async def async_connect(
         username=username,
         password=password,
         hub_version=hub_version,
-        **kwargs
+        **kwargs,
     )
     devices.modem = modem
     devices.id_manager.start()

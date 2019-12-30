@@ -35,12 +35,12 @@ def check_fields_match(msg1, msg2):
     return match
 
 
-def async_case(f):
+def async_case(func):
     """Wrap a test cast around a wrapper to execute the test."""
 
-    @wraps(f)
+    @wraps(func)
     def wrapper(*args, **kwargs):
-        coro = asyncio.coroutine(f)
+        coro = asyncio.coroutine(func)
         future = coro(*args, **kwargs)
         loop = asyncio.get_event_loop()
         loop.run_until_complete(future)
@@ -79,7 +79,7 @@ def send_data(data_items, queue):
 
 
 def create_std_ext_msg(address, flags, cmd1, cmd2, user_data=None, target=None, ack=0):
-    """"Create a standard or extended message."""
+    """Create a standard or extended message."""
     from pyinsteon.address import Address
     from pyinsteon.protocol.messages.user_data import UserData
 

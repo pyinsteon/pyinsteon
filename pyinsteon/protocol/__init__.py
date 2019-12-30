@@ -132,7 +132,7 @@ async def async_modem_connect(
 
         connect_method = partial(
             async_connect_http,
-            **{"host": host, "username": username, "password": password, "port": port}
+            **{"host": host, "username": username, "password": password, "port": port},
         )
         protocol = Protocol(connect_method=connect_method)
 

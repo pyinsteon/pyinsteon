@@ -132,8 +132,8 @@ class X10CommandType(IntEnum):
         # pylint: disable=no-member
         return self.name.lower()
 
-    DIRECT = 0
-    BROADCAST = 1
+    UNITCODE = 0x00
+    COMMAND = 0x80
 
 
 class ThermostatMode(IntEnum):

@@ -54,7 +54,7 @@ class Event(SubscriberBase):
 
     def __init__(self, name: str, address: Address, group=0):
         """Init the Event class."""
-        self._address = Address(address)
+        self._address = address  # Address(address)
         self._group = group
         self._name = name
         topic = "event_{}_{}_{}".format(self._address.id, group, name)

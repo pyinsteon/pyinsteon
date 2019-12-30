@@ -6,7 +6,6 @@ from .constants import (
     HC_LOOKUP,
     UC_LOOKUP,
     X10Commands,
-    X10CommandType,
     ResponseStatus,
     MessageFlagType,
 )
@@ -34,28 +33,27 @@ def byte_to_unitcode(bytecode: int) -> int:
     return list(UC_LOOKUP.keys())[list(UC_LOOKUP.values()).index(bytecode)]
 
 
+def byte_to_command(bytecode: int) -> int:
+    """Return an X10 unitcode value from a byte value."""
+    return X10Commands(bytecode)
+
+
+def parse_x10(raw_x10):
+    """Convert an X10 message to a dictionary."""
+    housecode, uc_or_cmd = raw_x10_to_bytes(raw_x10)
+    return byte_to_housecode(housecode), uc_or_cmd
+
+
 def byte_to_int(bytecode: bytes) -> int:
     """Return an int from a byte string."""
     return int.from_bytes(bytecode, byteorder="big")
 
 
-def x10_command_type(command: X10Commands) -> X10CommandType:
-    """Return the X10 command type from an X10 command."""
-    command_type = X10CommandType.DIRECT
-    cmd_val = command.value if isinstance(command, X10Commands) else command
-    if cmd_val in [
-        X10Commands.ALL_UNITS_OFF.value,
-        X10Commands.ALL_LIGHTS_ON.value,
-        X10Commands.ALL_LIGHTS_OFF.value,
-    ]:
-        command_type = X10CommandType.BROADCAST
-    return command_type
-
-
 def raw_x10_to_bytes(raw_x10: int) -> int:
     """Return the byte value of a raw X10 command."""
-    yield raw_x10 >> 4
-    yield raw_x10 & 0x0F
+    house_code_byte = raw_x10[0]
+    uc_or_cmd_byte = raw_x10[1]
+    return house_code_byte, uc_or_cmd_byte
 
 
 def bit_is_set(bitmask: int, bit: int) -> bool:
