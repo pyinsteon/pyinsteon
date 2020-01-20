@@ -8,10 +8,10 @@ from .handlers.from_device.x10_received import X10Received
 
 # pylint: disable=unused-import
 from .managers.x10_manager import (  # noqa: F401
-    async_x10_all_lights_off,  # noqa: F401
-    async_x10_all_lights_on,  # noqa: F401
-    async_x10_all_units_off,  # noqa: F401
-)  # noqa: F401
+    async_x10_all_lights_off,
+    async_x10_all_lights_on,
+    async_x10_all_units_off,
+)
 
 _LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")
 X10_RECEIVED_HANDLER = X10Received()
