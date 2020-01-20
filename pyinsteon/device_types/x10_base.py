@@ -1,8 +1,8 @@
 """X10 device types."""
 
-from ..x10_address import create
 from ..aldb.no_aldb import NoALDB
 from ..constants import ResponseStatus
+from ..x10_address import create
 
 
 class X10DeviceBase:
@@ -46,6 +46,21 @@ class X10DeviceBase:
     def id(self):
         """Return the ID of the device."""
         return self._address.id
+
+    @property
+    def cat(self):
+        """Return a fake Insteon device category."""
+        return 0xFF
+
+    @property
+    def subcat(self):
+        """Return a fake Insteon device subcategory."""
+        return 0xFF
+
+    @property
+    def firmware(self):
+        """Return a fake Insteon device firmware."""
+        return 0xFF
 
     @property
     def states(self):
