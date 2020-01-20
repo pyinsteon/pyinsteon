@@ -36,6 +36,5 @@ def create_x10_device(
     if deviceclass is not None:
         if x10_feature == "dimmable":
             return deviceclass(housecode, unitcode, steps, max_level)
-        else:
-            return deviceclass(housecode, unitcode)
+        return deviceclass(housecode, unitcode)
     return None

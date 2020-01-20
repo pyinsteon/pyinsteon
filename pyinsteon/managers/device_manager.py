@@ -57,6 +57,7 @@ class DeviceManager(SubscriberBase):
             topic = mgr.getTopic(self._subscriber_topic)
             for listendr in topic.listeners:
                 _LOGGER.error(listendr)
+        # pylint: disable=broad-except
         except Exception:
             pass
         self._call_subscribers(address=device.address.id)
