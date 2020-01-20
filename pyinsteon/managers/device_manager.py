@@ -1,35 +1,16 @@
 """Device manager."""
-from asyncio import Lock
 import logging
+from asyncio import Lock
 
-from ..subscriber_base import SubscriberBase
-from ..device_types.device_base import Device
 from ..address import Address
-from .device_id_manager import DeviceIdManager, DeviceId
+from ..device_types.device_base import Device
+from ..subscriber_base import SubscriberBase
+from .device_id_manager import DeviceId, DeviceIdManager
 from .device_link_manager import DeviceLinkManager
+from .utils import create_device, create_x10_device
 
 DEVICE_INFO_FILE = "insteon_devices.json"
 _LOGGER = logging.getLogger(__name__)
-
-
-def create_device(device_id: DeviceId):
-    """Create an Insteon Device from a DeviceId named Tuple."""
-    from ..device_types.ipdb import IPDB
-
-    ipdb = IPDB()
-    product = ipdb[[device_id.cat, device_id.subcat]]
-    deviceclass = product.deviceclass
-    device = None
-    if deviceclass is not None:
-        device = deviceclass(
-            device_id.address,
-            device_id.cat,
-            device_id.subcat,
-            device_id.firmware,
-            product.description,
-            product.model,
-        )
-    return device
 
 
 # TODO remove devices
@@ -58,6 +39,7 @@ class DeviceManager(SubscriberBase):
 
     def __setitem__(self, address, device):
         """Add a device to the device list."""
+        _LOGGER.error("Adding device to INSTEON devices list: %s", address.id)
         if not isinstance(device, (Device, DeviceId)):
             raise ValueError("Device must be a DeviceId or a Device type.")
 
@@ -68,6 +50,15 @@ class DeviceManager(SubscriberBase):
         self._id_manager.set_device_id(
             device.address, device.cat, device.subcat, device.firmware
         )
+        from .. import pub
+
+        try:
+            mgr = pub.getDefaultTopicMgr()
+            topic = mgr.getTopic(self._subscriber_topic)
+            for listendr in topic.listeners:
+                _LOGGER.error(listendr)
+        except Exception:
+            pass
         self._call_subscribers(address=device.address.id)
 
     def __len__(self):
@@ -109,9 +100,19 @@ class DeviceManager(SubscriberBase):
         address = Address(address)
         self._id_manager.set_device_id(address, cat, subcat, firmware)
 
-    def add_x10_device(self, house_code, unit_code, x10_type):
+    def add_x10_device(
+        self,
+        housecode: str,
+        unitcode: int,
+        x10_feature: str,
+        steps: int = 22,
+        max_level: int = 255,
+    ):
         """Add an X10 device."""
-        return self.modem
+        device = create_x10_device(housecode, unitcode, x10_feature, steps, max_level)
+        if device:
+            self[device.address] = device
+        return device
 
     async def async_close(self):
         """Close the device ID listener."""
