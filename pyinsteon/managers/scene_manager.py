@@ -118,7 +118,7 @@ async def _hub_add_device_to_scene(group, device, on_level, ramp_rate, button):
 
     # TODO check for success or failure
     await device.async_status()
-    curr_state = device.states[group].value
+    curr_state = device.groups[group].value
     await _set_device_state(device, on_level, button)
     await async_link_devices(devices.modem, device, group)
     await _set_device_state(device, curr_state, button)

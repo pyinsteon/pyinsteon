@@ -1,7 +1,7 @@
 """Window Covering devices."""
 
 from .open_close_responder_base import OpenCloseResponderBase
-from ..states import COVER
+from ..groups import COVER
 
 
 class WindowCovering(OpenCloseResponderBase):

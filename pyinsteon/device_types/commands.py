@@ -1,4 +1,4 @@
-"""Constants used by device states and events."""
+"""Constants used by device groups and events."""
 
 ON_INBOUND = "on_inbound"
 OFF_INBOUND = "off_inbound"

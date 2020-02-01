@@ -5,7 +5,7 @@ from ..handlers.to_device.set_leds import SetLedsCommandHandler
 # from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
 # from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
-from ..states import (
+from ..groups import (
     ON_OFF_OUTLET_BOTTOM,
     ON_OFF_OUTLET_TOP,
     ON_OFF_SWITCH,
@@ -19,7 +19,7 @@ from ..states import (
     ON_OFF_SWITCH_H,
     ON_OFF_SWITCH_MAIN,
 )
-from ..states.on_off import OnOff
+from ..groups.on_off import OnOff
 from .commands import SET_LEDS_COMMAND, STATUS_COMMAND
 from .on_off_responder_base import OnOffResponderBase
 
@@ -223,11 +223,11 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         super()._register_handlers_and_managers()
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
 
-    def _register_states(self):
-        super()._register_states()
+    def _register_groups(self):
+        super()._register_groups()
         for button in self._buttons:
             name = self._buttons[button]
-            self._states[button] = OnOff(name=name, address=self._address, group=button)
+            self._groups[button] = OnOff(name=name, address=self._address, group=button)
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
@@ -237,11 +237,11 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         leds = {}
         for curr_led in range(1, 9):
             var = "group{}".format(curr_led)
-            leds[var] = on if curr_led == led else bool(self._states.get(curr_led))
+            leds[var] = on if curr_led == led else bool(self._groups.get(curr_led))
         return leds
 
     def _update_leds(self, group, value):
-        self._states[group].value = value
+        self._groups[group].value = value
 
 
 class SwitchedLightingControl_KeypadLinc_6(SwitchedLightingControl_KeypadLinc):
@@ -351,13 +351,13 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
 
     def _handle_status(self, db_version, status):
         """Set the status of the top and bottom outlets state."""
-        self._states[self.TOP_GROUP].value = status & 0x02
-        self._states[self.BOTTOM_GROUP].value = status & 0x01
+        self._groups[self.TOP_GROUP].value = status & 0x02
+        self._groups[self.BOTTOM_GROUP].value = status & 0x01
 
     def _handle_top_status(self, db_version, status):
         """Set the status of the top outlet."""
-        self._states[self.TOP_GROUP].value = status
+        self._groups[self.TOP_GROUP].value = status
 
     def _handle_bottom_status(self, db_version, status):
         """Set the status of the bottom outlet."""
-        self._states[self.BOTTOM_GROUP].value = status
+        self._groups[self.BOTTOM_GROUP].value = status

@@ -40,7 +40,7 @@ class Device(ABC):
 
         self._last_communication_received = datetime(1, 1, 1, 1, 1, 1)
         self._product_data_in_aldb = False
-        self._states = {}
+        self._groups = {}
         self._handlers = {}
         self._managers = {}
         self._events = {}
@@ -55,7 +55,7 @@ class Device(ABC):
         self._ext_property_manager = GetSetExtendedPropertyManager(self._address)
 
         self._register_handlers_and_managers()
-        self._register_states()
+        self._register_groups()
         self._register_events()
         self._subscribe_to_handelers_and_managers()
         self._register_default_links()
@@ -103,9 +103,9 @@ class Device(ABC):
         return self._address.id
 
     @property
-    def states(self):
-        """Return the device states/groups."""
-        return self._states
+    def groups(self):
+        """Return the device groups/groups."""
+        return self._groups
 
     @property
     def prod_data_in_aldb(self):
@@ -193,14 +193,14 @@ class Device(ABC):
 
         return await async_add_default_links(self)
 
-    def _register_states(self):
-        """Add the states to the device."""
+    def _register_groups(self):
+        """Add the groups to the device."""
 
     def _register_handlers_and_managers(self):
         """Add all handlers to the device and register listeners."""
 
     def _subscribe_to_handelers_and_managers(self):
-        """Subscribe states and events to handlers and managers."""
+        """Subscribe groups and events to handlers and managers."""
 
     def _register_default_links(self):
         """Add default links for linking the device to the modem."""

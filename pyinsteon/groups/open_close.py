@@ -1,4 +1,4 @@
-"""Open / Close sensor states."""
+"""Open / Close sensor groups."""
 from . import StateBase
 from ..address import Address
 

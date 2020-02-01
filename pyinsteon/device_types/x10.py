@@ -2,15 +2,15 @@
 import asyncio
 
 from .x10_base import X10DeviceBase
-from ..states import ON_OFF_SWITCH, DIMMABLE_LIGHT
+from ..groups import ON_OFF_SWITCH, DIMMABLE_LIGHT
 from ..managers.x10_manager import (
     X10OnOffManager,
     X10DimBrightenManager,
     X10AllLightsOnOffManager,
     X10AllUnitsOffManager,
 )
-from ..states.on_off import OnOff
-from ..states.on_level import OnLevel
+from ..groups.on_off import OnOff
+from ..groups.on_level import OnLevel
 from ..events import Event, ON_EVENT, OFF_EVENT
 from ..handlers.to_device.x10_send import X10CommandSend
 from ..constants import X10Commands, ResponseStatus
@@ -32,8 +32,8 @@ class X10OnOffSensor(X10DeviceBase):
     def _register_handlers_and_managers(self):
         self._managers[ON_OFF_SWITCH] = X10OnOffManager(self._address)
 
-    def _register_states(self):
-        self._states[1] = OnOff(ON_OFF_SWITCH, self._address, 1)
+    def _register_groups(self):
+        self._groups[1] = OnOff(ON_OFF_SWITCH, self._address, 1)
 
     def _register_events(self):
         self._events[1] = {}
@@ -41,7 +41,7 @@ class X10OnOffSensor(X10DeviceBase):
         self._events[1][OFF_EVENT] = Event(OFF_EVENT, self._address, group=1)
 
     def _subscribe_to_handelers_and_managers(self):
-        self._managers[ON_OFF_SWITCH].subscribe(self._states[1].set_value)
+        self._managers[ON_OFF_SWITCH].subscribe(self._groups[1].set_value)
 
         self._managers[ON_OFF_SWITCH].subscribe_on(self._events[1][ON_EVENT].trigger)
         self._managers[ON_OFF_SWITCH].subscribe_off(self._events[1][OFF_EVENT].trigger)
@@ -66,7 +66,7 @@ class X10OnOff(X10OnOffSensor):
         while retries < 3:
             result = await cmd.async_send()
             if result == ResponseStatus.SUCCESS:
-                self._states[1].set_value(0xFF)
+                self._groups[1].set_value(0xFF)
                 return result
             retries += 1
         return ResponseStatus.FAILURE
@@ -82,7 +82,7 @@ class X10OnOff(X10OnOffSensor):
         while retries < 3:
             result = await cmd.async_send()
             if result == ResponseStatus.SUCCESS:
-                self._states[1].set_value(0x00)
+                self._groups[1].set_value(0x00)
                 return result
             retries += 1
         return ResponseStatus.FAILURE
@@ -95,8 +95,8 @@ class X10OnOff(X10OnOffSensor):
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
 
-        self._managers[ALL_LIGHTS_ON_OFF].subscribe(self._states[1].set_value)
-        self._managers[ALL_UNITS_OFF].subscribe(self._states[1].set_value)
+        self._managers[ALL_LIGHTS_ON_OFF].subscribe(self._groups[1].set_value)
+        self._managers[ALL_UNITS_OFF].subscribe(self._groups[1].set_value)
         self._managers[ALL_LIGHTS_ON_OFF].subscribe_on(
             self._events[1][ON_EVENT].trigger
         )
@@ -138,9 +138,9 @@ class X10Dimmable(X10OnOff):
         if on_level < 1:
             # Assume the user entered a precent on level
             on_level = on_level * self._max_level
-        if self._states[1].value is None:
-            self._states[1].set_value(0)
-        change = on_level - self._states[1].value
+        if self._groups[1].value is None:
+            self._groups[1].set_value(0)
+        change = on_level - self._groups[1].value
         steps = round(abs(change) / self._increment)
         method = self.async_bright if change > 0 else self.async_dim
         results = []
@@ -185,8 +185,8 @@ class X10Dimmable(X10OnOff):
         super()._register_handlers_and_managers()
         self._managers[DIM_BRIGHT] = X10DimBrightenManager(self._address)
 
-    def _register_states(self):
-        self._states[1] = OnLevel(DIMMABLE_LIGHT, self._address, 1, 0)
+    def _register_groups(self):
+        self._groups[1] = OnLevel(DIMMABLE_LIGHT, self._address, 1, 0)
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
@@ -194,6 +194,6 @@ class X10Dimmable(X10OnOff):
 
     def _handle_dim_bright(self, on_level):
         """Handle a dim or bright command from the device."""
-        new_value = self._states[1].value + self._increment * on_level
+        new_value = self._groups[1].value + self._increment * on_level
         new_value = min(max(new_value, 0x00), 0xFF)
-        self._states[1].set_value(new_value)
+        self._groups[1].set_value(new_value)

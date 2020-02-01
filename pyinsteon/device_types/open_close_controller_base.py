@@ -3,8 +3,8 @@ from .device_base import Device
 from .commands import STATUS_COMMAND
 from ..managers.on_level_manager import OnLevelManager
 from ..handlers.to_device.status_request import StatusRequestCommand
-from ..states import OPEN_CLOSE_SENSOR
-from ..states.open_close import NormallyOpen, NormallyClosed
+from ..groups import OPEN_CLOSE_SENSOR
+from ..groups.open_close import NormallyOpen, NormallyClosed
 from ..events import Event, OPEN_EVENT, CLOSE_EVENT
 
 
@@ -60,12 +60,12 @@ class OpenCloseControllerBase(Device):
         self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address, 0)
         self._managers[1] = OnLevelManager(self._address, 1)
 
-    def _register_states(self):
+    def _register_groups(self):
         """Register a Normally Open state."""
         if self._normally_open:
-            self._states[1] = NormallyOpen(self._state_name, self._address, 1)
+            self._groups[1] = NormallyOpen(self._state_name, self._address, 1)
         else:
-            self._states[1] = NormallyClosed(self._state_name, self._address, 1)
+            self._groups[1] = NormallyClosed(self._state_name, self._address, 1)
 
     def _register_events(self):
         self._events[1] = {}
@@ -79,7 +79,7 @@ class OpenCloseControllerBase(Device):
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[STATUS_COMMAND].subscribe(self._handle_status)
-        self._managers[1].subscribe(self._states[1].set_value)
+        self._managers[1].subscribe(self._groups[1].set_value)
         if self._normally_open:
             # Open is OFF and Close is ON
             self._managers[1].subscribe_off(self._events[self._open_event_name].trigger)
@@ -93,7 +93,7 @@ class OpenCloseControllerBase(Device):
 
     def _handle_status(self, db_version, status):
         """Set the status of the dimmable_switch state."""
-        self._states[1].value = status
+        self._groups[1].value = status
 
 
 class NormallyOpenControllerBase(OpenCloseControllerBase):

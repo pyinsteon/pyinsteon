@@ -98,7 +98,7 @@ class DeviceLinkManager:
         if groups:
             responder = groups.get(group)
             if group:
-                devices[responder].states[group].set_value(on_level)
+                devices[responder].groups[group].set_value(on_level)
                 asyncio.ensure_future(devices[responder].async_status())
 
     @classmethod

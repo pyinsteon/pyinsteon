@@ -145,8 +145,8 @@ class ModemBase(Device, metaclass=ABCMeta):
 
     #     pub.subscribe(self.connect, "connection.lost")
 
-    def _register_states(self):
-        """No states to register for modems."""
+    def _register_groups(self):
+        """No groups to register for modems."""
 
     def _register_default_links(self):
         """No default links for modems."""

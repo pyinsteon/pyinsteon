@@ -1,8 +1,8 @@
 """Sensor/Actuator devices."""
 from ..events import CLOSE_EVENT, OPEN_EVENT, Event
 from ..managers.on_level_manager import OnLevelManager
-from ..states import OPEN_CLOSE_SENSOR
-from ..states.open_close import NormallyOpen
+from ..groups import OPEN_CLOSE_SENSOR
+from ..groups.open_close import NormallyOpen
 from .on_off_responder_base import OnOffResponderBase
 from ..handlers.to_device.status_request import StatusRequestCommand, STATUS_REQUEST
 
@@ -65,10 +65,10 @@ class SensorsActuators_IOLink(SensorsActuators):
         """Get the status of the sensor."""
         return await self._handlers[SENSOR_GROUP][STATUS_REQUEST].async_send()
 
-    def _register_states(self):
-        super()._register_states()
+    def _register_groups(self):
+        super()._register_groups()
         # Off is a Open state and On is an Closed state
-        self._states[SENSOR_GROUP] = NormallyOpen(
+        self._groups[SENSOR_GROUP] = NormallyOpen(
             OPEN_CLOSE_SENSOR, self._address, SENSOR_GROUP
         )
 
@@ -86,7 +86,7 @@ class SensorsActuators_IOLink(SensorsActuators):
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         self._managers[SENSOR_GROUP][ON_LEVEL_MANAGER].subscribe(
-            self._states[SENSOR_GROUP].set_value
+            self._groups[SENSOR_GROUP].set_value
         )
         self._managers[SENSOR_GROUP][ON_LEVEL_MANAGER].subscribe_off(
             self._events[SENSOR_GROUP][OPEN_EVENT].trigger

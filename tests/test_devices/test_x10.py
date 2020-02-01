@@ -34,7 +34,7 @@ class TestX10Devices(unittest.TestCase):
 
         send_topics(msgs)
         await asyncio.sleep(1)
-        assert device.states[1].value == 0xFF
+        assert device.groups[1].value == 0xFF
 
     @async_case
     async def test_x10_on_off(self):
@@ -55,7 +55,7 @@ class TestX10Devices(unittest.TestCase):
         send_topics(msgs)
         result = await device.async_on()
         assert result == ResponseStatus.SUCCESS
-        assert device.states[1].value == 0xFF
+        assert device.groups[1].value == 0xFF
 
     @async_case
     async def test_x10_dimmable(self):
@@ -82,4 +82,4 @@ class TestX10Devices(unittest.TestCase):
         send_topics(msgs)
         result = await device.async_on(on_level=45)
         assert result == ResponseStatus.SUCCESS
-        assert device.states[1].value == 44
+        assert device.groups[1].value == 44

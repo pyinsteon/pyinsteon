@@ -4,8 +4,8 @@ from .commands import STATUS_COMMAND
 from ..managers.on_level_manager import OnLevelManager
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..events import Event
-from ..states.on_off import OnOff
-from ..states import ON_OFF_SWITCH
+from ..groups.on_off import OnOff
+from ..groups import ON_OFF_SWITCH
 from ..events import ON_EVENT, OFF_EVENT
 
 ON_LEVEL_MANAGER = "on_level_manager"
@@ -75,12 +75,12 @@ class OnOffControllerBase(Device):
                 self._address, group
             )
 
-    def _register_states(self):
-        super()._register_states()
+    def _register_groups(self):
+        super()._register_groups()
         for group in self._buttons:
             if self._buttons[group] is not None:
                 name = self._buttons[group]
-                self._states[group] = OnOff(name, self._address, group)
+                self._groups[group] = OnOff(name, self._address, group)
 
     def _register_events(self):
         super()._register_events()
@@ -110,9 +110,9 @@ class OnOffControllerBase(Device):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[STATUS_COMMAND].subscribe(self._handle_status)
         for group in self._buttons:
-            if self._states.get(group) is not None:
+            if self._groups.get(group) is not None:
                 self._managers[group][ON_LEVEL_MANAGER].subscribe(
-                    self._states[group].set_value
+                    self._groups[group].set_value
                 )
             if self._on_event_name:
                 event = self._events[group][self._on_event_name]
@@ -137,4 +137,4 @@ class OnOffControllerBase(Device):
         # Add this to a separate handler for devices that the cmd1 field
         # returns the ALDB Versioh
         # self.aldb.version = db_version
-        self._states[1].set_value(status)
+        self._groups[1].set_value(status)

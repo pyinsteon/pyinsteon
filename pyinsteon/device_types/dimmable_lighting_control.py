@@ -5,7 +5,7 @@ from ..handlers.to_device.status_request import StatusRequestCommand
 
 # from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
 # from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
-from ..states import (
+from ..groups import (
     DIMMABLE_FAN,
     DIMMABLE_LIGHT,
     DIMMABLE_LIGHT_MAIN,
@@ -19,7 +19,7 @@ from ..states import (
     ON_OFF_SWITCH_H,
     DIMMABLE_OUTLET,
 )
-from ..states.on_off import OnOff
+from ..groups.on_off import OnOff
 from .commands import (
     OFF_COMMAND,
     OFF_FAST_COMMAND,
@@ -347,13 +347,13 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
 
     def _handle_fan_status(self, db_version, status):
         if int(status) == 0:
-            self._states[2].set_value(FanSpeed.OFF)
+            self._groups[2].set_value(FanSpeed.OFF)
         elif int(status) <= int(FanSpeed.LOW):
-            self._states[2].set_value(FanSpeed.LOW)
+            self._groups[2].set_value(FanSpeed.LOW)
         elif int(status) <= int(FanSpeed.MEDIUM):
-            self._states[2].set_value(FanSpeed.MEDIUM)
+            self._groups[2].set_value(FanSpeed.MEDIUM)
         else:
-            self._states[2].set_value(FanSpeed.HIGH)
+            self._groups[2].set_value(FanSpeed.HIGH)
 
 
 # TODO setup operating flags for each KPL button
@@ -394,11 +394,11 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         super()._register_handlers_and_managers()
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
 
-    def _register_states(self):
-        super()._register_states()
+    def _register_groups(self):
+        super()._register_groups()
         for button in self._buttons:
             name = self._buttons[button]
-            self._states[button] = OnOff(name=name, address=self._address, group=button)
+            self._groups[button] = OnOff(name=name, address=self._address, group=button)
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
@@ -408,11 +408,11 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         leds = {}
         for curr_led in range(1, 9):
             var = "group{}".format(curr_led)
-            leds[var] = is_on if curr_led == led else bool(self._states.get(curr_led))
+            leds[var] = is_on if curr_led == led else bool(self._groups.get(curr_led))
         return leds
 
     def _update_leds(self, group, value):
-        self._states[group].value = value
+        self._groups[group].value = value
 
 
 class DimmableLightingControl_KeypadLinc_6(DimmableLightingControl_KeypadLinc):

@@ -101,7 +101,7 @@ class OpenCloseResponderBase(OpenCloseControllerBase):
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         group = 1
-        state = self._states[group]
+        state = self._groups[group]
 
         self._handlers[group][ON_COMMAND].subscribe(state.set_value)
         self._handlers[group][OFF_COMMAND].subscribe(state.set_value)

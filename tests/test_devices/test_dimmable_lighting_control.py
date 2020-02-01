@@ -17,13 +17,13 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         self.state_value = value
 
     def setUp(self):
-        """Setup the test."""
+        """Set up the test."""
         self.state_value = None
         self.address = Address("1a2b3c")
         self.device = DimmableLightingControl(
             self.address, 0x01, 0x02, 0x03, "Test", "Modem 1"
         )
-        self.device.states[1].subscribe(self.state_updated)
+        self.device.groups[1].subscribe(self.state_updated)
         set_log_levels(
             logger="debug",
             logger_pyinsteon="info",
@@ -34,7 +34,7 @@ class TestDimmableLIghtingControl(unittest.TestCase):
     @async_case
     async def test_on_command(self):
         """Test an ON message."""
-        self.device.states[1].value = 0
+        self.device.groups[1].value = 0
         cmd1 = 0x22
         cmd2 = 0x23
         target = Address("4d5e6f")
@@ -54,7 +54,7 @@ class TestDimmableLIghtingControl(unittest.TestCase):
     @async_case
     async def test_on_fast_command(self):
         """Test an ON message."""
-        self.device.states[1].value = 0
+        self.device.groups[1].value = 0
         cmd1 = 0x22
         cmd2 = 0x23
         target = Address("4d5e6f")
@@ -74,7 +74,7 @@ class TestDimmableLIghtingControl(unittest.TestCase):
     @async_case
     async def test_off_fast_command(self):
         """Test an ON message."""
-        self.device.states[1].value = 255
+        self.device.groups[1].value = 255
         cmd1 = 0x22
         cmd2 = 0x23
         target = Address("4d5e6f")
@@ -94,7 +94,7 @@ class TestDimmableLIghtingControl(unittest.TestCase):
     @async_case
     async def test_off_command(self):
         """Test an ON message."""
-        self.device.states[1].value = 255
+        self.device.groups[1].value = 255
         cmd1 = 0x22
         cmd2 = 0x23
         target = Address("4d5e6f")
