@@ -104,8 +104,13 @@ class Device(ABC):
 
     @property
     def groups(self):
-        """Return the device groups/groups."""
+        """Return the device groups / buttons."""
         return self._groups
+
+    @property
+    def events(self):
+        """Return the device events."""
+        return self._events
 
     @property
     def prod_data_in_aldb(self):
