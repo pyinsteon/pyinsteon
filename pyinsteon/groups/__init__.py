@@ -68,6 +68,11 @@ class StateBase(SubscriberBase):
         return self._name
 
     @property
+    def group(self):
+        """Return the group number."""
+        return self._group
+
+    @property
     def value(self):
         """Return the value of the state."""
         return self._value
