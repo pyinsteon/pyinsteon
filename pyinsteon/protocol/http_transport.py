@@ -112,7 +112,7 @@ class HttpTransport(asyncio.Transport):
             if response_status != 200:
                 _LOGGER.debug("Hub write request failed for url %s", url)
                 retry += 1
-                asyncio.sleep(0.5)
+                await asyncio.sleep(0.5)
             else:
                 self._last_msg = msg
         if self._read_write_lock.locked():
