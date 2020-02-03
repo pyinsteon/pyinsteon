@@ -198,11 +198,9 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
             turn on at the ramp rate.
 
         """
+        group = 2
         command = ON_FAST_COMMAND if fast else ON_COMMAND
-        command_group = "{}_2".format(command)
-        fan_speed = int(on_level)
-        # The send command converts to int
-        self._handlers[command_group].send(on_level=fan_speed)
+        self._handlers[group][command].send(on_level=on_level)
 
     async def async_fan_on(self, on_level: FanSpeed = FanSpeed.HIGH, fast=False):
         """Turn on the device.
@@ -218,11 +216,9 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
             UNCLEAR: Device received the message but did not confirm the action
 
         """
+        group = 2
         command = ON_FAST_COMMAND if fast else ON_COMMAND
-        command_group = "{}_2".format(command)
-        fan_speed = int(on_level)
-        # The send command converts to int
-        return await self._handlers[command_group].async_send(on_level=fan_speed)
+        return await self._handlers[group][command].async_send(on_level)
 
     def fan_off(self, fast=False):
         """Turn off the device.
@@ -232,9 +228,9 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
             turn on at the ramp rate.
 
         """
+        group = 2
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
-        command_group = "{}_2".format(command)
-        self._handlers[command_group].send()
+        self._handlers[group][command].send()
 
     async def async_fan_off(self, fast=False):
         """Turn off the device.
@@ -249,9 +245,9 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
             UNCLEAR: Device received the message but did not confirm the action
 
         """
+        group = 2
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
-        command_group = "{}_2".format(command)
-        return await self._handlers[command_group].async_send(group=2)
+        return await self._handlers[group][command].async_send()
 
     def status(self):
         """Request the status of the light and the fan."""
