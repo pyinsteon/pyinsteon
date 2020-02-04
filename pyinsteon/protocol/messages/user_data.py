@@ -163,7 +163,7 @@ class UserData:
         for index in range(1, 14):
             data_sum += self._user_data["d{:d}".format(index)]
         chksum = 0xFF - (data_sum & 0xFF) + 1
-        self._user_data["d14"] = chksum
+        self._user_data["d14"] = chksum & 0xFF
 
     def set_crc(self, cmd1: int, cmd2: int):
         """Set Userdata[13] and Userdata[14] to the CRC value."""
