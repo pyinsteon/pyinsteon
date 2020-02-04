@@ -89,6 +89,7 @@ class TestDeviceCommands(unittest.TestCase):
             test_configs = tests[device_type]
             for command in test_configs:
                 await self._execute_command(device_type, command, test_configs[command])
+        protocol.close()
 
     async def _execute_command(self, device_type, command, config):
         address = random_address()
