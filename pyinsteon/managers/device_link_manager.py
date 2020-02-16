@@ -104,8 +104,8 @@ class DeviceLinkManager:
                 devices[responder].groups[group].set_value(on_level)
                 asyncio.ensure_future(devices[responder].async_status())
 
-    @classmethod
-    def _check_controller(cls, on_level, topic=pub.AUTO_TOPIC):
+    # pylint: disable=no-self-use
+    def _check_controller(self, on_level, topic=pub.AUTO_TOPIC):
         from .. import devices
 
         controller, group, msg_type = _topic_to_addr_group(topic)
