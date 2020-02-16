@@ -47,6 +47,8 @@ from .security_health_safety import (
 # Motion Sensor II
 from .sensors_actuators import SensorsActuators, SensorsActuators_IOLink
 
+from .thermostat import Thermostat
+
 from .window_coverings import WindowCovering
 
 from .x10 import X10OnOff, X10Dimmable, X10OnOffSensor
