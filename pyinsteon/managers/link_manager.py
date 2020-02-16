@@ -2,7 +2,7 @@
 import logging
 from ..device_types.device_base import Device
 from .. import devices
-from ..constants import AllLinkMode, ResponseStatus
+from ..constants import AllLinkMode, ResponseStatus, LinkStatus
 from ..handlers.start_all_linking import StartAllLinkingCommandHandler
 from ..utils import multiple_status
 
@@ -131,6 +131,43 @@ async def async_create_default_links(device: Device):
         )
         results.append(result)
     return multiple_status(*results)
+
+
+def find_broken_links():
+    """Find proken links."""
+    broken_link_list = {}
+    for addr in devices:
+        device = devices[addr]
+        for mem_addr in device.aldb:
+            rec = device.aldb[mem_addr]
+            status = _test_broken(addr, rec)
+            if status != LinkStatus.FOUND:
+                if not broken_link_list.get(addr):
+                    broken_link_list[addr] = []
+                broken_link_list[addr].append((rec, status))
+    return broken_link_list
+
+
+def _test_broken(address, rec):
+    """Test if a corresponding record exists in liked device."""
+    device = devices.get(rec.target)
+    if not device:
+        return LinkStatus.MISSING_TARGET
+
+    if not device.aldb.is_loaded:
+        return LinkStatus.TARGET_DB_NOT_LOADED
+
+    for mem_addr in device.aldb:
+        t_rec = device.aldb[mem_addr]
+        if (
+            t_rec.target == address
+            and t_rec.group == rec.group
+            and t_rec.is_controller != rec.is_controller
+        ):
+            return LinkStatus.FOUND
+    if rec.is_controller:
+        return LinkStatus.MISSING_RESPONDER
+    return LinkStatus.MISSING_CONTROLLER
 
 
 def _add_link_to_device(device, is_controller, group, target, data1, data2, data3):
