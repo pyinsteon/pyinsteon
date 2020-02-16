@@ -4,7 +4,7 @@ import logging
 
 from . import ALDBBase
 from .aldb_version import ALDBVersion
-from .aldb_status import ALDBStatus
+from ..constants import ALDBStatus
 from .aldb_record import ALDBRecord
 from ..address import Address
 

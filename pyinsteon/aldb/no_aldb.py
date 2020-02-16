@@ -3,7 +3,7 @@ from typing import Callable
 
 from ..address import Address
 from . import ALDBBase
-from .aldb_status import ALDBStatus
+from ..constants import ALDBStatus
 
 
 class NoALDB(ALDBBase):

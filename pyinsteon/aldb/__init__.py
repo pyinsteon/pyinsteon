@@ -9,7 +9,7 @@ import logging
 from typing import Callable
 
 from ..address import Address
-from .aldb_status import ALDBStatus
+from ..constants import ALDBStatus
 from .aldb_version import ALDBVersion
 from .aldb_record import ALDBRecord
 from ..topics import (

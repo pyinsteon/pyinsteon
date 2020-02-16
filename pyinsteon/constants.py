@@ -120,6 +120,25 @@ class AckNak(IntEnum):
     NAK = 0x15
 
 
+class ALDBStatus(IntEnum):
+    """All-Link Database load status."""
+
+    def __repr__(self):
+        """Emit the representation of the Enum."""
+        return f"{self.value}"
+
+    def __str__(self):
+        """Emit the string of the Enum."""
+        # pylint: disable=no-member
+        return self.name.lower()
+
+    EMPTY = 0
+    LOADING = 1
+    LOADED = 2
+    FAILED = 3
+    PARTIAL = 4
+
+
 class X10CommandType(IntEnum):
     """X10 command types."""
 
