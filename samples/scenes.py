@@ -4,8 +4,8 @@ import asyncio
 
 from pyinsteon import async_close, async_connect
 from pyinsteon.managers.scene_manager import (
-    trigger_scene_off,
-    trigger_scene_on,
+    async_trigger_scene_off,
+    async_trigger_scene_on,
     identify_scenes,
 )
 from samples import _LOGGER, PATH, get_hub_config, set_log_levels
@@ -32,7 +32,7 @@ async def do_run():
     device2 = devices["13.37.42"]
     device2.groups[1].subscribe(state_changed)
     _LOGGER.info("Turning scene on")
-    await trigger_scene_on(group=0x1A)
+    await async_trigger_scene_on(group=0x1A)
     await asyncio.sleep(5)
     _LOGGER.info("Turning scene off")
     set_log_levels(
@@ -41,7 +41,7 @@ async def do_run():
         logger_messages="info",
         logger_topics=False,
     )
-    await trigger_scene_off(group=0x1A)
+    await async_trigger_scene_off(group=0x1A)
     await asyncio.sleep(5)
     await async_close()
 
