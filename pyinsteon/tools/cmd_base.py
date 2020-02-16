@@ -70,6 +70,11 @@ class ToolsBase(cmd.Cmd):
         else:
             cls(loop, args, menu).cmdloop()
 
+    # pylint: disable=no-self-use
+    def emptyline(self):
+        """Change default empty line to do nothing."""
+        return
+
     @classmethod
     def _start_loop(cls):
         """Start the loop and the current command set."""
