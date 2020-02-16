@@ -198,10 +198,11 @@ class ALDB(ALDBBase):
         async for rec in self._read_manager.async_read(
             mem_addr=mem_addr, num_recs=num_recs
         ):
-            if self._records.get(rec.mem_addr):
-                self._notify_change(self._records[rec.mem_addr], force_delete=True)
-            self._records[rec.mem_addr] = rec
-            self._notify_change(rec)
+            if self._confirm_hwm(rec):
+                if self._records.get(rec.mem_addr):
+                    self._notify_change(self._records[rec.mem_addr], force_delete=True)
+                self._records[rec.mem_addr] = rec
+                self._notify_change(rec)
         self._set_load_status()
         if callback:
             callback()
@@ -354,3 +355,47 @@ class ALDB(ALDBBase):
             self._status = ALDBStatus.PARTIAL
         else:
             self._status = ALDBStatus.EMPTY
+
+    def _confirm_hwm(self, rec):
+        """Confirm the new record is not below the High Wter Mark.
+
+        The ALDB will often respond with records that are below the HWM.
+        This method confirms no records below the HWM are added.
+        If a new HWM is received, this will also remove records below it.
+
+        Records below the HWM are never used by the device and are therefore
+        irrelivant.
+        """
+        curr_hwm_mem_addr = 0x0000
+        for curr_mem_addr in self._records:
+            curr_rec = self._records[curr_mem_addr]
+            if curr_rec.is_high_water_mark:
+                curr_hwm_mem_addr = curr_mem_addr
+                break
+
+        if (
+            curr_hwm_mem_addr != 0x0000
+            and self._records[curr_hwm_mem_addr].is_high_water_mark
+        ):
+            found_hwm = True
+        else:
+            found_hwm = False
+
+        if rec.is_high_water_mark and rec.mem_addr < curr_hwm_mem_addr:
+            _LOGGER.info("New HWM is %04d", curr_hwm_mem_addr)
+            curr_hwm_mem_addr = rec.mem_addr
+
+        elif found_hwm and rec.is_high_water_mark and rec.mem_addr > curr_hwm_mem_addr:
+            _LOGGER.info("Rejecting record since it is blow the HWM")
+            return False
+
+        remove_records = []
+        for curr_mem_addr in self._records:
+            if found_hwm and curr_mem_addr < curr_hwm_mem_addr:
+                remove_records.append(curr_mem_addr)
+
+        for mem_addr in remove_records:
+            _LOGGER.info("Removing record %04d", mem_addr)
+            self._records.pop(mem_addr)
+
+        return True
