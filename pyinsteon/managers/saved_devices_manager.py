@@ -1,9 +1,12 @@
 """Manage saving and restoring devices from JSON file."""
 import json
 import logging
+from os import path
+
+from aiofile import AIOFile
 
 from ..address import Address
-from .device_manager import create_device, DeviceId
+from .device_manager import DeviceId, create_device
 
 DEVICE_INFO_FILE = "insteon_devices.json"
 _LOGGER = logging.getLogger(__name__)
@@ -176,8 +179,6 @@ class SavedDeviceManager:
         return saved_devices
 
     async def _write_saved_devices(self, devices):
-        from aiofile import AIOFile
-        from os import path
 
         _LOGGER.debug("Writing %d devices to save file", len(devices))
         device_file = path.join(self._workdir, DEVICE_INFO_FILE)
