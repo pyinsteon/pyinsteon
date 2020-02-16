@@ -8,6 +8,7 @@ from .constants import (
     X10Commands,
     ResponseStatus,
     MessageFlagType,
+    RAMP_RATES,
 )
 from .protocol.commands import commands
 
@@ -202,3 +203,32 @@ def multiple_status(*args):
         elif int(response) > worst_response:
             worst_response = int(response)
     return ResponseStatus(worst_response)
+
+
+def ramp_rate_to_seconds(ramp_rate: int):
+    """Return the seconds associated with a ramp rate."""
+    if int(ramp_rate) not in range(0, 31):
+        raise ValueError("Ramp rate must be between 0x00 and 0x1f (31)")
+
+    return RAMP_RATES[int(ramp_rate)]
+
+
+def seconds_to_ramp_rate(seconds: float):
+    """Return the ramp rate asscociated with a number of seconds."""
+    if seconds > 480:
+        raise ValueError("Ramp rate cannot be more than 480 seconds (8 minutes)")
+
+    max_sec = 999
+    min_sec = -1
+    ramp_rate = None
+    for curr_rr in RAMP_RATES:
+        rr_secs = RAMP_RATES[curr_rr]
+        if rr_secs >= seconds and ((rr_secs - seconds) < (max_sec - seconds)):
+            max_sec = rr_secs
+            if (max_sec - seconds) < (seconds - min_sec):
+                ramp_rate = curr_rr
+        if rr_secs <= seconds and ((seconds - rr_secs) < (seconds - min_sec)):
+            min_sec = rr_secs
+            if (seconds - min_sec) <= (max_sec - seconds):
+                ramp_rate = curr_rr
+    return ramp_rate

@@ -1,6 +1,6 @@
 """INSTEON PLM constants for reuse across the module."""
 
-from enum import IntEnum
+from enum import IntEnum, Enum
 
 
 class DeviceCategory(IntEnum):
@@ -329,6 +329,16 @@ class ResponseStatus(IntEnum):
     UNSENT = 8
 
 
+class LinkStatus(Enum):
+    """Status of a link between two devices."""
+
+    MISSING_CONTROLLER = 0
+    MISSING_RESPONDER = 1
+    MISSING_TARGET = 2
+    FOUND = 3
+    TARGET_DB_NOT_LOADED = 4
+
+
 MESSAGE_START_CODE = 0x02
 MESSAGE_ACK = 0x06
 MESSAGE_NAK = 0x15
@@ -379,3 +389,38 @@ UC_LOOKUP = {
     21: 0x21,  # All Lights On fake device
     22: 0x22,
 }  # All Lights Off fake device
+
+RAMP_RATES = {
+    0x00: 2,
+    0x01: 480,
+    0x02: 420,
+    0x03: 360,
+    0x04: 300,
+    0x05: 270,
+    0x06: 240,
+    0x07: 210,
+    0x08: 180,
+    0x09: 150,
+    0x0A: 120,
+    0x0B: 90,
+    0x0C: 60,
+    0x0D: 47,
+    0x0E: 43,
+    0x0F: 38.5,
+    0x10: 34,
+    0x11: 32,
+    0x12: 30,
+    0x13: 28,
+    0x14: 26,
+    0x15: 23.5,
+    0x16: 21.5,
+    0x17: 19,
+    0x18: 8.5,
+    0x19: 6.5,
+    0x1A: 4.5,
+    0x1B: 2,
+    0x1C: 0.5,
+    0x1D: 0.3,
+    0x1E: 0.2,
+    0x1F: 0.1,
+}
