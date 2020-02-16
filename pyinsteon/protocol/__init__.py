@@ -139,9 +139,7 @@ async def async_modem_connect(
     else:
         from ..device_types.plm import PLM as Modem
 
-        connect_method = partial(
-            async_connect_socket, **{"host": host, "port": port, "protocol": protocol}
-        )
+        connect_method = partial(async_connect_socket, **{"host": host, "port": port})
         protocol = Protocol(connect_method=connect_method)
 
     await protocol.async_connect()
