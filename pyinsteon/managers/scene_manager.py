@@ -1,5 +1,8 @@
 """Manage Insteon Scenes."""
+import logging
 from .. import devices
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class Scenes:
@@ -28,12 +31,10 @@ class Scenes:
                 yield device
 
 
-scenes = Scenes()
-
-
 def identify_scenes():
     """Look through device All-Link databases and find scenes."""
     modem = devices.modem
+    scenes = Scenes()
     for address in devices:
         device = devices[address]
         for mem_addr in device.aldb:
@@ -49,10 +50,11 @@ def identify_scenes():
         rec = modem.aldb[mem_addr]
         if rec.is_controller and rec.group != 0:
             scenes[rec.group] = devices[rec.target]
+    return scenes
 
 
-async def add_device_to_scene(
-    group: int, device, on_level=0xFF, ramp_rate=0x28, button=0
+async def async_add_device_to_scene(
+    device, group: int, on_level=0xFF, ramp_rate=0x28, button=0
 ):
     """Create a new scene.
 
@@ -69,7 +71,7 @@ async def add_device_to_scene(
         pass
 
 
-async def trigger_scene_on(group):
+async def async_trigger_scene_on(group):
     """Trigger an Insteon scene."""
     from ..handlers.to_device.on_level_all_link_broadcast import (
         OnLevelAllLinkBroadcastCommand,
@@ -78,17 +80,20 @@ async def trigger_scene_on(group):
         OnLevelAllLinkCleanupCommand,
     )
 
+    scenes = identify_scenes()
+
     await OnLevelAllLinkBroadcastCommand(group=group).async_send()
     for device in scenes.get_devices(group):
         # TODO check for success or failure
         await OnLevelAllLinkCleanupCommand(device.address, group).async_send()
 
 
-async def trigger_scene_off(group):
+async def async_trigger_scene_off(group):
     """Trigger an Insteon scene."""
     from ..handlers.to_device.off_all_link_broadcast import OffAllLinkBroadcastCommand
     from ..handlers.to_device.off_all_link_cleanup import OffAllLinkCleanupCommand
 
+    scenes = identify_scenes()
     await OffAllLinkBroadcastCommand(group=group).async_send()
     for device in scenes.get_devices(group):
         # TODO check for success or failure
