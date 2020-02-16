@@ -86,7 +86,10 @@ class DeviceLinkManager:
 
         groups = self._responders.get(controller)
         if groups and groups.get(group):
-            groups[group].remove(responder)
+            try:
+                groups[group].remove(responder)
+            except ValueError:
+                pass
 
     def _check_responder(self, on_level, topic=pub.AUTO_TOPIC):
         from .. import devices
