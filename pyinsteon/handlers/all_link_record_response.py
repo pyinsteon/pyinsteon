@@ -17,6 +17,18 @@ class AllLinkRecordResponseHandler(InboundHandlerBase):
     def __init__(self):
         """Init the AllLinkRecordResponse class."""
         super().__init__(ALL_LINK_RECORD_RESPONSE)
+        self._has_subscriber = False
+
+    def subscribe(self, callback, force_strong_ref=False):
+        """Subscribe listeners to the topic.
+
+        We only want one modem to be subsribed to this method. The first one
+        will always be the one we want subscribed so reject the others.
+        """
+        if self._has_subscriber:
+            return
+        self._has_subscriber = True
+        super().subscribe(callback, force_strong_ref=force_strong_ref)
 
     @inbound_handler
     def receive_record(
