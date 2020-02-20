@@ -8,6 +8,8 @@ from ..address import Address
 from ..aldb.aldb_record import ALDBRecord
 from ..aldb.modem_aldb import ModemALDB
 from ..constants import ResponseStatus
+from .. import pub
+from ..topics import ALL_LINK_RECORD_RESPONSE
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -21,8 +23,12 @@ class ImReadManager:
         self._aldb = aldb
         self._get_first_handler = GetFirstAllLinkRecordHandler()
         self._get_next_handler = GetNextAllLinkRecordHandler()
-        self._receive_record_handler = AllLinkRecordResponseHandler()
-        self._receive_record_handler.subscribe(self._receive_record)
+        mgr = pub.getDefaultTopicMgr()
+        mgr = pub.getDefaultTopicMgr()
+        topic = mgr.getTopic(ALL_LINK_RECORD_RESPONSE, okIfNone=True)
+        if not topic:
+            self._receive_record_handler = AllLinkRecordResponseHandler()
+            self._receive_record_handler.subscribe(self._receive_record)
         self._retries = 0
         self._load_lock = asyncio.Lock()
         self._last_mem_addr = 0x0FFF
