@@ -9,6 +9,7 @@ from ..aldb import ALDB
 from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
 from ..operating_flag import OperatingFlag
+from ..utils import multiple_status
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -167,9 +168,10 @@ class Device(ABC):
         - Extended properties
         - All-Link Database records.
         """
-        await self.async_read_op_flags()
-        await self.async_read_ext_properties()
-        await self._aldb.async_load()
+        result_op_flags = await self.async_read_op_flags()
+        result_ext_prop = await self.async_read_ext_properties()
+        result_aldb = await self._aldb.async_load()
+        return multiple_status([result_ext_prop, result_op_flags]), result_aldb
 
     async def async_read_op_flags(self, group=None):
         """Read the device operating flags."""

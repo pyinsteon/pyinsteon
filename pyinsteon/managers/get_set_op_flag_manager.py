@@ -88,6 +88,7 @@ class GetSetOperatingFlagsManager:
                 flat_info = self._flags[name]
                 result = await self._async_write(flat_info)
                 results.append(result)
+        return multiple_status(results)
 
     async def _async_write(self, flag_info):
         flag = self._op_flags[flag_info.name]

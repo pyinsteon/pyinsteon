@@ -39,9 +39,9 @@ class BatteryDeviceBase:
         pub.subscribe(self._device_awake, self._address.id)
         asyncio.ensure_future(self.async_keep_awake())
 
-    def _run_on_wake(self, command, **kwargs):
+    def _run_on_wake(self, command, retries=3, **kwargs):
         cmd = partial(command, **kwargs)
-        self._commands_queue.put_nowait(cmd)
+        self._commands_queue.put_nowait((cmd, retries))
 
     async def async_read_op_flags(self):
         """Read the device operating flags."""
@@ -68,18 +68,26 @@ class BatteryDeviceBase:
     async def _run_commands(self):
         from inspect import iscoroutinefunction, iscoroutine
 
-        await self.async_keep_awake()
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
+        retry_cmds = []
         try:
-            command = await asyncio.wait_for(self._commands_queue.get(), TIMEOUT)
-            if isinstance(command, partial):
-                if iscoroutine(command.func) or iscoroutinefunction(command.func):
-                    await command()
+            while True:
+                command, retries = await asyncio.wait_for(
+                    self._commands_queue.get(), TIMEOUT
+                )
+                await self.async_keep_awake()
+                if isinstance(command, partial):
+                    if iscoroutine(command.func) or iscoroutinefunction(command.func):
+                        result = await command()
+                    else:
+                        result = command()
+                elif iscoroutine(command) or iscoroutinefunction(command):
+                    result = await command()
                 else:
-                    command()
-            elif iscoroutine(command) or iscoroutinefunction(command):
-                await command()
-            else:
-                command()
+                    result = command()
+                if int(result) != 1 and retries:
+                    retry_cmds.append((command, retries - 1))
         except asyncio.TimeoutError:
             pass
+        for cmd, retries in retry_cmds:
+            self._run_on_wake(cmd, retries)
