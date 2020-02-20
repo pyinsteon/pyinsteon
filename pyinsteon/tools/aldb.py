@@ -1,9 +1,8 @@
 """Command line tools to interact with the Insteon devices."""
 
-import asyncio
 import logging
 from .. import devices
-from ..constants import LinkStatus
+from ..constants import LinkStatus, ALDBStatus
 from .cmd_base import ToolsBase
 from ..managers.link_manager import async_create_default_links, find_broken_links
 from ..managers.scene_manager import (
@@ -20,7 +19,7 @@ _LOGGING = logging.getLogger(__name__)
 class ToolsAldb(ToolsBase):
     """Command class to test interactivity."""
 
-    def do_load_aldb(self, *args, **kwargs):
+    async def do_load_aldb(self, *args, **kwargs):
         """Load the All-Link Database of a device.
 
         Usage:
@@ -39,9 +38,8 @@ class ToolsAldb(ToolsBase):
             refresh_yn = args[1]
             refresh = refresh_yn.lower() == "y"
         except IndexError:
-            refresh_yn = None
+            refresh_yn = ""
 
-        tasks = []
         addresses = get_addresses(address=address, allow_cancel=True, allow_all=True)
         if not addresses:
             return
@@ -56,14 +54,25 @@ class ToolsAldb(ToolsBase):
         refresh = refresh_yn.lower() == "y"
 
         for address in addresses:
-            if devices[address] == devices.modem:
-                self._async_run(devices.modem.aldb.async_load)
+            # Only load the modem ALDB if explicitly asked
+            if devices[address] == devices.modem and len(addresses) == 1:
+                await devices.modem.aldb.async_load()
             elif devices[address].cat == 0x03:
                 pass
             else:
-                tasks.append(devices[address].aldb.async_load(refresh=refresh))
-        if tasks:
-            self._async_run(asyncio.gather, *tasks)
+                # tasks.append(devices[address].aldb.async_load(refresh=refresh))
+                await devices[address].aldb.async_load(refresh=refresh)
+
+        # if tasks:
+        #    await asyncio.gather(*tasks)
+
+        # if the device did not load the first time, try one more time with refresh
+        for address in addresses:
+            if (
+                devices[address] != devices.modem
+                and devices[address].aldb.status != ALDBStatus.LOADED
+            ):
+                await devices[address].aldb.async_load(refresh=True)
 
     # pylint: disable=no-self-use
     def do_print_aldb(self, *args, **kwargs):
@@ -86,7 +95,7 @@ class ToolsAldb(ToolsBase):
             device = devices[address]
             print_aldb(device)
 
-    def do_create_default_links(self, *args, **kwargs):
+    async def do_create_default_links(self, *args, **kwargs):
         """Create default links between a device and the modem.
 
         Usage:
@@ -101,13 +110,12 @@ class ToolsAldb(ToolsBase):
 
         addresses = get_addresses(address=address, allow_all=False, allow_cancel=True)
         if not addresses:
-            _LOGGING.info("Exiting")
             return
         device = devices[addresses[0]]
         self._log_command(f"create_default_links {addresses[0]}")
-        self._async_run(async_create_default_links, device)
+        await async_create_default_links(device)
 
-    def do_add_device_to_scene(self, *args, **kwargs):
+    async def do_add_device_to_scene(self, *args, **kwargs):
         """Add a device to a scene.
 
         Usage:
@@ -174,9 +182,9 @@ class ToolsAldb(ToolsBase):
 
         data2 = seconds_to_ramp_rate(data2_seconds)
         device = devices[addresses[0]]
-        self._async_run(async_add_device_to_scene, device, scene, data1, data2, data3)
+        await async_add_device_to_scene(device, scene, data1, data2, data3)
 
-    def do_test_scene_on(self, *args, **kwargs):
+    async def do_test_scene_on(self, *args, **kwargs):
         """Test a scene."""
 
         args = args[0].split()
@@ -191,9 +199,9 @@ class ToolsAldb(ToolsBase):
         if not scene:
             return
 
-        self._async_run(async_trigger_scene_on, scene)
+        await async_trigger_scene_on(scene)
 
-    def do_test_scene_off(self, *args, **kwargs):
+    async def do_test_scene_off(self, *args, **kwargs):
         """Test a scene."""
 
         args = args[0].split()
@@ -208,17 +216,18 @@ class ToolsAldb(ToolsBase):
         if not scene:
             return
 
-        self._async_run(async_trigger_scene_off, scene)
+        await async_trigger_scene_off(scene)
 
     def do_find_broken_links(self, *args, **kwargs):
         """Find broken links between devices."""
         broken_links = find_broken_links()
-        _LOGGING.info("Device   Target    Group Mode Status")
-        _LOGGING.info(
-            "-------- --------- ----- ---- ----------------------------------------"
+        self._log_stdout("Device   Mem Addr Target    Group Mode Status")
+        self._log_stdout(
+            "-------- -------- --------- ----- ---- ----------------------------------------"
         )
         for address in broken_links:
-            for rec, status in broken_links[address]:
+            for mem_addr in broken_links[address]:
+                rec, status = broken_links[address][mem_addr]
                 if status == LinkStatus.MISSING_CONTROLLER:
                     status_txt = "Missing controller"
                 elif status == LinkStatus.MISSING_RESPONDER:
@@ -231,13 +240,8 @@ class ToolsAldb(ToolsBase):
                     mode = "C"
                 else:
                     mode = "R"
-                _LOGGING.info(
-                    "%s %s %5d   %s %.40s",
-                    address,
-                    rec.target,
-                    rec.group,
-                    mode,
-                    status_txt,
+                self._log_stdout(
+                    f"{address:s}     {mem_addr:04x} {rec.target:s} {rec.group:5d}   {mode:s} {status_txt:.40s}"
                 )
 
     def do_print_aldb_load_status(self, *args, **kwargs):
@@ -252,8 +256,8 @@ class ToolsAldb(ToolsBase):
         if not addresses:
             return
 
-        _LOGGING.info("")
-        _LOGGING.info("Device   Status")
-        _LOGGING.info("-------- ---------------")
+        self._log_stdout("")
+        self._log_stdout("Device   Status")
+        self._log_stdout("-------- ---------------")
         for address in addresses:
-            _LOGGING.info("%s %s", address, devices[address].aldb.status)
+            self._log_stdout(f"{address} {devices[address].aldb.status}")

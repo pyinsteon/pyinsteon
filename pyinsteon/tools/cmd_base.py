@@ -3,15 +3,24 @@
 import argparse
 from collections import namedtuple
 import asyncio
-import cmd
+from cmd import Cmd
+import inspect
 import getpass
 import logging
 import os
 import sys
 
 from .. import devices
-from .log_filter import CommandFilter
-from .utils import get_addresses, get_char, get_int, get_workdir
+from .log_filter import CommandFilter, StdoutFilter
+from .utils import (
+    get_addresses,
+    get_char,
+    get_int,
+    get_workdir,
+    stdio,
+    set_loop,
+    patch_stdin_stdout,
+)
 
 _LOGGING = logging.getLogger(__name__)
 LOG_FILE_NAME = "pyinsteon_tools.log"
@@ -20,7 +29,7 @@ FILE_LOG_HANDLER = "file_handler"
 CmdArgs = namedtuple("CmdArgs", "workdir device username host hub_version port")
 
 
-class ToolsBase(cmd.Cmd):
+class ToolsBase(Cmd):
     """Base class for all tools menues."""
 
     def __init__(self, loop, args=None, menu=None):
@@ -31,6 +40,7 @@ class ToolsBase(cmd.Cmd):
             self.prompt = f"{prompt} - {menu}: "
         else:
             self.prompt = f"{prompt}: "
+        self._log_prefix = "STDOUT: "
         self.loop = loop
         self.workdir = None
 
@@ -56,10 +66,81 @@ class ToolsBase(cmd.Cmd):
             if hasattr(args, "logging") and self.workdir:
                 self.do_log_to_file("y", self.workdir)
 
-    def _log_command(self, line):
-        """Log the command to the log file if the log file is active."""
-        output = f"{self.prompt}{line}"
-        _LOGGING.info(output)
+    async def cmdloop(self, intro=None):
+        """Override standard cmdloop to make this async.
+
+        Repeatedly issue a prompt, accept input, parse an initial prefix
+        off the received input, and dispatch to action methods, passing them
+        the remainder of the line as argument.
+
+        """
+
+        self.preloop()
+        self.stdin, self.stdout = await stdio(loop=self.loop)
+        if sys.platform != "win32":
+            patch_stdin_stdout(self.stdin, self.stdout)
+
+        try:
+            if intro is not None:
+                self.intro = intro
+            if self.intro:
+                self.stdout.write(self.intro + "\n")
+            stop = None
+            while not stop:
+                if self.cmdqueue:
+                    line = self.cmdqueue.pop(0)
+                else:
+                    self.stdout.write(self.prompt)
+                    await self.stdout.drain()
+                    line = await self.stdin.readline()
+                    if not line:
+                        line = "EOF"
+                    else:
+                        line = line.strip("\r\n")
+                line = self.precmd(line)
+                stop = await self.onecmd(line)
+                stop = self.postcmd(stop, line)
+            self.postloop()
+        finally:
+            pass
+
+    async def onecmd(self, line):
+        """Override the method to make it async.
+
+        Interpret the argument as though it had been typed in response
+        to the prompt.
+
+        This may be overridden, but should not normally need to be;
+        see the precmd() and postcmd() methods for useful execution hooks.
+        The return value is a flag indicating whether interpretation of
+        commands by the interpreter should stop.
+
+        """
+        cmd, arg, line = self.parseline(line)
+        if not line:
+            return self.emptyline()
+        if cmd is None:
+            return self.default(line)
+        self.lastcmd = line
+
+        if line == "EOF":
+            self.lastcmd = ""
+
+        if cmd == "":
+            return self.default(line)
+
+        try:
+            func = getattr(self, "do_" + cmd)
+        except AttributeError:
+            return self.default(line)
+        if inspect.iscoroutinefunction(func) or inspect.isawaitable(func):
+            return await func(arg)
+        return func(arg)
+
+    # pylint: disable=no-self-use
+    def emptyline(self):
+        """Change default empty line to do nothing."""
+        return
 
     @classmethod
     def start(cls, loop=None, args=None, menu=None):
@@ -69,11 +150,6 @@ class ToolsBase(cmd.Cmd):
             cls._start_loop()
         else:
             cls(loop, args, menu).cmdloop()
-
-    # pylint: disable=no-self-use
-    def emptyline(self):
-        """Change default empty line to do nothing."""
-        return
 
     @classmethod
     def _start_loop(cls):
@@ -101,12 +177,13 @@ class ToolsBase(cmd.Cmd):
         )
         args = parser.parse_args()
 
+        set_loop()
         loop = asyncio.get_event_loop()
 
-        intro = "\nThe command line module for pyinsteon is designed to test devices and perform certain common functions.\nTo see the list of commands enter `help`\n."
+        intro = "The command line module for pyinsteon is designed to test devices and perform certain common functions."
 
         try:
-            cls(loop, args).cmdloop(intro=intro)
+            loop.run_until_complete(cls(loop, args).cmdloop(intro=intro))
         except KeyboardInterrupt:
             loop.stop()
             pending = asyncio.Task.all_tasks(loop=loop)
@@ -128,20 +205,16 @@ class ToolsBase(cmd.Cmd):
             list_devices
         """
         self._log_command("list_devices")
-        _LOGGING.info("Address   Cat   Subcat Description")
-        _LOGGING.info(
+        self._log_stdout("Address   Cat   Subcat Description")
+        self._log_stdout(
             "--------  ----- ------ ------------------------------------------------------------------------"
         )
         for addr in devices:
             device = devices[addr]
-            _LOGGING.info(
-                "%s  0x%02x  0x%02x   %s",
-                addr,
-                device.cat,
-                device.subcat,
-                device.description,
+            self._log_stdout(
+                f"{addr}  0x{device.cat:02x}  0x{device.subcat:02x}   {device.description}"
             )
-        _LOGGING.info("Total devices: %d", len(devices))
+        self._log_stdout(f"Total devices: {len(devices)}")
 
     def do_log_to_file(self, *args, **kwargs):
         """Start logging to file.
@@ -189,7 +262,7 @@ class ToolsBase(cmd.Cmd):
         file_handler.set_name(FILE_LOG_HANDLER)
         root_logger.addHandler(file_handler)
 
-    def do_save_devices(self, *args, **kwargs):
+    async def do_save_devices(self, *args, **kwargs):
         """Save devices to the working directory.
 
         Usage:
@@ -212,7 +285,7 @@ class ToolsBase(cmd.Cmd):
             return
 
         self._log_command(f"save_devices {self.workdir}")
-        self._async_run(devices.async_save, workdir=self.workdir)
+        await devices.async_save(workdir=self.workdir)
 
     def do_exit(self, *args, **kwargs):
         """Exit the current menu.
@@ -265,7 +338,7 @@ class ToolsBase(cmd.Cmd):
             topic_logger = logging.getLogger("pyinsteon.topics")
             topic_logger.setLevel(logging.ERROR)
 
-    def do_device_status(self, *args, **kwargs):
+    async def do_device_status(self, *args, **kwargs):
         """Display device statis.
 
         Usage:
@@ -305,7 +378,7 @@ class ToolsBase(cmd.Cmd):
                 if refresh_current == "y":
                     tasks.append(devices[address].async_status())
         if tasks:
-            self._async_run(asyncio.gather, *tasks)
+            await asyncio.gather(*tasks)
 
         for address in addresses:
             if devices[address] != devices.modem:
@@ -314,12 +387,12 @@ class ToolsBase(cmd.Cmd):
     def _print_device_status(self, address):
         """Print device status to log."""
         device = devices[address]
-        _LOGGING.info("Address  Group State Name      Value")
-        _LOGGING.info("-------- ----- --------------- -----")
+        self._log_stdout("Address  Group State Name      Value")
+        self._log_stdout("-------- ----- --------------- -----")
         for group_id in device.groups:
             group = device.groups[group_id]
-            _LOGGING.info(
-                "%s %5d %.15s %5d", device.address, group_id, group.name, group.value
+            self._log_stdout(
+                f"{device.address} {group_id:5d} {group.name:.15s} {group.value:5d}"
             )
 
     def _async_run(self, func, *args, **kwargs):
@@ -370,7 +443,7 @@ class ToolsBase(cmd.Cmd):
         console_handler.set_name(STDOUT_LOG_HANDLER)
         root_logger.addHandler(console_handler)
         root_logger.setLevel(level)
-        _LOGGING.info("Set log level to %s", level)
+        self._log_stdout("Set log level to {level}")
 
     def _call_next_menu(self, menu, name=None):
         """Start the next menu."""
@@ -387,9 +460,29 @@ class ToolsBase(cmd.Cmd):
     def _add_filter(self):
         """Add a filter for the current menu."""
         root_logger = logging.getLogger()
+        found_prompt = False
+        found_prefix = False
         for handler in root_logger.handlers:
             if handler.get_name() == STDOUT_LOG_HANDLER:
                 for my_filter in handler.filters:
                     if hasattr(my_filter, "prompt") and my_filter.prompt == self.prompt:
-                        return
-                handler.addFilter(CommandFilter(self.prompt))
+                        found_prompt = True
+                    if (
+                        hasattr(my_filter, "prefix")
+                        and my_filter.prefix == self._log_prefix
+                    ):
+                        found_prompt = True
+                if not found_prompt:
+                    handler.addFilter(CommandFilter(self.prompt))
+                if not found_prefix:
+                    handler.addFilter(StdoutFilter(self._log_prefix))
+
+    def _log_command(self, line):
+        """Log the command to the log file if the log file is active."""
+        output = f"{self.prompt}{line}"
+        _LOGGING.info(output)
+
+    def _log_stdout(self, line):
+        """Log a message to standard out."""
+        output = f"{self._log_prefix}{line}"
+        _LOGGING.info(output)

@@ -1,5 +1,5 @@
 """Command line tools to interact with the Insteon devices."""
-
+import asyncio
 import logging
 import os
 from .. import async_connect, async_close, devices
@@ -13,7 +13,7 @@ _LOGGING = logging.getLogger(__name__)
 class InsteonCmd(ToolsBase):
     """Command class to test interactivity."""
 
-    def do_connect(self, *args, **kwargs):
+    async def do_connect(self, *args, **kwargs):
         """Connect to the Insteon modem.
 
         Usage:
@@ -39,17 +39,9 @@ class InsteonCmd(ToolsBase):
         password = self._get_connection_params()
 
         if self.username:
-            if not self.hub_version or not self.port:
-                self.hub_version = get_int("Hub version", default=2, values=[1, 2])
-                if self.hub_version == 2:
-                    default_port = 25105
-                else:
-                    default_port = 9761
-                self.port = get_int("Hub IP port number", default=default_port)
             params = f"{self.host} {self.username} {'*' * len(password)} {self.hub_version} {self.port}"
         self._log_command(f"connect {params}")
-        self._async_run(
-            async_connect,
+        await async_connect(
             device=self.device,
             host=self.host,
             port=self.port,
@@ -58,16 +50,16 @@ class InsteonCmd(ToolsBase):
             hub_version=self.hub_version,
         )
 
-    def do_disconnect(self, *args, **kwargs):
+    async def do_disconnect(self, *args, **kwargs):
         """Close the connection to the modem.
 
         Usage:
             disconnect
         """
         self._log_command("disconnect")
-        self._async_run(async_close)
+        await async_close()
 
-    def do_load_devices(self, *args, **kwargs):
+    async def do_load_devices(self, *args, **kwargs):
         """Load the devices.
 
         Usage:
@@ -101,9 +93,8 @@ class InsteonCmd(ToolsBase):
                 "Identify devices (0=None, 1=Unknown Only, 2=All", 1, [0, 1, 2]
             )
         self._log_command(f"load_devices {self.workdir} {id_devices}")
-        self._async_run(devices.async_load, workdir=self.workdir, id_devices=id_devices)
-        _LOGGING.info("Total devices: %d", len(devices))
-        _LOGGING.info("To save the device list use `save_devices`")
+        await devices.async_load(workdir=self.workdir, id_devices=id_devices)
+        self._log_stdout(f"Total devices: {len(devices)}")
 
     def do_manage_aldb(self, *args, **kwargs):
         """Manage device All-Link database."""
@@ -114,3 +105,35 @@ class InsteonCmd(ToolsBase):
         """Manage operational flags."""
         self._log_command("manage_op_flags")
         self._call_next_menu(ToolsOpFlags, "op_flags")
+
+    async def do_monitor_mode(self, *args, **kwargs):
+        """Enter monitoring mode.
+
+        Usage:
+            monitor_mode <SECONDS>
+
+        <SECONDS>: Number of seconds to stay in monitor mode.
+        """
+        args = args[0].split()
+        try:
+            seconds = int(args[0])
+        except (IndexError, ValueError):
+            seconds = None
+
+        if seconds is None:
+            seconds = get_int("Number of seconds")
+            if not seconds:
+                return
+        if seconds == 0:
+            try:
+                while True:
+                    await asyncio.sleep(1)
+            except KeyboardInterrupt:
+                return
+        else:
+            await asyncio.sleep(seconds)
+
+
+def tools():
+    """Start insteon tools."""
+    InsteonCmd.start()
