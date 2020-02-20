@@ -53,7 +53,10 @@ class ToolsAldb(ToolsBase):
                 )
         refresh = refresh_yn.lower() == "y"
 
+        battery_devices = []
         for address in addresses:
+            if devices[address].is_battery:
+                battery_devices.append(address)
             # Only load the modem ALDB if explicitly asked
             if devices[address] == devices.modem and len(addresses) == 1:
                 await devices.modem.aldb.async_load()
@@ -63,8 +66,10 @@ class ToolsAldb(ToolsBase):
                 # tasks.append(devices[address].aldb.async_load(refresh=refresh))
                 await devices[address].aldb.async_load(refresh=refresh)
 
-        # if tasks:
-        #    await asyncio.gather(*tasks)
+        self._log_stdout("The following devices are battery operated.")
+        self._log_stdout("They will load in the background when they wake up.")
+        for address in battery_devices:
+            self._log_stdout(f"    - {address}")
 
         # if the device did not load the first time, try one more time with refresh
         for address in addresses:
