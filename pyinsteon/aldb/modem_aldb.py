@@ -7,6 +7,8 @@ from .aldb_version import ALDBVersion
 from ..constants import ALDBStatus
 from .aldb_record import ALDBRecord
 from ..address import Address
+from .. import pub
+from ..topics import ALL_LINK_RECORD_RESPONSE
 
 _LOGGER = logging.getLogger(__name__)
 MAX_RETRIES = 3
@@ -27,7 +29,14 @@ class ModemALDB(ALDBBase):
         from ..managers.im_read_manager import ImReadManager
 
         super().__init__(address, version, mem_addr)
-        self._read_manager = ImReadManager(self)
+
+        # If we are not the first modem, don't subscribe to
+        mgr = pub.getDefaultTopicMgr()
+        topic = mgr.getTopic(ALL_LINK_RECORD_RESPONSE, okIfNone=True)
+        if not topic:
+            self._read_manager = ImReadManager(self)
+        else:
+            self._read_manager = None
 
     def __setitem__(self, mem_addr, record):
         """Add or Update a device in the ALDB."""
@@ -41,7 +50,8 @@ class ModemALDB(ALDBBase):
         """Load the All-Link Database."""
         _LOGGER.debug("Loading the modem ALDB")
         self._records = {}
-        await self._read_manager.async_load()
+        if self._read_manager is not None:
+            await self._read_manager.async_load()
         self._status = ALDBStatus.LOADED
         if callback:
             callback()
