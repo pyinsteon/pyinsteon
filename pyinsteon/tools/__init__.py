@@ -1,5 +1,4 @@
 """Command line tools to interact with the Insteon devices."""
-import asyncio
 import logging
 import os
 from .. import async_connect, async_close, devices
@@ -105,33 +104,6 @@ class InsteonCmd(ToolsBase):
         """Manage operational flags."""
         self._log_command("manage_op_flags")
         self._call_next_menu(ToolsOpFlags, "op_flags")
-
-    async def do_monitor_mode(self, *args, **kwargs):
-        """Enter monitoring mode.
-
-        Usage:
-            monitor_mode <SECONDS>
-
-        <SECONDS>: Number of seconds to stay in monitor mode.
-        """
-        args = args[0].split()
-        try:
-            seconds = int(args[0])
-        except (IndexError, ValueError):
-            seconds = None
-
-        if seconds is None:
-            seconds = get_int("Number of seconds")
-            if not seconds:
-                return
-        if seconds == 0:
-            try:
-                while True:
-                    await asyncio.sleep(1)
-            except KeyboardInterrupt:
-                return
-        else:
-            await asyncio.sleep(seconds)
 
 
 def tools():

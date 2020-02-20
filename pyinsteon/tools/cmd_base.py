@@ -384,6 +384,29 @@ class ToolsBase(Cmd):
             if devices[address] != devices.modem:
                 self._print_device_status(address)
 
+    async def do_monitor_mode(self, *args, **kwargs):
+        """Enter monitoring mode.
+
+        Usage:
+            monitor_mode <SECONDS>
+
+        <SECONDS>: Number of seconds to stay in monitor mode.
+        """
+        args = args[0].split()
+        try:
+            seconds = int(args[0])
+        except (IndexError, ValueError):
+            seconds = None
+
+        if seconds is None:
+            seconds = get_int("Number of seconds")
+            if not seconds:
+                return
+        self._log_stdout("Press enter to exit monitor mode")
+        self._remove_filter()
+        await self.stdin.readline()
+        self._add_filter()
+
     def _print_device_status(self, address):
         """Print device status to log."""
         device = devices[address]
@@ -476,6 +499,23 @@ class ToolsBase(Cmd):
                     handler.addFilter(CommandFilter(self.prompt))
                 if not found_prefix:
                     handler.addFilter(StdoutFilter(self._log_prefix))
+
+    def _remove_filter(self):
+        """Remove the stdout filter to enable log output."""
+        root_logger = logging.getLogger()
+        found_prefix_filter = False
+        for handler in root_logger.handlers:
+            if handler.get_name() == STDOUT_LOG_HANDLER:
+                for my_filter in handler.filters:
+                    if (
+                        hasattr(my_filter, "prefix")
+                        and my_filter.prefix == self._log_prefix
+                    ):
+                        found_prefix_filter = True
+                        stdout_filter = my_filter
+                        break
+            if found_prefix_filter:
+                handler.removeFilter(stdout_filter)
 
     def _log_command(self, line):
         """Log the command to the log file if the log file is active."""
