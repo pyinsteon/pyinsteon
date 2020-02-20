@@ -34,7 +34,8 @@ from .switched_lighting_control import (
     SwitchedLightingControl_OnOffOutlet,
 )
 
-# from ..climateControl import ClimateControl_2441th
+from .climate_control import Thermostat
+
 from .security_health_safety import (
     SecurityHealthSafety,
     SecurityHealthSafety_OpenCloseSensor,
@@ -46,8 +47,6 @@ from .security_health_safety import (
 
 # Motion Sensor II
 from .sensors_actuators import SensorsActuators, SensorsActuators_IOLink
-
-from .thermostat import Thermostat
 
 from .window_coverings import WindowCovering
 
