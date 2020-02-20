@@ -1,6 +1,6 @@
 """Command line interface for Operation Flag Management."""
 
-from .cmd_base import ToolsBase
+from .tools_base import ToolsBase
 
 
 class ToolsOpFlags(ToolsBase):

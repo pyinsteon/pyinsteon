@@ -143,16 +143,7 @@ class ToolsBase(Cmd):
         return
 
     @classmethod
-    def start(cls, loop=None, args=None, menu=None):
-        """Start the tools menu."""
-
-        if not loop:
-            cls._start_loop()
-        else:
-            cls(loop, args, menu).cmdloop()
-
-    @classmethod
-    def _start_loop(cls):
+    def start(cls):
         """Start the loop and the current command set."""
         parser = argparse.ArgumentParser(description=__doc__)
         parser.add_argument("--device", default="", help="Path to PLM device")
@@ -468,7 +459,7 @@ class ToolsBase(Cmd):
         root_logger.setLevel(level)
         self._log_stdout("Set log level to {level}")
 
-    def _call_next_menu(self, menu, name=None):
+    async def _call_next_menu(self, menu, name=None):
         """Start the next menu."""
         cmd_args = CmdArgs(
             self.workdir,
@@ -478,7 +469,7 @@ class ToolsBase(Cmd):
             self.hub_version,
             self.port,
         )
-        menu.start(self.loop, cmd_args, name)
+        await menu(self.loop, cmd_args, name).cmdloop()
 
     def _add_filter(self):
         """Add a filter for the current menu."""

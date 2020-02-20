@@ -2,7 +2,7 @@
 import logging
 import os
 from .. import async_connect, async_close, devices
-from .cmd_base import ToolsBase, get_int, get_workdir
+from .tools_base import ToolsBase, get_int, get_workdir
 from .op_flags import ToolsOpFlags
 from .aldb import ToolsAldb
 
@@ -95,15 +95,15 @@ class InsteonCmd(ToolsBase):
         await devices.async_load(workdir=self.workdir, id_devices=id_devices)
         self._log_stdout(f"Total devices: {len(devices)}")
 
-    def do_manage_aldb(self, *args, **kwargs):
+    async def do_manage_aldb(self, *args, **kwargs):
         """Manage device All-Link database."""
         self._log_command("manage_aldb")
-        self._call_next_menu(ToolsAldb, "aldb")
+        await self._call_next_menu(ToolsAldb, "aldb")
 
-    def do_manage_op_flags(self, *args, **kwargs):
+    async def do_manage_op_flags(self, *args, **kwargs):
         """Manage operational flags."""
         self._log_command("manage_op_flags")
-        self._call_next_menu(ToolsOpFlags, "op_flags")
+        await self._call_next_menu(ToolsOpFlags, "op_flags")
 
 
 def tools():

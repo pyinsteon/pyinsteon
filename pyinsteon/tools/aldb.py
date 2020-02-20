@@ -3,7 +3,7 @@
 import logging
 from .. import devices
 from ..constants import LinkStatus, ALDBStatus
-from .cmd_base import ToolsBase
+from .tools_base import ToolsBase
 from ..managers.link_manager import async_create_default_links, find_broken_links
 from ..managers.scene_manager import (
     async_add_device_to_scene,
