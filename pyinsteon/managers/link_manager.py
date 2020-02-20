@@ -24,7 +24,6 @@ async def async_enter_unlinking_mode(group: int):
     link_cmd = StartAllLinkingCommandHandler()
     mode = AllLinkMode.DELETE
     response = await link_cmd.async_send(mode=mode, group=group)
-    _LOGGER.info("Enter linking mode response: %s", str(response))
     return response
 
 
@@ -140,11 +139,12 @@ def find_broken_links():
         device = devices[addr]
         for mem_addr in device.aldb:
             rec = device.aldb[mem_addr]
-            status = _test_broken(addr, rec)
-            if status != LinkStatus.FOUND:
-                if not broken_link_list.get(addr):
-                    broken_link_list[addr] = []
-                broken_link_list[addr].append((rec, status))
+            if rec.is_in_use:
+                status = _test_broken(addr, rec)
+                if status != LinkStatus.FOUND:
+                    if not broken_link_list.get(addr):
+                        broken_link_list[addr] = {}
+                    broken_link_list[addr][mem_addr] = (rec, status)
     return broken_link_list
 
 
