@@ -54,11 +54,10 @@ class ToolsBase(Cmd):
         def_port[2] = 25105
         self.port = args.port if args.port else def_port.get(self.hub_version)
 
-        if hasattr(args, "verbose"):
-            if args.verbose:
-                self._setup_logging(logging.DEBUG)
-            else:
-                self._setup_logging(logging.INFO)
+        if hasattr(args, "verbose") and args.verbose:
+            self._setup_logging(logging.DEBUG)
+        else:
+            self._setup_logging(logging.INFO)
         self._add_filter()
 
         if hasattr(args, "workdir"):
@@ -187,6 +186,10 @@ class ToolsBase(Cmd):
                 except KeyboardInterrupt:
                     pass
             loop.close()
+
+    async def start_menu(self):
+        """Start the menu."""
+        await self.cmdloop()
 
     # pylint: disable=no-self-use
     def do_list_devices(self, *args, **kwargs):
@@ -469,7 +472,7 @@ class ToolsBase(Cmd):
             self.hub_version,
             self.port,
         )
-        await menu(self.loop, cmd_args, name).cmdloop()
+        await menu(self.loop, cmd_args, name).start_menu()
 
     def _add_filter(self):
         """Add a filter for the current menu."""
@@ -485,7 +488,7 @@ class ToolsBase(Cmd):
                         hasattr(my_filter, "prefix")
                         and my_filter.prefix == self._log_prefix
                     ):
-                        found_prompt = True
+                        found_prefix = True
                 if not found_prompt:
                     handler.addFilter(CommandFilter(self.prompt))
                 if not found_prefix:
