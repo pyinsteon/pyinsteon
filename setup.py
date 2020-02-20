@@ -31,10 +31,5 @@ setup(
         "async_generator",
         "pyyaml",
     ],
-    entry_points={
-        "console_scripts": [
-            "insteon_monitor = pyinsteon.tools:monitor",
-            "insteon_tools = pyinsteon.tools:tools",
-        ]
-    },
+    entry_points={"console_scripts": ["insteon_tools = pyinsteon.tools:tools"]},
 )
