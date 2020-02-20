@@ -25,7 +25,7 @@ ILLEGAL_VALUE_IN_COMMAND = 0xFB
 class ALDBReadManager:
     """ALDB Read Manager."""
 
-    def __init__(self, aldb, mem_addr: int = 0x00, num_recs: int = 0):  # : ALDB):
+    def __init__(self, aldb, mem_addr: int = 0x00, num_recs: int = 0):
         """Init the ALDBReadManager class."""
         from ..handlers.to_device.read_aldb import ReadALDBCommandHandler
         from ..handlers.from_device.receive_aldb_record import ReceiveALDBRecordHandler
@@ -86,16 +86,16 @@ class ALDBReadManager:
 
     async def _wait_for_records(self, retries, multiple_records, last_addr):
         # Wait for timer to expire or records to be received.
-        timer = TIMER + retries * TIMER_INCREMENT
+        timer = max(TIMER + retries * TIMER_INCREMENT, 20)
         try:
             await asyncio.wait_for(self._timer_lock.acquire(), timer)
-            if self._timer_lock.locked():
-                self._timer_lock.release()
             # If we are reading multiple records continue waiting to see if more come in
             if multiple_records:
-                await asyncio.sleep(timer)
+                await asyncio.sleep(10)
         except asyncio.TimeoutError:
             pass
+        if self._timer_lock.locked():
+            self._timer_lock.release()
         self._check_status(last_addr)
 
     def _receive_direct_ack(self, ack_response):
@@ -158,7 +158,7 @@ class ALDBReadManager:
                 return
 
             if self._retries_one < RETRIES_ONE_MAX:
-                asyncio.ensure_future(self._async_read(mem_addr=mem_addr, num_recs=1),)
+                asyncio.ensure_future(self._async_read(mem_addr=mem_addr, num_recs=1))
                 self._retries_one += 1
                 return
 
