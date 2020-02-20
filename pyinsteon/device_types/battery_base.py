@@ -32,6 +32,7 @@ class BatteryDeviceBase:
             model="",
             **kwargs,
         )
+        self._is_battery = True
         self._commands_queue = asyncio.Queue()
         self._aldb = ALDBBattery(address=address, run_command=self._run_on_wake)
         self._last_run = None

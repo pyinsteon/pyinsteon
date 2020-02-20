@@ -37,6 +37,7 @@ class Device(ABC):
         self._description = description
         self._model = model
         self._product_id = None
+        self._is_battery = False
 
         self._last_communication_received = datetime(1, 1, 1, 1, 1, 1)
         self._product_data_in_aldb = False
@@ -150,7 +151,7 @@ class Device(ABC):
     @property
     def is_battery(self):
         """Return True if the device is battery operated."""
-        return False
+        return self._is_battery
 
     def status(self, group=None):
         """Get the status of the device."""
