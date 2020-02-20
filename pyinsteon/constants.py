@@ -133,8 +133,8 @@ class ALDBStatus(IntEnum):
         return self.name.lower()
 
     EMPTY = 0
-    LOADING = 1
-    LOADED = 2
+    LOADED = 1
+    LOADING = 2
     FAILED = 3
     PARTIAL = 4
 
