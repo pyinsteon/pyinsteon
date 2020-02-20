@@ -382,11 +382,9 @@ class ALDB(ALDBBase):
             found_hwm = False
 
         if rec.is_high_water_mark and rec.mem_addr < curr_hwm_mem_addr:
-            _LOGGER.info("New HWM is %04d", curr_hwm_mem_addr)
             curr_hwm_mem_addr = rec.mem_addr
 
         elif found_hwm and rec.is_high_water_mark and rec.mem_addr > curr_hwm_mem_addr:
-            _LOGGER.info("Rejecting record since it is blow the HWM")
             return False
 
         remove_records = []
@@ -395,7 +393,6 @@ class ALDB(ALDBBase):
                 remove_records.append(curr_mem_addr)
 
         for mem_addr in remove_records:
-            _LOGGER.info("Removing record %04d", mem_addr)
             self._records.pop(mem_addr)
 
         return True
