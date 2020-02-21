@@ -70,24 +70,6 @@ async def async_unlink_devices(controller: Device, responder: Device, group: int
     return ResponseStatus.FAILURE
 
 
-async def async_add_default_links(device: Device):
-    """Set up the default links for a device."""
-    for link in device.default_links:
-        if link.is_controller:
-            controller = device
-            responder = devices.modem
-            data1 = link.modem_data1
-            data2 = link.modem_data2
-            data3 = link.modem_data3
-        else:
-            controller = devices.modem
-            responder = device
-            data1 = link.dev_data1
-            data2 = link.dev_data2
-            data3 = link.dev_data3
-        await async_link_devices(controller, responder, link.group, data1, data2, data3)
-
-
 def _remove_link_from_device(device, is_controller, group, target):
     found_rec = None
     for addr in device.aldb:
@@ -103,28 +85,31 @@ def _remove_link_from_device(device, is_controller, group, target):
     return True
 
 
-async def async_create_default_links(device: Device):
+async def async_add_default_links(device: Device):
     """Establish default links between the modem and device."""
 
     if not device.aldb.is_loaded:
         await device.aldb.async_load()
 
     if not device.aldb.is_loaded:
-        return False
+        return ResponseStatus.UNSENT
 
     results = []
     for link_info in device.default_links:
         is_controller = link_info.is_controller
         group = link_info.group
-        data1 = link_info.data1
-        data2 = link_info.data2
-        data3 = link_info.data3
         if is_controller:
             controller = device
             responder = devices.modem
+            data1 = link_info.modem_data1
+            data2 = link_info.modem_data2
+            data3 = link_info.modem_data3
         else:
             controller = devices.modem
             responder = device
+            data1 = link_info.dev_data1
+            data2 = link_info.dev_data2
+            data3 = link_info.dev_data3
         result = await async_link_devices(
             controller, responder, group, data1, data2, data3
         )
