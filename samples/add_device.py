@@ -26,7 +26,7 @@ async def async_setup_device(address):
     while not device.aldb.is_loaded and wait < max_wait:
         await asyncio.sleep(sleep_for)
         wait += sleep_for
-    await device.async_create_default_links()
+    await device.async_add_default_links()
     await asyncio.sleep(sleep_for)
     await devices.async_save(workdir=PATH)
     done.put_nowait("done")
