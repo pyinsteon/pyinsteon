@@ -222,7 +222,9 @@ class ToolsBase(Cmd):
         except IndexError:
             mode = None
         if mode not in ["y", "n"]:
-            mode = get_char("Log to file (y/n)", values=["y", "n"])
+            mode = get_char(
+                "Log to file (y/n)", print_stdout=self._log_stdout, values=["y", "n"]
+            )
 
         try:
             if args[1] != "":
@@ -240,10 +242,10 @@ class ToolsBase(Cmd):
             return
 
         if not self.workdir:
-            self.workdir = get_workdir()
+            self.workdir = get_workdir(print_stdout=self._log_stdout)
 
         if self.workdir == "":
-            _LOGGING.error("A value for the working directory is required.")
+            self._log_stdout("A value for the working directory is required.")
             return
 
         log_file = os.path.join(self.workdir, LOG_FILE_NAME)
@@ -272,10 +274,10 @@ class ToolsBase(Cmd):
             pass
 
         if not self.workdir:
-            self.workdir = get_workdir()
+            self.workdir = get_workdir(print_stdout=self._log_stdout)
 
         if self.workdir == "":
-            _LOGGING.error("A value for the working directory is required.")
+            self._log_stdout("A value for the working directory is required.")
             return
 
         self._log_command(f"save_devices {self.workdir}")
@@ -311,6 +313,7 @@ class ToolsBase(Cmd):
         if mode not in options:
             mode = get_char(
                 "Log level (i=info, v=verbose, m=messages, t=topics, n=no messages or topics)",
+                print_stdout=self._log_stdout,
                 values=options,
             )
 
@@ -351,7 +354,9 @@ class ToolsBase(Cmd):
             refresh_yn = None
 
         tasks = []
-        addresses = get_addresses(allow_all=True, allow_cancel=True)
+        addresses = get_addresses(
+            print_stdout=self._log_stdout, allow_all=True, allow_cancel=True
+        )
         if not addresses:
             return
 
@@ -360,6 +365,7 @@ class ToolsBase(Cmd):
                 if not refresh_yn:
                     refresh_yn = get_char(
                         "Clear existing records and reload (y/n)",
+                        print_stdout=self._log_stdout,
                         default="n",
                         values=["y", "n"],
                     )
@@ -382,20 +388,8 @@ class ToolsBase(Cmd):
         """Enter monitoring mode.
 
         Usage:
-            monitor_mode <SECONDS>
-
-        <SECONDS>: Number of seconds to stay in monitor mode.
+            monitor_mode
         """
-        args = args[0].split()
-        try:
-            seconds = int(args[0])
-        except (IndexError, ValueError):
-            seconds = None
-
-        if seconds is None:
-            seconds = get_int("Number of seconds")
-            if not seconds:
-                return
         self._log_stdout("Press enter to exit monitor mode")
         self._remove_filter()
         await self.stdin.readline()
@@ -430,10 +424,17 @@ class ToolsBase(Cmd):
                 self.username = input("Hub usernme: ")
             password = getpass.getpass(prompt="Hub password: ")
             if not self.hub_version:
-                self.hub_version = get_int("Hub version", 2, [1, 2])
+                self.hub_version = get_int(
+                    "Hub version",
+                    print_stdout=self._log_stdout,
+                    default=2,
+                    values=[1, 2],
+                )
             if not self.port:
                 self.port = get_int(
-                    "Hub port", 25105 if self.hub_version == 2 else 9761
+                    "Hub port",
+                    print_stdout=self._log_stdout,
+                    default=25105 if self.hub_version == 2 else 9761,
                 )
         return password
 

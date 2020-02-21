@@ -1,16 +1,14 @@
 """Utilities for the tools commands."""
 import asyncio
-import logging
 import os
 import sys
 
 from .. import devices
 
-_LOGGING = logging.getLogger(__name__)
 _DEFAULT_LIMIT = 2 ** 16  # 64kb
 
 
-def get_int(prompt, default=None, values=None):
+def get_int(prompt, print_stdout, default=None, values=None):
     """Get an integer value."""
     value = None
     if default:
@@ -29,7 +27,7 @@ def get_int(prompt, default=None, values=None):
                 response = "Must be a number."
                 if values:
                     response = f"{response} Acceptable values {values}."
-                _LOGGING.info(response)
+                print_stdout(response)
         elif default is not None:
             value = default
             break
@@ -37,11 +35,11 @@ def get_int(prompt, default=None, values=None):
             response = "A number is required."
             if values:
                 response = f"{response} Acceptable values {values}."
-            _LOGGING.info(response)
+            print_stdout(response)
     return value
 
 
-def get_float(prompt, default=None, maximum=None, minimum=None):
+def get_float(prompt, print_stdout, default=None, maximum=None, minimum=None):
     """Get an integer value."""
     value = None
     if default:
@@ -64,7 +62,7 @@ def get_float(prompt, default=None, maximum=None, minimum=None):
                     response = f"{response} (Max: {maximum})."
                 elif maximum and minimum:
                     response = f"{response} (Min: {minimum})."
-                _LOGGING.info(response)
+                print_stdout(response)
         elif default is not None:
             value = default
             break
@@ -76,11 +74,11 @@ def get_float(prompt, default=None, maximum=None, minimum=None):
                 response = f"{response} (Max: {maximum})."
             elif maximum and minimum:
                 response = f"{response} (Min: {minimum})."
-            _LOGGING.info(response)
+            print_stdout(response)
     return value
 
 
-def get_char(prompt, default=None, values=None):
+def get_char(prompt, print_stdout, default=None, values=None):
     """Get an integer value."""
     if default:
         prompt = f"{prompt} (Default {default.upper()}): "
@@ -91,7 +89,7 @@ def get_char(prompt, default=None, values=None):
         if value:
             if not values or value.lower() in values:
                 break
-            _LOGGING.error("Acceptable values %s.", values)
+            print_stdout(f"Acceptable values {values}")
         elif default is not None:
             value = default
             break
@@ -99,14 +97,14 @@ def get_char(prompt, default=None, values=None):
             response = "A response is required."
             if values:
                 response = f"{response} Acceptable values {values}."
-            _LOGGING.info(response)
+            print_stdout(response)
     return value
 
 
-def get_workdir():
+def get_workdir(print_stdout):
     """Input the valeu for the workdir."""
-    _LOGGING.info("The working directory stores the lsit of identified devices.")
-    _LOGGING.info(
+    print_stdout("The working directory stores the lsit of identified devices.")
+    print_stdout(
         "Enter a working directory where the saved file is (and will be saved to after loading.)"
     )
     workdir = input(f"Working directory (enter . for current director): ")
@@ -115,12 +113,18 @@ def get_workdir():
     return workdir
 
 
-def get_addresses(address=None, allow_cancel=False, allow_all=True):
+def get_addresses(
+    print_stdout,
+    address=None,
+    allow_cancel=False,
+    allow_all=True,
+    prompt="Enter device address",
+):
     """Get the address of a device or all devices."""
-    prompt_addr = "Enter device address"
-    prompt_cancel = "Enter device address or blank to cancel"
-    prompt_all = "Enter device address or all for all devices"
-    prompt_all_cancel = "Enter device address, all for all devices, or blank to cancel"
+    prompt_addr = prompt
+    prompt_cancel = f"{prompt} or blank to cancel"
+    prompt_all = f"{prompt} or all for all devices"
+    prompt_all_cancel = f"{prompt}, all for all devices, or blank to cancel"
 
     addresses = []
     if allow_all and allow_cancel:
@@ -146,23 +150,42 @@ def get_addresses(address=None, allow_cancel=False, allow_all=True):
             addresses.append(address)
             return addresses
         else:
-            _LOGGING.info("Device %s not found in device list.", address)
+            print_stdout(f"Device {address} not found in device list.")
             return []
 
 
-def print_aldb(device):
+def print_aldb(args, print_log, print_stdout):
     """Print the All-Link Database to the log."""
-    _LOGGING.info("")
-    _LOGGING.info("RecID In Use Mode HWM Group Address  Data 1 Data 2 Data 3")
-    _LOGGING.info("----- ------ ---- --- ----- -------- ------ ------ ------")
+    args = args[0].split()
+    try:
+        address = args[0]
+    except IndexError:
+        address = None
+
+    addresses = get_addresses(
+        address=address, print_stdout=print_stdout, allow_all=True, allow_cancel=True
+    )
+    if not addresses:
+        return
+    print_log(f"print_aldb {'all' if len(addresses) > 1 else addresses[0]}")
+    for address in addresses:
+        device = devices[address]
+        _print_aldb(device, print_stdout)
+
+
+def _print_aldb(device, print_stdout):
+    print_stdout("")
+    print_stdout(f"Device: {device.address}  Load Status: {str(device.aldb.status)}")
+    print_stdout("RecID In Use Mode HWM Group Address  Data 1 Data 2 Data 3")
+    print_stdout("----- ------ ---- --- ----- -------- ------ ------ ------")
     for mem_addr in device.aldb:
         rec = device.aldb[mem_addr]
         in_use = "Y" if rec.is_in_use else "N"
         mode = "C" if rec.is_controller else "R"
         hwm = "Y" if rec.is_high_water_mark else "N"
         line = f" {rec.mem_addr:04x}    {in_use:s}     {mode:s}   {hwm:s}    {rec.group:3d} {rec.target}   {rec.data1:3d}   {rec.data2:3d}   {rec.data3:3d}"
-        _LOGGING.info(line)
-    _LOGGING.info("")
+        print_stdout(line)
+    print_stdout("")
 
 
 async def stdio(limit=_DEFAULT_LIMIT, loop=None):
