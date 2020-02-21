@@ -6,6 +6,7 @@ import logging
 
 from .. import pub
 from ..handlers.to_device.extended_set import ExtendedSetCommand
+from ..constants import ResponseStatus
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -68,14 +69,21 @@ class BatteryDeviceBase:
     async def _run_commands(self):
         from inspect import iscoroutinefunction, iscoroutine
 
-        await asyncio.sleep(1)
         retry_cmds = []
         try:
             while True:
                 command, retries = await asyncio.wait_for(
                     self._commands_queue.get(), TIMEOUT
                 )
-                await self.async_keep_awake()
+                keep_awake_retry = 0
+                while keep_awake_retry < 3:
+                    await asyncio.sleep(2)
+                    response = await self.async_keep_awake()
+                    if response == ResponseStatus.SUCCESS:
+                        break
+                    keep_awake_retry += 1
+                if keep_awake_retry == 3:
+                    return
                 if isinstance(command, partial):
                     if iscoroutine(command.func) or iscoroutinefunction(command.func):
                         result = await command()
