@@ -1,12 +1,10 @@
 """Command line tools to interact with the Insteon devices."""
-import logging
 import os
 from .. import async_connect, async_close, devices
-from .tools_base import ToolsBase, get_int, get_workdir
+from .tools_base import ToolsBase
 from .op_flags import ToolsOpFlags
 from .aldb import ToolsAldb
-
-_LOGGING = logging.getLogger(__name__)
+from ..managers.link_manager import async_enter_linking_mode, async_enter_unlinking_mode
 
 
 class InsteonCmd(ToolsBase):
@@ -35,7 +33,7 @@ class InsteonCmd(ToolsBase):
             self.hub_version = None
             self.port = None
 
-        password = self._get_connection_params()
+        password = await self._get_connection_params()
 
         if self.username:
             params = f"{self.host} {self.username} {'*' * len(password)} {self.hub_version} {self.port}"
@@ -81,14 +79,14 @@ class InsteonCmd(ToolsBase):
             pass
 
         if not self.workdir:
-            self.workdir = get_workdir()
+            self.workdir = await self._get_workdir()
 
         try:
             id_devices = int(args[1])
         except (IndexError, ValueError):
             id_devices = None
         if id_devices not in [0, 1, 2]:
-            id_devices = get_int(
+            id_devices = await self._get_int(
                 "Identify devices (0=None, 1=Unknown Only, 2=All", 1, [0, 1, 2]
             )
         self._log_command(f"load_devices {self.workdir} {id_devices}")
@@ -104,6 +102,22 @@ class InsteonCmd(ToolsBase):
         """Manage operational flags."""
         self._log_command("manage_op_flags")
         await self._call_next_menu(ToolsOpFlags, "op_flags")
+
+    async def do_add_device(self, *args, **kwargs):
+        """Add a device."""
+        self._log_command("add_device")
+        self._log_stdout(
+            "Press the set button on the device. Linking will occur in the background."
+        )
+        await async_enter_linking_mode(is_controller=True, group=0)
+
+    async def do_remove_device(self, *args, **kwargs):
+        """Add a device."""
+        self._log_command("remove_device")
+        self._log_stdout(
+            "Press the set button on the device. Unlinking will occur in the background."
+        )
+        await async_enter_unlinking_mode(group=0)
 
 
 def tools():
