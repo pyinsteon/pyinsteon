@@ -11,6 +11,7 @@ from .command_to_msg import register_command_handlers
 from .messages.inbound import create
 from .messages.outbound import register_outbound_handlers
 from .msg_to_topic import convert_to_topic
+from ..utils import log_error
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -103,19 +104,12 @@ class Protocol(asyncio.Protocol):
                     try:
                         pub.sendMessage(topic, **kwargs)
                     except Exception as ex:
-                        _LOGGER.error(
-                            "An issue occured distributing the following message"
-                        )
-                        _LOGGER.error("MSG: %s", msg)
-                        _LOGGER.error("Topic: %s data: %s", topic, kwargs)
-                        _LOGGER.error("Error: %s", str(ex))
+                        log_error(msg, ex, topic, kwargs)
         except ValueError:
             # No topic was found for this message
             _LOGGER.debug("No topic found for message %r", msg)
         except Exception as ex:
-            _LOGGER.error("An issue occured distributing the following message")
-            _LOGGER.error("MSG: %s", msg)
-            _LOGGER.error("Error: %s", str(ex))
+            log_error(msg, ex)
 
     def connection_lost(self, exc):
         """Notify listeners that the serial connection is lost."""

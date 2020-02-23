@@ -1,6 +1,8 @@
 """Utility methods."""
 from typing import Iterable
+import logging
 
+from . import pub
 from .address import Address
 from .constants import (
     HC_LOOKUP,
@@ -11,6 +13,9 @@ from .constants import (
     RAMP_RATES,
 )
 from .protocol.commands import commands
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def housecode_to_byte(housecode: str) -> int:
@@ -232,3 +237,17 @@ def seconds_to_ramp_rate(seconds: float):
             if (seconds - min_sec) <= (max_sec - seconds):
                 ramp_rate = curr_rr
     return ramp_rate
+
+
+def log_error(msg, ex, topic=None, kwargs=None):
+    """Print an error message when a topic cannot be distributed."""
+    _LOGGER.error("An issue occured distributing the following message")
+    _LOGGER.error("MSG: %s", msg)
+    _LOGGER.error("Topic: %s data: %s", topic, kwargs)
+    _LOGGER.error("Error: %s", str(ex))
+    if topic is not None:
+        topic_mgr = pub.getDefaultTopicMgr()
+        topic = topic_mgr.getTopic(topic, okIfNone=True)
+        if topic:
+            for subscriber in topic.getListeners():
+                _LOGGER.error("    Subscriber: %s", subscriber)
