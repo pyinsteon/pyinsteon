@@ -37,6 +37,7 @@ class BatteryDeviceBase:
         self._commands_queue = asyncio.Queue()
         self._aldb = ALDBBattery(address=address, run_command=self._run_on_wake)
         self._last_run = None
+        self._keep_awake_cmd = ExtendedSetCommand(self._address, data1=0, data2=0x04)
         pub.subscribe(self._device_awake, self._address.id)
         asyncio.ensure_future(self.async_keep_awake())
 
@@ -56,10 +57,13 @@ class BatteryDeviceBase:
         """Get the device extended properties."""
         self._run_on_wake(super(BatteryDeviceBase, self).async_read_ext_properties)
 
+    async def async_add_default_links(self):
+        """Add default links to the device."""
+        self._run_on_wake(super(BatteryDeviceBase, self).async_add_default_links)
+
     async def async_keep_awake(self, awake_time=0xFF):
         """Keep the device awake to ensure commands are heard."""
-        cmd = ExtendedSetCommand(self._address, data1=0, data2=0x04)
-        return await cmd.async_send(data3=awake_time)
+        return await self._keep_awake_cmd.async_send(data3=awake_time)
 
     def _device_awake(self, topic=pub.AUTO_TOPIC, **kwargs):
         """Execute the commands that were requested while sleeping."""
@@ -72,9 +76,6 @@ class BatteryDeviceBase:
         retry_cmds = []
         try:
             while True:
-                command, retries = await asyncio.wait_for(
-                    self._commands_queue.get(), TIMEOUT
-                )
                 keep_awake_retry = 0
                 while keep_awake_retry < 3:
                     await asyncio.sleep(2)
@@ -84,6 +85,9 @@ class BatteryDeviceBase:
                     keep_awake_retry += 1
                 if keep_awake_retry == 3:
                     return
+                command, retries = await asyncio.wait_for(
+                    self._commands_queue.get(), TIMEOUT
+                )
                 if isinstance(command, partial):
                     if iscoroutine(command.func) or iscoroutinefunction(command.func):
                         result = await command()
