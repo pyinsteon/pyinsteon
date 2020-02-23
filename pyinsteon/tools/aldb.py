@@ -9,7 +9,6 @@ from ..managers.scene_manager import (
     async_trigger_scene_on,
     async_trigger_scene_off,
 )
-from .utils import get_addresses, get_char, get_float, get_int, print_aldb
 from ..utils import seconds_to_ramp_rate
 
 
@@ -36,20 +35,16 @@ class ToolsAldb(ToolsBase):
         except IndexError:
             refresh_yn = ""
 
-        addresses = get_addresses(
-            address=address,
-            print_stdout=self._log_stdout,
-            allow_cancel=True,
-            allow_all=True,
+        addresses = await self._get_addresses(
+            address=address, allow_cancel=True, allow_all=True,
         )
         if not addresses:
             return
 
         if devices[addresses[0]] != devices.modem or len(addresses) > 1:
             if not refresh_yn:
-                refresh_yn = get_char(
+                refresh_yn = await self._get_char(
                     "Clear existing records and reload (y/n)",
-                    print_stdout=self._log_stdout,
                     default="n",
                     values=["y", "n"],
                 )
@@ -82,13 +77,13 @@ class ToolsAldb(ToolsBase):
             ):
                 await devices[address].aldb.async_load(refresh=True)
 
-    def do_print_aldb(self, *args, **kwargs):
+    async def do_print_aldb(self, *args, **kwargs):
         """Print the records in an All-Link Database.
 
         Usage:
             print_aldb <ADDRESS>|all
         """
-        print_aldb(args, self._log_command, self._log_stdout)
+        await self._print_aldb(*args)
 
     async def do_add_default_links(self, *args, **kwargs):
         """Add default links between a device and the modem.
@@ -103,11 +98,8 @@ class ToolsAldb(ToolsBase):
         except IndexError:
             address = None
 
-        addresses = get_addresses(
-            address=address,
-            print_stdout=self._log_stdout,
-            allow_all=False,
-            allow_cancel=True,
+        addresses = await self._get_addresses(
+            address=address, allow_all=False, allow_cancel=True,
         )
         if not addresses:
             return
@@ -161,42 +153,28 @@ class ToolsAldb(ToolsBase):
         except (IndexError, ValueError):
             data3 = None
 
-        addresses = get_addresses(
-            address=address,
-            print_stdout=self._log_stdout,
-            allow_all=False,
-            allow_cancel=True,
+        addresses = await self._get_addresses(
+            address=address, allow_all=False, allow_cancel=True,
         )
         if not addresses:
             return
         if not scene:
-            scene = get_int(
-                "Scene number or blank to cancel",
-                print_stdout=self._log_stdout,
-                values=range(25, 256),
+            scene = await self._get_int(
+                "Scene number or blank to cancel", values=range(25, 256),
             )
             if not scene:
                 return
 
         if not data1:
-            data1 = get_int(
-                "On level",
-                print_stdout=self._log_stdout,
-                default=255,
-                values=range(25, 256),
-            )
+            data1 = await self._get_int("On level", default=255, values=range(25, 256),)
 
         if not data2_seconds:
-            data2_seconds = get_float(
-                "Ramp rate",
-                print_stdout=self._log_stdout,
-                default=0.5,
-                maximum=480,
-                minimum=0.1,
+            data2_seconds = await self._get_float(
+                "Ramp rate", default=0.5, maximum=480, minimum=0.1,
             )
 
         if not data3:
-            data2_seconds = get_int("Button", print_stdout=self._log_stdout, default=1)
+            data2_seconds = await self._get_int("Button", default=1)
 
         data2 = seconds_to_ramp_rate(data2_seconds)
         device = devices[addresses[0]]
@@ -212,10 +190,8 @@ class ToolsAldb(ToolsBase):
             scene = None
 
         if not scene:
-            scene = get_int(
-                "Scene number or blank to cancel",
-                print_stdout=self._log_stdout,
-                values=range(25, 256),
+            scene = await self._get_int(
+                "Scene number or blank to cancel", values=range(25, 256),
             )
 
         if not scene:
@@ -233,10 +209,8 @@ class ToolsAldb(ToolsBase):
             scene = None
 
         if not scene:
-            scene = get_int(
-                "Scene number or blank to cancel",
-                print_stdout=self._log_stdout,
-                values=range(25, 256),
+            scene = await self._get_int(
+                "Scene number or blank to cancel", values=range(25, 256),
             )
 
         if not scene:
@@ -245,24 +219,9 @@ class ToolsAldb(ToolsBase):
         await async_trigger_scene_off(scene)
 
     def do_print_aldb_load_status(self, *args, **kwargs):
-        """Print the All-Link databbase load status for a device."""
-        args = args[0].split()
-        try:
-            address = args[0]
-        except IndexError:
-            address = None
-
-        addresses = get_addresses(
-            address=address,
-            print_stdout=self._log_stdout,
-            allow_cancel=True,
-            allow_all=True,
-        )
-        if not addresses:
-            return
-
+        """Print the All-Link databbase load status for all devices."""
         self._log_stdout("")
         self._log_stdout("Device   Status")
         self._log_stdout("-------- ---------------")
-        for address in addresses:
+        for address in devices:
             self._log_stdout(f"{address} {str(devices[address].aldb.status)}")

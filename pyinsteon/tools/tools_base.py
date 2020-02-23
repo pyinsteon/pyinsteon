@@ -13,10 +13,6 @@ import sys
 from .. import devices
 from .log_filter import CommandFilter, StdoutFilter
 from .utils import (
-    get_addresses,
-    get_char,
-    get_int,
-    get_workdir,
     stdio,
     set_loop,
     patch_stdin_stdout,
@@ -89,13 +85,9 @@ class ToolsBase(Cmd):
                 if self.cmdqueue:
                     line = self.cmdqueue.pop(0)
                 else:
-                    self.stdout.write(self.prompt)
-                    await self.stdout.drain()
-                    line = await self.stdin.readline()
+                    line = await self._input(prompt=self.prompt)
                     if not line:
                         line = "EOF"
-                    else:
-                        line = line.strip("\r\n")
                 line = self.precmd(line)
                 stop = await self.onecmd(line)
                 stop = self.postcmd(stop, line)
@@ -210,7 +202,7 @@ class ToolsBase(Cmd):
             )
         self._log_stdout(f"Total devices: {len(devices)}")
 
-    def do_log_to_file(self, *args, **kwargs):
+    async def do_log_to_file(self, *args, **kwargs):
         """Start logging to file.
 
         Usage:
@@ -222,9 +214,7 @@ class ToolsBase(Cmd):
         except IndexError:
             mode = None
         if mode not in ["y", "n"]:
-            mode = get_char(
-                "Log to file (y/n)", print_stdout=self._log_stdout, values=["y", "n"]
-            )
+            mode = await self._get_char("Log to file (y/n)", values=["y", "n"])
 
         try:
             if args[1] != "":
@@ -242,7 +232,7 @@ class ToolsBase(Cmd):
             return
 
         if not self.workdir:
-            self.workdir = get_workdir(print_stdout=self._log_stdout)
+            self.workdir = await self._get_workdir()
 
         if self.workdir == "":
             self._log_stdout("A value for the working directory is required.")
@@ -274,7 +264,7 @@ class ToolsBase(Cmd):
             pass
 
         if not self.workdir:
-            self.workdir = get_workdir(print_stdout=self._log_stdout)
+            self.workdir = await self._get_workdir()
 
         if self.workdir == "":
             self._log_stdout("A value for the working directory is required.")
@@ -292,7 +282,7 @@ class ToolsBase(Cmd):
         self._log_command("exit")
         return -1
 
-    def do_set_log_level(self, *args, **kwargs):
+    async def do_set_log_level(self, *args, **kwargs):
         """Set the log level to INFO (i) or VERBOSE (v).
 
         Usage:
@@ -301,7 +291,6 @@ class ToolsBase(Cmd):
         v: Debug
         m: Show messages
         t: Show topics
-        n: No messages or topics
         """
         args = args[0].split()
         try:
@@ -311,9 +300,8 @@ class ToolsBase(Cmd):
 
         options = ["i", "v", "m", "t", "n"]
         if mode not in options:
-            mode = get_char(
+            mode = await self._get_char(
                 "Log level (i=info, v=verbose, m=messages, t=topics, n=no messages or topics)",
-                print_stdout=self._log_stdout,
                 values=options,
             )
 
@@ -321,19 +309,22 @@ class ToolsBase(Cmd):
         root_logger = logging.getLogger()
         if mode == "i":
             root_logger.setLevel(logging.INFO)
+            message_logger = logging.getLogger("pyinsteon.messages")
+            message_logger.setLevel(logging.ERROR)
+            topic_logger = logging.getLogger("pyinsteon.topics")
+            topic_logger.setLevel(logging.ERROR)
         elif mode == "v":
             root_logger.setLevel(logging.DEBUG)
         elif mode == "m":
             message_logger = logging.getLogger("pyinsteon.messages")
             message_logger.setLevel(logging.DEBUG)
+            topic_logger = logging.getLogger("pyinsteon.topics")
+            topic_logger.setLevel(logging.ERROR)
         elif mode == "t":
             topic_logger = logging.getLogger("pyinsteon.topics")
             topic_logger.setLevel(logging.DEBUG)
-        elif mode == "n":
             message_logger = logging.getLogger("pyinsteon.messages")
             message_logger.setLevel(logging.ERROR)
-            topic_logger = logging.getLogger("pyinsteon.topics")
-            topic_logger.setLevel(logging.ERROR)
 
     async def do_device_status(self, *args, **kwargs):
         """Display device statis.
@@ -354,18 +345,15 @@ class ToolsBase(Cmd):
             refresh_yn = None
 
         tasks = []
-        addresses = get_addresses(
-            print_stdout=self._log_stdout, allow_all=True, allow_cancel=True
-        )
+        addresses = await self._get_addresses(allow_all=True, allow_cancel=True)
         if not addresses:
             return
 
         for address in addresses:
             if devices[address] != devices.modem:
                 if not refresh_yn:
-                    refresh_yn = get_char(
+                    refresh_yn = await self._get_char(
                         "Clear existing records and reload (y/n)",
-                        print_stdout=self._log_stdout,
                         default="n",
                         values=["y", "n"],
                     )
@@ -410,33 +398,35 @@ class ToolsBase(Cmd):
         """Run a function in the event loop."""
         self.loop.run_until_complete(func(*args, **kwargs))
 
-    def _get_connection_params(self):
+    async def _get_connection_params(self):
         """Ensure connectoin parameters are filled."""
         password = None
         if not self.device and not self.host:
-            self.device = input(
+            self.device = await self._input(
                 "USB Device (i.e. /dev/ttyUSB0 or COM5) press enter if Hub: "
             )
         if not self.device:
             if not self.host:
-                self.host = input("Hub IP address or hostname: ")
+                self.host = await self._input("Hub IP address or hostname: ")
             if not self.username:
-                self.username = input("Hub usernme: ")
+                self.username = await self._input("Hub usernme: ")
             password = getpass.getpass(prompt="Hub password: ")
             if not self.hub_version:
-                self.hub_version = get_int(
-                    "Hub version",
-                    print_stdout=self._log_stdout,
-                    default=2,
-                    values=[1, 2],
+                self.hub_version = await self._get_int(
+                    "Hub version", default=2, values=[1, 2],
                 )
             if not self.port:
-                self.port = get_int(
-                    "Hub port",
-                    print_stdout=self._log_stdout,
-                    default=25105 if self.hub_version == 2 else 9761,
+                self.port = await self._get_int(
+                    "Hub port", default=25105 if self.hub_version == 2 else 9761,
                 )
         return password
+
+    async def _input(self, prompt=""):
+        """Asyncronous input of a line."""
+        self.stdout.write(prompt)
+        await self.stdout.drain()
+        line = await self.stdin.readline()
+        return line.strip("\r\n")
 
     def _setup_logging(self, level):
         """Set up the initial console logging."""
@@ -521,3 +511,181 @@ class ToolsBase(Cmd):
         """Log a message to standard out."""
         output = f"{self._log_prefix}{line}"
         _LOGGING.info(output)
+
+    async def _get_int(self, prompt, default=None, values=None):
+        """Get an integer value."""
+        value = None
+        if default:
+            prompt = f"{prompt} (Default {default}): "
+        else:
+            prompt = f"{prompt}: "
+        while True:
+            value = await self._input(prompt)
+            if value:
+                try:
+                    value = int(value)
+                    if values and value not in values:
+                        raise ValueError()
+                    break
+                except ValueError:
+                    response = "Must be a number."
+                    if values:
+                        response = f"{response} Acceptable values {values}."
+                    self._log_stdout(response)
+            elif default is not None:
+                value = default
+                break
+            else:
+                response = "A number is required."
+                if values:
+                    response = f"{response} Acceptable values {values}."
+                self._log_stdout(response)
+        return value
+
+    async def _get_float(self, prompt, default=None, maximum=None, minimum=None):
+        """Get a floating point value."""
+        value = None
+        if default:
+            prompt = f"{prompt} (Default {default}): "
+        else:
+            prompt = f"{prompt}: "
+        while True:
+            value = await self._input(prompt)
+            if value:
+                try:
+                    value = float(value)
+                    if value < maximum or value > maximum:
+                        raise ValueError()
+                    break
+                except ValueError:
+                    response = "Must be a number."
+                    if maximum and minimum:
+                        response = f"{response} (Max: {maximum}  Min: {minimum})."
+                    elif maximum:
+                        response = f"{response} (Max: {maximum})."
+                    elif maximum and minimum:
+                        response = f"{response} (Min: {minimum})."
+                    self._log_stdout(response)
+            elif default is not None:
+                value = default
+                break
+            else:
+                response = "Must be a number."
+                if maximum and minimum:
+                    response = f"{response} (Max: {maximum}  Min: {minimum})."
+                elif maximum:
+                    response = f"{response} (Max: {maximum})."
+                elif maximum and minimum:
+                    response = f"{response} (Min: {minimum})."
+                self._log_stdout(response)
+        return value
+
+    async def _get_char(self, prompt, default=None, values=None):
+        """Get a character string value."""
+        if default:
+            prompt = f"{prompt} (Default {default.upper()}): "
+        else:
+            prompt = f"{prompt}: "
+        while True:
+            value = await self._input(prompt)
+            if value:
+                if not values or value.lower() in values:
+                    break
+                self._log_stdout(f"Acceptable values {values}")
+            elif default is not None:
+                value = default
+                break
+            else:
+                response = "A response is required."
+                if values:
+                    response = f"{response} Acceptable values {values}."
+                self._log_stdout(response)
+        return value
+
+    async def _get_workdir(self):
+        """Input the valeu for the workdir."""
+        self._log_stdout("The working directory stores the lsit of identified devices.")
+        self._log_stdout(
+            "Enter a working directory where the saved file is (and will be saved to after loading.)"
+        )
+        workdir = await self._input(
+            f"Working directory (enter . for current director): "
+        )
+        if workdir == ".":
+            return os.getcwd()
+        return workdir
+
+    async def _get_addresses(
+        self,
+        address=None,
+        allow_cancel=False,
+        allow_all=True,
+        prompt="Enter device address",
+    ):
+        """Get the address of a device or all devices."""
+        prompt_addr = prompt
+        prompt_cancel = f"{prompt} or blank to cancel"
+        prompt_all = f"{prompt} or all for all devices"
+        prompt_all_cancel = f"{prompt}, all for all devices, or blank to cancel"
+
+        addresses = []
+        if allow_all and allow_cancel:
+            prompt = f"{prompt_all_cancel}: "
+        elif allow_all:
+            prompt = f"{prompt_all}: "
+        elif allow_cancel:
+            prompt = f"{prompt_cancel}: "
+        else:
+            prompt = prompt_addr
+
+        while True:
+            if not address:
+                address = await self._input(prompt)
+            if not address:
+                if allow_cancel:
+                    return addresses
+            elif str(address).strip("'\"").lower() == "all":
+                for addr in devices:
+                    addresses.append(addr)
+                return addresses
+            elif devices[address]:
+                addresses.append(address)
+                return addresses
+            else:
+                self._log_stdout(f"Device {address} not found in device list.")
+                return []
+
+    async def _print_aldb(self, *args):
+        """Print the All-Link Database to the log."""
+        args = args[0].split()
+        try:
+            address = args[0]
+        except IndexError:
+            address = None
+
+        addresses = await self._get_addresses(
+            address=address, allow_all=True, allow_cancel=True
+        )
+        if not addresses:
+            return
+        self._log_command(f"print_aldb {'all' if len(addresses) > 1 else addresses[0]}")
+        for address in addresses:
+            device = devices[address]
+            self._log_stdout("")
+            self._log_stdout(
+                f"Device: {device.address}  Load Status: {str(device.aldb.status)}"
+            )
+            self._log_stdout(
+                "RecID In Use Mode HWM Group Address  Data 1 Data 2 Data 3"
+            )
+            self._log_stdout(
+                "----- ------ ---- --- ----- -------- ------ ------ ------"
+            )
+            for mem_addr in device.aldb:
+                rec = device.aldb[mem_addr]
+                in_use = "Y" if rec.is_in_use else "N"
+                mode = "C" if rec.is_controller else "R"
+                hwm = "Y" if rec.is_high_water_mark else "N"
+                line = f" {rec.mem_addr:04x}    {in_use:s}     {mode:s}   {hwm:s}    {rec.group:3d} {rec.target}   {rec.data1:3d}   {rec.data2:3d}   {rec.data3:3d}"
+                self._log_stdout(line)
+            self._log_stdout("")
