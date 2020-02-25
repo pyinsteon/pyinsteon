@@ -5,7 +5,7 @@ from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion
 
 
-class NoALDB():
+class NoALDB:
     """All-Link Database for devices with no All-Link Database."""
 
     def __init__(self, address, version=ALDBVersion.V2, mem_addr=0x0FFF):

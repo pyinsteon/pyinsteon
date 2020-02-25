@@ -30,4 +30,3 @@ def topic_to_command_handler(topic, register_list):
         return func
 
     return register
-

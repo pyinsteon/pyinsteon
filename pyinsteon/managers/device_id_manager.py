@@ -63,6 +63,7 @@ class DeviceIdManager(SubscriberBase):
     ):
         """Set the device ID of a device."""
         from .. import devices
+
         address = Address(address)
         cat = int(cat)
         subcat = int(subcat)

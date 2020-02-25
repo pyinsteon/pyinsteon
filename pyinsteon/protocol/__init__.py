@@ -38,6 +38,7 @@ async def async_modem_connect(
     """
     from ..managers.utils import create_device
     from ..managers.device_id_manager import DeviceId
+
     device_id = None
 
     def set_im_info(address, cat, subcat, firmware):

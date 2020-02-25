@@ -124,6 +124,7 @@ async def async_add_default_links(device):
 def find_broken_links():
     """Find proken links."""
     from .. import devices
+
     broken_link_list = {}
     for addr in devices:
         device = devices[addr]
@@ -141,6 +142,7 @@ def find_broken_links():
 def _test_broken(address, rec):
     """Test if a corresponding record exists in liked device."""
     from .. import devices
+
     device = devices.get(rec.target)
     if not device:
         return LinkStatus.MISSING_TARGET
