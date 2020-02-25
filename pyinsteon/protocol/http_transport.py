@@ -8,12 +8,20 @@ import aiohttp
 
 from .http_reader_writer import HttpReaderWriter
 from .msg_to_url import convert_to_url
+from .hub_connection_exception import HubConnectionException
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class HubConnectionException(Exception):
-    """Hub connection exception."""
+async def async_connect_http(host, username, password, protocol, port=None):
+    """Connect to the Hub Version 2 via HTTP."""
+    port = 25105 if not port else port
+    transport = HttpTransport(
+        protocol=protocol, host=host, port=port, username=username, password=password
+    )
+    if await transport.async_test_connection():
+        protocol.connection_made(transport)
+    return transport
 
 
 # This transport is designed for the Hub version 2.

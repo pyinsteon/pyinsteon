@@ -4,7 +4,7 @@ import logging
 
 import aiohttp
 
-from .http_transport import HubConnectionException
+from .hub_connection_exception import HubConnectionException
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -1,8 +1,40 @@
 """Wrapper for serial.aio transport."""
-from serial import SerialException
+import asyncio
+import logging
+
+import serial
 from serial_asyncio import SerialTransport as SerialTransportBase
 
-from . import async_connect_serial
+_LOGGER = logging.getLogger(__name__)
+
+
+async def async_connect_serial(device, protocol):
+    """Connect to the PowerLine Modem via serial port.
+
+    Parameters:
+        port – Device name.
+        protocol - Insteon Modem Protocol instance.
+
+    """
+    loop = asyncio.get_event_loop()
+    try:
+        ser = serial.serial_for_url(url=device, baudrate=19200)
+        transport = SerialTransport(loop, protocol, ser, device=device)
+    except OSError as ex:
+        _LOGGER.warning("Unable to connect to %s: %s", device, ex)
+        transport = None
+    return transport
+
+
+async def async_connect_socket(host, protocol, port=None):
+    """Connect to the Hub Version 1 via TCP Socket."""
+
+    port = 9761 if not port else port
+    loop = asyncio.get_event_loop()
+    url = "socket://{}:{}".format(host, port)
+    ser = serial.serial_for_url(url=url, baudrate=19200)
+    transport = SerialTransport(loop, protocol, ser, device=url)
+    return transport
 
 
 class SerialTransport(SerialTransportBase):
@@ -23,7 +55,7 @@ class SerialTransport(SerialTransportBase):
         msg_bytes = bytes(data)
         try:
             super().write(msg_bytes)
-        except SerialException as exc:
+        except serial.SerialException as exc:
             self._protocol.connection_lost(exc)
 
     async def async_write(self, data):
@@ -39,5 +71,5 @@ class SerialTransport(SerialTransportBase):
     def _poll_read(self):
         try:
             super()._poll_read()
-        except SerialException as exc:
+        except serial.SerialException as exc:
             self._protocol.connection_lost(exc)
