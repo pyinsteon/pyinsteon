@@ -29,8 +29,8 @@ class BatteryDeviceBase:
             cat=cat,
             subcat=subcat,
             firmware=0x00,
-            description="",
-            model="",
+            description=description,
+            model=model,
             **kwargs,
         )
         self._is_battery = True
