@@ -5,7 +5,6 @@ import logging
 from .. import pub
 from ..address import Address
 from ..aldb.aldb_record import ALDBRecord
-from ..aldb.modem_aldb import ModemALDB
 from ..constants import ResponseStatus
 from ..handlers.all_link_record_response import AllLinkRecordResponseHandler
 from ..handlers.get_first_all_link_record import GetFirstAllLinkRecordHandler
@@ -18,7 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 class ImReadManager:
     """Insteon Modem ALDB Read Manager."""
 
-    def __init__(self, aldb: ModemALDB):
+    def __init__(self, aldb):
         """Init the ImReadManager class."""
         self._aldb = aldb
         self._get_first_handler = GetFirstAllLinkRecordHandler()

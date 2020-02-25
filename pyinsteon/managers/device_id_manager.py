@@ -3,7 +3,7 @@ import asyncio
 import logging
 from collections import namedtuple
 
-from .. import devices, pub
+from .. import pub
 from ..address import Address
 from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
 from ..handlers.from_device.delete_from_all_link_group import (
@@ -62,6 +62,7 @@ class DeviceIdManager(SubscriberBase):
         self, address: Address, cat: int, subcat: int, firmware: int = 0x00
     ):
         """Set the device ID of a device."""
+        from .. import devices
         address = Address(address)
         cat = int(cat)
         subcat = int(subcat)

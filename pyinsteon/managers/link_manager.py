@@ -1,9 +1,7 @@
 """Manage links beteween devices."""
 import logging
 
-from .. import devices
 from ..constants import AllLinkMode, LinkStatus, ResponseStatus
-from ..device_types.device_base import Device
 from ..handlers.start_all_linking import StartAllLinkingCommandHandler
 from ..utils import multiple_status
 
@@ -29,9 +27,11 @@ async def async_enter_unlinking_mode(group: int):
 
 
 async def async_link_devices(
-    controller: Device, responder: Device, group: int = 0, data1=255, data2=28, data3=1
+    controller, responder, group: int = 0, data1=255, data2=28, data3=1
 ):
     """Link two devices."""
+    if not hasattr(controller, "address") or not hasattr(responder, "address"):
+        raise TypeError("controller and responder must be devices")
     if _add_link_to_device(
         device=controller,
         target=responder.address,
@@ -56,8 +56,10 @@ async def async_link_devices(
         return ResponseStatus.SUCCESS
 
 
-async def async_unlink_devices(controller: Device, responder: Device, group: int = 0):
+async def async_unlink_devices(controller, responder, group: int = 0):
     """Unlink two devices."""
+    if not hasattr(controller, "address") or not hasattr(responder, "address"):
+        raise TypeError("controller and responder must be devices")
     if _remove_link_from_device(
         device=controller, is_controller=True, group=group, target=responder.address
     ) and _remove_link_from_device(
@@ -86,8 +88,9 @@ def _remove_link_from_device(device, is_controller, group, target):
     return True
 
 
-async def async_add_default_links(device: Device):
+async def async_add_default_links(device):
     """Establish default links between the modem and device."""
+    from .. import devices
 
     if not device.aldb.is_loaded:
         await device.aldb.async_load()
@@ -120,6 +123,7 @@ async def async_add_default_links(device: Device):
 
 def find_broken_links():
     """Find proken links."""
+    from .. import devices
     broken_link_list = {}
     for addr in devices:
         device = devices[addr]
@@ -136,6 +140,7 @@ def find_broken_links():
 
 def _test_broken(address, rec):
     """Test if a corresponding record exists in liked device."""
+    from .. import devices
     device = devices.get(rec.target)
     if not device:
         return LinkStatus.MISSING_TARGET

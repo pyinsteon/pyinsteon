@@ -5,11 +5,11 @@ from os import path
 
 from aiofile import AIOFile
 
-from .. import devices
 from ..address import Address
 from ..aldb.aldb_record import ALDBRecord
 from ..x10_address import X10Address
-from .device_manager import DeviceId, create_device
+from .device_id_manager import DeviceId
+from .utils import create_device
 
 DEVICE_INFO_FILE = "insteon_devices.json"
 _LOGGER = logging.getLogger(__name__)
@@ -130,6 +130,8 @@ class SavedDeviceManager:
 
     async def async_load(self) -> {}:
         """Load devices from the saved device file."""
+        from .. import devices
+
         modem = devices.modem
         saved_devices = await self._read_saved_devices()
         device_list = {}

@@ -1,7 +1,7 @@
 """Manages links between devices to identify device state of responders."""
 import asyncio
 
-from .. import devices, pub
+from .. import pub
 from ..address import Address
 from ..constants import MessageFlagType
 from ..topics import (
@@ -93,6 +93,7 @@ class DeviceLinkManager:
                 pass
 
     def _check_responder(self, topic=pub.AUTO_TOPIC, **kwargs):
+        from .. import devices
         on_level = kwargs.get("on_level") if kwargs.get("on_level") else None
         controller, group, msg_type = _topic_to_addr_group(topic)
         if msg_type != MessageFlagType.ALL_LINK_BROADCAST:
@@ -108,6 +109,7 @@ class DeviceLinkManager:
 
     # pylint: disable=no-self-use
     def _check_controller(self, topic=pub.AUTO_TOPIC, **kwargs):
+        from .. import devices
         controller, group, msg_type = _topic_to_addr_group(topic)
         if msg_type != MessageFlagType.ALL_LINK_BROADCAST:
             return

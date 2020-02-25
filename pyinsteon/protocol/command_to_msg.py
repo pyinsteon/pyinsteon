@@ -1,7 +1,6 @@
 """Create a topic and a direct message."""
 from math import ceil
 
-from . import topic_to_command_handler, topic_to_message_type
 from .. import pub
 from ..address import Address
 from ..constants import RampRate
@@ -158,6 +157,7 @@ from .messages.all_link_record_flags import create
 from .messages.message_flags import create as create_flags
 from .messages.outbound import send_extended, send_standard
 from .messages.user_data import UserData
+from .topic_converters import topic_to_command_handler, topic_to_message_type
 
 # pylint: disable=invalid-name
 topic_register = {}

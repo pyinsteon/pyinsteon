@@ -1,6 +1,4 @@
 """Create outbound messages."""
-from . import MessageBase
-from .. import topic_to_message_handler, topic_to_message_type
 from ... import pub
 from ...address import Address
 from ...constants import (
@@ -34,6 +32,8 @@ from ...topics import (
     START_ALL_LINKING,
     X10_SEND,
 )
+from ..topic_converters import topic_to_message_handler, topic_to_message_type
+from . import MessageBase
 from .all_link_record_flags import AllLinkRecordFlags
 from .im_config_flags import IMConfigurationFlags
 from .message_definition import MessageDefinition
