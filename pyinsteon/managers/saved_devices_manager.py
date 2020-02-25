@@ -42,7 +42,7 @@ def _dict_to_device(device_dict):
 
 def _device_to_dict(device_list):
     """Convert a device to a dictionary."""
-    devices = []
+    device_list = []
     for addr in device_list:
         device = device_list.get(addr)
         if not isinstance(device.address, X10Address):
@@ -80,8 +80,8 @@ def _device_to_dict(device_list):
                 "operating_flags": operating_flags,
                 "properties": properties,
             }
-            devices.append(device_info)
-    return devices
+            device_list.append(device_info)
+    return device_list
 
 
 def _dict_to_aldb_record(aldb_dict):
@@ -132,13 +132,13 @@ class SavedDeviceManager:
         """Load devices from the saved device file."""
         modem = devices.modem
         saved_devices = await self._read_saved_devices()
-        devices = {}
+        device_list = {}
         for saved_device in saved_devices:
             address = Address(saved_device.get("address"))
             if address != modem.address:
                 device = _dict_to_device(saved_device)
                 if device:
-                    devices[address] = device
+                    device_list[address] = device
                     _LOGGER.debug(
                         "Device with id %s added to device list "
                         "from saved device data.",
@@ -149,7 +149,7 @@ class SavedDeviceManager:
                 aldb = saved_device.get("aldb", {})
                 aldb_records = _dict_to_aldb_record(aldb)
                 modem.aldb.load_saved_records(aldb_status, aldb_records)
-        return devices
+        return device_list
 
     async def _read_saved_devices(self):
         """Load device information from the device info file."""
@@ -173,13 +173,13 @@ class SavedDeviceManager:
             _LOGGER.debug("Saved device file not found")
         return saved_devices
 
-    async def _write_saved_devices(self, devices):
+    async def _write_saved_devices(self, device_list):
 
-        _LOGGER.debug("Writing %d devices to save file", len(devices))
+        _LOGGER.debug("Writing %d devices to save file", len(device_list))
         device_file = path.join(self._workdir, DEVICE_INFO_FILE)
         try:
             async with AIOFile(device_file, "w") as afp:
-                out_json = json.dumps(devices, indent=2)
+                out_json = json.dumps(device_list, indent=2)
                 await afp.write(out_json)
                 await afp.fsync()
         except FileNotFoundError as ex:
