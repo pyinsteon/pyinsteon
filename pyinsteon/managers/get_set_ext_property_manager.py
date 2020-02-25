@@ -1,16 +1,15 @@
 """Get and Set extended properties for a device."""
 import asyncio
-from collections import namedtuple
 import logging
+from collections import namedtuple
 
-from ..extended_property import ExtendedProperty
 from ..address import Address
+from ..constants import ResponseStatus
+from ..extended_property import ExtendedProperty
+from ..handlers.from_device.ext_get_response import ExtendedGetResponseHandler
 from ..handlers.to_device.extended_get import ExtendedGetCommand
 from ..handlers.to_device.extended_set import ExtendedSetCommand
-from ..handlers.from_device.ext_get_response import ExtendedGetResponseHandler
-from ..constants import ResponseStatus
 from ..utils import multiple_status
-
 
 _LOGGER = logging.getLogger(__name__)
 TIMEOUT = 2

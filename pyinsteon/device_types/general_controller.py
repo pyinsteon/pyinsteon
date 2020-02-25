@@ -1,4 +1,13 @@
 """General controller devices (cat: 0x00)."""
+from ..aldb.no_aldb import NoALDB
+from ..operating_flag import (
+    GROUPED_ON,
+    KEY_BEEP_ON,
+    LED_ON,
+    PROGRAM_LOCK_ON,
+    SEND_ON_ONLY,
+    STAY_AWAKE_ON,
+)
 from .battery_base import BatteryDeviceBase
 from .device_base import Device
 from .variable_controller_base import VariableControllerBase
@@ -9,7 +18,6 @@ class GeneralController(Device):
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the GeneralController class."""
-        from ..aldb.no_aldb import NoALDB
 
         super().__init__(address, cat, subcat, firmware, description, model)
         self._aldb = NoALDB(self._address)
@@ -37,8 +45,6 @@ class GeneralController_RemoteLinc(BatteryDeviceBase, VariableControllerBase):
         )
 
     def _register_operating_flags(self):
-        from ..operating_flag import STAY_AWAKE_ON
-
         super()._register_operating_flags()
         self._add_operating_flag(STAY_AWAKE_ON, 0, 3, 6, 7)
 
@@ -63,15 +69,6 @@ class GeneralController_MiniRemoteBase(BatteryDeviceBase, VariableControllerBase
         self._database_delta = 0
 
     def _register_operating_flags(self):
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            STAY_AWAKE_ON,
-            SEND_ON_ONLY,
-            KEY_BEEP_ON,
-            LED_ON,
-            GROUPED_ON,
-        )
-
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_ON, 0, 1, 2, 3)

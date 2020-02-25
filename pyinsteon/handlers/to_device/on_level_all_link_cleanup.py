@@ -1,7 +1,7 @@
 """Manage outbound ON All-Link Broadcast command to a device."""
 
-from .all_link_cleanup_command import AllLinkCleanupCommandHandlerBase
 from ...topics import ON
+from .all_link_cleanup_command import AllLinkCleanupCommandHandlerBase
 
 
 class OnLevelAllLinkCleanupCommand(AllLinkCleanupCommandHandlerBase):

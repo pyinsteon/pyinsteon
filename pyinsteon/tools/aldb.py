@@ -2,14 +2,14 @@
 
 from .. import devices
 from ..constants import ALDBStatus
-from .tools_base import ToolsBase
 from ..managers.link_manager import async_add_default_links
 from ..managers.scene_manager import (
     async_add_device_to_scene,
-    async_trigger_scene_on,
     async_trigger_scene_off,
+    async_trigger_scene_on,
 )
 from ..utils import seconds_to_ramp_rate
+from .tools_base import ToolsBase
 
 
 class ToolsAldb(ToolsBase):

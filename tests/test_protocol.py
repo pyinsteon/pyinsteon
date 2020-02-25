@@ -7,17 +7,9 @@ from pyinsteon import pub
 from pyinsteon.address import Address
 from pyinsteon.protocol.protocol import Protocol
 from pyinsteon.topics import ON
-
-
 from tests import async_connect_mock, set_log_levels
-from tests.utils import (
-    send_topics,
-    send_data,
-    create_std_ext_msg,
-    async_case,
-    DataItem,
-    TopicItem,
-)
+from tests.utils import (DataItem, TopicItem, async_case, create_std_ext_msg,
+                         send_data, send_topics)
 
 
 class TestProtocol(unittest.TestCase):

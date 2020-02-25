@@ -1,18 +1,16 @@
 """Test sending extended message."""
 
 import unittest
-
 from binascii import unhexlify
-from tests import set_log_levels
-from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 from pyinsteon.address import Address
-from pyinsteon.protocol.messages.message_flags import MessageFlags
 from pyinsteon.constants import MessageId
-from pyinsteon.protocol.messages.user_data import UserData
-
+from pyinsteon.protocol.messages.message_flags import MessageFlags
 # pylint: disable=unused-import
 from pyinsteon.protocol.messages.outbound import send_extended
+from pyinsteon.protocol.messages.user_data import UserData
+from tests import set_log_levels
+from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 class TestSendExtended(unittest.TestCase, OutboundBase):

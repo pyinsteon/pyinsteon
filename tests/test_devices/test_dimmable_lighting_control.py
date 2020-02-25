@@ -1,12 +1,14 @@
 """Test for Dimmable Lighting Control devices."""
 
 import unittest
+
 from pyinsteon.address import Address
+from pyinsteon.device_types.dimmable_lighting_control import \
+    DimmableLightingControl
 from pyinsteon.handlers import ResponseStatus
-from pyinsteon.device_types.dimmable_lighting_control import DimmableLightingControl
-from pyinsteon.topics import ON, OFF, ON_FAST, OFF_FAST
-from tests.utils import async_case, send_topics, TopicItem, cmd_kwargs
+from pyinsteon.topics import OFF, OFF_FAST, ON, ON_FAST
 from tests import set_log_levels
+from tests.utils import TopicItem, async_case, cmd_kwargs, send_topics
 
 
 class TestDimmableLIghtingControl(unittest.TestCase):

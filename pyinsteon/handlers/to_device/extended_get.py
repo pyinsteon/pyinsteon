@@ -6,7 +6,6 @@ from ...address import Address
 from ...topics import EXTENDED_GET_SET
 from .direct_command import DirectCommandHandlerBase
 
-
 _LOGGER = logging.getLogger(__name__)
 
 

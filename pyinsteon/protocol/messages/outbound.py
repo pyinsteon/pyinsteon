@@ -1,4 +1,6 @@
 """Create outbound messages."""
+from . import MessageBase
+from .. import topic_to_message_handler, topic_to_message_type
 from ... import pub
 from ...address import Address
 from ...constants import (
@@ -32,13 +34,12 @@ from ...topics import (
     START_ALL_LINKING,
     X10_SEND,
 )
-from .. import topic_to_message_handler
-from . import MessageBase
 from .all_link_record_flags import AllLinkRecordFlags
 from .im_config_flags import IMConfigurationFlags
 from .message_definition import MessageDefinition
 from .message_definitions import FLD_EXT_SEND, FLD_STD_SEND, OUTBOUND_MSG_DEF
 from .message_flags import MessageFlags
+from .message_flags import create as create_flags
 from .user_data import UserData
 
 # pylint: disable=invalid-name
@@ -116,9 +117,6 @@ def send_all_link_command(
 
 
 def _create_flags(topic, extended):
-    from .message_flags import create as create_flags
-    from .. import topic_to_message_type
-
     msg_type = topic_to_message_type(topic)
     return create_flags(msg_type, extended=extended)
 

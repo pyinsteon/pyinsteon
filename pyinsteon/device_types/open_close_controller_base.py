@@ -1,11 +1,12 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
-from .device_base import Device
-from .commands import STATUS_COMMAND
-from ..managers.on_level_manager import OnLevelManager
-from ..handlers.to_device.status_request import StatusRequestCommand
+from ..default_link import DefaultLink
+from ..events import CLOSE_EVENT, OPEN_EVENT, Event
 from ..groups import OPEN_CLOSE_SENSOR
-from ..groups.open_close import NormallyOpen, NormallyClosed
-from ..events import Event, OPEN_EVENT, CLOSE_EVENT
+from ..groups.open_close import NormallyClosed, NormallyOpen
+from ..handlers.to_device.status_request import StatusRequestCommand
+from ..managers.on_level_manager import OnLevelManager
+from .commands import STATUS_COMMAND
+from .device_base import Device
 
 
 class OpenCloseControllerBase(Device):
@@ -40,8 +41,6 @@ class OpenCloseControllerBase(Device):
         return await self._handlers[STATUS_COMMAND].async_send()
 
     def _register_default_links(self):
-        from ..default_link import DefaultLink
-
         super()._register_default_links()
         link = DefaultLink(
             is_controller=True,

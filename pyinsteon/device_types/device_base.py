@@ -1,16 +1,18 @@
 """Base device object."""
 
+import logging
 from abc import ABC
 from datetime import datetime
-import logging
 
 from ..address import Address
 from ..aldb import ALDB
-from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
+from ..default_link import DefaultLink
+from ..handlers.to_device.product_data_request import ProductDataRequestCommand
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
+from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
+from ..managers.link_manager import async_add_default_links
 from ..operating_flag import OperatingFlag
 from ..utils import multiple_status
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -191,14 +193,10 @@ class Device(ABC):
 
     async def async_read_product_id(self):
         """Get the product ID."""
-        from ..handlers.to_device.product_data_request import ProductDataRequestCommand
-
         return await ProductDataRequestCommand(self._address).async_send()
 
     async def async_add_default_links(self):
         """Add the default links betweent he modem and the device."""
-        from ..managers.link_manager import async_add_default_links
-
         return await async_add_default_links(self)
 
     def _register_groups(self):
@@ -212,8 +210,6 @@ class Device(ABC):
 
     def _register_default_links(self):
         """Add default links for linking the device to the modem."""
-        from ..default_link import DefaultLink
-
         link_0 = DefaultLink(
             is_controller=False,
             group=0,

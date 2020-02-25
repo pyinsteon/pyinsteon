@@ -1,8 +1,9 @@
 """All-Link Record Flags."""
 
 from binascii import hexlify
-from ...utils import bit_is_set, set_bit, test_values_eq
+
 from ...constants import AllLinkMode
+from ...utils import bit_is_set, set_bit, test_values_eq
 
 
 def create(

@@ -1,10 +1,9 @@
 """Modem command to get next ALDB record."""
 import logging
 
-from .outbound_base import OutboundHandlerBase
-from ..topics import GET_IM_INFO
 from . import ack_handler
-
+from ..topics import GET_IM_INFO
+from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
 

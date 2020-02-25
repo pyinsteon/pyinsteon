@@ -1,10 +1,21 @@
 """Sensor/Actuator devices."""
 from ..events import CLOSE_EVENT, OPEN_EVENT, Event
-from ..managers.on_level_manager import OnLevelManager
+from ..extended_property import DELAY, PRESCALER, X10_HOUSE, X10_UNIT
 from ..groups import OPEN_CLOSE_SENSOR
 from ..groups.open_close import NormallyOpen
+from ..handlers.to_device.status_request import STATUS_REQUEST, StatusRequestCommand
+from ..managers.on_level_manager import OnLevelManager
+from ..operating_flag import (
+    LED_BLINK_ON_TX_ON,
+    MOMENTARY_FOLLOW_SENSE,
+    MOMENTARY_MODE_ON,
+    MOMENTARY_ON_OFF_TRIGGER,
+    PROGRAM_LOCK_ON,
+    RELAY_ON_SENSE_ON,
+    X10_OFF,
+)
+from ..utils import multiple_status
 from .on_off_responder_base import OnOffResponderBase
-from ..handlers.to_device.status_request import StatusRequestCommand, STATUS_REQUEST
 
 ON_LEVEL_MANAGER = "on_level_manager"
 SENSOR_GROUP = 2
@@ -39,8 +50,6 @@ class SensorsActuators_IOLink(SensorsActuators):
 
     async def async_status(self, group=None):
         """Get the status of the relay and/or the sensor."""
-        from ..utils import multiple_status
-
         response_1 = None
         response_2 = None
         if group in [1, None]:
@@ -96,17 +105,6 @@ class SensorsActuators_IOLink(SensorsActuators):
         )
 
     def _register_operating_flags(self):
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_BLINK_ON_TX_ON,
-            RELAY_ON_SENSE_ON,
-            MOMENTARY_MODE_ON,
-            MOMENTARY_ON_OFF_TRIGGER,
-            MOMENTARY_FOLLOW_SENSE,
-            X10_OFF,
-        )
-        from ..extended_property import X10_HOUSE, X10_UNIT, DELAY, PRESCALER
-
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RELAY_ON_SENSE_ON, 0, 2, 4, 5)

@@ -3,13 +3,12 @@ import asyncio
 import unittest
 
 from pyinsteon.address import Address
-from pyinsteon.managers.get_set_ext_property_manager import (
-    GetSetExtendedPropertyManager,
-)
 from pyinsteon.extended_property import ExtendedProperty
+from pyinsteon.managers.get_set_ext_property_manager import \
+    GetSetExtendedPropertyManager
 from pyinsteon.protocol.commands import EXTENDED_GET_SET
-from pyinsteon.utils import build_topic
 from pyinsteon.protocol.messages.user_data import UserData
+from pyinsteon.utils import build_topic
 from tests import set_log_levels
 from tests.utils import TopicItem, async_case, cmd_kwargs, send_topics
 

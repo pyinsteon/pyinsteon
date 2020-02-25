@@ -1,8 +1,8 @@
 """Set the LEDs of a KeyPadLinc."""
 
-from .extended_set import ExtendedSetCommand
-from ...utils import build_topic
 from ...constants import MessageFlagType
+from ...utils import build_topic
+from .extended_set import ExtendedSetCommand
 
 
 def _bitmask(self, *args):

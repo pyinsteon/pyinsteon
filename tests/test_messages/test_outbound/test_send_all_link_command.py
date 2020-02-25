@@ -1,10 +1,10 @@
-from tests import _LOGGER, set_log_levels
 import sys
 import unittest
 from binascii import unhexlify
 
 from pyinsteon.constants import AllLinkMode, MessageId
 from pyinsteon.protocol.messages.outbound import send_all_link_command
+from tests import _LOGGER, set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 

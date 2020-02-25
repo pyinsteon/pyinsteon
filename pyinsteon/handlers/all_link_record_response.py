@@ -2,11 +2,12 @@
 
 import logging
 
-from .inbound_base import InboundHandlerBase
-from ..address import Address
-from ..topics import ALL_LINK_RECORD_RESPONSE
 from . import inbound_handler
+from ..address import Address
+from ..constants import AllLinkMode
 from ..protocol.messages.all_link_record_flags import AllLinkRecordFlags
+from ..topics import ALL_LINK_RECORD_RESPONSE
+from .inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,8 +42,6 @@ class AllLinkRecordResponseHandler(InboundHandlerBase):
         data3: int,
     ):
         """Recieve an all link record."""
-        from ..constants import AllLinkMode
-
         controller = flags.mode == AllLinkMode.CONTROLLER
         self._call_subscribers(
             in_use=flags.is_in_use,

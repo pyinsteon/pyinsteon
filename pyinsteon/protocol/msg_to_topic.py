@@ -1,5 +1,7 @@
 """Convert a message to a topic and an args, kwargs arguments."""
 import logging
+
+from ..constants import MessageFlagType
 from ..topics import (
     ALL_LINK_CLEANUP_FAILURE_REPORT,
     ALL_LINK_CLEANUP_STATUS_REPORT,
@@ -28,9 +30,9 @@ from ..topics import (
     X10_RECEIVED,
     X10_SEND,
 )
+from ..utils import build_topic
 from .commands import commands
 from .messages.inbound import Inbound
-from ..utils import build_topic
 
 MSG_CONVERTER = {}
 _LOGGER = logging.getLogger(__name__)
@@ -55,8 +57,6 @@ def _msg_group(message_type, target, cmd2, user_data):
         ALL_LINK_BROADCAST = 6: Not applicable
         ALL_LINK_CLEANUP_NAK = 7: Not applicable
     """
-    from ..constants import MessageFlagType
-
     if message_type == MessageFlagType.DIRECT:
         if user_data:
             return user_data["d1"]

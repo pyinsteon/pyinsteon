@@ -1,19 +1,19 @@
 """Utility methods."""
-from typing import Iterable
 import logging
+from enum import Enum, IntEnum
+from typing import Iterable
 
 from . import pub
 from .address import Address
 from .constants import (
     HC_LOOKUP,
-    UC_LOOKUP,
-    X10Commands,
-    ResponseStatus,
-    MessageFlagType,
     RAMP_RATES,
+    UC_LOOKUP,
+    MessageFlagType,
+    ResponseStatus,
+    X10Commands,
 )
 from .protocol.commands import commands
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -99,7 +99,6 @@ def vars_to_bytes(vals: Iterable) -> bytes:
 
 def vars_to_string(vals: Iterable) -> str:
     """Create a byte string from a set of values."""
-    from enum import Enum, IntEnum
 
     output = []
     for fld, val in vals:
@@ -117,8 +116,6 @@ def vars_to_string(vals: Iterable) -> str:
 
 def vars_to_repr(vals: Iterable) -> str:
     """Create a byte string from a set of values."""
-    from enum import Enum, IntEnum
-
     output = []
     for fld, val in vals:
         if val is None:

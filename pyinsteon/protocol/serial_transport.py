@@ -1,6 +1,8 @@
 """Wrapper for serial.aio transport."""
-from serial_asyncio import SerialTransport as SerialTransportBase
 from serial import SerialException
+from serial_asyncio import SerialTransport as SerialTransportBase
+
+from . import async_connect_serial
 
 
 class SerialTransport(SerialTransportBase):
@@ -30,8 +32,6 @@ class SerialTransport(SerialTransportBase):
 
     async def async_connect(self, protocol, device=None, loop=None):
         """Connect to a serial device asycrounously."""
-        from . import async_connect_serial
-
         device = device if device else self._device
         transport = async_connect_serial(device=device, protocol=protocol)
         return transport

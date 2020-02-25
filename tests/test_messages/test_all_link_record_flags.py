@@ -1,11 +1,11 @@
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
-import unittest
 import sys
-
+import unittest
 from binascii import hexlify, unhexlify
-from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
+
 from pyinsteon.constants import AllLinkMode
+from pyinsteon.protocol.messages.all_link_record_flags import \
+    AllLinkRecordFlags
+from tests import _LOGGER, set_log_levels
 
 
 class TestAllLinkRecordFlags(unittest.TestCase):

@@ -3,13 +3,11 @@ import unittest
 
 from pyinsteon.address import Address
 from pyinsteon.aldb.modem_aldb import ModemALDB
-from pyinsteon.topics import (
-    ALL_LINK_RECORD_RESPONSE,
-    GET_NEXT_ALL_LINK_RECORD,
-    GET_FIRST_ALL_LINK_RECORD,
-)
-from tests.utils import TopicItem, async_case, send_topics
+from pyinsteon.topics import (ALL_LINK_RECORD_RESPONSE,
+                              GET_FIRST_ALL_LINK_RECORD,
+                              GET_NEXT_ALL_LINK_RECORD)
 from tests import _LOGGER, set_log_levels
+from tests.utils import TopicItem, async_case, send_topics
 
 
 def fill_rec(flags, group, target, data1, data2, data3):

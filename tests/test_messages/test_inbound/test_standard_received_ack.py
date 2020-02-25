@@ -1,10 +1,10 @@
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
 import unittest
+from binascii import unhexlify
 
 from pyinsteon.address import Address
-from pyinsteon.protocol.messages.message_flags import MessageFlags
 from pyinsteon.protocol.messages.inbound import Inbound, create
+from pyinsteon.protocol.messages.message_flags import MessageFlags
+from tests import _LOGGER, set_log_levels
 from tests.utils import hex_to_inbound_message
 
 

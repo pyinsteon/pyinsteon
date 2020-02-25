@@ -1,5 +1,6 @@
 """Handler for exceptions thrown by pubsub listeners."""
 import logging
+
 from . import pub
 
 _LOGGER = logging.getLogger(__name__)

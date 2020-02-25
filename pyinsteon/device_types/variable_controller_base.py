@@ -1,12 +1,13 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
 
-from .device_base import Device
-from .commands import STATUS_COMMAND
-from ..managers.on_level_manager import OnLevelManager
-from ..handlers.to_device.status_request import StatusRequestCommand
+from ..default_link import DefaultLink
+from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT, Event
 from ..groups import DIMMABLE_LIGHT
 from ..groups.on_level import OnLevel
-from ..events import Event, ON_EVENT, ON_FAST_EVENT, OFF_EVENT, OFF_FAST_EVENT
+from ..handlers.to_device.status_request import StatusRequestCommand
+from ..managers.on_level_manager import OnLevelManager
+from .commands import STATUS_COMMAND
+from .device_base import Device
 
 ON_LEVEL_MANAGER = "on_level_manager"
 
@@ -52,8 +53,6 @@ class VariableControllerBase(Device):
             is_controller group dev_data1 dev_data2 dev_data3 modem_data1 modem_data2 modem_data3
 
         """
-        from ..default_link import DefaultLink
-
         super()._register_default_links()
         for group in self._buttons:
             link = DefaultLink(

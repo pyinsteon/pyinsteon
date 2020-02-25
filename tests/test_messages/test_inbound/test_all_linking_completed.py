@@ -1,10 +1,10 @@
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
-import unittest
 import sys
+import unittest
+from binascii import unhexlify
 
 from pyinsteon.address import Address
-from pyinsteon.constants import MessageId, AllLinkMode, DeviceCategory
+from pyinsteon.constants import AllLinkMode, DeviceCategory, MessageId
+from tests import _LOGGER, set_log_levels
 from tests.utils import hex_to_inbound_message
 
 

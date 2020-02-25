@@ -1,8 +1,8 @@
 """All-Link Database for devices with no All-Link Database."""
 from typing import Callable
 
-from ..address import Address
 from . import ALDBBase
+from ..address import Address
 from ..constants import ALDBStatus
 
 

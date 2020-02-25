@@ -1,22 +1,18 @@
 """Base object for all command line menues."""
 
 import argparse
-from collections import namedtuple
 import asyncio
-from cmd import Cmd
-import inspect
 import getpass
+import inspect
 import logging
 import os
 import sys
+from cmd import Cmd
+from collections import namedtuple
 
 from .. import devices
 from .log_filter import CommandFilter, StdoutFilter
-from .utils import (
-    stdio,
-    set_loop,
-    patch_stdin_stdout,
-)
+from .utils import patch_stdin_stdout, set_loop, stdio
 
 _LOGGING = logging.getLogger(__name__)
 LOG_FILE_NAME = "pyinsteon_tools.log"

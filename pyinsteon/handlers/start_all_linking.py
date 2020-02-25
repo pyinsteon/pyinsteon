@@ -1,8 +1,8 @@
 """Start All-Linking."""
 from . import ack_handler
-from .outbound_base import OutboundHandlerBase
-from ..topics import START_ALL_LINKING
 from ..constants import AllLinkMode
+from ..topics import START_ALL_LINKING
+from .outbound_base import OutboundHandlerBase
 
 
 # pylint: disable=arguments-differ

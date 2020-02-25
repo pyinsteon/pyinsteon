@@ -1,14 +1,13 @@
 """Manage getting an operating flag."""
 import asyncio
-from collections import namedtuple
 import logging
+from collections import namedtuple
 
 from ..address import Address
+from ..constants import ResponseStatus
 from ..handlers.to_device.get_operating_flags import GetOperatingFlagsCommand
 from ..handlers.to_device.set_operating_flags import SetOperatingFlagsCommand
 from ..utils import multiple_status
-from ..constants import ResponseStatus
-
 
 OperatingFlagInfo = namedtuple("FlagInfo", "name group bit set_cmd unset_cmd")
 _LOGGER = logging.getLogger(__name__)

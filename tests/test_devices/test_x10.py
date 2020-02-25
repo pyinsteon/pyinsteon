@@ -1,17 +1,13 @@
 """Test X10 devices."""
 import asyncio
 import unittest
-from tests import set_log_levels
-from tests.utils import async_case, send_topics, TopicItem
+
+from pyinsteon.constants import (HC_LOOKUP, UC_LOOKUP, ResponseStatus,
+                                 X10Commands, X10CommandType)
 from pyinsteon.device_types import X10Dimmable, X10OnOff, X10OnOffSensor
-from pyinsteon.constants import (
-    UC_LOOKUP,
-    HC_LOOKUP,
-    X10Commands,
-    X10CommandType,
-    ResponseStatus,
-)
 from pyinsteon.topics import X10_RECEIVED, X10_SEND
+from tests import set_log_levels
+from tests.utils import TopicItem, async_case, send_topics
 
 
 class TestX10Devices(unittest.TestCase):

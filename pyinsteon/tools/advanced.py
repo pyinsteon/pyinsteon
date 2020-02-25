@@ -2,9 +2,9 @@
 from binascii import unhexlify
 
 from .. import devices
-from ..constants import ALDBStatus, ResponseStatus, LinkStatus
-from .tools_base import ToolsBase
+from ..constants import ALDBStatus, LinkStatus, ResponseStatus
 from ..managers.link_manager import find_broken_links
+from .tools_base import ToolsBase
 
 
 class AdvancedTools(ToolsBase):

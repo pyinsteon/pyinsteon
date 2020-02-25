@@ -1,8 +1,9 @@
 """Manage links beteween devices."""
 import logging
-from ..device_types.device_base import Device
+
 from .. import devices
-from ..constants import AllLinkMode, ResponseStatus, LinkStatus
+from ..constants import AllLinkMode, LinkStatus, ResponseStatus
+from ..device_types.device_base import Device
 from ..handlers.start_all_linking import StartAllLinkingCommandHandler
 from ..utils import multiple_status
 

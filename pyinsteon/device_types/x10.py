@@ -1,20 +1,20 @@
 """X10 devices."""
 import asyncio
 
-from .x10_base import X10DeviceBase
-from ..groups import ON_OFF_SWITCH, DIMMABLE_LIGHT
+from ..constants import ResponseStatus, X10Commands
+from ..events import OFF_EVENT, ON_EVENT, Event
+from ..groups import DIMMABLE_LIGHT, ON_OFF_SWITCH
+from ..groups.on_level import OnLevel
+from ..groups.on_off import OnOff
+from ..handlers.to_device.x10_send import X10CommandSend
 from ..managers.x10_manager import (
-    X10OnOffManager,
-    X10DimBrightenManager,
     X10AllLightsOnOffManager,
     X10AllUnitsOffManager,
+    X10DimBrightenManager,
+    X10OnOffManager,
 )
-from ..groups.on_off import OnOff
-from ..groups.on_level import OnLevel
-from ..events import Event, ON_EVENT, OFF_EVENT
-from ..handlers.to_device.x10_send import X10CommandSend
-from ..constants import X10Commands, ResponseStatus
 from ..utils import multiple_status
+from .x10_base import X10DeviceBase
 
 ALL_LIGHTS_ON_OFF = "all_lights_on_off"
 ALL_UNITS_OFF = "all_units_off"

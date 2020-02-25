@@ -1,8 +1,8 @@
 """Assign a device to an all link group."""
-from ...topics import DELETE_FROM_ALL_LINK_GROUP
-from .broadcast_command import BroadcastCommandHandlerBase
 from .. import broadcast_handler
 from ...address import Address
+from ...topics import DELETE_FROM_ALL_LINK_GROUP
+from .broadcast_command import BroadcastCommandHandlerBase
 
 
 class DeleteFromAllLinkGroupCommand(BroadcastCommandHandlerBase):

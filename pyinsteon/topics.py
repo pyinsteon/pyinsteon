@@ -198,3 +198,5 @@ DEVICE_LINK_CONTROLLER_CREATED = "device_link_controller_created"
 DEVICE_LINK_CONTROLLER_REMOVED = "device_link_controller_removed"
 DEVICE_LINK_RESPONDER_CREATED = "device_link_responder_created"
 DEVICE_LINK_RESPONDER_REMOVED = "device_link_responder_removed"
+
+ALDB_VERSION = "aldb_version"

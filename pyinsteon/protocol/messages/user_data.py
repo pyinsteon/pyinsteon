@@ -1,6 +1,8 @@
 """Extended Message User Data Type."""
-import logging
 import binascii
+import logging
+
+from ...utils import vars_to_string
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -129,8 +131,6 @@ class UserData:
 
     def __str__(self):
         """Emit the user data in human readable format."""
-        from ...utils import vars_to_string
-
         data = []
         for index in range(1, 15):
             key = "d{}".format(index)

@@ -6,14 +6,19 @@ from functools import partial
 import serial
 
 from .serial_transport import SerialTransport
+from ..constants import MessageFlagType
+from .http_transport import HttpTransport
+from .protocol import Protocol
+from ..handlers.get_im_info import GetImInfoHandler
+from ..device_types.plm import PLM
+from ..device_types.hub import Hub
+
 
 _LOGGER = logging.getLogger(__name__)
 
 
 def topic_to_message_type(topic):
     """Return MessageFlagType from the topic."""
-    from ..constants import MessageFlagType
-
     subtopics = topic.name.split(".")
     flag = "direct" if len(subtopics) < 3 else subtopics[2]
     for flag_type in MessageFlagType:
@@ -73,8 +78,6 @@ async def async_connect_socket(host, protocol, port=None):
 
 async def async_connect_http(host, username, password, protocol, port=None):
     """Connect to the Hub Version 2 via HTTP."""
-    from .http_transport import HttpTransport
-
     port = 25105 if not port else port
     transport = HttpTransport(
         protocol=protocol, host=host, port=port, username=username, password=password
@@ -102,9 +105,6 @@ async def async_modem_connect(
     If the device is a serial device see the serial class parameters.
 
     """
-    from .protocol import Protocol
-    from ..handlers.get_im_info import GetImInfoHandler
-
     modem_address = "000000"
     modem_cat = 0x03
     modem_subcat = 0x00
@@ -122,14 +122,12 @@ async def async_modem_connect(
         return ValueError("Must specify either a device or a host")
 
     if device:
-        from ..device_types.plm import PLM as Modem
-
+        Modem = PLM
         connect_method = partial(async_connect_serial, **{"device": device})
         protocol = Protocol(connect_method=connect_method)
 
     elif hub_version == 2:
-        from ..device_types.hub import Hub as Modem
-
+        Modem = Hub
         connect_method = partial(
             async_connect_http,
             **{"host": host, "username": username, "password": password, "port": port},
@@ -137,8 +135,7 @@ async def async_modem_connect(
         protocol = Protocol(connect_method=connect_method)
 
     else:
-        from ..device_types.plm import PLM as Modem
-
+        Modem = PLM
         connect_method = partial(async_connect_socket, **{"host": host, "port": port})
         protocol = Protocol(connect_method=connect_method)
 

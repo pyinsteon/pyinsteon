@@ -1,10 +1,10 @@
 """Message Flags data type."""
 
-import logging
 import binascii
+import logging
+
 from ...constants import MessageFlagType
 from ...utils import test_values_eq
-
 
 _LOGGER = logging.getLogger(__name__)
 _EXTENDED_MESSAGE = 0x10

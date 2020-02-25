@@ -3,10 +3,10 @@
 import asyncio
 
 from .. import pub
-from ..subscriber_base import SubscriberBase
 from ..address import Address
-from ..handlers.from_device.on_level import OnLevelInbound
 from ..handlers.from_device.off import OffInbound
+from ..handlers.from_device.on_level import OnLevelInbound
+from ..subscriber_base import SubscriberBase
 
 WAIT_TIME = 5
 

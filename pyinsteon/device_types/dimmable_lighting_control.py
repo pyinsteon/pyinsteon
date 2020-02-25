@@ -1,7 +1,6 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
 from ..constants import FanSpeed
-from ..handlers.to_device.set_leds import SetLedsCommandHandler
-from ..handlers.to_device.status_request import StatusRequestCommand
+from ..extended_property import LED_DIMMING, ON_LEVEL, RAMP_RATE, X10_HOUSE, X10_UNIT
 
 # from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
 # from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
@@ -9,6 +8,7 @@ from ..groups import (
     DIMMABLE_FAN,
     DIMMABLE_LIGHT,
     DIMMABLE_LIGHT_MAIN,
+    DIMMABLE_OUTLET,
     ON_OFF_SWITCH_A,
     ON_OFF_SWITCH_B,
     ON_OFF_SWITCH_C,
@@ -17,20 +17,38 @@ from ..groups import (
     ON_OFF_SWITCH_F,
     ON_OFF_SWITCH_G,
     ON_OFF_SWITCH_H,
-    DIMMABLE_OUTLET,
 )
 from ..groups.on_off import OnOff
-from .commands import (
+from ..handlers import ResponseStatus
+from ..handlers.to_device.set_leds import SetLedsCommandHandler
+from ..handlers.to_device.status_request import StatusRequestCommand
+from ..operating_flag import (
+    CLEANUP_REPORT_ON,
+    CRC_ERROR_COUNT,
+    DATABASE_DELTA,
+    KEY_BEEP_ON,
+    LED_BLINK_ON_ERROR_ON,
+    LED_BLINK_ON_TX_ON,
+    LED_OFF,
+    LED_ON,
+    LOAD_SENSE_ON,
+    POWERLINE_DISABLE_ON,
+    PROGRAM_LOCK_ON,
+    RESUME_DIM_ON,
+    RF_DISABLE_ON,
+    SIGNAL_TO_NOISE_FAILURE_COUNT,
+    X10_OFF,
+)
+from .variable_responder_base import VariableResponderBase
+
+from .commands import (  # TRIGGER_SCENE_ON_COMMAND,; TRIGGER_SCENE_OFF_COMMAND,
     OFF_COMMAND,
     OFF_FAST_COMMAND,
     ON_COMMAND,
     ON_FAST_COMMAND,
     SET_LEDS_COMMAND,
     STATUS_COMMAND_FAN,
-    # TRIGGER_SCENE_ON_COMMAND,
-    # TRIGGER_SCENE_OFF_COMMAND,
 )
-from .variable_responder_base import VariableResponderBase
 
 
 class DimmableLightingControl(VariableResponderBase):
@@ -41,21 +59,6 @@ class DimmableLightingControl_LampLinc(DimmableLightingControl):
     """LampLinc based dimmable lights."""
 
     def _register_operating_flags(self):
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_BLINK_ON_TX_ON,
-            RESUME_DIM_ON,
-            LED_ON,
-            LOAD_SENSE_ON,
-        )
-        from ..extended_property import (
-            LED_DIMMING,
-            ON_LEVEL,
-            X10_HOUSE,
-            X10_UNIT,
-            RAMP_RATE,
-        )
-
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
@@ -74,21 +77,6 @@ class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
     """SwichLinc based dimmable lights."""
 
     def _register_operating_flags(self):
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_BLINK_ON_TX_ON,
-            RESUME_DIM_ON,
-            LED_ON,
-            KEY_BEEP_ON,
-            LED_BLINK_ON_ERROR_ON,
-        )
-        from ..extended_property import (
-            LED_DIMMING,
-            ON_LEVEL,
-            X10_HOUSE,
-            X10_UNIT,
-            RAMP_RATE,
-        )
 
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
@@ -126,9 +114,6 @@ class DimmableLightingControl_OutletLinc(DimmableLightingControl):
         )
 
     def _register_operating_flags(self):
-        from ..operating_flag import PROGRAM_LOCK_ON, LED_BLINK_ON_TX_ON, LED_ON
-        from ..extended_property import X10_HOUSE, X10_UNIT
-
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
@@ -142,20 +127,6 @@ class DimmableLightingControl_DinRail(DimmableLightingControl):
     """DINRail based dimmable lights."""
 
     def _register_operating_flags(self):
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_BLINK_ON_TX_ON,
-            LED_ON,
-            KEY_BEEP_ON,
-        )
-        from ..extended_property import (
-            LED_DIMMING,
-            ON_LEVEL,
-            X10_HOUSE,
-            X10_UNIT,
-            RAMP_RATE,
-        )
-
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
@@ -256,8 +227,6 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
 
     async def async_status(self):
         """Request the status fo the light and the fan."""
-        from ..handlers import ResponseStatus
-
         light_status = await super().async_status()
         fan_status = await self.async_fan_status()
         if light_status == fan_status == ResponseStatus.SUCCESS:
@@ -301,23 +270,6 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         self._handlers[STATUS_COMMAND_FAN].subscribe(self._handle_fan_status)
 
     def _register_operating_flags(self):
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_BLINK_ON_TX_ON,
-            RESUME_DIM_ON,
-            LED_OFF,
-            KEY_BEEP_ON,
-            RF_DISABLE_ON,
-            POWERLINE_DISABLE_ON,
-            DATABASE_DELTA,
-            CRC_ERROR_COUNT,
-            SIGNAL_TO_NOISE_FAILURE_COUNT,
-            X10_OFF,
-            LED_BLINK_ON_ERROR_ON,
-            CLEANUP_REPORT_ON,
-        )
-        from ..extended_property import ON_LEVEL, X10_HOUSE, X10_UNIT, RAMP_RATE
-
         super()._register_operating_flags()
 
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)

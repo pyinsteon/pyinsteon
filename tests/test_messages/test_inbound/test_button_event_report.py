@@ -1,9 +1,9 @@
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
-import unittest
 import sys
+import unittest
+from binascii import unhexlify
 
-from pyinsteon.constants import MessageId, ImButtonEvents
+from pyinsteon.constants import ImButtonEvents, MessageId
+from tests import _LOGGER, set_log_levels
 from tests.utils import hex_to_inbound_message
 
 

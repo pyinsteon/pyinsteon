@@ -1,10 +1,10 @@
 """Load saved devices to provide quick startup."""
 
 import asyncio
-from pyinsteon import async_connect, async_close
-from pyinsteon.managers.link_manager import async_enter_linking_mode
-from samples import set_log_levels, _LOGGER, PATH, get_hub_config
 
+from pyinsteon import async_close, async_connect
+from pyinsteon.managers.link_manager import async_enter_linking_mode
+from samples import _LOGGER, PATH, get_hub_config, set_log_levels
 
 # DEVICE = '/dev/ttyS5'
 DEVICE = "COM5"

@@ -1,9 +1,9 @@
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
-import unittest
 import sys
+import unittest
+from binascii import unhexlify
 
 from pyinsteon.x10_address import X10Address, create
+from tests import _LOGGER, set_log_levels
 
 
 class TestX10Address(unittest.TestCase):

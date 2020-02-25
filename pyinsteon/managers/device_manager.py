@@ -2,8 +2,11 @@
 import logging
 from asyncio import Lock
 
+from .. import pub
 from ..address import Address
 from ..device_types.device_base import Device
+from ..device_types.modem_base import ModemBase
+from ..managers.saved_devices_manager import SavedDeviceManager
 from ..subscriber_base import SubscriberBase
 from .device_id_manager import DeviceId, DeviceIdManager
 from .device_link_manager import DeviceLinkManager
@@ -50,8 +53,6 @@ class DeviceManager(SubscriberBase):
         self._id_manager.set_device_id(
             device.address, device.cat, device.subcat, device.firmware
         )
-        from .. import pub
-
         try:
             mgr = pub.getDefaultTopicMgr()
             topic = mgr.getTopic(self._subscriber_topic)
@@ -79,8 +80,6 @@ class DeviceManager(SubscriberBase):
     @modem.setter
     def modem(self, modem):
         """Set the Insteon Modem."""
-        from ..device_types.modem_base import ModemBase
-
         if not isinstance(modem, ModemBase):
             raise ValueError("Must be an Insteon Modem object")
         self._modem = modem
@@ -137,8 +136,6 @@ class DeviceManager(SubscriberBase):
         The Modem ALDB is loaded if `refresh` is True or if the saved file has no devices.
 
         """
-        from ..managers.saved_devices_manager import SavedDeviceManager
-
         if workdir:
             await self._loading_saved_lock.acquire()
             saved_devices_manager = SavedDeviceManager(workdir)
@@ -163,8 +160,6 @@ class DeviceManager(SubscriberBase):
 
     async def async_save(self, workdir):
         """Save devices to a device information file."""
-        from ..managers.saved_devices_manager import SavedDeviceManager
-
         saved_devices_manager = SavedDeviceManager(workdir)
         await saved_devices_manager.async_save(self._devices)
 

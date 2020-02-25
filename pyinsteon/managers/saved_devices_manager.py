@@ -5,7 +5,10 @@ from os import path
 
 from aiofile import AIOFile
 
+from .. import devices
 from ..address import Address
+from ..aldb.aldb_record import ALDBRecord
+from ..x10_address import X10Address
 from .device_manager import DeviceId, create_device
 
 DEVICE_INFO_FILE = "insteon_devices.json"
@@ -39,8 +42,6 @@ def _dict_to_device(device_dict):
 
 def _device_to_dict(device_list):
     """Convert a device to a dictionary."""
-    from ..x10_address import X10Address
-
     devices = []
     for addr in device_list:
         device = device_list.get(addr)
@@ -84,8 +85,6 @@ def _device_to_dict(device_list):
 
 
 def _dict_to_aldb_record(aldb_dict):
-    from ..aldb.aldb_record import ALDBRecord
-
     records = {}
     for mem_addr in aldb_dict:
         rec = aldb_dict[mem_addr]
@@ -131,8 +130,6 @@ class SavedDeviceManager:
 
     async def async_load(self) -> {}:
         """Load devices from the saved device file."""
-        from .. import devices
-
         modem = devices.modem
         saved_devices = await self._read_saved_devices()
         devices = {}
@@ -157,8 +154,6 @@ class SavedDeviceManager:
     async def _read_saved_devices(self):
         """Load device information from the device info file."""
         _LOGGER.debug("Loading saved device info.")
-        from aiofile import AIOFile
-        from os import path
 
         saved_devices = []
         if not self._workdir:

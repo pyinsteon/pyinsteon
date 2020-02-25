@@ -1,12 +1,12 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
-from ..handlers.to_device.off import OffCommand
-from ..handlers.to_device.on_level import OnLevelCommand
-from ..handlers.to_device.on_fast import OnFastCommand
-from ..handlers.to_device.off_fast import OffFastCommand
-from .commands import OFF_COMMAND, ON_COMMAND, OFF_FAST_COMMAND, ON_FAST_COMMAND
-from .on_off_controller_base import OnOffControllerBase
+from ..events import OFF_EVENT, ON_EVENT
 from ..groups import ON_OFF_SWITCH
-from ..events import ON_EVENT, OFF_EVENT
+from ..handlers.to_device.off import OffCommand
+from ..handlers.to_device.off_fast import OffFastCommand
+from ..handlers.to_device.on_fast import OnFastCommand
+from ..handlers.to_device.on_level import OnLevelCommand
+from .commands import OFF_COMMAND, OFF_FAST_COMMAND, ON_COMMAND, ON_FAST_COMMAND
+from .on_off_controller_base import OnOffControllerBase
 
 
 class OnOffResponderBase(OnOffControllerBase):

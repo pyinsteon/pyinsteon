@@ -1,8 +1,8 @@
 """Manage outbound ON command to a device."""
-from ... import pub
 from .. import status_handler
-from .direct_command import DirectCommandHandlerBase
+from ... import pub
 from ...topics import STATUS_REQUEST
+from .direct_command import DirectCommandHandlerBase
 
 
 class StatusRequestCommand(DirectCommandHandlerBase):

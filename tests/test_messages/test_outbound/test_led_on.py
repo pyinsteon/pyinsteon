@@ -1,10 +1,10 @@
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
-import unittest
 import sys
+import unittest
+from binascii import unhexlify
 
 from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.outbound import led_on
+from tests import _LOGGER, set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 

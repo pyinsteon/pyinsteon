@@ -1,6 +1,7 @@
 """All-Link Record Flags."""
 
 from binascii import hexlify
+
 from ...utils import bit_is_set, set_bit
 
 

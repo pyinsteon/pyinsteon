@@ -8,13 +8,11 @@ from random import randint
 
 from aiofile import AIOFile
 
-from pyinsteon.address import Address
 import pyinsteon.device_types as device_types
+from pyinsteon.address import Address
 from pyinsteon.protocol.protocol import Protocol
-
-from tests import async_connect_mock, set_log_levels, _LOGGER
-from tests.utils import async_case, TopicItem, send_topics
-
+from tests import _LOGGER, async_connect_mock, set_log_levels
+from tests.utils import TopicItem, async_case, send_topics
 
 FILE = "device_commands.json"
 

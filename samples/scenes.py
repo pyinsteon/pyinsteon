@@ -3,11 +3,9 @@
 import asyncio
 
 from pyinsteon import async_close, async_connect
-from pyinsteon.managers.scene_manager import (
-    async_trigger_scene_off,
-    async_trigger_scene_on,
-    identify_scenes,
-)
+from pyinsteon.managers.scene_manager import (async_trigger_scene_off,
+                                              async_trigger_scene_on,
+                                              identify_scenes)
 from samples import _LOGGER, PATH, get_hub_config, set_log_levels
 
 # DEVICE = '/dev/ttyS5'

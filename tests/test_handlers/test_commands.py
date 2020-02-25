@@ -1,51 +1,47 @@
 """Test the sending and receiving of direct commands using the MockPLM."""
-from asyncio import Queue, sleep
-import unittest
-from functools import partial
 import json
+import unittest
+from asyncio import Queue, sleep
+from functools import partial
+
 from aiofile import AIOFile
 
 import pyinsteon.handlers.to_device as commands
 from pyinsteon import pub
-from pyinsteon.protocol.protocol import Protocol
-
 # pylint: disable=unused-import
-from pyinsteon.handlers.to_device.enter_linking_mode import EnterLinkingModeCommand
-from pyinsteon.handlers.to_device.enter_unlinking_mode import EnterUnlinkingModeCommand
+from pyinsteon.handlers.to_device.enter_linking_mode import \
+    EnterLinkingModeCommand
+from pyinsteon.handlers.to_device.enter_unlinking_mode import \
+    EnterUnlinkingModeCommand
 from pyinsteon.handlers.to_device.extended_get import ExtendedGetCommand
 from pyinsteon.handlers.to_device.extended_set import ExtendedSetCommand
-from pyinsteon.handlers.to_device.get_operating_flags import GetOperatingFlagsCommand
+from pyinsteon.handlers.to_device.get_operating_flags import \
+    GetOperatingFlagsCommand
 from pyinsteon.handlers.to_device.id_request import IdRequestCommand
-from pyinsteon.handlers.to_device.off_all_link_broadcast import (
-    OffAllLinkBroadcastCommand,
-)
-from pyinsteon.handlers.to_device.off_all_link_cleanup import OffAllLinkCleanupCommand
-from pyinsteon.handlers.to_device.off_fast import OffFastCommand
 from pyinsteon.handlers.to_device.off import OffCommand
+from pyinsteon.handlers.to_device.off_all_link_broadcast import \
+    OffAllLinkBroadcastCommand
+from pyinsteon.handlers.to_device.off_all_link_cleanup import \
+    OffAllLinkCleanupCommand
+from pyinsteon.handlers.to_device.off_fast import OffFastCommand
 from pyinsteon.handlers.to_device.on_fast import OnFastCommand
-from pyinsteon.handlers.to_device.on_level_all_link_broadcast import (
-    OnLevelAllLinkBroadcastCommand,
-)
-from pyinsteon.handlers.to_device.on_level_all_link_cleanup import (
-    OnLevelAllLinkCleanupCommand,
-)
 from pyinsteon.handlers.to_device.on_level import OnLevelCommand
-from pyinsteon.handlers.to_device.product_data_request import ProductDataRequestCommand
+from pyinsteon.handlers.to_device.on_level_all_link_broadcast import \
+    OnLevelAllLinkBroadcastCommand
+from pyinsteon.handlers.to_device.on_level_all_link_cleanup import \
+    OnLevelAllLinkCleanupCommand
+from pyinsteon.handlers.to_device.product_data_request import \
+    ProductDataRequestCommand
 from pyinsteon.handlers.to_device.read_aldb import ReadALDBCommandHandler
-from pyinsteon.handlers.to_device.set_operating_flags import SetOperatingFlagsCommand
+from pyinsteon.handlers.to_device.set_operating_flags import \
+    SetOperatingFlagsCommand
 from pyinsteon.handlers.to_device.status_request import StatusRequestCommand
 from pyinsteon.handlers.to_device.write_aldb import WriteALDBCommandHandler
-
+from pyinsteon.protocol.protocol import Protocol
 # pylint: enable=unused-import
 from tests import async_connect_mock, set_log_levels
-from tests.utils import (
-    create_std_ext_msg,
-    async_case,
-    send_data,
-    DataItem,
-    get_class_or_method,
-)
-
+from tests.utils import (DataItem, async_case, create_std_ext_msg,
+                         get_class_or_method, send_data)
 
 FILE = "commands.json"
 

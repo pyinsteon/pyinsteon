@@ -1,7 +1,7 @@
 """Fan On Level state."""
 from . import StateBase
-from ..constants import FanSpeed
 from ..address import Address
+from ..constants import FanSpeed
 
 
 class FanOnLevel(StateBase):

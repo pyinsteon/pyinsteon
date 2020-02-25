@@ -5,14 +5,11 @@ import logging
 from enum import Enum
 
 from .. import pub
-
-
+from ..utils import log_error
 from .command_to_msg import register_command_handlers
 from .messages.inbound import create
 from .messages.outbound import register_outbound_handlers
 from .msg_to_topic import convert_to_topic
-from ..utils import log_error
-
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_MSG = logging.getLogger("pyinsteon.messages")

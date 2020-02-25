@@ -5,6 +5,8 @@ import logging
 from async_generator import async_generator, yield_
 
 from ..aldb.aldb_record import ALDBRecord
+from ..handlers.from_device.receive_aldb_record import ReceiveALDBRecordHandler
+from ..handlers.to_device.read_aldb import ReadALDBCommandHandler
 
 RETRIES_ALL_MAX = 5
 RETRIES_ONE_MAX = 20
@@ -27,9 +29,6 @@ class ALDBReadManager:
 
     def __init__(self, aldb, mem_addr: int = 0x00, num_recs: int = 0):
         """Init the ALDBReadManager class."""
-        from ..handlers.to_device.read_aldb import ReadALDBCommandHandler
-        from ..handlers.from_device.receive_aldb_record import ReceiveALDBRecordHandler
-
         self._aldb = aldb
         self._mem_addr = mem_addr
         self._num_recs = num_recs

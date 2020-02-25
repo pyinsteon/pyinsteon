@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Setup for oyinsteon module."""
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 
 def readme():

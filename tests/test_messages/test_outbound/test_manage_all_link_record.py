@@ -1,12 +1,13 @@
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
-import unittest
 import sys
+import unittest
+from binascii import unhexlify
 
-from pyinsteon.constants import MessageId, ManageAllLinkRecordAction
 from pyinsteon.address import Address
-from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
+from pyinsteon.constants import ManageAllLinkRecordAction, MessageId
+from pyinsteon.protocol.messages.all_link_record_flags import \
+    AllLinkRecordFlags
 from pyinsteon.protocol.messages.outbound import manage_all_link_record
+from tests import _LOGGER, set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 

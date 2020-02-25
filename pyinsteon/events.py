@@ -11,8 +11,8 @@ Subscribers to Event use the following interface:
 Where name is the name of the event and address is the address of the device
 triggering the event.
 """
-from .subscriber_base import SubscriberBase
 from .address import Address
+from .subscriber_base import SubscriberBase
 
 ON_EVENT = "on_event"
 ON_FAST_EVENT = "on_fast_event"

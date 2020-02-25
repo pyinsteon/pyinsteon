@@ -1,7 +1,7 @@
 """Termostat device types."""
 
-from .device_base import Device
 from ..aldb import ALDB
+from .device_base import Device
 
 
 class Thermostat(Device):

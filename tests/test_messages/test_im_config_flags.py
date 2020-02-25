@@ -1,9 +1,10 @@
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
-import unittest
 import sys
+import unittest
+from binascii import unhexlify
 
-from pyinsteon.protocol.messages.im_config_flags import IMConfigurationFlags, create
+from pyinsteon.protocol.messages.im_config_flags import (IMConfigurationFlags,
+                                                         create)
+from tests import _LOGGER, set_log_levels
 
 
 class TestIMConfigFlags(unittest.TestCase):

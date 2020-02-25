@@ -1,12 +1,13 @@
 """HTTP Transport  for asyncio."""
 import asyncio
+import logging
 from binascii import unhexlify
 from contextlib import suppress
-import logging
 
 import aiohttp
 
 from .http_reader_writer import HttpReaderWriter
+from .msg_to_url import convert_to_url
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -93,8 +94,6 @@ class HttpTransport(asyncio.Transport):
 
     async def async_write(self, data):
         """Async write to the transport."""
-        from .msg_to_url import convert_to_url
-
         url = convert_to_url(self._host, self._port, data)
         await self._async_write_url(url=url, msg=bytes(data))
 

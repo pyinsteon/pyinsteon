@@ -1,10 +1,11 @@
 """Test the device manager."""
 import asyncio
 import unittest
-from pyinsteon.managers.device_id_manager import DeviceIdManager
-from pyinsteon.topics import ASSIGN_TO_ALL_LINK_GROUP, OFF, ID_REQUEST
+
 from pyinsteon.address import Address
-from tests.utils import TopicItem, async_case, send_topics, cmd_kwargs
+from pyinsteon.managers.device_id_manager import DeviceIdManager
+from pyinsteon.topics import ASSIGN_TO_ALL_LINK_GROUP, ID_REQUEST, OFF
+from tests.utils import TopicItem, async_case, cmd_kwargs, send_topics
 
 
 class TestDeviceIdManager(unittest.TestCase):

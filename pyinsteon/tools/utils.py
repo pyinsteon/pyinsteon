@@ -2,6 +2,7 @@
 import asyncio
 import os
 import sys
+from asyncio.events import BaseDefaultEventLoopPolicy
 
 _DEFAULT_LIMIT = 2 ** 16  # 64kb
 
@@ -83,8 +84,6 @@ def _win32_stdio(loop):
 
 def set_loop() -> None:
     """Attempt to use different loop."""
-    from asyncio.events import BaseDefaultEventLoopPolicy
-
     if sys.platform == "win32":
         if hasattr(asyncio, "WindowsProactorEventLoopPolicy"):
             # pylint: disable=no-member

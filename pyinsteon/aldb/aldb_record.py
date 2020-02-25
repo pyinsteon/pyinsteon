@@ -35,41 +35,48 @@ class ALDBRecord:
 
     def __str__(self):
         """Return the string representation of an ALDB record."""
-        props = self._record_properties()
-        msgstr = "{"
-        first = True
-        for prop in props:
-            if not first:
-                msgstr = "{}, ".format(msgstr)
-            for key, val in prop.items():
-                if isinstance(val, Address):
-                    msgstr = "{}'{}': {}".format(msgstr, key, val)
-                elif key == "memory":
-                    msgstr = "{}'{}': 0x{:04x}".format(msgstr, key, val)
-                elif isinstance(val, int):
-                    msgstr = "{}'{}': 0x{:02x}".format(msgstr, key, val)
-                else:
-                    msgstr = "{}'{}': {}".format(msgstr, key, val)
-            first = False
-        msgstr = "{}{}".format(msgstr, "}")
-        return msgstr
+        if self._controller:
+            mode = "C"
+        else:
+            mode = "R"
+        rec = {
+            "memory": f"0x{self._memory_location:04x}",
+            "inuse": self._in_use,
+            "mode": mode,
+            "bit5": str(self._bit5),
+            "bit4": str(self._bit4),
+            "highwater": str(self._high_water_mark),
+            "group": f"0x{self.group:02x}",
+            "target": str(self.target),
+            "data1": f"0x{self.data1:02x}",
+            "data2": f"0x{self.data2:02x}",
+            "data3": f"0x{self.data3:02x}",
+        }
+        return str(rec)
+
+    def __repr__(self):
+        """Return a representation of the record."""
+        rec = {
+            "memory": f"0x{self._memory_location:04x}",
+            "control_flags": f"0x{self.control_flags:02x}",
+            "group": f"0x{self.group:02x}",
+            "target": str(self.target),
+            "data1": f"0x{self.data1:02x}",
+            "data2": f"0x{self.data2:02x}",
+            "data3": f"0x{self.data3:02x}",
+        }
+        return str(rec)
 
     def __dict___(self):
         """Return a dictionary object of the ALDB Record."""
-        control_flags = (
-            int(self._in_use) << 7
-            | int(self._controller) << 6
-            | int(self._bit5) << 5
-            | int(self._bit4) << 4
-            | int(not self._high_water_mark) << 1
-        )
+
         return {
             "d1": 0x00,
             "d2": 0x00,
             "d3": self.memhi,
             "d4": self.memlo,
             "d5": 0x00,
-            "d6": control_flags,
+            "d6": self.control_flags,
             "d7": self.group,
             "d8": self.target.low,
             "d9": self.target.middle,
@@ -160,22 +167,13 @@ class ALDBRecord:
         """Return if control flag bit 4 is set."""
         return self._bit4
 
-    def _record_properties(self):
-        if self._controller:
-            mode = "C"
-        else:
-            mode = "R"
-        rec = [
-            {"memory": self._memory_location},
-            {"inuse": self._in_use},
-            {"mode": mode},
-            {"bit5": self._bit5},
-            {"bit4": self._bit4},
-            {"highwater": self._high_water_mark},
-            {"group": self.group},
-            {"target": self.target},
-            {"data1": self.data1},
-            {"data2": self.data2},
-            {"data3": self.data3},
-        ]
-        return rec
+    @property
+    def control_flags(self):
+        """Return the control flag byte."""
+        return (
+            int(self._in_use) << 7
+            | int(self._controller) << 6
+            | int(self._bit5) << 5
+            | int(self._bit4) << 4
+            | int(not self._high_water_mark) << 1
+        )

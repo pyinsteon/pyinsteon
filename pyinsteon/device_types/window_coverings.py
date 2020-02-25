@@ -1,7 +1,26 @@
 """Window Covering devices."""
 
-from .open_close_responder_base import OpenCloseResponderBase
+from ..extended_property import (
+    DURATION_HIGH,
+    DURATION_LOW,
+    ON_LEVEL,
+    RAMP_RATE,
+    X10_HOUSE,
+    X10_UNIT,
+)
 from ..groups import COVER
+from ..operating_flag import (
+    DUAL_LINE_ON,
+    FORWARD_ON,
+    KEY_BEEP_ON,
+    LED_BLINK_ON_ERROR_OFF,
+    LED_BLINK_ON_TX_ON,
+    LED_ON,
+    MOMENTARY_LINE_ON,
+    NOT_3_WAY,
+    PROGRAM_LOCK_ON,
+)
+from .open_close_responder_base import OpenCloseResponderBase
 
 
 class WindowCovering(OpenCloseResponderBase):
@@ -15,26 +34,6 @@ class WindowCovering(OpenCloseResponderBase):
 
     def _register_operating_flags(self):
         """Register the operating and properties."""
-        from ..extended_property import (
-            ON_LEVEL,
-            RAMP_RATE,
-            X10_HOUSE,
-            X10_UNIT,
-            DURATION_HIGH,
-            DURATION_LOW,
-        )
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_BLINK_ON_TX_ON,
-            LED_ON,
-            KEY_BEEP_ON,
-            LED_BLINK_ON_ERROR_OFF,
-            DUAL_LINE_ON,
-            MOMENTARY_LINE_ON,
-            NOT_3_WAY,
-            FORWARD_ON,
-        )
-
         super()._register_operating_flags()
 
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)

@@ -1,6 +1,7 @@
 """Test cases for Cancel All Linking"""
-from binascii import unhexlify
 import unittest
+from binascii import unhexlify
+
 from pyinsteon.constants import MessageId
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
 

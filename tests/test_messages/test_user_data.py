@@ -1,10 +1,10 @@
 """Test UserData data type."""
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
-import unittest
 import sys
+import unittest
+from binascii import unhexlify
 
 from pyinsteon.protocol.messages.user_data import UserData, create_empty
+from tests import _LOGGER, set_log_levels
 
 
 class TestUserData(unittest.TestCase):

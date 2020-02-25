@@ -1,12 +1,12 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
-from .device_base import Device
-from .commands import STATUS_COMMAND
-from ..managers.on_level_manager import OnLevelManager
-from ..handlers.to_device.status_request import StatusRequestCommand
-from ..events import Event
-from ..groups.on_off import OnOff
+from ..default_link import DefaultLink
+from ..events import OFF_EVENT, ON_EVENT, Event
 from ..groups import ON_OFF_SWITCH
-from ..events import ON_EVENT, OFF_EVENT
+from ..groups.on_off import OnOff
+from ..handlers.to_device.status_request import StatusRequestCommand
+from ..managers.on_level_manager import OnLevelManager
+from .commands import STATUS_COMMAND
+from .device_base import Device
 
 ON_LEVEL_MANAGER = "on_level_manager"
 
@@ -48,8 +48,6 @@ class OnOffControllerBase(Device):
 
     def _register_default_links(self):
         """Register default links for the device."""
-        from ..default_link import DefaultLink
-
         super()._register_default_links()
         for group in self._buttons:
             link = DefaultLink(

@@ -1,11 +1,11 @@
 """Mock message handling via Chain of Command pattern."""
 import asyncio
 from abc import ABCMeta
-from .. import pub
-from .inbound_base import InboundHandlerBase
-from . import ResponseStatus
-from ..utils import build_topic
 
+from . import ResponseStatus
+from .. import pub
+from ..utils import build_topic
+from .inbound_base import InboundHandlerBase
 
 # It should not take more than 3 minutes for a message send (I hope)
 TIMEOUT = 60 * 3

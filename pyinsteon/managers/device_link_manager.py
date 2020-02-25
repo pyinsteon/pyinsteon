@@ -1,14 +1,15 @@
 """Manages links between devices to identify device state of responders."""
 import asyncio
-from .. import pub
+
+from .. import devices, pub
 from ..address import Address
+from ..constants import MessageFlagType
 from ..topics import (
     DEVICE_LINK_CONTROLLER_CREATED,
-    DEVICE_LINK_RESPONDER_CREATED,
     DEVICE_LINK_CONTROLLER_REMOVED,
+    DEVICE_LINK_RESPONDER_CREATED,
     DEVICE_LINK_RESPONDER_REMOVED,
 )
-from ..constants import MessageFlagType
 
 
 def _controller_group_topic(responder, group):
@@ -92,28 +93,26 @@ class DeviceLinkManager:
                 pass
 
     def _check_responder(self, topic=pub.AUTO_TOPIC, **kwargs):
-        from .. import devices
-
         on_level = kwargs.get("on_level") if kwargs.get("on_level") else None
         controller, group, msg_type = _topic_to_addr_group(topic)
         if msg_type != MessageFlagType.ALL_LINK_BROADCAST:
             return
         groups = self._responders.get(controller)
         if groups:
-            responder = groups.get(group)
-            if group:
-                if on_level is not None:
-                    devices[responder].groups[group].set_value(on_level)
-                asyncio.ensure_future(devices[responder].async_status())
+            responders = groups.get(group)
+            for responder in responders:
+                if group and devices[responder]:
+                    if on_level is not None:
+                        devices[responder].groups[group].set_value(on_level)
+                    asyncio.ensure_future(devices[responder].async_status())
 
     # pylint: disable=no-self-use
     def _check_controller(self, topic=pub.AUTO_TOPIC, **kwargs):
-        from .. import devices
-
         controller, group, msg_type = _topic_to_addr_group(topic)
         if msg_type != MessageFlagType.ALL_LINK_BROADCAST:
             return
         if controller is None or group is None:
             return
         for responder in devices[controller].aldb.get_responders(group):
-            asyncio.ensure_future(devices[responder].async_status())
+            if devices[responder]:
+                asyncio.ensure_future(devices[responder].async_status())

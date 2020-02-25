@@ -1,8 +1,8 @@
 """Sample program to demonstrate loading a device All-Link Database."""
 import asyncio
 
-from pyinsteon import async_connect, async_close
-from samples import set_log_levels, _LOGGER, PATH, get_hub_config
+from pyinsteon import async_close, async_connect
+from samples import _LOGGER, PATH, get_hub_config, set_log_levels
 
 # DEVICE = '/dev/ttyS5'
 DEVICE = 'COM5'

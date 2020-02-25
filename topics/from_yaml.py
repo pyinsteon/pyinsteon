@@ -2,10 +2,9 @@
 
 import os
 
-from pubsub.utils.yamltopicdefnprovider import (YamlTopicDefnProvider,
-                                                TOPIC_TREE_FROM_FILE)
 from pubsub import pub
-
+from pubsub.utils.yamltopicdefnprovider import (TOPIC_TREE_FROM_FILE,
+                                                YamlTopicDefnProvider)
 
 FILENAME = 'topics.yaml'
 PATH_TO_FILE = os.path.realpath(

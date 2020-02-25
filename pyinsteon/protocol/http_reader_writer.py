@@ -1,7 +1,10 @@
 """Read and write to the Hub."""
 import asyncio
 import logging
+
 import aiohttp
+
+from .http_transport import HubConnectionException
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -58,8 +61,6 @@ class HttpReaderWriter:
 
     async def async_read(self, session, url):
         """Read from the url."""
-        from .http_transport import HubConnectionException
-
         try:
             async with session.get(url) as response:
                 # _LOGGER.debug("Reader status: %d", response.status)

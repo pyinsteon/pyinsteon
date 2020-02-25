@@ -1,7 +1,7 @@
 """Manage outbound OFF All-Link Broadcast command to a device."""
 
-from .all_link_broadcast_command import AllLinkBroadcastCommandHandlerBase
 from ...topics import ON
+from .all_link_broadcast_command import AllLinkBroadcastCommandHandlerBase
 
 
 class OnLevelAllLinkBroadcastCommand(AllLinkBroadcastCommandHandlerBase):

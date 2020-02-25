@@ -5,8 +5,8 @@ import unittest
 from pyinsteon.address import Address
 from pyinsteon.constants import ResponseStatus
 from pyinsteon.handlers.to_device.on_level import OnLevelCommand
-from tests.utils import TopicItem, async_case, send_topics
 from tests import set_log_levels
+from tests.utils import TopicItem, async_case, send_topics
 
 
 class TestNoDirectAck(unittest.TestCase):

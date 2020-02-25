@@ -5,6 +5,8 @@ import logging
 from .. import pub
 from ..constants import MessageFlagType, ResponseStatus
 from ..utils import build_topic
+from ..address import Address
+from datetime import datetime
 
 
 TIMEOUT = 3  # Time out between ACK and Direct ACK
@@ -179,8 +181,6 @@ def status_handler(func):
     """Register the status response handler."""
 
     def register_status(instance_func, address):
-        from ..address import Address
-
         # This registers all messages for a device but only triggers on
         # status messages if they return within the TIMEOUT period
         address = Address(address)
@@ -224,8 +224,6 @@ def direct_nak_handler(func):
 
 def broadcast_handler(func):
     """Register the BROADCAST message handler."""
-    from datetime import datetime
-
     last_command = datetime(1, 1, 1)
 
     def register_topic(
@@ -264,8 +262,6 @@ def broadcast_handler(func):
 
 def all_link_cleanup_handler(func):
     """Register the c message handler."""
-    from datetime import datetime
-
     last_command = datetime(1, 1, 1)
 
     def register_topic(instance_func, topic):

@@ -1,9 +1,9 @@
 """Manage X10 functions."""
 from .. import pub
 from ..constants import X10Commands
+from ..handlers.to_device.x10_send import X10CommandSend
 from ..subscriber_base import SubscriberBase
 from ..x10_address import X10Address, create
-from ..handlers.to_device.x10_send import X10CommandSend
 
 
 async def async_x10_all_units_off(housecode: str):

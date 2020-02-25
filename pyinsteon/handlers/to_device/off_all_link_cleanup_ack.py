@@ -1,7 +1,7 @@
 """Manage outbound OFF All-Link Cleanup ACK response to a device."""
 
-from .all_link_cleanup_ack_command import AllLinkCleanupAckCommandHandlerBase
 from ...topics import OFF
+from .all_link_cleanup_ack_command import AllLinkCleanupAckCommandHandlerBase
 
 
 class OffAllLinkCleanupAckCommand(AllLinkCleanupAckCommandHandlerBase):

@@ -1,13 +1,14 @@
 """Base device object."""
 
 import asyncio
-from functools import partial
 import logging
+from functools import partial
+from inspect import iscoroutine, iscoroutinefunction
 
 from .. import pub
-from ..handlers.to_device.extended_set import ExtendedSetCommand
+from ..aldb.aldb_battery import ALDBBattery
 from ..constants import ResponseStatus
-
+from ..handlers.to_device.extended_set import ExtendedSetCommand
 
 _LOGGER = logging.getLogger(__name__)
 TIMEOUT = 2
@@ -21,7 +22,6 @@ class BatteryDeviceBase:
         self, address, cat, subcat, firmware=0x00, description="", model="", **kwargs
     ):
         """Init the DeviceBattery class."""
-        from ..aldb.aldb_battery import ALDBBattery
 
         # The super class is the non-battery base class such as OnOffControllerBase
         super(BatteryDeviceBase, self).__init__(
@@ -71,8 +71,6 @@ class BatteryDeviceBase:
             self._last_run = asyncio.ensure_future(self._run_commands())
 
     async def _run_commands(self):
-        from inspect import iscoroutinefunction, iscoroutine
-
         retry_cmds = []
         try:
             while True:

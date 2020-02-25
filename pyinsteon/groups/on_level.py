@@ -1,7 +1,8 @@
 """On Leve state."""
 import logging
-from ..address import Address
+
 from . import StateBase
+from ..address import Address
 
 _LOGGER = logging.getLogger(__name__)
 

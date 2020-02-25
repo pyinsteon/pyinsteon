@@ -3,9 +3,9 @@
 import asyncio
 from abc import ABCMeta
 
+from .. import ack_handler, direct_ack_handler, direct_nak_handler
 from ...address import Address
 from ...constants import MessageFlagType
-from .. import ack_handler, direct_ack_handler, direct_nak_handler
 from ..outbound_base import OutboundHandlerBase
 
 TIMEOUT = 3  # Wait time for device response

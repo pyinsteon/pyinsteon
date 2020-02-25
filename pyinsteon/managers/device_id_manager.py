@@ -1,16 +1,16 @@
 """Manage identifying unknown devices."""
 import asyncio
-from collections import namedtuple
 import logging
+from collections import namedtuple
 
-from .. import pub
-from ..subscriber_base import SubscriberBase
+from .. import devices, pub
 from ..address import Address
-from ..handlers.to_device.id_request import IdRequestCommand
 from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
 from ..handlers.from_device.delete_from_all_link_group import (
     DeleteFromAllLinkGroupCommand,
 )
+from ..handlers.to_device.id_request import IdRequestCommand
+from ..subscriber_base import SubscriberBase
 
 _LOGGER = logging.getLogger(__name__)
 MAX_RETRIES = 5
@@ -62,8 +62,6 @@ class DeviceIdManager(SubscriberBase):
         self, address: Address, cat: int, subcat: int, firmware: int = 0x00
     ):
         """Set the device ID of a device."""
-        from .. import devices
-
         address = Address(address)
         cat = int(cat)
         subcat = int(subcat)

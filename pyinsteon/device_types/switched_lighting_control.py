@@ -1,10 +1,6 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
-from ..handlers.to_device.set_leds import SetLedsCommandHandler
-
-# from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
-# from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
-from ..handlers.to_device.status_request import StatusRequestCommand
+from ..extended_property import LED_DIMMING, ON_LEVEL, RAMP_RATE, X10_HOUSE, X10_UNIT
 from ..groups import (
     ON_OFF_OUTLET_BOTTOM,
     ON_OFF_OUTLET_TOP,
@@ -20,6 +16,23 @@ from ..groups import (
     ON_OFF_SWITCH_MAIN,
 )
 from ..groups.on_off import OnOff
+from ..handlers.to_device.set_leds import SetLedsCommandHandler
+
+# from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
+# from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
+from ..handlers.to_device.status_request import StatusRequestCommand
+from ..operating_flag import (
+    DUAL_LINE_ON,
+    KEY_BEEP_ON,
+    LED_BLINK_ON_ERROR_ON,
+    LED_BLINK_ON_TX_ON,
+    LED_ON,
+    MOMENTARY_LINE_ON,
+    PROGRAM_LOCK_ON,
+    RESUME_DIM_ON,
+    REVERSED_ON,
+    THREE_WAY_ON,
+)
 from .commands import SET_LEDS_COMMAND, STATUS_COMMAND
 from .on_off_responder_base import OnOffResponderBase
 
@@ -63,8 +76,6 @@ class SwitchedLightingControl_ApplianceLinc(SwitchedLightingControl):
     """ApplianceLinc based dimmable lights."""
 
     def _register_operating_flags(self):
-        from ..operating_flag import PROGRAM_LOCK_ON, LED_BLINK_ON_TX_ON, LED_ON
-
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
@@ -75,22 +86,6 @@ class SwitchedLightingControl_SwitchLinc(SwitchedLightingControl):
     """SwichLinc based dimmable lights."""
 
     def _register_operating_flags(self):
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_BLINK_ON_TX_ON,
-            RESUME_DIM_ON,
-            LED_ON,
-            KEY_BEEP_ON,
-            LED_BLINK_ON_ERROR_ON,
-        )
-        from ..extended_property import (
-            LED_DIMMING,
-            ON_LEVEL,
-            X10_HOUSE,
-            X10_UNIT,
-            RAMP_RATE,
-        )
-
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
@@ -114,9 +109,6 @@ class SwitchedLightingControl_OutletLinc(SwitchedLightingControl):
     """OutletLinc based dimmable lights."""
 
     def _register_operating_flags(self):
-        from ..operating_flag import PROGRAM_LOCK_ON, LED_BLINK_ON_TX_ON, LED_ON
-        from ..extended_property import X10_HOUSE, X10_UNIT
-
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
@@ -130,18 +122,6 @@ class SwitchedLightingControl_Micro(SwitchedLightingControl):
     """Micro switch based dimmable lights."""
 
     def _register_operating_flags(self):
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_BLINK_ON_TX_ON,
-            LED_ON,
-            KEY_BEEP_ON,
-            DUAL_LINE_ON,
-            MOMENTARY_LINE_ON,
-            THREE_WAY_ON,
-            REVERSED_ON,
-            LED_BLINK_ON_ERROR_ON,
-        )
-
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
@@ -160,20 +140,6 @@ class SwitchedLightingControl_DinRail(SwitchedLightingControl):
     """DINRail based dimmable lights."""
 
     def _register_operating_flags(self):
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_BLINK_ON_TX_ON,
-            LED_ON,
-            KEY_BEEP_ON,
-        )
-        from ..extended_property import (
-            LED_DIMMING,
-            ON_LEVEL,
-            X10_HOUSE,
-            X10_UNIT,
-            RAMP_RATE,
-        )
-
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)

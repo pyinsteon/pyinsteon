@@ -1,7 +1,7 @@
 """Manage outbound ON command to a device."""
 from .. import direct_ack_handler
-from .direct_command import DirectCommandHandlerBase
 from ...topics import PRODUCT_DATA_REQUEST
+from .direct_command import DirectCommandHandlerBase
 
 
 class ProductDataRequestCommand(DirectCommandHandlerBase):

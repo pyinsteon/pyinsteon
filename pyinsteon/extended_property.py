@@ -1,6 +1,6 @@
 """Representaton of an extended property of a device."""
-from .device_flag import DeviceFlagBase
 from .address import Address
+from .device_flag import DeviceFlagBase
 
 RAMP_RATE = "ramp_rate"
 X10_HOUSE = "x10_house"

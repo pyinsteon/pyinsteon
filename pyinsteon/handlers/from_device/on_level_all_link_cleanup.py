@@ -1,9 +1,9 @@
 """Manage inbound OFF All-Link Cleanup command to a device."""
 
 from .. import inbound_handler
-from .all_link_cleanup_command import AllLinkCleanupCommandHandlerBase
-from ...topics import ON
 from ...address import Address
+from ...topics import ON
+from .all_link_cleanup_command import AllLinkCleanupCommandHandlerBase
 
 
 class OnAllLinkCleanupInbound(AllLinkCleanupCommandHandlerBase):
