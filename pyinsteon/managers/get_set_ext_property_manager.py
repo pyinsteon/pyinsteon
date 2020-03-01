@@ -23,7 +23,9 @@ def _calc_flag_value(field):
     set_cmd = None
     for bit in field:
         flag_info = field[bit]
-        if flag_info.flag.new_value:
+        flag = flag_info.flag
+        set_value = not flag.new_value if flag.is_reversed else flag.new_value
+        if set_value:
             data = data | 1 << bit
         set_cmd = flag_info.set_cmd
     return set_cmd, data
@@ -43,7 +45,7 @@ class GetSetExtendedPropertyManager:
         self._flags = {}
         self._response_queue = asyncio.Queue()
 
-    def create(self, name, group, data_field, bit, set_cmd):
+    def create(self, name, group, data_field, bit, set_cmd, is_revsersed=False):
         """Subscribe a device property to Get and Set values.
 
         data is stored in self._groups[group][data_field]<[bit]>
@@ -59,7 +61,7 @@ class GetSetExtendedPropertyManager:
         flags[data_field] = field
         self._groups[group] = flags
         self._flags[name] = flag_info
-        self._properties[name] = ExtendedProperty(self._address, name, prop_type)
+        self._properties[name] = ExtendedProperty(self._address, name, prop_type, is_revsersed)
         return self._properties[name]
 
     async def async_read(self, group=None):
@@ -118,7 +120,6 @@ class GetSetExtendedPropertyManager:
 
     def _update_all_fields(self, group, data):
         """Update each flag."""
-        _LOGGER.error("Found a new extended flag set")
         if self._groups.get(group) is None and group == 1:
             group = 0
         if self._groups.get(group) is None:
