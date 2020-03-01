@@ -2,7 +2,8 @@
 import asyncio
 import logging
 
-import aiohttp
+from aiohttp import ClientSession
+from aiohttp.client_exceptions import ClientError
 
 from .hub_connection_exception import HubConnectionException
 
@@ -38,7 +39,7 @@ class HttpReaderWriter:
         """Test the connection to the hub."""
         response_status = 999
         try:
-            async with aiohttp.ClientSession(auth=self._auth) as session:
+            async with ClientSession(auth=self._auth) as session:
                 async with session.get(url, timeout=10) as response:
                     if response:
                         response_status = response.status
@@ -48,41 +49,44 @@ class HttpReaderWriter:
                             )
                             return True
                         _log_error(response.status)
-                        _LOGGER.debug("Connection test failed")
-                        return False
-
-        # pylint: disable=broad-except
-        except Exception as ex:
+        except ClientError as ex:
             _LOGGER.error(
                 "An aiohttp error occurred: %s with status %s", str(ex), response_status
             )
         _LOGGER.debug("Connection test failed")
         return False
 
-    async def async_read(self, session, url):
+    async def async_read(self, url):
         """Read from the url."""
         try:
-            async with session.get(url) as response:
-                # _LOGGER.debug("Reader status: %d", response.status)
-                if response.status == 200:
-                    html = await response.text()
-                else:
-                    _log_error(response.status)
-                    raise HubConnectionException(
-                        "Connection status error: {}".format(response.status)
-                    )
-        except (asyncio.TimeoutError, aiohttp.ClientError) as ex:
+            async with ClientSession(auth=self._auth) as session:
+                async with session.get(url, timeout=10) as response:
+                    if response.status == 200:
+                        html = await response.text()
+                    else:
+                        _log_error(response.status)
+                        raise HubConnectionException(
+                            "Connection status error: {}".format(response.status)
+                        )
+        except (asyncio.TimeoutError, ClientError) as ex:
             await session.close()
-            _LOGGER.error("Session error: %s", str(ex))
+            _LOGGER.error("Client error: (%s) %s", type(ex), str(ex))
             raise HubConnectionException(str(ex))
-        return await self._parse_buffer(html)
+        except asyncio.CancelledError as cancel_error:
+            _LOGGER.info("Stop connection to Hub (loop stopped)")
+            raise cancel_error
+        except GeneratorExit as generator_exit:
+            _LOGGER.info("Stop connection to Hub (GeneratorExit)")
+            raise generator_exit
+        else:
+            return await self._parse_buffer(html)
 
     async def async_write(self, url):
         """Write data to the transport asyncronously."""
         return_status = 500
         _LOGGER.debug("Writing message: %s", url)
         try:
-            async with aiohttp.ClientSession(auth=self._auth) as session:
+            async with ClientSession(auth=self._auth) as session:
                 async with session.post(url, timeout=10) as response:
                     return_status = response.status
                     _LOGGER.debug("Post status: %s", response.status)
@@ -90,7 +94,7 @@ class HttpReaderWriter:
                         await self.reset_reader()
                     else:
                         _log_error(response.status)
-        except aiohttp.ClientError:
+        except ClientError:
             _LOGGER.error("Hub write failure (ClienError)")
         except asyncio.TimeoutError:
             _LOGGER.error("Hub write failure (TimeoutError)")
