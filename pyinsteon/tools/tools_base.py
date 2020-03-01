@@ -314,13 +314,9 @@ class ToolsBase(Cmd):
         elif mode == "m":
             message_logger = logging.getLogger("pyinsteon.messages")
             message_logger.setLevel(logging.DEBUG)
-            topic_logger = logging.getLogger("pyinsteon.topics")
-            topic_logger.setLevel(logging.ERROR)
         elif mode == "t":
             topic_logger = logging.getLogger("pyinsteon.topics")
             topic_logger.setLevel(logging.DEBUG)
-            message_logger = logging.getLogger("pyinsteon.messages")
-            message_logger.setLevel(logging.ERROR)
 
     async def do_device_status(self, *args, **kwargs):
         """Display device statis.
@@ -447,7 +443,7 @@ class ToolsBase(Cmd):
         console_handler.set_name(STDOUT_LOG_HANDLER)
         root_logger.addHandler(console_handler)
         root_logger.setLevel(level)
-        self._log_stdout("Set log level to {level}")
+        self._log_stdout(f"Set log level to {level}")
 
     async def _call_next_menu(self, menu, name=None):
         """Start the next menu."""
