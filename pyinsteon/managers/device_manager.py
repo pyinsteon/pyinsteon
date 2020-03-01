@@ -42,7 +42,7 @@ class DeviceManager(SubscriberBase):
 
     def __setitem__(self, address, device):
         """Add a device to the device list."""
-        _LOGGER.error("Adding device to INSTEON devices list: %s", address.id)
+        _LOGGER.info("Adding device to INSTEON devices list: %s", address.id)
         if not isinstance(device, (Device, DeviceId)):
             raise ValueError("Device must be a DeviceId or a Device type.")
 
