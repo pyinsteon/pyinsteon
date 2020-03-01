@@ -17,10 +17,12 @@ class NoALDB:
 
     def __iter__(self):
         """Iterate through each ALDB device record."""
+        for addr in {}:
+            yield addr
 
     def __getitem__(self, mem_addr):
         """Fetch a device from the ALDB."""
-        return None
+        return {}
 
     def __len__(self):
         """Return the number of devices in the ALDB."""
