@@ -61,7 +61,6 @@ from ..operating_flag import (
     HEART_BEAT_ON,
     IGNORE_JUMPER_ON,
     LED_BLINK_ON_TX_ON,
-    LED_OFF,
     LED_ON,
     LINK_TO_FF_GROUP,
     MULTI_SEND_ON,

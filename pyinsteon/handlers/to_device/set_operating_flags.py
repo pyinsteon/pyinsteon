@@ -1,5 +1,4 @@
 """Handle sending a read request for ALDB records."""
-import asyncio
 import logging
 
 from ...address import Address
