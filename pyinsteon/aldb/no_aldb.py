@@ -94,10 +94,12 @@ class NoALDB:
         """Return the High Water Mark record memory address."""
         return None
 
+    # pylint: disable=no-self-use
     def get(self, mem_addr, default=None):
         """Get the record at address 'mem_addr'."""
         return None
 
+    # pylint: disable=no-self-use
     def get_responders(self, group):
         """Return all responders to this device for a group."""
         return None
