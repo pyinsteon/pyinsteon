@@ -32,7 +32,6 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
     @inbound_handler
     def handle_response(self, cmd1, cmd2, target, user_data):
         """Handle the Extended Get response from a device."""
-        _LOGGER.error("Extended Get Response received in handler")
         if user_data is None or user_data["d2"] != 0x01:
             return
         data = OrderedDict()
