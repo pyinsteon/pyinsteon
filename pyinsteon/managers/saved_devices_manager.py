@@ -42,7 +42,7 @@ def _dict_to_device(device_dict):
 
 def _device_to_dict(device_list):
     """Convert a device to a dictionary."""
-    device_list = []
+    device_dict = []
     for addr in device_list:
         device = device_list.get(addr)
         if not isinstance(device.address, X10Address):
@@ -80,8 +80,8 @@ def _device_to_dict(device_list):
                 "operating_flags": operating_flags,
                 "properties": properties,
             }
-            device_list.append(device_info)
-    return device_list
+            device_dict.append(device_info)
+    return device_dict
 
 
 def _dict_to_aldb_record(aldb_dict):
