@@ -29,7 +29,8 @@ class DeviceIdManager(SubscriberBase):
         self._unknown_devices = []
         self._device_ids = {}
         self._awake_devices = []
-        self._awake_devices_queue = asyncio.Queue()
+        # Cannot set queue here because we are outside the loop
+        self._awake_devices_queue = None
         self._id_device_lock = asyncio.Lock()
 
     def __getitem__(self, address):
@@ -43,7 +44,8 @@ class DeviceIdManager(SubscriberBase):
 
     def close(self):
         """Close the ID listener."""
-        self._awake_devices_queue.put_nowait(None)
+        if self._awake_devices_queue is not None:
+            self._awake_devices_queue.put_nowait(None)
 
     def append(self, address: Address):
         """Append a device address to the list."""
@@ -148,6 +150,8 @@ class DeviceIdManager(SubscriberBase):
 
     async def _id_awake_devices(self):
         """Loop on devices that wake up and send a message."""
+        if self._awake_devices_queue is None:
+            self._awake_devices_queue = asyncio.Queue()
         while True:
             address = await self._awake_devices_queue.get()
             if address is None:
@@ -184,4 +188,6 @@ class DeviceIdManager(SubscriberBase):
                 return
             pub.unsubscribe(self._device_awake, address.id)
             self._awake_devices.append(address)
+            if self._awake_devices_queue is None:
+                self._awake_devices_queue = asyncio.Queue()
             self._awake_devices_queue.put_nowait(address)
