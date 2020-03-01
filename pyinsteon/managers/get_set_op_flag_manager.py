@@ -17,7 +17,7 @@ MAX_RETRIES = 5
 class GetSetOperatingFlagsManager:
     """Manager to get operating flags."""
 
-    def __init__(self, address: Address, op_flags):
+    def __init__(self, address: Address, op_flags, extended_write=False):
         """Init the GetOperatingFlagsManager class."""
         self._address = Address(address)
         self._op_flags = op_flags
@@ -27,6 +27,8 @@ class GetSetOperatingFlagsManager:
         self._set_command = SetOperatingFlagsCommand(self._address)
         self._get_command.subscribe(self._update_flags)
         self._send_lock = asyncio.Lock()
+        self._extended_write = False
+        self._set_command.subscribe(self._check_write_response)
 
     def subscribe(self, name, group, bit, set_cmd, unset_cmd):
         """Subscribe to updates."""
@@ -87,26 +89,38 @@ class GetSetOperatingFlagsManager:
                 flat_info = self._flags[name]
                 result = await self._async_write(flat_info)
                 results.append(result)
-        return multiple_status(results)
+        return multiple_status(*results)
 
     async def _async_write(self, flag_info):
         flag = self._op_flags[flag_info.name]
-        cmd = flag_info.set_cmd if flag.new_value else flag_info.unset_cmd
+        should_set = not flag.new_value if flag.is_reversed else flag.new_value
+        cmd = flag_info.set_cmd if should_set else flag_info.unset_cmd
         if cmd is not None:  # The operating flag is read only
             retries = 0
             result = ResponseStatus.UNSENT
 
             while retries < MAX_RETRIES and result != ResponseStatus.SUCCESS:
-                result = await self._set_command.async_send(cmd=cmd)
+                result = await self._set_command.async_send(
+                    cmd=cmd, extended=self._extended_write
+                )
                 retries += 1
 
             if result == ResponseStatus.SUCCESS:
                 flag.load(flag.new_value)
             return result
-
         # Reset the read only flag to original value
         flag.load(flag.value)
         return ResponseStatus.SUCCESS
+
+    def _check_write_response(self, response):
+        """Confirm if the write command requires Standard or Extended messages.
+        
+        This is called when the command is responded to with a Direct NAK. The code in cmd2
+        is returned in response.
+        """
+        _LOGGER.error("Received set command response: %s", response)
+        if response == 0xFD:
+            self._extended_write = True
 
     def _update_flags(self, group, flags):
         """Update each flag."""
