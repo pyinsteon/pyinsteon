@@ -2,7 +2,7 @@
 import os
 from .. import async_connect, async_close, devices
 from .tools_base import ToolsBase
-from .op_flags import ToolsOpFlags
+from .config import ToolsConfig
 from .aldb import ToolsAldb
 from ..managers.link_manager import async_enter_linking_mode, async_enter_unlinking_mode
 
@@ -15,27 +15,29 @@ class InsteonCmd(ToolsBase):
 
         Usage:
             connect device
-            connect host username [hub_version port]
+            connect host username [hub_version [port]]
         """
         args = args[0].split()
         try:
             self.username = args[1]
             self.host = args[0]
-            self.hub_version = int(args[2])
-            self.port = int(args[3])
         except IndexError:
             try:
                 self.device = args[0]
             except IndexError:
                 pass
             params = self.device
-        except ValueError:
-            self.hub_version = None
-            self.port = None
+        else:
+            try:
+                self.hub_version = int(args[2])
+                self.port = int(args[3])
+            except (ValueError, IndexError):
+                self.hub_version = None
+                self.port = None
 
         password = await self._get_connection_params()
 
-        if self.username:
+        if password:
             params = f"{self.host} {self.username} {'*' * len(password)} {self.hub_version} {self.port}"
         self._log_command(f"connect {params}")
         await async_connect(
@@ -98,10 +100,10 @@ class InsteonCmd(ToolsBase):
         self._log_command("manage_aldb")
         await self._call_next_menu(ToolsAldb, "aldb")
 
-    async def do_manage_op_flags(self, *args, **kwargs):
-        """Manage operational flags."""
-        self._log_command("manage_op_flags")
-        await self._call_next_menu(ToolsOpFlags, "op_flags")
+    async def do_manage_config(self, *args, **kwargs):
+        """Manage operational flags and extended properties."""
+        self._log_command("manage_config")
+        await self._call_next_menu(ToolsConfig, "config")
 
     async def do_add_device(self, *args, **kwargs):
         """Add a device."""
@@ -119,6 +121,15 @@ class InsteonCmd(ToolsBase):
         )
         await async_enter_unlinking_mode(group=0)
 
+    async def do_exit(self, *args, **kwargs):
+        """Exit the current menu.
+
+        Usage:
+            exit
+        """
+        self._log_command("exit")
+        await self.do_log_to_file("n")
+        return -1
 
 def tools():
     """Start insteon tools."""
