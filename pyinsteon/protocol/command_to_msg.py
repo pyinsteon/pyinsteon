@@ -349,7 +349,9 @@ def get_operating_flags(address: Address, flags_requested: int, topic=pub.AUTO_T
 
 
 @topic_to_command_handler(register_list=topic_register, topic=SET_OPERATING_FLAGS)
-def set_operating_flags(address: Address, cmd: int, extended=False, topic=pub.AUTO_TOPIC):
+def set_operating_flags(
+    address: Address, cmd: int, extended=False, topic=pub.AUTO_TOPIC
+):
     """Create a SET_OPERATING_FLAGS command."""
     user_data = UserData() if extended else None
     _create_direct_message(topic=topic, address=address, cmd2=cmd, user_data=user_data)

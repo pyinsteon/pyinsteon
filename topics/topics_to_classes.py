@@ -3,10 +3,12 @@
 import os
 
 from pubsub import pub
-from pubsub.utils.yamltopicdefnprovider import (TOPIC_TREE_FROM_FILE,
-                                                YamlTopicDefnProvider)
+from pubsub.utils.yamltopicdefnprovider import (
+    TOPIC_TREE_FROM_FILE,
+    YamlTopicDefnProvider,
+)
 
-FILENAME = 'topics.yaml'
+FILENAME = "topics.yaml"
 
 
 def load_topics(file):
@@ -20,11 +22,12 @@ def load_topics(file):
 def export_classes():
     """Export the current topics to classes."""
     PATH_TO_FILE = os.path.realpath(
-        os.path.join(os.getcwd(), os.path.dirname(__file__), FILENAME))
+        os.path.join(os.getcwd(), os.path.dirname(__file__), FILENAME)
+    )
     load_topics(PATH_TO_FILE)
 
-    pub.exportTopicTreeSpec('topics')
+    pub.exportTopicTreeSpec("topics")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     export_classes()

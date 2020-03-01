@@ -228,12 +228,18 @@ class Device(ABC):
     def _register_operating_flags(self):
         """Add operating flags to the device."""
 
-    def _add_operating_flag(self, name, group, bit, set_cmd, unset_cmd, is_reversed=False):
+    def _add_operating_flag(
+        self, name, group, bit, set_cmd, unset_cmd, is_reversed=False
+    ):
         flag_type = bool if bit is not None else int
-        self._operating_flags[name] = OperatingFlag(self._address, name, flag_type, is_reversed)
+        self._operating_flags[name] = OperatingFlag(
+            self._address, name, flag_type, is_reversed
+        )
         self._op_flags_manager.subscribe(name, group, bit, set_cmd, unset_cmd)
 
-    def _add_property(self, name, data_field, set_cmd, group=1, bit=None, is_reversed=False):
+    def _add_property(
+        self, name, data_field, set_cmd, group=1, bit=None, is_reversed=False
+    ):
         self._properties[name] = self._ext_property_manager.create(
             name, group, data_field, bit, set_cmd, is_reversed
         )

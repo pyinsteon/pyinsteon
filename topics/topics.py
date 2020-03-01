@@ -3702,6 +3702,7 @@ class command:
             Device Window Covering Position direct_nak command.
             """
 
+
 class send:
     """
     Send an Insteon Message

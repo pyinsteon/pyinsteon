@@ -131,6 +131,7 @@ class InsteonCmd(ToolsBase):
         await self.do_log_to_file("n")
         return -1
 
+
 def tools():
     """Start insteon tools."""
     InsteonCmd.start()

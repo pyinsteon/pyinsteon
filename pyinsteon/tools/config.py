@@ -39,7 +39,6 @@ class ToolsConfig(ToolsBase):
                 else:
                     self._log_stdout("Extended properties read error")
 
-
     async def do_update_config(self, *args, **kwargs):
         """Write the operating flags and extended properties to a device.""
 

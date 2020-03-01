@@ -61,7 +61,9 @@ class GetSetExtendedPropertyManager:
         flags[data_field] = field
         self._groups[group] = flags
         self._flags[name] = flag_info
-        self._properties[name] = ExtendedProperty(self._address, name, prop_type, is_revsersed)
+        self._properties[name] = ExtendedProperty(
+            self._address, name, prop_type, is_revsersed
+        )
         return self._properties[name]
 
     async def async_read(self, group=None):

@@ -623,7 +623,9 @@ class SecurityHealthSafety_Smokebridge(Device):
         self._add_operating_flag(
             name=LED_BLINK_ON_TX_ON, group=0, bit=1, set_cmd=2, unset_cmd=3
         )
-        self._add_operating_flag(name=LED_ON, group=0, bit=4, set_cmd=8, unset_cmd=9, is_reversed=True)
+        self._add_operating_flag(
+            name=LED_ON, group=0, bit=4, set_cmd=8, unset_cmd=9, is_reversed=True
+        )
         self._add_operating_flag(
             name=HEART_BEAT_ON, group=0, bit=5, set_cmd=6, unset_cmd=7
         )
