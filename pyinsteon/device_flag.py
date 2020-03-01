@@ -5,7 +5,7 @@ from .subscriber_base import SubscriberBase
 class DeviceFlagBase(SubscriberBase):
     """Operating flag or Extended Property."""
 
-    def __init__(self, topic, name, flag_type: type):
+    def __init__(self, topic, name, flag_type: type, is_reversed=False):
         """Init the DeviceFlag class."""
         super().__init__(topic)
         self._name = name
@@ -14,6 +14,7 @@ class DeviceFlagBase(SubscriberBase):
         self._new_value = None
         self._is_dirty = False
         self._is_loaded = False
+        self._reversed = is_reversed
 
     @property
     def name(self):
@@ -51,6 +52,11 @@ class DeviceFlagBase(SubscriberBase):
         """Return if the Operating flag has been loaded."""
         return self._is_loaded
 
+    @property
+    def is_reversed(self):
+        """Return if the device flag is reverse of this value."""
+        return self._reversed
+
     def load(self, value):
         """Load the flag from the device value.
 
@@ -60,6 +66,8 @@ class DeviceFlagBase(SubscriberBase):
         This method updates the `is_loaded` property and clears the `new value` and
         `is_dirty` properties.
         """
+        if self._type is bool and self._reversed:
+            value = not value
         self._value = self._type(value) if value is not None else self._type(0)
         self._is_dirty = False
         self._new_value = None

@@ -34,8 +34,8 @@ DURATION_LOW = "duration_low"
 class ExtendedProperty(DeviceFlagBase):
     """Representaton of an extended property of a device."""
 
-    def __init__(self, address, name, flag_type: type):
+    def __init__(self, address, name, flag_type: type, is_reversed=False):
         """Init the ExtendedProperty class."""
         self._address = Address(address)
         topic = "{}.property.{}".format(self._address.id, name)
-        super().__init__(topic, name, flag_type)
+        super().__init__(topic, name, flag_type, is_reversed)
