@@ -20,6 +20,7 @@ class ToolsAldb(ToolsBase):
 
         Usage:
             load_aldb <ADDRESS>|all y|n  Load one or all devices (can be the modem address)
+
         To clear the current ALDB and reload from the device, enter `y` as the second argment.
         Otherwise enter `n`.
         """
