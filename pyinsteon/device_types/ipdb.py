@@ -28,7 +28,8 @@ from . import (PLM, DimmableLightingControl, DimmableLightingControl_DinRail,
                SwitchedLightingControl_OnOffOutlet,
                SwitchedLightingControl_OutletLinc,
                SwitchedLightingControl_SwitchLinc, Thermostat, UnknownDevice,
-               WindowCovering, X10Dimmable, X10OnOff, X10OnOffSensor)
+               WindowCovering, X10Dimmable, X10OnOff, X10OnOffSensor,
+               DimmableLightingControl_ToggleLinc, SwitchedLightingControl_ToggleLinc)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -86,7 +87,7 @@ class IPDB:
         Product(0x01, 0x11, None, "Dimmer Module", "2632-442", DimmableLightingControl_SwitchLinc,),
         Product(0x01, 0x12, None, "Dimmer Module", "2632-522", DimmableLightingControl_SwitchLinc,),
         Product(0x01, 0x13, 0x000032, "SwitchLinc Dimmer (Lixar)", "2676D-B", DimmableLightingControl,),
-        Product(0x01, 0x17, None, "ToggleLinc Dimmer", "2466DW", DimmableLightingControl_SwitchLinc,),
+        Product(0x01, 0x17, None, "ToggleLinc Dimmer", "2466DW", DimmableLightingControl_ToggleLinc,),
         Product(0x01, 0x18, None, "ICON SwitchLinc Dimmer In-line Companion", "2474D", DimmableLightingControl_InLineLinc,),
         Product(0x01, 0x19, None, "SwitchLinc Dimmer", "2476D", DimmableLightingControl_SwitchLinc,),
         Product(0x01, 0x1A, None, "In-LineLinc Dimmer", "2475D", DimmableLightingControl_InLineLinc,),
@@ -95,7 +96,7 @@ class IPDB:
         Product(0x01, 0x1C, None, "KeypadLinc Dimmer", "2486DWH8", DimmableLightingControl_KeypadLinc_8,),
         Product(0x01, 0x1D, None, "SwitchLinc Dimmer", "2476DH", DimmableLightingControl_SwitchLinc,),
         Product(0x01, 0x1E, None, "ICON Dimmer Switch", "2876D", DimmableLightingControl_SwitchLinc,),
-        Product(0x01, 0x1F, 0x0000000, "ToggleLinc Dimmer", "2466DW", DimmableLightingControl_SwitchLinc,),
+        Product(0x01, 0x1F, 0x0000000, "ToggleLinc Dimmer", "2466DW", DimmableLightingControl_ToggleLinc,),
         Product(0x01, 0x20, None, "SwitchLinc Dimmer", "2477D", DimmableLightingControl_SwitchLinc,),
         Product(0x01, 0x20, 0x00006B, "SwitchLinc Dimmer", "2477D", DimmableLightingControl_SwitchLinc,),
         Product(0x01, 0x21, None, "OutletLinc Dimmer", "2472DWH", DimmableLightingControl_OutletLinc,),
@@ -146,7 +147,7 @@ class IPDB:
         Product(0x02, 0x0A, None, "SwitchLinc Relay", "2476S", SwitchedLightingControl_SwitchLinc,),
         Product(0x02, 0x0B, None, "ICON On/Off Switch", "2876S", SwitchedLightingControl_SwitchLinc,),
         Product(0x02, 0x0C, None, "ICON Appliance Module", "2856S3B", SwitchedLightingControl_ApplianceLinc,),
-        Product(0x02, 0x0D, None, "ToggleLinc On/Off", "2466SW", SwitchedLightingControl_SwitchLinc,),
+        Product(0x02, 0x0D, None, "ToggleLinc On/Off", "2466SW", SwitchedLightingControl_ToggleLinc,),
         Product(0x02, 0x0E, None, "SwitchLinc Relay Countdown Timer", "2476ST", SwitchedLightingControl_SwitchLinc,),
         Product(0x02, 0x0F, 0x000036, "KeypadLinc On/Off", "2486SWH6", SwitchedLightingControl_KeypadLinc_6,),
         Product(0x02, 0x10, 0x00001B, "In-LineLinc Relay", "2475S", SwitchedLightingControl_InLineLinc,),
@@ -159,7 +160,7 @@ class IPDB:
         Product(0x02, 0x17, None, "ICON Appliance Module", "2856S3B", SwitchedLightingControl_ApplianceLinc,),
         Product(0x02, 0x18, 0x000060, "SwitchLinc 220V Relay", "2494S220", SwitchedLightingControl_SwitchLinc,),
         Product(0x02, 0x19, None, "SwitchLinc 220V Relay", "2494S220", SwitchedLightingControl_SwitchLinc,),
-        Product(0x02, 0x1A, 0x0000000, "ToggleLinc On/Off", "2466SW", SwitchedLightingControl_SwitchLinc,),
+        Product(0x02, 0x1A, 0x0000000, "ToggleLinc On/Off", "2466SW", SwitchedLightingControl_ToggleLinc,),
         Product(0x02, 0x1C, None, "SwitchLinc Relay", "2476S", SwitchedLightingControl_SwitchLinc,),
         Product(0x02, 0x1E, None, "KeypadLinc On/Off", "2487S", SwitchedLightingControl_KeypadLinc_6,),  # KPL
         Product(0x02, 0x1F, None, "In-LineLinc On/Off", "2475SDB", SwitchedLightingControl_InLineLinc,),

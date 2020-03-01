@@ -29,7 +29,6 @@ from ..operating_flag import (
     KEY_BEEP_ON,
     LED_BLINK_ON_ERROR_ON,
     LED_BLINK_ON_TX_ON,
-    LED_OFF,
     LED_ON,
     LOAD_SENSE_ON,
     POWERLINE_DISABLE_ON,
@@ -63,7 +62,7 @@ class DimmableLightingControl_LampLinc(DimmableLightingControl):
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
         self._add_operating_flag(LOAD_SENSE_ON, 0, 5, 0x0A, 0x0B)
 
         self._add_property(LED_DIMMING, 3, 3)
@@ -82,11 +81,29 @@ class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
 
         self._add_property(LED_DIMMING, 3, 3)
+        self._add_property(X10_HOUSE, 5, None)
+        self._add_property(X10_UNIT, 6, None)
+        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(ON_LEVEL, 8, 6)
+
+
+class DimmableLightingControl_ToggleLinc(DimmableLightingControl):
+    """SwichLinc based dimmable lights."""
+
+    def _register_operating_flags(self):
+
+        super()._register_operating_flags()
+        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
+        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
+        self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
+        self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
+        self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
+
         self._add_property(X10_HOUSE, 5, None)
         self._add_property(X10_UNIT, 6, None)
         self._add_property(RAMP_RATE, 7, 5)
@@ -117,7 +134,7 @@ class DimmableLightingControl_OutletLinc(DimmableLightingControl):
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
 
         self._add_property(X10_HOUSE, 5, None)
         self._add_property(X10_UNIT, 6, None)
@@ -130,7 +147,7 @@ class DimmableLightingControl_DinRail(DimmableLightingControl):
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
 
         self._add_property(LED_DIMMING, 3, 3)
@@ -275,7 +292,7 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
-        self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
         self._add_operating_flag(RF_DISABLE_ON, 0, 6, 0x0C, 0x0D)
         self._add_operating_flag(POWERLINE_DISABLE_ON, 0, 7, 0x0E, 0x0F)
