@@ -10,7 +10,7 @@ ON_LEVEL = "on_level"
 AWAKE_INTERVAL = "awake_interval"
 SLEEP_INTERVAL = "sleep_interval"
 BROADCAST_NUMBER = "broadcast_number"
-TRIGGER_GROUP_BIT_MASK = "trigger_group_bit_mask"
+TRIGGER_GROUP_MASK = "trigger_group_mask"
 LSB_OF_SLEEP_INTERVAL = "lsb_of_sleep_interval"
 APP_RETRIES = "app_retries"
 CONFIG = "config"
@@ -29,10 +29,14 @@ DELAY = "delay"
 PRESCALER = "prescaler"
 DURATION_HIGH = "duration_high"
 DURATION_LOW = "duration_low"
+ON_MASK = "on_mask"
+OFF_MASK = "off_mask"
+NON_TOGGLE_MASK = "non_toggle_mask"
+NON_TOGGLE_ON_OFF_MASK = "non_toggle_on_off_mask"
 
 
 class ExtendedProperty(DeviceFlagBase):
-    """Representaton of an extended property of a device."""
+    """Representation of an extended property of a device."""
 
     def __init__(self, address, name, flag_type: type, is_reversed=False):
         """Init the ExtendedProperty class."""

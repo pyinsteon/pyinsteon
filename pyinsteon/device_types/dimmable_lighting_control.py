@@ -1,6 +1,18 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
+from typing import Iterable
 from ..constants import FanSpeed
-from ..extended_property import LED_DIMMING, ON_LEVEL, RAMP_RATE, X10_HOUSE, X10_UNIT
+from ..extended_property import (
+    LED_DIMMING,
+    ON_LEVEL,
+    RAMP_RATE,
+    X10_HOUSE,
+    X10_UNIT,
+    ON_MASK,
+    OFF_MASK,
+    NON_TOGGLE_MASK,
+    TRIGGER_GROUP_MASK,
+    NON_TOGGLE_ON_OFF_MASK,
+)
 
 # from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
 # from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
@@ -48,6 +60,7 @@ from .commands import (  # TRIGGER_SCENE_ON_COMMAND,; TRIGGER_SCENE_OFF_COMMAND,
     SET_LEDS_COMMAND,
     STATUS_COMMAND_FAN,
 )
+from ..utils import set_bit
 
 
 class DimmableLightingControl(VariableResponderBase):
@@ -355,6 +368,57 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         kwargs = self._change_led_status(led=group, is_on=False)
         return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
 
+    async def async_set_radio_buttons(self, buttons:Iterable):
+        """Set a group of buttons to act as radio buttons.
+
+        This takes in a iterable set of buttons (eg. (3,4,5,6)) to act as radio buttons where
+        no two buttons are on at the same time.
+        """
+        if len(buttons) < 2:
+            raise IndexError("At least two buttons required.")
+        await self.async_read_ext_properties()
+        button_copy = buttons.copy()
+        for button in buttons:
+            if button not in self._buttons.keys():
+                raise ValueError(f"Button {button} not in button list.")
+            button_str = f"_{button}" if button != 1 else ""
+            on_mask = self._properties[f"{ON_MASK}{button_str}"]
+            off_mask = self._properties[f"{OFF_MASK}{button_str}"]
+            for bit in button_copy:
+                if bit != button:
+                    on_mask.new_value = set_bit(on_mask.value, bit-1, True)
+                    off_mask.new_value = set_bit(off_mask.value, bit-1, False)
+        await self.async_write_ext_properties()
+
+    async def async_set_button_toggle_mode(self, button:int, mode:int):
+        """Set the toggle mode of a button.
+
+        Usage:
+            button: Integer of the button number 
+            mode: Integer of the mode
+                0: Toggle
+                1: Non-Toggle ON only
+                2: Non-Toggle OFF only
+        """
+        if button not in self._buttons.keys():
+            raise ValueError(f"Button {button} not in button list.")
+        if mode not in [0, 1, 2]:
+            raise ValueError(f"Mode {mode} invalid. Valid mode are [0, 1, 2]")
+        await self.async_read_ext_properties()
+        toggle_mask = self.properties[NON_TOGGLE_MASK]
+        on_off_mask = self.properties[NON_TOGGLE_ON_OFF_MASK]
+        if mode == 0:
+            toggle_mask.new_value = set_bit(toggle_mask.value, button-1, False)
+            on_off_mask.new_value = set_bit(on_off_mask.value, button-1, False)
+        elif mode == 1:
+            toggle_mask.new_value = set_bit(toggle_mask.value, button-1, True)
+            on_off_mask.new_value = set_bit(on_off_mask.value, button-1, True)
+        else:
+            toggle_mask.new_value = set_bit(toggle_mask.value, button-1, True)
+            on_off_mask.new_value = set_bit(on_off_mask.value, button-1, False)
+        await self.async_write_ext_properties()
+
+
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
@@ -378,6 +442,33 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
 
     def _update_leds(self, group, value):
         self._groups[group].value = value
+
+    def _register_operating_flags(self):
+        """Register operating flags."""
+        super()._register_operating_flags()
+        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
+        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
+        self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
+        self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
+        self._add_operating_flag(RF_DISABLE_ON, 0, 6, 0x0C, 0x0D)
+        self._add_operating_flag(POWERLINE_DISABLE_ON, 0, 7, 0x0E, 0x0F)
+        self._add_operating_flag(
+            LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15, is_reversed=True
+        )
+
+        self._add_property(LED_DIMMING, 9, 7, 1)
+        self._add_property(NON_TOGGLE_MASK, 0x0A, 0x08)
+        self._add_property(NON_TOGGLE_ON_OFF_MASK, 0x0B, 0x0D)
+        self._add_property(TRIGGER_GROUP_MASK, 0x0E, 0x0C)
+        for button in self._buttons:
+            button_str = f"_{button}" if button != 1 else ""
+            self._add_property(f"{ON_MASK}{button_str}", 3, 2, button)
+            self._add_property(f"{OFF_MASK}{button_str}", 4, 3, button)
+            self._add_property(f"{X10_HOUSE}{button_str}", 5, None, button)
+            self._add_property(f"{X10_UNIT}{button_str}", 6, None, button)
+            self._add_property(f"{RAMP_RATE}{button_str}", 7, 5, button)
+            self._add_property(f"{ON_LEVEL}{button_str}", 8, 6, button)
 
 
 class DimmableLightingControl_KeypadLinc_6(DimmableLightingControl_KeypadLinc):
