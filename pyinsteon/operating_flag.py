@@ -3,6 +3,7 @@ from .address import Address
 from .device_flag import DeviceFlagBase
 
 PROGRAM_LOCK_ON = "program_lock_on"
+BUTTON_LOCK_ON = "button_lock_on"
 LED_ON = "led_on"
 LED_OFF = "led_off"
 KEY_BEEP_ON = "key_beep_on"
@@ -59,6 +60,12 @@ CRC_ERROR_COUNT = "crc_error_count"
 SIGNAL_TO_NOISE_OF_LAST_FAILURE = "signal_to_noise_of_last_failure"
 SIGNAL_TO_NOISE_FAILURE_COUNT = "signal_to_noise_failure_count"
 DATABASE_DELTA = "database_delta"
+
+CELSIUS = "celsius"
+TIME_24_HOUR_FORMAT = "time_24_hour_format"
+SOFTWARE_LOCK_ON = "SOFTWARE_LOCK_ON"
+
+
 
 
 class OperatingFlag(DeviceFlagBase):
