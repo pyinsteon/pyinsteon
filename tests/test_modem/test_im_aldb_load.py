@@ -31,7 +31,7 @@ class TestModemALDBLoad(unittest.TestCase):
     def setUp(self):
         """Setup the test."""
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

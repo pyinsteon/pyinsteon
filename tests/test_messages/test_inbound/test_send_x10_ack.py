@@ -8,6 +8,7 @@ from tests import set_log_levels
 from tests.utils import hex_to_inbound_message
 
 
+# pylint: disable=no-member
 class TestSendX10(unittest.TestCase):
     """Test the SendX10 command."""
 
@@ -22,7 +23,7 @@ class TestSendX10(unittest.TestCase):
 
         self.msg, self.msg_bytes = hex_to_inbound_message(self.hex_ack)
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

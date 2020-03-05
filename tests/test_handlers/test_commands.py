@@ -93,7 +93,7 @@ class TestDirectCommands(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=True,
+            logger_topics=False,
         )
 
     def validate_values(self, topic=pub.ALL_TOPICS, **kwargs):

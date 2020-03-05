@@ -3,9 +3,7 @@ import unittest
 
 from pyinsteon.address import Address
 from pyinsteon.aldb.modem_aldb import ModemALDB
-from pyinsteon.topics import (ALL_LINK_RECORD_RESPONSE,
-                              GET_FIRST_ALL_LINK_RECORD,
-                              GET_NEXT_ALL_LINK_RECORD)
+from pyinsteon.topics import GET_FIRST_ALL_LINK_RECORD
 from tests import _LOGGER, set_log_levels
 from tests.utils import TopicItem, async_case, send_topics
 
@@ -31,7 +29,7 @@ class TestModemALDBLoadEmpty(unittest.TestCase):
     def setUp(self):
         """Setup the test."""
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

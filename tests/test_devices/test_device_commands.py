@@ -4,7 +4,6 @@ import unittest
 from asyncio import Queue, sleep
 from binascii import unhexlify
 from functools import partial
-from random import randint
 
 from aiofile import AIOFile
 
@@ -12,7 +11,7 @@ import pyinsteon.device_types as device_types
 from pyinsteon.address import Address
 from pyinsteon.protocol.protocol import Protocol
 from tests import _LOGGER, async_connect_mock, set_log_levels
-from tests.utils import TopicItem, async_case, send_topics
+from tests.utils import TopicItem, async_case, send_topics, random_address
 
 FILE = "device_commands.json"
 
@@ -20,17 +19,6 @@ FILE = "device_commands.json"
 def convert_to_int(str_value):
     """Convert a string hex value to int."""
     return int.from_bytes(unhexlify(str_value), byteorder="big")
-
-
-def random_address():
-    """Generate a random address."""
-    address = ""
-    for _ in range(0, 3):
-        rand_int = randint(1, 255)
-        if address:
-            address = f"{address}."
-        address = f"{address}{rand_int:02x}"
-    return Address(address)
 
 
 def convert_response(response, address):
@@ -64,7 +52,7 @@ class TestDeviceCommands(unittest.TestCase):
         """Set up the test."""
         self._topic = None
         self._last_value = None
-        set_log_levels("info", "info", "info", True)
+        set_log_levels("info", "info", "info", False)
 
     @async_case
     async def test_device_commands(self):

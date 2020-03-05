@@ -21,7 +21,7 @@ class TestNoDirectAck(unittest.TestCase):
         self._group = None
         self.ack_topic = "ack.{}.{}.on.direct".format(self._address.id, 1)
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

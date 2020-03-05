@@ -36,7 +36,7 @@ class TestUserData(unittest.TestCase):
             key = "d{}".format(itm)
             self.values_user_data[key] = itm + 0xA0
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

@@ -1,5 +1,5 @@
 """Test Get All-Link Record for Sender Command."""
-import sys
+
 import unittest
 from binascii import unhexlify
 
@@ -19,7 +19,7 @@ class TestGetAllLinkRecordForSender(unittest.TestCase, OutboundBase):
             MessageId(0x6C), unhexlify(self.hex)
         )
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

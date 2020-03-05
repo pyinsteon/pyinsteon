@@ -27,7 +27,7 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         )
         self.device.groups[1].subscribe(self.state_updated)
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

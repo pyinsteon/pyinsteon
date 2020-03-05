@@ -26,10 +26,10 @@ class TestOnLevel(unittest.TestCase):
         self._on_level_3 = None
 
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=True,
+            logger_topics=False,
         )
 
     def set_on_level_group_1(self, on_level, group=None):

@@ -32,7 +32,7 @@ class TestIdRequest(unittest.TestCase):
             self._address.id, ASSIGN_TO_ALL_LINK_GROUP
         )
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

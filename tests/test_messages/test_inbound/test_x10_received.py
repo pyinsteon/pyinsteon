@@ -20,7 +20,7 @@ class TestX10Received(unittest.TestCase):
 
         self.msg, self.msg_bytes = hex_to_inbound_message(self.hex)
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

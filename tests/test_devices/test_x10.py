@@ -16,7 +16,7 @@ class TestX10Devices(unittest.TestCase):
     @async_case
     async def test_x10_sensor(self):
         """Test X10 Sensor device."""
-        set_log_levels(logger_topics=True)
+        set_log_levels(logger_topics=False)
         device = X10OnOffSensor("a", 1)
         hc_uc = bytes(bytearray([HC_LOOKUP["a"], UC_LOOKUP[1]]))
         uc_msg = {"raw_x10": hc_uc, "x10_flag": X10CommandType.UNITCODE}
@@ -35,7 +35,7 @@ class TestX10Devices(unittest.TestCase):
     @async_case
     async def test_x10_on_off(self):
         """Test X10 On Off device."""
-        set_log_levels(logger_topics=True)
+        set_log_levels(logger_topics=False)
         device = X10OnOff("b", 2)
         ack = "ack.{}".format(X10_SEND)
         hc_uc = bytes(bytearray([HC_LOOKUP["b"], UC_LOOKUP[2]]))
@@ -56,7 +56,7 @@ class TestX10Devices(unittest.TestCase):
     @async_case
     async def test_x10_dimmable(self):
         """Test X10 Dimmable device."""
-        set_log_levels(logger_topics=True)
+        set_log_levels(logger_topics=False)
         device = X10Dimmable("c", 3)
         ack = "ack.{}".format(X10_SEND)
         hc_uc = bytes(bytearray([HC_LOOKUP["c"], UC_LOOKUP[3]]))

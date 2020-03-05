@@ -25,7 +25,7 @@ class TestIMConfigFlags(unittest.TestCase):
         self.auto_led_create = create(False, False, True, False)
         self.disable_deadman_create = create(False, False, False, True)
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

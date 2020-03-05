@@ -13,7 +13,10 @@ from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 class TestSendStandard(unittest.TestCase, OutboundBase):
+    """Test sending standard message."""
+
     def setUp(self):
+        """Test set up."""
         self.hex = "0262010203040506"
         self.message_id = MessageId.SEND_STANDARD
         self.address = Address("010203")
@@ -32,22 +35,26 @@ class TestSendStandard(unittest.TestCase, OutboundBase):
             MessageId.SEND_STANDARD, unhexlify(self.hex), **kwargs
         )
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,
         )
 
     def test_address(self):
+        """Test address."""
         assert self.msg.address == self.address
 
     def test_flags(self):
+        """Test flags."""
         assert self.msg.flags == self.flags
 
     def test_cmd1(self):
+        """Test cmd1."""
         assert self.msg.cmd1 == self.cmd1
 
     def test_cmd2(self):
+        """Test cmd2."""
         assert self.msg.cmd2 == self.cmd2
 
 

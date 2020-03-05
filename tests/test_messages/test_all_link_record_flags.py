@@ -26,7 +26,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         self.flags_C2 = AllLinkRecordFlags(unhexlify(self.hex_data_C2))
         self.flags_FF = AllLinkRecordFlags(unhexlify(self.hex_data_FF))
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,
