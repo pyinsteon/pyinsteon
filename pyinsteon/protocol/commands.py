@@ -1,4 +1,6 @@
 """Collection of topics mapped to commands (cmd1, cmd2)."""
+from typing import Iterable
+from collections import namedtuple
 from ..topics import (
     ALL_LINK_CLEANUP_STATUS_REPORT,
     ASSIGN_TO_ALL_LINK_GROUP,
@@ -122,36 +124,14 @@ from ..topics import (
     START_MANUAL_CHANGE_UP,
     STATUS_REQUEST,
     STOP_MANUAL_CHANGE,
+    THERMOSTAT_CONTROL,
     THERMOSTAT_COOL_SET_POINT_STATUS,
-    THERMOSTAT_DISABLE_STATUS_CHANGE_MESSAGE,
-    THERMOSTAT_ENABLE_STATUS_CHANGE_MESSAGE,
-    THERMOSTAT_GET_AMBIENT_TEMPERATURE,
-    THERMOSTAT_GET_EQUIPMENT_STATE,
-    THERMOSTAT_GET_FAN_ON_SPEED,
-    THERMOSTAT_GET_MODE,
-    THERMOSTAT_GET_TEMPERATURE_UNITS,
+    THERMOSTAT_EXTENDED_STATUS,
     THERMOSTAT_GET_ZONE_INFORMATION,
     THERMOSTAT_HEAT_SET_POINT_STATUS,
     THERMOSTAT_HUMIDITY_STATUS,
-    THERMOSTAT_LOAD_EEPROM_FROM_RAM,
-    THERMOSTAT_LOAD_INITIALIZATION_VALUES,
     THERMOSTAT_MODE_STATUS,
-    THERMOSTAT_OFF_ALL,
-    THERMOSTAT_OFF_FAN,
-    THERMOSTAT_ON_AUTO,
-    THERMOSTAT_ON_COOL,
-    THERMOSTAT_ON_FAN,
-    THERMOSTAT_ON_HEAT,
-    THERMOSTAT_PROGRAM_AUTO,
-    THERMOSTAT_PROGRAM_COOL,
-    THERMOSTAT_PROGRAM_HEAT,
-    THERMOSTAT_SET_CELSIUS,
     THERMOSTAT_SET_COOL_SETPOINT,
-    THERMOSTAT_SET_EQUIPMENT_STATE,
-    THERMOSTAT_SET_FAHRENHEIT,
-    THERMOSTAT_SET_FAN_ON_SPEED_HIGH,
-    THERMOSTAT_SET_FAN_ON_SPEED_LOW,
-    THERMOSTAT_SET_FAN_ON_SPEED_MEDIUM,
     THERMOSTAT_SET_HEAT_SETPOINT,
     THERMOSTAT_SET_ZONE_COOL_SETPOINT,
     THERMOSTAT_SET_ZONE_HEAT_SETPOINT,
@@ -167,6 +147,8 @@ from ..topics import (
     WINDOW_COVERING_STOP,
 )
 
+Command = namedtuple("Command", "cmd1 cmd2 user_data")
+
 
 class Commands:
     """List of topics and commands."""
@@ -178,18 +160,17 @@ class Commands:
         self._use_group = {}
 
     def add(
-        self, topic: str, cmd1: int, cmd2: int, extended: bool, use_group: bool = False
+        self, topic: str, cmd1: int, cmd2: int, user_data: Iterable, use_group: bool = False
     ):
         """Add a command to the list."""
-        self._topics[topic] = (cmd1, cmd2, extended)
+        self._topics[topic] = Command(cmd1, cmd2, user_data)
         self._use_group[topic] = use_group
-        self._commands[(cmd1, cmd2, extended)] = topic
 
     def get(self, topic: str):
         """Get the command elements of teh topic."""
         return self._topics.get(topic)
 
-    def get_cmd1_cmd2(self, topic: str) -> (int, int, bool):
+    def get_command(self, topic: str) -> (int, int, bool):
         """Get cmd1 and cmd2 from a topic.
 
         Returns (cmd1, cmd2, extended)
@@ -200,47 +181,57 @@ class Commands:
         """Return if a topic requires a group number."""
         return self._use_group.get(topic)
 
-    def get_topics(self, cmd1, cmd2, extended=None, send=False) -> str:
+    def get_topics(self, cmd1, cmd2, user_data=None, send=False) -> str:
         """Generate a topic from a cmd1, cmd2 and extended flag."""
         found = False
-        topic = self._commands.get((cmd1, cmd2, extended))
-        if topic:
-            found = True
-            yield topic
-        topic = self._commands.get((cmd1, cmd2, None))
-        if topic:
-            found = True
-            yield topic
-        topic = self._commands.get((cmd1, None, extended))
-        if topic:
-            found = True
-            yield topic
-        topic = self._commands.get((cmd1, None, None))
-        if topic:
-            found = True
-            yield topic
+        for topic in self._topics:
+            command = self._topics[topic]
+            if self._check_match(command, cmd1, cmd2, user_data):
+                found = True
+                yield topic
         if not found:
-            if send:
-                yield self._commands.get((-2, None, extended))
-                return
-            yield self._commands.get((-1, None, extended))
+            if bool(user_data):
+                yield SEND_STANDARD if send else STANDARD_RECEIVED
+            else:
+                yield SEND_EXTENDED if send else EXTENDED_RECEIVED
+
+    def _check_match(self, command, cmd1, cmd2, user_data):
+        """Check if the current command matches the input values."""
+        if command.cmd1 != cmd1:
+            return False
+        cmd2_match = cmd2 is None or command.cmd2 is None or command.cmd2 == cmd2
+        user_data_match = self._check_user_data_match(command.user_data, user_data)
+        return cmd2_match and user_data_match
+
+    def _check_user_data_match(self, cmd_ud, user_data):
+        """Check if the command user_data matches the input user_data."""
+        if cmd_ud is None:
+            return True
+        if not user_data and not cmd_ud:
+            return True
+        if user_data and not cmd_ud:
+            return False
+        for field in cmd_ud:
+            if cmd_ud[field] != user_data.get(field):
+                return False
+        return True
 
 
 commands = Commands()
 
 
 commands.add(STANDARD_RECEIVED, -1, None, False)
-commands.add(EXTENDED_RECEIVED, -1, None, True)
+commands.add(EXTENDED_RECEIVED, -1, None, {})
 commands.add(SEND_STANDARD, -2, None, False)
-commands.add(SEND_EXTENDED, -2, None, True)
+commands.add(SEND_EXTENDED, -2, None, {})
 commands.add(ASSIGN_TO_ALL_LINK_GROUP, 0x01, None, False)
 commands.add(DELETE_FROM_ALL_LINK_GROUP, 0x02, None, False)
 commands.add(PRODUCT_DATA_REQUEST, 0x03, 0x00, None)
 commands.add(FX_USERNAME, 0x03, 0x01, False)
 commands.add(DEVICE_TEXT_STRING_REQUEST, 0x03, 0x02, False)
-commands.add(SET_DEVICE_TEXT_STRING, 0x03, 0x03, True)
-commands.add(SET_ALL_LINK_COMMAND_ALIAS, 0x03, 0x04, True)
-commands.add(SET_ALL_LINK, 0x03, 0x04, True)
+commands.add(SET_DEVICE_TEXT_STRING, 0x03, 0x03, {})
+commands.add(SET_ALL_LINK_COMMAND_ALIAS, 0x03, 0x04, {})
+commands.add(SET_ALL_LINK, 0x03, 0x04, {})
 commands.add(ALL_LINK_CLEANUP_STATUS_REPORT, 0x06, None, None)
 commands.add(ENTER_LINKING_MODE, 0x09, None, None)
 commands.add(ENTER_UNLINKING_MODE, 0x0A, None, False)
@@ -271,18 +262,20 @@ commands.add(PEEK_ONE_BYTE, 0x2B, None, False)
 commands.add(PEEK_ONE_BYTE_INTERNAL, 0x2C, None, False)
 commands.add(POKE_ONE_BYTE_INTERNAL, 0x2D, None, False)
 
-# cmd2 ne 0x00 => no confict w/ ext get set
+# cmd2 ne 0x00 => no confict w/ EXTENDED_GET_SET
+# Conflict w/ THERMOSTAT_EXTENDED_STATUS but thermostat has no ramp rate so OK
 commands.add(ON_AT_RAMP_RATE, 0x2E, None, False, True)
-# Check if direct_ack is sd or ed message
-commands.add(EXTENDED_GET_SET, 0x2E, None, None)
+# direct is ed and direct_ack is sd
+commands.add(EXTENDED_GET_SET, 0x2E, 0x00, None)
+commands.add(THERMOSTAT_EXTENDED_STATUS, 0x2E, 0x02, None)
+
 # cmd2 ne 0x00 => no confict w/ read aldb
 commands.add(OFF_AT_RAMP_RATE, 0x2F, None, False, True)
-# direct_ack is sd msg
-commands.add(EXTENDED_READ_WRITE_ALDB, 0x2F, None, None)
-# Check direct_ack sd or ed msg
+# direct is ed and direct_ack is sd
+commands.add(EXTENDED_READ_WRITE_ALDB, 0x2F, 0x00, None)
 commands.add(EXTENDED_TRIGGER_ALL_LINK, 0x30, None, None)
-commands.add(BEEP, 0x30, None, None)
 
+commands.add(BEEP, 0x30, None, None)
 commands.add(SET_SPRINKLER_PROGRAM, 0x40, None, True)
 commands.add(SPRINKLER_VALVE_ON, 0x40, None, False)
 commands.add(SPRINKLER_GET_PROGRAM_RESPONSE, 0x41, None, True)
@@ -315,7 +308,7 @@ commands.add(IO_GET_SENSOR_VALUE, 0x4A, None, False)
 commands.add(IO_SET_SENSOR_1_NOMINAL_VALUE, 0x4B, None, False)
 commands.add(IO_SET_SENSOR_NOMINAL_VALUE, 0x4B, None, True)
 commands.add(IO_GET_SENSOR_ALARM_DELTA, 0x4C, None, False)
-commands.add(IO_ALARM_DATA_RESPONSE, 0x4C, 0x00, True)
+commands.add(IO_ALARM_DATA_RESPONSE, 0x4C, 0x00, {})
 commands.add(IO_WRITE_CONFIGURATION_PORT, 0x4D, None, False)
 commands.add(IO_READ_CONFIGURATION_PORT, 0x4E, 0x00, False)
 commands.add(IO_MODULE_LOAD_INITIALIZATION_VALUES, 0x4F, 0x00, False)
@@ -331,9 +324,9 @@ commands.add(IO_MODULE_SENSOR_OFF, 0x4F, 0x0D, False)
 commands.add(IO_MODULE_DIAGNOSTICS_ON, 0x4F, 0x0E, False)
 commands.add(IO_MODULE_DIAGNOSTICS_OFF, 0x4F, 0x0F, False)
 commands.add(POOL_DEVICE_ON, 0x50, None, False)
-commands.add(POOL_SET_DEVICE_TEMPERATURE, 0x50, None, True)
+commands.add(POOL_SET_DEVICE_TEMPERATURE, 0x50, None, {})
 commands.add(POOL_DEVICE_OFF, 0x51, None, False)
-commands.add(POOL_SET_DEVICE_HYSTERESIS, 0x51, None, True)
+commands.add(POOL_SET_DEVICE_HYSTERESIS, 0x51, None, {})
 commands.add(POOL_TEMPERATURE_UP, 0x52, None, False)
 commands.add(POOL_TEMPERATURE_DOWN, 0x53, None, False)
 commands.add(POOL_LOAD_INITIALIZATION_VALUES, 0x54, 0x00, False)
@@ -362,38 +355,15 @@ commands.add(WINDOW_COVERING_STOP, 0x60, 0x03, False)
 commands.add(WINDOW_COVERING_PROGRAM, 0x60, 0x04, False)
 commands.add(WINDOW_COVERING_POSITION, 0x61, None, False)
 commands.add(THERMOSTAT_TEMPERATURE_UP, 0x68, None, False)
-commands.add(THERMOSTAT_ZONE_TEMPERATURE_UP, 0x68, None, True)
+commands.add(THERMOSTAT_ZONE_TEMPERATURE_UP, 0x68, None, {})
 commands.add(THERMOSTAT_TEMPERATURE_DOWN, 0x69, None, False)
-commands.add(THERMOSTAT_ZONE_TEMPERATURE_DOWN, 0x69, None, True)
+commands.add(THERMOSTAT_ZONE_TEMPERATURE_DOWN, 0x69, None, {})
 commands.add(THERMOSTAT_GET_ZONE_INFORMATION, 0x6A, None, False)
-commands.add(THERMOSTAT_LOAD_INITIALIZATION_VALUES, 0x6B, 0x00, False)
-commands.add(THERMOSTAT_LOAD_EEPROM_FROM_RAM, 0x6B, 0x01, False)
-commands.add(THERMOSTAT_GET_MODE, 0x6B, 0x02, False)
-commands.add(THERMOSTAT_GET_AMBIENT_TEMPERATURE, 0x6B, 0x03, False)
-commands.add(THERMOSTAT_ON_HEAT, 0x6B, 0x04, False)
-commands.add(THERMOSTAT_ON_COOL, 0x6B, 0x05, False)
-commands.add(THERMOSTAT_ON_AUTO, 0x6B, 0x06, False)
-commands.add(THERMOSTAT_ON_FAN, 0x6B, 0x07, False)
-commands.add(THERMOSTAT_OFF_FAN, 0x6B, 0x08, False)
-commands.add(THERMOSTAT_OFF_ALL, 0x6B, 0x09, False)
-commands.add(THERMOSTAT_PROGRAM_HEAT, 0x6B, 0x0A, False)
-commands.add(THERMOSTAT_PROGRAM_COOL, 0x6B, 0x0B, False)
-commands.add(THERMOSTAT_PROGRAM_AUTO, 0x6B, 0x0C, False)
-commands.add(THERMOSTAT_GET_EQUIPMENT_STATE, 0x6B, 0x0D, False)
-commands.add(THERMOSTAT_SET_EQUIPMENT_STATE, 0x6B, 0x0E, False)
-commands.add(THERMOSTAT_GET_TEMPERATURE_UNITS, 0x6B, 0x0F, False)
-commands.add(THERMOSTAT_SET_FAHRENHEIT, 0x6B, 0x10, False)
-commands.add(THERMOSTAT_SET_CELSIUS, 0x6B, 0x11, False)
-commands.add(THERMOSTAT_GET_FAN_ON_SPEED, 0x6B, 0x12, False)
-commands.add(THERMOSTAT_SET_FAN_ON_SPEED_LOW, 0x6B, 0x13, False)
-commands.add(THERMOSTAT_SET_FAN_ON_SPEED_MEDIUM, 0x6B, 0x14, False)
-commands.add(THERMOSTAT_SET_FAN_ON_SPEED_HIGH, 0x6B, 0x15, False)
-commands.add(THERMOSTAT_ENABLE_STATUS_CHANGE_MESSAGE, 0x6B, 0x16, False)
-commands.add(THERMOSTAT_DISABLE_STATUS_CHANGE_MESSAGE, 0x6B, 0x17, False)
+commands.add(THERMOSTAT_CONTROL, 0x6B, None, False)
 commands.add(THERMOSTAT_SET_COOL_SETPOINT, 0x6C, None, False)
-commands.add(THERMOSTAT_SET_ZONE_COOL_SETPOINT, 0x6C, None, True)
+commands.add(THERMOSTAT_SET_ZONE_COOL_SETPOINT, 0x6C, None, {})
 commands.add(THERMOSTAT_SET_HEAT_SETPOINT, 0x6D, None, False)
-commands.add(THERMOSTAT_SET_ZONE_HEAT_SETPOINT, 0x6D, None, True)
+commands.add(THERMOSTAT_SET_ZONE_HEAT_SETPOINT, 0x6D, None, {})
 commands.add(THERMOSTAT_TEMPERATURE_STATUS, 0x6E, None, False)
 commands.add(THERMOSTAT_HUMIDITY_STATUS, 0x6F, None, False)
 commands.add(THERMOSTAT_MODE_STATUS, 0x70, None, False)

@@ -113,32 +113,9 @@ from ..topics import (
     SPRINKLER_VALVE_OFF,
     SPRINKLER_VALVE_ON,
     STATUS_REQUEST,
-    THERMOSTAT_DISABLE_STATUS_CHANGE_MESSAGE,
-    THERMOSTAT_ENABLE_STATUS_CHANGE_MESSAGE,
-    THERMOSTAT_GET_AMBIENT_TEMPERATURE,
-    THERMOSTAT_GET_EQUIPMENT_STATE,
-    THERMOSTAT_GET_FAN_ON_SPEED,
-    THERMOSTAT_GET_MODE,
-    THERMOSTAT_GET_TEMPERATURE_UNITS,
+    THERMOSTAT_EXTENDED_STATUS,
     THERMOSTAT_GET_ZONE_INFORMATION,
-    THERMOSTAT_LOAD_EEPROM_FROM_RAM,
-    THERMOSTAT_LOAD_INITIALIZATION_VALUES,
-    THERMOSTAT_OFF_ALL,
-    THERMOSTAT_OFF_FAN,
-    THERMOSTAT_ON_AUTO,
-    THERMOSTAT_ON_COOL,
-    THERMOSTAT_ON_FAN,
-    THERMOSTAT_ON_HEAT,
-    THERMOSTAT_PROGRAM_AUTO,
-    THERMOSTAT_PROGRAM_COOL,
-    THERMOSTAT_PROGRAM_HEAT,
-    THERMOSTAT_SET_CELSIUS,
     THERMOSTAT_SET_COOL_SETPOINT,
-    THERMOSTAT_SET_EQUIPMENT_STATE,
-    THERMOSTAT_SET_FAHRENHEIT,
-    THERMOSTAT_SET_FAN_ON_SPEED_HIGH,
-    THERMOSTAT_SET_FAN_ON_SPEED_LOW,
-    THERMOSTAT_SET_FAN_ON_SPEED_MEDIUM,
     THERMOSTAT_SET_HEAT_SETPOINT,
     THERMOSTAT_SET_ZONE_COOL_SETPOINT,
     THERMOSTAT_SET_ZONE_HEAT_SETPOINT,
@@ -174,25 +151,30 @@ def register_command_handlers():
 # The topis is based on the cmd1, cmd2 and extended message flags values
 
 
-def _create_direct_message(topic, address, cmd2=None, user_data=None):
+def _create_direct_message(topic, address, cmd2=None, user_data=None, crc=False):
     main_topic = topic.name.split(".")[1]
-    cmd1, cmd2_std, _ = commands.get_cmd1_cmd2(main_topic)
+    command = commands.get_command(main_topic)
     extended = user_data is not None
-    cmd2 = cmd2_std if cmd2_std is not None else cmd2
+    cmd2 = command.cmd2 if command.cmd2 is not None else cmd2
     flag_type = topic_to_message_type(topic)
     flags = create_flags(flag_type, extended)
     if extended:
-        user_data.set_checksum(cmd1, cmd2)
+        if crc:
+            user_data.set_crc(command.cmd1, cmd2)
+        else:
+            user_data.set_checksum(command.cmd1, cmd2)
         send_extended(
             address=address,
-            cmd1=cmd1,
+            cmd1=command.cmd1,
             cmd2=cmd2,
             flags=flags,
             user_data=user_data,
             topic=topic,
         )
     else:
-        send_standard(address=address, cmd1=cmd1, cmd2=cmd2, flags=flags, topic=topic)
+        send_standard(
+            address=address, cmd1=command.cmd1, cmd2=cmd2, flags=flags, topic=topic
+        )
 
 
 @topic_to_command_handler(register_list=topic_register, topic=ASSIGN_TO_ALL_LINK_GROUP)
@@ -1190,174 +1172,6 @@ def thermostat_get_zone_information(
 
 
 @topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_LOAD_INITIALIZATION_VALUES
-)
-def thermostat_load_initialization_values(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_LOAD_INITIALIZATION_VALUES command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_LOAD_EEPROM_FROM_RAM
-)
-def thermostat_load_eeprom_from_ram(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_LOAD_EEPROM_FROM_RAM command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_GET_MODE)
-def thermostat_get_mode(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_GET_MODE command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_GET_AMBIENT_TEMPERATURE
-)
-def thermostat_get_ambient_temperature(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_GET_AMBIENT_TEMPERATURE command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_ON_HEAT)
-def thermostat_on_heat(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_ON_HEAT command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_ON_COOL)
-def thermostat_on_cool(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_ON_COOL command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_ON_AUTO)
-def thermostat_on_auto(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_ON_AUTO command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_ON_FAN)
-def thermostat_on_fan(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_ON_FAN command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_OFF_FAN)
-def thermostat_off_fan(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_OFF_FAN command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_OFF_ALL)
-def thermostat_off_all(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_OFF_ALL command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_PROGRAM_HEAT)
-def thermostat_program_heat(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_PROGRAM_HEAT command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_PROGRAM_COOL)
-def thermostat_program_cool(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_PROGRAM_COOL command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_PROGRAM_AUTO)
-def thermostat_program_auto(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_PROGRAM_AUTO command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_GET_EQUIPMENT_STATE
-)
-def thermostat_get_equipment_state(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_GET_EQUIPMENT_STATE command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_SET_EQUIPMENT_STATE
-)
-def thermostat_set_equipment_state(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_SET_EQUIPMENT_STATE command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_GET_TEMPERATURE_UNITS
-)
-def thermostat_get_temperature_units(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_GET_TEMPERATURE_UNITS command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_SET_FAHRENHEIT)
-def thermostat_set_fahrenheit(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_SET_FAHRENHEIT command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_SET_CELSIUS)
-def thermostat_set_celsius(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_SET_CELSIUS command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_GET_FAN_ON_SPEED
-)
-def thermostat_get_fan_on_speed(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_GET_FAN_ON_SPEED command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_SET_FAN_ON_SPEED_LOW
-)
-def thermostat_set_fan_on_speed_low(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_SET_FAN_ON_SPEED_LOW command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_SET_FAN_ON_SPEED_MEDIUM
-)
-def thermostat_set_fan_on_speed_medium(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_SET_FAN_ON_SPEED_MEDIUM command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_SET_FAN_ON_SPEED_HIGH
-)
-def thermostat_set_fan_on_speed_high(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_SET_FAN_ON_SPEED_HIGH command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_ENABLE_STATUS_CHANGE_MESSAGE
-)
-def thermostat_enable_status_change_message(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_ENABLE_STATUS_CHANGE_MESSAGE command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_DISABLE_STATUS_CHANGE_MESSAGE
-)
-def thermostat_disable_status_change_message(address: Address, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_DISABLE_STATUS_CHANGE_MESSAGE command."""
-    _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(
     register_list=topic_register, topic=THERMOSTAT_SET_COOL_SETPOINT
 )
 def thermostat_set_cool_setpoint(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
@@ -1399,3 +1213,17 @@ def thermostat_set_zone_heat_setpoint(
 def assign_to_companion_group(address: Address, topic=pub.AUTO_TOPIC):
     """Create a ASSIGN_TO_COMPANION_GROUP command."""
     _create_direct_message(topic=topic, address=address)
+
+
+@topic_to_command_handler(
+    register_list=topic_register, topic=THERMOSTAT_EXTENDED_STATUS
+)
+def thermostat_extended_status(
+    address: Address, topic=pub.AUTO_TOPIC,
+):
+    """Create a THERMOSTAT_EXTENDED_STATUS command."""
+    user_data = UserData()
+    _create_direct_message(
+        topic=topic, address=address, cmd2=2, user_data=user_data, crc=True
+    )
+
