@@ -9,7 +9,7 @@ class ToolsConfig(ToolsBase):
     """Command line interface for Operation Flag and Extended Properites Management."""
 
     async def do_read_config(self, *args, **kwargs):
-        """Read the operating flags and extended properties of a device.""
+        """Read the operating flags and extended properties of a device.
 
         Usage:
             read_config <ADDRESS>|all
@@ -40,7 +40,7 @@ class ToolsConfig(ToolsBase):
                     self._log_stdout("Extended properties read error")
 
     async def do_update_config(self, *args, **kwargs):
-        """Write the operating flags and extended properties to a device.""
+        """Write the operating flags and extended properties to a device.
 
         Usage:
             update_config <ADDRESS>|all
@@ -70,7 +70,7 @@ class ToolsConfig(ToolsBase):
                     self._log_stdout("Extended properties not writen")
 
     async def do_print_config(self, *args, **kwargs):
-        """Write the operating flags and extended properties to a device.""
+        """Write the operating flags and extended properties to a device.
 
         Usage:
             read_ops_flags <ADDRESS>|all
@@ -113,8 +113,9 @@ class ToolsConfig(ToolsBase):
                     if isinstance(prop.value, bool):
                         self._log_stdout(f"{name_out:30s}  {prop.value}")
                     else:
+                        prop_value = prop.value if prop.value is not None else 0
                         self._log_stdout(
-                            f"{name_out:30s}  0x{prop.value:02x} ({prop.value:d})"
+                            f"{name_out:30s}  0x{prop_value:02x} ({prop_value:d})"
                         )
                 self._log_stdout("")
 
@@ -150,6 +151,7 @@ class ToolsConfig(ToolsBase):
 
         if not device.operating_flags.get(name) and not device.properties.get(name):
             self._log_stdout(f"Flag {name} not found in device {addresses[0]}")
+            return
 
         if device.operating_flags.get(name):
             prop = device.operating_flags[name]
@@ -184,10 +186,11 @@ class ToolsConfig(ToolsBase):
                 value = await self._get_int("Property value", values=range(0, 256))
 
         prop.new_value = value
+        self._log_stdout(f"Value {value} writen to property {prop.name}")
 
     async def do_write_config(self, *args, **kwargs):
         """Write the device config.
-        
+
         Usage:
             write_config <ADDRESS>|all
         """
@@ -214,3 +217,99 @@ class ToolsConfig(ToolsBase):
                     self._log_stdout("Extended properties written")
                 else:
                     self._log_stdout("Extended properties write error")
+
+    async def do_set_kpl_toggle_mode(self, *args, **kwargs):
+        """Set the toggle mode of a KeypadLinc button.
+
+        Usage:
+            set_kpl_toggle_mode address button mode
+
+        address: Address of a KeypadLinc device
+        button: Button number to set (2-8 on an 8 button KPL, 3-6 on a 6 button KPL)
+        mode: Button mode (0: toggle on/off, 1: On only, 2: Off only)
+        """
+        args = args[0].split()
+        try:
+            address = args[0]
+        except IndexError:
+            address = None
+
+        addresses = await self._get_addresses(
+            address, allow_cancel=True, allow_all=False
+        )
+        if not addresses:
+            return
+
+        device = devices[addresses[0]]
+        if not hasattr(device, "async_set_toggle_mode"):
+            self._log_stdout("Device is not a KeypadLinc")
+            return
+
+        try:
+            button = int(args[1])
+        except (IndexError, ValueError):
+            button = await self._get_int("Buttom number", values=device.groups.keys())
+
+        try:
+            mode = int(args[2])
+        except (IndexError, ValueError):
+            mode = await self._get_int(
+                "Toggle mode (0: toggle on/off, 1: On only, 2: Off only)",
+                values=[0, 1, 2],
+            )
+        await device.async_set_toggle_mode(button=button, mode=mode)
+
+    async def do_set_kpl_radio_buttons(self, *args, **kwargs):
+        """Set the toggle mode of a KeypadLinc button.
+
+        Usage:
+            set_kpl_radio_buttons address button1 button2 [button3 button4 button5 button6 button7]
+
+        address: Address of a KeypadLinc device
+        button: Button number to set (2-8 on an 8 button KPL, 3-6 on a 6 button KPL)
+        """
+        args = args[0].split()
+        try:
+            address = args[0]
+        except IndexError:
+            address = None
+
+        addresses = await self._get_addresses(
+            address, allow_cancel=True, allow_all=False
+        )
+        if not addresses:
+            return
+
+        device = devices[addresses[0]]
+        if not hasattr(device, "async_set_radio_buttons"):
+            self._log_stdout("Device is not a KeypadLinc")
+            return
+
+        item = 1
+        buttons = []
+        while True:
+            try:
+                buttons.append(int(args[item]))
+                item += 1
+            except (IndexError, ValueError):
+                break
+
+        possible_buttons = [0]
+        _ = [possible_buttons.append(k) for k in device.groups]
+        if len(buttons) < 2:
+            while True:
+                for button in buttons:
+                    if button in possible_buttons:
+                        possible_buttons.remove(button)
+                button = await self._get_int(
+                    "Button number (enter 0 for last button)", values=possible_buttons
+                )
+                if button != 0:
+                    buttons.append(button)
+                else:
+                    break
+        if len(buttons) < 2:
+            self._log_stdout("At least two buttons are required")
+            return
+
+        await device.async_set_radio_buttons(buttons=buttons)
