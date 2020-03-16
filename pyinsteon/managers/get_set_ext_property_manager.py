@@ -75,6 +75,7 @@ class GetSetExtendedPropertyManager:
             for curr_group in self._groups:
                 result = await self._async_read(group=curr_group)
                 results.append(result)
+                await asyncio.sleep(2)
             return multiple_status(*results)
         return await self._async_read(group=group)
 
