@@ -17,7 +17,7 @@ MAX_RETRIES = 5
 class GetSetOperatingFlagsManager:
     """Manager to get operating flags."""
 
-    def __init__(self, address: Address, op_flags, extended_write=False):
+    def __init__(self, address: Address, op_flags):
         """Init the GetOperatingFlagsManager class."""
         self._address = Address(address)
         self._op_flags = op_flags
@@ -29,6 +29,16 @@ class GetSetOperatingFlagsManager:
         self._send_lock = asyncio.Lock()
         self._extended_write = False
         self._set_command.subscribe(self._check_write_response)
+
+    @property
+    def extended_write(self):
+        """Return if an extended message is required."""
+        return self._extended_write
+
+    @extended_write.setter
+    def extended_write(self, value: bool):
+        """Set the extended write flag."""
+        self._extended_write = bool(value)
 
     def subscribe(self, name, group, bit, set_cmd, unset_cmd):
         """Subscribe to updates."""
@@ -114,7 +124,7 @@ class GetSetOperatingFlagsManager:
 
     def _check_write_response(self, response):
         """Confirm if the write command requires Standard or Extended messages.
-        
+
         This is called when the command is responded to with a Direct NAK. The code in cmd2
         is returned in response.
         """
