@@ -28,6 +28,28 @@ class SensorsActuators(OnOffResponderBase):
 class SensorsActuators_IOLink(SensorsActuators):
     """I/O Link device."""
 
+    def __init__(
+        self,
+        address,
+        cat,
+        subcat,
+        firmware=0x00,
+        description="",
+        model="",
+        buttons=None,
+    ):
+        """Init the SensorsActuators_IOLink class."""
+        super().__init__(
+            address=address,
+            cat=cat,
+            subcat=subcat,
+            firmware=firmware,
+            description=description,
+            model=model,
+            buttons=buttons,
+        )
+        self._op_flags_manager.extended_write = True
+
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
         if self._managers.get(SENSOR_GROUP) is None:
@@ -109,12 +131,21 @@ class SensorsActuators_IOLink(SensorsActuators):
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RELAY_ON_SENSE_ON, 0, 2, 4, 5)
         self._add_operating_flag(MOMENTARY_MODE_ON, 0, 3, 6, 7)
-        self._add_operating_flag(MOMENTARY_ON_OFF_TRIGGER, 0, 4, 9, 8)
-        self._add_operating_flag(X10_OFF, 0, 5, 10, 11)
-        self._add_operating_flag(MOMENTARY_FOLLOW_SENSE, 0, 6, 12, 13)
-        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 7, 14, 15)
+        self._add_operating_flag(MOMENTARY_ON_OFF_TRIGGER, 0, 4, 0x12, 0x13)
+        self._add_operating_flag(X10_OFF, 0, 5, 0x0C, 0x0D)
+        self._add_operating_flag(MOMENTARY_FOLLOW_SENSE, 0, 6, 0x0E, 0x0F)
+        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 7, 0x14, 0x15)
 
-        self._add_property(PRESCALER, 2, 7)
-        self._add_property(DELAY, 3, 6)
+        self._add_property(PRESCALER, 3, 7)
+        self._add_property(DELAY, 4, 6)
         self._add_property(X10_HOUSE, 5, None)
         self._add_property(X10_UNIT, 6, None)
+
+    def _open_event(self, on_level):
+        """Catch open events and fire appropriate signals."""
+
+    def _close_event(self, on_level):
+        """Catch close events and fire appropriate signals."""
+
+    def _open_close_group(self, on_level):
+        """Catch open/close group signal and fire appropriate signals."""
