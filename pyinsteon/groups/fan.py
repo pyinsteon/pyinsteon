@@ -1,10 +1,10 @@
 """Fan On Level state."""
-from . import StateBase
+from .group_base import GroupBase
 from ..address import Address
 from ..constants import FanSpeed
 
 
-class FanOnLevel(StateBase):
+class FanOnLevel(GroupBase):
     """On / Off state."""
 
     def __init__(
