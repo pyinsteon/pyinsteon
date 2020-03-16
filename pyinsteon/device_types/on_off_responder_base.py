@@ -109,6 +109,3 @@ class OnOffResponderBase(OnOffControllerBase):
             if self._off_fast_event_name:
                 event = self._events[group][self._off_fast_event_name]
                 self._handlers[group][OFF_FAST_COMMAND].subscribe(event.trigger)
-
-    def _register_default_links(self):
-        pass

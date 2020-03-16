@@ -66,8 +66,6 @@ TIME_24_HOUR_FORMAT = "time_24_hour_format"
 SOFTWARE_LOCK_ON = "SOFTWARE_LOCK_ON"
 
 
-
-
 class OperatingFlag(DeviceFlagBase):
     """Operating flag for a device."""
 

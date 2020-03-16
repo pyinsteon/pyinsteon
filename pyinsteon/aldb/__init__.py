@@ -3,7 +3,6 @@
 The All-Link database contains database records that represent links to other
 Insteon devices that either respond to or control the current device.
 """
-from abc import ABC, abstractmethod
 import asyncio
 import logging
 from typing import Callable
@@ -12,14 +11,6 @@ from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion
 from .aldb_record import ALDBRecord
 from .aldb_base import ALDBBase
-from ..topics import (
-    DEVICE_LINK_CONTROLLER_CREATED,
-    DEVICE_LINK_RESPONDER_CREATED,
-    DEVICE_LINK_CONTROLLER_REMOVED,
-    DEVICE_LINK_RESPONDER_REMOVED,
-    ALDB_VERSION,
-)
-from .. import pub
 from ..managers.aldb_read_manager import ALDBReadManager
 from ..managers.aldb_write_manager import ALDBWriteManager
 from ..handlers import ResponseStatus
@@ -96,14 +87,17 @@ class ALDB(ALDBBase):
 
         completed = []
         failed = []
-        while self._dirty_records:
-            record = self._dirty_records.pop()
+        for record in self._dirty_records:
             if record.mem_addr == 0x0000:
                 mem_addr = self._existing_link(
                     record.is_controller, record.group, record.target
                 )
                 if mem_addr is None:
+                    _LOGGER.error("Existing record not found")
                     mem_addr = self._get_next_mem_addr()
+                    _LOGGER.error("Using new record %04x", mem_addr)
+                else:
+                    _LOGGER.error("Using existing record %04x", mem_addr)
                 record.mem_addr = mem_addr
             # We assume a direct ACK is a confirmation of write.
             # Should we re-read to ensure it is correct.
@@ -111,13 +105,14 @@ class ALDB(ALDBBase):
             retries = 0
             while response != ResponseStatus.SUCCESS and retries < 3:
                 response = await self._write_manager.async_write(record)
+                _LOGGER.error("Response: %s", str(response))
                 retries += 1
             if response == ResponseStatus.SUCCESS:
+                self._records[record.mem_addr] = record
                 completed.append(record)
             else:
                 failed.append(record)
-        for record in failed:
-            self._dirty_records.append(record)
+        self._dirty_records = failed
         return len(completed), len(self._dirty_records)
 
     def add(
@@ -240,9 +235,11 @@ class ALDB(ALDBBase):
         for mem_addr in self._records:
             record = self._records[mem_addr]
             last_record = record
-            if record.is_high_water_mark or not record.is_in_use:
+            if not record.is_in_use:
+                _LOGGER.error("Using the available record %04x", record.mem_addr)
                 return record.mem_addr
 
+        _LOGGER.error("Using the next vailable record %04x", record.mem_addr)
         return last_record.mem_addr - 8
 
     def _calc_load_status(self):

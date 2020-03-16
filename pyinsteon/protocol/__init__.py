@@ -1,16 +1,11 @@
 """Protocol classes to interface with serial, socket and http devices."""
-import asyncio
 import logging
 from functools import partial
 
-import serial
-
-from ..constants import MessageFlagType
 from ..handlers.get_im_info import GetImInfoHandler
-from .http_transport import HttpTransport, async_connect_http
+from .http_transport import async_connect_http
 from .protocol import Protocol
 from .serial_transport import (
-    SerialTransport,
     async_connect_serial,
     async_connect_socket,
 )
