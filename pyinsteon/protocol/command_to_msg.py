@@ -1,9 +1,11 @@
 """Create a topic and a direct message."""
+import logging
 from math import ceil
 
 from .. import pub
 from ..address import Address
 from ..constants import RampRate
+from ..utils import to_celsius
 from ..topics import (
     ASSIGN_TO_ALL_LINK_GROUP,
     ASSIGN_TO_COMPANION_GROUP,
@@ -28,6 +30,7 @@ from ..topics import (
     ENTER_LINKING_MODE,
     ENTER_UNLINKING_MODE,
     EXTENDED_GET_SET,
+    EXTENDED_GET_SET_2,
     EXTENDED_READ_WRITE_ALDB,
     EXTENDED_TRIGGER_ALL_LINK,
     FX_USERNAME,
@@ -113,7 +116,6 @@ from ..topics import (
     SPRINKLER_VALVE_OFF,
     SPRINKLER_VALVE_ON,
     STATUS_REQUEST,
-    THERMOSTAT_EXTENDED_STATUS,
     THERMOSTAT_GET_ZONE_INFORMATION,
     THERMOSTAT_SET_COOL_SETPOINT,
     THERMOSTAT_SET_HEAT_SETPOINT,
@@ -136,6 +138,7 @@ from .messages.outbound import send_extended, send_standard
 from .messages.user_data import UserData
 from .topic_converters import topic_to_command_handler, topic_to_message_type
 
+_LOGGER = logging.getLogger(__name__)
 # pylint: disable=invalid-name
 topic_register = {}
 
@@ -160,7 +163,9 @@ def _create_direct_message(topic, address, cmd2=None, user_data=None, crc=False)
     flags = create_flags(flag_type, extended)
     if extended:
         if crc:
+            _LOGGER.error("Calc crc")
             user_data.set_crc(command.cmd1, cmd2)
+            _LOGGER.error("CRC: %02x %02x", user_data["d13"], user_data["d14"])
         else:
             user_data.set_checksum(command.cmd1, cmd2)
         send_extended(
@@ -409,6 +414,7 @@ def extended_get_set(
     data12=0,
     data13=0,
     data14=0,
+    crc=False,
     topic=pub.AUTO_TOPIC,
 ):
     """Create a EXTENDED_GET_SET command."""
@@ -417,7 +423,40 @@ def extended_get_set(
     for index in range(1, 15):
         data["d{}".format(index)] = items["data{}".format(index)]
     user_data = UserData(data)
-    _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
+    _create_direct_message(
+        topic=topic, address=address, cmd2=0, user_data=user_data, crc=crc
+    )
+
+
+@topic_to_command_handler(register_list=topic_register, topic=EXTENDED_GET_SET_2)
+def extended_get_set_2(
+    address: Address,
+    data1=0,
+    data2=0,
+    data3=0,
+    data4=0,
+    data5=0,
+    data6=0,
+    data7=0,
+    data8=0,
+    data9=0,
+    data10=0,
+    data11=0,
+    data12=0,
+    data13=0,
+    data14=0,
+    topic=pub.AUTO_TOPIC,
+):
+    """Create a EXTENDED_GET_SET_2 command."""
+    data = {}
+    items = locals()
+    for index in range(1, 15):
+        data["d{}".format(index)] = items["data{}".format(index)]
+    user_data = UserData(data)
+    _LOGGER.error("Creating EXTENDED_GET_SET_2 command")
+    _create_direct_message(
+        topic=topic, address=address, cmd2=0x02, user_data=user_data, crc=True
+    )
 
 
 @topic_to_command_handler(register_list=topic_register, topic=OFF_AT_RAMP_RATE)
@@ -1116,7 +1155,7 @@ def window_covering_position(address: Address, position: int, topic=pub.AUTO_TOP
 @topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_TEMPERATURE_UP)
 def thermostat_temperature_up(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_TEMPERATURE_UP command."""
-    cmd2 = degrees * 2
+    cmd2 = int(round(degrees * 2, 0))
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
@@ -1135,7 +1174,7 @@ def thermostat_zone_temperature_up(
 )
 def thermostat_temperature_down(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_TEMPERATURE_DOWN command."""
-    cmd2 = degrees * 2
+    cmd2 = int(round(degrees * 2, 0))
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
@@ -1174,8 +1213,12 @@ def thermostat_get_zone_information(
 @topic_to_command_handler(
     register_list=topic_register, topic=THERMOSTAT_SET_COOL_SETPOINT
 )
-def thermostat_set_cool_setpoint(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
+def thermostat_set_cool_setpoint(
+    address: Address, degrees: int, celsius: bool, topic=pub.AUTO_TOPIC
+):
     """Create a THERMOSTAT_SET_COOL_SETPOINT command."""
+    if not celsius:
+        degrees = to_celsius(degrees)
     cmd2 = degrees * 2
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
@@ -1193,8 +1236,12 @@ def thermostat_set_zone_cool_setpoint(
 @topic_to_command_handler(
     register_list=topic_register, topic=THERMOSTAT_SET_HEAT_SETPOINT
 )
-def thermostat_set_heat_setpoint(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
+def thermostat_set_heat_setpoint(
+    address: Address, degrees: int, celsius: bool, topic=pub.AUTO_TOPIC
+):
     """Create a THERMOSTAT_SET_HEAT_SETPOINT command."""
+    if not celsius:
+        degrees = to_celsius(degrees)
     cmd2 = degrees * 2
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
@@ -1213,17 +1260,3 @@ def thermostat_set_zone_heat_setpoint(
 def assign_to_companion_group(address: Address, topic=pub.AUTO_TOPIC):
     """Create a ASSIGN_TO_COMPANION_GROUP command."""
     _create_direct_message(topic=topic, address=address)
-
-
-@topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_EXTENDED_STATUS
-)
-def thermostat_extended_status(
-    address: Address, topic=pub.AUTO_TOPIC,
-):
-    """Create a THERMOSTAT_EXTENDED_STATUS command."""
-    user_data = UserData()
-    _create_direct_message(
-        topic=topic, address=address, cmd2=2, user_data=user_data, crc=True
-    )
-

@@ -1,6 +1,8 @@
 """Collection of topics mapped to commands (cmd1, cmd2)."""
-from typing import Iterable
+import logging
 from collections import namedtuple
+from typing import Iterable
+
 from ..topics import (
     ALL_LINK_CLEANUP_STATUS_REPORT,
     ASSIGN_TO_ALL_LINK_GROUP,
@@ -26,7 +28,9 @@ from ..topics import (
     DOOR_STATUS_REPORT_STOP_DOOR,
     ENTER_LINKING_MODE,
     ENTER_UNLINKING_MODE,
+    EXTENDED_GET_RESPONSE,
     EXTENDED_GET_SET,
+    EXTENDED_GET_SET_2,
     EXTENDED_READ_WRITE_ALDB,
     EXTENDED_RECEIVED,
     EXTENDED_TRIGGER_ALL_LINK,
@@ -126,15 +130,16 @@ from ..topics import (
     STOP_MANUAL_CHANGE,
     THERMOSTAT_CONTROL,
     THERMOSTAT_COOL_SET_POINT_STATUS,
-    THERMOSTAT_EXTENDED_STATUS,
     THERMOSTAT_GET_ZONE_INFORMATION,
     THERMOSTAT_HEAT_SET_POINT_STATUS,
     THERMOSTAT_HUMIDITY_STATUS,
     THERMOSTAT_MODE_STATUS,
     THERMOSTAT_SET_COOL_SETPOINT,
     THERMOSTAT_SET_HEAT_SETPOINT,
+    THERMOSTAT_SET_POINT_RESPONSE,
     THERMOSTAT_SET_ZONE_COOL_SETPOINT,
     THERMOSTAT_SET_ZONE_HEAT_SETPOINT,
+    THERMOSTAT_STATUS_RESPONSE,
     THERMOSTAT_TEMPERATURE_DOWN,
     THERMOSTAT_TEMPERATURE_STATUS,
     THERMOSTAT_TEMPERATURE_UP,
@@ -148,6 +153,32 @@ from ..topics import (
 )
 
 Command = namedtuple("Command", "cmd1 cmd2 user_data")
+_LOGGER = logging.getLogger(__name__)
+
+
+def _check_user_data_match(cmd_ud, user_data):
+    """Check if the command user_data matches the input user_data."""
+    if cmd_ud is None:
+        return True
+    if not user_data and not cmd_ud:
+        return True
+    if user_data and not cmd_ud:
+        return False
+    if cmd_ud and not user_data:
+        return False
+    for field in cmd_ud:
+        if cmd_ud[field] != user_data.get(field):
+            return False
+    return True
+
+
+def _check_match(command, cmd1, cmd2, user_data):
+    """Check if the current command matches the input values."""
+    if command.cmd1 != cmd1:
+        return False
+    cmd2_match = cmd2 is None or command.cmd2 is None or command.cmd2 == cmd2
+    user_data_match = _check_user_data_match(command.user_data, user_data)
+    return cmd2_match and user_data_match
 
 
 class Commands:
@@ -160,7 +191,12 @@ class Commands:
         self._use_group = {}
 
     def add(
-        self, topic: str, cmd1: int, cmd2: int, user_data: Iterable, use_group: bool = False
+        self,
+        topic: str,
+        cmd1: int,
+        cmd2: int,
+        user_data: Iterable,
+        use_group: bool = False,
     ):
         """Add a command to the list."""
         self._topics[topic] = Command(cmd1, cmd2, user_data)
@@ -186,7 +222,7 @@ class Commands:
         found = False
         for topic in self._topics:
             command = self._topics[topic]
-            if self._check_match(command, cmd1, cmd2, user_data):
+            if _check_match(command, cmd1, cmd2, user_data):
                 found = True
                 yield topic
         if not found:
@@ -194,27 +230,6 @@ class Commands:
                 yield SEND_STANDARD if send else STANDARD_RECEIVED
             else:
                 yield SEND_EXTENDED if send else EXTENDED_RECEIVED
-
-    def _check_match(self, command, cmd1, cmd2, user_data):
-        """Check if the current command matches the input values."""
-        if command.cmd1 != cmd1:
-            return False
-        cmd2_match = cmd2 is None or command.cmd2 is None or command.cmd2 == cmd2
-        user_data_match = self._check_user_data_match(command.user_data, user_data)
-        return cmd2_match and user_data_match
-
-    def _check_user_data_match(self, cmd_ud, user_data):
-        """Check if the command user_data matches the input user_data."""
-        if cmd_ud is None:
-            return True
-        if not user_data and not cmd_ud:
-            return True
-        if user_data and not cmd_ud:
-            return False
-        for field in cmd_ud:
-            if cmd_ud[field] != user_data.get(field):
-                return False
-        return True
 
 
 commands = Commands()
@@ -267,7 +282,12 @@ commands.add(POKE_ONE_BYTE_INTERNAL, 0x2D, None, False)
 commands.add(ON_AT_RAMP_RATE, 0x2E, None, False, True)
 # direct is ed and direct_ack is sd
 commands.add(EXTENDED_GET_SET, 0x2E, 0x00, None)
-commands.add(THERMOSTAT_EXTENDED_STATUS, 0x2E, 0x02, None)
+commands.add(EXTENDED_GET_RESPONSE, 0x2E, 0x00, {"d2": 0x01})
+commands.add(
+    THERMOSTAT_SET_POINT_RESPONSE, 0x2E, 0x00, {"d1": 0x00, "d2": 0x01, "d3": 0x01}
+)
+commands.add(EXTENDED_GET_SET_2, 0x2E, 0x02, None)
+commands.add(THERMOSTAT_STATUS_RESPONSE, 0x2E, 0x02, {"d1": 0x01})
 
 # cmd2 ne 0x00 => no confict w/ read aldb
 commands.add(OFF_AT_RAMP_RATE, 0x2F, None, False, True)
