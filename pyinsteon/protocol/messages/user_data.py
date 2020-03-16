@@ -167,14 +167,13 @@ class UserData:
 
     def set_crc(self, cmd1: int, cmd2: int):
         """Set Userdata[13] and Userdata[14] to the CRC value."""
-        data1 = bytes(cmd1)
-        data2 = bytes(cmd2)
-        data3 = bytes(self)[0:13]
+        data1 = bytes([cmd1])
+        data2 = bytes([cmd2])
+        data3 = bytes(self)[0:12]
         data = b"".join([data1, data2, data3])
         crc = int(0)
         for curr_byte in data:
-            # pylint: disable=unused-variable
-            for bit in range(0, 8):
+            for _ in range(0, 8):
                 fbit = curr_byte & 0x01
                 fbit = fbit ^ 0x01 if (crc & 0x8000) else fbit
                 fbit = fbit ^ 0x01 if (crc & 0x4000) else fbit
