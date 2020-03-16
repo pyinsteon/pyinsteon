@@ -58,12 +58,12 @@ class Device(ABC):
         )
         self._ext_property_manager = GetSetExtendedPropertyManager(self._address)
 
+        self._register_operating_flags()
         self._register_handlers_and_managers()
         self._register_groups()
         self._register_events()
         self._subscribe_to_handelers_and_managers()
         self._register_default_links()
-        self._register_operating_flags()
 
     # Public properties
     @property
@@ -183,9 +183,9 @@ class Device(ABC):
         """Write the operating flags to the device."""
         return await self._op_flags_manager.async_write()
 
-    async def async_read_ext_properties(self):
+    async def async_read_ext_properties(self, group=None):
         """Get the device extended properties."""
-        return await self._ext_property_manager.async_read()
+        return await self._ext_property_manager.async_read(group=group)
 
     async def async_write_ext_properties(self):
         """Write the extended properties."""
