@@ -2,7 +2,6 @@
 
 from .. import devices
 from ..constants import ALDBStatus
-from ..managers.link_manager import async_add_default_links
 from ..managers.scene_manager import (
     async_add_device_to_scene,
     async_trigger_scene_off,
@@ -106,7 +105,7 @@ class ToolsAldb(ToolsBase):
             return
         device = devices[addresses[0]]
         self._log_command(f"add_default_links {addresses[0]}")
-        await async_add_default_links(device)
+        await device.async_add_default_links()
 
     async def do_add_device_to_scene(self, *args, **kwargs):
         """Add a device to a scene.
