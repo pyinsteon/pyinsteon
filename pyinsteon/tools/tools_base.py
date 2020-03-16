@@ -383,7 +383,7 @@ class ToolsBase(Cmd):
         for group_id in device.groups:
             group = device.groups[group_id]
             self._log_stdout(
-                f"{device.address} {group_id:5d} {group.name:.15s} {group.value:5d}"
+                f"{device.address} {group_id:>3d}   {group.name:15.15s} {str(group.value):>5s}"
             )
 
     def _async_run(self, func, *args, **kwargs):
@@ -631,21 +631,25 @@ class ToolsBase(Cmd):
             prompt = prompt_addr
 
         while True:
-            if not address:
-                address = await self._input(prompt)
-            if not address:
-                if allow_cancel:
+            try:
+                if not address:
+                    address = await self._input(prompt)
+                if not address:
+                    if allow_cancel:
+                        return addresses
+                elif str(address).strip("'\"").lower() == "all":
+                    for addr in devices:
+                        addresses.append(addr)
                     return addresses
-            elif str(address).strip("'\"").lower() == "all":
-                for addr in devices:
-                    addresses.append(addr)
-                return addresses
-            elif devices[address]:
-                addresses.append(address)
-                return addresses
-            else:
-                self._log_stdout(f"Device {address} not found in device list.")
-                return []
+                elif devices[address]:
+                    addresses.append(address)
+                    return addresses
+                else:
+                    self._log_stdout(f"Device {address} not found in device list.")
+                    return []
+            except ValueError:
+                self._log_stdout("Invalid address entered.")
+                address = None
 
     async def _print_aldb(self, *args):
         """Print the All-Link Database to the log."""
