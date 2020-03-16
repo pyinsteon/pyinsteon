@@ -33,6 +33,14 @@ ON_MASK = "on_mask"
 OFF_MASK = "off_mask"
 NON_TOGGLE_MASK = "non_toggle_mask"
 NON_TOGGLE_ON_OFF_MASK = "non_toggle_on_off_mask"
+BACKLIGHT = "backlight"
+CHANGE_DELAY = "change_delay"
+MASTER = "master"
+HUMIDITY_HIGH = "humidity_high"
+HUMIDITY_LOW = "humidity_low"
+TEMP_OFFSET = "temp_offset"
+TEMP_OFFSET_EXTERNAL = "temp_offset_external"
+HUMIDITY_OFFSET = "humidity_offset"
 
 
 class ExtendedProperty(DeviceFlagBase):

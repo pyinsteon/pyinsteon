@@ -251,7 +251,7 @@ class IPDB:
         Product(0x05, 0x13, None, "Thermostat Heat Pump", "2732-232", Thermostat),
         Product(0x05, 0x14, None, "Thermostat Heat Pump", "2732-432", Thermostat),
         Product(0x05, 0x15, None, "Thermostat Heat Pump", "2732-532", Thermostat),
-        # Product(0x05, 0x16, None, 'Insteon Thermostat', '2441TH', ClimateControl_2441th),
+        Product(0x05, 0x16, None, 'Insteon Thermostat', '2441TH', Thermostat),
         Product(0x05, 0x17, None, "Insteon Thermostat", "2732-422", Thermostat),
         Product(0x05, 0x18, None, "Insteon Thermostat", "2732-522", Thermostat),
         Product(0x06, None, None, "Generic Pool Controller", "", UnknownDevice),

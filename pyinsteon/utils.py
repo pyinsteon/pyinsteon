@@ -248,3 +248,8 @@ def log_error(msg, ex, topic=None, kwargs=None):
         if topic:
             for subscriber in topic.getListeners():
                 _LOGGER.error("    Subscriber: %s", subscriber)
+
+
+def to_celsius(fahrenheit):
+    """Convert fahrenheit to celsius."""
+    return int(round((fahrenheit - 32) * 5 / 9, 0))
