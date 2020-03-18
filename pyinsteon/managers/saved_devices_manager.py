@@ -12,6 +12,7 @@ from .device_id_manager import DeviceId
 from .utils import create_device
 
 DEVICE_INFO_FILE = "insteon_devices.json"
+OLD_DEVICE_INFO_FILE = "insteon_plm_device_info.dat"
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -116,6 +117,77 @@ def _dict_to_aldb_record(aldb_dict):
     return records
 
 
+def _convert_old_device_dict(old_device_dict):
+    """Convert insteonplm saved device file to new device file."""
+    new_device_dict = old_device_dict
+    old_product_key = old_device_dict.get("firmware")
+    old_product_key = old_device_dict.get("product_key", old_product_key)
+    new_device_dict["firmware"] = old_product_key
+    old_aldb_status = old_device_dict.get("aldb_status", 0)
+    old_aldb = new_device_dict.get("aldb", {})
+    new_device_dict["aldb_status"] = _convert_old_aldb_status(old_aldb_status)
+    new_device_dict["aldb"] = _convert_old_aldb(old_aldb)
+    return new_device_dict
+
+
+def _convert_old_aldb_status(old_status):
+    """Convert insteonplm ALDB load status to new ALDB load status.
+
+    Old status values:
+        EMPTY = 0
+        LOADING = 1
+        LOADED = 2
+        FAILED = 3
+        PARTIAL = 4
+
+    New status values:
+        EMPTY = 0
+        LOADED = 1
+        LOADING = 2
+        FAILED = 3
+        PARTIAL = 4
+    """
+    if old_status in [0, 3, 4]:
+        return old_status
+    if old_status == 1:
+        return 2
+    if old_status == 2:
+        return 1
+
+
+def _convert_old_aldb(old_aldb):
+    """Convert insteonplm ALDB to new ALDB."""
+    new_aldb = {}
+    for mem_addr in old_aldb:
+        rec = old_aldb[mem_addr]
+        control_flags = int(rec.get("control_flags", 0))
+        in_use = rec.get("in_use", bool(control_flags & 1 << 7))
+        controller = rec.get("controller", bool(control_flags & 1 << 6))
+        bit5 = rec.get("bit5", bool(control_flags & 1 << 5))
+        bit4 = rec.get("bit4", bool(control_flags & 1 << 4))
+        high_water_mark = rec.get("high_water_mark", not bool(control_flags & 1 << 1))
+        group = int(rec.get("group", 0))
+        target = rec.get("address", "000000")
+        data1 = int(rec.get("data1", 0))
+        data2 = int(rec.get("data2", 0))
+        data3 = int(rec.get("data3", 0))
+
+        new_aldb[mem_addr] = {
+            "memory": mem_addr,
+            "in_use": in_use,
+            "controller": controller,
+            "high_water_mark": high_water_mark,
+            "bit5": bit5,
+            "bit4": bit4,
+            "group": group,
+            "target": target,
+            "data1": data1,
+            "data2": data2,
+            "data3": data3,
+        }
+    return new_aldb
+
+
 class SavedDeviceManager:
     """Manage saving and restoring devices from JSON."""
 
@@ -173,6 +245,7 @@ class SavedDeviceManager:
                 _LOGGER.debug("Loading saved device file failed")
         except FileNotFoundError:
             _LOGGER.debug("Saved device file not found")
+            saved_devices = await self._read_old_device_file()
         return saved_devices
 
     async def _write_saved_devices(self, device_list):
@@ -187,3 +260,25 @@ class SavedDeviceManager:
         except FileNotFoundError as ex:
             _LOGGER.error("Cannot write to file %s", device_file)
             _LOGGER.error("Exception: %s", str(ex))
+
+    async def _read_old_device_file(self):
+        """Load device information from the insteonplm device info file."""
+        _LOGGER.debug("Loading insteonplm saved device info.")
+
+        saved_devices = []
+        if not self._workdir:
+            _LOGGER.debug("Really Loading saved device info.")
+            return saved_devices
+
+        try:
+            device_file = path.join(self._workdir, OLD_DEVICE_INFO_FILE)
+            async with AIOFile(device_file, "r") as afp:
+                json_file = ""
+                json_file = await afp.read()
+            try:
+                saved_devices = json.loads(json_file)
+            except json.decoder.JSONDecodeError:
+                _LOGGER.debug("Loading insteonplm saved device file failed")
+        except FileNotFoundError:
+            _LOGGER.debug("insteonplm saved device file not found")
+        return _convert_old_device_dict(saved_devices)
