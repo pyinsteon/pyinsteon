@@ -6,7 +6,7 @@ from pyinsteon.address import Address
 from pyinsteon.managers.get_set_ext_property_manager import (
     GetSetExtendedPropertyManager,
 )
-from pyinsteon.protocol.commands import EXTENDED_GET_SET
+from pyinsteon.protocol.commands import EXTENDED_GET_SET, EXTENDED_GET_RESPONSE
 from pyinsteon.protocol.messages.user_data import UserData
 from pyinsteon.utils import build_topic
 from tests import set_log_levels
@@ -38,7 +38,7 @@ class TestExtendedPropertyManager(unittest.TestCase):
         self._address = Address("010203")
         self._properties = {}
         self._epm = GetSetExtendedPropertyManager(self._address)
-        set_log_levels(logger_topics=False)
+        set_log_levels(logger_topics=True)
 
     @async_case
     async def test_data_update(self):
@@ -84,7 +84,7 @@ class TestExtendedPropertyManager(unittest.TestCase):
             topic=EXTENDED_GET_SET, address=self._address, message_type="direct_ack"
         )
         resp = build_topic(
-            topic=EXTENDED_GET_SET, address=self._address, message_type="direct"
+            topic=EXTENDED_GET_RESPONSE, address=self._address, message_type="direct"
         )
 
         topic_ack = TopicItem(
