@@ -6,6 +6,7 @@ from functools import partial
 from inspect import iscoroutine, iscoroutinefunction
 
 from .. import pub
+from ..utils import subscribe_topic
 from ..aldb.aldb_battery import ALDBBattery
 from ..constants import ResponseStatus
 from ..handlers.to_device.extended_set import ExtendedSetCommand
@@ -38,7 +39,7 @@ class BatteryDeviceBase:
         self._aldb = ALDBBattery(address=address, run_command=self._run_on_wake)
         self._last_run = None
         self._keep_awake_cmd = ExtendedSetCommand(self._address, data1=0, data2=0x04)
-        pub.subscribe(self._device_awake, self._address.id)
+        subscribe_topic(self._device_awake, self._address.id)
         asyncio.ensure_future(self.async_keep_awake())
 
     def _run_on_wake(self, command, retries=3, **kwargs):

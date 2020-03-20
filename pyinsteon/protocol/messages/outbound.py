@@ -1,4 +1,5 @@
 """Create outbound messages."""
+import logging
 from ... import pub
 from ...address import Address
 from ...constants import (
@@ -32,6 +33,7 @@ from ...topics import (
     START_ALL_LINKING,
     X10_SEND,
 )
+from ...utils import publish_topic, subscribe_topic
 from ..topic_converters import topic_to_message_handler, topic_to_message_type
 from . import MessageBase
 from .all_link_record_flags import AllLinkRecordFlags
@@ -45,12 +47,14 @@ from .user_data import UserData
 # pylint: disable=invalid-name
 topic_register = {}
 
+_LOGGER = logging.getLogger(__name__)
+
 
 def register_outbound_handlers():
     """Register outbound handlers."""
     for topic in topic_register:
         func = topic_register[topic]
-        pub.subscribe(func, topic)
+        subscribe_topic(func, topic)
 
 
 class Outbound(MessageBase):
@@ -91,7 +95,7 @@ def _create_outbound_message(topic, priority=5, **kwargs) -> Outbound:
     msg_id = getattr(MessageId, topic.upper())
     msg_def = OUTBOUND_MSG_DEF[msg_id]
     msg = Outbound(msg_def, **kwargs)
-    pub.sendMessage("send_message.{}".format(topic), msg=msg, priority=priority)
+    publish_topic("send_message.{}".format(topic), msg=msg, priority=priority)
 
 
 @topic_to_message_handler(
@@ -140,7 +144,8 @@ def send_standard(
     send_topic = "send_message.{}".format(main_topic)
     if msg_type is not None:
         send_topic = "{}.{}".format(send_topic, msg_type)
-    pub.sendMessage(send_topic, msg=Outbound(msg_def, **kwargs), priority=priority)
+    msg = Outbound(msg_def, **kwargs)
+    publish_topic(send_topic, msg=msg, priority=priority)
 
 
 @topic_to_message_handler(register_list=topic_register, topic=SEND_EXTENDED)
@@ -164,11 +169,9 @@ def send_extended(
         "user_data": user_data,
     }
     msg_def = MessageDefinition(MessageId.SEND_EXTENDED, FLD_EXT_SEND)
-    pub.sendMessage(
-        "send_message.{}".format(main_topic),
-        msg=Outbound(msg_def, **kwargs),
-        priority=priority,
-    )
+    send_topic = "send_message.{}".format(main_topic)
+    msg = Outbound(msg_def, **kwargs)
+    publish_topic(send_topic, msg=msg, priority=priority)
 
 
 @topic_to_message_handler(register_list=topic_register, topic=X10_SEND)

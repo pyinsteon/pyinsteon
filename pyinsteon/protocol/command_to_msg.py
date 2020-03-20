@@ -5,7 +5,7 @@ from math import ceil
 from .. import pub
 from ..address import Address
 from ..constants import RampRate
-from ..utils import to_celsius
+from ..utils import to_celsius, subscribe_topic
 from ..topics import (
     ASSIGN_TO_ALL_LINK_GROUP,
     ASSIGN_TO_COMPANION_GROUP,
@@ -147,7 +147,7 @@ def register_command_handlers():
     """Register outbound handlers."""
     for topic in topic_register:
         func = topic_register[topic]
-        pub.subscribe(func, topic)
+        subscribe_topic(func, topic)
 
 
 # The following messages are all send_standard or send_extended messages

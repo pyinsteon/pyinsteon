@@ -253,3 +253,54 @@ def log_error(msg, ex, topic=None, kwargs=None):
 def to_celsius(fahrenheit):
     """Convert fahrenheit to celsius."""
     return int(round((fahrenheit - 32) * 5 / 9, 0))
+
+
+def publish_topic(topic, logger=None, **kwargs):
+    """Publish a topic and log errors."""
+    # Send log message as caller not utils.
+    if logger is None:
+        logger = logging.getLogger(__name__)
+    try:
+        pub.sendMessage(topic, **kwargs)
+    except pub.ExcHandlerError as exc:
+        logger.error("pubsub ExcHandlerError")
+        logger.error("Error processing topic: %s", topic)
+        logger.error("Error in topic listner: %s", exc.badExcListenerID)
+    except pub.SenderMissingReqdMsgDataError as exc:
+        logger.error("SenderMissingReqdMsgDataError")
+        logger.error(str(exc))
+        for listner in pub.getDefaultTopicMgr().getTopic(topic).getListeners():
+            logger.error("Topic listener: %s", listner)
+    except pub.SenderUnknownMsgDataError as exc:
+        logger.error("SenderUnknownMsgDataError")
+        logger.error(str(exc))
+        for listner in pub.getDefaultTopicMgr().getTopic(topic).getListeners():
+            logger.error("Topic listener: %s", listner)
+
+
+def subscribe_topic(listener, topic_name, logger=None):
+    """Subscribe a listener to a topic and log errors."""
+    topic_mgr = pub.getDefaultTopicMgr()
+    topic = topic_mgr.getOrCreateTopic(topic_name)
+    if pub.isSubscribed(listener, topicName=topic.name):
+        return
+    if logger is None:
+        logger = logging.getLogger(__name__)
+    try:
+        pub.subscribe(listener, topic)
+    except pub.ListenerMismatchError as exc:
+        logger.error("ListenerMismatchError")
+        logger.error("args: %s", exc.args)
+        logger.error("msg: %s", exc.msg)
+        logger.error("module: %s", exc.module)
+        logger.error("idStr: %s", exc.idStr)
+        for topic_listner in pub.getDefaultTopicMgr().getTopic(topic).getListeners():
+            logger.error("Topic listener: %s", topic_listner)
+
+
+def unsubscribe_topic(listener, topic_name):
+    """Unsubscribe a listener to a topic and log errors."""
+    topic_mgr = pub.getDefaultTopicMgr()
+    topic = topic_mgr.getOrCreateTopic(topic_name)
+    if pub.isSubscribed(listener, topicName=topic.name):
+        pub.unsubscribe(listener, topic.name)

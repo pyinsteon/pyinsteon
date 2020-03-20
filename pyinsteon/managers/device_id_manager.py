@@ -4,6 +4,7 @@ import logging
 from collections import namedtuple
 
 from .. import pub
+from ..utils import subscribe_topic
 from ..address import Address
 from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
 from ..handlers.from_device.delete_from_all_link_group import (
@@ -58,14 +59,12 @@ class DeviceIdManager(SubscriberBase):
         if self._device_ids.get(address) is None:
             self._device_ids[address] = DeviceId(None, None, None, None)
             self._unknown_devices.append(address)
-            pub.subscribe(self._device_awake, address.id)
+            subscribe_topic(self._device_awake, address.id)
 
     def set_device_id(
         self, address: Address, cat: int, subcat: int, firmware: int = 0x00
     ):
         """Set the device ID of a device."""
-        from .. import devices
-
         address = Address(address)
         cat = int(cat)
         subcat = int(subcat)
@@ -76,9 +75,7 @@ class DeviceIdManager(SubscriberBase):
             pass
         device_id = DeviceId(address, cat, subcat, firmware)
         self._device_ids[address] = device_id
-        device = devices[address]
-        if not device:
-            self._call_subscribers(device_id=device_id)
+        self._call_subscribers(device_id=device_id)
 
     async def async_id_devices(self, refresh: bool = False):
         """Identify the devices in the unknown device list."""
@@ -165,7 +162,7 @@ class DeviceIdManager(SubscriberBase):
         """Check if an awake device has been identified."""
         dev_id = self._device_ids.get(address)
         if dev_id is None or dev_id.cat is None:
-            pub.subscribe(self._device_awake, address.id)
+            subscribe_topic(self._device_awake, address.id)
         try:
             self._awake_devices.remove(address)
         except ValueError:

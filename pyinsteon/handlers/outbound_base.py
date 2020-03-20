@@ -3,7 +3,7 @@ import asyncio
 from abc import ABCMeta
 
 from . import ResponseStatus
-from .. import pub
+from ..utils import publish_topic
 from ..utils import build_topic
 from .inbound_base import InboundHandlerBase
 
@@ -46,7 +46,7 @@ class OutboundHandlerBase(InboundHandlerBase):
             group=None,
             message_type=self._message_type,
         )
-        pub.sendMessage(send_topic, **kwargs)
+        publish_topic(send_topic, **kwargs)
         try:
             test = await asyncio.wait_for(self._message_response.get(), TIMEOUT)
             return test

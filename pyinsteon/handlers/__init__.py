@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from functools import wraps
 
-from .. import pub
+from ..utils import subscribe_topic
 from ..address import Address
 from ..constants import MessageFlagType, ResponseStatus
 from ..utils import build_topic
@@ -40,7 +40,7 @@ def _register_handler(
         group=group,
         message_type=message_type,
     )
-    pub.subscribe(instance_func, full_topic)
+    subscribe_topic(instance_func, full_topic)
 
 
 def inbound_handler(func):
@@ -184,7 +184,7 @@ def status_handler(func):
         # This registers all messages for a device but only triggers on
         # status messages if they return within the TIMEOUT period
         address = Address(address)
-        pub.subscribe(instance_func, address.id)
+        subscribe_topic(instance_func, address.id)
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -266,7 +266,7 @@ def all_link_cleanup_handler(func):
 
     def register_topic(instance_func, topic):
         topic = "{}.all_link_cleanup".format(topic)
-        pub.subscribe(instance_func, topic)
+        subscribe_topic(instance_func, topic)
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):

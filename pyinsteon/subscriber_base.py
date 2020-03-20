@@ -3,7 +3,7 @@ import logging
 from abc import ABC
 from typing import Callable
 
-from . import pub
+from .utils import publish_topic, subscribe_topic, unsubscribe_topic
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,18 +18,15 @@ class SubscriberBase(ABC):
 
     def subscribe(self, callback: Callable, force_strong_ref=False):
         """Subscribe to the event."""
-        topic_mgr = pub.getDefaultTopicMgr()
-        topic = topic_mgr.getOrCreateTopic(self._subscriber_topic)
         if force_strong_ref and callback not in self._subscribers:
             _LOGGER.error("Adding subscriber to persistant list")
             self._subscribers.append(callback)
-        if not pub.isSubscribed(callback, topicName=topic.name):
-            pub.subscribe(callback, topicName=topic.name)
+        subscribe_topic(callback, self._subscriber_topic, _LOGGER)
 
     def unsubscribe(self, callback):
         """Unsubscribe to the event."""
-        pub.unsubscribe(callback, topicName=self._subscriber_topic)
+        unsubscribe_topic(callback, self._subscriber_topic)
 
     def _call_subscribers(self, **kwargs):
         """Call subscribers to the event."""
-        pub.sendMessage(topicName=self._subscriber_topic, **kwargs)
+        publish_topic(self._subscriber_topic, **kwargs)

@@ -2,7 +2,7 @@
 import logging
 from abc import ABC, abstractmethod
 
-from .. import pub
+from ..utils import publish_topic, subscribe_topic
 from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion
 from ..topics import (
@@ -31,7 +31,7 @@ class ALDBBase(ABC):
         self._cb_aldb_loaded = None
         self._read_manager = None
         self._dirty_records = []
-        pub.subscribe(self.update_version, f"{repr(self._address)}.{ALDB_VERSION}")
+        subscribe_topic(self.update_version, f"{repr(self._address)}.{ALDB_VERSION}")
 
     def __len__(self):
         """Return the number of devices in the ALDB."""
@@ -125,13 +125,9 @@ class ALDBBase(ABC):
             self._mem_addr = keys[0]
 
     def _notify_change(self, record, force_delete=False):
-        from .. import devices
-
         target = record.target
         group = record.group
         is_in_use = True if force_delete else record.is_in_use
-        if group == 0 or target == devices.modem.address:
-            return
         if record.is_controller and is_in_use:
             topic = DEVICE_LINK_CONTROLLER_CREATED
         elif record.is_controller and not is_in_use:
@@ -145,4 +141,4 @@ class ALDBBase(ABC):
 
     @classmethod
     def _send_change(cls, topic, controller, responder, group):
-        pub.sendMessage(topic, controller=controller, responder=responder, group=group)
+        publish_topic(topic, controller=controller, responder=responder, group=group)
