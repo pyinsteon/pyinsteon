@@ -1,4 +1,5 @@
 """Python module for controlling Insteon devices."""
+import asyncio
 import logging
 from pubsub import pub
 from .protocol import async_modem_connect
@@ -57,8 +58,6 @@ async def async_connect(
 
 async def async_close():
     """Close the connection and stop all tasks."""
-    import asyncio
-
     await devices.modem.async_close()
     for addr in devices:
         if devices[addr].is_battery:
