@@ -306,7 +306,7 @@ class AdvancedTools(ToolsBase):
 
     def do_find_broken_links(self, *args, **kwargs):
         """Find broken links between devices."""
-        broken_links = find_broken_links()
+        broken_links = find_broken_links(devices)
         self._log_stdout("Device   Mem Addr Target    Group Mode Status")
         self._log_stdout(
             "-------- -------- --------- ----- ---- ----------------------------------------"

@@ -1,9 +1,8 @@
 """Manage links beteween devices."""
 import logging
 
-from ..constants import AllLinkMode, LinkStatus, ResponseStatus
-from ..handlers.start_all_linking import StartAllLinkingCommandHandler
-from ..utils import multiple_status
+from ...constants import AllLinkMode, LinkStatus, ResponseStatus
+from ...handlers.start_all_linking import StartAllLinkingCommandHandler
 
 TIMEOUT = 3
 _LOGGER = logging.getLogger(__name__)
@@ -30,6 +29,7 @@ async def async_link_devices(
     controller, responder, group: int = 0, data1=255, data2=28, data3=1
 ):
     """Link two devices."""
+
     if not hasattr(controller, "address") or not hasattr(responder, "address"):
         raise TypeError("controller and responder must be devices")
     if _add_link_to_device(
@@ -88,50 +88,15 @@ def _remove_link_from_device(device, is_controller, group, target):
     return True
 
 
-async def async_add_default_links(device):
-    """Establish default links between the modem and device."""
-    from .. import devices
-
-    if not device.aldb.is_loaded:
-        await device.aldb.async_load()
-
-    if not device.aldb.is_loaded:
-        return ResponseStatus.UNSENT
-
-    results = []
-    for link_info in device.default_links:
-        is_controller = link_info.is_controller
-        group = link_info.group
-        if is_controller:
-            controller = device
-            responder = devices.modem
-            data1 = link_info.modem_data1
-            data2 = link_info.modem_data2
-            data3 = link_info.modem_data3
-        else:
-            controller = devices.modem
-            responder = device
-            data1 = link_info.dev_data1
-            data2 = link_info.dev_data2
-            data3 = link_info.dev_data3
-        result = await async_link_devices(
-            controller, responder, group, data1, data2, data3
-        )
-        results.append(result)
-    return multiple_status(*results)
-
-
-def find_broken_links():
+def find_broken_links(devices):
     """Find proken links."""
-    from .. import devices
-
     broken_link_list = {}
     for addr in devices:
         device = devices[addr]
         for mem_addr in device.aldb:
             rec = device.aldb[mem_addr]
             if rec.is_in_use:
-                status = _test_broken(addr, rec)
+                status = _test_broken(addr, rec, devices)
                 if status != LinkStatus.FOUND:
                     if not broken_link_list.get(addr):
                         broken_link_list[addr] = {}
@@ -139,10 +104,8 @@ def find_broken_links():
     return broken_link_list
 
 
-def _test_broken(address, rec):
+def _test_broken(address, rec, devices):
     """Test if a corresponding record exists in liked device."""
-    from .. import devices
-
     device = devices.get(rec.target)
     if not device:
         return LinkStatus.MISSING_TARGET

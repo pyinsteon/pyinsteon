@@ -2,7 +2,6 @@
 import logging
 from asyncio import Lock
 
-from .. import pub
 from ..address import Address
 from ..device_types.device_base import Device
 from ..device_types.modem_base import ModemBase
@@ -28,7 +27,7 @@ class DeviceManager(SubscriberBase):
         self._id_manager = DeviceIdManager()
         self._id_manager.subscribe(self._device_identified)
         self._loading_saved_lock = Lock()
-        self._link_manager = DeviceLinkManager()
+        self._link_manager = DeviceLinkManager(self)
 
     def __getitem__(self, address) -> Device:
         """Return a a device from the device address."""
@@ -53,14 +52,6 @@ class DeviceManager(SubscriberBase):
         self._id_manager.set_device_id(
             device.address, device.cat, device.subcat, device.firmware
         )
-        try:
-            mgr = pub.getDefaultTopicMgr()
-            topic = mgr.getTopic(self._subscriber_topic)
-            for listendr in topic.listeners:
-                _LOGGER.error(listendr)
-        # pylint: disable=broad-except
-        except Exception:
-            pass
         self._call_subscribers(address=device.address.id)
 
     def __len__(self):
@@ -138,7 +129,7 @@ class DeviceManager(SubscriberBase):
         """
         if workdir:
             await self._loading_saved_lock.acquire()
-            saved_devices_manager = SavedDeviceManager(workdir)
+            saved_devices_manager = SavedDeviceManager(workdir, self.modem)
             devices = await saved_devices_manager.async_load()
             for address in devices:
                 self[address] = devices[address]
@@ -160,7 +151,7 @@ class DeviceManager(SubscriberBase):
 
     async def async_save(self, workdir):
         """Save devices to a device information file."""
-        saved_devices_manager = SavedDeviceManager(workdir)
+        saved_devices_manager = SavedDeviceManager(workdir, self.modem)
         await saved_devices_manager.async_save(self._devices)
 
     def _device_identified(self, device_id: DeviceId):

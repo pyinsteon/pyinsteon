@@ -2,6 +2,7 @@
 
 import logging
 from abc import ABC
+import asyncio
 from datetime import datetime
 
 from ..address import Address
@@ -10,7 +11,7 @@ from ..default_link import DefaultLink
 from ..handlers.to_device.product_data_request import ProductDataRequestCommand
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
 from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
-from ..managers.link_manager import async_add_default_links
+from ..managers.link_manager.default_links import async_add_default_links
 from ..operating_flag import OperatingFlag
 from ..utils import multiple_status
 
@@ -158,6 +159,7 @@ class Device(ABC):
 
     def status(self, group=None):
         """Get the status of the device."""
+        asyncio.ensure_future(self.async_status(group))
 
     async def async_status(self, group=None):
         """Get the status of the device."""

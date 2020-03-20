@@ -191,9 +191,10 @@ def _convert_old_aldb(old_aldb):
 class SavedDeviceManager:
     """Manage saving and restoring devices from JSON."""
 
-    def __init__(self, workdir):
+    def __init__(self, workdir, modem):
         """Init the SavedDeviceManager class."""
         self._workdir = workdir
+        self._modem = modem
 
     async def async_save(self, device_list: dict):
         """Save all devices to the `insteon_devices.json` file for faster loading."""
@@ -202,14 +203,11 @@ class SavedDeviceManager:
 
     async def async_load(self) -> {}:
         """Load devices from the saved device file."""
-        from .. import devices
-
-        modem = devices.modem
         saved_devices = await self._read_saved_devices()
         device_list = {}
         for saved_device in saved_devices:
             address = Address(saved_device.get("address"))
-            if address != modem.address:
+            if address != self._modem.address:
                 device = _dict_to_device(saved_device)
                 if device:
                     device_list[address] = device
@@ -222,7 +220,7 @@ class SavedDeviceManager:
                 aldb_status = saved_device.get("aldb_status", 0)
                 aldb = saved_device.get("aldb", {})
                 aldb_records = _dict_to_aldb_record(aldb)
-                modem.aldb.load_saved_records(aldb_status, aldb_records)
+                self._modem.aldb.load_saved_records(aldb_status, aldb_records)
         return device_list
 
     async def _read_saved_devices(self):
