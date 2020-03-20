@@ -287,7 +287,7 @@ def subscribe_topic(listener, topic_name, logger=None):
     if logger is None:
         logger = logging.getLogger(__name__)
     try:
-        pub.subscribe(listener, topic)
+        pub.subscribe(listener, topic.name)
     except pub.ListenerMismatchError as exc:
         logger.error("ListenerMismatchError")
         logger.error("args: %s", exc.args)
