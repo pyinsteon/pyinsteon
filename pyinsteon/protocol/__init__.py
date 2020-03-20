@@ -9,6 +9,8 @@ from .serial_transport import (
     async_connect_serial,
     async_connect_socket,
 )
+from ..managers.utils import create_device
+from ..managers.device_id_manager import DeviceId
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -31,9 +33,6 @@ async def async_modem_connect(
     If the device is a serial device see the serial class parameters.
 
     """
-    from ..managers.utils import create_device
-    from ..managers.device_id_manager import DeviceId
-
     device_id = None
 
     def set_im_info(address, cat, subcat, firmware):
@@ -59,7 +58,10 @@ async def async_modem_connect(
         connect_method = partial(async_connect_socket, **{"host": host, "port": port})
         protocol = Protocol(connect_method=connect_method)
 
-    await protocol.async_connect()
+    try:
+        await protocol.async_connect(retry=False)
+    except ConnectionError:
+        raise ConnectionError("Modem did not respond connection request")
 
     get_im_info = GetImInfoHandler()
     get_im_info.subscribe(set_im_info)
