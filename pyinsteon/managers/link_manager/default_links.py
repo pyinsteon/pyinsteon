@@ -2,7 +2,6 @@
 
 import logging
 
-from ... import devices
 from ...constants import ResponseStatus
 from ...utils import multiple_status
 from . import async_link_devices
@@ -13,6 +12,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_add_default_links(device):
     """Establish default links between the modem and device."""
+    from ... import devices
 
     if not device.aldb.is_loaded:
         await device.aldb.async_load()
