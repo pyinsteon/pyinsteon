@@ -21,7 +21,7 @@ class ToolsConfig(ToolsBase):
             address = None
 
         addresses = await self._get_addresses(
-            address, allow_cancel=True, allow_all=True
+            address=address, allow_cancel=True, allow_all=True
         )
         if not addresses:
             return

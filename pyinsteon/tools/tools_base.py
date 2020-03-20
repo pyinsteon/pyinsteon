@@ -337,7 +337,9 @@ class ToolsBase(Cmd):
             refresh_yn = None
 
         tasks = []
-        addresses = await self._get_addresses(allow_all=True, allow_cancel=True)
+        addresses = await self._get_addresses(
+            address=address, allow_all=True, allow_cancel=True
+        )
         if not addresses:
             return
 
