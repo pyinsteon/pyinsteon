@@ -23,7 +23,6 @@ class ImReadManager:
         self._get_first_handler = GetFirstAllLinkRecordHandler()
         self._get_next_handler = GetNextAllLinkRecordHandler()
         mgr = pub.getDefaultTopicMgr()
-        mgr = pub.getDefaultTopicMgr()
         topic = mgr.getTopic(ALL_LINK_RECORD_RESPONSE, okIfNone=True)
         if not topic:
             self._receive_record_handler = AllLinkRecordResponseHandler()
