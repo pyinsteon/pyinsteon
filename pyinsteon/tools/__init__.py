@@ -40,14 +40,17 @@ class InsteonCmd(ToolsBase):
         if password:
             params = f"{self.host} {self.username} {'*' * len(password)} {self.hub_version} {self.port}"
         self._log_command(f"connect {params}")
-        await async_connect(
-            device=self.device,
-            host=self.host,
-            port=self.port,
-            username=self.username,
-            password=password,
-            hub_version=self.hub_version,
-        )
+        try:
+            await async_connect(
+                device=self.device,
+                host=self.host,
+                port=self.port,
+                username=self.username,
+                password=password,
+                hub_version=self.hub_version,
+            )
+        except ConnectionError:
+            self._log_stdout("Connection failed. Please review connection information.")
 
     async def do_disconnect(self, *args, **kwargs):
         """Close the connection to the modem.
