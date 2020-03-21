@@ -49,7 +49,7 @@ class HttpReaderWriter:
                             )
                             return True
                         _log_error(response.status)
-        except ClientError as ex:
+        except (asyncio.TimeoutError, ClientError) as ex:
             _LOGGER.error(
                 "An aiohttp error occurred: %s with status %s", str(ex), response_status
             )

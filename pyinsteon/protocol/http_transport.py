@@ -23,8 +23,10 @@ async def async_connect_http(host, username, password, protocol, port=None):
         protocol=protocol, host=host, port=port, username=username, password=password
     )
     if await transport.async_test_connection():
+        transport.start_reader()
         protocol.connection_made(transport)
-    return transport
+        return transport
+    return None
 
 
 # This transport is designed for the Hub version 2.
@@ -59,8 +61,7 @@ class HttpTransport(asyncio.Transport):
         self._read_write_lock = asyncio.Lock()
         self._last_read = asyncio.Queue()
         self._last_msg = None
-
-        self._start_reader()
+        self._reader_task = None
 
     def abort(self):
         """Alternative to closing the transport."""
@@ -107,6 +108,11 @@ class HttpTransport(asyncio.Transport):
         """Async write to the transport."""
         url = convert_to_url(self._host, self._port, data)
         await self._async_write_url(url=url, msg=bytes(data))
+
+    def start_reader(self):
+        """Start the reader."""
+        if self._reader_task is None:
+            self._start_reader()
 
     async def _async_write_url(self, url, msg=None):
         """Write the message to the Hub."""
@@ -155,8 +161,8 @@ class HttpTransport(asyncio.Transport):
         await self._clear_buffer()
         await self._reader_writer.reset_reader()
         url = "http://{:s}:{:d}/buffstatus.xml".format(self._host, self._port)
-        _LOGGER.debug("Calling connection made")
-        self._protocol.connection_made(self)
+        # _LOGGER.debug("Calling connection made")
+        # self._protocol.connection_made(self)
         retry = 0
         while not self._closing:
             buffer = None
@@ -213,10 +219,9 @@ class HttpTransport(asyncio.Transport):
         _LOGGER.debug("Stopping the reader and reconnect is %s", reconnect)
         self.close()
         if self._reader_task:
-            self._reader_task.remove_done_callback(self._start_reader)
+            if not reconnect:
+                self._reader_task.remove_done_callback(self._protocol.connection_lost)
             self._reader_task.cancel()
             with suppress(asyncio.CancelledError):
                 await self._reader_task
                 await asyncio.sleep(0)
-        await asyncio.sleep(2)
-        self._protocol.connection_lost(True)

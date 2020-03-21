@@ -32,8 +32,12 @@ async def async_connect_socket(host, protocol, port=None):
     port = 9761 if not port else port
     loop = asyncio.get_event_loop()
     url = "socket://{}:{}".format(host, port)
-    ser = serial.serial_for_url(url=url, baudrate=19200)
-    transport = SerialTransport(loop, protocol, ser, device=url)
+    try:
+        ser = serial.serial_for_url(url=url, baudrate=19200)
+        transport = SerialTransport(loop, protocol, ser, device=url)
+    except OSError as ex:
+        _LOGGER.warning("Unable to connect to %s: %s", url, ex)
+        transport = None
     return transport
 
 
@@ -55,8 +59,13 @@ class SerialTransport(SerialTransportBase):
         msg_bytes = bytes(data)
         try:
             super().write(msg_bytes)
-        except serial.SerialException as exc:
-            self._protocol.connection_lost(exc)
+        except serial.SerialException:
+            _LOGGER.debug("Serial connection lost (write)")
+            try:
+                self._close()
+            except serial.SerialException as exc:
+                self._serial.close()
+                self._protocol.connection_lost(exc)
 
     async def async_write(self, data):
         """Asyncronous write method."""
@@ -71,5 +80,20 @@ class SerialTransport(SerialTransportBase):
     def _poll_read(self):
         try:
             super()._poll_read()
-        except serial.SerialException as exc:
-            self._protocol.connection_lost(exc)
+        except serial.SerialException:
+            _LOGGER.debug("Serial connection lost (_poll_read)")
+            self._close()
+
+    def _call_connection_lost(self, exc):
+        """Override _call_connection_lost in order to capture exceptions."""
+        try:
+            super()._call_connection_lost(exc)
+        except serial.SerialException:
+            _LOGGER.debug("Serial error (_call_connection_lost)")
+            protocol = self._protocol
+            self._write_buffer.clear()
+            self._serial.close()
+            self._serial = None
+            self._protocol = None
+            self._loop = None
+            protocol.connection_lost(exc)
