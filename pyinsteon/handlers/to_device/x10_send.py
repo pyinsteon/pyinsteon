@@ -16,11 +16,6 @@ class X10CommandSend(OutboundHandlerBase):
         self._address = X10Address(address)
         self._cmd = x10_cmd
 
-    # pylint: disable=useless-super-delegation,arguments-differ
-    def send(self):
-        """Send the command."""
-        super().send()
-
     # pylint: disable=arguments-differ
     async def async_send(self):
         """Send the command."""

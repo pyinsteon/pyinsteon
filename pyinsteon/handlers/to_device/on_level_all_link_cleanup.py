@@ -11,11 +11,6 @@ class OnLevelAllLinkCleanupCommand(AllLinkCleanupCommandHandlerBase):
         """Init the OnLevelCommand class."""
         super().__init__(topic=ON, address=address, group=group)
 
-    # pylint: disable=arguments-differ, useless-super-delegation
-    def send(self):
-        """Send the ON command."""
-        super().send(on_level=self._group)
-
     # pylint: disable=arguments-differ
     async def async_send(self):
         """Send the ON command async."""

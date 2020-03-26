@@ -12,11 +12,6 @@ class OffCommand(DirectCommandHandlerBase):
         super().__init__(topic=OFF, address=address, group=group)
 
     # pylint: disable=arguments-differ
-    def send(self):
-        """Send the OFF command."""
-        super().send(group=self._group)
-
-    # pylint: disable=arguments-differ
     async def async_send(self):
         """Send the OFF command async."""
         return await super().async_send(group=self._group)

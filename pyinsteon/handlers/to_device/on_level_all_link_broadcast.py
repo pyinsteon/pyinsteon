@@ -12,11 +12,6 @@ class OnLevelAllLinkBroadcastCommand(AllLinkBroadcastCommandHandlerBase):
         super().__init__(topic=ON, group=group)
 
     # pylint: disable=arguments-differ
-    def send(self):
-        """Send the ON command."""
-        super().send(group=0, on_level=0xFF)
-
-    # pylint: disable=arguments-differ
     async def async_send(self):
         """Send the ON command async."""
         return await super().async_send(group=0, on_level=0xFF)

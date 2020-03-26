@@ -15,7 +15,7 @@ class OnFastCommand(DirectCommandHandlerBase):
     # pylint: disable=arguments-differ
     def send(self, on_level=0xFF):
         """Send the ON FAST command."""
-        super().send(on_level=0xFF, group=self._group)
+        super().send(on_level=0xFF)
 
     # pylint: disable=arguments-differ
     async def async_send(self, on_level=0xFF):

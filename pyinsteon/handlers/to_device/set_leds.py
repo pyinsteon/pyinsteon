@@ -38,11 +38,16 @@ class SetLedsCommandHandler(ExtendedSetCommand):
         group8: bool,
     ):
         """Set the LED values of the KPL."""
-        bitmask = _bitmask(
-            group1, group2, group3, group4, group5, group6, group7, group8
+        super().send(
+            group1=group1,
+            group2=group2,
+            group3=group3,
+            group4=group4,
+            group5=group5,
+            group6=group6,
+            group7=group7,
+            group8=group8,
         )
-        kwargs = {"data1": self._data1, "data2": self._data2, "data3": bitmask}
-        super().send(**kwargs)
 
     # pylint: disable=arguments-differ
     async def async_send(

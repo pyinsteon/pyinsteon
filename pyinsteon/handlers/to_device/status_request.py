@@ -19,11 +19,6 @@ class StatusRequestCommand(DirectCommandHandlerBase):
         self._status_type = status_type
 
     # pylint: disable=arguments-differ, useless-super-delegation
-    def send(self):
-        """Send the ON command."""
-        super().send(status_type=self._status_type)
-
-    # pylint: disable=arguments-differ, useless-super-delegation
     async def async_send(self):
         """Send the ON command async."""
         return await super().async_send(status_type=self._status_type)

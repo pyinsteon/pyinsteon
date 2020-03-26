@@ -12,11 +12,6 @@ class OffAllLinkCleanupCommand(AllLinkCleanupCommandHandlerBase):
         super().__init__(topic=OFF, address=address, group=group)
 
     # pylint: disable=arguments-differ
-    def send(self):
-        """Send the ON command."""
-        super().send(group=0, cmd2=self._group)
-
-    # pylint: disable=arguments-differ
     async def async_send(self):
         """Send the ON command async."""
         return await super().async_send(group=0, cmd2=self._group)

@@ -11,11 +11,6 @@ class ProductDataRequestCommand(DirectCommandHandlerBase):
         """Init the OnLevelCommand class."""
         super().__init__(topic=PRODUCT_DATA_REQUEST, address=address)
 
-    # pylint: disable=arguments-differ, useless-super-delegation
-    def send(self):
-        """Send the OFF command."""
-        super().send()
-
     # pylint: disable=arguments-differ
     async def async_send(self):
         """Send the OFF command async."""
