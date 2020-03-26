@@ -154,7 +154,9 @@ def register_command_handlers():
 # The topis is based on the cmd1, cmd2 and extended message flags values
 
 
-def _create_direct_message(topic, address, cmd2=None, user_data=None, crc=False):
+def _create_direct_message(
+    topic, address, cmd2=None, user_data=None, crc=False, priority=5
+):
     main_topic = topic.name.split(".")[1]
     command = commands.get_command(main_topic)
     extended = user_data is not None
@@ -175,10 +177,16 @@ def _create_direct_message(topic, address, cmd2=None, user_data=None, crc=False)
             flags=flags,
             user_data=user_data,
             topic=topic,
+            priority=priority,
         )
     else:
         send_standard(
-            address=address, cmd1=command.cmd1, cmd2=cmd2, flags=flags, topic=topic
+            address=address,
+            cmd1=command.cmd1,
+            cmd2=cmd2,
+            flags=flags,
+            topic=topic,
+            priority=priority,
         )
 
 
