@@ -1,8 +1,8 @@
 """Send a Start All-Linking command."""
-from .outbound_base import OutboundHandlerBase
-from ..topics import SEND_ALL_LINK_COMMAND
-from ..constants import AllLinkMode
 from . import ack_handler
+from ..constants import AllLinkMode
+from ..topics import SEND_ALL_LINK_COMMAND
+from .outbound_base import OutboundHandlerBase
 
 
 class SendAllLinkingCommandHandler(OutboundHandlerBase):

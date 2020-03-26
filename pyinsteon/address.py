@@ -1,7 +1,6 @@
 """Insteon device address class."""
-import logging
 import binascii
-
+import logging
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,6 +40,8 @@ class Address:
     def __init__(self, addr):
         """Create an Address object."""
         self._addr = _normalize(addr)
+        if self._addr is None:
+            raise ValueError("Address cannot be None")
 
     def __repr__(self):
         """Representation of the Address object."""

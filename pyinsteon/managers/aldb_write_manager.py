@@ -1,7 +1,8 @@
 """Manage writes to the All-Link Database."""
 import asyncio
-from ..handlers.to_device.write_aldb import WriteALDBCommandHandler
+
 from ..aldb.aldb_record import ALDBRecord
+from ..handlers.to_device.write_aldb import WriteALDBCommandHandler
 
 
 class ALDBWriteException(Exception):

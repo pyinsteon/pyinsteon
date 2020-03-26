@@ -1,8 +1,8 @@
 """Manage wet / dry state of the leak sensor."""
 
+from ..address import Address
 from ..handlers.from_device.on_level import OnLevelInbound
 from ..subscriber_base import SubscriberBase
-from ..address import Address
 
 
 class WetDryManager(SubscriberBase):

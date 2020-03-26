@@ -1,11 +1,19 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
-from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
-from ..handlers.to_device.set_leds import SetLedsCommandHandler
+from functools import partial
+from typing import Iterable
 
-# from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
-# from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
-from ..handlers.to_device.status_request import StatusRequestCommand
-from ..states import (
+from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
+from ..extended_property import (
+    LED_DIMMING,
+    X10_HOUSE,
+    X10_UNIT,
+    ON_MASK,
+    OFF_MASK,
+    NON_TOGGLE_MASK,
+    NON_TOGGLE_ON_OFF_MASK,
+    TRIGGER_GROUP_MASK,
+)
+from ..groups import (
     ON_OFF_OUTLET_BOTTOM,
     ON_OFF_OUTLET_TOP,
     ON_OFF_SWITCH,
@@ -19,9 +27,27 @@ from ..states import (
     ON_OFF_SWITCH_H,
     ON_OFF_SWITCH_MAIN,
 )
-from ..states.on_off import OnOff
+from ..groups.on_off import OnOff
+from ..handlers.to_device.set_leds import SetLedsCommandHandler
+from ..handlers.to_device.status_request import StatusRequestCommand
+from ..operating_flag import (
+    DUAL_LINE_ON,
+    KEY_BEEP_ON,
+    LED_BLINK_ON_ERROR_ON,
+    LED_BLINK_ON_TX_ON,
+    LED_ON,
+    MOMENTARY_LINE_ON,
+    PROGRAM_LOCK_ON,
+    RESUME_DIM_ON,
+    REVERSED_ON,
+    THREE_WAY_ON,
+    RF_DISABLE_ON,
+    POWERLINE_DISABLE_ON,
+)
 from .commands import SET_LEDS_COMMAND, STATUS_COMMAND
 from .on_off_responder_base import OnOffResponderBase
+from ..utils import bit_is_set, set_bit
+from .on_off_controller_base import ON_LEVEL_MANAGER
 
 
 class SwitchedLightingControl(OnOffResponderBase):
@@ -63,47 +89,42 @@ class SwitchedLightingControl_ApplianceLinc(SwitchedLightingControl):
     """ApplianceLinc based dimmable lights."""
 
     def _register_operating_flags(self):
-        from ..operating_flag import PROGRAM_LOCK_ON, LED_BLINK_ON_TX_ON, LED_ON
-
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
 
 
 class SwitchedLightingControl_SwitchLinc(SwitchedLightingControl):
     """SwichLinc based dimmable lights."""
 
     def _register_operating_flags(self):
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_BLINK_ON_TX_ON,
-            RESUME_DIM_ON,
-            LED_ON,
-            KEY_BEEP_ON,
-            LED_BLINK_ON_ERROR_ON,
-        )
-        from ..extended_property import (
-            LED_DIMMING,
-            ON_LEVEL,
-            X10_HOUSE,
-            X10_UNIT,
-            RAMP_RATE,
-        )
-
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
 
         self._add_property(LED_DIMMING, 3, 3)
         self._add_property(X10_HOUSE, 5, None)
         self._add_property(X10_UNIT, 6, None)
-        self._add_property(RAMP_RATE, 7, 5)
-        self._add_property(ON_LEVEL, 8, 6)
+
+
+class SwitchedLightingControl_ToggleLinc(SwitchedLightingControl):
+    """ToggleLinc based on/off lights."""
+
+    def _register_operating_flags(self):
+        super()._register_operating_flags()
+        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
+        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
+        self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
+        self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
+        self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
+
+        self._add_property(X10_HOUSE, 5, None)
+        self._add_property(X10_UNIT, 6, None)
 
 
 class SwitchedLightingControl_InLineLinc(SwitchedLightingControl_SwitchLinc):
@@ -114,13 +135,10 @@ class SwitchedLightingControl_OutletLinc(SwitchedLightingControl):
     """OutletLinc based dimmable lights."""
 
     def _register_operating_flags(self):
-        from ..operating_flag import PROGRAM_LOCK_ON, LED_BLINK_ON_TX_ON, LED_ON
-        from ..extended_property import X10_HOUSE, X10_UNIT
-
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
 
         self._add_property(X10_HOUSE, 5, None)
         self._add_property(X10_UNIT, 6, None)
@@ -130,22 +148,10 @@ class SwitchedLightingControl_Micro(SwitchedLightingControl):
     """Micro switch based dimmable lights."""
 
     def _register_operating_flags(self):
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_BLINK_ON_TX_ON,
-            LED_ON,
-            KEY_BEEP_ON,
-            DUAL_LINE_ON,
-            MOMENTARY_LINE_ON,
-            THREE_WAY_ON,
-            REVERSED_ON,
-            LED_BLINK_ON_ERROR_ON,
-        )
-
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
 
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 2, 2, 0x15, 0x14)
@@ -160,31 +166,15 @@ class SwitchedLightingControl_DinRail(SwitchedLightingControl):
     """DINRail based dimmable lights."""
 
     def _register_operating_flags(self):
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_BLINK_ON_TX_ON,
-            LED_ON,
-            KEY_BEEP_ON,
-        )
-        from ..extended_property import (
-            LED_DIMMING,
-            ON_LEVEL,
-            X10_HOUSE,
-            X10_UNIT,
-            RAMP_RATE,
-        )
-
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
 
         self._add_property(LED_DIMMING, 3, 3)
         self._add_property(X10_HOUSE, 5, None)
         self._add_property(X10_UNIT, 6, None)
-        self._add_property(RAMP_RATE, 7, 5)
-        self._add_property(ON_LEVEL, 8, 6)
 
 
 class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
@@ -209,39 +199,147 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         """Turn on the button LED."""
         if group in [0, 1]:
             return await super().async_on(group=group)
-        kwargs = self._change_led_status(led=group, on=True)
+        kwargs = self._change_led_status(led=group, is_on=True)
         return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
 
     async def async_off(self, group: int = 0):
         """Turn off the button LED."""
         if group in [0, 1]:
             return await super().async_off(group=group)
-        kwargs = self._change_led_status(led=group, on=False)
+        kwargs = self._change_led_status(led=group, is_on=False)
         return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+
+    async def async_set_radio_buttons(self, buttons: Iterable):
+        """Set a group of buttons to act as radio buttons.
+
+        This takes in a iterable set of buttons (eg. (3,4,5,6)) to act as radio buttons where
+        no two buttons are on at the same time.
+        """
+        if len(buttons) < 2:
+            raise IndexError("At least two buttons required.")
+        await self.async_read_ext_properties()
+        for button in buttons:
+            if button not in self._buttons.keys():
+                raise ValueError(f"Button {button} not in button list.")
+            button_str = f"_{button}" if button != 1 else ""
+            on_mask = self._properties[f"{ON_MASK}{button_str}"]
+            off_mask = self._properties[f"{OFF_MASK}{button_str}"]
+            on_mask_new_value = 0
+            off_mask_new_value = 0
+            for bit in range(0, 8):
+                if bit + 1 in buttons:
+                    on_mask_value = bit != button - 1
+                    off_mask_value = bit != button - 1
+                else:
+                    on_mask_value = bit_is_set(on_mask.value, bit)
+                    off_mask_value = bit_is_set(off_mask.value, bit)
+                on_mask_new_value = set_bit(on_mask_new_value, bit, on_mask_value)
+                off_mask_new_value = set_bit(off_mask_new_value, bit, off_mask_value)
+            on_mask.new_value = on_mask_new_value
+            off_mask.new_value = off_mask_new_value
+        await self.async_write_ext_properties()
+
+    async def async_set_toggle_mode(self, button: int, mode: int):
+        """Set the toggle mode of a button.
+
+        Usage:
+            button: Integer of the button number
+            mode: Integer of the mode
+                0: Toggle
+                1: Non-Toggle ON only
+                2: Non-Toggle OFF only
+        """
+        if button not in self._buttons.keys():
+            raise ValueError(f"Button {button} not in button list.")
+        if mode not in [0, 1, 2]:
+            raise ValueError(f"Mode {mode} invalid. Valid mode are [0, 1, 2]")
+        await self.async_read_ext_properties(group=1)
+        toggle_mask = self.properties[NON_TOGGLE_MASK]
+        on_off_mask = self.properties[NON_TOGGLE_ON_OFF_MASK]
+        if mode == 0:
+            toggle_mask.new_value = set_bit(toggle_mask.value, button - 1, False)
+            on_off_mask.new_value = set_bit(on_off_mask.value, button - 1, False)
+        elif mode == 1:
+            toggle_mask.new_value = set_bit(toggle_mask.value, button - 1, True)
+            on_off_mask.new_value = set_bit(on_off_mask.value, button - 1, True)
+        else:
+            toggle_mask.new_value = set_bit(toggle_mask.value, button - 1, True)
+            on_off_mask.new_value = set_bit(on_off_mask.value, button - 1, False)
+        await self.async_write_ext_properties()
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
 
-    def _register_states(self):
-        super()._register_states()
+    def _register_groups(self):
+        super()._register_groups()
         for button in self._buttons:
             name = self._buttons[button]
-            self._states[button] = OnOff(name=name, address=self._address, group=button)
+            self._groups[button] = OnOff(name=name, address=self._address, group=button)
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
+        for group in self._buttons:
+            if self._groups.get(group) is not None:
+                led_method = partial(self._led_follow_check, group=group)
+                self._managers[group][ON_LEVEL_MANAGER].subscribe(led_method)
 
-    def _change_led_status(self, led, on):
+    def _led_follow_check(self, group, on_level):
+        """Check the other LEDs to confirm if they follow the effected LED."""
+        for button in self._buttons:
+            if button == group:
+                continue
+            button_str = f"_{button}" if button != 1 else ""
+            on_mask = self._properties[f"{ON_MASK}{button_str}"]
+            off_mask = self._properties[f"{OFF_MASK}{button_str}"]
+            follow = bit_is_set(on_mask, group)
+            set_off = bit_is_set(off_mask, group)
+            if follow:
+                if set_off:
+                    self._groups[button].value = 0
+                else:
+                    self._groups[button].value = on_level
+
+    def _change_led_status(self, led, is_on):
         leds = {}
         for curr_led in range(1, 9):
             var = "group{}".format(curr_led)
-            leds[var] = on if curr_led == led else bool(self._states.get(curr_led))
+            leds[var] = is_on if curr_led == led else bool(self._groups.get(curr_led))
         return leds
 
     def _update_leds(self, group, value):
-        self._states[group].value = value
+        """Check if the LED is toggle or not and set value."""
+        non_toogle = bit_is_set(self._properties[NON_TOGGLE_MASK].value, group)
+        if non_toogle:
+            self._groups[group].value = 0
+        else:
+            self._groups[group].value = value
+
+    def _register_operating_flags(self):
+        """Register operating flags."""
+        super()._register_operating_flags()
+        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
+        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
+        self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
+        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
+        self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
+        self._add_operating_flag(RF_DISABLE_ON, 0, 6, 0x0C, 0x0D)
+        self._add_operating_flag(POWERLINE_DISABLE_ON, 0, 7, 0x0E, 0x0F)
+        self._add_operating_flag(
+            LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15, is_reversed=True
+        )
+
+        self._add_property(LED_DIMMING, 9, 7, 1)
+        self._add_property(NON_TOGGLE_MASK, 0x0A, 0x08)
+        self._add_property(NON_TOGGLE_ON_OFF_MASK, 0x0D, 0x0B)
+        self._add_property(TRIGGER_GROUP_MASK, 0x0E, 0x0C)
+        for button in self._buttons:
+            button_str = f"_{button}" if button != 1 else ""
+            self._add_property(f"{ON_MASK}{button_str}", 3, 2, button)
+            self._add_property(f"{OFF_MASK}{button_str}", 4, 3, button)
+            self._add_property(f"{X10_HOUSE}{button_str}", 5, None, button)
+            self._add_property(f"{X10_UNIT}{button_str}", 6, None, button)
 
 
 class SwitchedLightingControl_KeypadLinc_6(SwitchedLightingControl_KeypadLinc):
@@ -351,13 +449,13 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
 
     def _handle_status(self, db_version, status):
         """Set the status of the top and bottom outlets state."""
-        self._states[self.TOP_GROUP].value = status & 0x02
-        self._states[self.BOTTOM_GROUP].value = status & 0x01
+        self._groups[self.TOP_GROUP].value = status & 0x02
+        self._groups[self.BOTTOM_GROUP].value = status & 0x01
 
     def _handle_top_status(self, db_version, status):
         """Set the status of the top outlet."""
-        self._states[self.TOP_GROUP].value = status
+        self._groups[self.TOP_GROUP].value = status
 
     def _handle_bottom_status(self, db_version, status):
         """Set the status of the bottom outlet."""
-        self._states[self.BOTTOM_GROUP].value = status
+        self._groups[self.BOTTOM_GROUP].value = status

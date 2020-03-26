@@ -1,13 +1,12 @@
 """Insteon inbound message data structure defintion."""
-from binascii import hexlify
 import logging
+from binascii import hexlify
 
-from ...constants import MessageId
 from . import MessageBase
+from ...constants import MessageId
 from .message_definition import MessageDefinition
-from .message_definitions import INBOUND_MSG_DEF
+from .message_definitions import FLD_EXT_SEND_ACK, FLD_STD_SEND_ACK, INBOUND_MSG_DEF
 from .message_flags import MessageFlags
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -85,8 +84,6 @@ def create(raw_data: bytearray) -> (Inbound, bytearray):
         return None, raw_data
 
     def _standard_message(raw_data):
-        from .message_definitions import FLD_STD_SEND_ACK, FLD_EXT_SEND_ACK
-
         flag_byte = 5
         flags = MessageFlags(raw_data[flag_byte])
         if flags.is_extended:

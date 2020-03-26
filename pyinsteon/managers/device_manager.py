@@ -1,35 +1,18 @@
 """Device manager."""
-from asyncio import Lock
 import logging
+from asyncio import Lock
 
-from ..subscriber_base import SubscriberBase
-from ..device_types.device_base import Device
 from ..address import Address
-from .device_id_manager import DeviceIdManager, DeviceId
+from ..device_types.device_base import Device
+from ..device_types.modem_base import ModemBase
+from ..managers.saved_devices_manager import SavedDeviceManager
+from ..subscriber_base import SubscriberBase
+from .device_id_manager import DeviceId, DeviceIdManager
 from .device_link_manager import DeviceLinkManager
+from .utils import create_device, create_x10_device
 
 DEVICE_INFO_FILE = "insteon_devices.json"
 _LOGGER = logging.getLogger(__name__)
-
-
-def create_device(device_id: DeviceId):
-    """Create an Insteon Device from a DeviceId named Tuple."""
-    from ..device_types.ipdb import IPDB
-
-    ipdb = IPDB()
-    product = ipdb[[device_id.cat, device_id.subcat]]
-    deviceclass = product.deviceclass
-    device = None
-    if deviceclass is not None:
-        device = deviceclass(
-            device_id.address,
-            device_id.cat,
-            device_id.subcat,
-            device_id.firmware,
-            product.description,
-            product.model,
-        )
-    return device
 
 
 # TODO remove devices
@@ -44,7 +27,7 @@ class DeviceManager(SubscriberBase):
         self._id_manager = DeviceIdManager()
         self._id_manager.subscribe(self._device_identified)
         self._loading_saved_lock = Lock()
-        self._link_manager = DeviceLinkManager()
+        self._link_manager = DeviceLinkManager(self)
 
     def __getitem__(self, address) -> Device:
         """Return a a device from the device address."""
@@ -58,6 +41,7 @@ class DeviceManager(SubscriberBase):
 
     def __setitem__(self, address, device):
         """Add a device to the device list."""
+        _LOGGER.info("Adding device to INSTEON devices list: %s", address.id)
         if not isinstance(device, (Device, DeviceId)):
             raise ValueError("Device must be a DeviceId or a Device type.")
 
@@ -87,8 +71,6 @@ class DeviceManager(SubscriberBase):
     @modem.setter
     def modem(self, modem):
         """Set the Insteon Modem."""
-        from ..device_types.modem_base import ModemBase
-
         if not isinstance(modem, ModemBase):
             raise ValueError("Must be an Insteon Modem object")
         self._modem = modem
@@ -109,9 +91,19 @@ class DeviceManager(SubscriberBase):
         address = Address(address)
         self._id_manager.set_device_id(address, cat, subcat, firmware)
 
-    def add_x10_device(self, house_code, unit_code, x10_type):
+    def add_x10_device(
+        self,
+        housecode: str,
+        unitcode: int,
+        x10_feature: str,
+        steps: int = 22,
+        max_level: int = 255,
+    ):
         """Add an X10 device."""
-        return self.modem
+        device = create_x10_device(housecode, unitcode, x10_feature, steps, max_level)
+        if device:
+            self[device.address] = device
+        return device
 
     async def async_close(self):
         """Close the device ID listener."""
@@ -135,11 +127,9 @@ class DeviceManager(SubscriberBase):
         The Modem ALDB is loaded if `refresh` is True or if the saved file has no devices.
 
         """
-        from ..managers.saved_devices_manager import SavedDeviceManager
-
         if workdir:
             await self._loading_saved_lock.acquire()
-            saved_devices_manager = SavedDeviceManager(workdir)
+            saved_devices_manager = SavedDeviceManager(workdir, self.modem)
             devices = await saved_devices_manager.async_load()
             for address in devices:
                 self[address] = devices[address]
@@ -161,9 +151,7 @@ class DeviceManager(SubscriberBase):
 
     async def async_save(self, workdir):
         """Save devices to a device information file."""
-        from ..managers.saved_devices_manager import SavedDeviceManager
-
-        saved_devices_manager = SavedDeviceManager(workdir)
+        saved_devices_manager = SavedDeviceManager(workdir, self.modem)
         await saved_devices_manager.async_save(self._devices)
 
     def _device_identified(self, device_id: DeviceId):

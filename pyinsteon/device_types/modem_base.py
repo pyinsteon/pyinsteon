@@ -1,9 +1,13 @@
 """Insteon Modem Base Class."""
-from abc import ABCMeta
 import asyncio
-from .device_base import Device
+from abc import ABCMeta
+from asyncio import Transport
 
+from ..handlers.get_im_configuration import GetImConfigurationHandler
+from ..handlers.set_im_configuration import SetImConfigurationHandler
+from ..protocol.protocol import Protocol
 from .commands import GET_IM_CONFIG_COMMAND
+from .device_base import Device
 
 
 class ModemBase(Device, metaclass=ABCMeta):
@@ -66,8 +70,6 @@ class ModemBase(Device, metaclass=ABCMeta):
     @protocol.setter
     def protocol(self, value):
         """Set the protocol."""
-        from ..protocol.protocol import Protocol
-
         if isinstance(value, Protocol):
             self._protocol = value
 
@@ -79,8 +81,6 @@ class ModemBase(Device, metaclass=ABCMeta):
     @transport.setter
     def transport(self, value):
         """Set the transport."""
-        from asyncio import Transport
-
         if isinstance(value, Transport):
             self._transport = value
 
@@ -122,8 +122,6 @@ class ModemBase(Device, metaclass=ABCMeta):
         deadman: bool,
     ):
         """Set the modem flags."""
-        from ..handlers.set_im_configuration import SetImConfigurationHandler
-
         return await SetImConfigurationHandler().async_send(
             disable_auto_linking=disable_auto_linking,
             monitor_mode=monitor_mode,
@@ -145,16 +143,14 @@ class ModemBase(Device, metaclass=ABCMeta):
 
     #     pub.subscribe(self.connect, "connection.lost")
 
-    def _register_states(self):
-        """No states to register for modems."""
+    def _register_groups(self):
+        """No groups to register for modems."""
 
     def _register_default_links(self):
         """No default links for modems."""
 
     def _register_handlers_and_managers(self):
         """Register command handlers for modems."""
-        from ..handlers.get_im_configuration import GetImConfigurationHandler
-
         self._handlers[GET_IM_CONFIG_COMMAND] = GetImConfigurationHandler()
         self._handlers[GET_IM_CONFIG_COMMAND].subscribe(self._update_flags)
 

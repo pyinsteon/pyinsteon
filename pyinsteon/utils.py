@@ -1,15 +1,21 @@
 """Utility methods."""
+import logging
+from enum import Enum, IntEnum
 from typing import Iterable
 
+from . import pub
 from .address import Address
 from .constants import (
     HC_LOOKUP,
+    RAMP_RATES,
     UC_LOOKUP,
-    X10Commands,
-    ResponseStatus,
     MessageFlagType,
+    ResponseStatus,
+    X10Commands,
 )
 from .protocol.commands import commands
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def housecode_to_byte(housecode: str) -> int:
@@ -93,7 +99,6 @@ def vars_to_bytes(vals: Iterable) -> bytes:
 
 def vars_to_string(vals: Iterable) -> str:
     """Create a byte string from a set of values."""
-    from enum import Enum, IntEnum
 
     output = []
     for fld, val in vals:
@@ -111,8 +116,6 @@ def vars_to_string(vals: Iterable) -> str:
 
 def vars_to_repr(vals: Iterable) -> str:
     """Create a byte string from a set of values."""
-    from enum import Enum, IntEnum
-
     output = []
     for fld, val in vals:
         if val is None:
@@ -202,3 +205,107 @@ def multiple_status(*args):
         elif int(response) > worst_response:
             worst_response = int(response)
     return ResponseStatus(worst_response)
+
+
+def ramp_rate_to_seconds(ramp_rate: int):
+    """Return the seconds associated with a ramp rate."""
+    if int(ramp_rate) not in range(0, 31):
+        raise ValueError("Ramp rate must be between 0x00 and 0x1f (31)")
+
+    return RAMP_RATES[int(ramp_rate)]
+
+
+def seconds_to_ramp_rate(seconds: float):
+    """Return the ramp rate asscociated with a number of seconds."""
+    if seconds > 480:
+        raise ValueError("Ramp rate cannot be more than 480 seconds (8 minutes)")
+
+    max_sec = 999
+    min_sec = -1
+    ramp_rate = None
+    for curr_rr in RAMP_RATES:
+        rr_secs = RAMP_RATES[curr_rr]
+        if rr_secs >= seconds and ((rr_secs - seconds) < (max_sec - seconds)):
+            max_sec = rr_secs
+            if (max_sec - seconds) < (seconds - min_sec):
+                ramp_rate = curr_rr
+        if rr_secs <= seconds and ((seconds - rr_secs) < (seconds - min_sec)):
+            min_sec = rr_secs
+            if (seconds - min_sec) <= (max_sec - seconds):
+                ramp_rate = curr_rr
+    return ramp_rate
+
+
+def log_error(msg, ex, topic=None, kwargs=None):
+    """Print an error message when a topic cannot be distributed."""
+    _LOGGER.error("An issue occured distributing the following message")
+    _LOGGER.error("MSG: %s", msg)
+    _LOGGER.error("Topic: %s data: %s", topic, kwargs)
+    _LOGGER.error("Error: %s", str(ex))
+    if topic is not None:
+        topic_mgr = pub.getDefaultTopicMgr()
+        topic = topic_mgr.getTopic(topic, okIfNone=True)
+        if topic:
+            for subscriber in topic.getListeners():
+                _LOGGER.error("    Subscriber: %s", subscriber)
+
+
+def to_celsius(fahrenheit):
+    """Convert fahrenheit to celsius."""
+    return int(round((fahrenheit - 32) * 5 / 9, 0))
+
+
+def to_fahrenheit(celsius):
+    """Convert celsius to fahrenheit."""
+    return int(round(celsius * 9 / 5) + 32, 0)
+
+
+def publish_topic(topic, logger=None, **kwargs):
+    """Publish a topic and log errors."""
+    # Send log message as caller not utils.
+    if logger is None:
+        logger = logging.getLogger(__name__)
+    try:
+        pub.sendMessage(topic, **kwargs)
+    except pub.ExcHandlerError as exc:
+        logger.error("pubsub ExcHandlerError")
+        logger.error("Error processing topic: %s", topic)
+        logger.error("Error in topic listner: %s", exc.badExcListenerID)
+    except pub.SenderMissingReqdMsgDataError as exc:
+        logger.error("SenderMissingReqdMsgDataError")
+        logger.error(str(exc))
+        for listner in pub.getDefaultTopicMgr().getTopic(topic).getListeners():
+            logger.error("Topic listener: %s", listner)
+    except pub.SenderUnknownMsgDataError as exc:
+        logger.error("SenderUnknownMsgDataError")
+        logger.error(str(exc))
+        for listner in pub.getDefaultTopicMgr().getTopic(topic).getListeners():
+            logger.error("Topic listener: %s", listner)
+
+
+def subscribe_topic(listener, topic_name, logger=None):
+    """Subscribe a listener to a topic and log errors."""
+    topic_mgr = pub.getDefaultTopicMgr()
+    topic = topic_mgr.getOrCreateTopic(topic_name)
+    if pub.isSubscribed(listener, topicName=topic.name):
+        return
+    if logger is None:
+        logger = logging.getLogger(__name__)
+    try:
+        pub.subscribe(listener, topic.name)
+    except pub.ListenerMismatchError as exc:
+        logger.error("ListenerMismatchError")
+        logger.error("args: %s", exc.args)
+        logger.error("msg: %s", exc.msg)
+        logger.error("module: %s", exc.module)
+        logger.error("idStr: %s", exc.idStr)
+        for topic_listner in pub.getDefaultTopicMgr().getTopic(topic).getListeners():
+            logger.error("Topic listener: %s", topic_listner)
+
+
+def unsubscribe_topic(listener, topic_name):
+    """Unsubscribe a listener to a topic and log errors."""
+    topic_mgr = pub.getDefaultTopicMgr()
+    topic = topic_mgr.getOrCreateTopic(topic_name)
+    if pub.isSubscribed(listener, topicName=topic.name):
+        pub.unsubscribe(listener, topic.name)

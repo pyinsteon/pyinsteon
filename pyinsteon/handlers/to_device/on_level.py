@@ -1,8 +1,8 @@
 """Manage outbound ON command to a device."""
 
 from .. import direct_ack_handler
-from .direct_command import DirectCommandHandlerBase
 from ...topics import ON
+from .direct_command import DirectCommandHandlerBase
 
 
 class OnLevelCommand(DirectCommandHandlerBase):
@@ -20,7 +20,7 @@ class OnLevelCommand(DirectCommandHandlerBase):
     # pylint: disable=arguments-differ
     def send(self, on_level=0xFF):
         """Send the ON command."""
-        super().send(on_level=on_level, group=self._group)
+        super().send(on_level=on_level)
 
     # pylint: disable=arguments-differ
     async def async_send(self, on_level=0xFF):

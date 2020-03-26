@@ -1,6 +1,7 @@
 """Inbound message handler."""
 
 from abc import ABCMeta
+
 from ..subscriber_base import SubscriberBase
 from ..utils import build_topic
 

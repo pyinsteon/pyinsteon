@@ -12,10 +12,10 @@ class OutboundBase:
     def base_setup(self, message_id, bytes_data, **kwargs):
         """Init the OutboundBase class."""
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="debug",
             logger_messages="debug",
-            logger_topics=True,
+            logger_topics=False,
         )
         register_outbound_handlers()
         self.msg = None

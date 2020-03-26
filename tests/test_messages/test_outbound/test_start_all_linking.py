@@ -1,15 +1,19 @@
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
+"""Test Start All-Linking."""
 import unittest
-import sys
+from binascii import unhexlify
 
-from pyinsteon.constants import MessageId, AllLinkMode
+from pyinsteon.constants import AllLinkMode, MessageId
+# pylint: disable=unused-import
 from pyinsteon.protocol.messages.outbound import start_all_linking
+from tests import set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 class TestStartAllLinking(unittest.TestCase, OutboundBase):
+    """Test Start All-Linking."""
+
     def setUp(self):
+        """Test set up."""
         self.hex = "02640304"
         self.message_id = MessageId.START_ALL_LINKING
         self.mode = AllLinkMode(0x03)
@@ -21,16 +25,18 @@ class TestStartAllLinking(unittest.TestCase, OutboundBase):
             self.message_id, unhexlify(self.hex), **kwargs
         )
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,
         )
 
     def test_mode(self):
+        """Test mode."""
         assert self.msg.mode == self.mode
 
     def test_group(self):
+        """Test group."""
         assert self.msg.group == self.group
 
 

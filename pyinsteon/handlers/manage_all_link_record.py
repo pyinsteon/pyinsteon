@@ -1,10 +1,10 @@
 """Command handler for message ID 0x6f Manage All-Link Record."""
 from . import ack_handler, nak_handler
-from .outbound_base import OutboundHandlerBase
 from ..address import Address
-from ..topics import MANAGE_ALL_LINK_RECORD
 from ..constants import ManageAllLinkRecordAction
 from ..protocol.messages.all_link_record_flags import create
+from ..topics import MANAGE_ALL_LINK_RECORD
+from .outbound_base import OutboundHandlerBase
 
 
 class ManageAllLinkRecordCommand(OutboundHandlerBase):

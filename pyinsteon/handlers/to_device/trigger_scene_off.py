@@ -1,7 +1,7 @@
 """KeypadLinc command handler to trigger a button scene."""
-from ..to_device.direct_command import DirectCommandHandlerBase
-from .. import direct_ack_handler, ack_handler
+from .. import ack_handler, direct_ack_handler
 from ...topics import EXTENDED_TRIGGER_ALL_LINK
+from ..to_device.direct_command import DirectCommandHandlerBase
 
 
 class TriggerSceneOffCommandHandler(DirectCommandHandlerBase):

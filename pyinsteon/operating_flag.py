@@ -1,8 +1,9 @@
 """Operating flags list."""
-from .device_flag import DeviceFlagBase
 from .address import Address
+from .device_flag import DeviceFlagBase
 
 PROGRAM_LOCK_ON = "program_lock_on"
+BUTTON_LOCK_ON = "button_lock_on"
 LED_ON = "led_on"
 LED_OFF = "led_off"
 KEY_BEEP_ON = "key_beep_on"
@@ -60,12 +61,16 @@ SIGNAL_TO_NOISE_OF_LAST_FAILURE = "signal_to_noise_of_last_failure"
 SIGNAL_TO_NOISE_FAILURE_COUNT = "signal_to_noise_failure_count"
 DATABASE_DELTA = "database_delta"
 
+CELSIUS = "celsius"
+TIME_24_HOUR_FORMAT = "time_24_hour_format"
+SOFTWARE_LOCK_ON = "SOFTWARE_LOCK_ON"
+
 
 class OperatingFlag(DeviceFlagBase):
     """Operating flag for a device."""
 
-    def __init__(self, address, name, flag_type: type):
+    def __init__(self, address, name, flag_type: type, is_reversed=False):
         """Init the OperatingFlag class."""
         self._address = Address(address)
         topic = "{}.operating_flag.{}".format(self._address.id, name)
-        super().__init__(topic, name, flag_type)
+        super().__init__(topic, name, flag_type, is_reversed)

@@ -1,6 +1,6 @@
 """Convert an Insteon Message to a URL for the Hub."""
-from .messages.outbound import Outbound
 from ..constants import AllLinkMode
+from .messages.outbound import Outbound
 
 
 def _to_url(host, port, cmd):

@@ -1,8 +1,8 @@
 """Manage outbound ON command to a device."""
 
 from .. import direct_ack_handler
-from .direct_command import DirectCommandHandlerBase
 from ...topics import ON_FAST
+from .direct_command import DirectCommandHandlerBase
 
 
 class OnFastCommand(DirectCommandHandlerBase):
@@ -15,7 +15,7 @@ class OnFastCommand(DirectCommandHandlerBase):
     # pylint: disable=arguments-differ
     def send(self, on_level=0xFF):
         """Send the ON FAST command."""
-        super().send(on_level=0xFF, group=self._group)
+        super().send(on_level=0xFF)
 
     # pylint: disable=arguments-differ
     async def async_send(self, on_level=0xFF):

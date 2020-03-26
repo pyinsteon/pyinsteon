@@ -1,11 +1,13 @@
 """Insteon message and command handlers."""
 import asyncio
-from functools import wraps
 import logging
-from .. import pub
+from datetime import datetime
+from functools import wraps
+
+from ..utils import subscribe_topic
+from ..address import Address
 from ..constants import MessageFlagType, ResponseStatus
 from ..utils import build_topic
-
 
 TIMEOUT = 3  # Time out between ACK and Direct ACK
 _LOGGER = logging.getLogger(__name__)
@@ -38,7 +40,7 @@ def _register_handler(
         group=group,
         message_type=message_type,
     )
-    pub.subscribe(instance_func, full_topic)
+    subscribe_topic(instance_func, full_topic)
 
 
 def inbound_handler(func):
@@ -179,12 +181,10 @@ def status_handler(func):
     """Register the status response handler."""
 
     def register_status(instance_func, address):
-        from ..address import Address
-
         # This registers all messages for a device but only triggers on
         # status messages if they return within the TIMEOUT period
         address = Address(address)
-        pub.subscribe(instance_func, address.id)
+        subscribe_topic(instance_func, address.id)
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -224,8 +224,6 @@ def direct_nak_handler(func):
 
 def broadcast_handler(func):
     """Register the BROADCAST message handler."""
-    from datetime import datetime
-
     last_command = datetime(1, 1, 1)
 
     def register_topic(
@@ -264,13 +262,11 @@ def broadcast_handler(func):
 
 def all_link_cleanup_handler(func):
     """Register the c message handler."""
-    from datetime import datetime
-
     last_command = datetime(1, 1, 1)
 
     def register_topic(instance_func, topic):
         topic = "{}.all_link_cleanup".format(topic)
-        pub.subscribe(instance_func, topic)
+        subscribe_topic(instance_func, topic)
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):

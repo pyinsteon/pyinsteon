@@ -5,8 +5,8 @@ import unittest
 from pyinsteon.address import Address
 from pyinsteon.constants import ResponseStatus
 from pyinsteon.handlers.to_device.on_level import OnLevelCommand
-from tests.utils import TopicItem, async_case, send_topics
 from tests import set_log_levels
+from tests.utils import TopicItem, async_case, send_topics
 
 
 class TestNoDirectAck(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestNoDirectAck(unittest.TestCase):
         self._group = None
         self.ack_topic = "ack.{}.{}.on.direct".format(self._address.id, 1)
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

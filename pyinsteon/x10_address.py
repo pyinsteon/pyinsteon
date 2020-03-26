@@ -2,14 +2,12 @@
 import logging
 
 from .constants import HC_LOOKUP
-
 from .utils import (
     byte_to_housecode,
     byte_to_unitcode,
     housecode_to_byte,
     unitcode_to_byte,
 )
-
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -1,9 +1,4 @@
 """Device state definitions."""
-from abc import ABC, abstractmethod
-from ..address import Address
-from ..subscriber_base import SubscriberBase
-
-
 DIMMABLE_LIGHT = "dimmable_light"
 DIMMABLE_FAN = "dimmable_fan"
 DIMMABLE_OUTLET = "dimmable_outlet"
@@ -23,6 +18,14 @@ NEW_SENSOR = "new_sensor"
 HEARTBEAT = "heartbeat"
 SENSOR_MALFUNCTION = "sensor_malfunction"
 COVER = "cover"
+COOL_SET_POINT = "cool_set_point"
+HEAT_SET_POINT = "heat_set_point"
+HUMIDITY_HIGH = "humidity_high"
+HUMIDITY_LOW = "humidity_high"
+SYSTEM_MODE = "system_mode"
+FAN_MODE = "fan_mode"
+TEMPERATURE = "temperature"
+HUMIDITY = "humidity"
 
 ON_OFF_SWITCH_MAIN = "{}_{}".format(ON_OFF_SWITCH, "main")
 ON_OFF_SWITCH_A = "{}_{}".format(ON_OFF_SWITCH, "a")
@@ -43,53 +46,3 @@ DIMMABLE_LIGHT_MAIN = "{}_{}".format(DIMMABLE_LIGHT, "main")
 # DIMMABLE_LIGHT_F = '{}_{}'.format(DIMMABLE_LIGHT, 'f')
 # DIMMABLE_LIGHT_G = '{}_{}'.format(DIMMABLE_LIGHT, 'g')
 # DIMMABLE_LIGHT_H = '{}_{}'.format(DIMMABLE_LIGHT, 'h')
-
-
-class StateBase(SubscriberBase):
-    """Device state base class."""
-
-    __meta__ = ABC
-
-    def __init__(
-        self, name: str, address: Address, group=0, default=None, value_type: type = int
-    ):
-        """Init the StateBase class."""
-        self._address = address  # Address(address)
-        topic = "state_{}_{}_{}".format(self._address.id, name, group)
-        super().__init__(subscriber_topic=topic)
-        self._name = name
-        self._group = group
-        self._value = int(default) if default is not None else None
-        self._type = value_type
-
-    @property
-    def name(self):
-        """Return the name of the state."""
-        return self._name
-
-    @property
-    def value(self):
-        """Return the value of the state."""
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        """Set the value of the state."""
-        try:
-            self._value = self._type(value) if value is not None else None
-        except TypeError:
-            raise TypeError(
-                "Error setting value of State {}: "
-                "Must be of type {}".format(self._name, self._type.__name__)
-            )
-        else:
-            self._call_subscribers(
-                name=self._name,
-                address=self._address.id,
-                value=self._value,
-                group=self._group,
-            )
-
-    @abstractmethod
-    def set_value(self, **kwargs):
-        """Set the value of the state from a Handler."""

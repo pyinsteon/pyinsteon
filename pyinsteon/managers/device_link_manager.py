@@ -1,14 +1,9 @@
 """Manages links between devices to identify device state of responders."""
-import asyncio
 from .. import pub
 from ..address import Address
-from ..topics import (
-    DEVICE_LINK_CONTROLLER_CREATED,
-    DEVICE_LINK_RESPONDER_CREATED,
-    DEVICE_LINK_CONTROLLER_REMOVED,
-    DEVICE_LINK_RESPONDER_REMOVED,
-)
 from ..constants import MessageFlagType
+from ..topics import DEVICE_LINK_CONTROLLER_CREATED, DEVICE_LINK_RESPONDER_CREATED
+from ..utils import subscribe_topic
 
 
 def _controller_group_topic(responder, group):
@@ -27,88 +22,64 @@ def _topic_to_addr_group(topic):
 
 
 class DeviceLinkManager:
-    """Manages links between devices to identify state of responders."""
+    """Manages links between devices to identify state of responders.
 
-    def __init__(self):
+    Listens for broadcast messages from a device and identifies the responders of the device.
+    Once the responders are identified, the state of the responders is determined.
+    """
+
+    def __init__(self, devices):
         """Init the DeviceLinkManager class."""
-        pub.subscribe(self._controller_link_created, DEVICE_LINK_CONTROLLER_CREATED)
-        pub.subscribe(self._responder_link_created, DEVICE_LINK_RESPONDER_CREATED)
-        pub.subscribe(self._controller_link_removed, DEVICE_LINK_CONTROLLER_REMOVED)
-        pub.subscribe(self._responder_link_removed, DEVICE_LINK_RESPONDER_REMOVED)
-        self._responders = {}
+        subscribe_topic(self._controller_link_created, DEVICE_LINK_CONTROLLER_CREATED)
+        subscribe_topic(self._controller_link_created, DEVICE_LINK_RESPONDER_CREATED)
+        self._devices = devices
 
     def _controller_link_created(self, controller, responder, group):
         controller_group = _controller_group_topic(controller, group)
-        try:
-            topic = pub.getDefaultTopicMgr().getTopic(controller_group)
-        except pub.TopicNameError:
-            topic = None
-        if not topic or (
-            not pub.isSubscribed(self._check_responder, controller_group)
-            and not pub.isSubscribed(self._check_controller, controller_group)
-        ):
-            pub.subscribe(self._check_controller, controller_group)
+        subscribe_topic(self._check_responders, controller_group)
 
-    def _responder_link_created(self, controller, responder, group):
-        controller_group = _controller_group_topic(controller, group)
-        try:
-            topic = pub.getDefaultTopicMgr().getTopic(controller_group)
-        except pub.TopicNameError:
-            topic = None
-        if topic and pub.isSubscribed(self._check_controller, controller_group):
-            pub.unsubscribe(self._check_controller, controller_group)
-        if not topic or not pub.isSubscribed(self._check_responder, controller_group):
-            pub.subscribe(self._check_responder, controller_group)
-
-        if self._responders.get(controller) is None:
-            self._responders[controller] = {}
-        if self._responders[controller].get(group) is None:
-            self._responders[controller][group] = []
-        self._responders[controller][group].append(responder)
-
-    def _controller_link_removed(self, controller, responder, group):
-        controller_group = _controller_group_topic(controller, group)
-        try:
-            topic = pub.getDefaultTopicMgr().getTopic(controller_group)
-        except pub.TopicNameError:
-            topic = None
-        if topic and pub.isSubscribed(self._check_controller, controller_group):
-            pub.subscribe(self._check_controller, controller_group)
-
-    def _responder_link_removed(self, controller, responder, group):
-        controller_group = _controller_group_topic(controller, group)
-        try:
-            topic = pub.getDefaultTopicMgr().getTopic(controller_group)
-        except pub.TopicNameError:
-            topic = None
-        if topic and pub.isSubscribed(self._check_responder, controller_group):
-            pub.subscribe(self._check_responder, controller_group)
-
-        groups = self._responders.get(controller)
-        if groups and groups.get(group):
-            groups[group].remove(responder)
-
-    def _check_responder(self, on_level, topic=pub.AUTO_TOPIC):
-        from .. import devices
-
+    def _check_responders(self, topic=pub.AUTO_TOPIC, **kwargs):
         controller, group, msg_type = _topic_to_addr_group(topic)
         if msg_type != MessageFlagType.ALL_LINK_BROADCAST:
             return
-        groups = self._responders.get(controller)
-        if groups:
-            responder = groups.get(group)
-            if group:
-                devices[responder].states[group].set_value(on_level)
-                asyncio.ensure_future(devices[responder].async_status())
-
-    @classmethod
-    def _check_controller(cls, on_level, topic=pub.AUTO_TOPIC):
-        from .. import devices
-
-        controller, group, msg_type = _topic_to_addr_group(topic)
-        if msg_type != MessageFlagType.ALL_LINK_BROADCAST:
+        if group == 0:
             return
-        if controller is None or group is None:
-            return
-        for responder in devices[controller].aldb.get_responders(group):
-            asyncio.ensure_future(devices[responder].async_status())
+
+        responders = []
+        device_c = self._devices[controller]
+        for mem_addr in device_c.aldb:
+            rec = device_c.aldb[mem_addr]
+            if (
+                rec.is_in_use
+                and rec.is_controller
+                and rec.group == group
+                and rec.target not in responders
+            ):
+                responders.append(rec.target)
+
+        for addr in self._devices:
+            if (
+                addr == self._devices.modem.address
+                or addr == device_c.address
+                or addr in responders
+            ):
+                continue
+            device_r = self._devices[addr]
+            for mem_addr in device_r.aldb:
+                rec = device_r.aldb[mem_addr]
+                if (
+                    rec.is_in_use
+                    and rec.is_responder
+                    and rec.target == controller
+                    and rec.group == group
+                ):
+                    responders.append(addr)
+                    # If the device is a category 1 or 2 device we can pre-load the device state with the
+                    # ALDB record data1 field value. We will then check the actual status later.
+                    if device_r.cat in [0x01, 0x02] and len(device_r.groups) == 1:
+                        device_r.groups[1].value = rec.data1
+
+        for addr in responders:
+            device = self._devices[addr]
+            if device:
+                device.status()

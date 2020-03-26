@@ -1,9 +1,10 @@
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
-import unittest
 import sys
+import unittest
+from binascii import unhexlify
 
-from pyinsteon.protocol.messages.im_config_flags import IMConfigurationFlags, create
+from pyinsteon.protocol.messages.im_config_flags import (IMConfigurationFlags,
+                                                         create)
+from tests import _LOGGER, set_log_levels
 
 
 class TestIMConfigFlags(unittest.TestCase):
@@ -24,7 +25,7 @@ class TestIMConfigFlags(unittest.TestCase):
         self.auto_led_create = create(False, False, True, False)
         self.disable_deadman_create = create(False, False, False, True)
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

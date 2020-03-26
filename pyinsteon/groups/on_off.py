@@ -1,9 +1,9 @@
 """On / Off state."""
-from . import StateBase
+from .group_base import GroupBase
 from ..address import Address
 
 
-class OnOff(StateBase):
+class OnOff(GroupBase):
     """On / Off state."""
 
     def __init__(
@@ -18,7 +18,7 @@ class OnOff(StateBase):
         self.value = 0xFF if on_level else 0
 
 
-class LowBattery(StateBase):
+class LowBattery(GroupBase):
     """Low battery state."""
 
     def __init__(
@@ -33,7 +33,7 @@ class LowBattery(StateBase):
         self.value = bool(low_battery)
 
 
-class Heartbeat(StateBase):
+class Heartbeat(GroupBase):
     """Heartbeat state."""
 
     def __init__(

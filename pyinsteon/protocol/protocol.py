@@ -5,13 +5,11 @@ import logging
 from enum import Enum
 
 from .. import pub
-
-
+from ..utils import log_error, publish_topic, subscribe_topic
 from .command_to_msg import register_command_handlers
 from .messages.inbound import create
 from .messages.outbound import register_outbound_handlers
 from .msg_to_topic import convert_to_topic
-
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_MSG = logging.getLogger("pyinsteon.messages")
@@ -61,6 +59,7 @@ class Protocol(asyncio.Protocol):
         self._connect_method = connect_method
         register_outbound_handlers()
         register_command_handlers()
+        subscribe_topic(self._write, "send_message")
 
     @property
     def connected(self) -> bool:
@@ -77,8 +76,7 @@ class Protocol(asyncio.Protocol):
         """Run when a connection to the transport has been made."""
         self._transport = transport
         self._start_writer()
-        self._subscribe()
-        pub.sendMessage("connection.made")
+        publish_topic("connection.made")
 
     def data_received(self, data):
         """Receive data from the serial transport."""
@@ -92,56 +90,34 @@ class Protocol(asyncio.Protocol):
             if last_buffer == self._buffer or not self._buffer:
                 break
 
-    # pylint: disable=broad-except
-    def _publish_message(self, msg):
-        _LOGGER_MSG.debug("RX: %s", repr(msg))
-        try:
-            for (topic, kwargs) in convert_to_topic(msg):
-                if _is_nak(msg) and not _has_listeners(topic):
-                    self._resend(msg)
-                else:
-                    try:
-                        pub.sendMessage(topic, **kwargs)
-                    except Exception as ex:
-                        _LOGGER.error(
-                            "An issue occured distributing the following message"
-                        )
-                        _LOGGER.error("MSG: %s", msg)
-                        _LOGGER.error("Topic: %s data: %s", topic, kwargs)
-                        _LOGGER.error("Error: %s", str(ex))
-        except ValueError:
-            # No topic was found for this message
-            _LOGGER.debug("No topic found for message %r", msg)
-        except Exception as ex:
-            _LOGGER.error("An issue occured distributing the following message")
-            _LOGGER.error("MSG: %s", msg)
-            _LOGGER.error("Error: %s", str(ex))
-
     def connection_lost(self, exc):
         """Notify listeners that the serial connection is lost."""
+        _LOGGER.debug("Connection lost called")
+        _LOGGER.debug("Should reconnect: %s", self._should_reconnect)
         self._stop_writer()
-        asyncio.ensure_future(self.async_connect())
+        if self._should_reconnect:
+            asyncio.ensure_future(self.async_connect())
 
-    def _stop_writer(self):
-        self._message_queue.put_nowait((0, None))
-
-    async def async_connect(self):
+    async def async_connect(self, retry=True):
         """Connect to the transport asyncrously."""
         wait_time = 0.1
-        while self._should_reconnect and not self.connected:
+        while not self.connected:
             self._transport = await self._connect_method(protocol=self)
-            await asyncio.sleep(wait_time)
-            wait_time = min(300, 1.5 * wait_time)
+            if self._transport is None and not retry:
+                raise ConnectionError("Modem did not respond to connection request")
+            if not self.connected and retry:
+                await asyncio.sleep(wait_time)
+                wait_time = min(300, 1.5 * wait_time)
+            else:
+                return
 
     def pause_writing(self):
         """Pause writing to the transport."""
         self._stop_writer()
-        # pub.sendMessage('protocol.writing.pause')
 
     def resume_writing(self):
         """Resume writing to the transport."""
         self._start_writer()
-        # pub.sendMessage('protocol.writing.resume')
 
     def close(self):
         """Close the serial transport."""
@@ -150,6 +126,24 @@ class Protocol(asyncio.Protocol):
         self._stop_writer()
         if self._transport:
             self._transport.close()
+
+    def _stop_writer(self):
+        self._message_queue.put_nowait((0, None))
+
+    # pylint: disable=broad-except
+    def _publish_message(self, msg):
+        _LOGGER_MSG.debug("RX: %s", repr(msg))
+        try:
+            for (topic, kwargs) in convert_to_topic(msg):
+                if _is_nak(msg) and not _has_listeners(topic):
+                    self._resend(msg)
+                else:
+                    publish_topic(topic, **kwargs)
+        except ValueError:
+            # No topic was found for this message
+            _LOGGER.debug("No topic found for message %r", msg)
+        except Exception as ex:
+            log_error(msg, ex)
 
     def _write(self, msg, priority=5):
         """Prepare data for writing to the transport.
@@ -160,10 +154,6 @@ class Protocol(asyncio.Protocol):
         'Set Light Level'.
         """
         self._message_queue.put_nowait((priority, msg))
-
-    def _subscribe(self):
-        """Subscribe to topics."""
-        pub.subscribe(self._write, "send_message")
 
     def _resend(self, msg):
         """Resend after a NAK message.
@@ -182,7 +172,9 @@ class Protocol(asyncio.Protocol):
 
     async def _write_messages(self):
         """Write data to the transport."""
+        _LOGGER.debug("Starting _write_messages")
         while not self._transport.is_closing():
+            _LOGGER.debug("Started")
             _, msg = await self._message_queue.get()
             if msg:
                 _LOGGER_MSG.debug("TX: %s", repr(msg))

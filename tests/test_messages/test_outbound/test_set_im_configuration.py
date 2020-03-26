@@ -1,16 +1,20 @@
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
+"""Test Set IM Configuration."""
 import unittest
-import sys
+from binascii import unhexlify
 
-from pyinsteon.constants import MessageId, AckNak
+from pyinsteon.constants import MessageId
 from pyinsteon.protocol.messages.im_config_flags import IMConfigurationFlags
+# pylint: disable=unused-import
 from pyinsteon.protocol.messages.outbound import set_im_configuration
+from tests import set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
 
 class TestSetImConfiguration(unittest.TestCase, OutboundBase):
+    """Test Set IM Configuration."""
+
     def setUp(self):
+        """Test set up."""
         self.hex = "026B30"
         self.bytes_data = unhexlify(self.hex)
         self.message_id = MessageId.SET_IM_CONFIGURATION
@@ -27,13 +31,14 @@ class TestSetImConfiguration(unittest.TestCase, OutboundBase):
             self.message_id, unhexlify(self.hex), **kwargs
         )
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,
         )
 
     def test_flags(self):
+        """Test flags."""
         assert self.msg.flags == self.flags
 
 

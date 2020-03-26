@@ -1,19 +1,16 @@
 """Test the on_level command handler."""
 import asyncio
-from tests import _LOGGER, set_log_levels
 import sys
 import unittest
 
 from pyinsteon.address import Address
 from pyinsteon.constants import ResponseStatus
+from pyinsteon.handlers.from_device.assign_to_all_link_group import \
+    AssignToAllLinkGroupCommand
 from pyinsteon.handlers.to_device.id_request import IdRequestCommand
-from pyinsteon.handlers.from_device.assign_to_all_link_group import (
-    AssignToAllLinkGroupCommand,
-)
 from pyinsteon.topics import ASSIGN_TO_ALL_LINK_GROUP
+from tests import _LOGGER, set_log_levels
 from tests.utils import TopicItem, async_case, send_topics
-
-from tests import _LOGGER
 
 
 class TestIdRequest(unittest.TestCase):
@@ -35,7 +32,7 @@ class TestIdRequest(unittest.TestCase):
             self._address.id, ASSIGN_TO_ALL_LINK_GROUP
         )
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

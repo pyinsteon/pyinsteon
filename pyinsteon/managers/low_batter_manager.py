@@ -2,11 +2,11 @@
 
 import asyncio
 
-from .. import pub
-from ..subscriber_base import SubscriberBase
+from ..utils import subscribe_topic
 from ..address import Address
-from ..handlers.from_device.on_level import OnLevelInbound
 from ..handlers.from_device.off import OffInbound
+from ..handlers.from_device.on_level import OnLevelInbound
+from ..subscriber_base import SubscriberBase
 
 WAIT_TIME = 5
 
@@ -40,7 +40,7 @@ class LowBatteryManager(SubscriberBase):
         self._low_battery_clear_event = self.LowBatterySubscriber(
             "{}.false".format(subscriber_topic)
         )
-        pub.subscribe(self._all_device_messages, self._address.id)
+        subscribe_topic(self._all_device_messages, self._address.id)
 
     def subscribe_low_battery_event(self, callback):
         """Subscribe to low battery event."""

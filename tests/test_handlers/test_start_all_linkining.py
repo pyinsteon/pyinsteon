@@ -1,10 +1,11 @@
 """Test the Start All Linking command handler."""
 import unittest
+
 from pyinsteon import pub
-from pyinsteon.handlers.start_all_linking import StartAllLinkingCommandHandler
 from pyinsteon.constants import AllLinkMode
+from pyinsteon.handlers.start_all_linking import StartAllLinkingCommandHandler
 from pyinsteon.topics import START_ALL_LINKING
-from tests.utils import send_topics, TopicItem, async_case
+from tests.utils import TopicItem, async_case, send_topics
 
 
 class TestSendAllLinkingCommandHandler(unittest.TestCase):

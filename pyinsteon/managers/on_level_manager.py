@@ -1,17 +1,18 @@
 """Manage the inbound messages that trigger a variable state's on level."""
 from datetime import datetime, timedelta
-from ..subscriber_base import SubscriberBase
-from ..address import Address
-from ..handlers.from_device.on_level import OnLevelInbound
-from ..handlers.from_device.off import OffInbound
-from ..handlers.from_device.on_fast import OnFastInbound
-from ..handlers.from_device.off_fast import OffFastInbound
-from ..handlers.from_device.on_level_all_link_cleanup import OnAllLinkCleanupInbound
-from ..handlers.from_device.off_all_link_cleanup import OffAllLinkCleanupInbound
-from ..handlers.to_device.on_all_link_cleanup_ack import OnAllLinkCleanupAckCommand
-from ..handlers.to_device.off_all_link_cleanup_ack import OffAllLinkCleanupAckCommand
 
-TIMEOUT = 5  # number of seconds to define duplicate time inteval
+from ..address import Address
+from ..handlers.from_device.off import OffInbound
+from ..handlers.from_device.off_all_link_cleanup import OffAllLinkCleanupInbound
+from ..handlers.from_device.off_fast import OffFastInbound
+from ..handlers.from_device.on_fast import OnFastInbound
+from ..handlers.from_device.on_level import OnLevelInbound
+from ..handlers.from_device.on_level_all_link_cleanup import OnAllLinkCleanupInbound
+from ..handlers.to_device.off_all_link_cleanup_ack import OffAllLinkCleanupAckCommand
+from ..handlers.to_device.on_all_link_cleanup_ack import OnAllLinkCleanupAckCommand
+from ..subscriber_base import SubscriberBase
+
+TIMEOUT = timedelta(0, 3)  # number of seconds to define duplicate time inteval
 
 
 class OnLevelManager:
@@ -20,6 +21,7 @@ class OnLevelManager:
     The manager is used in all variable state devices. These include:
         - Category 0 devices such as Mini-Remotes
         - All category 1 dimmable devices
+        - All category 2 switch devices
         - etc
 
     This manager handles inbound broadcast messages that identify a state change of
@@ -42,6 +44,7 @@ class OnLevelManager:
         self._group = int(group)
         self._default_on_level = default_on_level
         self._last_event = datetime(1, 1, 1, 1, 1, 1)
+        self._last_event_type = None
 
         # Setup event managers that will manange the subscribers to specific events
         self._on = self.Subscriber(
@@ -97,28 +100,36 @@ class OnLevelManager:
         self._off_fast.subscribe(callback)
 
     def _on_event(self, on_level):
-        self._process_event(on_level=on_level)
+        if self._process_event("on"):
+            self._on.call_subscribers(on_level=on_level)
 
     def _off_event(self, on_level):
-        self._process_event(on_level=0)
+        if self._process_event("off"):
+            self._off.call_subscribers(on_level=0)
 
     def _on_fast_event(self, on_level):
-        self._process_event(on_level=on_level)
+        if self._process_event("on_fast"):
+            self._on_fast.call_subscribers(on_level=on_level)
 
     def _off_fast_event(self, on_level):
-        self._process_event(on_level=0)
+        if self._process_event("off_fast"):
+            self._off_fast.call_subscribers(on_level=0)
 
     def _on_cleanup_event(self):
         OnAllLinkCleanupAckCommand(self._address, self._group).send()
-        self._process_event(on_level=self._default_on_level)
+        if self._process_event("on"):
+            self._on.call_subscribers(on_level=self._default_on_level)
 
     def _off_cleanup_event(self):
         OffAllLinkCleanupAckCommand(self._address, self._group).send()
-        self._process_event(on_level=0)
+        if self._process_event("off"):
+            self._off.call_subscribers(on_level=0)
 
-    def _process_event(self, on_level):
+    def _process_event(self, event_type):
         last_event = self._last_event
+        last_event_type = self._last_event_type
         self._last_event = now = datetime.now()
-        if (now - last_event) < timedelta(0, TIMEOUT):
-            return
-        self._on.call_subscribers(on_level=on_level)
+        self._last_event_type = event_type
+        if (now - last_event) < TIMEOUT and last_event_type == self._last_event_type:
+            return False
+        return True

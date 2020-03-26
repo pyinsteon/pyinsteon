@@ -1,7 +1,7 @@
 """Manage outbound ON All-Link Broadcast command to a device."""
 
-from .all_link_cleanup_command import AllLinkCleanupCommandHandlerBase
 from ...topics import ON
+from .all_link_cleanup_command import AllLinkCleanupCommandHandlerBase
 
 
 class OnLevelAllLinkCleanupCommand(AllLinkCleanupCommandHandlerBase):
@@ -10,11 +10,6 @@ class OnLevelAllLinkCleanupCommand(AllLinkCleanupCommandHandlerBase):
     def __init__(self, address, group):
         """Init the OnLevelCommand class."""
         super().__init__(topic=ON, address=address, group=group)
-
-    # pylint: disable=arguments-differ, useless-super-delegation
-    def send(self):
-        """Send the ON command."""
-        super().send(on_level=self._group)
 
     # pylint: disable=arguments-differ
     async def async_send(self):

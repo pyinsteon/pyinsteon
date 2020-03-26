@@ -1,7 +1,7 @@
 """Base class to handle Broadcast messages from devices."""
 from ...address import Address
-from ..inbound_base import InboundHandlerBase
 from ...constants import MessageFlagType
+from ..inbound_base import InboundHandlerBase
 
 
 class BroadcastCommandHandlerBase(InboundHandlerBase):

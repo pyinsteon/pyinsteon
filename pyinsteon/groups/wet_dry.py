@@ -1,9 +1,9 @@
 """Wet / Dry state."""
-from . import StateBase
+from .group_base import GroupBase
 from ..address import Address
 
 
-class WetDry(StateBase):
+class WetDry(GroupBase):
     """Wet / Dry state."""
 
     def __init__(

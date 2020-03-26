@@ -1,7 +1,7 @@
 """Manage outbound ON All-Link Cleanup ACK response to a device."""
 
-from .all_link_cleanup_ack_command import AllLinkCleanupAckCommandHandlerBase
 from ...topics import ON
+from .all_link_cleanup_ack_command import AllLinkCleanupAckCommandHandlerBase
 
 
 class OnAllLinkCleanupAckCommand(AllLinkCleanupAckCommandHandlerBase):
@@ -10,11 +10,6 @@ class OnAllLinkCleanupAckCommand(AllLinkCleanupAckCommandHandlerBase):
     def __init__(self, address, group):
         """Init the OnLevelCommand class."""
         super().__init__(topic=ON, address=address, group=group)
-
-    # pylint: disable=arguments-differ, useless-super-delegation
-    def send(self):
-        """Send the ON command."""
-        super().send()
 
     # pylint: disable=arguments-differ
     async def async_send(self):

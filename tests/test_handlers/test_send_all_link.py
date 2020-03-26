@@ -1,9 +1,10 @@
 """Test the SendAllLink command handler."""
 import asyncio
 import unittest
+
 from pyinsteon import pub
 from pyinsteon.handlers.send_all_link import SendAllLinkingCommandHandler
-from tests.utils import async_case, send_topics, TopicItem
+from tests.utils import TopicItem, async_case, send_topics
 
 
 class TestSendAllLinkingCommandHandler(unittest.TestCase):

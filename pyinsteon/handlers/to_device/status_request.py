@@ -1,8 +1,8 @@
 """Manage outbound ON command to a device."""
-from ... import pub
 from .. import status_handler
-from .direct_command import DirectCommandHandlerBase
+from ... import pub
 from ...topics import STATUS_REQUEST
+from .direct_command import DirectCommandHandlerBase
 
 
 class StatusRequestCommand(DirectCommandHandlerBase):
@@ -17,11 +17,6 @@ class StatusRequestCommand(DirectCommandHandlerBase):
         """Init the OnLevelCommand class."""
         super().__init__(topic=STATUS_REQUEST, address=address)
         self._status_type = status_type
-
-    # pylint: disable=arguments-differ, useless-super-delegation
-    def send(self):
-        """Send the ON command."""
-        super().send(status_type=self._status_type)
 
     # pylint: disable=arguments-differ, useless-super-delegation
     async def async_send(self):

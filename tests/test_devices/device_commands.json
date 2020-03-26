@@ -1,0 +1,620 @@
+{
+    "DimmableLightingControl": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {
+                "on_level": "aa"
+            },
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "aa"
+            }
+        }
+    },
+    "DimmableLightingControl_DinRail": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {
+                "on_level": "aa"
+            },
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "aa"
+            }
+        }
+    },
+    "DimmableLightingControl_FanLinc": {
+        "async_fan_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 2,
+                "value": 0
+            }
+        },
+        "async_fan_on": {
+            "params": {
+                "on_level": "aa"
+            },
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 2,
+                "value": "aa"
+            }
+        },
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {
+                "on_level": "aa"
+            },
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "aa"
+            }
+        }
+    },
+    "DimmableLightingControl_InLineLinc": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {
+                "on_level": "aa"
+            },
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "aa"
+            }
+        }
+    },
+    "DimmableLightingControl_KeypadLinc_6": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {
+                "on_level": "aa"
+            },
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "aa"
+            }
+        }
+    },
+    "DimmableLightingControl_KeypadLinc_8": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {
+                "on_level": "aa"
+            },
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "aa"
+            }
+        }
+    },
+    "DimmableLightingControl_LampLinc": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {
+                "on_level": "aa"
+            },
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "aa"
+            }
+        }
+    },
+    "DimmableLightingControl_OutletLinc": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {
+                "on_level": "aa"
+            },
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "aa"
+            }
+        }
+    },
+    "DimmableLightingControl_SwitchLinc": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {
+                "on_level": "aa"
+            },
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "aa"
+            }
+        }
+    },
+    "SensorsActuators": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {},
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "ff",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "ff"
+            }
+        }
+    },
+    "SensorsActuators_IOLink": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {},
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "ff",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "ff"
+            }
+        }
+    },
+    "SwitchedLightingControl": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {},
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "ff"
+            }
+        }
+    },
+    "SwitchedLightingControl_ApplianceLinc": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {},
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "ff"
+            }
+        }
+    },
+    "SwitchedLightingControl_DinRail": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {},
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "ff"
+            }
+        }
+    },
+    "SwitchedLightingControl_InLineLinc": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {},
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "ff"
+            }
+        }
+    },
+    "SwitchedLightingControl_KeypadLinc_6": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {},
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "ff"
+            }
+        }
+    },
+    "SwitchedLightingControl_OnOffOutlet": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {},
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "ff"
+            }
+        }
+    },
+    "SwitchedLightingControl_OutletLinc": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {},
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "ff"
+            }
+        }
+    },
+    "SwitchedLightingControl_SwitchLinc": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {},
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "ff"
+            }
+        }
+    }
+}

@@ -21,6 +21,7 @@ from .dimmable_lighting_control import (
     DimmableLightingControl_FanLinc,
     DimmableLightingControl_KeypadLinc_6,
     DimmableLightingControl_KeypadLinc_8,
+    DimmableLightingControl_ToggleLinc,
 )
 from .switched_lighting_control import (
     SwitchedLightingControl,
@@ -32,9 +33,11 @@ from .switched_lighting_control import (
     SwitchedLightingControl_KeypadLinc_6,
     SwitchedLightingControl_KeypadLinc_8,
     SwitchedLightingControl_OnOffOutlet,
+    SwitchedLightingControl_ToggleLinc,
 )
 
-# from ..climateControl import ClimateControl_2441th
+from .climate_control import Thermostat
+
 from .security_health_safety import (
     SecurityHealthSafety,
     SecurityHealthSafety_OpenCloseSensor,

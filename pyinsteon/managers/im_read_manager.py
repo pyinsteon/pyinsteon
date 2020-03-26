@@ -1,14 +1,15 @@
 """Insteon Modem ALDB Read Manager."""
 import asyncio
 import logging
-from ..handlers.get_first_all_link_record import GetFirstAllLinkRecordHandler
-from ..handlers.get_next_all_link_record import GetNextAllLinkRecordHandler
-from ..handlers.all_link_record_response import AllLinkRecordResponseHandler
+
+from .. import pub
 from ..address import Address
 from ..aldb.aldb_record import ALDBRecord
-from ..aldb.modem_aldb import ModemALDB
 from ..constants import ResponseStatus
-
+from ..handlers.all_link_record_response import AllLinkRecordResponseHandler
+from ..handlers.get_first_all_link_record import GetFirstAllLinkRecordHandler
+from ..handlers.get_next_all_link_record import GetNextAllLinkRecordHandler
+from ..topics import ALL_LINK_RECORD_RESPONSE
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -16,13 +17,16 @@ _LOGGER = logging.getLogger(__name__)
 class ImReadManager:
     """Insteon Modem ALDB Read Manager."""
 
-    def __init__(self, aldb: ModemALDB):
+    def __init__(self, aldb):
         """Init the ImReadManager class."""
         self._aldb = aldb
         self._get_first_handler = GetFirstAllLinkRecordHandler()
         self._get_next_handler = GetNextAllLinkRecordHandler()
-        self._receive_record_handler = AllLinkRecordResponseHandler()
-        self._receive_record_handler.subscribe(self._receive_record)
+        mgr = pub.getDefaultTopicMgr()
+        topic = mgr.getTopic(ALL_LINK_RECORD_RESPONSE, okIfNone=True)
+        if not topic:
+            self._receive_record_handler = AllLinkRecordResponseHandler()
+            self._receive_record_handler.subscribe(self._receive_record)
         self._retries = 0
         self._load_lock = asyncio.Lock()
         self._last_mem_addr = 0x0FFF

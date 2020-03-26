@@ -1,7 +1,7 @@
 """Insteon Powerline Modem (PLM)."""
 
-from .modem_base import ModemBase
 from ..aldb.plm_aldb import PlmALDB
+from .modem_base import ModemBase
 
 
 class PLM(ModemBase):

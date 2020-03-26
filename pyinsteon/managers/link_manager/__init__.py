@@ -1,10 +1,8 @@
 """Manage links beteween devices."""
 import logging
-from ..device_types.device_base import Device
-from .. import devices
-from ..constants import AllLinkMode, ResponseStatus
-from ..handlers.start_all_linking import StartAllLinkingCommandHandler
-from ..utils import multiple_status
+
+from ...constants import AllLinkMode, LinkStatus, ResponseStatus
+from ...handlers.start_all_linking import StartAllLinkingCommandHandler
 
 TIMEOUT = 3
 _LOGGER = logging.getLogger(__name__)
@@ -24,14 +22,16 @@ async def async_enter_unlinking_mode(group: int):
     link_cmd = StartAllLinkingCommandHandler()
     mode = AllLinkMode.DELETE
     response = await link_cmd.async_send(mode=mode, group=group)
-    _LOGGER.info("Enter linking mode response: %s", str(response))
     return response
 
 
 async def async_link_devices(
-    controller: Device, responder: Device, group: int = 0, data1=255, data2=28, data3=1
+    controller, responder, group: int = 0, data1=255, data2=28, data3=1
 ):
     """Link two devices."""
+
+    if not hasattr(controller, "address") or not hasattr(responder, "address"):
+        raise TypeError("controller and responder must be devices")
     if _add_link_to_device(
         device=controller,
         target=responder.address,
@@ -56,8 +56,10 @@ async def async_link_devices(
         return ResponseStatus.SUCCESS
 
 
-async def async_unlink_devices(controller: Device, responder: Device, group: int = 0):
+async def async_unlink_devices(controller, responder, group: int = 0):
     """Unlink two devices."""
+    if not hasattr(controller, "address") or not hasattr(responder, "address"):
+        raise TypeError("controller and responder must be devices")
     if _remove_link_from_device(
         device=controller, is_controller=True, group=group, target=responder.address
     ) and _remove_link_from_device(
@@ -69,24 +71,6 @@ async def async_unlink_devices(controller: Device, responder: Device, group: int
             return ResponseStatus.FAILURE
         return ResponseStatus.SUCCESS
     return ResponseStatus.FAILURE
-
-
-async def async_add_default_links(device: Device):
-    """Set up the default links for a device."""
-    for link in device.default_links:
-        if link.is_controller:
-            controller = device
-            responder = devices.modem
-            data1 = link.modem_data1
-            data2 = link.modem_data2
-            data3 = link.modem_data3
-        else:
-            controller = devices.modem
-            responder = device
-            data1 = link.dev_data1
-            data2 = link.dev_data2
-            data3 = link.dev_data3
-        await async_link_devices(controller, responder, link.group, data1, data2, data3)
 
 
 def _remove_link_from_device(device, is_controller, group, target):
@@ -104,33 +88,42 @@ def _remove_link_from_device(device, is_controller, group, target):
     return True
 
 
-async def async_create_default_links(device: Device):
-    """Establish default links between the modem and device."""
+def find_broken_links(devices):
+    """Find proken links."""
+    broken_link_list = {}
+    for addr in devices:
+        device = devices[addr]
+        for mem_addr in device.aldb:
+            rec = device.aldb[mem_addr]
+            if rec.is_in_use:
+                status = _test_broken(addr, rec, devices)
+                if status != LinkStatus.FOUND:
+                    if not broken_link_list.get(addr):
+                        broken_link_list[addr] = {}
+                    broken_link_list[addr][mem_addr] = (rec, status)
+    return broken_link_list
+
+
+def _test_broken(address, rec, devices):
+    """Test if a corresponding record exists in liked device."""
+    device = devices.get(rec.target)
+    if not device:
+        return LinkStatus.MISSING_TARGET
 
     if not device.aldb.is_loaded:
-        await device.aldb.async_load()
+        return LinkStatus.TARGET_DB_NOT_LOADED
 
-    if not device.aldb.is_loaded:
-        return False
-
-    results = []
-    for link_info in device.default_links:
-        is_controller = link_info.is_controller
-        group = link_info.group
-        data1 = link_info.data1
-        data2 = link_info.data2
-        data3 = link_info.data3
-        if is_controller:
-            controller = device
-            responder = devices.modem
-        else:
-            controller = devices.modem
-            responder = device
-        result = await async_link_devices(
-            controller, responder, group, data1, data2, data3
-        )
-        results.append(result)
-    return multiple_status(*results)
+    for mem_addr in device.aldb:
+        t_rec = device.aldb[mem_addr]
+        if (
+            t_rec.target == address
+            and t_rec.group == rec.group
+            and t_rec.is_controller != rec.is_controller
+        ):
+            return LinkStatus.FOUND
+    if rec.is_controller:
+        return LinkStatus.MISSING_RESPONDER
+    return LinkStatus.MISSING_CONTROLLER
 
 
 def _add_link_to_device(device, is_controller, group, target, data1, data2, data3):

@@ -1,7 +1,7 @@
 """Manage outbound ON command to a device."""
 from .. import direct_ack_handler
-from .direct_command import DirectCommandHandlerBase
 from ...topics import PRODUCT_DATA_REQUEST
+from .direct_command import DirectCommandHandlerBase
 
 
 class ProductDataRequestCommand(DirectCommandHandlerBase):
@@ -10,11 +10,6 @@ class ProductDataRequestCommand(DirectCommandHandlerBase):
     def __init__(self, address):
         """Init the OnLevelCommand class."""
         super().__init__(topic=PRODUCT_DATA_REQUEST, address=address)
-
-    # pylint: disable=arguments-differ, useless-super-delegation
-    def send(self):
-        """Send the OFF command."""
-        super().send()
 
     # pylint: disable=arguments-differ
     async def async_send(self):

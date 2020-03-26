@@ -2,8 +2,9 @@
 
 import unittest
 from binascii import unhexlify
-from pyinsteon.protocol.msg_to_topic import convert_to_topic
+
 from pyinsteon.protocol.messages.inbound import create
+from pyinsteon.protocol.msg_to_topic import convert_to_topic
 
 
 class TestTopicFromMsg(unittest.TestCase):

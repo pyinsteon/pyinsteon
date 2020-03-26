@@ -1,16 +1,17 @@
 """Manage identifying unknown devices."""
 import asyncio
-from collections import namedtuple
 import logging
+from collections import namedtuple
 
 from .. import pub
-from ..subscriber_base import SubscriberBase
+from ..utils import subscribe_topic
 from ..address import Address
-from ..handlers.to_device.id_request import IdRequestCommand
 from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
 from ..handlers.from_device.delete_from_all_link_group import (
     DeleteFromAllLinkGroupCommand,
 )
+from ..handlers.to_device.id_request import IdRequestCommand
+from ..subscriber_base import SubscriberBase
 
 _LOGGER = logging.getLogger(__name__)
 MAX_RETRIES = 5
@@ -29,7 +30,8 @@ class DeviceIdManager(SubscriberBase):
         self._unknown_devices = []
         self._device_ids = {}
         self._awake_devices = []
-        self._awake_devices_queue = asyncio.Queue()
+        # Cannot set queue here because we are outside the loop
+        self._awake_devices_queue = None
         self._id_device_lock = asyncio.Lock()
 
     def __getitem__(self, address):
@@ -43,7 +45,8 @@ class DeviceIdManager(SubscriberBase):
 
     def close(self):
         """Close the ID listener."""
-        self._awake_devices_queue.put_nowait(None)
+        if self._awake_devices_queue is not None:
+            self._awake_devices_queue.put_nowait(None)
 
     def append(self, address: Address):
         """Append a device address to the list."""
@@ -56,14 +59,12 @@ class DeviceIdManager(SubscriberBase):
         if self._device_ids.get(address) is None:
             self._device_ids[address] = DeviceId(None, None, None, None)
             self._unknown_devices.append(address)
-            pub.subscribe(self._device_awake, address.id)
+            subscribe_topic(self._device_awake, address.id)
 
     def set_device_id(
         self, address: Address, cat: int, subcat: int, firmware: int = 0x00
     ):
         """Set the device ID of a device."""
-        from .. import devices
-
         address = Address(address)
         cat = int(cat)
         subcat = int(subcat)
@@ -74,9 +75,7 @@ class DeviceIdManager(SubscriberBase):
             pass
         device_id = DeviceId(address, cat, subcat, firmware)
         self._device_ids[address] = device_id
-        device = devices[address]
-        if not device:
-            self._call_subscribers(device_id=device_id)
+        self._call_subscribers(device_id=device_id)
 
     async def async_id_devices(self, refresh: bool = False):
         """Identify the devices in the unknown device list."""
@@ -148,6 +147,8 @@ class DeviceIdManager(SubscriberBase):
 
     async def _id_awake_devices(self):
         """Loop on devices that wake up and send a message."""
+        if self._awake_devices_queue is None:
+            self._awake_devices_queue = asyncio.Queue()
         while True:
             address = await self._awake_devices_queue.get()
             if address is None:
@@ -161,7 +162,7 @@ class DeviceIdManager(SubscriberBase):
         """Check if an awake device has been identified."""
         dev_id = self._device_ids.get(address)
         if dev_id is None or dev_id.cat is None:
-            pub.subscribe(self._device_awake, address.id)
+            subscribe_topic(self._device_awake, address.id)
         try:
             self._awake_devices.remove(address)
         except ValueError:
@@ -184,4 +185,6 @@ class DeviceIdManager(SubscriberBase):
                 return
             pub.unsubscribe(self._device_awake, address.id)
             self._awake_devices.append(address)
+            if self._awake_devices_queue is None:
+                self._awake_devices_queue = asyncio.Queue()
             self._awake_devices_queue.put_nowait(address)

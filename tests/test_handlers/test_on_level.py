@@ -5,8 +5,8 @@ import unittest
 from pyinsteon.address import Address
 from pyinsteon.constants import ResponseStatus
 from pyinsteon.handlers.to_device.on_level import OnLevelCommand
-from tests.utils import TopicItem, async_case, send_topics
 from tests import set_log_levels
+from tests.utils import TopicItem, async_case, send_topics
 
 
 class TestOnLevel(unittest.TestCase):
@@ -26,10 +26,10 @@ class TestOnLevel(unittest.TestCase):
         self._on_level_3 = None
 
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=True,
+            logger_topics=False,
         )
 
     def set_on_level_group_1(self, on_level, group=None):

@@ -1,8 +1,8 @@
 """Get Device Info command handler."""
-from .direct_command import DirectCommandHandlerBase
 from ...address import Address
 from ...topics import ENTER_LINKING_MODE
 from ..from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
+from .direct_command import DirectCommandHandlerBase
 
 
 class EnterLinkingModeCommand(DirectCommandHandlerBase):

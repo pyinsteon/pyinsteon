@@ -1,7 +1,6 @@
 """Container for a default link record."""
 from collections import namedtuple
 
-
 DefaultLink = namedtuple(
     "DefaultLink",
     "is_controller group dev_data1 dev_data2 dev_data3 "

@@ -1,12 +1,13 @@
 """Manage inbound ON command from device."""
 import logging
-from .. import inbound_handler
-from ..inbound_base import InboundHandlerBase
-from ...topics import EXTENDED_GET_SET
-from ...address import Address
-from ...utils import build_topic
-from ...constants import MessageFlagType
+from collections import OrderedDict
 
+from .. import inbound_handler
+from ...address import Address
+from ...constants import MessageFlagType
+from ...topics import EXTENDED_GET_RESPONSE
+from ...utils import build_topic
+from ..inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,7 +19,7 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
         """Init the OffInbound class."""
         self._address = Address(address)
         super().__init__(
-            topic=EXTENDED_GET_SET,
+            topic=EXTENDED_GET_RESPONSE,
             address=self._address,
             message_type=MessageFlagType.DIRECT,
         )
@@ -31,11 +32,6 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
     @inbound_handler
     def handle_response(self, cmd1, cmd2, target, user_data):
         """Handle the Extended Get response from a device."""
-        from collections import OrderedDict
-
-        _LOGGER.error("Extended Get Response received in handler")
-        if user_data is None or user_data["d2"] != 0x01:
-            return
         data = OrderedDict()
         for item in range(3, 15):
             data["data{}".format(item)] = user_data["d{}".format(item)]

@@ -1,10 +1,10 @@
 """Send an X10 command."""
 
-from ...topics import X10_SEND
-from ...constants import X10CommandType, X10Commands, ResponseStatus
-from ..outbound_base import OutboundHandlerBase
-from ...x10_address import X10Address
 from .. import ack_handler, nak_handler
+from ...constants import ResponseStatus, X10Commands, X10CommandType
+from ...topics import X10_SEND
+from ...x10_address import X10Address
+from ..outbound_base import OutboundHandlerBase
 
 
 class X10CommandSend(OutboundHandlerBase):
@@ -15,11 +15,6 @@ class X10CommandSend(OutboundHandlerBase):
         super().__init__(topic=X10_SEND)
         self._address = X10Address(address)
         self._cmd = x10_cmd
-
-    # pylint: disable=useless-super-delegation,arguments-differ
-    def send(self):
-        """Send the command."""
-        super().send()
 
     # pylint: disable=arguments-differ
     async def async_send(self):

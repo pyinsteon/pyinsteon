@@ -1,11 +1,11 @@
 """Mock message handling via Chain of Command pattern."""
 import asyncio
 from abc import ABCMeta
-from .. import pub
-from .inbound_base import InboundHandlerBase
-from . import ResponseStatus
-from ..utils import build_topic
 
+from . import ResponseStatus
+from ..utils import publish_topic
+from ..utils import build_topic
+from .inbound_base import InboundHandlerBase
 
 # It should not take more than 3 minutes for a message send (I hope)
 TIMEOUT = 60 * 3
@@ -46,7 +46,7 @@ class OutboundHandlerBase(InboundHandlerBase):
             group=None,
             message_type=self._message_type,
         )
-        pub.sendMessage(send_topic, **kwargs)
+        publish_topic(send_topic, **kwargs)
         try:
             test = await asyncio.wait_for(self._message_response.get(), TIMEOUT)
             return test

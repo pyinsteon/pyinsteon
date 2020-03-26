@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Setup for oyinsteon module."""
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 
 def readme():
@@ -11,7 +11,7 @@ def readme():
 
 setup(
     name="pyinsteon",
-    version="0.1.0rc3",
+    version="0.1.0rc4",
     author="The pyinsteon Development Team",
     author_email="pyinsteon@harrisnj.net",
     url="https://github.com/pyinsteon/pyinsteon",
@@ -31,10 +31,5 @@ setup(
         "async_generator",
         "pyyaml",
     ],
-    entry_points={
-        "console_scripts": [
-            "insteon_monitor = pyinsteon.tools:monitor",
-            "insteon_tools = pyinsteon.tools:tools",
-        ]
-    },
+    entry_points={"console_scripts": ["insteon_tools = pyinsteon.tools:tools"]},
 )

@@ -1,5 +1,6 @@
 """Mock transport for testing."""
 import asyncio
+
 from pyinsteon.subscriber_base import SubscriberBase
 
 

@@ -1,12 +1,12 @@
 """Receive an X10 message."""
 
-from ... import pub
-from ...topics import X10_RECEIVED
-from ..inbound_base import InboundHandlerBase
 from .. import inbound_handler
+from ... import pub
+from ...constants import X10Commands, X10CommandType
+from ...topics import X10_RECEIVED
+from ...utils import byte_to_command, byte_to_housecode, byte_to_unitcode, parse_x10
 from ...x10_address import create
-from ...constants import X10CommandType, X10Commands
-from ...utils import parse_x10, byte_to_command, byte_to_housecode, byte_to_unitcode
+from ..inbound_base import InboundHandlerBase
 
 
 class X10Received(InboundHandlerBase):

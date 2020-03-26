@@ -1,13 +1,13 @@
 """Test the sending and receiving of direct commands using the MockPLM."""
-from asyncio import Queue, sleep
-import unittest
-from functools import partial
 import json
+import unittest
+from asyncio import Queue, sleep
+from functools import partial
+
 from aiofile import AIOFile
 
 import pyinsteon.handlers.to_device as commands
 from pyinsteon import pub
-from pyinsteon.protocol.protocol import Protocol
 
 # pylint: disable=unused-import
 from pyinsteon.handlers.to_device.enter_linking_mode import EnterLinkingModeCommand
@@ -16,36 +16,36 @@ from pyinsteon.handlers.to_device.extended_get import ExtendedGetCommand
 from pyinsteon.handlers.to_device.extended_set import ExtendedSetCommand
 from pyinsteon.handlers.to_device.get_operating_flags import GetOperatingFlagsCommand
 from pyinsteon.handlers.to_device.id_request import IdRequestCommand
+from pyinsteon.handlers.to_device.off import OffCommand
 from pyinsteon.handlers.to_device.off_all_link_broadcast import (
     OffAllLinkBroadcastCommand,
 )
 from pyinsteon.handlers.to_device.off_all_link_cleanup import OffAllLinkCleanupCommand
 from pyinsteon.handlers.to_device.off_fast import OffFastCommand
-from pyinsteon.handlers.to_device.off import OffCommand
 from pyinsteon.handlers.to_device.on_fast import OnFastCommand
+from pyinsteon.handlers.to_device.on_level import OnLevelCommand
 from pyinsteon.handlers.to_device.on_level_all_link_broadcast import (
     OnLevelAllLinkBroadcastCommand,
 )
 from pyinsteon.handlers.to_device.on_level_all_link_cleanup import (
     OnLevelAllLinkCleanupCommand,
 )
-from pyinsteon.handlers.to_device.on_level import OnLevelCommand
 from pyinsteon.handlers.to_device.product_data_request import ProductDataRequestCommand
 from pyinsteon.handlers.to_device.read_aldb import ReadALDBCommandHandler
 from pyinsteon.handlers.to_device.set_operating_flags import SetOperatingFlagsCommand
 from pyinsteon.handlers.to_device.status_request import StatusRequestCommand
 from pyinsteon.handlers.to_device.write_aldb import WriteALDBCommandHandler
+from pyinsteon.protocol.protocol import Protocol
 
 # pylint: enable=unused-import
 from tests import async_connect_mock, set_log_levels
 from tests.utils import (
-    create_std_ext_msg,
-    async_case,
-    send_data,
     DataItem,
+    async_case,
+    create_std_ext_msg,
     get_class_or_method,
+    send_data,
 )
-
 
 FILE = "commands.json"
 
@@ -62,7 +62,7 @@ async def import_commands():
     return json.loads(json_file)
 
 
-def create_message(msg_dict, delay=.1):
+def create_message(msg_dict, delay=0.1):
     """Create a message from a dictionary."""
     address = msg_dict.get("address")
     flags = msg_dict.get("flags")
@@ -81,7 +81,7 @@ class TestDirectCommands(unittest.TestCase):
     """Test a set of handlers that handle direct commands."""
 
     def setUp(self):
-        """Setup the tests."""
+        """Set up the tests."""
         self._assert_tests = []
         self._read_queue = Queue()
         self._write_queue = Queue()
@@ -97,7 +97,7 @@ class TestDirectCommands(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=True,
+            logger_topics=False,
         )
 
     def validate_values(self, topic=pub.ALL_TOPICS, **kwargs):
@@ -120,12 +120,13 @@ class TestDirectCommands(unittest.TestCase):
     async def test_command(self):
         """Test direct command."""
         msgs = []
+
         def listen_for_ack():
             send_data(msgs, self._read_queue)
 
         tests = await import_commands()
         pub.subscribe(self.validate_values, pub.ALL_TOPICS)
-        pub.subscribe(listen_for_ack, 'ack')
+        pub.subscribe(listen_for_ack, "ack")
         await self._protocol.async_connect()
 
         for test_info in tests:
@@ -149,9 +150,9 @@ class TestDirectCommands(unittest.TestCase):
             # send_data(msgs, self._read_queue)
             try:
                 response = await cmd.async_send(**send_params)
-            except Exception as e:
+            except Exception as ex:
                 raise Exception(
-                    "Failed test {} with error: {}".format(self._current_test, str(e))
+                    "Failed test {} with error: {}".format(self._current_test, str(ex))
                 )
             if test_response:
                 try:

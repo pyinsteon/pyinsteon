@@ -1,9 +1,9 @@
-"""Open / Close sensor states."""
-from . import StateBase
+"""Open / Close sensor groups."""
+from .group_base import GroupBase
 from ..address import Address
 
 
-class NormallyOpen(StateBase):
+class NormallyOpen(GroupBase):
     """Normally open sensor state."""
 
     def __init__(
@@ -19,7 +19,7 @@ class NormallyOpen(StateBase):
         self.value = 0xFF if on_level else 0
 
 
-class NormallyClosed(StateBase):
+class NormallyClosed(GroupBase):
     """Normally closed sensor state."""
 
     def __init__(

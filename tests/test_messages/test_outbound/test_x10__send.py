@@ -22,7 +22,7 @@ class TestX10Send(unittest.TestCase, OutboundBase):
             MessageId.X10_SEND, unhexlify(self.hex), **kwargs
         )
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

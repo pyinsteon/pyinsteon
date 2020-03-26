@@ -1,12 +1,13 @@
 """On Leve state."""
 import logging
+
+from .group_base import GroupBase
 from ..address import Address
-from . import StateBase
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class OnLevel(StateBase):
+class OnLevel(GroupBase):
     """Variable On Level state."""
 
     def __init__(

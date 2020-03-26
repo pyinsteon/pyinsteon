@@ -1,10 +1,10 @@
 """INSTEON PLM constants for reuse across the module."""
 
-from enum import IntEnum
+from enum import Enum, IntEnum
 
 
-class DeviceCategory(IntEnum):
-    """Device categories."""
+class HexIntEnum(IntEnum):
+    """IntEnum represented as a hex string or lowercase name."""
 
     def __repr__(self):
         """Emit the representation of the Enum."""
@@ -14,6 +14,10 @@ class DeviceCategory(IntEnum):
         """Emit the string of the Enum."""
         # pylint: disable=no-member
         return self.name.lower()
+
+
+class DeviceCategory(HexIntEnum):
+    """Device categories."""
 
     GENERALIZED_CONTROLLERS = 0x00
     DIMMABLE_LIGHTING_CONTROL = 0x01
@@ -38,17 +42,8 @@ class DeviceCategory(IntEnum):
     HOLIDAY = 0x16
 
 
-class MessageId(IntEnum):
+class MessageId(HexIntEnum):
     """Message type definitions."""
-
-    def __repr__(self):
-        """Emit the representation of the Enum."""
-        return "0x{0:02x}".format(self.value)
-
-    def __str__(self):
-        """Emit the string of the Enum."""
-        # pylint: disable=no-member
-        return self.name.lower()
 
     STANDARD_RECEIVED = 0x50
     EXTENDED_RECEIVED = 0x51
@@ -82,17 +77,8 @@ class MessageId(IntEnum):
     GET_IM_CONFIGURATION = 0x73
 
 
-class MessageFlagType(IntEnum):
+class MessageFlagType(HexIntEnum):
     """Message flag mesage type."""
-
-    def __repr__(self):
-        """Emit the representation of the Enum."""
-        return "0x{0:02x}".format(self.value)
-
-    def __str__(self):
-        """Emit the string of the Enum."""
-        # pylint: disable=no-member
-        return self.name.lower()
 
     DIRECT = 0
     DIRECT_ACK = 1
@@ -104,49 +90,41 @@ class MessageFlagType(IntEnum):
     ALL_LINK_CLEANUP_NAK = 7
 
 
-class AckNak(IntEnum):
+class AckNak(HexIntEnum):
     """ACK/NAK values."""
-
-    def __repr__(self):
-        """Emit the representation of the Enum."""
-        return "0x{0:02x}".format(self.value)
-
-    def __str__(self):
-        """Emit the string of the Enum."""
-        # pylint: disable=no-member
-        return self.name.lower()
 
     ACK = 0x06
     NAK = 0x15
 
 
-class X10CommandType(IntEnum):
+class ALDBStatus(HexIntEnum):
+    """All-Link Database load status."""
+
+    EMPTY = 0
+    LOADED = 1
+    LOADING = 2
+    FAILED = 3
+    PARTIAL = 4
+
+
+class ALDBVersion(Enum):
+    """All-Link Database version."""
+
+    NULL = 0
+    V1 = 1
+    V2 = 2
+    V2CS = 20
+
+
+class X10CommandType(HexIntEnum):
     """X10 command types."""
-
-    def __repr__(self):
-        """Emit the representation of the Enum."""
-        return "0x{0:02x}".format(self.value)
-
-    def __str__(self):
-        """Emit the string of the Enum."""
-        # pylint: disable=no-member
-        return self.name.lower()
 
     UNITCODE = 0x00
     COMMAND = 0x80
 
 
-class ThermostatMode(IntEnum):
+class ThermostatMode(HexIntEnum):
     """Thermostat system modes."""
-
-    def __repr__(self):
-        """Emit the representation of the Enum."""
-        return "0x{0:02x}".format(self.value)
-
-    def __str__(self):
-        """Emit the string of the Enum."""
-        # pylint: disable=no-member
-        return self.name.lower()
 
     OFF = 0x00
     HEAT = 0x01
@@ -156,17 +134,8 @@ class ThermostatMode(IntEnum):
     FAN_ALWAYS_ON = 0x8
 
 
-class FanSpeed(IntEnum):
+class FanSpeed(HexIntEnum):
     """Fan speeds."""
-
-    def __repr__(self):
-        """Emit the representation of the Enum."""
-        return "0x{0:02x}".format(self.value)
-
-    def __str__(self):
-        """Emit the string of the Enum."""
-        # pylint: disable=no-member
-        return self.name.lower()
 
     OFF = 0x00
     LOW = 0x3F
@@ -174,36 +143,17 @@ class FanSpeed(IntEnum):
     HIGH = 0xFF
 
 
-class RelayMode(IntEnum):
+class RelayMode(HexIntEnum):
     """Relay mode used by Sensor Actuator device class 0x07."""
 
-    def __repr__(self):
-        """Emit the representation of the Enum."""
-        return "0x{0:02x}".format(self.value)
-
-    def __str__(self):
-        """Emit the string of the Enum."""
-        # pylint: disable=no-member
-        return self.name.lower()
-
-    UNKNOWN = 0
-    LATCHING = 1
-    MOMENTARY_A = 2
-    MOMENTARY_B = 3
-    MOMENTARY_C = 4
+    LATCHING = 0
+    MOMENTARY_A = 1
+    MOMENTARY_B = 2
+    MOMENTARY_C = 3
 
 
-class X10Commands(IntEnum):
+class X10Commands(HexIntEnum):
     """X10 Commands."""
-
-    def __repr__(self):
-        """Emit the representation of the Enum."""
-        return "0x{0:02x}".format(self.value)
-
-    def __str__(self):
-        """Emit the string of the Enum."""
-        # pylint: disable=no-member
-        return self.name.lower()
 
     ALL_UNITS_OFF = 0x00
     ALL_LIGHTS_ON = 0x01
@@ -221,17 +171,8 @@ class X10Commands(IntEnum):
     STATUS_REQUEST = 0x0D
 
 
-class ImButtonEvents(IntEnum):
+class ImButtonEvents(HexIntEnum):
     """IM Button Events values."""
-
-    def __repr__(self):
-        """Emit the representation of the Enum."""
-        return "0x{0:02x}".format(self.value)
-
-    def __str__(self):
-        """Emit the string of the Enum."""
-        # pylint: disable=no-member
-        return self.name.lower()
 
     SET_TAPPED = 0x02
     SET_HELD = 0x03
@@ -244,17 +185,8 @@ class ImButtonEvents(IntEnum):
     SET_3_RELEASED_AFTER_HOLD = 0x24
 
 
-class AllLinkMode(IntEnum):
+class AllLinkMode(HexIntEnum):
     """All Link Mode values."""
-
-    def __repr__(self):
-        """Emit the representation of the Enum."""
-        return "0x{0:02x}".format(self.value)
-
-    def __str__(self):
-        """Emit the string of the Enum."""
-        # pylint: disable=no-member
-        return self.name.lower()
 
     RESPONDER = 0x00
     CONTROLLER = 0x01
@@ -262,17 +194,8 @@ class AllLinkMode(IntEnum):
     DELETE = 0xFF
 
 
-class ManageAllLinkRecordAction(IntEnum):
+class ManageAllLinkRecordAction(HexIntEnum):
     """Manage All Link Record Action values."""
-
-    def __repr__(self):
-        """Emit the representation of the Enum."""
-        return "0x{0:02x}".format(self.value)
-
-    def __str__(self):
-        """Emit the string of the Enum."""
-        # pylint: disable=no-member
-        return self.name.lower()
 
     FIND_FIRST = 0x00
     FIND_NEXT = 0x01
@@ -319,7 +242,7 @@ class RampRate(IntEnum):
     SEC_0_1 = 0x1F
 
 
-class ResponseStatus(IntEnum):
+class ResponseStatus(HexIntEnum):
     """Response status of an outbound message."""
 
     FAILURE = 0
@@ -327,6 +250,16 @@ class ResponseStatus(IntEnum):
     UNCLEAR = 2
     INPROGRESS = 4
     UNSENT = 8
+
+
+class LinkStatus(Enum):
+    """Status of a link between two devices."""
+
+    MISSING_CONTROLLER = 0
+    MISSING_RESPONDER = 1
+    MISSING_TARGET = 2
+    FOUND = 3
+    TARGET_DB_NOT_LOADED = 4
 
 
 MESSAGE_START_CODE = 0x02
@@ -379,3 +312,38 @@ UC_LOOKUP = {
     21: 0x21,  # All Lights On fake device
     22: 0x22,
 }  # All Lights Off fake device
+
+RAMP_RATES = {
+    0x00: 2,
+    0x01: 480,
+    0x02: 420,
+    0x03: 360,
+    0x04: 300,
+    0x05: 270,
+    0x06: 240,
+    0x07: 210,
+    0x08: 180,
+    0x09: 150,
+    0x0A: 120,
+    0x0B: 90,
+    0x0C: 60,
+    0x0D: 47,
+    0x0E: 43,
+    0x0F: 38.5,
+    0x10: 34,
+    0x11: 32,
+    0x12: 30,
+    0x13: 28,
+    0x14: 26,
+    0x15: 23.5,
+    0x16: 21.5,
+    0x17: 19,
+    0x18: 8.5,
+    0x19: 6.5,
+    0x1A: 4.5,
+    0x1B: 2,
+    0x1C: 0.5,
+    0x1D: 0.3,
+    0x1E: 0.2,
+    0x1F: 0.1,
+}

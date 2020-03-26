@@ -1,15 +1,19 @@
 """Base device object."""
 
-from abc import ABC
-from datetime import datetime
 import logging
+from abc import ABC
+import asyncio
+from datetime import datetime
 
 from ..address import Address
 from ..aldb import ALDB
-from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
+from ..default_link import DefaultLink
+from ..handlers.to_device.product_data_request import ProductDataRequestCommand
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
+from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
+from ..managers.link_manager.default_links import async_add_default_links
 from ..operating_flag import OperatingFlag
-
+from ..utils import multiple_status
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,10 +41,11 @@ class Device(ABC):
         self._description = description
         self._model = model
         self._product_id = None
+        self._is_battery = False
 
         self._last_communication_received = datetime(1, 1, 1, 1, 1, 1)
         self._product_data_in_aldb = False
-        self._states = {}
+        self._groups = {}
         self._handlers = {}
         self._managers = {}
         self._events = {}
@@ -54,12 +59,12 @@ class Device(ABC):
         )
         self._ext_property_manager = GetSetExtendedPropertyManager(self._address)
 
+        self._register_operating_flags()
         self._register_handlers_and_managers()
-        self._register_states()
+        self._register_groups()
         self._register_events()
         self._subscribe_to_handelers_and_managers()
         self._register_default_links()
-        self._register_operating_flags()
 
     # Public properties
     @property
@@ -103,9 +108,14 @@ class Device(ABC):
         return self._address.id
 
     @property
-    def states(self):
-        """Return the device states/groups."""
-        return self._states
+    def groups(self):
+        """Return the device groups / buttons."""
+        return self._groups
+
+    @property
+    def events(self):
+        """Return the device events."""
+        return self._events
 
     @property
     def prod_data_in_aldb(self):
@@ -145,10 +155,11 @@ class Device(ABC):
     @property
     def is_battery(self):
         """Return True if the device is battery operated."""
-        return False
+        return self._is_battery
 
     def status(self, group=None):
         """Get the status of the device."""
+        asyncio.ensure_future(self.async_status(group))
 
     async def async_status(self, group=None):
         """Get the status of the device."""
@@ -161,9 +172,10 @@ class Device(ABC):
         - Extended properties
         - All-Link Database records.
         """
-        await self.async_read_op_flags()
-        await self.async_read_ext_properties()
-        await self._aldb.async_load()
+        result_op_flags = await self.async_read_op_flags()
+        result_ext_prop = await self.async_read_ext_properties()
+        result_aldb = await self._aldb.async_load()
+        return multiple_status(result_ext_prop, result_op_flags), result_aldb
 
     async def async_read_op_flags(self, group=None):
         """Read the device operating flags."""
@@ -173,9 +185,9 @@ class Device(ABC):
         """Write the operating flags to the device."""
         return await self._op_flags_manager.async_write()
 
-    async def async_read_ext_properties(self):
+    async def async_read_ext_properties(self, group=None):
         """Get the device extended properties."""
-        return await self._ext_property_manager.async_read()
+        return await self._ext_property_manager.async_read(group=group)
 
     async def async_write_ext_properties(self):
         """Write the extended properties."""
@@ -183,29 +195,23 @@ class Device(ABC):
 
     async def async_read_product_id(self):
         """Get the product ID."""
-        from ..handlers.to_device.product_data_request import ProductDataRequestCommand
-
         return await ProductDataRequestCommand(self._address).async_send()
 
     async def async_add_default_links(self):
         """Add the default links betweent he modem and the device."""
-        from ..managers.link_manager import async_add_default_links
-
         return await async_add_default_links(self)
 
-    def _register_states(self):
-        """Add the states to the device."""
+    def _register_groups(self):
+        """Add the groups to the device."""
 
     def _register_handlers_and_managers(self):
         """Add all handlers to the device and register listeners."""
 
     def _subscribe_to_handelers_and_managers(self):
-        """Subscribe states and events to handlers and managers."""
+        """Subscribe groups and events to handlers and managers."""
 
     def _register_default_links(self):
         """Add default links for linking the device to the modem."""
-        from ..default_link import DefaultLink
-
         link_0 = DefaultLink(
             is_controller=False,
             group=0,
@@ -224,14 +230,20 @@ class Device(ABC):
     def _register_operating_flags(self):
         """Add operating flags to the device."""
 
-    def _add_operating_flag(self, name, group, bit, set_cmd, unset_cmd):
+    def _add_operating_flag(
+        self, name, group, bit, set_cmd, unset_cmd, is_reversed=False
+    ):
         flag_type = bool if bit is not None else int
-        self._operating_flags[name] = OperatingFlag(self._address, name, flag_type)
+        self._operating_flags[name] = OperatingFlag(
+            self._address, name, flag_type, is_reversed
+        )
         self._op_flags_manager.subscribe(name, group, bit, set_cmd, unset_cmd)
 
-    def _add_property(self, name, data_field, set_cmd, group=1, bit=None):
+    def _add_property(
+        self, name, data_field, set_cmd, group=1, bit=None, is_reversed=False
+    ):
         self._properties[name] = self._ext_property_manager.create(
-            name, group, data_field, bit, set_cmd
+            name, group, data_field, bit, set_cmd, is_reversed
         )
 
     def _remove_operating_flag(self, name, group=None):

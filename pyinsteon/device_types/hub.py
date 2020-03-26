@@ -1,7 +1,7 @@
 """Insteon Hub version 2."""
 
-from .modem_base import ModemBase
 from ..aldb.hub_aldb import HubALDB
+from .modem_base import ModemBase
 
 
 class Hub(ModemBase):

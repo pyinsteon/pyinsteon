@@ -1,8 +1,8 @@
 """X10 device types."""
 
-from ..x10_address import create
 from ..aldb.no_aldb import NoALDB
 from ..constants import ResponseStatus
+from ..x10_address import create
 
 
 class X10DeviceBase:
@@ -16,13 +16,13 @@ class X10DeviceBase:
         self._description = "Generic X10 device"
         self._model = ""
 
-        self._states = {}
+        self._groups = {}
         self._handlers = {}
         self._managers = {}
         self._events = {}
 
         self._register_handlers_and_managers()
-        self._register_states()
+        self._register_groups()
         self._register_events()
         self._subscribe_to_handelers_and_managers()
 
@@ -48,9 +48,24 @@ class X10DeviceBase:
         return self._address.id
 
     @property
-    def states(self):
-        """Return the device states/groups."""
-        return self._states
+    def cat(self):
+        """Return a fake Insteon device category."""
+        return 0xFF
+
+    @property
+    def subcat(self):
+        """Return a fake Insteon device subcategory."""
+        return 0xFF
+
+    @property
+    def firmware(self):
+        """Return a fake Insteon device firmware."""
+        return 0xFF
+
+    @property
+    def groups(self):
+        """Return the device groups/groups."""
+        return self._groups
 
     @property
     def aldb(self):
@@ -119,11 +134,11 @@ class X10DeviceBase:
     def _register_handlers_and_managers(self):
         """Register handlers and managers."""
 
-    def _register_states(self):
-        """Register states."""
+    def _register_groups(self):
+        """Register groups."""
 
     def _register_events(self):
         """Register events."""
 
     def _subscribe_to_handelers_and_managers(self):
-        """Subscribe states and events to handlers and managers."""
+        """Subscribe groups and events to handlers and managers."""

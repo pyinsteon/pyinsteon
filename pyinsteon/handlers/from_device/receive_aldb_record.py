@@ -1,11 +1,12 @@
 """Handle sending a read request for ALDB records."""
 import logging
-from ..inbound_base import InboundHandlerBase
-from ...topics import EXTENDED_READ_WRITE_ALDB
+
 from .. import inbound_handler
 from ...address import Address
 from ...protocol.messages.user_data import UserData
+from ...topics import EXTENDED_READ_WRITE_ALDB
 from ...utils import build_topic
+from ..inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
 

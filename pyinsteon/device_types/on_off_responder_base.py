@@ -1,12 +1,12 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
+from ..events import OFF_EVENT, ON_EVENT
+from ..groups import ON_OFF_SWITCH
 from ..handlers.to_device.off import OffCommand
-from ..handlers.to_device.on_level import OnLevelCommand
-from ..handlers.to_device.on_fast import OnFastCommand
 from ..handlers.to_device.off_fast import OffFastCommand
-from .commands import OFF_COMMAND, ON_COMMAND, OFF_FAST_COMMAND, ON_FAST_COMMAND
+from ..handlers.to_device.on_fast import OnFastCommand
+from ..handlers.to_device.on_level import OnLevelCommand
+from .commands import OFF_COMMAND, OFF_FAST_COMMAND, ON_COMMAND, ON_FAST_COMMAND
 from .on_off_controller_base import OnOffControllerBase
-from ..states import ON_OFF_SWITCH
-from ..events import ON_EVENT, OFF_EVENT
 
 
 class OnOffResponderBase(OnOffControllerBase):
@@ -80,18 +80,18 @@ class OnOffResponderBase(OnOffControllerBase):
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         for group in self._buttons:
-            if self._states.get(group):
+            if self._groups.get(group):
                 self._handlers[group][ON_COMMAND].subscribe(
-                    self._states[group].set_value
+                    self._groups[group].set_value
                 )
                 self._handlers[group][OFF_COMMAND].subscribe(
-                    self._states[group].set_value
+                    self._groups[group].set_value
                 )
                 self._handlers[group][ON_FAST_COMMAND].subscribe(
-                    self._states[group].set_value
+                    self._groups[group].set_value
                 )
                 self._handlers[group][OFF_FAST_COMMAND].subscribe(
-                    self._states[group].set_value
+                    self._groups[group].set_value
                 )
 
             if self._on_event_name:
@@ -109,6 +109,3 @@ class OnOffResponderBase(OnOffControllerBase):
             if self._off_fast_event_name:
                 event = self._events[group][self._off_fast_event_name]
                 self._handlers[group][OFF_FAST_COMMAND].subscribe(event.trigger)
-
-    def _register_default_links(self):
-        pass

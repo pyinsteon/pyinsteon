@@ -3,8 +3,10 @@ import asyncio
 from binascii import unhexlify
 from collections import namedtuple
 from functools import wraps
+from random import randint
 
 from pyinsteon import pub
+from pyinsteon.address import Address
 from pyinsteon.protocol.messages.inbound import create
 from tests import _LOGGER_MESSAGES
 
@@ -145,3 +147,14 @@ def get_class_or_method(main_module, name):
     for comp in components[1:]:
         mod = getattr(mod, comp)
     return mod
+
+
+def random_address():
+    """Generate a random address."""
+    address = ""
+    for _ in range(0, 3):
+        rand_int = randint(1, 255)
+        if address:
+            address = f"{address}."
+        address = f"{address}{rand_int:02x}"
+    return Address(address)

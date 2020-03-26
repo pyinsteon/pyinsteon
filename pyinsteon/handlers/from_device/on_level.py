@@ -1,9 +1,9 @@
 """Manage outbound ON command to a device."""
 
 from .. import broadcast_handler
-from .broadcast_command import BroadcastCommandHandlerBase
-from ...topics import ON
 from ...address import Address
+from ...topics import ON
+from .broadcast_command import BroadcastCommandHandlerBase
 
 
 class OnLevelInbound(BroadcastCommandHandlerBase):

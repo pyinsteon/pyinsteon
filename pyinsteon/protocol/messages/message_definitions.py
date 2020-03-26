@@ -3,21 +3,20 @@
 from collections import namedtuple
 
 from ...address import Address
-from .all_link_record_flags import AllLinkRecordFlags
-from .im_config_flags import IMConfigurationFlags
 from ...constants import (
-    MessageId,
-    ImButtonEvents,
+    AckNak,
     AllLinkMode,
     DeviceCategory,
+    ImButtonEvents,
     ManageAllLinkRecordAction,
-    AckNak,
+    MessageId,
     X10CommandType,
 )
-from .message_flags import MessageFlags
+from .all_link_record_flags import AllLinkRecordFlags
+from .im_config_flags import IMConfigurationFlags
 from .message_definition import MessageDefinition
+from .message_flags import MessageFlags
 from .user_data import UserData
-
 
 MessageField = namedtuple("MessageField", "name length type")
 

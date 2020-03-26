@@ -1,4 +1,5 @@
 """Security, Heath and Safety device types."""
+from ..default_link import DefaultLink
 from ..events import (
     ALL_CLEAR_EVENT,
     CLOSE_EVENT,
@@ -20,13 +21,22 @@ from ..events import (
     HeartbeatEvent,
     LowBatteryEvent,
 )
-from ..managers.heartbeat_manager import HeartbeatManager
-from ..managers.low_batter_manager import LowBatteryManager
-from ..managers.on_level_manager import OnLevelManager
-from ..managers.wet_dry_manager import WetDryManager
-from ..states import (
+from ..extended_property import (
+    AMBIENT_LIGHT_INTENSITY,
+    BATTERY_LEVEL,
+    BATTERY_LOW_LEVEL,
+    HARDWARE_LIGHT_SENSITIVITY,
+    HARDWARE_TIMEOUT,
+    HEARBEAT_INTERVAL,
+    LED_BRIGHTNESS,
+    LIGHT_SENSITIVITY,
+    MOTION_TIMEOUT,
+    SENSOR_STATUS,
+)
+from ..groups import (
     CO_SENSOR,
     DOOR_SENSOR,
+    HEARTBEAT,
     LEAK_SENSOR,
     LIGHT_SENSOR,
     LOW_BATTERY,
@@ -35,9 +45,34 @@ from ..states import (
     SENSOR_MALFUNCTION,
     SMOKE_SENSOR,
     TEST_SENSOR,
-    HEARTBEAT,
 )
-from ..states.on_off import Heartbeat, LowBattery, OnOff
+from ..groups.on_off import Heartbeat, LowBattery, OnOff
+from ..handlers.from_device.on_level import OnLevelInbound
+from ..managers.heartbeat_manager import HeartbeatManager
+from ..managers.low_batter_manager import LowBatteryManager
+from ..managers.on_level_manager import OnLevelManager
+from ..managers.wet_dry_manager import WetDryManager
+from ..operating_flag import (
+    CLEANUP_REPORT_ON,
+    DATABASE_DELTA,
+    HARDWARE_LED_OFF,
+    HARDWARE_NIGHT_MODE,
+    HARDWARE_SEND_ON_ONLY,
+    HEART_BEAT_ON,
+    IGNORE_JUMPER_ON,
+    LED_BLINK_ON_TX_ON,
+    LED_ON,
+    LINK_TO_FF_GROUP,
+    MULTI_SEND_ON,
+    NIGHT_MODE_ONLY,
+    PROGRAM_LOCK_ON,
+    REPEAT_CLOSED_ON,
+    REPEAT_OPEN_ON,
+    SEND_ON_ONLY,
+    SOFTWARE_SUPPORT_ON,
+    STAY_AWAKE_ON,
+    TWO_GROUPS_ON,
+)
 from .battery_base import BatteryDeviceBase
 from .device_base import Device
 from .on_off_controller_base import OnOffControllerBase
@@ -78,14 +113,14 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
         )
         self._heartbeat_manger = HeartbeatManager(self._address, self.HEARTBEAT_GROUP)
 
-    def _register_states(self):
-        """Register states for the Door Sensor."""
-        super()._register_states()
-        self._states[self.LOW_BATTERY_GROUP] = LowBattery(
+    def _register_groups(self):
+        """Register groups for the Door Sensor."""
+        super()._register_groups()
+        self._groups[self.LOW_BATTERY_GROUP] = LowBattery(
             name=LOW_BATTERY, address=self._address, group=self.LOW_BATTERY_GROUP
         )
 
-        self._states[self.HEARTBEAT_GROUP] = Heartbeat(
+        self._groups[self.HEARTBEAT_GROUP] = Heartbeat(
             name=HEARTBEAT, address=self._address, group=self.HEARTBEAT_GROUP
         )
 
@@ -104,32 +139,14 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         self._low_battery_manger.subscribe(
-            self._states[self.LOW_BATTERY_GROUP].set_value
+            self._groups[self.LOW_BATTERY_GROUP].set_value
         )
-        self._heartbeat_manger.subscribe_on(self._states[self.DOOR_GROUP].set_value)
-        self._heartbeat_manger.subscribe_off(self._states[self.DOOR_GROUP].set_value)
-        self._heartbeat_manger.subscribe(self._states[self.HEARTBEAT_GROUP].set_value)
+        self._heartbeat_manger.subscribe_on(self._groups[self.DOOR_GROUP].set_value)
+        self._heartbeat_manger.subscribe_off(self._groups[self.DOOR_GROUP].set_value)
+        self._heartbeat_manger.subscribe(self._groups[self.HEARTBEAT_GROUP].set_value)
 
     def _register_operating_flags(self):
         """Register operating flags for Door Sensor."""
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_ON,
-            TWO_GROUPS_ON,
-            LINK_TO_FF_GROUP,
-            REPEAT_CLOSED_ON,
-            REPEAT_OPEN_ON,
-            CLEANUP_REPORT_ON,
-            DATABASE_DELTA,
-            STAY_AWAKE_ON,
-        )
-        from ..extended_property import (
-            BATTERY_LEVEL,
-            SENSOR_STATUS,
-            HEARBEAT_INTERVAL,
-            BATTERY_LOW_LEVEL,
-        )
-
         super()._register_operating_flags()
 
         self._add_operating_flag(CLEANUP_REPORT_ON, 0, 1, 16, 17)
@@ -137,7 +154,7 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
         self._add_operating_flag(REPEAT_OPEN_ON, 0, 2, 0x10, 0x11)
         self._add_operating_flag(REPEAT_CLOSED_ON, 0, 3, 8, 9)
         self._add_operating_flag(LINK_TO_FF_GROUP, 0, 4, 6, 7)
-        self._add_operating_flag(LED_ON, 0, 5, 2, 3)
+        self._add_operating_flag(LED_ON, 0, 5, 2, 3, is_reversed=True)
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 7, 0, 1)
 
         self._add_operating_flag(STAY_AWAKE_ON, 0, 6, 18, 19)
@@ -150,8 +167,6 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
         self._add_property(name=BATTERY_LOW_LEVEL, data_field=6, set_cmd=3)
 
     def _register_default_links(self):
-        from ..default_link import DefaultLink
-
         super()._register_default_links()
         link_battery = DefaultLink(
             is_controller=True,
@@ -184,18 +199,6 @@ class SecurityHealthSafety_OpenCloseSensor(
 
     def _register_operating_flags(self):
         super()._register_operating_flags()
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_ON,
-            TWO_GROUPS_ON,
-            LINK_TO_FF_GROUP,
-            REPEAT_CLOSED_ON,
-            REPEAT_OPEN_ON,
-            CLEANUP_REPORT_ON,
-            IGNORE_JUMPER_ON,
-        )
-        from ..extended_property import LED_BRIGHTNESS
-
         self._add_property(name=LED_BRIGHTNESS, data_field=3, set_cmd=0x02)
         self._add_property(name=CLEANUP_REPORT_ON, data_field=6, set_cmd=0x05, bit=0)
         self._add_property(name=IGNORE_JUMPER_ON, data_field=6, set_cmd=0x05, bit=1)
@@ -233,17 +236,17 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
             off_event_name=MOTION_TIMEOUT_EVENT,
         )
 
-    def _register_states(self):
-        """Register states for the Door Sensor."""
-        super()._register_states()
+    def _register_groups(self):
+        """Register groups for the Door Sensor."""
+        super()._register_groups()
         # This list state may be reversed where 0x11 means no light and 0x13 means light
-        self._states[self.LIGHT_GROUP] = OnOff(
+        self._groups[self.LIGHT_GROUP] = OnOff(
             LIGHT_SENSOR, self._address, self.LIGHT_GROUP
         )
-        self._states[self.LOW_BATTERY_GROUP] = LowBattery(
+        self._groups[self.LOW_BATTERY_GROUP] = LowBattery(
             LOW_BATTERY, self._address, self.LOW_BATTERY_GROUP
         )
-        self._states[self.HEARTBEAT_GROUP] = Heartbeat(
+        self._groups[self.HEARTBEAT_GROUP] = Heartbeat(
             HEARTBEAT, self._address, self.HEARTBEAT_GROUP
         )
 
@@ -268,11 +271,11 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-        self._light_manager.subscribe(self._states[self.LIGHT_GROUP].set_value)
+        self._light_manager.subscribe(self._groups[self.LIGHT_GROUP].set_value)
         self._low_battery_manager.subscribe(
-            self._states[self.LOW_BATTERY_GROUP].set_value
+            self._groups[self.LOW_BATTERY_GROUP].set_value
         )
-        self._heartbeat_manager.subscribe(self._states[self.HEARTBEAT_GROUP].set_value)
+        self._heartbeat_manager.subscribe(self._groups[self.HEARTBEAT_GROUP].set_value)
 
         self._light_manager.subscribe_on(
             self._events[self.LIGHT_GROUP][LIGHT_DETECTED_EVENT].trigger
@@ -289,26 +292,6 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
 
     def _register_operating_flags(self):
         super()._register_operating_flags()
-        from ..operating_flag import (
-            LED_ON,
-            SEND_ON_ONLY,
-            NIGHT_MODE_ONLY,
-            MULTI_SEND_ON,
-            SOFTWARE_SUPPORT_ON,
-            HARDWARE_SEND_ON_ONLY,
-            HARDWARE_NIGHT_MODE,
-            HARDWARE_LED_OFF,
-        )
-        from ..extended_property import (
-            LED_BRIGHTNESS,
-            MOTION_TIMEOUT,
-            LIGHT_SENSITIVITY,
-            HARDWARE_TIMEOUT,
-            HARDWARE_LIGHT_SENSITIVITY,
-            AMBIENT_LIGHT_INTENSITY,
-            BATTERY_LEVEL,
-        )
-
         self._add_property(name=LED_BRIGHTNESS, data_field=3, set_cmd=0x02)
         self._add_property(name=MOTION_TIMEOUT, data_field=4, set_cmd=0x03)
         self._add_property(name=LIGHT_SENSITIVITY, data_field=5, set_cmd=0x04)
@@ -332,8 +315,6 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
         self._add_property(name=BATTERY_LEVEL, data_field=12, set_cmd=None)
 
     def _register_default_links(self):
-        from ..default_link import DefaultLink
-
         super()._register_default_links()
         link_light = DefaultLink(
             is_controller=True,
@@ -387,8 +368,8 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
             self._address, self.HEARTBEAT_GROUP
         )
 
-    def _register_states(self):
-        """Register states for the Door Sensor."""
+    def _register_groups(self):
+        """Register groups for the Door Sensor."""
         # Group 1 is the Dry state. This uses the following definition:
         #   Dry = Closed
         #   Wet = Open
@@ -396,8 +377,8 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
         # When an ON message (0x11) is received for group 2 the sensor is wet.
         # Dry state is handled via the Dry event below
 
-        self._states[self.DRY_GROUP] = OnOff(LEAK_SENSOR, self._address, self.DRY_GROUP)
-        self._states[self.HEARTBEAT_GROUP] = Heartbeat(
+        self._groups[self.DRY_GROUP] = OnOff(LEAK_SENSOR, self._address, self.DRY_GROUP)
+        self._groups[self.HEARTBEAT_GROUP] = Heartbeat(
             HEARTBEAT, self._address, self.HEARTBEAT_GROUP
         )
 
@@ -416,7 +397,7 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
     def _subscribe_to_handelers_and_managers(self):
         """Subscribe to handlers and managers."""
         super()._subscribe_to_handelers_and_managers()
-        self._managers[self.DRY_GROUP].subscribe(self._states[self.DRY_GROUP].set_value)
+        self._managers[self.DRY_GROUP].subscribe(self._groups[self.DRY_GROUP].set_value)
 
         self._managers[self.DRY_GROUP].subscribe_dry(
             self._events[LEAK_DRY_EVENT].trigger
@@ -428,25 +409,13 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
             self._events[HEARTBEAT_EVENT].trigger
         )
         self._managers[self.HEARTBEAT_GROUP].subscribe_on(
-            self._states[self.DRY_GROUP].set_value
+            self._groups[self.DRY_GROUP].set_value
         )
         self._managers[self.HEARTBEAT_GROUP].subscribe_off(
-            self._states[self.DRY_GROUP].set_value
+            self._groups[self.DRY_GROUP].set_value
         )
 
     def _register_operating_flags(self):
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_ON,
-            TWO_GROUPS_ON,
-            LINK_TO_FF_GROUP,
-            REPEAT_CLOSED_ON,
-            REPEAT_OPEN_ON,
-            CLEANUP_REPORT_ON,
-            IGNORE_JUMPER_ON,
-        )
-        from ..extended_property import LED_BRIGHTNESS
-
         # bit 0 = Cleanup Report
         # bit 1 = Don’t Read the Jumper
         # bit 2 = 2 Groups
@@ -469,8 +438,6 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
         self._add_property(name=PROGRAM_LOCK_ON, data_field=6, set_cmd=5, bit=7)
 
     def _register_default_links(self):
-        from ..default_link import DefaultLink
-
         super()._register_default_links()
         link_dry = DefaultLink(
             is_controller=True,
@@ -520,8 +487,6 @@ class SecurityHealthSafety_Smokebridge(Device):
     HEARTBEAT_GROUP = 0x0A
 
     def _register_handlers_and_managers(self):
-        from ..handlers.from_device.on_level import OnLevelInbound
-
         super()._register_handlers_and_managers()
         self._handlers[self.SMOKE_DETECTED_GROUP] = OnLevelInbound(
             self._address, self.SMOKE_DETECTED_GROUP
@@ -546,26 +511,26 @@ class SecurityHealthSafety_Smokebridge(Device):
             self._address, self.HEARTBEAT_GROUP
         )
 
-    def _register_states(self):
-        self._states[self.SMOKE_DETECTED_GROUP] = OnOff(
+    def _register_groups(self):
+        self._groups[self.SMOKE_DETECTED_GROUP] = OnOff(
             SMOKE_SENSOR, self._address, self.SMOKE_DETECTED_GROUP
         )
-        self._states[self.CO_DETECTED_GROUP] = OnOff(
+        self._groups[self.CO_DETECTED_GROUP] = OnOff(
             CO_SENSOR, self._address, self.CO_DETECTED_GROUP
         )
-        self._states[self.TEST_DETECTED_GROUP] = OnOff(
+        self._groups[self.TEST_DETECTED_GROUP] = OnOff(
             TEST_SENSOR, self._address, self.TEST_DETECTED_GROUP
         )
-        self._states[self.NEW_DETECTED_GROUP] = OnOff(
+        self._groups[self.NEW_DETECTED_GROUP] = OnOff(
             NEW_SENSOR, self._address, self.NEW_DETECTED_GROUP
         )
-        self._states[self.LOW_BATTERY_GROUP] = LowBattery(
+        self._groups[self.LOW_BATTERY_GROUP] = LowBattery(
             LOW_BATTERY, self._address, self.LOW_BATTERY_GROUP
         )
-        self._states[self.SMOKE_DETECTED_GROUP] = OnOff(
+        self._groups[self.SMOKE_DETECTED_GROUP] = OnOff(
             SENSOR_MALFUNCTION, self._address, self.SENSOR_MALFUNCTION_GROUP
         )
-        self._states[self.HEARTBEAT_GROUP] = Heartbeat(
+        self._groups[self.HEARTBEAT_GROUP] = Heartbeat(
             SENSOR_MALFUNCTION, self._address, self.HEARTBEAT_GROUP
         )
 
@@ -599,35 +564,35 @@ class SecurityHealthSafety_Smokebridge(Device):
         super()._subscribe_to_handelers_and_managers()
 
         self._handlers[self.SMOKE_DETECTED_GROUP].subscribe(
-            self._states[self.SMOKE_DETECTED_GROUP].set_value
+            self._groups[self.SMOKE_DETECTED_GROUP].set_value
         )
         self._handlers[self.SMOKE_DETECTED_GROUP].subscribe(
             self._events[self.SMOKE_DETECTED_GROUP].trigger
         )
 
         self._handlers[self.CO_DETECTED_GROUP].subscribe(
-            self._states[self.CO_DETECTED_GROUP].set_value
+            self._groups[self.CO_DETECTED_GROUP].set_value
         )
         self._handlers[self.CO_DETECTED_GROUP].subscribe(
             self._events[self.CO_DETECTED_GROUP].trigger
         )
 
         self._handlers[self.TEST_DETECTED_GROUP].subscribe(
-            self._states[self.TEST_DETECTED_GROUP].set_value
+            self._groups[self.TEST_DETECTED_GROUP].set_value
         )
         self._handlers[self.TEST_DETECTED_GROUP].subscribe(
             self._events[self.TEST_DETECTED_GROUP].trigger
         )
 
         self._handlers[self.NEW_DETECTED_GROUP].subscribe(
-            self._states[self.NEW_DETECTED_GROUP].set_value
+            self._groups[self.NEW_DETECTED_GROUP].set_value
         )
         self._handlers[self.NEW_DETECTED_GROUP].subscribe(
             self._events[self.NEW_DETECTED_GROUP].trigger
         )
 
         self._handlers[self.SENSOR_MALFUNCTION_GROUP].subscribe(
-            self._states[self.SENSOR_MALFUNCTION_GROUP].set_value
+            self._groups[self.SENSOR_MALFUNCTION_GROUP].set_value
         )
         self._handlers[self.SENSOR_MALFUNCTION_GROUP].subscribe(
             self._events[self.SENSOR_MALFUNCTION_GROUP].trigger
@@ -640,33 +605,27 @@ class SecurityHealthSafety_Smokebridge(Device):
 
     def _all_clear_received(self, on_level):
         """All-Clear message received."""
-        if self._states[self.SMOKE_DETECTED_GROUP].value:
-            self._states[self.SMOKE_DETECTED_GROUP].set_value(0)
-        if self._states[self.CO_DETECTED_GROUP].value:
-            self._states[self.CO_DETECTED_GROUP].set_value(0)
-        if self._states[self.TEST_DETECTED_GROUP].value:
-            self._states[self.TEST_DETECTED_GROUP].set_value(0)
-        if self._states[self.NEW_DETECTED_GROUP].value:
-            self._states[self.NEW_DETECTED_GROUP].set_value(0)
-        if self._states[self.SENSOR_MALFUNCTION_GROUP].value:
-            self._states[self.SENSOR_MALFUNCTION_GROUP].set_value(0)
+        if self._groups[self.SMOKE_DETECTED_GROUP].value:
+            self._groups[self.SMOKE_DETECTED_GROUP].set_value(0)
+        if self._groups[self.CO_DETECTED_GROUP].value:
+            self._groups[self.CO_DETECTED_GROUP].set_value(0)
+        if self._groups[self.TEST_DETECTED_GROUP].value:
+            self._groups[self.TEST_DETECTED_GROUP].set_value(0)
+        if self._groups[self.NEW_DETECTED_GROUP].value:
+            self._groups[self.NEW_DETECTED_GROUP].set_value(0)
+        if self._groups[self.SENSOR_MALFUNCTION_GROUP].value:
+            self._groups[self.SENSOR_MALFUNCTION_GROUP].set_value(0)
 
     def _register_operating_flags(self):
-        from ..operating_flag import (
-            PROGRAM_LOCK_ON,
-            LED_BLINK_ON_TX_ON,
-            LED_OFF,
-            HEART_BEAT_ON,
-            CLEANUP_REPORT_ON,
-        )
-
         self._add_operating_flag(
             name=PROGRAM_LOCK_ON, group=0, bit=0, set_cmd=0, unset_cmd=1
         )
         self._add_operating_flag(
             name=LED_BLINK_ON_TX_ON, group=0, bit=1, set_cmd=2, unset_cmd=3
         )
-        self._add_operating_flag(name=LED_OFF, group=0, bit=4, set_cmd=8, unset_cmd=9)
+        self._add_operating_flag(
+            name=LED_ON, group=0, bit=4, set_cmd=8, unset_cmd=9, is_reversed=True
+        )
         self._add_operating_flag(
             name=HEART_BEAT_ON, group=0, bit=5, set_cmd=6, unset_cmd=7
         )
@@ -675,8 +634,6 @@ class SecurityHealthSafety_Smokebridge(Device):
         )
 
     def _register_default_links(self):
-        from ..default_link import DefaultLink
-
         super()._register_default_links()
 
         link_smoke = DefaultLink(

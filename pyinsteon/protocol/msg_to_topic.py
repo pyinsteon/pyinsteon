@@ -1,5 +1,7 @@
 """Convert a message to a topic and an args, kwargs arguments."""
 import logging
+
+from ..constants import MessageFlagType
 from ..topics import (
     ALL_LINK_CLEANUP_FAILURE_REPORT,
     ALL_LINK_CLEANUP_STATUS_REPORT,
@@ -28,9 +30,9 @@ from ..topics import (
     X10_RECEIVED,
     X10_SEND,
 )
+from ..utils import build_topic
 from .commands import commands
 from .messages.inbound import Inbound
-from ..utils import build_topic
 
 MSG_CONVERTER = {}
 _LOGGER = logging.getLogger(__name__)
@@ -55,8 +57,6 @@ def _msg_group(message_type, target, cmd2, user_data):
         ALL_LINK_BROADCAST = 6: Not applicable
         ALL_LINK_CLEANUP_NAK = 7: Not applicable
     """
-    from ..constants import MessageFlagType
-
     if message_type == MessageFlagType.DIRECT:
         if user_data:
             return user_data["d1"]
@@ -88,7 +88,7 @@ def _create_rcv_std_ext_msg(topic, address, flags, cmd1, cmd2, target, user_data
 
 def standard_received(msg: Inbound) -> (str, {}):
     """Create a topic from a STANDARD_RECEIVED message."""
-    for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags.is_extended):
+    for topic in commands.get_topics(msg.cmd1, msg.cmd2, None):
         yield _create_rcv_std_ext_msg(
             topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, None
         )
@@ -96,7 +96,7 @@ def standard_received(msg: Inbound) -> (str, {}):
 
 def extended_received(msg: Inbound) -> (str, {}):
     """Create a topic from a EXTENDED_RECEIVED message."""
-    for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags.is_extended):
+    for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.user_data):
         yield _create_rcv_std_ext_msg(
             topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, msg.user_data
         )
@@ -207,7 +207,8 @@ def send_standard_or_extended_message(msg: Inbound) -> (str, {}):
     user_data = msg.user_data if msg.flags.is_extended else None
 
     found_topic = False
-    for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags.is_extended):
+    user_data = None if not hasattr(msg, "user_data") else msg.user_data
+    for topic in commands.get_topics(msg.cmd1, msg.cmd2, user_data):
         found_topic = True
         yield _create_send_std_ext(
             topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, user_data, msg.ack

@@ -1,11 +1,11 @@
-from binascii import unhexlify
-from tests import _LOGGER, set_log_levels
-import unittest
 import sys
-
+import unittest
 from binascii import hexlify, unhexlify
-from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
+
 from pyinsteon.constants import AllLinkMode
+from pyinsteon.protocol.messages.all_link_record_flags import \
+    AllLinkRecordFlags
+from tests import _LOGGER, set_log_levels
 
 
 class TestAllLinkRecordFlags(unittest.TestCase):
@@ -26,7 +26,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         self.flags_C2 = AllLinkRecordFlags(unhexlify(self.hex_data_C2))
         self.flags_FF = AllLinkRecordFlags(unhexlify(self.hex_data_FF))
         set_log_levels(
-            logger="debug",
+            logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,

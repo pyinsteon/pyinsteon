@@ -1,6 +1,8 @@
 """Extended Message User Data Type."""
-import logging
 import binascii
+import logging
+
+from ...utils import vars_to_string
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -129,8 +131,6 @@ class UserData:
 
     def __str__(self):
         """Emit the user data in human readable format."""
-        from ...utils import vars_to_string
-
         data = []
         for index in range(1, 15):
             key = "d{}".format(index)
@@ -163,18 +163,17 @@ class UserData:
         for index in range(1, 14):
             data_sum += self._user_data["d{:d}".format(index)]
         chksum = 0xFF - (data_sum & 0xFF) + 1
-        self._user_data["d14"] = chksum
+        self._user_data["d14"] = chksum & 0xFF
 
     def set_crc(self, cmd1: int, cmd2: int):
         """Set Userdata[13] and Userdata[14] to the CRC value."""
-        data1 = bytes(cmd1)
-        data2 = bytes(cmd2)
-        data3 = bytes(self)[0:13]
+        data1 = bytes([cmd1])
+        data2 = bytes([cmd2])
+        data3 = bytes(self)[0:12]
         data = b"".join([data1, data2, data3])
         crc = int(0)
         for curr_byte in data:
-            # pylint: disable=unused-variable
-            for bit in range(0, 8):
+            for _ in range(0, 8):
                 fbit = curr_byte & 0x01
                 fbit = fbit ^ 0x01 if (crc & 0x8000) else fbit
                 fbit = fbit ^ 0x01 if (crc & 0x4000) else fbit
