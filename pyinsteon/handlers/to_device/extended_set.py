@@ -36,6 +36,7 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
         data12=0,
         data13=0,
         data14=0,
+        priority=5,
     ):
         """Send Get Operating Flags message asyncronously."""
         kwargs = {"data1": self._data1, "data2": self._data2}
@@ -47,7 +48,7 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
                 _LOGGER.error("Property value must be an integer")
             else:
                 kwargs["data{}".format(item)] = data
-        return await super().async_send(**kwargs)
+        return await super().async_send(priority=5, **kwargs)
 
     @ack_handler(wait_response=True)
     def handle_ack(self, cmd1, cmd2, user_data):
