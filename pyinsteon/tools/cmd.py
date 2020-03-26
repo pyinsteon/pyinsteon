@@ -26,6 +26,30 @@ def _convert_val(val):
     return val
 
 
+def _parse_cmd(*args):
+    try:
+        address = args[0]
+        if not devices[address]:
+            raise IndexError
+    except IndexError:
+        return None, None, {}
+
+    try:
+        cmd = args[1]
+        if not hasattr(devices[address], cmd):
+            raise AttributeError
+    except IndexError:
+        return address, None, {}
+
+    kwargs = {}
+    for arg in args[2:]:
+        kwarg, val = arg.split("=")
+        val = _convert_val(val)
+        kwargs[kwarg] = val
+
+    return address, cmd, kwargs
+
+
 class CmdTools(ToolsBase):
     """Tools to run device commands."""
 
@@ -149,7 +173,7 @@ class CmdTools(ToolsBase):
 
         args = args[0].split()
         try:
-            address, cmd, kwargs = self._parse_cmd(*args)
+            address, cmd, kwargs = _parse_cmd(*args)
         except AttributeError:
             self._log_stdout(f"Device command not found.")
             return
@@ -242,26 +266,3 @@ class CmdTools(ToolsBase):
                 self._log_stdout("")
                 header = f"Available commands for device {str(device.address)}:"
                 self.print_topics(header, methods, 15, 80)
-
-    def _parse_cmd(self, *args):
-        try:
-            address = args[0]
-            if not devices[address]:
-                raise IndexError
-        except IndexError:
-            return None, None, {}
-
-        try:
-            cmd = args[1]
-            if not hasattr(devices[address], cmd):
-                raise AttributeError
-        except IndexError:
-            return address, None, {}
-
-        kwargs = {}
-        for arg in args[2:]:
-            kwarg, val = arg.split("=")
-            val = _convert_val(val)
-            kwargs[kwarg] = val
-
-        return address, cmd, kwargs
