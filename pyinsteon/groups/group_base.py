@@ -41,7 +41,10 @@ class GroupBase(SubscriberBase):
     def value(self, value):
         """Set the value of the state."""
         try:
-            self._value = self._type(value) if value is not None else None
+            value = self._type(value) if value is not None else None
+            if self._value == value:
+                return
+            self._value = value
         except TypeError:
             raise TypeError(
                 "Error setting value of State {}: "
