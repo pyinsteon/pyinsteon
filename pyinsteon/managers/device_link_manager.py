@@ -80,4 +80,6 @@ class DeviceLinkManager:
                         device_r.groups[1].value = rec.data1
 
         for addr in responders:
-            self._devices[addr].status()
+            device = self._devices[addr]
+            if device:
+                device.status()
