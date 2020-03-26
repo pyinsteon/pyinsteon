@@ -3,6 +3,7 @@ from .group_base import GroupBase
 from ..address import Address
 from ..extended_property import ExtendedProperty
 from ..constants import ThermostatMode
+from ..utils import to_fahrenheit
 
 
 class Temperature(GroupBase):
@@ -18,7 +19,6 @@ class Temperature(GroupBase):
     ):
         """Init the Temperature class."""
         super().__init__(name, address, group, default, value_type=float)
-        print("Made a new temperature object")
         self._is_celsius = celsius
 
     @property
@@ -39,11 +39,14 @@ class Temperature(GroupBase):
     @property
     def value(self):
         """Return the temperature value."""
-        return self._calc_fahrenheit() if self.is_fahrenheit else self._value
+        return to_fahrenheit(self._value) if self.is_fahrenheit else self._value
 
     @value.setter
     def value(self, value):
-        """Set the temperature value."""
+        """Set the temperature value.
+
+        Value must be in celsius regardless of thermostat setting.
+        """
         try:
             self._value = self._type(value) if value is not None else None
         except TypeError:
@@ -58,10 +61,6 @@ class Temperature(GroupBase):
                 value=self._value,
                 group=self._group,
             )
-
-    def _calc_fahrenheit(self):
-        """Calculate the temperature in Fahrenheit."""
-        return self._value * 9 / 5 + 32
 
 
 class Humidity(GroupBase):
