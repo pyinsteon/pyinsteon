@@ -52,7 +52,7 @@ from ..operating_flag import (
 )
 from .commands import STATUS_COMMAND
 from .device_base import Device
-from ..utils import multiple_status
+from ..utils import multiple_status, to_celsius
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -191,14 +191,10 @@ class Thermostat(Device):
         """Subscribe to handlers and managers."""
         self._handlers["status_response"].subscribe(self._status_received)
         self._handlers["set_point_response"].subscribe(self._set_point_received)
-        self._handlers["cool_set_point_handler"].subscribe(
-            self._cool_set_point_received
-        )
-        self._handlers["heat_set_point_handler"].subscribe(
-            self._heat_set_point_received
-        )
-        self._handlers["humidity_handler"].subscribe(self._humidity_received)
-        self._handlers["temperature_handler"].subscribe(self._temperature_received)
+        self._handlers["cool_set_point_handler"].subscribe(self._groups[1].set_value)
+        self._handlers["heat_set_point_handler"].subscribe(self._groups[2].set_value)
+        self._handlers["humidity_handler"].subscribe(self._groups[11].set_value)
+        self._handlers["temperature_handler"].subscribe(self._temp_received)
         self._handlers["mode_handler"].subscribe(self._mode_received)
 
     def _register_default_links(self):
@@ -298,30 +294,20 @@ class Thermostat(Device):
         self._groups[3].set_value(humidity_high)
         self._groups[4].set_value(humidity_low)
 
-    def _cool_set_point_received(self, degrees):
-        """Receive cool set point notification."""
-        self._groups[COOL_SET_POINT].set_value(degrees)
-
-    def _heat_set_point_received(self, degrees):
-        """Receive heat set point notification."""
-        self._groups[HEAT_SET_POINT].set_value(degrees)
-
-    def _humidity_received(self, humidity):
-        """Receive current humidity notification."""
-        self._groups[HUMIDITY].set_value(humidity)
-
-    def _temperature_received(self, degrees):
-        """Receive current temperature notification."""
-        self._groups[TEMPERATURE].set_value(degrees)
-
     def _mode_received(self, mode):
         """Receive current temperature notification."""
         if mode == 0:
-            self._groups[SYSTEM_MODE].set_value(mode)
-            self._groups[FAN_MODE].set_value(mode)
+            self._groups[12].set_value(mode)
+            self._groups[13].set_value(mode)
 
         if mode in [ThermostatMode.COOL, ThermostatMode.HEAT, ThermostatMode.AUTO]:
-            self._groups[SYSTEM_MODE].set_value(mode)
+            self._groups[12].set_value(mode)
 
         if mode in [ThermostatMode.FAN_ALWAYS_ON, ThermostatMode.FAN_AUTO]:
-            self._groups[FAN_MODE].set_value(mode)
+            self._groups[13].set_value(mode)
+
+    def _temp_received(self, degrees):
+        """Receive temperature status update and convert to celsius if needed."""
+        if not self._operating_flags[CELSIUS].value:
+            degrees = to_celsius(degrees)
+        self._groups[10].value = degrees

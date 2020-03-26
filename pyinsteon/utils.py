@@ -255,6 +255,11 @@ def to_celsius(fahrenheit):
     return int(round((fahrenheit - 32) * 5 / 9, 0))
 
 
+def to_fahrenheit(celsius):
+    """Convert celsius to fahrenheit."""
+    return int(round(celsius * 9 / 5) + 32, 0)
+
+
 def publish_topic(topic, logger=None, **kwargs):
     """Publish a topic and log errors."""
     # Send log message as caller not utils.
