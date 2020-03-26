@@ -146,11 +146,10 @@ class FanSpeed(HexIntEnum):
 class RelayMode(HexIntEnum):
     """Relay mode used by Sensor Actuator device class 0x07."""
 
-    UNKNOWN = 0
-    LATCHING = 1
-    MOMENTARY_A = 2
-    MOMENTARY_B = 3
-    MOMENTARY_C = 4
+    LATCHING = 0
+    MOMENTARY_A = 1
+    MOMENTARY_B = 2
+    MOMENTARY_C = 3
 
 
 class X10Commands(HexIntEnum):
@@ -243,7 +242,7 @@ class RampRate(IntEnum):
     SEC_0_1 = 0x1F
 
 
-class ResponseStatus(IntEnum):
+class ResponseStatus(HexIntEnum):
     """Response status of an outbound message."""
 
     FAILURE = 0
