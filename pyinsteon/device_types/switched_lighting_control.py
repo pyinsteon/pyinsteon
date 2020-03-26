@@ -1,4 +1,5 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
+from functools import partial
 from typing import Iterable
 
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
@@ -46,6 +47,7 @@ from ..operating_flag import (
 from .commands import SET_LEDS_COMMAND, STATUS_COMMAND
 from .on_off_responder_base import OnOffResponderBase
 from ..utils import bit_is_set, set_bit
+from .on_off_controller_base import ON_LEVEL_MANAGER
 
 
 class SwitchedLightingControl(OnOffResponderBase):
@@ -197,14 +199,14 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         """Turn on the button LED."""
         if group in [0, 1]:
             return await super().async_on(group=group)
-        kwargs = self._change_led_status(led=group, on=True)
+        kwargs = self._change_led_status(led=group, is_on=True)
         return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
 
     async def async_off(self, group: int = 0):
         """Turn off the button LED."""
         if group in [0, 1]:
             return await super().async_off(group=group)
-        kwargs = self._change_led_status(led=group, on=False)
+        kwargs = self._change_led_status(led=group, is_on=False)
         return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
 
     async def async_set_radio_buttons(self, buttons: Iterable):
@@ -278,16 +280,41 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
+        for group in self._buttons:
+            if self._groups.get(group) is not None:
+                led_method = partial(self._led_follow_check, group=group)
+                self._managers[group][ON_LEVEL_MANAGER].subscribe(led_method)
 
-    def _change_led_status(self, led, on):
+    def _led_follow_check(self, group, on_level):
+        """Check the other LEDs to confirm if they follow the effected LED."""
+        for button in self._buttons:
+            if button == group:
+                continue
+            button_str = f"_{button}" if button != 1 else ""
+            on_mask = self._properties[f"{ON_MASK}{button_str}"]
+            off_mask = self._properties[f"{OFF_MASK}{button_str}"]
+            follow = bit_is_set(on_mask, group)
+            set_off = bit_is_set(off_mask, group)
+            if follow:
+                if set_off:
+                    self._groups[button].value = 0
+                else:
+                    self._groups[button].value = on_level
+
+    def _change_led_status(self, led, is_on):
         leds = {}
         for curr_led in range(1, 9):
             var = "group{}".format(curr_led)
-            leds[var] = on if curr_led == led else bool(self._groups.get(curr_led))
+            leds[var] = is_on if curr_led == led else bool(self._groups.get(curr_led))
         return leds
 
     def _update_leds(self, group, value):
-        self._groups[group].value = value
+        """Check if the LED is toggle or not and set value."""
+        non_toogle = bit_is_set(self._properties[NON_TOGGLE_MASK].value, group)
+        if non_toogle:
+            self._groups[group].value = 0
+        else:
+            self._groups[group].value = value
 
     def _register_operating_flags(self):
         """Register operating flags."""

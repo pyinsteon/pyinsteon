@@ -1,4 +1,5 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
+from functools import partial
 from typing import Iterable
 from ..constants import FanSpeed
 from ..extended_property import (
@@ -61,6 +62,7 @@ from .commands import (  # TRIGGER_SCENE_ON_COMMAND,; TRIGGER_SCENE_OFF_COMMAND,
     STATUS_COMMAND_FAN,
 )
 from ..utils import set_bit, bit_is_set
+from .variable_controller_base import ON_LEVEL_MANAGER
 
 
 class DimmableLightingControl(VariableResponderBase):
@@ -439,6 +441,26 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
+        for group in self._buttons:
+            if self._groups.get(group) is not None:
+                led_method = partial(self._led_follow_check, group=group)
+                self._managers[group][ON_LEVEL_MANAGER].subscribe(led_method)
+
+    def _led_follow_check(self, group, on_level):
+        """Check the other LEDs to confirm if they follow the effected LED."""
+        for button in self._buttons:
+            if button == group:
+                continue
+            button_str = f"_{button}" if button != 1 else ""
+            on_mask = self._properties[f"{ON_MASK}{button_str}"]
+            off_mask = self._properties[f"{OFF_MASK}{button_str}"]
+            follow = bit_is_set(on_mask, group)
+            set_off = bit_is_set(off_mask, group)
+            if follow:
+                if set_off:
+                    self._groups[button].value = 0
+                else:
+                    self._groups[button].value = on_level
 
     def _change_led_status(self, led, is_on):
         leds = {}
@@ -448,7 +470,12 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         return leds
 
     def _update_leds(self, group, value):
-        self._groups[group].value = value
+        """Check if the LED is toggle or not and set value."""
+        non_toogle = bit_is_set(self._properties[NON_TOGGLE_MASK].value, group)
+        if non_toogle:
+            self._groups[group].value = 0
+        else:
+            self._groups[group].value = value
 
     def _register_operating_flags(self):
         """Register operating flags."""
