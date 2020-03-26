@@ -318,11 +318,15 @@ class ToolsBase(Cmd):
             topic_logger = logging.getLogger("pyinsteon.topics")
             topic_logger.setLevel(logging.DEBUG)
 
-    async def do_device_status(self, *args, **kwargs):
-        """Display device statis.
+    async def do_status(self, *args, **kwargs):
+        """Display the status of a device.
 
         Usage:
-            device_status
+            status <address>|all y|n
+
+        address: Enter a single address or all for all devices
+        reload: y to request the device to send status or
+                n to use the current known status
         """
         args = args[0].split()
         try:

@@ -2,11 +2,7 @@
 
 from .. import devices
 from ..constants import ALDBStatus
-from ..managers.scene_manager import (
-    async_add_device_to_scene,
-    async_trigger_scene_off,
-    async_trigger_scene_on,
-)
+from ..managers.scene_manager import async_add_device_to_scene
 from ..utils import seconds_to_ramp_rate
 from .tools_base import ToolsBase
 
@@ -179,44 +175,6 @@ class ToolsAldb(ToolsBase):
         data2 = seconds_to_ramp_rate(data2_seconds)
         device = devices[addresses[0]]
         await async_add_device_to_scene(device, scene, data1, data2, data3)
-
-    async def do_test_scene_on(self, *args, **kwargs):
-        """Test a scene."""
-
-        args = args[0].split()
-        try:
-            scene = int(args[0])
-        except (IndexError, ValueError):
-            scene = None
-
-        if not scene:
-            scene = await self._get_int(
-                "Scene number or blank to cancel", values=range(25, 256),
-            )
-
-        if not scene:
-            return
-
-        await async_trigger_scene_on(scene)
-
-    async def do_test_scene_off(self, *args, **kwargs):
-        """Test a scene."""
-
-        args = args[0].split()
-        try:
-            scene = int(args[0])
-        except (IndexError, ValueError):
-            scene = None
-
-        if not scene:
-            scene = await self._get_int(
-                "Scene number or blank to cancel", values=range(25, 256),
-            )
-
-        if not scene:
-            return
-
-        await async_trigger_scene_off(scene)
 
     def do_print_aldb_load_status(self, *args, **kwargs):
         """Print the All-Link databbase load status for all devices."""

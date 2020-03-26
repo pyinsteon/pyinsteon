@@ -2,7 +2,7 @@
 
 from .tools_base import ToolsBase
 from .. import devices
-from ..constants import ResponseStatus
+from ..constants import ResponseStatus, RelayMode
 
 
 class ToolsConfig(ToolsBase):
@@ -313,3 +313,79 @@ class ToolsConfig(ToolsBase):
             return
 
         await device.async_set_radio_buttons(buttons=buttons)
+
+    async def do_set_iolinc_mode(self, *args, **kwargs):
+        """Set the mode of an IO Linc device.
+
+        Usage:
+            set_iolinc_mode address mode
+
+        address: IOLinc device address
+        mode: Trigger or Momentary A, B or C
+            0 - Latching (Continuous)
+            1 - Momentary A
+            2 - Momentary B
+            3 - Momentary C
+
+        for more information see the IOLinc user manual.
+        """
+        args = args[0].split()
+        try:
+            address = args[0]
+        except IndexError:
+            address = None
+
+        addresses = await self._get_addresses(
+            address, allow_cancel=True, allow_all=False
+        )
+        if not addresses:
+            return
+
+        device = devices[addresses[0]]
+        if not hasattr(device, "async_set_relay_mode"):
+            self._log_stdout("Device is not an IOLinc device")
+            return
+
+        try:
+            mode = int(args[1])
+            if mode not in [0, 1, 2, 3]:
+                raise ValueError
+        except (IndexError, ValueError):
+            mode = await self._get_int("Mode", values=[0, 1, 2, 3])
+
+        await device.async_set_relay_mode(mode=RelayMode(mode))
+
+    async def do_set_iolinc_delay(self, *args, **kwargs):
+        """Set the delay of an IO Linc device when in momentary mode.
+
+        Usage:
+            set_iolinc_delay address seconds
+
+        address: IOLinc device address
+        seconds: Integer number of seconds to delay before the relay is turned off
+
+        For more information see the IOLinc user manual.
+        """
+        args = args[0].split()
+        try:
+            address = args[0]
+        except IndexError:
+            address = None
+
+        addresses = await self._get_addresses(
+            address, allow_cancel=True, allow_all=False
+        )
+        if not addresses:
+            return
+
+        device = devices[addresses[0]]
+        if not hasattr(device, "async_set_momentary_delay"):
+            self._log_stdout("Device is not an IOLinc device")
+            return
+
+        try:
+            seconds = int(args[1])
+        except (IndexError, ValueError):
+            seconds = await self._get_int("Delay (seconds)")
+
+        await device.async_set_momentary_delay(seconds=seconds)

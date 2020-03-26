@@ -4,6 +4,7 @@ from .. import async_connect, async_close, devices
 from .tools_base import ToolsBase
 from .config import ToolsConfig
 from .aldb import ToolsAldb
+from .cmd import CmdTools
 from ..managers.link_manager import async_enter_linking_mode, async_enter_unlinking_mode
 
 
@@ -107,6 +108,11 @@ class InsteonCmd(ToolsBase):
         """Manage operational flags and extended properties."""
         self._log_command("manage_config")
         await self._call_next_menu(ToolsConfig, "config")
+
+    async def do_commands(self, *args, **kwargs):
+        """Execute device commands."""
+        self._log_command("tests")
+        await self._call_next_menu(CmdTools, "commands")
 
     async def do_add_device(self, *args, **kwargs):
         """Add a device."""
