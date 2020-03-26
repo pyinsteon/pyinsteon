@@ -11,6 +11,21 @@ from ..managers.scene_manager import (
 )
 
 
+def _convert_val(val):
+    if '"' not in val and "'" not in val:
+        try:
+            return int(val)
+        except ValueError:
+            val = val.strip('"').strip("'")
+    else:
+        val = val.strip('"').strip("'")
+    if val == "True":
+        return True
+    if val == "False":
+        return False
+    return val
+
+
 class CmdTools(ToolsBase):
     """Tools to run device commands."""
 
@@ -163,7 +178,7 @@ class CmdTools(ToolsBase):
                     if arg == "":
                         break
                     kwarg, val = arg.split("=")
-                    val = self._convert_val(val)
+                    val = _convert_val(val)
                     kwargs[kwarg] = val
 
         self._log_stdout(f"cmd {address} {cmd} {kwargs}")
@@ -246,21 +261,7 @@ class CmdTools(ToolsBase):
         kwargs = {}
         for arg in args[2:]:
             kwarg, val = arg.split("=")
-            val = self._convert_val(val)
+            val = _convert_val(val)
             kwargs[kwarg] = val
 
         return address, cmd, kwargs
-
-    def _convert_val(self, val):
-        if '"' not in val and "'" not in val:
-            try:
-                return int(val)
-            except ValueError:
-                val = val.strip('"').strip("'")
-        else:
-            val = val.strip('"').strip("'")
-        if val == "True":
-            return True
-        if val == "False":
-            return False
-        return val
