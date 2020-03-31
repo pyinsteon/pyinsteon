@@ -1,6 +1,7 @@
 """Utility methods."""
 import logging
 from enum import Enum, IntEnum
+import traceback
 from typing import Iterable
 
 from . import pub
@@ -242,6 +243,7 @@ def log_error(msg, ex, topic=None, kwargs=None):
     _LOGGER.error("MSG: %s", msg)
     _LOGGER.error("Topic: %s data: %s", topic, kwargs)
     _LOGGER.error("Error: %s", str(ex))
+    _LOGGER.debug(traceback.format_exc())
     if topic is not None:
         topic_mgr = pub.getDefaultTopicMgr()
         topic = topic_mgr.getTopic(topic, okIfNone=True)
