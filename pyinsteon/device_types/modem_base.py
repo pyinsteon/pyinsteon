@@ -151,6 +151,7 @@ class ModemBase(Device, metaclass=ABCMeta):
 
     def _register_handlers_and_managers(self):
         """Register command handlers for modems."""
+        super()._register_handlers_and_managers()
         self._handlers[GET_IM_CONFIG_COMMAND] = GetImConfigurationHandler()
         self._handlers[GET_IM_CONFIG_COMMAND].subscribe(self._update_flags)
 

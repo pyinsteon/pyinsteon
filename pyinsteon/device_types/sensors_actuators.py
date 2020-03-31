@@ -167,6 +167,7 @@ class SensorsActuators_IOLink(Device):
         self._add_property(X10_UNIT, 6, None)
 
     def _register_handlers_and_managers(self):
+        super()._register_handlers_and_managers()
         self._handlers[SWITCH_GROUP] = {}
         self._handlers[SWITCH_GROUP][ON_COMMAND] = OnLevelCommand(
             self._address, SWITCH_GROUP
@@ -211,6 +212,7 @@ class SensorsActuators_IOLink(Device):
         )
 
     def _subscribe_to_handelers_and_managers(self):
+        super()._subscribe_to_handelers_and_managers()
         switch_on_event = self._events[SWITCH_GROUP][ON_EVENT]
         switch_off_event = self._events[SWITCH_GROUP][OFF_EVENT]
         on_cmd = self._handlers[SWITCH_GROUP][ON_COMMAND]

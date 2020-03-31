@@ -150,6 +150,7 @@ class Thermostat(Device):
 
     def _register_handlers_and_managers(self):
         """Register thermostat handlers and managers."""
+        super()._register_handlers_and_managers()
         self._managers[STATUS_COMMAND] = GetThermostatStatus(self._address)
         self._handlers["status_response"] = ThermostatStatusResponseHandler(
             self._address
@@ -189,6 +190,7 @@ class Thermostat(Device):
 
     def _subscribe_to_handelers_and_managers(self):
         """Subscribe to handlers and managers."""
+        super()._subscribe_to_handelers_and_managers()
         self._handlers["status_response"].subscribe(self._status_received)
         self._handlers["set_point_response"].subscribe(self._set_point_received)
         self._handlers["cool_set_point_handler"].subscribe(self._groups[1].set_value)
@@ -196,6 +198,7 @@ class Thermostat(Device):
         self._handlers["humidity_handler"].subscribe(self._groups[11].set_value)
         self._handlers["temperature_handler"].subscribe(self._temp_received)
         self._handlers["mode_handler"].subscribe(self._mode_received)
+        self._operating_flags[CELSIUS].subscribe(self._temp_format_changed)
 
     def _register_default_links(self):
         """Register default links."""
@@ -311,3 +314,7 @@ class Thermostat(Device):
         if not self._operating_flags[CELSIUS].value:
             degrees = to_celsius(degrees)
         self._groups[10].value = degrees
+
+    def _temp_format_changed(self, name, value):
+        """Recieve notification that the thermostat has changed to/from C/F."""
+        self.status()
