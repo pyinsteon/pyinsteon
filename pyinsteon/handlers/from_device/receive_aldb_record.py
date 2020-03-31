@@ -23,7 +23,7 @@ class ReceiveALDBRecordHandler(InboundHandlerBase):
         self._address = Address(address)
         super().__init__(topic=EXTENDED_READ_WRITE_ALDB, address=self._address)
         self._subscriber_topic = build_topic(
-            prefix="handler.{}".format(self._address),
+            prefix="handler.{}".format(self._address.id),
             topic="aldb_record_received",
             message_type="direct",
         )

@@ -20,7 +20,7 @@ class SetLedsCommandHandler(ExtendedSetCommand):
         """Init the SetLedsCommandHandler class."""
         super().__init__(address=address, data1=0x01, data2=0x09)
         self._subscriber_topic = build_topic(
-            prefix="handler.{}".format(self._address),  # Force address
+            prefix="handler.{}".format(self._address.id),  # Force address
             topic="set_leds",
             message_type=MessageFlagType.DIRECT,
         )
