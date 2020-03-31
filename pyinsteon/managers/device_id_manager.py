@@ -4,9 +4,10 @@ import logging
 from collections import namedtuple
 
 from .. import pub
-from ..utils import subscribe_topic
+from ..utils import subscribe_topic, unsubscribe_topic
 from ..address import Address
 from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
+from ..handlers.all_link_completed import AllLinkCompletedHandler
 from ..handlers.from_device.delete_from_all_link_group import (
     DeleteFromAllLinkGroupCommand,
 )
@@ -33,6 +34,8 @@ class DeviceIdManager(SubscriberBase):
         # Cannot set queue here because we are outside the loop
         self._awake_devices_queue = None
         self._id_device_lock = asyncio.Lock()
+        self._all_link_complete = AllLinkCompletedHandler()
+        self._all_link_complete.subscribe(self._all_link_complete_received)
 
     def __getitem__(self, address):
         """Return the unknown device list."""
@@ -125,7 +128,7 @@ class DeviceIdManager(SubscriberBase):
             self._unknown_devices.remove(address)
         except ValueError:
             pass
-        pub.unsubscribe(self._device_awake, address.id)
+        unsubscribe_topic(self._device_awake, address.id)
         self._call_subscribers(device_id=device_id)
 
     def _set_device_info(
@@ -183,8 +186,12 @@ class DeviceIdManager(SubscriberBase):
         else:
             if address in self._awake_devices:
                 return
-            pub.unsubscribe(self._device_awake, address.id)
+            unsubscribe_topic(self._device_awake, address.id)
             self._awake_devices.append(address)
             if self._awake_devices_queue is None:
                 self._awake_devices_queue = asyncio.Queue()
             self._awake_devices_queue.put_nowait(address)
+
+    def _all_link_complete_received(self, mode, group, target, cat, subcat, firmware):
+        """Receive All-Link complete message."""
+        self._id_response(target, cat, subcat, firmware, group, mode)

@@ -1,6 +1,6 @@
 """Device manager."""
 import logging
-from asyncio import Lock
+import asyncio
 
 from ..address import Address
 from ..device_types.device_base import Device
@@ -26,7 +26,7 @@ class DeviceManager(SubscriberBase):
         self._modem = None
         self._id_manager = DeviceIdManager()
         self._id_manager.subscribe(self._device_identified)
-        self._loading_saved_lock = Lock()
+        self._loading_saved_lock = asyncio.Lock()
         self._link_manager = DeviceLinkManager(self)
 
     def __getitem__(self, address) -> Device:
@@ -169,4 +169,14 @@ class DeviceManager(SubscriberBase):
                 ):
                     return
             self[device_id.address] = device
+            if device_id.cat != 0x03:
+                asyncio.ensure_future(device.async_get_engine_version())
+                asyncio.ensure_future(self.async_setup_device(device))
             _LOGGER.debug("Device %s added", device.address)
+
+    async def async_setup_device(self, device):
+        """Set up device."""
+        await device.aldb.async_load(refresh=True)
+        await device.async_read_op_flags()
+        await device.async_read_ext_properties()
+        await device.async_add_default_links()
