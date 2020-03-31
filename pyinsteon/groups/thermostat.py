@@ -88,9 +88,9 @@ class SetPoint(GroupBase):
         super().__init__(name, address, group, default, value_type=float)
 
     # pylint: disable=arguments-differ
-    def set_value(self, set_point):
+    def set_value(self, degrees):
         """Set the Set Point value."""
-        self.value = set_point
+        self.value = degrees
 
 
 class SystemMode(GroupBase):
