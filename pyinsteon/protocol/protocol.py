@@ -133,6 +133,8 @@ class Protocol(asyncio.Protocol):
     # pylint: disable=broad-except
     def _publish_message(self, msg):
         _LOGGER_MSG.debug("RX: %s", repr(msg))
+        topic = None
+        kwargs = {}
         try:
             for (topic, kwargs) in convert_to_topic(msg):
                 if _is_nak(msg) and not _has_listeners(topic):
@@ -143,7 +145,7 @@ class Protocol(asyncio.Protocol):
             # No topic was found for this message
             _LOGGER.debug("No topic found for message %r", msg)
         except Exception as ex:
-            log_error(msg, ex)
+            log_error(msg, ex, topic=topic, kwargs=kwargs)
 
     def _write(self, msg, priority=5):
         """Prepare data for writing to the transport.
