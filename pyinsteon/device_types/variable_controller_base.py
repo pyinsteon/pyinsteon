@@ -88,13 +88,18 @@ class VariableControllerBase(Device):
         for group in self._buttons:
             if self._events.get(group) is None:
                 self._events[group] = {}
-            self._events[group][ON_EVENT] = Event(ON_EVENT, self._address, group)
-            self._events[group][OFF_EVENT] = Event(OFF_EVENT, self._address, group)
+            button = self._buttons[group]
+            self._events[group][ON_EVENT] = Event(
+                ON_EVENT, self._address, group, button
+            )
+            self._events[group][OFF_EVENT] = Event(
+                OFF_EVENT, self._address, group, button
+            )
             self._events[group][ON_FAST_EVENT] = Event(
-                ON_FAST_EVENT, self._address, group
+                ON_FAST_EVENT, self._address, group, button
             )
             self._events[group][OFF_FAST_EVENT] = Event(
-                OFF_FAST_EVENT, self._address, group
+                OFF_FAST_EVENT, self._address, group, button
             )
 
     def _subscribe_to_handelers_and_managers(self):

@@ -52,11 +52,12 @@ class Event(SubscriberBase):
     triggering the event.
     """
 
-    def __init__(self, name: str, address: Address, group=0):
+    def __init__(self, name: str, address: Address, group=0, button=""):
         """Init the Event class."""
         self._address = address  # Address(address)
         self._group = group
         self._name = name
+        self._button = button
         topic = "event_{}_{}_{}".format(self._address.id, group, name)
         super().__init__(subscriber_topic=topic)
 
@@ -75,10 +76,18 @@ class Event(SubscriberBase):
         """Name of the event."""
         return self._name
 
+    @property
+    def button(self):
+        """Return the button name."""
+        return self._button
+
     def trigger(self, on_level):
         """Trigger the event."""
         self._call_subscribers(
-            name=self._name, address=self._address.id, group=self._group
+            name=self._name,
+            address=self._address.id,
+            group=self._group,
+            button=self._button,
         )
 
 

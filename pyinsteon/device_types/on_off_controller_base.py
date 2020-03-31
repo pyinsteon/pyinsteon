@@ -84,24 +84,25 @@ class OnOffControllerBase(Device):
         super()._register_events()
         for group in self._buttons:
             self._events[group] = {}
+            button = self._buttons[group]
             if self._on_event_name:
                 self._events[group][self._on_event_name] = Event(
-                    self._on_event_name, self._address, group
+                    self._on_event_name, self._address, group, button
                 )
 
             if self._off_event_name:
                 self._events[group][self._off_event_name] = Event(
-                    self._off_event_name, self._address, group
+                    self._off_event_name, self._address, group, button
                 )
 
             if self._on_fast_event_name:
                 self._events[group][self._on_fast_event_name] = Event(
-                    self._on_fast_event_name, self._address, group
+                    self._on_fast_event_name, self._address, group, button
                 )
 
             if self._off_fast_event_name:
                 self._events[group][self._off_fast_event_name] = Event(
-                    self._off_fast_event_name, self._address, group
+                    self._off_fast_event_name, self._address, group, button
                 )
 
     def _subscribe_to_handelers_and_managers(self):
