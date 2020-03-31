@@ -13,7 +13,7 @@ class WetDryManager(SubscriberBase):
 
         def call_subscribers(self, wet):
             """Call subscribers of wet/dry events."""
-            self._call_subscribers(on_level=wet)
+            self._call_subscribers(wet=wet)
 
     def __init__(self, address, dry_group=1, wet_group=2):
         """Init the WetDryManager."""
@@ -24,11 +24,11 @@ class WetDryManager(SubscriberBase):
         super().__init__(subscriber_topic)
 
         self._dry_handler = OnLevelInbound(self._address, self._dry_group)
-        self._dry_events = self.WetDryEvent("{}.dry".format(subscriber_topic))
+        self._dry_events = self.WetDryEvent("{}_dry".format(subscriber_topic))
         self._dry_handler.subscribe(self._dry)
 
         self._wet_handler = OnLevelInbound(self._address, self._wet_group)
-        self._wet_events = self.WetDryEvent("{}.wet".format(subscriber_topic))
+        self._wet_events = self.WetDryEvent("{}_wet".format(subscriber_topic))
         self._wet_handler.subscribe(self._wet)
 
     def subscribe_dry(self, callback):
@@ -41,8 +41,8 @@ class WetDryManager(SubscriberBase):
 
     def _dry(self, on_level):
         """Dry event received."""
-        self._dry_events.call_subscribers(wet=0)
+        self._dry_events.call_subscribers(wet=False)
 
     def _wet(self, on_level):
         """Dry event received."""
-        self._wet_events.call_subscribers(wet=0xFF)
+        self._wet_events.call_subscribers(wet=True)
