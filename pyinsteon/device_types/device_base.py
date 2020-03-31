@@ -7,8 +7,10 @@ from datetime import datetime
 
 from ..address import Address
 from ..aldb import ALDB
+from ..constants import EngineVersion
 from ..default_link import DefaultLink
 from ..handlers.to_device.product_data_request import ProductDataRequestCommand
+from ..handlers.to_device.engine_version_request import EngineVersionRequest
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
 from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
 from ..managers.link_manager.default_links import async_add_default_links
@@ -42,6 +44,7 @@ class Device(ABC):
         self._model = model
         self._product_id = None
         self._is_battery = False
+        self._engine_version = EngineVersion.UNKNOWN
 
         self._last_communication_received = datetime(1, 1, 1, 1, 1, 1)
         self._product_data_in_aldb = False
@@ -157,6 +160,22 @@ class Device(ABC):
         """Return True if the device is battery operated."""
         return self._is_battery
 
+    @property
+    def engine_version(self):
+        """Return device engine version."""
+        return self._engine_version
+
+    @engine_version.setter
+    def engine_version(self, value: EngineVersion):
+        """Set the device engine version."""
+        try:
+            version = EngineVersion(value)
+        except ValueError:
+            version = EngineVersion.UNKNOWN
+        if version in [EngineVersion.I2, EngineVersion.I2CS]:
+            self._op_flags_manager.extended_write = True
+        self._engine_version = version
+
     def status(self, group=None):
         """Get the status of the device."""
         asyncio.ensure_future(self.async_status(group))
@@ -195,20 +214,28 @@ class Device(ABC):
 
     async def async_read_product_id(self):
         """Get the product ID."""
-        return await ProductDataRequestCommand(self._address).async_send()
+        return await self._handlers["product_data_cmd"].async_send()
 
     async def async_add_default_links(self):
         """Add the default links betweent he modem and the device."""
         return await async_add_default_links(self)
+
+    async def async_get_engine_version(self):
+        """Read the device engine version."""
+        return await self._handlers["engine_version_cmd"].async_send()
 
     def _register_groups(self):
         """Add the groups to the device."""
 
     def _register_handlers_and_managers(self):
         """Add all handlers to the device and register listeners."""
+        self._handlers["product_data_cmd"] = ProductDataRequestCommand(self._address)
+        self._handlers["engine_version_cmd"] = EngineVersionRequest(self._address)
 
     def _subscribe_to_handelers_and_managers(self):
         """Subscribe groups and events to handlers and managers."""
+        self._handlers["product_data_cmd"] = ProductDataRequestCommand(self._address)
+        self._handlers["engine_version_cmd"].subscribe(self._engine_version_received)
 
     def _register_default_links(self):
         """Add default links for linking the device to the modem."""
@@ -255,3 +282,13 @@ class Device(ABC):
         self._product_id = product_id
         # self._cat = cat
         # self._subcat = subcat
+
+    def _engine_version_received(self, engine_version):
+        """Receive engine version response."""
+        self.engine_version = engine_version
+
+    def _product_data_received(self, product_id, cat, subcat):
+        """Receive product data response."""
+        self._product_id = product_id
+        self._cat = cat
+        self._subcat = subcat

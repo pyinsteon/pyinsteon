@@ -116,6 +116,15 @@ class ALDBVersion(Enum):
     V2CS = 20
 
 
+class EngineVersion(HexIntEnum):
+    """Insteon Engine Version."""
+
+    I1 = 0x00
+    I2 = 0x01
+    I2CS = 0x02
+    UNKNOWN = 0x03
+
+
 class X10CommandType(HexIntEnum):
     """X10 command types."""
 

@@ -6,6 +6,7 @@ from os import path
 from aiofile import AIOFile
 
 from ..address import Address
+from ..constants import EngineVersion
 from ..aldb.aldb_record import ALDBRecord
 from ..x10_address import X10Address
 from .device_id_manager import DeviceId
@@ -23,11 +24,13 @@ def _dict_to_device(device_dict):
     cat = device_dict.get("cat")
     subcat = device_dict.get("subcat")
     firmware = device_dict.get("firmware")
+    engine_version = device_dict.get("engine_version", 3)
     operating_flags = device_dict.get("operating_flags", {})
     properties = device_dict.get("properties", {})
     device_id = DeviceId(address, cat, subcat, firmware)
     device = create_device(device_id)
     if device:
+        device.engine_version = engine_version
         aldb_records = _dict_to_aldb_record(aldb)
         device.aldb.load_saved_records(aldb_status, aldb_records)
         for flag in operating_flags:
@@ -76,6 +79,7 @@ def _device_to_dict(device_list):
                 "cat": device.cat,
                 "subcat": device.subcat,
                 "firmware": device.firmware,
+                "engine_version": int(device.engine_version),
                 "aldb_status": device.aldb.status.value,
                 "aldb": aldb,
                 "operating_flags": operating_flags,
@@ -117,17 +121,20 @@ def _dict_to_aldb_record(aldb_dict):
     return records
 
 
-def _convert_old_device_dict(old_device_dict):
+def _convert_old_device_dict(old_devices):
     """Convert insteonplm saved device file to new device file."""
-    new_device_dict = old_device_dict
-    old_product_key = old_device_dict.get("firmware")
-    old_product_key = old_device_dict.get("product_key", old_product_key)
-    new_device_dict["firmware"] = old_product_key
-    old_aldb_status = old_device_dict.get("aldb_status", 0)
-    old_aldb = new_device_dict.get("aldb", {})
-    new_device_dict["aldb_status"] = _convert_old_aldb_status(old_aldb_status)
-    new_device_dict["aldb"] = _convert_old_aldb(old_aldb)
-    return new_device_dict
+    new_devices = []
+    for device in old_devices:
+        new_device = device
+        old_product_key = device.get("firmware")
+        old_product_key = device.get("product_key", old_product_key)
+        new_device["firmware"] = old_product_key
+        old_aldb_status = device.get("aldb_status", 0)
+        old_aldb = device.get("aldb", {})
+        new_device["aldb_status"] = _convert_old_aldb_status(old_aldb_status)
+        new_device["aldb"] = _convert_old_aldb(old_aldb)
+        new_devices.append(new_device)
+    return new_devices
 
 
 def _convert_old_aldb_status(old_status):
@@ -211,6 +218,11 @@ class SavedDeviceManager:
                 device = _dict_to_device(saved_device)
                 if device:
                     device_list[address] = device
+                    if (
+                        device.engine_version == EngineVersion.UNKNOWN
+                        and device.cat != 0x03
+                    ):
+                        await device.async_get_engine_version()
                     _LOGGER.debug(
                         "Device with id %s added to device list "
                         "from saved device data.",
@@ -263,7 +275,7 @@ class SavedDeviceManager:
         """Load device information from the insteonplm device info file."""
         _LOGGER.debug("Loading insteonplm saved device info.")
 
-        saved_devices = []
+        saved_devices = {}
         if not self._workdir:
             _LOGGER.debug("Really Loading saved device info.")
             return saved_devices
@@ -279,4 +291,5 @@ class SavedDeviceManager:
                 _LOGGER.debug("Loading insteonplm saved device file failed")
         except FileNotFoundError:
             _LOGGER.debug("insteonplm saved device file not found")
+            return {}
         return _convert_old_device_dict(saved_devices)
