@@ -19,7 +19,7 @@ class SubscriberBase(ABC):
     def subscribe(self, callback: Callable, force_strong_ref=False):
         """Subscribe to the event."""
         if force_strong_ref and callback not in self._subscribers:
-            _LOGGER.error("Adding subscriber to persistant list")
+            _LOGGER.debug("Adding subscriber to persistant list")
             self._subscribers.append(callback)
         subscribe_topic(callback, self._subscriber_topic, _LOGGER)
 

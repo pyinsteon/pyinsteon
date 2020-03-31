@@ -60,12 +60,11 @@ class GetThermostatStatus:
         while not self._response_queue.empty():
             self._response_queue.get_nowait()
         response_set_point = await self._get_set_point_command.async_send()
-        _LOGGER.error("Set point command response: %s", response_set_point)
         if response_set_point == ResponseStatus.SUCCESS:
             try:
                 return await asyncio.wait_for(self._response_queue.get(), TIMEOUT)
             except asyncio.TimeoutError:
-                _LOGGER.error("Set point response timed out")
+                _LOGGER.debug("Set point response timed out")
                 return ResponseStatus.FAILURE
         return response_set_point
 
@@ -84,7 +83,6 @@ class GetThermostatStatus:
         heat_set_point,
     ):
         """Notify the read process that the resonse was received."""
-        _LOGGER.error("Status message received")
         self._response_queue.put_nowait(ResponseStatus.SUCCESS)
 
     def _set_point_received(
@@ -98,5 +96,4 @@ class GetThermostatStatus:
         rf_offset,
     ):
         """Notify read process that the st point response was received."""
-        _LOGGER.error("Set point message received")
         self._response_queue.put_nowait(ResponseStatus.SUCCESS)

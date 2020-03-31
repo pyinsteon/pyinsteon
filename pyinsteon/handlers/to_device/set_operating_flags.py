@@ -27,7 +27,7 @@ class SetOperatingFlagsCommand(DirectCommandHandlerBase):
         """Send Get Operating Flags message asyncronously."""
         cmd_response = await super().async_send(cmd=cmd, extended=extended)
         if cmd_response == ResponseStatus.UNCLEAR and not extended:
-            _LOGGER.error("Attempting resend with extended message")
+            _LOGGER.debug("Attempting resend with extended message")
             cmd_response = await super().async_send(cmd=cmd, extended=True)
         return cmd_response
 

@@ -40,5 +40,4 @@ class ThermostatGetSetPointCommand(DirectCommandHandlerBase):
             or not user_data["data2"] == 0x01
         ):
             return
-        _LOGGER.error("Extended Get message sent")
         super().handle_ack(cmd1, cmd2, user_data)

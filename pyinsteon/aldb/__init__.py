@@ -93,11 +93,11 @@ class ALDB(ALDBBase):
                     record.is_controller, record.group, record.target
                 )
                 if mem_addr is None:
-                    _LOGGER.error("Existing record not found")
+                    _LOGGER.debug("Existing record not found")
                     mem_addr = self._get_next_mem_addr()
-                    _LOGGER.error("Using new record %04x", mem_addr)
+                    _LOGGER.debug("Using new record %04x", mem_addr)
                 else:
-                    _LOGGER.error("Using existing record %04x", mem_addr)
+                    _LOGGER.debug("Using existing record %04x", mem_addr)
                 record.mem_addr = mem_addr
             # We assume a direct ACK is a confirmation of write.
             # Should we re-read to ensure it is correct.
@@ -105,7 +105,7 @@ class ALDB(ALDBBase):
             retries = 0
             while response != ResponseStatus.SUCCESS and retries < 3:
                 response = await self._write_manager.async_write(record)
-                _LOGGER.error("Response: %s", str(response))
+                _LOGGER.debug("Response: %s", str(response))
                 retries += 1
             if response == ResponseStatus.SUCCESS:
                 self._records[record.mem_addr] = record
@@ -236,10 +236,10 @@ class ALDB(ALDBBase):
             record = self._records[mem_addr]
             last_record = record
             if not record.is_in_use:
-                _LOGGER.error("Using the available record %04x", record.mem_addr)
+                _LOGGER.debug("Using the available record %04x", record.mem_addr)
                 return record.mem_addr
 
-        _LOGGER.error("Using the next vailable record %04x", record.mem_addr)
+        _LOGGER.debug("Using the next vailable record %04x", record.mem_addr)
         return last_record.mem_addr - 8
 
     def _calc_load_status(self):

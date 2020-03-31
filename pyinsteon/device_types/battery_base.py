@@ -17,14 +17,14 @@ TIMEOUT = 2
 async def _run_command(command):
     """Run an individual command."""
     if isinstance(command, partial):
-        _LOGGER.error("Command is a partial")
+        _LOGGER.debug("Command is a partial")
         if iscoroutine(command.func) or iscoroutinefunction(command.func):
-            _LOGGER.error("Command is a coroutine (partial)")
+            _LOGGER.debug("Command is a coroutine (partial)")
             return await command()
     if iscoroutine(command) or iscoroutinefunction(command):
-        _LOGGER.error("Command is a coroutine (not partial)")
+        _LOGGER.debug("Command is a coroutine (not partial)")
         return await command()
-    _LOGGER.error("Command is just a command")
+    _LOGGER.debug("Command is just a command")
     return command()
 
 
@@ -62,6 +62,10 @@ class BatteryDeviceBase:
         cmd = partial(command, **kwargs)
         self._commands_queue.put_nowait((cmd, retries))
 
+    def close(self):
+        """Close the command listener."""
+        self._commands_queue.put_nowait((None, None))
+
     async def async_read_op_flags(self):
         """Read the device operating flags."""
         self._run_on_wake(super(BatteryDeviceBase, self).async_read_op_flags)
@@ -73,6 +77,10 @@ class BatteryDeviceBase:
     async def async_read_ext_properties(self):
         """Get the device extended properties."""
         self._run_on_wake(super(BatteryDeviceBase, self).async_read_ext_properties)
+
+    async def async_get_engine_version(self):
+        """Read the device engine version."""
+        self._run_on_wake(super(BatteryDeviceBase, self).async_get_engine_version)
 
     async def async_add_default_links(self):
         """Add default links to the device."""
@@ -87,7 +95,7 @@ class BatteryDeviceBase:
         if self._commands_queue.empty():
             return
         if self._last_run is None or self._last_run.done():
-            _LOGGER.error("We have commands to run so let's get to it")
+            _LOGGER.debug("We have commands to run so let's get to it")
             self._last_run = asyncio.ensure_future(self._ensure_commands())
 
     async def _ensure_commands(self):
@@ -95,11 +103,11 @@ class BatteryDeviceBase:
         keep_awake_retry = 3
         while keep_awake_retry:
             result = await self.async_keep_awake()
-            _LOGGER.error("Keep awake result: %s", str(result))
+            _LOGGER.debug("Keep awake result: %s", str(result))
             if result == ResponseStatus.SUCCESS:
                 return await self._run_commands()
             keep_awake_retry -= 1
-            _LOGGER.error("Retries: %d", keep_awake_retry)
+            _LOGGER.debug("Retries: %d", keep_awake_retry)
             await asyncio.sleep(3)
 
     async def _run_commands(self):
@@ -110,8 +118,10 @@ class BatteryDeviceBase:
                 command, retries = await asyncio.wait_for(
                     self._commands_queue.get(), TIMEOUT
                 )
-                _LOGGER.error("got a command to run YAY")
-                _LOGGER.error(str(command))
+                _LOGGER.debug("got a command to run YAY")
+                _LOGGER.debug(str(command))
+                if command is None:
+                    return
                 result = await _run_command(command)
                 if result != ResponseStatus.SUCCESS and retries:
                     retry_cmds.append((command, retries - 1))

@@ -165,9 +165,7 @@ def _create_direct_message(
     flags = create_flags(flag_type, extended)
     if extended:
         if crc:
-            _LOGGER.error("Calc crc")
             user_data.set_crc(command.cmd1, cmd2)
-            _LOGGER.error("CRC: %02x %02x", user_data["d13"], user_data["d14"])
         else:
             user_data.set_checksum(command.cmd1, cmd2)
         send_extended(
@@ -461,7 +459,6 @@ def extended_get_set_2(
     for index in range(1, 15):
         data["d{}".format(index)] = items["data{}".format(index)]
     user_data = UserData(data)
-    _LOGGER.error("Creating EXTENDED_GET_SET_2 command")
     _create_direct_message(
         topic=topic, address=address, cmd2=0x02, user_data=user_data, crc=True
     )
