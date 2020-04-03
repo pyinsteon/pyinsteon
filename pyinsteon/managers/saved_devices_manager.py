@@ -17,6 +17,23 @@ OLD_DEVICE_INFO_FILE = "insteon_plm_device_info.dat"
 _LOGGER = logging.getLogger(__name__)
 
 
+def aldb_rec_to_dict(rec):
+    """Convert an All-Link Database Record to dictionary."""
+    return {
+        "memory": rec.mem_addr,
+        "in_use": rec.is_in_use,
+        "controller": rec.is_controller,
+        "high_water_mark": rec.is_high_water_mark,
+        "bit5": rec.is_bit5_set,
+        "bit4": rec.is_bit4_set,
+        "group": rec.group,
+        "target": rec.target.id,
+        "data1": rec.data1,
+        "data2": rec.data2,
+        "data3": rec.data3,
+    }
+
+
 def _dict_to_device(device_dict):
     address = Address(device_dict.get("address"))
     aldb_status = device_dict.get("aldb_status", 0)
@@ -31,7 +48,7 @@ def _dict_to_device(device_dict):
     device = create_device(device_id)
     if device:
         device.engine_version = engine_version
-        aldb_records = _dict_to_aldb_record(aldb)
+        aldb_records = dict_to_aldb_record(aldb)
         device.aldb.load_saved_records(aldb_status, aldb_records)
         for flag in operating_flags:
             value = operating_flags[flag]
@@ -53,21 +70,7 @@ def _device_to_dict(device_list):
             aldb = {}
             for mem in device.aldb:
                 rec = device.aldb[mem]
-                if rec:
-                    aldb_rec = {
-                        "memory": mem,
-                        "in_use": rec.is_in_use,
-                        "controller": rec.is_controller,
-                        "high_water_mark": rec.is_high_water_mark,
-                        "bit5": rec.is_bit5_set,
-                        "bit4": rec.is_bit4_set,
-                        "group": rec.group,
-                        "target": rec.target.id,
-                        "data1": rec.data1,
-                        "data2": rec.data2,
-                        "data3": rec.data3,
-                    }
-                    aldb[mem] = aldb_rec
+                aldb[mem] = aldb_rec_to_dict(rec)
             operating_flags = {}
             for flag in device.operating_flags:
                 operating_flags[flag] = device.operating_flags[flag].value
@@ -89,7 +92,8 @@ def _device_to_dict(device_list):
     return device_dict
 
 
-def _dict_to_aldb_record(aldb_dict):
+def dict_to_aldb_record(aldb_dict):
+    """Convert a dictionary to an ALDB record."""
     records = {}
     for mem_addr in aldb_dict:
         rec = aldb_dict[mem_addr]
@@ -231,7 +235,7 @@ class SavedDeviceManager:
             else:
                 aldb_status = saved_device.get("aldb_status", 0)
                 aldb = saved_device.get("aldb", {})
-                aldb_records = _dict_to_aldb_record(aldb)
+                aldb_records = dict_to_aldb_record(aldb)
                 self._modem.aldb.load_saved_records(aldb_status, aldb_records)
         return device_list
 
