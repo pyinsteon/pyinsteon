@@ -427,11 +427,11 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
         if on_level:
             self._groups[self.DRY_GROUP].value = True
             self._groups[self.WET_GROUP].value = False
-            self._events[LEAK_DRY_EVENT].trigger()
+            self._events[LEAK_DRY_EVENT].trigger(on_level)
         if on_level:
             self._groups[self.DRY_GROUP].value = False
             self._groups[self.WET_GROUP].value = True
-            self._events[LEAK_WET_EVENT].trigger()
+            self._events[LEAK_WET_EVENT].trigger(on_level)
 
     def _register_operating_flags(self):
         # bit 0 = Cleanup Report
