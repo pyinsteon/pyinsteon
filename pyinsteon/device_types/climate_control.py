@@ -52,6 +52,7 @@ from ..operating_flag import (
 from .commands import STATUS_COMMAND
 from .device_base import Device
 from ..utils import multiple_status
+from ..constants import ResponseStatus
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -78,19 +79,29 @@ class ClimateControl_Thermostat(Device):
 
     async def async_set_cool_set_point(self, temperature):
         """Set the cool set point."""
+        temperature = max(1, min(temperature, 127))
         return await self._handlers["cool_set_point_command"].async_send(temperature)
 
     async def async_set_heat_set_point(self, temperature):
         """Set the cool set point."""
+        temperature = max(1, min(temperature, 127))
         return await self._handlers["heat_set_point_command"].async_send(temperature)
 
     async def async_set_humidity_high_set_point(self, humidity):
         """Set the humdity high set point."""
-        return await self._handlers["humidity_high_command"].async_sent(humidity)
+        humidity = min(humidity, 99)
+        cmd_status = await self._handlers["humidity_high_command"].async_send(humidity)
+        if cmd_status == ResponseStatus.SUCCESS:
+            self._groups[3].value = humidity
+        return cmd_status
 
     async def async_set_humidity_low_set_point(self, humidity):
         """Set the humidity low set point."""
-        return await self._handlers["humidity_high_command"].async_sent(humidity)
+        humidity = max(humidity, 1)
+        cmd_status = await self._handlers["humidity_low_command"].async_send(humidity)
+        if cmd_status == ResponseStatus.SUCCESS:
+            self._groups[4].value = humidity
+        return cmd_status
 
     async def async_set_mode(self, mode):
         """Set the thermastat mode."""
