@@ -671,6 +671,10 @@ class ToolsBase(Cmd):
         if not addresses:
             return
         self._log_command(f"print_aldb {'all' if len(addresses) > 1 else addresses[0]}")
+        self._print_aldb_out(addresses)
+
+    def _print_aldb_out(self, addresses):
+        """Print the ALDB to the log."""
         for address in addresses:
             device = devices[address]
             self._log_stdout("")
