@@ -89,6 +89,17 @@ class ALDBBase(ABC):
         """Test if the ALDB is loaded."""
         return self._status == ALDBStatus.LOADED
 
+    def clear(self):
+        """Clear all records from the ALDB.
+
+        This does not write to the device.
+        """
+        for mem in self._records:
+            rec = self._records[mem]
+            self._notify_change(rec, force_delete=True)
+        self._records = {}
+        self._dirty_records = []
+
     def get(self, mem_addr, default=None):
         """Get the record at address 'mem_addr'."""
         return self._records.get(mem_addr, default)
@@ -114,9 +125,9 @@ class ALDBBase(ABC):
             self._status = status
         else:
             self._status = ALDBStatus(status)
+        self.clear()
         for mem_addr in records:
             record = records[mem_addr]
-            self._notify_change(record, force_delete=True)
             self._records[mem_addr] = record
             self._notify_change(record)
         if self.is_loaded and self._records:
