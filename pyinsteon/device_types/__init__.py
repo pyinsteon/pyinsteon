@@ -36,7 +36,7 @@ from .switched_lighting_control import (
     SwitchedLightingControl_ToggleLinc,
 )
 
-from .climate_control import Thermostat
+from .climate_control import ClimateControl_Thermostat
 
 from .security_health_safety import (
     SecurityHealthSafety,
