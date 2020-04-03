@@ -2,7 +2,6 @@
 import logging
 from datetime import datetime
 from ..aldb import ALDB
-from ..constants import ThermostatMode
 from ..default_link import DefaultLink
 from ..groups import (
     COOL_SET_POINT,
@@ -52,12 +51,12 @@ from ..operating_flag import (
 )
 from .commands import STATUS_COMMAND
 from .device_base import Device
-from ..utils import multiple_status, to_celsius
+from ..utils import multiple_status
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class Thermostat(Device):
+class ClimateControl_Thermostat(Device):
     """Thermostat device."""
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
@@ -73,7 +72,7 @@ class Thermostat(Device):
         self._aldb = ALDB(self._address, mem_addr=0x1FFF)
 
     # pylint: disable=arguments-differ
-    async def async_status(self):
+    async def async_status(self, group=None):
         """Get the status of the device."""
         return await self._managers[STATUS_COMMAND].async_status()
 
@@ -145,8 +144,8 @@ class Thermostat(Device):
             TEMPERATURE, self._address, self._operating_flags[CELSIUS], 10, 0
         )
         self._groups[11] = Humidity(HUMIDITY, self._address, group=11, default=0)
-        self._groups[12] = SystemMode(SYSTEM_MODE, self._address, group=10, default=0)
-        self._groups[13] = FanMode(FAN_MODE, self._address, group=11, default=0)
+        self._groups[12] = SystemMode(SYSTEM_MODE, self._address, group=12, default=0)
+        self._groups[13] = FanMode(FAN_MODE, self._address, group=13, default=4)
 
     def _register_handlers_and_managers(self):
         """Register thermostat handlers and managers."""
@@ -171,10 +170,10 @@ class Thermostat(Device):
         self._handlers["mode_handler"] = ThermostatModeHandler(self._address)
 
         self._handlers["cool_set_point_command"] = ThermostatCoolSetPointCommand(
-            self._address, self._operating_flags[CELSIUS]
+            self._address
         )
         self._handlers["heat_set_point_command"] = ThermostatHeatSetPointCommand(
-            self._address, self._operating_flags[CELSIUS]
+            self._address
         )
         self._handlers["mode_command"] = ThermostatModeCommand(self._address)
         self._handlers["notify_changes_command"] = ExtendedSetCommand(
@@ -274,12 +273,12 @@ class Thermostat(Device):
         heat_set_point,
     ):
         """Receive the status update."""
+        self._groups[12].set_value(system_mode)
+        self._groups[13].set_value(fan_mode)
         self._groups[1].set_value(cool_set_point)
         self._groups[2].set_value(heat_set_point)
         self._groups[10].set_value(temperature)
         self._groups[11].set_value(humidity)
-        self._groups[12].set_value(system_mode)
-        self._groups[13].set_value(fan_mode)
 
     def _set_point_received(
         self,
@@ -297,22 +296,15 @@ class Thermostat(Device):
         self._groups[3].set_value(humidity_high)
         self._groups[4].set_value(humidity_low)
 
-    def _mode_received(self, mode):
+    def _mode_received(self, system_mode, fan_mode):
         """Receive current temperature notification."""
-        if mode == 0:
-            self._groups[12].set_value(mode)
-            self._groups[13].set_value(mode)
-
-        if mode in [ThermostatMode.COOL, ThermostatMode.HEAT, ThermostatMode.AUTO]:
-            self._groups[12].set_value(mode)
-
-        if mode in [ThermostatMode.FAN_ALWAYS_ON, ThermostatMode.FAN_AUTO]:
-            self._groups[13].set_value(mode)
+        self._groups[12].set_value(system_mode)
+        self._groups[13].set_value(fan_mode)
 
     def _temp_received(self, degrees):
         """Receive temperature status update and convert to celsius if needed."""
-        if not self._operating_flags[CELSIUS].value:
-            degrees = to_celsius(degrees)
+        # if not self._operating_flags[CELSIUS].value:
+        #     degrees = to_celsius(degrees)
         self._groups[10].value = degrees
 
     def _temp_format_changed(self, name, value):

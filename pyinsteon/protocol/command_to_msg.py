@@ -5,7 +5,7 @@ from math import ceil
 from .. import pub
 from ..address import Address
 from ..constants import RampRate
-from ..utils import to_celsius, subscribe_topic
+from ..utils import subscribe_topic
 from ..topics import (
     ASSIGN_TO_ALL_LINK_GROUP,
     ASSIGN_TO_COMPANION_GROUP,
@@ -117,6 +117,7 @@ from ..topics import (
     SPRINKLER_VALVE_ON,
     STATUS_REQUEST,
     THERMOSTAT_GET_ZONE_INFORMATION,
+    THERMOSTAT_CONTROL,
     THERMOSTAT_SET_COOL_SETPOINT,
     THERMOSTAT_SET_HEAT_SETPOINT,
     THERMOSTAT_SET_ZONE_COOL_SETPOINT,
@@ -1215,17 +1216,23 @@ def thermostat_get_zone_information(
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
+@topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_CONTROL)
+def thermostat_control(address: Address, mode: int, topic=pub.AUTO_TOPIC):
+    """Create a THERMOSTAT_CONTROL command."""
+    user_data = UserData()
+    _create_direct_message(
+        topic=topic, address=address, cmd2=int(mode), user_data=user_data
+    )
+
+
 @topic_to_command_handler(
     register_list=topic_register, topic=THERMOSTAT_SET_COOL_SETPOINT
 )
-def thermostat_set_cool_setpoint(
-    address: Address, degrees: int, celsius: bool, topic=pub.AUTO_TOPIC
-):
+def thermostat_set_cool_setpoint(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_SET_COOL_SETPOINT command."""
-    if not celsius:
-        degrees = to_celsius(degrees)
-    cmd2 = degrees * 2
-    _create_direct_message(topic=topic, address=address, cmd2=cmd2)
+    cmd2 = int(degrees * 2)
+    user_data = UserData()
+    _create_direct_message(topic=topic, address=address, cmd2=cmd2, user_data=user_data)
 
 
 @topic_to_command_handler(
@@ -1241,14 +1248,11 @@ def thermostat_set_zone_cool_setpoint(
 @topic_to_command_handler(
     register_list=topic_register, topic=THERMOSTAT_SET_HEAT_SETPOINT
 )
-def thermostat_set_heat_setpoint(
-    address: Address, degrees: int, celsius: bool, topic=pub.AUTO_TOPIC
-):
+def thermostat_set_heat_setpoint(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_SET_HEAT_SETPOINT command."""
-    if not celsius:
-        degrees = to_celsius(degrees)
-    cmd2 = degrees * 2
-    _create_direct_message(topic=topic, address=address, cmd2=cmd2)
+    cmd2 = int(degrees * 2)
+    user_data = UserData()
+    _create_direct_message(topic=topic, address=address, cmd2=cmd2, user_data=user_data)
 
 
 @topic_to_command_handler(
