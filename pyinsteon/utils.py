@@ -13,10 +13,12 @@ from .constants import (
     MessageFlagType,
     ResponseStatus,
     X10Commands,
+    ThermostatMode,
 )
 from .protocol.commands import commands
 
 _LOGGER = logging.getLogger(__name__)
+_LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")
 
 
 def housecode_to_byte(housecode: str) -> int:
@@ -243,7 +245,7 @@ def log_error(msg, ex, topic=None, kwargs=None):
     _LOGGER.error("MSG: %s", msg)
     _LOGGER.error("Topic: %s data: %s", topic, kwargs)
     _LOGGER.error("Error: %s", str(ex))
-    _LOGGER.debug(traceback.format_exc())
+    _LOGGER_TOPICS.debug(traceback.format_exc())
     if topic is not None:
         topic_mgr = pub.getDefaultTopicMgr()
         topic = topic_mgr.getTopic(topic, okIfNone=True)
@@ -259,7 +261,32 @@ def to_celsius(fahrenheit):
 
 def to_fahrenheit(celsius):
     """Convert celsius to fahrenheit."""
-    return int(round(celsius * 9 / 5) + 32, 0)
+    return int(round(celsius * 9 / 5 + 32, 0))
+
+
+def calc_thermostat_temp(high_byte, low_byte):
+    """Calculate the temperature."""
+    return (low_byte | (high_byte << 8)) * 0.1
+
+
+def calc_thermostat_mode(mode_byte, sys_mode_map=None, sys_low=True):
+    """Calculate the system and fan mode."""
+    if sys_mode_map is None:
+        sys_mode_map = {
+            int(ThermostatMode.OFF): ThermostatMode.OFF,
+            int(ThermostatMode.AUTO): ThermostatMode.AUTO,
+            int(ThermostatMode.HEAT): ThermostatMode.HEAT,
+            int(ThermostatMode.COOL): ThermostatMode.COOL,
+        }
+
+    mode1 = mode_byte & 0x0F
+    mode2 = mode_byte >> 4
+    system_mode, fan_mode = (mode1, mode2) if sys_low else (mode2, mode1)
+    if fan_mode == 0 or fan_mode == 4:
+        fan_mode = ThermostatMode.FAN_AUTO
+    else:
+        fan_mode = ThermostatMode.FAN_ALWAYS_ON
+    return sys_mode_map[system_mode], fan_mode
 
 
 def publish_topic(topic, logger=None, **kwargs):

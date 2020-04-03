@@ -5,8 +5,7 @@ from .. import inbound_handler
 from ...address import Address
 from ...constants import MessageFlagType
 from ...topics import THERMOSTAT_MODE_STATUS
-from ...constants import ThermostatMode
-from ...utils import build_topic
+from ...utils import build_topic, calc_thermostat_mode
 from ..inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -32,18 +31,5 @@ class ThermostatModeHandler(InboundHandlerBase):
     @inbound_handler
     def handle_response(self, cmd1, cmd2, target, user_data):
         """Handle the mode response from a device."""
-        mode = None
-        if cmd2 == 0x00:
-            mode = ThermostatMode.OFF
-        elif cmd2 == 0x01:
-            mode = ThermostatMode.HEAT
-        elif cmd2 == 0x02:
-            mode = ThermostatMode.COOL
-        elif cmd2 == 0x03:
-            mode = ThermostatMode.AUTO
-        elif cmd2 == 0x04:
-            mode = ThermostatMode.OFF
-        elif cmd2 == 0x08:
-            mode = ThermostatMode.FAN_ALWAYS_ON
-        if mode is not None:
-            self._call_subscribers(mode=mode)
+        sys_mode, fan_mode = calc_thermostat_mode(cmd2)
+        self._call_subscribers(system_mode=sys_mode, fan_mode=fan_mode)
