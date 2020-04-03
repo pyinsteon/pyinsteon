@@ -5,6 +5,7 @@ from ..constants import ALDBStatus
 from ..managers.scene_manager import async_add_device_to_scene
 from ..utils import seconds_to_ramp_rate
 from .tools_base import ToolsBase
+from .advanced import AdvancedTools
 
 
 class ToolsAldb(ToolsBase):
@@ -59,8 +60,9 @@ class ToolsAldb(ToolsBase):
                 # tasks.append(devices[address].aldb.async_load(refresh=refresh))
                 await devices[address].aldb.async_load(refresh=refresh)
 
-        self._log_stdout("The following devices are battery operated.")
-        self._log_stdout("They will load in the background when they wake up.")
+        if battery_devices:
+            self._log_stdout("The following devices are battery operated.")
+            self._log_stdout("They will load in the background when they wake up.")
         for address in battery_devices:
             self._log_stdout(f"    - {address}")
 
@@ -71,7 +73,7 @@ class ToolsAldb(ToolsBase):
                 and devices[address].aldb.status != ALDBStatus.LOADED
                 and not devices[address].is_battery
             ):
-                await devices[address].aldb.async_load(refresh=True)
+                await devices[address].aldb.async_load(refresh=refresh)
 
     async def do_print_aldb(self, *args, **kwargs):
         """Print the records in an All-Link Database.
@@ -183,3 +185,8 @@ class ToolsAldb(ToolsBase):
         self._log_stdout("-------- ---------------")
         for address in devices:
             self._log_stdout(f"{address} {str(devices[address].aldb.status)}")
+
+    async def do_advanced(self, *args, **kwargs):
+        """Enter advanced ALDB menu."""
+        self._log_command("advanced")
+        await self._call_next_menu(AdvancedTools, "advanced")
