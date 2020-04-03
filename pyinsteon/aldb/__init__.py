@@ -68,17 +68,17 @@ class ALDB(ALDBBase):
             callback()
         return self._status
 
-    def write(self):
+    def write(self, force=False):
         """Write modified records to the device."""
-        asyncio.ensure_future(self.async_write())
+        asyncio.ensure_future(self.async_write(force=force))
 
-    async def async_write(self):
+    async def async_write(self, force=False):
         """Write modified records to the device.
 
         Returns a tuple of (completed, failed) record counts.
         """
 
-        if not self.is_loaded:
+        if not self.is_loaded and not force:
             _LOGGER.error(
                 "ALDB must be loaded before it can be written Status: %s",
                 str(self._status),
