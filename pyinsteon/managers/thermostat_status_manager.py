@@ -31,41 +31,52 @@ class GetThermostatStatus:
         self._get_set_point_command = ThermostatGetSetPointCommand(self._address)
         self._status_response = ThermostatStatusResponseHandler(self._address)
         self._set_point_response = ThermostatSetPointResponseHandler(self._address)
-        self._response_queue = asyncio.Queue()
+        self._response_status = asyncio.Queue()
+        self._response_set_point = asyncio.Queue()
         self._status_response.subscribe(self._status_received)
         self._set_point_response.subscribe(self._set_point_received)
 
     async def async_status(self):
         """Read the device status."""
-        return await self._status()
+        _LOGGER.error("Starting the process")
+        status1 = await self._status()
+        status2 = await self._set_point()
+        return multiple_status(status1, status2)
 
     async def _status(self):
         """Send the status command and call set point command."""
-        while not self._response_queue.empty():
-            self._response_queue.get_nowait()
-        response_status = await self._get_status_command.async_send()
-        if response_status == ResponseStatus.SUCCESS:
+        while not self._response_status.empty():
+            self._response_status.get_nowait()
+        _LOGGER.error("calling ExtendedGet2Command")
+        retries = 3
+        response_status = ResponseStatus.FAILURE
+        while retries:
+            await self._get_status_command.async_send()
             try:
                 response_status = await asyncio.wait_for(
-                    self._response_queue.get(), TIMEOUT
+                    self._response_status.get(), TIMEOUT
                 )
-                response_set_point = await self._set_point()
-                return multiple_status(response_status, response_set_point)
+                return response_status
             except asyncio.TimeoutError:
-                return ResponseStatus.FAILURE
+                _LOGGER.error("Exception _status timed out, retries: %d", retries)
+            retries -= 1
         return response_status
 
     async def _set_point(self):
         """Send the set point command."""
-        while not self._response_queue.empty():
-            self._response_queue.get_nowait()
-        response_set_point = await self._get_set_point_command.async_send()
-        if response_set_point == ResponseStatus.SUCCESS:
+        _LOGGER.error("in _set_point")
+        while not self._response_set_point.empty():
+            self._response_set_point.get_nowait()
+        _LOGGER.error("calling ThermostatGetSetPointCommand")
+        retries = 3
+        response_set_point = ResponseStatus.FAILURE
+        while retries:
+            await self._get_set_point_command.async_send()
             try:
-                return await asyncio.wait_for(self._response_queue.get(), TIMEOUT)
+                return await asyncio.wait_for(self._response_set_point.get(), TIMEOUT)
             except asyncio.TimeoutError:
-                _LOGGER.debug("Set point response timed out")
-                return ResponseStatus.FAILURE
+                _LOGGER.error("Set point response timed out")
+            retries -= 1
         return response_set_point
 
     def _status_received(
@@ -83,7 +94,7 @@ class GetThermostatStatus:
         heat_set_point,
     ):
         """Notify the read process that the resonse was received."""
-        self._response_queue.put_nowait(ResponseStatus.SUCCESS)
+        self._response_status.put_nowait(ResponseStatus.SUCCESS)
 
     def _set_point_received(
         self,
@@ -96,4 +107,4 @@ class GetThermostatStatus:
         rf_offset,
     ):
         """Notify read process that the st point response was received."""
-        self._response_queue.put_nowait(ResponseStatus.SUCCESS)
+        self._response_set_point.put_nowait(ResponseStatus.SUCCESS)
