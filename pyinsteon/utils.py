@@ -282,7 +282,7 @@ def calc_thermostat_mode(mode_byte, sys_mode_map=None, sys_low=True):
     mode1 = mode_byte & 0x0F
     mode2 = mode_byte >> 4
     system_mode, fan_mode = (mode1, mode2) if sys_low else (mode2, mode1)
-    if fan_mode == 0 or fan_mode == 4:
+    if fan_mode in (0, 4):
         fan_mode = ThermostatMode.FAN_AUTO
     else:
         fan_mode = ThermostatMode.FAN_ALWAYS_ON
