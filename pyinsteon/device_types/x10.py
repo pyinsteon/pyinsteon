@@ -54,6 +54,8 @@ class X10OnOff(X10OnOffSensor):
         """Init the X10OnOff class."""
         super().__init__(housecode, unitcode)
         self._description = "X10 On/Off Switch"
+        self._on_cmd = X10CommandSend(self._address, X10Commands.ON)
+        self._off_cmd = X10CommandSend(self._address, X10Commands.OFF)
 
     def on(self):
         """Turn on the switch."""
@@ -61,10 +63,9 @@ class X10OnOff(X10OnOffSensor):
 
     async def async_on(self):
         """Turn on the switch."""
-        cmd = X10CommandSend(self._address, X10Commands.ON)
         retries = 0
         while retries < 3:
-            result = await cmd.async_send()
+            result = await self._on_cmd.async_send()
             if result == ResponseStatus.SUCCESS:
                 self._groups[1].set_value(0xFF)
                 return result
@@ -73,14 +74,13 @@ class X10OnOff(X10OnOffSensor):
 
     def off(self):
         """Turn off the switch."""
-        asyncio.ensure_future(self.async_on())
+        asyncio.ensure_future(self.async_off())
 
     async def async_off(self):
         """Turn off the switch."""
-        cmd = X10CommandSend(self._address, X10Commands.OFF)
         retries = 0
         while retries < 3:
-            result = await cmd.async_send()
+            result = await self._off_cmd.async_send()
             if result == ResponseStatus.SUCCESS:
                 self._groups[1].set_value(0x00)
                 return result
@@ -116,6 +116,8 @@ class X10Dimmable(X10OnOff):
         self._steps = steps
         self._max_level = max_level
         self._increment = self._max_level / self._steps
+        self._dim_cmd = X10CommandSend(self._address, X10Commands.DIM)
+        self._bright_cmd = X10CommandSend(self._address, X10Commands.BRIGHT)
 
     @property
     def steps(self):
@@ -155,10 +157,9 @@ class X10Dimmable(X10OnOff):
 
     async def async_dim(self):
         """Dim the swich one step."""
-        cmd = X10CommandSend(self._address, X10Commands.DIM)
         retries = 0
         while retries < 3:
-            results = await cmd.async_send()
+            results = await self._dim_cmd.async_send()
             if results == ResponseStatus.SUCCESS:
                 self._handle_dim_bright(-1)
                 return results
@@ -171,10 +172,9 @@ class X10Dimmable(X10OnOff):
 
     async def async_bright(self):
         """Dim the swich one step."""
-        cmd = X10CommandSend(self._address, X10Commands.BRIGHT)
         retries = 0
         while retries < 3:
-            results = await cmd.async_send()
+            results = await self._bright_cmd.async_send()
             if results == ResponseStatus.SUCCESS:
                 self._handle_dim_bright(1)
                 return results

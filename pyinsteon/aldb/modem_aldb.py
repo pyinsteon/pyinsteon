@@ -39,6 +39,8 @@ class ModemALDB(ALDBBase):
         else:
             self._read_manager = None
 
+        self._write_cmd = ManageAllLinkRecordCommand()
+
     def __setitem__(self, mem_addr, record):
         """Add or Update a device in the ALDB."""
         if not isinstance(record, ALDBRecord):
@@ -105,7 +107,6 @@ class ModemALDB(ALDBBase):
         """
         completed = []
         failed = []
-        cmd = ManageAllLinkRecordCommand()
         self._id_recs_to_restore()
         while self._dirty_records:
             rec = self._dirty_records.pop()
@@ -118,7 +119,7 @@ class ModemALDB(ALDBBase):
             retries = 0
             response = ResponseStatus.UNSENT
             while response != ResponseStatus.SUCCESS and retries < MAX_RETRIES:
-                response = await cmd.async_send(
+                response = await self._write_cmd.async_send(
                     action=action,
                     controller=rec.is_controller,
                     group=rec.group,
