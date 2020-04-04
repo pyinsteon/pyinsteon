@@ -32,8 +32,11 @@ def _has_listeners(topic):
     """
     topic_manager = pub.getDefaultTopicMgr()
     pub_topic = topic_manager.getTopic(name=topic, okIfNone=True)
+    _LOGGER_MSG("MSG Topic: %s", pub_topic)
     if pub_topic and pub_topic.getListeners():
+        _LOGGER_MSG.debug("Has listeners so do not resend.")
         return True
+    _LOGGER_MSG.debug("No listeners so resend")
     return False
 
 
