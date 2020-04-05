@@ -173,7 +173,7 @@ class ALDBReadManager:
         self._records.put_nowait(None)
 
     def _next_missing_record(self, last_mem_addr):
-        prev_address = 0
+        prev_addr = 0
         if not self._has_first_record():
             if last_mem_addr == 0x0000 and self._retries_one < RETRIES_ONE_MAX:
                 return 0x0000
@@ -183,11 +183,13 @@ class ALDBReadManager:
             rec = self._aldb[mem_addr]
             if rec.is_high_water_mark:
                 return None
-            if prev_address != 0:
-                if not prev_address - 8 == mem_addr:
-                    return prev_address - 8
-            prev_address = mem_addr
-        next_addr = prev_address - 8
+            if prev_addr != 0:
+                if not prev_addr - 8 == mem_addr:
+                    return prev_addr - 8
+            prev_addr = mem_addr
+        next_addr = prev_addr - 8
+        if next_addr <= self._aldb.high_water_mark_mem_addr:
+            return None
         return next_addr
 
     def _has_first_record(self):

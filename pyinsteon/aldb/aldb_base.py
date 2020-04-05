@@ -31,6 +31,7 @@ class ALDBBase(ABC):
         self._cb_aldb_loaded = None
         self._read_manager = None
         self._dirty_records = []
+        self._hwm_record = None
         subscribe_topic(self.update_version, f"{repr(self._address)}.{ALDB_VERSION}")
 
     def __len__(self):
@@ -78,10 +79,8 @@ class ALDBBase(ABC):
     @property
     def high_water_mark_mem_addr(self):
         """Return the High Water Mark record memory address."""
-        for mem_addr in self._records:
-            record = self._records[mem_addr]
-            if record.is_high_water_mark:
-                return record.mem_addr
+        if self._hwm_record:
+            return self._hwm_record.mem_addr
         return None
 
     @property
