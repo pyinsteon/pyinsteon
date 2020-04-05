@@ -56,13 +56,16 @@ class ALDB(ALDBBase):
         async for rec in self._read_manager.async_read(
             mem_addr=mem_addr, num_recs=num_recs
         ):
-            if self._hwm_record and rec.mem_addr > self._hwm_record.mem_addr:
-                if self._records.get(rec.mem_addr):
-                    self._notify_change(self._records[rec.mem_addr], force_delete=True)
-                self._records[rec.mem_addr] = rec
-                if rec.is_high_water_mark:
-                    self._hwm_record = rec
-                self._notify_change(rec)
+            if self._hwm_record and rec.mem_addr < self._hwm_record.mem_addr:
+                continue
+            if rec.mem_addr > self.first_mem_addr:
+                continue
+            if self._records.get(rec.mem_addr):
+                self._notify_change(self._records[rec.mem_addr], force_delete=True)
+            self._records[rec.mem_addr] = rec
+            if rec.is_high_water_mark:
+                self._hwm_record = rec
+            self._notify_change(rec)
         self.set_load_status()
         if callback:
             callback()
