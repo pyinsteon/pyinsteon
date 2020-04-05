@@ -86,6 +86,10 @@ class ALDBBase(ABC):
     @property
     def is_loaded(self) -> bool:
         """Test if the ALDB is loaded."""
+        if self._status == ALDBStatus.LOADING:
+            loaded = self._calc_load_status()
+            if loaded:
+                self._status = ALDBStatus.LOADED
         return self._status == ALDBStatus.LOADED
 
     def clear(self):
@@ -152,3 +156,7 @@ class ALDBBase(ABC):
     @classmethod
     def _send_change(cls, topic, controller, responder, group):
         publish_topic(topic, controller=controller, responder=responder, group=group)
+
+    def _calc_load_status(self):
+        """Calculate the load status."""
+        return False
