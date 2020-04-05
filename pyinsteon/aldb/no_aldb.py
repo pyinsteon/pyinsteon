@@ -58,7 +58,7 @@ class NoALDB:
 
     async def async_write(self):
         """Write modified records to the device."""
-        return 0
+        return 0, 0
 
     def add(
         self,
