@@ -14,14 +14,17 @@ RETRIES_WRITE_MAX = 5
 TIMER = 5
 TIMER_INCREMENT = 3
 _LOGGER = logging.getLogger(__name__)
-READ_ALL = 1
-READ_ONE = 2
 WRITE = 3
 CANCEL = 0
 
 IM_NOT_IN_DEVICE_ALDB = 0xFF
 CHECKSUM_ERROR = 0xFD
 ILLEGAL_VALUE_IN_COMMAND = 0xFB
+
+
+def _is_multiple_records(mem_addr, num_recs):
+    """Return true if we are searching for multiple records."""
+    return (mem_addr == 0x00 and num_recs == 0) or num_recs > 1
 
 
 class ALDBReadManager:
@@ -34,9 +37,9 @@ class ALDBReadManager:
         self._num_recs = num_recs
 
         self._records = asyncio.Queue()
-        self._retries_all = 0
-        self._retries_one = 0
-        self._command = None
+        self._records_to_return = asyncio.Queue()
+        self._retries_all = RETRIES_ALL_MAX
+        self._retries_one = RETRIES_ONE_MAX
         self._last_mem_addr = 0x0000
         self._read_handler = ReadALDBCommandHandler(self._aldb.address)
         self._record_handler = ReceiveALDBRecordHandler(self._aldb.address)
@@ -47,21 +50,14 @@ class ALDBReadManager:
     @async_generator
     async def async_read(self, mem_addr: int = 0x00, num_recs: int = 0):
         """Start the reading process to enable iteration."""
-        self._init_read_process()
-        if self._mem_addr == 0x0000 and self._num_recs == 0:
-            self._command = READ_ALL
-        else:
-            self._command = READ_ONE
-
-        await self._async_read(mem_addr=self._mem_addr, num_recs=self._num_recs)
+        asyncio.ensure_future(
+            self._async_read(mem_addr=self._mem_addr, num_recs=self._num_recs)
+        )
 
         while True:
-            record = await self._records.get()
-            self._retries_one = 0
-            if self._timer_lock.locked():
-                self._timer_lock.release()
+            record = await self._records_to_return.get()
             if record is None:
-                break
+                return
             await yield_(record)
 
     async def _async_read(self, mem_addr: int = 0x00, num_recs: int = 0):
@@ -73,29 +69,75 @@ class ALDBReadManager:
             mem_addr,
             num_recs,
         )
-        await self._read_handler.async_send(mem_addr=mem_addr, num_recs=num_recs)
-        multiple_records = (mem_addr == 0x00 and num_recs == 0) or num_recs > 1
-        if multiple_records:
-            retries = self._retries_all
-        else:
-            retries = self._retries_one
-        asyncio.ensure_future(
-            self._wait_for_records(retries, multiple_records, mem_addr)
-        )
 
-    async def _wait_for_records(self, retries, multiple_records, last_addr):
-        # Wait for timer to expire or records to be received.
-        timer = max(TIMER + retries * TIMER_INCREMENT, 20)
-        try:
-            await asyncio.wait_for(self._timer_lock.acquire(), timer)
-            # If we are reading multiple records continue waiting to see if more come in
-            if multiple_records:
-                await asyncio.sleep(10)
-        except asyncio.TimeoutError:
-            pass
-        if self._timer_lock.locked():
-            self._timer_lock.release()
-        self._check_status(last_addr)
+        if _is_multiple_records(mem_addr, num_recs):
+            await self._read_all()
+        else:
+            await self._read_one(mem_addr)
+        self._records_to_return.put_nowait(None)
+
+    async def _read_one(self, mem_addr):
+        """Read one record."""
+        if self._aldb[mem_addr]:
+            return True
+
+        retries = RETRIES_ONE_MAX
+        while retries:
+            await self._read_handler.async_send(mem_addr=mem_addr, num_recs=1)
+
+            timeout = TIMER + (RETRIES_ONE_MAX - retries) * TIMER_INCREMENT
+            try:
+                record = await self._get_next_record(timeout)
+                if record is None:
+                    return False
+                if record.mem_addr == mem_addr:
+                    return True
+                await asyncio.sleep(0.1)
+            except asyncio.TimeoutError:
+                pass
+            retries -= 1
+        return False
+
+    async def _read_all(self):
+        """Read all records."""
+        if self._aldb.is_loaded:
+            return True
+
+        retries = RETRIES_ALL_MAX
+        while retries:
+            await self._read_handler.async_send(mem_addr=0, num_recs=0)
+
+            timeout = TIMER + (RETRIES_ALL_MAX - retries) * TIMER_INCREMENT
+            try:
+                while True:
+                    record = await self._get_next_record(timeout)
+                    if record is None:
+                        return False
+            except asyncio.TimeoutError:
+                pass
+            await asyncio.sleep(0.1)
+            if self._aldb.is_loaded:
+                return True
+            retries -= 1
+
+        # Read all records did not work so we try to read one at a time
+        last_record = 0
+        next_record = self._next_missing_record(last_record)
+        while next_record is not None:
+            if not await self._read_one(next_record):
+                return False
+
+            last_record = next_record
+            next_record = self._next_missing_record(last_record)
+            # If the next record equals the last record and we believe we successfully
+            # read the last record, an error occured so we should just stop
+            if next_record == last_record:
+                return False
+        return next_record is None
+
+    async def _get_next_record(self, timeout):
+        """Get the next record from the queue."""
+        return await asyncio.wait_for(self._records.get(), timeout=timeout)
 
     def _receive_direct_ack(self, ack_response):
         """Receive the response from the direct ACK.
@@ -112,6 +154,7 @@ class ALDBReadManager:
                 "%s: ALDB Load error: 0x%02x", str(self._aldb.address), ack_response
             )
             self._records.put_nowait(None)
+            self._records_to_return.put_nowait(None)
 
     def _receive_record(
         self,
@@ -142,35 +185,7 @@ class ALDBReadManager:
             bit4=bit4,
         )
         self._records.put_nowait(record)
-
-    def _check_status(self, last_mem_addr):
-        """Check the status if the read process and trigger next step."""
-        if self._command == READ_ALL:
-            mem_addr = self._next_missing_record(last_mem_addr)
-            if mem_addr is None:
-                self._records.put_nowait(None)
-                return
-
-            if self._retries_all < RETRIES_ALL_MAX:
-                asyncio.ensure_future(self._async_read(mem_addr=mem_addr, num_recs=0))
-                self._retries_all += 1
-                return
-
-            if self._retries_one < RETRIES_ONE_MAX:
-                asyncio.ensure_future(self._async_read(mem_addr=mem_addr, num_recs=1))
-                self._retries_one += 1
-                return
-
-            self._records.put_nowait(None)
-            return
-
-        if self._retries_one < RETRIES_ONE_MAX:
-            asyncio.ensure_future(
-                self._async_read(mem_addr=self._mem_addr, num_recs=self._num_recs)
-            )
-            self._retries_one += 1
-            return
-        self._records.put_nowait(None)
+        self._records_to_return.put_nowait(record)
 
     def _next_missing_record(self, last_mem_addr):
         prev_addr = 0
@@ -188,7 +203,10 @@ class ALDBReadManager:
                     return prev_addr - 8
             prev_addr = mem_addr
         next_addr = prev_addr - 8
-        if next_addr <= self._aldb.high_water_mark_mem_addr:
+        if (
+            self._aldb.high_water_mark_mem_addr
+            and next_addr <= self._aldb.high_water_mark_mem_addr
+        ):
             return None
         return next_addr
 
@@ -200,10 +218,3 @@ class ALDBReadManager:
             if mem_addr in [self._aldb.first_mem_addr, 0x0FFF]:
                 return True
         return False
-
-    def _init_read_process(self):
-        """Reinitialize the read process to ensure retries are correct."""
-        self._retries_all = 0
-        self._retries_one = 0
-        self._command = None
-        self._last_mem_addr = 0x0000
