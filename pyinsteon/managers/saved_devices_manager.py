@@ -3,7 +3,7 @@ import json
 import logging
 from os import path
 
-from aiofile import AIOFile
+import aiofiles
 
 from ..address import Address
 from ..constants import EngineVersion
@@ -250,7 +250,7 @@ class SavedDeviceManager:
 
         try:
             device_file = path.join(self._workdir, DEVICE_INFO_FILE)
-            async with AIOFile(device_file, "r") as afp:
+            async with aiofiles.open(device_file, "r") as afp:
                 json_file = ""
                 json_file = await afp.read()
             try:
@@ -267,10 +267,10 @@ class SavedDeviceManager:
         _LOGGER.debug("Writing %d devices to save file", len(device_list))
         device_file = path.join(self._workdir, DEVICE_INFO_FILE)
         try:
-            async with AIOFile(device_file, "w") as afp:
+            async with aiofiles.open(device_file, "w") as afp:
                 out_json = json.dumps(device_list, indent=2)
                 await afp.write(out_json)
-                await afp.fsync()
+                await afp.flush()
         except FileNotFoundError as ex:
             _LOGGER.error("Cannot write to file %s", device_file)
             _LOGGER.error("Exception: %s", str(ex))
@@ -286,7 +286,7 @@ class SavedDeviceManager:
 
         try:
             device_file = path.join(self._workdir, OLD_DEVICE_INFO_FILE)
-            async with AIOFile(device_file, "r") as afp:
+            async with aiofiles.open(device_file, "r") as afp:
                 json_file = ""
                 json_file = await afp.read()
             try:

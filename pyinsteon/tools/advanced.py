@@ -3,7 +3,7 @@ import json
 from binascii import unhexlify
 from os import path
 
-from aiofile import AIOFile
+import aiofiles
 
 from .. import devices
 from ..constants import ALDBStatus, LinkStatus, ResponseStatus
@@ -605,10 +605,10 @@ class AdvancedTools(ToolsBase):
     async def _write_aldb_file(self, aldb_dict, location, filename):
         device_file = path.join(location, filename)
         try:
-            async with AIOFile(device_file, "w") as afp:
+            async with aiofiles.open(device_file, "w") as afp:
                 out_json = json.dumps(aldb_dict, indent=2)
                 await afp.write(out_json)
-                await afp.fsync()
+                await afp.flush()
         except FileNotFoundError as ex:
             self._log_stdout(f"Cannot write to file {device_file}")
             self._log_stdout(f"Exception: {str(ex)}")
@@ -618,7 +618,7 @@ class AdvancedTools(ToolsBase):
         aldb_dict = []
         try:
             device_file = path.join(location, filename)
-            async with AIOFile(device_file, "r") as afp:
+            async with aiofiles.open(device_file, "r") as afp:
                 json_file = ""
                 json_file = await afp.read()
             try:

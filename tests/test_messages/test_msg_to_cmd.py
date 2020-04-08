@@ -5,7 +5,7 @@ from asyncio import Queue, sleep
 from binascii import unhexlify
 from functools import partial
 
-from aiofile import AIOFile
+import aiofiles
 
 from pyinsteon import pub
 from pyinsteon.protocol.protocol import Protocol
@@ -21,7 +21,7 @@ async def import_commands():
 
     curr_path = path.dirname(path.abspath(__file__))
     command_file = path.join(curr_path, FILE)
-    async with AIOFile(command_file, "r") as afp:
+    async with aiofiles.open(command_file, "r") as afp:
         json_file = ""
         json_file = await afp.read()
     return json.loads(json_file)
@@ -55,7 +55,7 @@ class TestDirectMsgToTopic(unittest.TestCase):
     """Test direct messages mapped to topics."""
 
     def setUp(self):
-        """Setup the tests."""
+        """Set up the tests."""
         self._topic = None
 
     def capture_topic(self, topic=pub.AUTO_TOPIC, **kwargs):

@@ -4,7 +4,7 @@ import unittest
 from asyncio import Queue, sleep
 from functools import partial
 
-from aiofile import AIOFile
+import aiofiles
 
 import pyinsteon.handlers.to_device as commands
 from pyinsteon import pub
@@ -56,7 +56,7 @@ async def import_commands():
 
     curr_path = path.dirname(path.abspath(__file__))
     command_file = path.join(curr_path, FILE)
-    async with AIOFile(command_file, "r") as afp:
+    async with aiofiles.open(command_file, "r") as afp:
         json_file = ""
         json_file = await afp.read()
     return json.loads(json_file)

@@ -27,7 +27,7 @@ setup(
         "pyserial-asyncio",
         "aiohttp",
         "pypubsub",
-        "aiofile",
+        "aiofiles",
         "async_generator",
         "pyyaml",
     ],
