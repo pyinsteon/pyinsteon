@@ -11,7 +11,7 @@ from .msg_to_url import convert_to_url
 from .hub_connection_exception import HubConnectionException
 
 _LOGGER = logging.getLogger(__name__)
-READ_WAIT = 1
+READ_WAIT = 0.75
 SESSION_RETRIES = 30
 RECONNECT_WAIT = 7
 
@@ -128,7 +128,7 @@ class HttpTransport(asyncio.Transport):
             if response_status != 200:
                 _LOGGER.debug("Hub write request failed for url %s", url)
                 retry += 1
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(READ_WAIT)
             else:
                 self._last_msg = msg
         if self._read_write_lock.locked():
