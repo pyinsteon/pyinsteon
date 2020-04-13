@@ -53,12 +53,13 @@ from ..operating_flag import (
 )
 from .variable_responder_base import VariableResponderBase
 
-from .commands import (  # TRIGGER_SCENE_ON_COMMAND,; TRIGGER_SCENE_OFF_COMMAND,
+from .commands import (
     OFF_COMMAND,
     OFF_FAST_COMMAND,
     ON_COMMAND,
     ON_FAST_COMMAND,
     SET_LEDS_COMMAND,
+    GET_LEDS_COMMAND,
     STATUS_COMMAND_FAN,
 )
 from ..utils import set_bit, bit_is_set
@@ -370,6 +371,11 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         kwargs = self._change_led_status(led=group, is_on=False)
         return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
 
+    async def async_status(self):
+        """Check the status of the device."""
+        await super().async_status()
+        await self._handlers[GET_LEDS_COMMAND].async_send()
+
     async def async_set_radio_buttons(self, buttons: Iterable):
         """Set a group of buttons to act as radio buttons.
 
@@ -431,6 +437,9 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
+        self._handlers[GET_LEDS_COMMAND] = StatusRequestCommand(
+            self._address, status_type=1
+        )
 
     def _register_groups(self):
         super()._register_groups()
@@ -441,6 +450,7 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
+        self._handlers[GET_LEDS_COMMAND].subscribe(self._led_status)
         for group in self._buttons:
             if self._groups.get(group) is not None:
                 led_method = partial(self._led_follow_check, group=group)
@@ -476,6 +486,13 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
             self._groups[group].value = 0
         else:
             self._groups[group].value = value
+
+    def _led_status(self, db_version, status):
+        """Set the on level of the LED from a status command."""
+        for bit in range(2, 9):
+            state = self._groups.get(bit)
+            if state:
+                state.value = bit_is_set(status, bit - 1)
 
     def _register_operating_flags(self):
         """Register operating flags."""
