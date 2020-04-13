@@ -5,11 +5,11 @@ from ...utils import build_topic
 from .extended_set import ExtendedSetCommand
 
 
-def _bitmask(self, *args):
+def _bitmask(*args):
     bitmask = 0x00
     for group in range(0, 8):
         val = 1 if args[group] else 0
-        bitmask = bitmask + val << group
+        bitmask = bitmask + (val << group)
     return bitmask
 
 
@@ -65,5 +65,4 @@ class SetLedsCommandHandler(ExtendedSetCommand):
         bitmask = _bitmask(
             group1, group2, group3, group4, group5, group6, group7, group8
         )
-        kwargs = {"data1": self._data1, "data2": self._data2, "data3": bitmask}
-        return await super().async_send(**kwargs)
+        return await super().async_send(data3=bitmask)

@@ -62,7 +62,7 @@ from .commands import (
     GET_LEDS_COMMAND,
     STATUS_COMMAND_FAN,
 )
-from ..utils import set_bit, bit_is_set
+from ..utils import set_bit, bit_is_set, multiple_status
 from .variable_controller_base import ON_LEVEL_MANAGER
 
 
@@ -373,8 +373,14 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
 
     async def async_status(self):
         """Check the status of the device."""
-        await super().async_status()
-        await self._handlers[GET_LEDS_COMMAND].async_send()
+        retries = 5
+        status = ResponseStatus.UNSENT
+        while retries and status != ResponseStatus.SUCCESS:
+            status0 = await super().async_status()
+            status1 = await self._handlers[GET_LEDS_COMMAND].async_send()
+            status = multiple_status(status0, status1)
+            retries -= 1
+        return status
 
     async def async_set_radio_buttons(self, buttons: Iterable):
         """Set a group of buttons to act as radio buttons.
@@ -476,7 +482,9 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         leds = {}
         for curr_led in range(1, 9):
             var = "group{}".format(curr_led)
-            leds[var] = is_on if curr_led == led else bool(self._groups.get(curr_led))
+            curr_group = self._groups.get(curr_led)
+            curr_val = bool(curr_group.value) if curr_group else False
+            leds[var] = is_on if curr_led == led else curr_val
         return leds
 
     def _update_leds(self, group, value):

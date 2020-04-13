@@ -2,6 +2,7 @@
 from functools import partial
 from typing import Iterable
 
+from ..constants import ResponseStatus
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..extended_property import (
     LED_DIMMING,
@@ -44,9 +45,9 @@ from ..operating_flag import (
     RF_DISABLE_ON,
     POWERLINE_DISABLE_ON,
 )
-from .commands import SET_LEDS_COMMAND, STATUS_COMMAND
+from .commands import SET_LEDS_COMMAND, STATUS_COMMAND, GET_LEDS_COMMAND
 from .on_off_responder_base import OnOffResponderBase
-from ..utils import bit_is_set, set_bit
+from ..utils import bit_is_set, set_bit, multiple_status
 from .on_off_controller_base import ON_LEVEL_MANAGER
 
 
@@ -209,6 +210,17 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         kwargs = self._change_led_status(led=group, is_on=False)
         return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
 
+    async def async_status(self, group=None):
+        """Check the status of the device."""
+        retries = 5
+        status = ResponseStatus.UNSENT
+        while retries and status != ResponseStatus.SUCCESS:
+            status0 = await super().async_status()
+            status1 = await self._handlers[GET_LEDS_COMMAND].async_send()
+            status = multiple_status(status0, status1)
+            retries -= 1
+        return status
+
     async def async_set_radio_buttons(self, buttons: Iterable):
         """Set a group of buttons to act as radio buttons.
 
@@ -270,6 +282,9 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
+        self._handlers[GET_LEDS_COMMAND] = StatusRequestCommand(
+            self._address, status_type=1
+        )
 
     def _register_groups(self):
         super()._register_groups()
@@ -280,6 +295,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
+        self._handlers[GET_LEDS_COMMAND].subscribe(self._led_status)
         for group in self._buttons:
             if self._groups.get(group) is not None:
                 led_method = partial(self._led_follow_check, group=group)
@@ -305,7 +321,9 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         leds = {}
         for curr_led in range(1, 9):
             var = "group{}".format(curr_led)
-            leds[var] = is_on if curr_led == led else bool(self._groups.get(curr_led))
+            curr_group = self._groups.get(curr_led)
+            curr_val = bool(curr_group.value) if curr_group else False
+            leds[var] = is_on if curr_led == led else curr_val
         return leds
 
     def _update_leds(self, group, value):
@@ -315,6 +333,13 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
             self._groups[group].value = 0
         else:
             self._groups[group].value = value
+
+    def _led_status(self, db_version, status):
+        """Set the on level of the LED from a status command."""
+        for bit in range(2, 9):
+            state = self._groups.get(bit)
+            if state:
+                state.value = bit_is_set(status, bit - 1)
 
     def _register_operating_flags(self):
         """Register operating flags."""
