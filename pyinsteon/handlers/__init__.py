@@ -177,6 +177,55 @@ def direct_ack_handler(func):
     return wrapper
 
 
+def status_ack_handler(timeout=TIMEOUT):
+    """Register the message ACK handler."""
+
+    def register_topic(
+        instance_func, topic, address=None, group=None, message_type=None
+    ):
+        """Register an inbound ACK message."""
+        _register_handler(
+            instance_func,
+            topic,
+            prefix="ack",
+            address=address,
+            group=group,
+            message_type=message_type,
+        )
+
+    async def _wait_response(lock: asyncio.Lock, queue: asyncio.Queue):
+        """Wait for the direct ACK message, and post False if timeout reached."""
+        # TODO: Need to consider the risk of this. We may be unlocking a prior send command.
+        # This would mean that the prior command will terminate. What happens when the
+        # prior command returns a direct ACK then this command returns a direct ACK?
+        # Do not believe this is an issue but need to test.
+        if lock.locked():
+            lock.release()
+        await lock.acquire()
+        try:
+            await asyncio.wait_for(lock.acquire(), TIMEOUT)
+        except asyncio.TimeoutError:
+            if lock.locked():
+                await queue.put(ResponseStatus.FAILURE)
+        if lock.locked():
+            lock.release()
+
+    def setup(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            cmd2 = kwargs.get("cmd2")
+            if cmd2 == self.status_type:
+                asyncio.ensure_future(
+                    _wait_response(self.response_lock, self.message_response)
+                )
+                return func(self, *args, **kwargs)
+
+        wrapper.register_topic = register_topic
+        return wrapper
+
+    return setup
+
+
 def status_handler(func):
     """Register the status response handler."""
 
@@ -188,9 +237,10 @@ def status_handler(func):
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        asyncio.ensure_future(
-            _async_post_response(self, ResponseStatus.SUCCESS, func, args, kwargs)
-        )
+        if self.response_lock.locked():
+            asyncio.ensure_future(
+                _async_post_response(self, ResponseStatus.SUCCESS, func, args, kwargs)
+            )
 
     wrapper.register_status = register_status
     return wrapper
