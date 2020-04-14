@@ -12,7 +12,7 @@ from ..handlers.to_device.off_all_link_cleanup_ack import OffAllLinkCleanupAckCo
 from ..handlers.to_device.on_all_link_cleanup_ack import OnAllLinkCleanupAckCommand
 from ..subscriber_base import SubscriberBase
 
-TIMEOUT = timedelta(0, 3)  # number of seconds to define duplicate time inteval
+TIMEOUT = timedelta(seconds=3)
 
 
 class OnLevelManager:
