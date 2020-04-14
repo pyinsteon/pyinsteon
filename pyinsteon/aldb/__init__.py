@@ -53,6 +53,7 @@ class ALDB(ALDBBase):
         self._status = ALDBStatus.LOADING
         if refresh:
             self.clear()
+        # pylint: disable=not-an-iterable
         async for rec in self._read_manager.async_read(
             mem_addr=mem_addr, num_recs=num_recs
         ):

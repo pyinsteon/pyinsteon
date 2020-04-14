@@ -17,11 +17,6 @@ class ThermostatGetSetPointCommand(DirectCommandHandlerBase):
         super().__init__(topic=EXTENDED_GET_SET, address=address)
 
     # pylint: disable=arguments-differ
-    def send(self):
-        """Send Get Operating Flags message."""
-        super().send()
-
-    # pylint: disable=arguments-differ
     async def async_send(self):
         """Send Get Operating Flags message asyncronously."""
         response = await super().async_send(data3=0x01)

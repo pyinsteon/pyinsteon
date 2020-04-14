@@ -157,6 +157,7 @@ class ALDBBase(ABC):
     def _send_change(cls, topic, controller, responder, group):
         publish_topic(topic, controller=controller, responder=responder, group=group)
 
+    # pylint: disable=no-self-use
     def _calc_load_status(self):
         """Calculate the load status."""
         return False
