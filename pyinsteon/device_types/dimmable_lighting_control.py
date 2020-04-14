@@ -362,14 +362,20 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         if group in [0, 1]:
             return await super().async_on(on_level=on_level, group=group, fast=fast)
         kwargs = self._change_led_status(led=group, is_on=True)
-        return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+        result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+        if result == ResponseStatus.SUCCESS:
+            self._update_leds(group=group, value=on_level)
+        return result
 
     async def async_off(self, group: int = 0, fast: bool = False):
         """Turn off the button LED."""
         if group in [0, 1]:
             return await super().async_off(group=group, fast=fast)
         kwargs = self._change_led_status(led=group, is_on=False)
-        return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+        result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+        if result == ResponseStatus.SUCCESS:
+            self._update_leds(group=group, value=0)
+        return result
 
     async def async_status(self):
         """Check the status of the device."""
@@ -455,7 +461,6 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-        self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
         self._handlers[GET_LEDS_COMMAND].subscribe(self._led_status)
         for group in self._buttons:
             if self._groups.get(group) is not None:
