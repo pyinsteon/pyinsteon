@@ -27,6 +27,10 @@ SYSTEM_MODE = "system_mode"
 FAN_MODE = "fan_mode"
 TEMPERATURE = "temperature"
 HUMIDITY = "humidity"
+COOLING = "cooling"
+HEATING = "heating"
+HUMIDIFYING = "humidifying"
+DEHUMIDIFYING = "dehumidifying"
 
 ON_OFF_SWITCH_MAIN = "{}_{}".format(ON_OFF_SWITCH, "main")
 ON_OFF_SWITCH_A = "{}_{}".format(ON_OFF_SWITCH, "a")
