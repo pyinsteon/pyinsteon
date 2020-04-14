@@ -1,7 +1,7 @@
 """Handle sending a read request for ALDB records."""
 import logging
 
-from .. import ack_handler
+from .. import ack_handler, direct_ack_handler
 from ...address import Address
 from ...topics import EXTENDED_GET_SET
 from .direct_command import DirectCommandHandlerBase
@@ -17,9 +17,9 @@ class ThermostatGetSetPointCommand(DirectCommandHandlerBase):
         super().__init__(topic=EXTENDED_GET_SET, address=address)
 
     # pylint: disable=arguments-differ
-    def send(self, group=0):
+    def send(self):
         """Send Get Operating Flags message."""
-        super().send(data3=0x01)
+        super().send()
 
     # pylint: disable=arguments-differ
     async def async_send(self):
@@ -37,7 +37,16 @@ class ThermostatGetSetPointCommand(DirectCommandHandlerBase):
             not user_data
             or not user_data["data1"] == 0x00
             or not user_data["data2"] == 0x00
-            or not user_data["data2"] == 0x01
+            or not user_data["data3"] == 0x01
         ):
             return
         super().handle_ack(cmd1, cmd2, user_data)
+
+    @direct_ack_handler
+    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
+        """Handle the direct ACK.
+
+        Just need to notify listeners that the Set Point Response
+        shoudl be coming.
+        """
+        self._call_subscribers()

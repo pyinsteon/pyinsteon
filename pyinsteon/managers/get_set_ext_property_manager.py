@@ -18,19 +18,6 @@ RETRIES = 20
 PropertyInfo = namedtuple("PropertyInfo", "name group data_field bit set_cmd")
 
 
-def _calc_flag_value(field):
-    data = 0x00
-    set_cmd = None
-    for bit in field:
-        flag_info = field[bit]
-        flag = flag_info.flag
-        set_value = not flag.new_value if flag.is_reversed else flag.new_value
-        if set_value:
-            data = data | 1 << bit
-        set_cmd = flag_info.set_cmd
-    return set_cmd, data
-
-
 class GetSetExtendedPropertyManager:
     """Get and Set extended properties for a device."""
 
@@ -44,6 +31,12 @@ class GetSetExtendedPropertyManager:
         self._groups = {}
         self._flags = {}
         self._response_queue = asyncio.Queue()
+        self._get_cmd_lock = asyncio.Lock()
+
+    @property
+    def flag_info(self):
+        """Return the flag information."""
+        return self._flags
 
     def create(self, name, group, data_field, bit, set_cmd, is_revsersed=False):
         """Subscribe a device property to Get and Set values.
@@ -68,15 +61,22 @@ class GetSetExtendedPropertyManager:
 
     async def async_read(self, group=None):
         """Get the properties for a group."""
+        if self._get_cmd_lock.locked():
+            self._get_cmd_lock.release()
+
         while not self._response_queue.empty():
             self._response_queue.get_nowait()
+
+        await self._get_cmd_lock.acquire()
         if group is None:
             results = []
             for curr_group in self._groups:
                 result = await self._async_read(group=curr_group)
                 results.append(result)
                 await asyncio.sleep(2)
+            self._get_cmd_lock.release()
             return multiple_status(*results)
+        self._get_cmd_lock.release()
         return await self._async_read(group=group)
 
     async def _async_read(self, group):
@@ -113,16 +113,19 @@ class GetSetExtendedPropertyManager:
             data = flag.new_value
             set_cmd = self._groups[group][field].set_cmd
         else:
-            set_cmd, data = _calc_flag_value(self._groups[group][field])
+            set_cmd, data = self._calc_flag_value(self._groups[group][field])
         if set_cmd is not None:
             cmd = ExtendedSetCommand(self._address, data1=group, data2=set_cmd)
             result = await cmd.async_send(data3=data)
             if result == ResponseStatus.SUCCESS:
                 self._update_one_field(group, field, data)
             return result
+        return ResponseStatus.SUCCESS
 
     def _update_all_fields(self, group, data):
         """Update each flag."""
+        if not self._get_cmd_lock.locked():
+            return
         if self._groups.get(group) is None and group == 1:
             group = 0
         if self._groups.get(group) is None:
@@ -145,3 +148,15 @@ class GetSetExtendedPropertyManager:
                 flag = self._properties[flag_info.name]
                 flag.load(value=bit_value)
         self._response_queue.put_nowait(ResponseStatus.SUCCESS)
+
+    def _calc_flag_value(self, field):
+        data = 0x00
+        set_cmd = None
+        for bit in field:
+            flag_info = field[bit]
+            flag = self._properties[flag_info.name]
+            set_value = not flag.new_value if flag.is_reversed else flag.new_value
+            if set_value:
+                data = data | 1 << bit
+            set_cmd = flag_info.set_cmd
+        return set_cmd, data

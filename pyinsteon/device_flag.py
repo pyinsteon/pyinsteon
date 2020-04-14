@@ -68,8 +68,11 @@ class DeviceFlagBase(SubscriberBase):
         """
         if self._type is bool and self._reversed:
             value = not value
-        self._value = self._type(value) if value is not None else self._type(0)
+        update_value = self._type(value) if value is not None else self._type(0)
         self._is_dirty = False
         self._new_value = None
         self._is_loaded = True
-        self._call_subscribers(name=self._name, value=self._value)
+        is_changed = update_value != self._value
+        self._value = update_value
+        if is_changed:
+            self._call_subscribers(name=self._name, value=self._value)

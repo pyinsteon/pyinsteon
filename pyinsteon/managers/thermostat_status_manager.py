@@ -90,7 +90,9 @@ class GetThermostatStatus:
         cool_set_point,
         humidity,
         temperature,
-        status_flag,
+        cooling,
+        heating,
+        celsius,
         heat_set_point,
     ):
         """Notify the read process that the resonse was received."""
