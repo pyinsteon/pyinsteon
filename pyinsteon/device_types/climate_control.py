@@ -373,6 +373,8 @@ class ClimateControl_Thermostat(Device):
         heat_set_point,
     ):
         """Receive the status update."""
+        self._groups[GRP_COOL_ON].set_value(cooling)
+        self._groups[GRP_HEAT_ON].set_value(heating)
         self._groups[GRP_SYS_MODE].set_value(system_mode)
         self._groups[GRP_FAN_MODE].set_value(fan_mode)
         self._groups[GRP_COOL_SP].set_value(cool_set_point)
