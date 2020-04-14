@@ -76,8 +76,9 @@ class GetSetExtendedPropertyManager:
                 await asyncio.sleep(2)
             self._get_cmd_lock.release()
             return multiple_status(*results)
+        result = await self._async_read(group=group)
         self._get_cmd_lock.release()
-        return await self._async_read(group=group)
+        return result
 
     async def _async_read(self, group):
         retry = 0
