@@ -203,7 +203,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         kwargs = self._change_led_status(led=group, is_on=True)
         result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
         if result == ResponseStatus.SUCCESS:
-            self._update_leds(group=group, value=0xFF)
+            self._update_leds(group=group, value=0xFF, event=ON_EVENT)
         return result
 
     async def async_off(self, group: int = 0):
@@ -213,7 +213,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         kwargs = self._change_led_status(led=group, is_on=False)
         result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
         if result == ResponseStatus.SUCCESS:
-            self._update_leds(group=group, value=0)
+            self._update_leds(group=group, value=0, event=OFF_EVENT)
         return result
 
     async def async_status(self, group=None):
@@ -331,13 +331,14 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
             leds[var] = is_on if curr_led == led else curr_val
         return leds
 
-    def _update_leds(self, group, value):
+    def _update_leds(self, group, value, event):
         """Check if the LED is toggle or not and set value."""
         non_toogle = bit_is_set(self._properties[NON_TOGGLE_MASK].value, group)
         if non_toogle:
             self._groups[group].value = 0
         else:
             self._groups[group].value = value
+        self._events[group][event].trigger(value)
 
     def _led_status(self, db_version, status):
         """Set the on level of the LED from a status command."""

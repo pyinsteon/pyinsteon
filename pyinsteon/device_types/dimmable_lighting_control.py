@@ -14,6 +14,7 @@ from ..extended_property import (
     TRIGGER_GROUP_MASK,
     NON_TOGGLE_ON_OFF_MASK,
 )
+from ..events import ON_EVENT, OFF_EVENT, ON_FAST_EVENT, OFF_FAST_EVENT
 
 # from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
 # from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
@@ -32,6 +33,7 @@ from ..groups import (
     ON_OFF_SWITCH_H,
 )
 from ..groups.on_off import OnOff
+from ..groups.on_level import OnLevel
 from ..handlers import ResponseStatus
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
@@ -364,7 +366,8 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         kwargs = self._change_led_status(led=group, is_on=True)
         result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
         if result == ResponseStatus.SUCCESS:
-            self._update_leds(group=group, value=on_level)
+            event = ON_FAST_EVENT if fast else ON_EVENT
+            self._update_leds(group=group, value=on_level, event=event)
         return result
 
     async def async_off(self, group: int = 0, fast: bool = False):
@@ -374,7 +377,8 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         kwargs = self._change_led_status(led=group, is_on=False)
         result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
         if result == ResponseStatus.SUCCESS:
-            self._update_leds(group=group, value=0)
+            event = OFF_FAST_EVENT if fast else OFF_EVENT
+            self._update_leds(group=group, value=0, event=event)
         return result
 
     async def async_status(self):
@@ -454,10 +458,16 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         )
 
     def _register_groups(self):
-        super()._register_groups()
         for button in self._buttons:
             name = self._buttons[button]
-            self._groups[button] = OnOff(name=name, address=self._address, group=button)
+            if button == 1:
+                self._groups[button] = OnLevel(
+                    name=name, address=self._address, group=button
+                )
+            else:
+                self._groups[button] = OnOff(
+                    name=name, address=self._address, group=button
+                )
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
@@ -492,13 +502,14 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
             leds[var] = is_on if curr_led == led else curr_val
         return leds
 
-    def _update_leds(self, group, value):
+    def _update_leds(self, group, value, event):
         """Check if the LED is toggle or not and set value."""
         non_toogle = bit_is_set(self._properties[NON_TOGGLE_MASK].value, group)
         if non_toogle:
             self._groups[group].value = 0
         else:
             self._groups[group].value = value
+        self._events[group][event].trigger(value)
 
     def _led_status(self, db_version, status):
         """Set the on level of the LED from a status command."""
