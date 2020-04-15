@@ -12,7 +12,7 @@ from ..handlers.to_device.off_all_link_cleanup_ack import OffAllLinkCleanupAckCo
 from ..handlers.to_device.on_all_link_cleanup_ack import OnAllLinkCleanupAckCommand
 from ..subscriber_base import SubscriberBase
 
-TIMEOUT = timedelta(seconds=3)
+TIMEOUT = timedelta(seconds=2)
 
 
 class OnLevelManager:
@@ -100,20 +100,20 @@ class OnLevelManager:
         self._off_fast.subscribe(callback)
 
     def _on_event(self, on_level):
-        if self._process_event("on"):
-            self._on.call_subscribers(on_level=on_level)
+        self._process_event("on")
+        self._on.call_subscribers(on_level=on_level)
 
     def _off_event(self, on_level):
-        if self._process_event("off"):
-            self._off.call_subscribers(on_level=0)
+        self._process_event("off")
+        self._off.call_subscribers(on_level=0)
 
     def _on_fast_event(self, on_level):
-        if self._process_event("on_fast"):
-            self._on_fast.call_subscribers(on_level=on_level)
+        self._process_event("on_fast")
+        self._on_fast.call_subscribers(on_level=on_level)
 
     def _off_fast_event(self, on_level):
-        if self._process_event("off_fast"):
-            self._off_fast.call_subscribers(on_level=0)
+        self._process_event("off_fast")
+        self._off_fast.call_subscribers(on_level=0)
 
     def _on_cleanup_event(self):
         OnAllLinkCleanupAckCommand(self._address, self._group).send()
