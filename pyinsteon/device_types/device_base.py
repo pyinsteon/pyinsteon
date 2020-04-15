@@ -63,9 +63,9 @@ class Device(ABC):
         self._ext_property_manager = GetSetExtendedPropertyManager(self._address)
 
         self._register_operating_flags()
-        self._register_handlers_and_managers()
         self._register_groups()
         self._register_events()
+        self._register_handlers_and_managers()
         self._subscribe_to_handelers_and_managers()
         self._register_default_links()
 
