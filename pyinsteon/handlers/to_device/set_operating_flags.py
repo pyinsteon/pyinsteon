@@ -32,6 +32,6 @@ class SetOperatingFlagsCommand(DirectCommandHandlerBase):
         return cmd_response
 
     @direct_nak_handler
-    def handle_direct_nak(self, cmd1, cmd2, target, user_data):
+    def handle_direct_nak(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the direct ACK."""
         self._call_subscribers(response=cmd2)

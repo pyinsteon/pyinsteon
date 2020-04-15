@@ -17,6 +17,6 @@ class OffFastCommand(DirectCommandHandlerBase):
         return await super().async_send(group=self._group)
 
     @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
+    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the OFF response direct ACK."""
         self._call_subscribers(on_level=0)

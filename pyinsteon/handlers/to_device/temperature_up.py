@@ -22,6 +22,6 @@ class TemperatureUpCommand(DirectCommandHandlerBase):
         return await super().async_send(degrees=degrees)
 
     @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
+    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the OFF response direct ACK."""
         self._call_subscribers(degrees=cmd2 * 0.5)

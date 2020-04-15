@@ -275,6 +275,7 @@ def direct_nak_handler(func):
 def broadcast_handler(func):
     """Register the BROADCAST message handler."""
     last_command = datetime(1, 1, 1)
+    last_hops_left = None
 
     def register_topic(
         instance_func, topic, address=None, group=None, message_type=None
@@ -299,33 +300,15 @@ def broadcast_handler(func):
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        nonlocal last_command
+        nonlocal last_command, last_hops_left
         curr_time = datetime.now()
         tdelta = curr_time - last_command
         last_command = curr_time
-        if tdelta.seconds >= 2:
+        hops_left = kwargs["hops_left"]
+        if last_hops_left is None or hops_left >= last_hops_left or tdelta.seconds >= 2:
+            last_hops_left = hops_left
             return func(self, *args, **kwargs)
-
-    wrapper.register_topic = register_topic
-    return wrapper
-
-
-def all_link_cleanup_handler(func):
-    """Register the c message handler."""
-    last_command = datetime(1, 1, 1)
-
-    def register_topic(instance_func, topic):
-        topic = "{}.all_link_cleanup".format(topic)
-        subscribe_topic(instance_func, topic)
-
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        nonlocal last_command
-        curr_time = datetime.now()
-        tdelta = curr_time - last_command
-        last_command = curr_time
-        if tdelta.seconds >= 2:
-            return func(self, *args, **kwargs)
+        last_hops_left = hops_left
 
     wrapper.register_topic = register_topic
     return wrapper

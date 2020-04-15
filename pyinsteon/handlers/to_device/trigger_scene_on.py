@@ -41,6 +41,6 @@ class TriggerSceneOnCommandHandler(DirectCommandHandlerBase):
         return super().handle_ack(cmd1, cmd2, user_data)
 
     @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
+    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the direct ACK message."""
         self._call_subscribers(on_level=self._on_level)

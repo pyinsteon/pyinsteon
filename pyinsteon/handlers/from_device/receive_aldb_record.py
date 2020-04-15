@@ -29,7 +29,7 @@ class ReceiveALDBRecordHandler(InboundHandlerBase):
         )
 
     @inbound_handler
-    def handle_response(self, cmd1, cmd2, target, user_data):
+    def handle_response(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the inbound message."""
         _LOGGER.debug("ALDB Read direct message received")
         if user_data is not None and user_data.get("d2") == 0x01:

@@ -29,6 +29,6 @@ class ExtendedGet2Command(DirectCommandHandlerBase):
         return await super().async_send(data1=self._data1)
 
     @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
+    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the direct ACK."""
         self._call_subscribers()

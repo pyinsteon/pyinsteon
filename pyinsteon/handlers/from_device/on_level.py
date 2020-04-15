@@ -16,6 +16,6 @@ class OnLevelInbound(BroadcastCommandHandlerBase):
         super().__init__(topic=ON, address=self._address, group=self._group)
 
     @broadcast_handler
-    def handle_command(self, cmd1, cmd2, target, user_data):
+    def handle_command(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the ON command from a device."""
         self._call_subscribers(on_level=cmd2 if cmd2 else 0xFF)

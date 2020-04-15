@@ -29,6 +29,6 @@ class ThermostatTemperatureHandler(InboundHandlerBase):
         )
 
     @inbound_handler
-    def handle_response(self, cmd1, cmd2, target, user_data):
+    def handle_response(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the Temperature response from a device."""
         self._call_subscribers(degrees=int(round(cmd2 / 2, 0)))

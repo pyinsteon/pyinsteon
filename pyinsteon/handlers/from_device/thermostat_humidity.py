@@ -29,6 +29,6 @@ class ThermostatHumidityHandler(InboundHandlerBase):
         )
 
     @inbound_handler
-    def handle_response(self, cmd1, cmd2, target, user_data):
+    def handle_response(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the Humidity set point response from a device."""
         self._call_subscribers(humidity=cmd2)

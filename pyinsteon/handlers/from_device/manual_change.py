@@ -17,6 +17,6 @@ class ManualChangeInbound(BroadcastCommandHandlerBase):
         )
 
     @broadcast_handler
-    def handle_command(self, cmd1, cmd2, target, user_data):
+    def handle_command(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the OFF command from a device."""
         self._call_subscribers()

@@ -82,7 +82,14 @@ def _create_rcv_std_ext_msg(topic, address, flags, cmd1, cmd2, target, user_data
         group=group,
         message_type=flags.message_type,
     )
-    kwargs = {"cmd1": cmd1, "cmd2": cmd2, "target": target, "user_data": user_data}
+    hops_left = flags.hops_left
+    kwargs = {
+        "cmd1": cmd1,
+        "cmd2": cmd2,
+        "target": target,
+        "user_data": user_data,
+        "hops_left": hops_left,
+    }
     return (topic, kwargs)
 
 

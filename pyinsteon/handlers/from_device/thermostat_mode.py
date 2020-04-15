@@ -29,7 +29,7 @@ class ThermostatModeHandler(InboundHandlerBase):
         )
 
     @inbound_handler
-    def handle_response(self, cmd1, cmd2, target, user_data):
+    def handle_response(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the mode response from a device."""
         sys_mode, fan_mode = calc_thermostat_mode(cmd2)
         self._call_subscribers(system_mode=sys_mode, fan_mode=fan_mode)

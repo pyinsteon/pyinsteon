@@ -46,7 +46,7 @@ class ThermostatStatusResponseHandler(InboundHandlerBase):
         )
 
     @inbound_handler
-    def handle_response(self, cmd1, cmd2, target, user_data):
+    def handle_response(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the Status Response from a Thermostat."""
         day = user_data["d2"]
         hour = user_data["d3"]

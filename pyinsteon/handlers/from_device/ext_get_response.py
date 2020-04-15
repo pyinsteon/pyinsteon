@@ -30,7 +30,7 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
         )
 
     @inbound_handler
-    def handle_response(self, cmd1, cmd2, target, user_data):
+    def handle_response(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the Extended Get response from a device."""
         data = OrderedDict()
         for item in range(3, 15):
