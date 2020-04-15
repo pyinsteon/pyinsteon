@@ -35,6 +35,7 @@ from ..groups import (
 from ..groups.on_off import OnOff
 from ..groups.on_level import OnLevel
 from ..handlers import ResponseStatus
+from ..handlers.from_device.manual_change import ManualChangeInbound
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..operating_flag import (
@@ -70,6 +71,26 @@ from .variable_controller_base import ON_LEVEL_MANAGER
 
 class DimmableLightingControl(VariableResponderBase):
     """Dimmable Lighting Control Device."""
+
+    def _register_handlers_and_managers(self):
+        """Register command handlers and managers."""
+        super()._register_handlers_and_managers()
+        for group in self._groups:
+            if isinstance(self._groups[group], OnLevel):
+                self._handlers[group]["manual_change"] = ManualChangeInbound(
+                    self._address, group
+                )
+
+    def _subscribe_to_handelers_and_managers(self):
+        """Subscribe methods to handlers and managers."""
+        super()._subscribe_to_handelers_and_managers()
+        for group in self._groups:
+            if isinstance(self._groups[group], OnLevel):
+                self._handlers[group]["manual_change"].subscribe(self._on_manual_change)
+
+    def _on_manual_change(self):
+        """Respond to a manual change of the device."""
+        self.status()
 
 
 class DimmableLightingControl_LampLinc(DimmableLightingControl):
@@ -456,6 +477,11 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         self._handlers[GET_LEDS_COMMAND] = StatusRequestCommand(
             self._address, status_type=1
         )
+        for group in self._groups:
+            if isinstance(self._groups[group], OnLevel):
+                self._handlers[group]["manual_change"] = ManualChangeInbound(
+                    self._address, group
+                )
 
     def _register_groups(self):
         for button in self._buttons:
