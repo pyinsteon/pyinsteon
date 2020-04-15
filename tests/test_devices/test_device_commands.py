@@ -28,7 +28,13 @@ def convert_response(response, address):
     cmd1 = convert_to_int(response["cmd1"])
     cmd2 = convert_to_int(response["cmd2"])
     target = Address(response["target"])
-    kwargs = {"cmd1": cmd1, "cmd2": cmd2, "target": target, "user_data": None}
+    kwargs = {
+        "cmd1": cmd1,
+        "cmd2": cmd2,
+        "target": target,
+        "user_data": None,
+        "hops_left": 3,
+    }
     topic_item = TopicItem(topic, kwargs, 2)
     return topic_item
 

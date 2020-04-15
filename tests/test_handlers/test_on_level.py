@@ -33,15 +33,15 @@ class TestOnLevel(unittest.TestCase):
         )
 
     def set_on_level_group_1(self, on_level, group=None):
-        """Callback to on_level direct_ack."""
+        """Handle callback to on_level direct_ack."""
         self._on_level_1 = on_level
 
     def set_on_level_group_2(self, on_level, group=None):
-        """Callback to on_level direct_ack."""
+        """Handle callback to on_level direct_ack."""
         self._on_level_2 = on_level
 
     def set_on_level_group_3(self, on_level, group=None):
-        """Callback to on_level direct_ack."""
+        """Handle callback to on_level direct_ack."""
         self._on_level_3 = on_level
 
     @async_case
@@ -60,7 +60,13 @@ class TestOnLevel(unittest.TestCase):
             TopicItem(ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}, 0.5),
             TopicItem(
                 direct_ack_topic,
-                {"cmd1": cmd1, "cmd2": cmd2, "target": "4d5e6f", "user_data": None},
+                {
+                    "cmd1": cmd1,
+                    "cmd2": cmd2,
+                    "target": "4d5e6f",
+                    "user_data": None,
+                    "hops_left": 3,
+                },
                 0.5,
             ),
         ]
@@ -88,7 +94,13 @@ class TestOnLevel(unittest.TestCase):
             ),
             TopicItem(
                 direct_ack_topic,
-                {"cmd1": cmd1, "cmd2": cmd2, "target": "4d5e6f", "user_data": None},
+                {
+                    "cmd1": cmd1,
+                    "cmd2": cmd2,
+                    "target": "4d5e6f",
+                    "user_data": None,
+                    "hops_left": 3,
+                },
                 0.5,
             ),
         ]
@@ -113,7 +125,13 @@ class TestOnLevel(unittest.TestCase):
             ),
             TopicItem(
                 direct_nak_topic,
-                {"cmd1": cmd1, "cmd2": cmd2, "target": "4d5e6f", "user_data": None},
+                {
+                    "cmd1": cmd1,
+                    "cmd2": cmd2,
+                    "target": "4d5e6f",
+                    "user_data": None,
+                    "hops_left": 3,
+                },
                 0.5,
             ),
         ]

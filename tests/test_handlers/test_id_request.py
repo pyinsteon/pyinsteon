@@ -1,15 +1,15 @@
 """Test the on_level command handler."""
 import asyncio
-import sys
 import unittest
 
 from pyinsteon.address import Address
 from pyinsteon.constants import ResponseStatus
-from pyinsteon.handlers.from_device.assign_to_all_link_group import \
-    AssignToAllLinkGroupCommand
+from pyinsteon.handlers.from_device.assign_to_all_link_group import (
+    AssignToAllLinkGroupCommand,
+)
 from pyinsteon.handlers.to_device.id_request import IdRequestCommand
 from pyinsteon.topics import ASSIGN_TO_ALL_LINK_GROUP
-from tests import _LOGGER, set_log_levels
+from tests import set_log_levels
 from tests.utils import TopicItem, async_case, send_topics
 
 
@@ -39,7 +39,7 @@ class TestIdRequest(unittest.TestCase):
         )
 
     def set_id(self, address, cat, subcat, firmware, group, mode):
-        """Callback to on_level direct_ack."""
+        """Handle callback to on_level direct_ack."""
         self._cat = cat
         self._subcat = subcat
         self._firmware = firmware
@@ -55,7 +55,13 @@ class TestIdRequest(unittest.TestCase):
             ),
             TopicItem(
                 self.direct_ack_topic,
-                {"cmd1": cmd1, "cmd2": cmd2, "target": "112233", "user_data": None},
+                {
+                    "cmd1": cmd1,
+                    "cmd2": cmd2,
+                    "target": "112233",
+                    "user_data": None,
+                    "hops_left": 3,
+                },
                 0.5,
             ),
             TopicItem(
@@ -65,6 +71,7 @@ class TestIdRequest(unittest.TestCase):
                     "cmd2": cmd2,
                     "target": Address("010203"),
                     "user_data": None,
+                    "hops_left": 3,
                 },
                 0.5,
             ),
@@ -87,7 +94,13 @@ class TestIdRequest(unittest.TestCase):
             ),
             TopicItem(
                 self.direct_nak_topic,
-                {"cmd1": cmd1, "cmd2": cmd2, "target": "aabbcc", "user_data": None},
+                {
+                    "cmd1": cmd1,
+                    "cmd2": cmd2,
+                    "target": "aabbcc",
+                    "user_data": None,
+                    "hops_left": 3,
+                },
                 0.5,
             ),
         ]

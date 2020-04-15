@@ -12,7 +12,7 @@ class TestDeviceIdManager(unittest.TestCase):
     """Test device ID manager."""
 
     def setUp(self):
-        """Setup the test."""
+        """Set up the test."""
         self._id_mgr = DeviceIdManager()
         self._test_response = None
         self._modem_address = Address("4d5e6f")
@@ -41,10 +41,10 @@ class TestDeviceIdManager(unittest.TestCase):
         )
         topic_item_2 = TopicItem(ack, cmd_kwargs(0x10, 0x00, None, None), 0.5)
         topic_item_3 = TopicItem(
-            dir_ack, cmd_kwargs(0x10, 0x00, None, self._modem_address), 0.5
+            dir_ack, cmd_kwargs(0x10, 0x00, None, self._modem_address, None, 3), 0.5
         )
         topic_item_4 = TopicItem(
-            response, cmd_kwargs(0x10, 0x12, None, self._target), 0.5
+            response, cmd_kwargs(0x10, 0x12, None, self._target, None, 3), 0.5
         )
         topic_data = [topic_item_1, topic_item_2, topic_item_3, topic_item_4]
 
