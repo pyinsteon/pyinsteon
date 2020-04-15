@@ -129,11 +129,9 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
     def _register_events(self):
         """Register events for the Door Sensor."""
         super()._register_events()
-        lb_event = self._events[LOW_BATTERY_EVENT] = LowBatteryEvent(
+        self._events[LOW_BATTERY_EVENT] = LowBatteryEvent(
             name=LOW_BATTERY_EVENT, address=self._address, group=self.LOW_BATTERY_GROUP
         )
-        self._low_battery_manger.subscribe_low_battery_event(lb_event.trigger)
-
         self._events[HEARTBEAT_EVENT] = HeartbeatEvent(
             name=HEARTBEAT_EVENT, address=self._address, group=self.HEARTBEAT_GROUP
         )
@@ -146,7 +144,10 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
         self._heartbeat_manger.subscribe_on(self._groups[self.DOOR_GROUP].set_value)
         self._heartbeat_manger.subscribe_off(self._groups[self.DOOR_GROUP].set_value)
         self._heartbeat_manger.subscribe(self._groups[self.HEARTBEAT_GROUP].set_value)
-        self._heartbeat_manger.subscribe(self._events[HEARTBEAT_EVENT])
+        self._low_battery_manger.subscribe_low_battery_event(
+            self._events[LOW_BATTERY_EVENT].trigger
+        )
+        self._heartbeat_manger.subscribe(self._events[HEARTBEAT_EVENT].trigger)
 
     def _register_operating_flags(self):
         """Register operating flags for Door Sensor."""
