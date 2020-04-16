@@ -286,7 +286,10 @@ def calc_thermostat_mode(mode_byte, sys_mode_map=None, sys_low=True):
         fan_mode = ThermostatMode.FAN_AUTO
     else:
         fan_mode = ThermostatMode.FAN_ALWAYS_ON
-    return sys_mode_map[system_mode], fan_mode
+    sys_mode = sys_mode_map.get(system_mode)
+    if sys_mode is None:
+        sys_mode = ThermostatMode.AUTO
+    return sys_mode, fan_mode
 
 
 def publish_topic(topic, logger=None, **kwargs):
