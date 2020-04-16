@@ -37,11 +37,11 @@ class AllLinkCleanupCommandHandlerBase(OutboundHandlerBase):
         pass
 
     @all_link_cleanup_ack_handler
-    def handle_all_link_ack(self, target, cmd1, cmd2, user_data):
+    def handle_all_link_ack(self, target, cmd1, cmd2, user_data, hops_left):
         """Handle the All-LInk Command ACK."""
         pass
 
     @all_link_cleanup_nak_handler
-    def handle_all_link_nak(self, target, cmd1, cmd2, user_data):
+    def handle_all_link_nak(self, target, cmd1, cmd2, user_data, hops_left):
         """Handle the All-LInk Command NAK."""
         pass
