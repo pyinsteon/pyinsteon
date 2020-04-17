@@ -1,4 +1,5 @@
 """Manage wet / dry state of the leak sensor."""
+from typing import Callable
 
 from ..address import Address
 from ..handlers.from_device.on_level import OnLevelInbound
@@ -11,9 +12,9 @@ class WetDryManager(SubscriberBase):
     class WetDryEvent(SubscriberBase):
         """Wet or dry events."""
 
-        def call_subscribers(self, wet):
+        def call_subscribers(self, dry):
             """Call subscribers of wet/dry events."""
-            self._call_subscribers(wet=wet)
+            self._call_subscribers(dry=dry)
 
     def __init__(self, address, dry_group=1, wet_group=2):
         """Init the WetDryManager."""
@@ -31,6 +32,13 @@ class WetDryManager(SubscriberBase):
         self._wet_events = self.WetDryEvent("{}_wet".format(subscriber_topic))
         self._wet_handler.subscribe(self._wet)
 
+    def subscribe(self, callback: Callable, force_strong_ref=False):
+        """Subscribe to the event."""
+        if force_strong_ref and callback not in self._subscribers:
+            self._subscribers.append(callback)
+        self.subscribe_wet(callback)
+        self.subscribe_dry(callback)
+
     def subscribe_dry(self, callback):
         """Subscribe to dry events."""
         self._dry_events.subscribe(callback)
@@ -41,8 +49,8 @@ class WetDryManager(SubscriberBase):
 
     def _dry(self, on_level):
         """Dry event received."""
-        self._dry_events.call_subscribers(wet=False)
+        self._dry_events.call_subscribers(dry=True)
 
     def _wet(self, on_level):
         """Dry event received."""
-        self._wet_events.call_subscribers(wet=True)
+        self._wet_events.call_subscribers(dry=False)

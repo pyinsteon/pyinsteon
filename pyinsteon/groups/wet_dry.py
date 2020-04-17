@@ -13,9 +13,9 @@ class Dry(GroupBase):
         super().__init__(name, address, group, default, value_type=bool)
 
     # pylint: disable=arguments-differ
-    def set_value(self, wet):
+    def set_value(self, dry):
         """Set the value of the state from the handlers."""
-        self.value = not bool(wet)
+        self.value = bool(dry)
 
 
 class Wet(GroupBase):
@@ -28,6 +28,6 @@ class Wet(GroupBase):
         super().__init__(name, address, group, default, value_type=bool)
 
     # pylint: disable=arguments-differ
-    def set_value(self, wet):
+    def set_value(self, dry):
         """Set the value of the state from the handlers."""
-        self.value = bool(wet)
+        self.value = not bool(dry)

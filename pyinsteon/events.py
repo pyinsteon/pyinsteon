@@ -111,3 +111,14 @@ class HeartbeatEvent(Event):
         self._call_subscribers(
             name=self._name, address=self._address.id, group=self._group
         )
+
+
+class WetDryEvent(Event):
+    """We or Dry event."""
+
+    # pylint: disable=arguments-differ
+    def trigger(self, dry):
+        """Trigger the event."""
+        self._call_subscribers(
+            name=self._name, address=self._address.id, group=self._group
+        )

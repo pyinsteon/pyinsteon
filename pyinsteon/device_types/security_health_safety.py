@@ -20,6 +20,7 @@ from ..events import (
     Event,
     HeartbeatEvent,
     LowBatteryEvent,
+    WetDryEvent,
 )
 from ..extended_property import (
     AMBIENT_LIGHT_INTENSITY,
@@ -392,10 +393,10 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
 
     def _register_events(self):
         """Register events for the Door Sensor."""
-        self._events[LEAK_DRY_EVENT] = Event(
+        self._events[LEAK_DRY_EVENT] = WetDryEvent(
             LEAK_DRY_EVENT, self._address, self.DRY_GROUP
         )
-        self._events[LEAK_WET_EVENT] = Event(
+        self._events[LEAK_WET_EVENT] = WetDryEvent(
             LEAK_WET_EVENT, self._address, self.WET_GROUP
         )
         self._events[HEARTBEAT_EVENT] = HeartbeatEvent(
@@ -420,19 +421,20 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
         wet_dry_mgr.subscribe_wet(wet_event.trigger)
 
         hb_mgr.subscribe(hb_event.trigger)
-        hb_mgr.subscribe_on(self._heartbeat_wet_dry)
-        hb_mgr.subscribe_off(self._heartbeat_wet_dry)
+        hb_mgr.subscribe_on(self._heartbeat_dry)
+        hb_mgr.subscribe_off(self._heartbeat_wet)
 
-    def _heartbeat_wet_dry(self, on_level):
+    def _heartbeat_dry(self, on_level):
         """Receive heartbeat on/off message and create wet/dry status."""
-        if on_level:
-            self._groups[self.DRY_GROUP].value = True
-            self._groups[self.WET_GROUP].value = False
-            self._events[LEAK_DRY_EVENT].trigger(on_level)
-        if on_level:
-            self._groups[self.DRY_GROUP].value = False
-            self._groups[self.WET_GROUP].value = True
-            self._events[LEAK_WET_EVENT].trigger(on_level)
+        self._groups[self.DRY_GROUP].value = True
+        self._groups[self.WET_GROUP].value = False
+        self._events[LEAK_DRY_EVENT].trigger(on_level)
+
+    def _heartbeat_wet(self, on_level):
+        """Receive heartbeat on/off message and create wet/dry status."""
+        self._groups[self.DRY_GROUP].value = False
+        self._groups[self.WET_GROUP].value = True
+        self._events[LEAK_WET_EVENT].trigger(on_level)
 
     def _register_operating_flags(self):
         # bit 0 = Cleanup Report
