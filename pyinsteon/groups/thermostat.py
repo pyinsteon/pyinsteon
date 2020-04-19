@@ -8,7 +8,7 @@ class Temperature(GroupBase):
     """Temperature state."""
 
     def __init__(
-        self, name: str, address: Address, group: int = 0, default: int = None,
+        self, name: str, address: Address, group: int = 0, default: float = None,
     ):
         """Init the Temperature class."""
         super().__init__(name, address, group, default, value_type=float)
@@ -46,7 +46,7 @@ class Humidity(GroupBase):
     """Humidity state."""
 
     def __init__(
-        self, name: str, address: Address, group: int = 0, default: int = None
+        self, name: str, address: Address, group: int = 0, default: float = None
     ):
         """Init the Temperature class."""
         super().__init__(name, address, group, default, value_type=float)
@@ -61,7 +61,7 @@ class SetPoint(GroupBase):
     """SetPont state."""
 
     def __init__(
-        self, name: str, address: Address, group: int = 0, default: int = None
+        self, name: str, address: Address, group: int = 0, default: float = None
     ):
         """Init the SetPoint class."""
         super().__init__(name, address, group, default, value_type=float)
@@ -76,7 +76,11 @@ class SystemMode(GroupBase):
     """System Mode state."""
 
     def __init__(
-        self, name: str, address: Address, group: int = 0, default: int = None
+        self,
+        name: str,
+        address: Address,
+        group: int = 0,
+        default: ThermostatMode = None,
     ):
         """Init the SystemMode class."""
         super().__init__(name, address, group, default, value_type=ThermostatMode)
@@ -116,7 +120,11 @@ class FanMode(GroupBase):
     """Fan Mode state."""
 
     def __init__(
-        self, name: str, address: Address, group: int = 0, default: int = None
+        self,
+        name: str,
+        address: Address,
+        group: int = 0,
+        default: ThermostatMode = None,
     ):
         """Init the SystemMode class."""
         super().__init__(name, address, group, default, value_type=ThermostatMode)

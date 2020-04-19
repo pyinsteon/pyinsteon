@@ -7,7 +7,7 @@ class Dry(GroupBase):
     """Dry state."""
 
     def __init__(
-        self, name: str, address: Address, group: int = 0, default: int = None
+        self, name: str, address: Address, group: int = 0, default: bool = None
     ):
         """Init the WetDry class."""
         super().__init__(name, address, group, default, value_type=bool)
@@ -22,7 +22,7 @@ class Wet(GroupBase):
     """Wet state."""
 
     def __init__(
-        self, name: str, address: Address, group: int = 0, default: int = None
+        self, name: str, address: Address, group: int = 0, default: bool = None
     ):
         """Init the WetDry class."""
         super().__init__(name, address, group, default, value_type=bool)
