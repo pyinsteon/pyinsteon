@@ -57,7 +57,6 @@ class HttpReaderWriter:
 
     async def async_read(self, url):
         """Read from the url."""
-        await self._read_write_lock.acquire()
         try:
             async with self._read_write_lock:
                 async with ClientSession(
