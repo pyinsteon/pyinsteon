@@ -3,7 +3,7 @@
 import asyncio
 import logging
 from functools import partial
-from inspect import iscoroutine, iscoroutinefunction
+from inspect import iscoroutine, iscoroutinefunction, getfullargspec
 
 from ..utils import subscribe_topic
 from ..aldb.aldb_battery import ALDBBattery
@@ -61,30 +61,64 @@ class BatteryDeviceBase:
     def _run_on_wake(self, command, retries=3, **kwargs):
         cmd = partial(command, **kwargs)
         self._commands_queue.put_nowait((cmd, retries))
+        return ResponseStatus.RUN_ON_WAKE
 
     def close(self):
         """Close the command listener."""
         self._commands_queue.put_nowait((None, None))
 
+    async def async_status(self, group=None):
+        """Get device status."""
+        args = getfullargspec(super(BatteryDeviceBase, self).async_status)
+        if "group" in args[0]:
+            return self._run_on_wake(
+                super(BatteryDeviceBase, self).async_status, group=group
+            )
+        return self._run_on_wake(super(BatteryDeviceBase, self).async_status)
+
     async def async_read_op_flags(self):
         """Read the device operating flags."""
-        self._run_on_wake(super(BatteryDeviceBase, self).async_read_op_flags)
+        return self._run_on_wake(super(BatteryDeviceBase, self).async_read_op_flags)
 
     async def async_write_op_flags(self):
         """Write the operating flags to the device."""
-        self._run_on_wake(super(BatteryDeviceBase, self).async_write_op_flags)
+        return self._run_on_wake(super(BatteryDeviceBase, self).async_write_op_flags)
 
     async def async_read_ext_properties(self):
         """Get the device extended properties."""
-        self._run_on_wake(super(BatteryDeviceBase, self).async_read_ext_properties)
+        return self._run_on_wake(
+            super(BatteryDeviceBase, self).async_read_ext_properties
+        )
 
     async def async_get_engine_version(self):
         """Read the device engine version."""
-        self._run_on_wake(super(BatteryDeviceBase, self).async_get_engine_version)
+        return self._run_on_wake(
+            super(BatteryDeviceBase, self).async_get_engine_version
+        )
 
     async def async_add_default_links(self):
         """Add default links to the device."""
-        self._run_on_wake(super(BatteryDeviceBase, self).async_add_default_links)
+        return self._run_on_wake(super(BatteryDeviceBase, self).async_add_default_links)
+
+    async def async_read_config(self):
+        """Get all configuration settings.
+
+        This includes:
+        - Operating flags
+        - Extended properties
+        - All-Link Database records.
+        """
+        return self._run_on_wake(super(BatteryDeviceBase, self).async_add_default_links)
+
+    async def async_read_product_id(self):
+        """Get the product ID."""
+        return self._run_on_wake(super(BatteryDeviceBase, self).async_read_product_id)
+
+    async def async_write_ext_properties(self):
+        """Write the extended properties."""
+        return self._run_on_wake(
+            super(BatteryDeviceBase, self).async_write_ext_properties
+        )
 
     async def async_keep_awake(self, awake_time=0xFF):
         """Keep the device awake to ensure commands are heard."""
