@@ -127,7 +127,7 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
             name=HEARTBEAT,
             address=self._address,
             group=self.HEARTBEAT_GROUP,
-            default=True,
+            default=False,
         )
 
     def _register_events(self):
@@ -255,7 +255,7 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
             LOW_BATTERY, self._address, self.LOW_BATTERY_GROUP
         )
         self._groups[self.HEARTBEAT_GROUP] = Heartbeat(
-            HEARTBEAT, self._address, self.HEARTBEAT_GROUP, default=True
+            HEARTBEAT, self._address, self.HEARTBEAT_GROUP, default=False
         )
 
     def _register_events(self):
@@ -391,7 +391,7 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
             LEAK_SENSOR_WET, self._address, self.WET_GROUP
         )
         self._groups[self.HEARTBEAT_GROUP] = Heartbeat(
-            HEARTBEAT, self._address, self.HEARTBEAT_GROUP, default=True
+            HEARTBEAT, self._address, self.HEARTBEAT_GROUP, default=False
         )
 
     def _register_events(self):
@@ -556,7 +556,7 @@ class SecurityHealthSafety_Smokebridge(Device):
             SENSOR_MALFUNCTION, self._address, self.SENSOR_MALFUNCTION_GROUP
         )
         self._groups[self.HEARTBEAT_GROUP] = Heartbeat(
-            SENSOR_MALFUNCTION, self._address, self.HEARTBEAT_GROUP, default=True
+            SENSOR_MALFUNCTION, self._address, self.HEARTBEAT_GROUP, default=False
         )
 
     def _register_events(self):

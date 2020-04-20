@@ -49,22 +49,22 @@ class HeartbeatManager(SubscriberBase):
     def _on_heartbeat_received(self, on_level):
         """Listen for ON messages from device."""
         self._last_heartbeat = datetime.now()
-        self._call_subscribers(heartbeat=True)
+        self._call_subscribers(heartbeat=False)
         self._on_hb.call_subscribers(on_level=0xFF)
 
     def _off_heartbeat_received(self, on_level):
         """Listen for OFF messages from device."""
         self._last_heartbeat = datetime.now()
-        self._call_subscribers(heartbeat=True)
+        self._call_subscribers(heartbeat=False)
         self._off_hb.call_subscribers(on_level=0)
 
     def _check_heartbeat(self):
         """Check if a heartbeat as arrived since max_duration."""
         td_last_heartbeat = datetime.now() - self._last_heartbeat
         if td_last_heartbeat > timedelta(minutes=self._max_duration):
-            self._call_subscribers(heartbeat=False)
-        else:
             self._call_subscribers(heartbeat=True)
+        else:
+            self._call_subscribers(heartbeat=False)
         self._schedule_next_check()
 
     def _schedule_next_check(self):
