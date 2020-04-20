@@ -57,6 +57,7 @@ from ..operating_flag import (
 )
 from .commands import STATUS_COMMAND
 from .device_base import Device
+from .battery_base import BatteryDeviceBase
 from ..utils import multiple_status, to_fahrenheit, set_bit
 from ..constants import ResponseStatus
 
@@ -414,3 +415,57 @@ class ClimateControl_Thermostat(Device):
     def _temp_format_changed(self, name, value):
         """Recieve notification that the thermostat has changed to/from C/F."""
         self.status()
+
+
+class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermostat):
+    """Wireless Thermostat device."""
+
+    async def async_set_humidity_high_set_point(self, humidity):
+        """Set the humdity high set point."""
+        return self._run_on_wake(
+            super(BatteryDeviceBase, self).async_set_humidity_high_set_point,
+            humidity=humidity,
+        )
+
+    async def async_set_humidity_low_set_point(self, humidity):
+        """Set the humidity low set point."""
+        return self._run_on_wake(
+            super(BatteryDeviceBase, self).async_set_humidity_low_set_point,
+            humidity=humidity,
+        )
+
+    async def async_set_master(self, master):
+        """Set the thermastat master mode."""
+        return self._run_on_wake(
+            super(BatteryDeviceBase, self).async_set_master, master=master
+        )
+
+    async def async_set_mode(self, mode):
+        """Set the thermastat mode."""
+        return self._run_on_wake(
+            super(BatteryDeviceBase, self).async_set_mode, mode=mode
+        )
+
+    async def async_set_notify_changes(self):
+        """Set the thermostat to notify of changes."""
+        return self._run_on_wake(
+            super(BatteryDeviceBase, self).async_set_notify_changes
+        )
+
+    async def async_set_cool_set_point(self, temperature):
+        """Set the cool set point."""
+        return self._run_on_wake(
+            super(BatteryDeviceBase, self).async_set_cool_set_point,
+            temperature=temperature,
+        )
+
+    async def async_set_day_time(self):
+        """Set the thermostat day of the week and time."""
+        return self._run_on_wake(super(BatteryDeviceBase, self).async_set_day_time)
+
+    async def async_set_heat_set_point(self, temperature):
+        """Set the cool set point."""
+        return self._run_on_wake(
+            super(BatteryDeviceBase, self).async_set_heat_set_point,
+            temperature=temperature,
+        )
