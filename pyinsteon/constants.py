@@ -259,6 +259,7 @@ class ResponseStatus(HexIntEnum):
     UNCLEAR = 2
     INPROGRESS = 4
     UNSENT = 8
+    RUN_ON_WAKE = 0x10
 
 
 class LinkStatus(Enum):
