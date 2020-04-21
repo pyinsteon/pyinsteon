@@ -3,7 +3,7 @@
 import asyncio
 import logging
 from functools import partial
-from inspect import iscoroutine, iscoroutinefunction, getfullargspec
+from inspect import getfullargspec
 
 from ..utils import subscribe_topic
 from ..aldb.aldb_battery import ALDBBattery
@@ -12,20 +12,6 @@ from ..handlers.to_device.extended_set import ExtendedSetCommand
 
 _LOGGER = logging.getLogger(__name__)
 TIMEOUT = 2
-
-
-async def _run_command(command):
-    """Run an individual command."""
-    if isinstance(command, partial):
-        _LOGGER.debug("Command is a partial")
-        if iscoroutine(command.func) or iscoroutinefunction(command.func):
-            _LOGGER.debug("Command is a coroutine (partial)")
-            return await command()
-    if iscoroutine(command) or iscoroutinefunction(command):
-        _LOGGER.debug("Command is a coroutine (not partial)")
-        return await command()
-    _LOGGER.debug("Command is just a command")
-    return command()
 
 
 # pylint: disable=no-member
@@ -156,7 +142,7 @@ class BatteryDeviceBase:
                 _LOGGER.debug(str(command))
                 if command is None:
                     return
-                result = await _run_command(command)
+                result = await command()
                 if result != ResponseStatus.SUCCESS and retries:
                     retry_cmds.append((command, retries - 1))
             except asyncio.TimeoutError:
