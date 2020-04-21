@@ -1,5 +1,5 @@
 """Base device object."""
-
+from inspect import getfullargspec
 import logging
 from abc import ABC
 import asyncio
@@ -178,7 +178,11 @@ class Device(ABC):
 
     def status(self, group=None):
         """Get the status of the device."""
-        asyncio.ensure_future(self.async_status(group))
+        args = getfullargspec(self.async_status)
+        if "group" in args[0]:
+            asyncio.ensure_future(self.async_status(group=group))
+        else:
+            asyncio.ensure_future(self.async_status())
 
     async def async_status(self, group=None):
         """Get the status of the device."""
