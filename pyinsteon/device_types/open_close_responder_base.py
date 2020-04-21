@@ -78,11 +78,6 @@ class OpenCloseResponderBase(OpenCloseControllerBase):
         return await self._handlers[group][command].async_send()
 
     # pylint: disable=arguments-differ
-    def status(self):
-        """Get the status of the device state."""
-        self._handlers[STATUS_COMMAND].send()
-
-    # pylint: disable=arguments-differ
     async def async_status(self):
         """Get the status of the device state."""
         return await self._handlers[STATUS_COMMAND].async_send()

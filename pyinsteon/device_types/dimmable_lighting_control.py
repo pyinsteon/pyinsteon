@@ -276,11 +276,6 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
         return await self._handlers[group][command].async_send()
 
-    def status(self):
-        """Request the status of the light and the fan."""
-        super().status()
-        self.fan_status()
-
     async def async_status(self):
         """Request the status fo the light and the fan."""
         light_status = await super().async_status()

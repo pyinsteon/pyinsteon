@@ -30,11 +30,6 @@ class VariableControllerBase(Device):
         super().__init__(address, cat, subcat, firmware, description, model)
 
     # pylint: disable=arguments-differ
-    def status(self):
-        """Request the status of the device."""
-        self._handlers[STATUS_COMMAND].send()
-
-    # pylint: disable=arguments-differ
     async def async_status(self):
         """Request the status of the device.
 
