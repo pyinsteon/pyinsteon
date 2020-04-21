@@ -40,15 +40,17 @@ class HttpReaderWriter:
     async def async_test_connection(self, url):
         """Test the connection to the hub."""
         try:
-            async with ClientSession(
-                auth=self._auth, timeout=SESSION_TIMEOUT
-            ) as session:
-                async with session.get(url) as response:
-                    if response:
-                        _LOGGER.debug("Test connection status is %d", response.status)
-                        if response.status == 200:
-                            return True
-                        _log_error(response.status)
+            async with self._read_write_lock:
+                await asyncio.sleep(0.1)
+                async with ClientSession(
+                    auth=self._auth, timeout=SESSION_TIMEOUT
+                ) as session:
+                    async with session.get(url) as response:
+                        if response:
+                            _LOGGER.debug("Test connection status: %d", response.status)
+                            if response.status == 200:
+                                return True
+                            _log_error(response.status)
         except asyncio.TimeoutError:
             _LOGGER.error("An aiohttp timeout error occured during test connection.")
         except ClientError as exc:
@@ -59,6 +61,7 @@ class HttpReaderWriter:
         """Read from the url."""
         try:
             async with self._read_write_lock:
+                await asyncio.sleep(0.1)
                 async with ClientSession(
                     auth=self._auth, timeout=SESSION_TIMEOUT
                 ) as session:
