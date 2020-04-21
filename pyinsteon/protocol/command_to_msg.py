@@ -480,7 +480,9 @@ def _read_aldb(address, mem_addr, num_recs, topic):
     # num_recs = 0 if mem_addr == 0x0000 else 1
     mem_hi = mem_addr >> 8
     mem_lo = mem_addr & 0xFF
-    user_data = UserData({"d2": 0x00, "d3": mem_hi, "d4": mem_lo, "d5": num_recs})
+    user_data = UserData(
+        {"d1": 0x01, "d2": 0x00, "d3": mem_hi, "d4": mem_lo, "d5": num_recs}
+    )
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
