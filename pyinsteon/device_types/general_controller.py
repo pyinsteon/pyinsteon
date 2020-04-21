@@ -1,4 +1,5 @@
 """General controller devices (cat: 0x00)."""
+from ..constants import ResponseStatus
 from ..aldb.no_aldb import NoALDB
 from ..operating_flag import (
     GROUPED_ON,
@@ -91,6 +92,10 @@ class GeneralController_MiniRemoteBase(BatteryDeviceBase, VariableControllerBase
             address, cat, subcat, firmware, description, model, buttons=buttons
         )
         self._database_delta = 0
+
+    async def async_status(self):
+        """Return success always."""
+        return ResponseStatus.SUCCESS
 
     def _register_operating_flags(self):
         super()._register_operating_flags()
