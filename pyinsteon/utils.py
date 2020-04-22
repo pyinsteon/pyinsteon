@@ -153,11 +153,6 @@ def _include_address(prefix, topic, address, message_type):
     if prefix == "send" and message_type == MessageFlagType.DIRECT:
         return False
 
-    # if message_type in [MessageFlagType.ALL_LINK_CLEANUP,
-    #                     MessageFlagType.DIRECT_ACK,
-    #                     MessageFlagType.DIRECT_NAK]:
-    #     return False
-
     if commands.get(topic) is None:
         return False
 

@@ -69,7 +69,6 @@ class Device(ABC):
         self._subscribe_to_handelers_and_managers()
         self._register_default_links()
 
-    # Public properties
     @property
     def address(self):
         """Return the INSTEON device address."""
@@ -284,8 +283,6 @@ class Device(ABC):
     def _handle_product_data(self, product_id, cat, subcat):
         """Receive and set the product data information."""
         self._product_id = product_id
-        # self._cat = cat
-        # self._subcat = subcat
 
     def _engine_version_received(self, engine_version):
         """Receive engine version response."""

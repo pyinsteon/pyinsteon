@@ -102,7 +102,6 @@ class TestDeviceCommands(unittest.TestCase):
             assert int(result) == 1
         # pylint: disable=broad-except
         except Exception as ex:
-            print("Something failed")
             _LOGGER.error("Failed: device: %s  command: %s", device_type, command)
             _LOGGER.error(ex)
             assert False

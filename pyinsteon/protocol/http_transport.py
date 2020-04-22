@@ -161,8 +161,6 @@ class HttpTransport(asyncio.Transport):
         await self._clear_buffer()
         await self._reader_writer.reset_reader()
         url = "http://{:s}:{:d}/buffstatus.xml".format(self._host, self._port)
-        # _LOGGER.debug("Calling connection made")
-        # self._protocol.connection_made(self)
         retry = 0
         while not self._closing:
             buffer = None

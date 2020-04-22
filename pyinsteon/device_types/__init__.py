@@ -50,7 +50,6 @@ from .security_health_safety import (
     SecurityHealthSafety_Smokebridge,
 )
 
-# Motion Sensor II
 from .sensors_actuators import SensorsActuators, SensorsActuators_IOLink
 
 from .window_coverings import WindowCovering

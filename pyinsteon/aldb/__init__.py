@@ -83,7 +83,7 @@ class ALDB(ALDBBase):
         """
 
         if not self.is_loaded and not force:
-            _LOGGER.error(
+            _LOGGER.warning(
                 "ALDB must be loaded before it can be written Status: %s",
                 str(self._status),
             )

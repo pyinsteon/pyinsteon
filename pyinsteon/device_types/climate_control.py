@@ -180,7 +180,6 @@ class ClimateControl_Thermostat(Device):
         self._add_property(BUTTON_LOCK_ON, OP_FLAG_POS, None, 0, 2)
         self._add_property(CELSIUS, OP_FLAG_POS, None, 0, 3)
         self._add_property(TIME_24_HOUR_FORMAT, OP_FLAG_POS, None, 0, 4)
-        # self._add_operating_flag(SOFTWARE_LOCK_ON, 0, 5, 0x0A, 0x0B)  # ?
         self._add_property(LED_ON, OP_FLAG_POS, None, 0, 6)
 
         self._add_property(TEMP_OFFSET, 5, 2, 0)
@@ -408,8 +407,6 @@ class ClimateControl_Thermostat(Device):
 
     def _temp_received(self, degrees):
         """Receive temperature status update and convert to celsius if needed."""
-        # if not self._operating_flags[CELSIUS].value:
-        #     degrees = to_celsius(degrees)
         self._groups[GRP_TEMP].value = degrees
 
     def _temp_format_changed(self, name, value):

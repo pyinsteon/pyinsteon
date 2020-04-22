@@ -144,8 +144,7 @@ class DeviceIdManager(SubscriberBase):
                 cat if cat else device_id.cat,
                 subcat if subcat else device_id.subcat,
                 firmware if firmware else device_id.firmware,
-            )  # ,
-            # product_id if product_id else device_id.product_id)
+            )
         self._device_ids[address] = new_id
 
     async def _id_awake_devices(self):

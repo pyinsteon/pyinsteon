@@ -39,33 +39,6 @@ def create(
     return flags
 
 
-# def create_template(message_flag_type: MessageFlagType = None,
-#                     extended: bool = None,
-#                     hops_left: int = None,
-#                     max_hops: int = None):
-#     """Create message flags.
-
-#     message_flag_type: MessageFlagType 0 to 7:
-#         DIRECT = 0
-#         DIRECT_ACK = 1
-#         ALL_LINK_CLEANUP = 2
-#         ALL_LINK_CLEANUP_ACK = 3
-#         BROADCAST = 4
-#         DIRECT_NAK = 5
-#         ALL_LINK_BROADCAST = 6
-#         ALL_LINK_CLEANUP_NAK = 7
-#     extended: True for extended, False for standard
-#     hops_left: int  0 - 3
-#     max_hops:  int  0 - 3
-#     """
-#     flags = MessageFlags(0x00)
-#     flags.message_type = message_flag_type
-#     flags.extended = extended
-#     flags.hops_left = hops_left
-#     flags.max_hops = max_hops
-#     return flags
-
-
 class MessageFlags:
     """Message Flags class use in Standard and Extended messages."""
 

@@ -90,7 +90,6 @@ class ModemBase(Device, metaclass=ABCMeta):
 
     async def async_close(self):
         """Close the connection to the transport ascynronously."""
-        # pub.unsubscribe(self.connect, 'connection.lost')
         if self._protocol:
             self._protocol.close()
             wait_time = 0.0001
@@ -140,8 +139,6 @@ class ModemBase(Device, metaclass=ABCMeta):
 
     def _subscribe_topics(self):
         """Subscribe to modem specific topics."""
-
-    #     pub.subscribe(self.connect, "connection.lost")
 
     def _register_groups(self):
         """No groups to register for modems."""

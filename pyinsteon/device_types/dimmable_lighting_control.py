@@ -16,8 +16,6 @@ from ..extended_property import (
 )
 from ..events import ON_EVENT, OFF_EVENT, ON_FAST_EVENT, OFF_FAST_EVENT
 
-# from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
-# from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
 from ..groups import (
     DIMMABLE_FAN,
     DIMMABLE_LIGHT,

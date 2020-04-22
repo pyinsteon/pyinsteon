@@ -45,6 +45,5 @@ class ALDBBattery(ALDB):
 
     async def async_write(self):
         """Write modified records to the device."""
-        # pub.sendMessage(self._write_topic)
         self._run_command(super().async_write)
         return 0, 0

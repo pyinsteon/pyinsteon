@@ -14,7 +14,7 @@ class GroupBase(SubscriberBase):
         self, name: str, address: Address, group=0, default=None, value_type: type = int
     ):
         """Init the StateBase class."""
-        self._address = address  # Address(address)
+        self._address = address
         topic = "state_{}_{}_{}".format(self._address.id, name, group)
         super().__init__(subscriber_topic=topic)
         self._name = name

@@ -285,10 +285,6 @@ def get_next_all_link_record(msg: Inbound) -> (str, {}):
 def set_im_configuration(msg: Inbound) -> (str, {}):
     """Create a topic from an set_im_configuration message."""
     topic = build_topic(prefix=msg.ack, topic=SET_IM_CONFIGURATION)
-    # disable_auto_linking = bool(msg.flags & 1 << 7)
-    # monitor_mode = bool(msg.flags & 1 << 6)
-    # auto_led = bool(msg.flags & 1 << 5)
-    # deadman = bool(msg.flags & 1 << 4)
 
     kwargs = {
         "disable_auto_linking": msg.flags.is_auto_link,
@@ -359,11 +355,6 @@ def rf_sleep(msg: Inbound) -> (str, {}):
 def get_im_configuration(msg: Inbound) -> (str, {}):
     """Create a topic from an get_im_configuration message."""
     topic = build_topic(prefix=msg.ack, topic=GET_IM_CONFIGURATION)
-    # disable_auto_linking = bool(msg.flags & 1 << 7)
-    # monitor_mode = bool(msg.flags & 1 << 6)
-    # auto_led = bool(msg.flags & 1 << 5)
-    # deadman = bool(msg.flags & 1 << 4)
-
     kwargs = {
         "disable_auto_linking": msg.flags.is_auto_link,
         "monitor_mode": msg.flags.is_monitor_mode,
