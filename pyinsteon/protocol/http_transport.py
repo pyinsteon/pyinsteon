@@ -11,7 +11,7 @@ from .msg_to_url import convert_to_url
 from .hub_connection_exception import HubConnectionException
 
 _LOGGER = logging.getLogger(__name__)
-READ_WAIT = 0.75
+READ_WAIT = 0.5
 SESSION_RETRIES = 30
 RECONNECT_WAIT = 7
 
