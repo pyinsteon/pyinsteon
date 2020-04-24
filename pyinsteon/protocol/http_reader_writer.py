@@ -9,6 +9,7 @@ from .hub_connection_exception import HubConnectionException
 
 _LOGGER = logging.getLogger(__name__)
 SESSION_TIMEOUT = ClientTimeout(total=5)
+PRIOR_CONN_CLOSE_PAUSE = 0.1
 
 
 def _log_error(status):
@@ -41,7 +42,7 @@ class HttpReaderWriter:
         """Test the connection to the hub."""
         try:
             async with self._read_write_lock:
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(PRIOR_CONN_CLOSE_PAUSE)
                 async with ClientSession(
                     auth=self._auth, timeout=SESSION_TIMEOUT
                 ) as session:
@@ -61,7 +62,7 @@ class HttpReaderWriter:
         """Read from the url."""
         try:
             async with self._read_write_lock:
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(PRIOR_CONN_CLOSE_PAUSE)
                 async with ClientSession(
                     auth=self._auth, timeout=SESSION_TIMEOUT
                 ) as session:
