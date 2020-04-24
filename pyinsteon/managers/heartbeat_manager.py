@@ -8,6 +8,8 @@ from ..handlers.from_device.off import OffInbound
 from ..handlers.from_device.on_level import OnLevelInbound
 from ..subscriber_base import SubscriberBase
 
+HB_CHECK_BUFFER = 300  # 5 min or 300 seconds
+
 
 class HeartbeatManager(SubscriberBase):
     """Heartbeat manager."""
@@ -70,7 +72,10 @@ class HeartbeatManager(SubscriberBase):
     def _schedule_next_check(self):
         """Schedule the next time we check for the heartbeat."""
         loop = asyncio.get_event_loop()
-        next_test_time = self._last_heartbeat + timedelta(
-            minutes=self._max_duration + 5
-        )
-        loop.call_at(next_test_time.timestamp(), self._check_heartbeat)
+        # Last heartbeat time is a baseline to trigger the next call
+        last_hb = (datetime.now() - self._last_heartbeat).total_seconds()
+        # Calculate seconds from now to check again
+        # _max_duration is in minutes so convert to seconds
+        max_dur_sec = self._max_duration * 60
+        next_call = max_dur_sec + HB_CHECK_BUFFER - last_hb
+        loop.call_later(next_call, self._check_heartbeat)
