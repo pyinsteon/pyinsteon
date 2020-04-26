@@ -37,8 +37,18 @@ class HeartbeatManager(SubscriberBase):
         self._on_hb = self.OnOffHeartbeat("{}_{}".format(subscriber_topic, "on"))
         self._off_hb = self.OnOffHeartbeat("{}_{}".format(subscriber_topic, "off"))
 
-        self._last_heartbeat = datetime.now() - timedelta(hours=12)
+        self._last_heartbeat = datetime.now()
         self._schedule_next_check()
+
+    @property
+    def max_duration(self):
+        """Return the maximum heartbeat duration."""
+        return self._max_duration
+
+    @max_duration.setter
+    def max_duration(self, value):
+        """Set the maximum heartbeat duration."""
+        self._max_duration = float(value)
 
     def subscribe_on(self, callback):
         """Subscribe to ON heartbeat events."""
@@ -77,5 +87,5 @@ class HeartbeatManager(SubscriberBase):
         # Calculate seconds from now to check again
         # _max_duration is in minutes so convert to seconds
         max_dur_sec = self._max_duration * 60
-        next_call = max_dur_sec + HB_CHECK_BUFFER - last_hb
+        next_call = max(HB_CHECK_BUFFER, max_dur_sec + HB_CHECK_BUFFER - last_hb)
         loop.call_later(next_call, self._check_heartbeat)
