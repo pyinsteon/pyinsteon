@@ -89,6 +89,9 @@ class DeviceManager(SubscriberBase):
 
         """
         address = Address(address)
+        device = self[address]
+        if device and device.cat == cat and device.subcat == subcat:
+            return
         self._id_manager.set_device_id(address, cat, subcat, firmware)
 
     def add_x10_device(
