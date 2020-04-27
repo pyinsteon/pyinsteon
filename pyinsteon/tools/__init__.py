@@ -1,10 +1,12 @@
 """Command line tools to interact with the Insteon devices."""
+from binascii import unhexlify
 import os
 from .. import async_connect, async_close, devices
 from .tools_base import ToolsBase
 from .config import ToolsConfig
 from .aldb import ToolsAldb
 from .cmd import CmdTools
+from ..address import Address
 from ..managers.link_manager import async_enter_linking_mode, async_enter_unlinking_mode
 
 
@@ -114,13 +116,91 @@ class InsteonCmd(ToolsBase):
         self._log_command("tests")
         await self._call_next_menu(CmdTools, "commands")
 
-    async def do_add_device(self, *args, **kwargs):
-        """Add a device."""
+    async def do_link_device(self, *args, **kwargs):
+        """Link a device to the modem."""
         self._log_command("add_device")
         self._log_stdout(
             "Press the set button on the device. Linking will occur in the background."
         )
         await async_enter_linking_mode(is_controller=True, group=0)
+
+    async def do_add_device_manually(self, *args, **kwargs):
+        """Add a device using a cat and subcat.
+
+        Usage:
+           add_device_manually address cat subcat [firmware]
+
+        address: Device address
+        cat: Device category (i.e. 05 or 0x05)
+        subcat: Device subcategory (i.e. 1f or 0x1f)
+
+        Note: Device cat and subcat are the hex representation and should be at
+        least 2 digits. They can be written with or without the hex prefix 0x.
+
+        The cat and subcat can be found in the user manual for the device. The values
+        in the user manual are in hex.
+        """
+
+        def str_to_hex(value):
+            """Convert a hex string into an integer."""
+            if value[0:2] == "0x":
+                value = value[2:]
+            return unhexlify(value)
+
+        args = args[0].split()
+        try:
+            address = Address(args[0])
+        except (IndexError, ValueError):
+            address = None
+
+        try:
+            cat = str_to_hex(args[1])
+        except (IndexError, ValueError):
+            cat = None
+
+        try:
+            subcat = str_to_hex(args[2])
+        except (IndexError, ValueError):
+            subcat = None
+
+        try:
+            firmware = str_to_hex(args[3])
+        except (IndexError, ValueError):
+            firmware = 0
+
+        if address is None:
+            address = await self._get_char("Enter device address (i.e. 1a2b3c")
+            try:
+                address = Address(address)
+            except ValueError:
+                self._log_stdout("Invalid address")
+                return
+
+        if cat is None:
+            cat = await self._get_char("Enter device cat (i.e. 10 or 0x10")
+            try:
+                cat = str_to_hex(cat)
+            except ValueError:
+                self._log_stdout("Invalid device category")
+                return
+
+        if subcat is None:
+            subcat = await self._get_char("Enter device cat (i.e. 10 or 0x10")
+            try:
+                subcat = str_to_hex(subcat)
+            except ValueError:
+                self._log_stdout("Invalid device subcategory")
+                return
+
+        if firmware is None:
+            firmware = await self._get_char("Enter device cat (i.e. 10 or 0x10", "00")
+            try:
+                firmware = str_to_hex(firmware)
+            except ValueError:
+                self._log_stdout("Invalid device firmware")
+                return
+
+        devices.set_id(address, cat, subcat, firmware)
 
     async def do_remove_device(self, *args, **kwargs):
         """Add a device."""
