@@ -66,7 +66,10 @@ class DeviceManager(SubscriberBase):
 
     def get(self, address) -> Device:
         """Return a device from an address."""
-        address = Address(address)
+        try:
+            address = Address(address)
+        except ValueError:
+            address = X10Address(address)
         return self._devices.get(address)
 
     @property
