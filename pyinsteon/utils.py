@@ -93,7 +93,7 @@ def vars_to_bytes(vals: Iterable) -> bytes:
     for val in vals:
         if val is None:
             pass
-        elif isinstance(val, (int, bytes)):
+        elif isinstance(val, int):
             msg.extend(bytes([val]))
         else:
             msg.extend(bytes(val))
@@ -109,8 +109,10 @@ def vars_to_string(vals: Iterable) -> str:
             pass
         elif isinstance(val, (Enum, IntEnum)):
             valstr = str(val)
-        elif isinstance(val, (int, bytes)):
+        elif isinstance(val, int):
             valstr = "0x{0:02x}".format(val)
+        elif isinstance(val, bytes):
+            valstr = "0x{:s}".format(val.hex())
         else:
             valstr = str(val)
         output.append("{}: {}".format(fld, valstr))
