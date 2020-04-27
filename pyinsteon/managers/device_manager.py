@@ -139,8 +139,7 @@ class DeviceManager(SubscriberBase):
             if self._loading_saved_lock.locked():
                 self._loading_saved_lock.release()
 
-        if (len(self._devices) == 1 and not self._modem.aldb.is_loaded) or refresh:
-            # No devices were found in the saved devices file or reload_aldb is required
+        if not self._modem.aldb.is_loaded or refresh:
             await self._modem.aldb.async_load()
 
         for mem_addr in self._modem.aldb:
