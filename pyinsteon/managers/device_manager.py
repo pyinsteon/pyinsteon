@@ -3,6 +3,7 @@ import logging
 import asyncio
 
 from ..address import Address
+from ..x10_address import X10Address
 from ..device_types.device_base import Device
 from ..device_types.x10_base import X10DeviceBase
 from ..device_types.modem_base import ModemBase
@@ -32,7 +33,10 @@ class DeviceManager(SubscriberBase):
 
     def __getitem__(self, address) -> Device:
         """Return a a device from the device address."""
-        address = Address(address)
+        try:
+            address = Address(address)
+        except ValueError:
+            address = X10Address(address)
         return self._devices.get(address)
 
     def __iter__(self):
