@@ -3,6 +3,8 @@ import asyncio
 import logging
 from collections import namedtuple
 
+from binascii import unhexlify
+
 from .. import pub
 from ..utils import subscribe_topic, unsubscribe_topic
 from ..address import Address
@@ -20,6 +22,17 @@ RETRY_PAUSE = 2
 
 
 DeviceId = namedtuple("DeviceId", "address cat subcat firmware")  # product_id')
+
+
+def _normalize_identifier(value):
+    """Convert a byte, str or int to int."""
+    if isinstance(value, (bytearray, bytes)):
+        return int.from_bytes(value, "big")
+    if isinstance(value, str):
+        if value[0:2] == "0x":
+            value = value[2:]
+        return int.from_bytes(unhexlify(value), "big")
+    return int(value)
 
 
 class DeviceIdManager(SubscriberBase):
@@ -69,9 +82,9 @@ class DeviceIdManager(SubscriberBase):
     ):
         """Set the device ID of a device."""
         address = Address(address)
-        cat = int(cat)
-        subcat = int(subcat)
-        firmware = int(firmware)
+        cat = _normalize_identifier(cat)
+        subcat = _normalize_identifier(subcat)
+        firmware = _normalize_identifier(firmware)
         try:
             self._unknown_devices.remove(address)
         except ValueError:
