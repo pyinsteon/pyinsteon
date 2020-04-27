@@ -69,13 +69,17 @@ class InsteonCmd(ToolsBase):
         """Load the devices.
 
         Usage:
-            load_devices workdir id_devices
+            load_devices workdir id_devices load_modem_aldb
 
         workdir: Directory where the saved device file is located (Enter . for current directory)
         id_devices: Option for handling unknown devices
             0 - Do not ID devices
             1 - ID unknown devices only (default)
             2 - ID all devices
+        load_modem_aldb: Option for loading the Modem ALDB
+            0 - Do not load
+            1 - Load if not loaded from saved file (default)
+            2 - Always load
         """
 
         args = args[0].split()
@@ -98,8 +102,18 @@ class InsteonCmd(ToolsBase):
             id_devices = await self._get_int(
                 "Identify devices (0=None, 1=Unknown Only, 2=All", 1, [0, 1, 2]
             )
+        try:
+            load_modem_aldb = int(args[2])
+        except (IndexError, ValueError):
+            load_modem_aldb = None
+        if load_modem_aldb not in [0, 1, 2]:
+            load_modem_aldb = await self._get_int(
+                "Identify devices (0=No, 1=If no loaded, 2=Load", 1, [0, 1, 2]
+            )
         self._log_command(f"load_devices {self.workdir} {id_devices}")
-        await devices.async_load(workdir=self.workdir, id_devices=id_devices)
+        await devices.async_load(
+            workdir=self.workdir, id_devices=id_devices, load_modem_aldb=load_modem_aldb
+        )
         self._log_stdout(f"Total devices: {len(devices)}")
 
     async def do_manage_aldb(self, *args, **kwargs):
