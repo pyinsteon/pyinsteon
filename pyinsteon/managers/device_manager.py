@@ -121,7 +121,7 @@ class DeviceManager(SubscriberBase):
         """Close the device ID listener."""
         self._id_manager.close()
 
-    async def async_load(self, workdir="", id_devices=1, refresh=False):
+    async def async_load(self, workdir="", id_devices=1, load_modem_aldb=1):
         """Load devices from the `insteon_devices.yaml` file and device overrides.
 
         Parameters:
@@ -133,8 +133,11 @@ class DeviceManager(SubscriberBase):
                 2: All devices are identified
             (default=1)
 
-            refresh: Bool to indicate if the Modem ALDB should be reloaded to identify
-            new devices (Default=False)
+            load_modem_aldb: Indicate if the Modem ALDB should be loaded
+                0: Do not load
+                1: Load if not loaded from save file
+                2: Load
+            (default=1)
 
         The Modem ALDB is loaded if `refresh` is True or if the saved file has no devices.
 
@@ -148,7 +151,14 @@ class DeviceManager(SubscriberBase):
             if self._loading_saved_lock.locked():
                 self._loading_saved_lock.release()
 
-        if not self._modem.aldb.is_loaded or refresh:
+        if load_modem_aldb == 0:
+            load_modem_aldb = False
+        elif load_modem_aldb == 2:
+            load_modem_aldb = True
+        else:
+            load_modem_aldb = not self._modem.aldb.is_loaded
+
+        if load_modem_aldb:
             await self._modem.aldb.async_load()
 
         for mem_addr in self._modem.aldb:
