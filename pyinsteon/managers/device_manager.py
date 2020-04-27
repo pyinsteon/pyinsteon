@@ -4,6 +4,7 @@ import asyncio
 
 from ..address import Address
 from ..device_types.device_base import Device
+from ..device_types.x10_base import X10DeviceBase
 from ..device_types.modem_base import ModemBase
 from ..managers.saved_devices_manager import SavedDeviceManager
 from ..subscriber_base import SubscriberBase
@@ -42,16 +43,17 @@ class DeviceManager(SubscriberBase):
     def __setitem__(self, address, device):
         """Add a device to the device list."""
         _LOGGER.info("Adding device to INSTEON devices list: %s", address.id)
-        if not isinstance(device, (Device, DeviceId)):
+        if not isinstance(device, (Device, DeviceId, X10DeviceBase)):
             raise ValueError("Device must be a DeviceId or a Device type.")
 
         if isinstance(device, DeviceId):
             device = create_device(device)
 
         self._devices[device.address] = device
-        self._id_manager.set_device_id(
-            device.address, device.cat, device.subcat, device.firmware
-        )
+        if isinstance(device, Device):
+            self._id_manager.set_device_id(
+                device.address, device.cat, device.subcat, device.firmware
+            )
         self._call_subscribers(address=device.address.id)
 
     def __len__(self):
