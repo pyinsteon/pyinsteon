@@ -125,8 +125,10 @@ def vars_to_repr(vals: Iterable) -> str:
             pass
         elif isinstance(val, (Enum, IntEnum)):
             valstr = repr(val)
-        elif isinstance(val, (int, bytes)):
+        elif isinstance(val, int):
             valstr = "0x{0:02x}".format(val)
+        elif isinstance(val, bytes):
+            valstr = "0x{:s}".format(val.hex())
         else:
             valstr = repr(val)
         output.append("{}: {}".format(fld, valstr))
