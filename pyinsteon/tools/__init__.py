@@ -2,6 +2,7 @@
 from binascii import unhexlify
 import os
 from .. import async_connect, async_close, devices
+from ..constants import HC_LOOKUP, UC_LOOKUP
 from .tools_base import ToolsBase
 from .config import ToolsConfig
 from .aldb import ToolsAldb
@@ -219,6 +220,65 @@ class InsteonCmd(ToolsBase):
         self._log_command("exit")
         await self.do_log_to_file("n")
         return -1
+
+    async def do_add_x10_device(self, *args, **kwargs):
+        """Add an X10 device.
+
+        Usage:
+            add_x10_device housecode unitcode type [steps]
+
+        houscode: The device housecode (a - p)
+        unitcode: The device unitcode (1 - 16)
+        type: The device type (on_off, dimmable, sensor)
+        steps: Number of steps from off to full on (dimmable only)
+        """
+        args = args[0].split()
+        x10_types = ["dimmable", "on_off", "sensor"]
+        try:
+            housecode = args[0]
+            if housecode not in list(HC_LOOKUP.keys()):
+                housecode = None
+        except IndexError:
+            housecode = None
+
+        try:
+            unitcode = int(args[1])
+            if unitcode not in list(UC_LOOKUP.keys()):
+                unitcode = None
+        except (IndexError, ValueError):
+            unitcode = None
+
+        try:
+            x10_type = args[2]
+            if x10_type not in x10_types:
+                x10_type = None
+            try:
+                steps = int(args[3])
+            except IndexError:
+                steps = 22
+            except ValueError:
+                steps = None
+        except IndexError:
+            x10_type = None
+            steps = None
+
+        if housecode is None:
+            housecode = await self._get_char(
+                "Enter housecode", values=list(HC_LOOKUP.keys())
+            )
+
+        if unitcode is None:
+            unitcode = await self._get_int(
+                "Enter unitcode", values=list(UC_LOOKUP.keys())
+            )
+
+        if x10_type is None:
+            x10_type = await self._get_char("Enter type", values=x10_type)
+
+        if x10_type == "dimmable" and steps is None:
+            steps = await self._get_int("Dimmer steps", default=22)
+
+        devices.add_x10_device(housecode, unitcode, x10_type, steps, 255)
 
 
 def tools():
