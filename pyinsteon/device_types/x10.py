@@ -57,11 +57,11 @@ class X10OnOff(X10OnOffSensor):
         self._on_cmd = X10CommandSend(self._address, X10Commands.ON)
         self._off_cmd = X10CommandSend(self._address, X10Commands.OFF)
 
-    def on(self):
+    def on(self, group=0):
         """Turn on the switch."""
         asyncio.ensure_future(self.async_on())
 
-    async def async_on(self):
+    async def async_on(self, group=0):
         """Turn on the switch."""
         retries = 0
         while retries < 3:
@@ -72,11 +72,11 @@ class X10OnOff(X10OnOffSensor):
             retries += 1
         return ResponseStatus.FAILURE
 
-    def off(self):
+    def off(self, group=0):
         """Turn off the switch."""
         asyncio.ensure_future(self.async_off())
 
-    async def async_off(self):
+    async def async_off(self, group=0):
         """Turn off the switch."""
         retries = 0
         while retries < 3:
@@ -125,12 +125,12 @@ class X10Dimmable(X10OnOff):
         return self._steps
 
     # pylint: disable=arguments-differ
-    def on(self, on_level: int):
+    def on(self, on_level: int, group=0):
         """Set the on level of the switch."""
         asyncio.ensure_future(self.async_on(on_level))
 
     # pylint: disable=arguments-differ
-    async def async_on(self, on_level: int):
+    async def async_on(self, on_level: int, group=0):
         """Set the on level of the switch."""
         if on_level == 0x00:
             return await self.async_off()
