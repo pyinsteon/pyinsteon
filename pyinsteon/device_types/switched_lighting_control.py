@@ -480,8 +480,8 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
 
     def _handle_status(self, db_version, status):
         """Set the status of the top and bottom outlets state."""
-        self._groups[self.TOP_GROUP].value = status & 0x02
-        self._groups[self.BOTTOM_GROUP].value = status & 0x01
+        self._groups[self.TOP_GROUP].value = status & 0x01
+        self._groups[self.BOTTOM_GROUP].value = status & 0x02
 
     def _handle_top_status(self, db_version, status):
         """Set the status of the top outlet."""
