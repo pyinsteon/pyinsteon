@@ -295,7 +295,7 @@ class ClimateControl_Thermostat(Device):
         self._handlers["humidity_handler"].subscribe(self._groups[GRP_HUMID].set_value)
         self._handlers["temperature_handler"].subscribe(self._temp_received)
         self._handlers["mode_handler"].subscribe(self._mode_received)
-        self._properties[CELSIUS].subscribe(self._temp_format_changed)
+        self._properties[CELSIUS].subscribe(self._temp_format_first_set)
 
     def _register_default_links(self):
         """Register default links."""
@@ -412,6 +412,16 @@ class ClimateControl_Thermostat(Device):
     def _temp_format_changed(self, name, value):
         """Recieve notification that the thermostat has changed to/from C/F."""
         self.status()
+
+    def _temp_format_first_set(self, name, value):
+        """Set up the trigger for a temperature format change.
+
+        The first time the format is set, we don't need to do anything. If
+        the format changes later, we need to get the status update to change the
+        measurements from F to C or vise versa.
+        """
+        self._properties[CELSIUS].unsubscribe(self._temp_format_first_set)
+        self._properties[CELSIUS].unsubscribe(self._temp_format_changed)
 
 
 class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermostat):
