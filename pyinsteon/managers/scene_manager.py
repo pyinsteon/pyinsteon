@@ -1,4 +1,5 @@
 """Manage Insteon Scenes."""
+import asyncio
 import logging
 
 from .. import devices
@@ -82,7 +83,11 @@ async def async_trigger_scene_on(group):
     """Trigger an Insteon scene."""
     scenes = identify_scenes()
 
-    await OnLevelAllLinkBroadcastCommand(group=group).async_send()
+    resend = 2
+    while resend:
+        await OnLevelAllLinkBroadcastCommand(group=group).async_send()
+        await asyncio.sleep(0.1)
+        resend -= 1
     for device in scenes.get_devices(group):
         # TODO check for success or failure
         await OnLevelAllLinkCleanupCommand(device.address, group).async_send()
@@ -91,7 +96,11 @@ async def async_trigger_scene_on(group):
 async def async_trigger_scene_off(group):
     """Trigger an Insteon scene."""
     scenes = identify_scenes()
-    await OffAllLinkBroadcastCommand(group=group).async_send()
+    resend = 2
+    while resend:
+        await OffAllLinkBroadcastCommand(group=group).async_send()
+        await asyncio.sleep(0.1)
+        resend -= 1
     for device in scenes.get_devices(group):
         # TODO check for success or failure
         await OffAllLinkCleanupCommand(address=device.address, group=group).async_send()
