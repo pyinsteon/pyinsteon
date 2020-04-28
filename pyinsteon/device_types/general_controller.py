@@ -93,7 +93,7 @@ class GeneralController_MiniRemoteBase(BatteryDeviceBase, VariableControllerBase
         )
         self._database_delta = 0
 
-    async def async_status(self):
+    async def async_status(self, group=0):
         """Return success always."""
         return ResponseStatus.SUCCESS
 
