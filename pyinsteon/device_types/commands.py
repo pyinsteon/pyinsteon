@@ -13,6 +13,7 @@ ON_HEARTBEAT_INBOUND = "on_heartbeat_inbound"
 OFF_HEARTBEAT_INBOUND = "off_heartbeat_inbound"
 
 STATUS_COMMAND = "status_command"
+STATUS_COMMAND_HUB = "status_command_hub"
 STATUS_COMMAND_FAN = "status_command_fan"
 
 ON_COMMAND = "on_command"
