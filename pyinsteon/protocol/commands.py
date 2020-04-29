@@ -226,7 +226,7 @@ class Commands:
                 found = True
                 yield topic
         if not found:
-            if bool(user_data):
+            if user_data is None:
                 yield SEND_STANDARD if send else STANDARD_RECEIVED
             else:
                 yield SEND_EXTENDED if send else EXTENDED_RECEIVED
@@ -236,7 +236,7 @@ commands = Commands()
 
 
 commands.add(STANDARD_RECEIVED, -1, None, False)
-commands.add(EXTENDED_RECEIVED, -1, None, {})
+commands.add(EXTENDED_RECEIVED, -1, None, True)
 commands.add(SEND_STANDARD, -2, None, False)
 commands.add(SEND_EXTENDED, -2, None, {})
 commands.add(ASSIGN_TO_ALL_LINK_GROUP, 0x01, None, False)
