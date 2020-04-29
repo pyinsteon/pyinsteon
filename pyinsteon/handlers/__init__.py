@@ -193,31 +193,31 @@ def status_ack_handler(timeout=TIMEOUT):
             message_type=message_type,
         )
 
-    async def _wait_response(lock: asyncio.Lock, queue: asyncio.Queue):
+    async def _wait_response(self):
         """Wait for the direct ACK message, and post False if timeout reached."""
         # TODO: Need to consider the risk of this. We may be unlocking a prior send command.
         # This would mean that the prior command will terminate. What happens when the
         # prior command returns a direct ACK then this command returns a direct ACK?
         # Do not believe this is an issue but need to test.
-        if lock.locked():
-            lock.release()
-        await lock.acquire()
+        if self.response_lock.locked():
+            self.response_lock.release()
+        await self.response_lock.acquire()
         try:
-            await asyncio.wait_for(lock.acquire(), TIMEOUT)
+            await asyncio.wait_for(self.response_lock.acquire(), TIMEOUT)
         except asyncio.TimeoutError:
-            if lock.locked():
-                await queue.put(ResponseStatus.FAILURE)
-        if lock.locked():
-            lock.release()
+            if self.response_lock.locked():
+                await self.message_response.put(ResponseStatus.FAILURE)
+        if self.response_lock.locked():
+            self.response_lock.release()
+        self.status_active = False
 
     def setup(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             cmd2 = kwargs.get("cmd2")
             if cmd2 == self.status_type:
-                asyncio.ensure_future(
-                    _wait_response(self.response_lock, self.message_response)
-                )
+                self.status_active = True
+                asyncio.ensure_future(_wait_response(self))
                 return func(self, *args, **kwargs)
 
         wrapper.register_topic = register_topic
@@ -237,7 +237,7 @@ def status_handler(func):
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        if self.response_lock.locked():
+        if self.status_active:
             asyncio.ensure_future(
                 _async_post_response(self, ResponseStatus.SUCCESS, func, args, kwargs)
             )

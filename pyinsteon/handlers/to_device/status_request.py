@@ -14,6 +14,7 @@ class StatusRequestCommand(DirectCommandHandlerBase):
     """
 
     _status_type = None
+    _status_active = False
 
     def __init__(self, address, status_type: int = 0):
         """Init the OnLevelCommand class."""
@@ -26,6 +27,16 @@ class StatusRequestCommand(DirectCommandHandlerBase):
     def status_type(self):
         """Return the type of status message."""
         return self._status_type
+
+    @property
+    def status_active(self):
+        """Return if the status command is active."""
+        return self._status_active
+
+    @status_active.setter
+    def status_active(self, value: bool):
+        """Set if the status command is active."""
+        self._status_active = bool(value)
 
     # pylint: disable=arguments-differ, useless-super-delegation
     async def async_send(self):
