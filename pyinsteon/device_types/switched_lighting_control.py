@@ -204,6 +204,8 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
         if result == ResponseStatus.SUCCESS:
             self._update_leds(group=group, value=0xFF, event=ON_EVENT)
+        if result == ResponseStatus.UNCLEAR:
+            await self.async_status()
         return result
 
     async def async_off(self, group: int = 0):
@@ -214,6 +216,8 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
         if result == ResponseStatus.SUCCESS:
             self._update_leds(group=group, value=0, event=OFF_EVENT)
+        if result == ResponseStatus.UNCLEAR:
+            await self.async_status()
         return result
 
     async def async_status(self, group=None):

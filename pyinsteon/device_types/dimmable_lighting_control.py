@@ -382,6 +382,8 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         if result == ResponseStatus.SUCCESS:
             event = ON_FAST_EVENT if fast else ON_EVENT
             self._update_leds(group=group, value=on_level, event=event)
+        if result == ResponseStatus.UNCLEAR:
+            await self.async_status()
         return result
 
     async def async_off(self, group: int = 0, fast: bool = False):
@@ -393,6 +395,8 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         if result == ResponseStatus.SUCCESS:
             event = OFF_FAST_EVENT if fast else OFF_EVENT
             self._update_leds(group=group, value=0, event=event)
+        if result == ResponseStatus.UNCLEAR:
+            await self.async_status()
         return result
 
     async def async_status(self):
@@ -532,6 +536,7 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
 
     def _led_status(self, db_version, status):
         """Set the on level of the LED from a status command."""
+        print("Got a status")
         for bit in range(2, 9):
             state = self._groups.get(bit)
             if state:
