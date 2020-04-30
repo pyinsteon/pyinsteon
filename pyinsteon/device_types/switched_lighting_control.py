@@ -339,7 +339,12 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
 
     def _update_leds(self, group, value, event):
         """Check if the LED is toggle or not and set value."""
-        non_toogle = bit_is_set(self._properties[NON_TOGGLE_MASK].value, group)
+        if not self._groups.get(group):
+            return
+        if self._properties[NON_TOGGLE_MASK].value is not None:
+            non_toogle = bit_is_set(self._properties[NON_TOGGLE_MASK].value, group)
+        else:
+            non_toogle = False
         if non_toogle:
             self._groups[group].value = 0
         else:

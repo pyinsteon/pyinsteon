@@ -260,7 +260,10 @@ class SensorsActuators_IOLink(Device):
         """Calculate the momentary delay based on properties and flags."""
         delay = self._properties[DELAY].value
         delay = 255 if delay == 0 else delay
-        prescaler = max(self._properties[PRESCALER].value, 1)
+        if self._properties[PRESCALER].value is not None:
+            prescaler = max(self._properties[PRESCALER].value, 1)
+        else:
+            prescaler = 1
         return delay * prescaler / 10
 
     async def _delay_wait(self):
