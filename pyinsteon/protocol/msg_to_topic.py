@@ -187,7 +187,7 @@ def get_im_info(msg: Inbound) -> (str, {}):
 def send_all_link_command(msg: Inbound) -> (str, {}):
     """Create a topic from an SEND_ALL_LINK_COMMAND message."""
     topic = build_topic(prefix=msg.ack, topic=SEND_ALL_LINK_COMMAND)
-    kwargs = {"group": msg.group, "mode": msg.mode}
+    kwargs = {"group": msg.group, "cmd1": msg.cmd1, "cmd2": msg.cmd2}
     yield (topic, kwargs)
 
 

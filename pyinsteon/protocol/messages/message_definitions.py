@@ -94,7 +94,8 @@ FLD_GET_IM_INFO_REC = [
 # Send All-Link Command 0x61
 FLD_SEND_ALL_LINK_CMD = [
     MessageField("group", 1, int),
-    MessageField("mode", 1, AllLinkMode),
+    MessageField("cmd1", 1, int),
+    MessageField("cmd2", 1, int),
 ]
 FLD_SEND_ALL_LINK_CMD_ACK = FLD_SEND_ALL_LINK_CMD.copy()
 FLD_SEND_ALL_LINK_CMD_ACK.append(MessageField("ack", 1, AckNak))

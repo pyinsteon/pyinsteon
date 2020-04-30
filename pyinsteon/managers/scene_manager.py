@@ -1,14 +1,11 @@
 """Manage Insteon Scenes."""
-import asyncio
 import logging
 
 from .. import devices
 from ..device_types.plm import PLM
-from ..handlers.to_device.off_all_link_broadcast import OffAllLinkBroadcastCommand
+from ..handlers.send_all_link_off import SendAllLinkOffCommandHandler
+from ..handlers.send_all_link_on import SendAllLinkOnCommandHandler
 from ..handlers.to_device.off_all_link_cleanup import OffAllLinkCleanupCommand
-from ..handlers.to_device.on_level_all_link_broadcast import (
-    OnLevelAllLinkBroadcastCommand,
-)
 from ..handlers.to_device.on_level_all_link_cleanup import OnLevelAllLinkCleanupCommand
 from .link_manager import async_link_devices
 
@@ -38,7 +35,8 @@ class Scenes:
         scene = self._scenes.get(group)
         if scene:
             for device in scene:
-                yield device
+                if device:
+                    yield device
 
 
 def identify_scenes():
@@ -83,27 +81,26 @@ async def async_trigger_scene_on(group):
     """Trigger an Insteon scene."""
     scenes = identify_scenes()
 
-    resend = 2
-    while resend:
-        await OnLevelAllLinkBroadcastCommand(group=group).async_send()
-        await asyncio.sleep(0.1)
-        resend -= 1
+    await SendAllLinkOnCommandHandler().async_send(group=group)
+
     for device in scenes.get_devices(group):
-        # TODO check for success or failure
         await OnLevelAllLinkCleanupCommand(device.address, group).async_send()
+
+    for device in scenes.get_devices(group):
+        await device.async_status()
 
 
 async def async_trigger_scene_off(group):
     """Trigger an Insteon scene."""
     scenes = identify_scenes()
-    resend = 2
-    while resend:
-        await OffAllLinkBroadcastCommand(group=group).async_send()
-        await asyncio.sleep(0.1)
-        resend -= 1
+
+    await SendAllLinkOffCommandHandler().async_send(group=group)
+
     for device in scenes.get_devices(group):
-        # TODO check for success or failure
         await OffAllLinkCleanupCommand(address=device.address, group=group).async_send()
+
+    for device in scenes.get_devices(group):
+        await device.async_status()
 
 
 async def _plm_add_device_to_scene(group, device, on_level, ramp_rate, button):

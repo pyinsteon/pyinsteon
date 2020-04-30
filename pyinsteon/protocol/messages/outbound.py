@@ -114,10 +114,10 @@ def get_im_info(topic=pub.AUTO_TOPIC) -> Outbound:
 
 @topic_to_message_handler(register_list=topic_register, topic=SEND_ALL_LINK_COMMAND)
 def send_all_link_command(
-    group: int, mode: AllLinkMode, topic=pub.AUTO_TOPIC
+    group: int, cmd1: int, cmd2: int, topic=pub.AUTO_TOPIC
 ) -> Outbound:
     """Create a SEND_ALL_LINK_COMMAND outbound message."""
-    _create_outbound_message(group=group, mode=mode, topic=topic, priority=7)
+    _create_outbound_message(group=group, cmd1=cmd1, cmd2=cmd2, topic=topic, priority=3)
 
 
 def _create_flags(topic, extended):
