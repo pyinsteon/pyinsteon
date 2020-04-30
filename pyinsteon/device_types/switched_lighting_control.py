@@ -199,24 +199,26 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
     async def async_on(self, group: int = 0):
         """Turn on the button LED."""
         if group in [0, 1]:
-            return await super().async_on(group=group)
-        kwargs = self._change_led_status(led=group, is_on=True)
-        result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+            result = await super().async_on(group=group)
+        else:
+            kwargs = self._change_led_status(led=group, is_on=True)
+            result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
         if result == ResponseStatus.SUCCESS:
             self._update_leds(group=group, value=0xFF, event=ON_EVENT)
-        if result == ResponseStatus.UNCLEAR:
+        elif result == ResponseStatus.UNCLEAR:
             await self.async_status()
         return result
 
     async def async_off(self, group: int = 0):
         """Turn off the button LED."""
         if group in [0, 1]:
-            return await super().async_off(group=group)
-        kwargs = self._change_led_status(led=group, is_on=False)
-        result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+            result = await super().async_off(group=group)
+        else:
+            kwargs = self._change_led_status(led=group, is_on=False)
+            result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
         if result == ResponseStatus.SUCCESS:
             self._update_leds(group=group, value=0, event=OFF_EVENT)
-        if result == ResponseStatus.UNCLEAR:
+        elif result == ResponseStatus.UNCLEAR:
             await self.async_status()
         return result
 
