@@ -1,7 +1,7 @@
 """Fan On Level state."""
 from .group_base import GroupBase
 from ..address import Address
-from ..constants import FanSpeed
+from ..constants import FanSpeed, FanSpeedRange
 
 
 class FanOnLevel(GroupBase):
@@ -16,11 +16,12 @@ class FanOnLevel(GroupBase):
     # pylint: disable=arguments-differ
     def set_value(self, on_level):
         """Set the value of the state from the handlers."""
-        fan_speed = FanSpeed.OFF
-        if int(FanSpeed.OFF) < on_level <= int(FanSpeed.LOW):
+        if on_level in FanSpeedRange.OFF:
+            fan_speed = FanSpeed.OFF
+        elif on_level in FanSpeedRange.LOW:
             fan_speed = FanSpeed.LOW
-        if int(FanSpeed.LOW) < on_level <= int(FanSpeed.MEDIUM):
+        elif on_level in FanSpeedRange.MEDIUM:
             fan_speed = FanSpeed.MEDIUM
-        if int(FanSpeed.MEDIUM) < on_level <= int(FanSpeed.HIGH):
-            fan_speed = FanSpeed.LOW
+        else:
+            fan_speed = FanSpeed.HIGH
         self.value = fan_speed

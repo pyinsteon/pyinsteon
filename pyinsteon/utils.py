@@ -14,6 +14,8 @@ from .constants import (
     ResponseStatus,
     X10Commands,
     ThermostatMode,
+    FanSpeedRange,
+    FanSpeed,
 )
 from .protocol.commands import commands
 
@@ -340,3 +342,14 @@ def unsubscribe_topic(listener, topic_name):
     topic = topic_mgr.getOrCreateTopic(topic_name)
     if pub.isSubscribed(listener, topicName=topic.name):
         pub.unsubscribe(listener, topic.name)
+
+
+def set_fan_speed(on_level):
+    """Map a value to a fan speed."""
+    if on_level in FanSpeedRange.OFF.value:
+        return FanSpeed.OFF
+    if on_level in FanSpeedRange.LOW.value:
+        return FanSpeed.LOW
+    if on_level in FanSpeedRange.MEDIUM.value:
+        return FanSpeed.MEDIUM
+    return FanSpeed.HIGH

@@ -63,7 +63,7 @@ from .commands import (
     GET_LEDS_COMMAND,
     STATUS_COMMAND_FAN,
 )
-from ..utils import set_bit, bit_is_set, multiple_status
+from ..utils import set_bit, bit_is_set, multiple_status, set_fan_speed
 from .variable_controller_base import ON_LEVEL_MANAGER
 
 
@@ -225,7 +225,7 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         """
         group = 2
         command = ON_FAST_COMMAND if fast else ON_COMMAND
-        self._handlers[group][command].send(on_level=on_level)
+        self._handlers[group][command].send(on_level=int(set_fan_speed(on_level)))
 
     async def async_fan_on(self, on_level: FanSpeed = FanSpeed.HIGH, fast=False):
         """Turn on the device.
@@ -243,7 +243,9 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         """
         group = 2
         command = ON_FAST_COMMAND if fast else ON_COMMAND
-        return await self._handlers[group][command].async_send(on_level)
+        return await self._handlers[group][command].async_send(
+            on_level=int(set_fan_speed(on_level))
+        )
 
     def fan_off(self, fast=False):
         """Turn off the device.
@@ -343,14 +345,7 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         self._add_property(ON_LEVEL, 8, 6)
 
     def _handle_fan_status(self, db_version, status):
-        if int(status) == 0:
-            self._groups[2].set_value(FanSpeed.OFF)
-        elif int(status) <= int(FanSpeed.LOW):
-            self._groups[2].set_value(FanSpeed.LOW)
-        elif int(status) <= int(FanSpeed.MEDIUM):
-            self._groups[2].set_value(FanSpeed.MEDIUM)
-        else:
-            self._groups[2].set_value(FanSpeed.HIGH)
+        self._groups[2].set_value(status)
 
 
 # TODO setup operating flags for each KPL button

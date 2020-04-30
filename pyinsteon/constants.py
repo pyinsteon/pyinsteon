@@ -147,9 +147,18 @@ class FanSpeed(HexIntEnum):
     """Fan speeds."""
 
     OFF = 0x00
-    LOW = 0x3F
-    MEDIUM = 0xBE
+    LOW = 0x40
+    MEDIUM = 0xC0
     HIGH = 0xFF
+
+
+class FanSpeedRange(Enum):
+    """Fan speed ranges."""
+
+    OFF = [0x00]
+    LOW = range(0x01, 0x7F)
+    MEDIUM = range(0x80, 0xFE)
+    HIGH = [0xFF]
 
 
 class RelayMode(HexIntEnum):
