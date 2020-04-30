@@ -538,7 +538,6 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
 
     def _led_status(self, db_version, status):
         """Set the on level of the LED from a status command."""
-        print("Got a status")
         for bit in range(2, 9):
             state = self._groups.get(bit)
             if state:
