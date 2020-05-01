@@ -2,7 +2,7 @@
 import asyncio
 from ..events import CLOSE_EVENT, OPEN_EVENT, Event, ON_EVENT, OFF_EVENT
 from ..extended_property import DELAY, PRESCALER, X10_HOUSE, X10_UNIT
-from ..groups import OPEN_CLOSE_SENSOR, ON_OFF_SWITCH
+from ..groups import OPEN_CLOSE_SENSOR, RELAY
 from ..groups.open_close import NormallyOpen
 from ..handlers.to_device.status_request import STATUS_REQUEST, StatusRequestCommand
 from ..handlers.to_device.on_level import OnLevelCommand
@@ -190,7 +190,7 @@ class SensorsActuators_IOLink(Device):
         )
 
     def _register_groups(self):
-        self._groups[SWITCH_GROUP] = OnOff(ON_OFF_SWITCH, self._address, SWITCH_GROUP)
+        self._groups[SWITCH_GROUP] = OnOff(RELAY, self._address, SWITCH_GROUP)
         self._groups[SENSOR_GROUP] = NormallyOpen(
             OPEN_CLOSE_SENSOR, self._address, SENSOR_GROUP
         )
