@@ -1,12 +1,11 @@
 """Manage Insteon Scenes."""
+import asyncio
 import logging
 
 from .. import devices
 from ..device_types.plm import PLM
 from ..handlers.send_all_link_off import SendAllLinkOffCommandHandler
 from ..handlers.send_all_link_on import SendAllLinkOnCommandHandler
-from ..handlers.to_device.off_all_link_cleanup import OffAllLinkCleanupCommand
-from ..handlers.to_device.on_level_all_link_cleanup import OnLevelAllLinkCleanupCommand
 from .link_manager import async_link_devices
 
 _LOGGER = logging.getLogger(__name__)
@@ -83,9 +82,7 @@ async def async_trigger_scene_on(group):
 
     await SendAllLinkOnCommandHandler().async_send(group=group)
 
-    for device in scenes.get_devices(group):
-        await OnLevelAllLinkCleanupCommand(device.address, group).async_send()
-
+    await asyncio.sleep(2)
     for device in scenes.get_devices(group):
         await device.async_status()
 
@@ -96,9 +93,7 @@ async def async_trigger_scene_off(group):
 
     await SendAllLinkOffCommandHandler().async_send(group=group)
 
-    for device in scenes.get_devices(group):
-        await OffAllLinkCleanupCommand(address=device.address, group=group).async_send()
-
+    await asyncio.sleep(2)
     for device in scenes.get_devices(group):
         await device.async_status()
 
