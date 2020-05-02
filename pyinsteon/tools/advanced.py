@@ -169,7 +169,14 @@ class AdvancedTools(ToolsBase):
             )
 
     async def do_remove_link(self, *args, **kwargs):
-        """Remove a link from the All-Link Database."""
+        """Remove a link from the All-Link Database.
+
+        Usage:
+            remove_link address mem_addr
+
+            address: Address of the device
+            mem_addr: Memory address of the link to remove (i.e. 0f7f)
+        """
         args = args[0].split()
         address = None
         mem_addr = None
@@ -180,12 +187,12 @@ class AdvancedTools(ToolsBase):
         except (IndexError, ValueError):
             pass
 
-        address = await self._get_addresses(
+        addresses = await self._get_addresses(
             address=address, allow_cancel=True, allow_all=False
         )
-        if not address:
+        if not addresses:
             return
-        device = devices[address]
+        device = devices[addresses[0]]
         if device.aldb.status != ALDBStatus.LOADED:
             self._log_stdout(
                 f"The All-Link Database for device {device.address} must be loaded first."
@@ -206,7 +213,7 @@ class AdvancedTools(ToolsBase):
             )
             return
 
-        self._log_command(f"remove_device_link {address} {mem_addr:04x}")
+        self._log_command(f"remove_link {address} {mem_addr:04x}")
         device.aldb.remove(mem_addr)
         result = await device.aldb.async_write()
         if device.is_battery:
