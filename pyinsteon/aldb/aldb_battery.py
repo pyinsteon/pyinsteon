@@ -43,7 +43,7 @@ class ALDBBattery(ALDB):
         )
         return True
 
-    async def async_write(self):
+    async def async_write(self, force=False):
         """Write modified records to the device."""
-        self._run_command(super().async_write)
+        self._run_command(super().async_write, force=force)
         return 0, 0
