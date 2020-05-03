@@ -5,6 +5,8 @@ from asyncio import Transport
 
 from ..handlers.get_im_configuration import GetImConfigurationHandler
 from ..handlers.set_im_configuration import SetImConfigurationHandler
+from ..handlers.all_link_cleanup_report import AllLinkCleanupStatusReport
+from ..handlers.all_link_cleanup_failure_report import AllLinkCleanupFailureReport
 from ..protocol.protocol import Protocol
 from .commands import GET_IM_CONFIG_COMMAND
 from .device_base import Device
@@ -149,6 +151,8 @@ class ModemBase(Device, metaclass=ABCMeta):
     def _register_handlers_and_managers(self):
         """Register command handlers for modems."""
         super()._register_handlers_and_managers()
+        self._handlers["cleanup_status_report"] = AllLinkCleanupStatusReport()
+        self._handlers["cleanup_failure_report"] = AllLinkCleanupFailureReport()
         self._handlers[GET_IM_CONFIG_COMMAND] = GetImConfigurationHandler()
         self._handlers[GET_IM_CONFIG_COMMAND].subscribe(self._update_flags)
 
