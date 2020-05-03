@@ -88,7 +88,9 @@ class ImReadManager:
         unsent = 50
         while retries and unsent:
             response = await self._get_next_handler.async_send()
-            await asyncio.sleep(0.5)
+            if response == ResponseStatus.SUCCESS:
+                retries = 3
+                unsent = 50
             if response == ResponseStatus.FAILURE:
                 retries -= 1
             if response == ResponseStatus.UNSENT:
