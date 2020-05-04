@@ -12,7 +12,7 @@ class TestSendAllLinkingCommandHandler(unittest.TestCase):
     """Test the SendAllLink command handler."""
 
     def setUp(self):
-        """Setup the test."""
+        """Set up the test."""
         self.ack_message = "ack.{}".format(START_ALL_LINKING)
         self.handler = StartAllLinkingCommandHandler()
         self.received = False
@@ -31,7 +31,7 @@ class TestSendAllLinkingCommandHandler(unittest.TestCase):
         assert await self.handler.async_send(mode=AllLinkMode.CONTROLLER, group=0x01)
 
     def send_listener(self, mode, group):
-        """Subscribe to the send_all_link_command topic."""
+        """Subscribe to the start_all_linking topic."""
         self._sent = True
 
 

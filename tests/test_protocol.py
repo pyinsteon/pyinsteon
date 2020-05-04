@@ -44,7 +44,7 @@ class TestProtocol(unittest.TestCase):
         ]
         await self._protocol.async_connect()
         send_topics(topics)
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.05)
         assert self._last_topic == "ack.{}.1.on.direct".format(address.id)
         self._protocol.close()
         await asyncio.sleep(0.1)
@@ -63,11 +63,11 @@ class TestProtocol(unittest.TestCase):
             address, 0x80, 0x11, 0xFF, target=Address("000001")
         )
         pub.subscribe(topic_received, address.id)
-        on_cmd = DataItem(byte_data, 0.5)
+        on_cmd = DataItem(byte_data, 0)
         data = [on_cmd]
         await self._protocol.async_connect()
         send_data(data, self._read_queue)
-        await asyncio.sleep(2)
+        await asyncio.sleep(0.05)
         assert last_topic == "{}.{}.on.broadcast".format(address.id, 1)
         self._protocol.close()
         await asyncio.sleep(0.1)
@@ -92,8 +92,7 @@ class TestProtocol(unittest.TestCase):
         cmd = OnLevelAllLinkBroadcastCommand(group=group)
         await self._protocol.async_connect()
         await cmd.async_send()  # Mock transport auto sends ACK/NAK
-        await asyncio.sleep(2)
-        print(self._last_topic, " ", ack_topic)
+        await asyncio.sleep(0.1)
         assert last_topic == ack_topic
         self._protocol.close()
         await asyncio.sleep(0.1)

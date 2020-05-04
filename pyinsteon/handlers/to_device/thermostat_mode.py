@@ -35,7 +35,7 @@ class ThermostatModeCommand(DirectCommandHandlerBase):
         return await super().async_send(mode=send_mode)
 
     @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
+    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the OFF response direct ACK."""
         if cmd2 == 0x04:
             mode = ThermostatMode.HEAT

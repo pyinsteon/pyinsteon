@@ -33,7 +33,7 @@ class AllLinkCompletedHandler(InboundHandlerBase):
             mode=mode,
             group=group,
             target=target,
-            data1=cat,
-            data2=subcat,
-            data3=firmware,
+            cat=cat,
+            subcat=subcat,
+            firmware=firmware,
         )

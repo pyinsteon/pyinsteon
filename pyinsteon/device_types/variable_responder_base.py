@@ -77,10 +77,6 @@ class VariableResponderBase(VariableControllerBase):
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
         return await self._handlers[group][command].async_send()
 
-    def status(self):
-        """Get the status of the device state."""
-        self._handlers[STATUS_COMMAND].send()
-
     async def async_status(self):
         """Get the status of the device state."""
         return await self._handlers[STATUS_COMMAND].async_send()

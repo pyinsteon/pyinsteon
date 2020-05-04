@@ -7,8 +7,17 @@ from ..utils import publish_topic
 from ..utils import build_topic
 from .inbound_base import InboundHandlerBase
 
-# It should not take more than 3 minutes for a message send (I hope)
-TIMEOUT = 60 * 3
+
+MSG_TIME = 4  # seconds to send each message in queue, used for timeout below
+
+
+def _calc_timeout():
+    """Calculate the time to wait for a message to be sent."""
+    from .. import devices
+
+    if devices and devices.modem:
+        return devices.modem.protocol.message_queue.qsize() * MSG_TIME + MSG_TIME
+    return MSG_TIME
 
 
 class OutboundHandlerBase(InboundHandlerBase):
@@ -33,6 +42,7 @@ class OutboundHandlerBase(InboundHandlerBase):
 
     async def async_send(self, **kwargs):
         """Send the message and wait for a status."""
+
         while not self._message_response.empty():
             # Empty the message queue
             try:
@@ -47,8 +57,9 @@ class OutboundHandlerBase(InboundHandlerBase):
             message_type=self._message_type,
         )
         publish_topic(send_topic, **kwargs)
+        timeout = _calc_timeout()
         try:
-            test = await asyncio.wait_for(self._message_response.get(), TIMEOUT)
-            return test
+            return await asyncio.wait_for(self._message_response.get(), timeout)
         except asyncio.TimeoutError:
-            return ResponseStatus.UNSENT
+            pass
+        return ResponseStatus.UNSENT

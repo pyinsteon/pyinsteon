@@ -16,7 +16,10 @@ def _convert_val(val):
         try:
             return int(val)
         except ValueError:
-            val = val.strip('"').strip("'")
+            try:
+                return float(val)
+            except ValueError:
+                val = val.strip('"').strip("'")
     else:
         val = val.strip('"').strip("'")
     if val == "True":

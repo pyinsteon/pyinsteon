@@ -32,8 +32,11 @@ def _has_listeners(topic):
     """
     topic_manager = pub.getDefaultTopicMgr()
     pub_topic = topic_manager.getTopic(name=topic, okIfNone=True)
+    _LOGGER.debug("MSG Topic: %s", pub_topic)
     if pub_topic and pub_topic.getListeners():
+        _LOGGER.debug("Has listeners so do not resend.")
         return True
+    _LOGGER.debug("No listeners so resend")
     return False
 
 
@@ -133,6 +136,8 @@ class Protocol(asyncio.Protocol):
     # pylint: disable=broad-except
     def _publish_message(self, msg):
         _LOGGER_MSG.debug("RX: %s", repr(msg))
+        topic = None
+        kwargs = {}
         try:
             for (topic, kwargs) in convert_to_topic(msg):
                 if _is_nak(msg) and not _has_listeners(topic):
@@ -143,7 +148,7 @@ class Protocol(asyncio.Protocol):
             # No topic was found for this message
             _LOGGER.debug("No topic found for message %r", msg)
         except Exception as ex:
-            log_error(msg, ex)
+            log_error(msg, ex, topic=topic, kwargs=kwargs)
 
     def _write(self, msg, priority=5):
         """Prepare data for writing to the transport.

@@ -3,10 +3,13 @@ import asyncio
 import logging
 from collections import namedtuple
 
+from binascii import unhexlify
+
 from .. import pub
-from ..utils import subscribe_topic
+from ..utils import subscribe_topic, unsubscribe_topic
 from ..address import Address
 from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
+from ..handlers.all_link_completed import AllLinkCompletedHandler
 from ..handlers.from_device.delete_from_all_link_group import (
     DeleteFromAllLinkGroupCommand,
 )
@@ -21,6 +24,17 @@ RETRY_PAUSE = 2
 DeviceId = namedtuple("DeviceId", "address cat subcat firmware")  # product_id')
 
 
+def _normalize_identifier(value):
+    """Convert a byte, str or int to int."""
+    if isinstance(value, (bytearray, bytes)):
+        return int.from_bytes(value, "big")
+    if isinstance(value, str):
+        if value[0:2] == "0x":
+            value = value[2:]
+        return int.from_bytes(unhexlify(value), "big")
+    return int(value)
+
+
 class DeviceIdManager(SubscriberBase):
     """Manage device identities."""
 
@@ -33,6 +47,8 @@ class DeviceIdManager(SubscriberBase):
         # Cannot set queue here because we are outside the loop
         self._awake_devices_queue = None
         self._id_device_lock = asyncio.Lock()
+        self._all_link_complete = AllLinkCompletedHandler()
+        self._all_link_complete.subscribe(self._all_link_complete_received)
 
     def __getitem__(self, address):
         """Return the unknown device list."""
@@ -66,9 +82,9 @@ class DeviceIdManager(SubscriberBase):
     ):
         """Set the device ID of a device."""
         address = Address(address)
-        cat = int(cat)
-        subcat = int(subcat)
-        firmware = int(firmware)
+        cat = _normalize_identifier(cat)
+        subcat = _normalize_identifier(subcat)
+        firmware = _normalize_identifier(firmware)
         try:
             self._unknown_devices.remove(address)
         except ValueError:
@@ -125,7 +141,7 @@ class DeviceIdManager(SubscriberBase):
             self._unknown_devices.remove(address)
         except ValueError:
             pass
-        pub.unsubscribe(self._device_awake, address.id)
+        unsubscribe_topic(self._device_awake, address.id)
         self._call_subscribers(device_id=device_id)
 
     def _set_device_info(
@@ -141,8 +157,7 @@ class DeviceIdManager(SubscriberBase):
                 cat if cat else device_id.cat,
                 subcat if subcat else device_id.subcat,
                 firmware if firmware else device_id.firmware,
-            )  # ,
-            # product_id if product_id else device_id.product_id)
+            )
         self._device_ids[address] = new_id
 
     async def _id_awake_devices(self):
@@ -183,8 +198,12 @@ class DeviceIdManager(SubscriberBase):
         else:
             if address in self._awake_devices:
                 return
-            pub.unsubscribe(self._device_awake, address.id)
+            unsubscribe_topic(self._device_awake, address.id)
             self._awake_devices.append(address)
             if self._awake_devices_queue is None:
                 self._awake_devices_queue = asyncio.Queue()
             self._awake_devices_queue.put_nowait(address)
+
+    def _all_link_complete_received(self, mode, group, target, cat, subcat, firmware):
+        """Receive All-Link complete message."""
+        self._id_response(target, cat, subcat, firmware, group, mode)

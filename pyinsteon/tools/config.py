@@ -389,3 +389,26 @@ class ToolsConfig(ToolsBase):
             seconds = await self._get_int("Delay (seconds)")
 
         await device.async_set_momentary_delay(seconds=seconds)
+
+    async def do_get_engine_version(self, *args, **kwargs):
+        """Get the engine version of the device.
+
+        Usage:
+            get_engine_version <ADDRESS>|all
+        """
+        args = args[0].split()
+        try:
+            address = args[0]
+        except IndexError:
+            address = None
+
+        addresses = await self._get_addresses(
+            address, allow_cancel=True, allow_all=True
+        )
+        if not addresses:
+            return
+
+        for address in addresses:
+            device = devices[address]
+            if not device == devices.modem and device.cat != 0x03:
+                await device.async_get_engine_version()

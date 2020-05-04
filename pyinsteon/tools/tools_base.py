@@ -24,9 +24,11 @@ CmdArgs = namedtuple("CmdArgs", "workdir device username host hub_version port")
 class ToolsBase(Cmd):
     """Base class for all tools menues."""
 
-    def __init__(self, loop, args=None, menu=None):
+    def __init__(self, loop, args=None, menu=None, stdin=None, stdout=None):
         """Init the InsteonCmd class."""
         super().__init__()
+        self.stdin = stdin
+        self.stdout = stdout
         prompt = "pyinsteon"
         if menu:
             self.prompt = f"{prompt} - {menu}: "
@@ -67,9 +69,10 @@ class ToolsBase(Cmd):
         """
 
         self.preloop()
-        self.stdin, self.stdout = await stdio(loop=self.loop)
-        if sys.platform != "win32":
-            patch_stdin_stdout(self.stdin, self.stdout)
+        if not self.stdin and not self.stdout:
+            self.stdin, self.stdout = await stdio(loop=self.loop)
+            if sys.platform != "win32":
+                patch_stdin_stdout(self.stdin, self.stdout)
 
         try:
             if intro is not None:
@@ -461,7 +464,9 @@ class ToolsBase(Cmd):
             self.hub_version,
             self.port,
         )
-        await menu(self.loop, cmd_args, name).start_menu()
+        await menu(
+            self.loop, cmd_args, name, stdin=self.stdin, stdout=self.stdout
+        ).start_menu()
 
     def _add_filter(self):
         """Add a filter for the current menu."""
@@ -671,6 +676,10 @@ class ToolsBase(Cmd):
         if not addresses:
             return
         self._log_command(f"print_aldb {'all' if len(addresses) > 1 else addresses[0]}")
+        self._print_aldb_out(addresses)
+
+    def _print_aldb_out(self, addresses):
+        """Print the ALDB to the log."""
         for address in addresses:
             device = devices[address]
             self._log_stdout("")

@@ -1,9 +1,11 @@
 """Device manager."""
 import logging
-from asyncio import Lock
+import asyncio
 
 from ..address import Address
+from ..x10_address import X10Address
 from ..device_types.device_base import Device
+from ..device_types.x10_base import X10DeviceBase
 from ..device_types.modem_base import ModemBase
 from ..managers.saved_devices_manager import SavedDeviceManager
 from ..subscriber_base import SubscriberBase
@@ -26,12 +28,15 @@ class DeviceManager(SubscriberBase):
         self._modem = None
         self._id_manager = DeviceIdManager()
         self._id_manager.subscribe(self._device_identified)
-        self._loading_saved_lock = Lock()
+        self._loading_saved_lock = asyncio.Lock()
         self._link_manager = DeviceLinkManager(self)
 
     def __getitem__(self, address) -> Device:
         """Return a a device from the device address."""
-        address = Address(address)
+        try:
+            address = Address(address)
+        except ValueError:
+            address = X10Address(address)
         return self._devices.get(address)
 
     def __iter__(self):
@@ -42,16 +47,17 @@ class DeviceManager(SubscriberBase):
     def __setitem__(self, address, device):
         """Add a device to the device list."""
         _LOGGER.info("Adding device to INSTEON devices list: %s", address.id)
-        if not isinstance(device, (Device, DeviceId)):
+        if not isinstance(device, (Device, DeviceId, X10DeviceBase)):
             raise ValueError("Device must be a DeviceId or a Device type.")
 
         if isinstance(device, DeviceId):
             device = create_device(device)
 
         self._devices[device.address] = device
-        self._id_manager.set_device_id(
-            device.address, device.cat, device.subcat, device.firmware
-        )
+        if isinstance(device, Device):
+            self._id_manager.set_device_id(
+                device.address, device.cat, device.subcat, device.firmware
+            )
         self._call_subscribers(address=device.address.id)
 
     def __len__(self):
@@ -60,7 +66,10 @@ class DeviceManager(SubscriberBase):
 
     def get(self, address) -> Device:
         """Return a device from an address."""
-        address = Address(address)
+        try:
+            address = Address(address)
+        except ValueError:
+            address = X10Address(address)
         return self._devices.get(address)
 
     @property
@@ -89,6 +98,9 @@ class DeviceManager(SubscriberBase):
 
         """
         address = Address(address)
+        device = self[address]
+        if device and device.cat == cat and device.subcat == subcat:
+            return
         self._id_manager.set_device_id(address, cat, subcat, firmware)
 
     def add_x10_device(
@@ -109,7 +121,7 @@ class DeviceManager(SubscriberBase):
         """Close the device ID listener."""
         self._id_manager.close()
 
-    async def async_load(self, workdir="", id_devices=1, refresh=False):
+    async def async_load(self, workdir="", id_devices=1, load_modem_aldb=1):
         """Load devices from the `insteon_devices.yaml` file and device overrides.
 
         Parameters:
@@ -121,8 +133,11 @@ class DeviceManager(SubscriberBase):
                 2: All devices are identified
             (default=1)
 
-            refresh: Bool to indicate if the Modem ALDB should be reloaded to identify
-            new devices (Default=False)
+            load_modem_aldb: Indicate if the Modem ALDB should be loaded
+                0: Do not load
+                1: Load if not loaded from save file
+                2: Load
+            (default=1)
 
         The Modem ALDB is loaded if `refresh` is True or if the saved file has no devices.
 
@@ -136,8 +151,14 @@ class DeviceManager(SubscriberBase):
             if self._loading_saved_lock.locked():
                 self._loading_saved_lock.release()
 
-        if (len(self._devices) == 1 and not self._modem.aldb.is_loaded) or refresh:
-            # No devices were found in the saved devices file or reload_aldb is required
+        if load_modem_aldb == 0:
+            load_modem_aldb = False
+        elif load_modem_aldb == 2:
+            load_modem_aldb = True
+        else:
+            load_modem_aldb = not self._modem.aldb.is_loaded
+
+        if load_modem_aldb:
             await self._modem.aldb.async_load()
 
         for mem_addr in self._modem.aldb:
@@ -169,4 +190,14 @@ class DeviceManager(SubscriberBase):
                 ):
                     return
             self[device_id.address] = device
+            if device_id.cat != 0x03:
+                asyncio.ensure_future(device.async_get_engine_version())
+                asyncio.ensure_future(self.async_setup_device(device))
             _LOGGER.debug("Device %s added", device.address)
+
+    async def async_setup_device(self, device):
+        """Set up device."""
+        await device.aldb.async_load(refresh=True)
+        await device.async_read_op_flags()
+        await device.async_read_ext_properties()
+        await device.async_add_default_links()

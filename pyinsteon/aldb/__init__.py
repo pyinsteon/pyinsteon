@@ -52,34 +52,38 @@ class ALDB(ALDBBase):
         _LOGGER.debug("Loading the ALDB async")
         self._status = ALDBStatus.LOADING
         if refresh:
-            for maddr in self._records:
-                self._notify_change(self._records[maddr], force_delete=True)
-            self._records = {}
+            self.clear()
+        # pylint: disable=not-an-iterable
         async for rec in self._read_manager.async_read(
             mem_addr=mem_addr, num_recs=num_recs
         ):
-            if self._confirm_hwm(rec):
-                if self._records.get(rec.mem_addr):
-                    self._notify_change(self._records[rec.mem_addr], force_delete=True)
-                self._records[rec.mem_addr] = rec
-                self._notify_change(rec)
+            if self._hwm_record and rec.mem_addr < self._hwm_record.mem_addr:
+                continue
+            if rec.mem_addr > self.first_mem_addr:
+                continue
+            if self._records.get(rec.mem_addr):
+                self._notify_change(self._records[rec.mem_addr], force_delete=True)
+            self._records[rec.mem_addr] = rec
+            if rec.is_high_water_mark:
+                self._hwm_record = rec
+            self._notify_change(rec)
         self.set_load_status()
         if callback:
             callback()
         return self._status
 
-    def write(self):
+    def write(self, force=False):
         """Write modified records to the device."""
-        asyncio.ensure_future(self.async_write())
+        asyncio.ensure_future(self.async_write(force=force))
 
-    async def async_write(self):
+    async def async_write(self, force=False):
         """Write modified records to the device.
 
         Returns a tuple of (completed, failed) record counts.
         """
 
-        if not self.is_loaded:
-            _LOGGER.error(
+        if not self.is_loaded and not force:
+            _LOGGER.warning(
                 "ALDB must be loaded before it can be written Status: %s",
                 str(self._status),
             )
@@ -93,11 +97,11 @@ class ALDB(ALDBBase):
                     record.is_controller, record.group, record.target
                 )
                 if mem_addr is None:
-                    _LOGGER.error("Existing record not found")
+                    _LOGGER.debug("Existing record not found")
                     mem_addr = self._get_next_mem_addr()
-                    _LOGGER.error("Using new record %04x", mem_addr)
+                    _LOGGER.debug("Using new record %04x", mem_addr)
                 else:
-                    _LOGGER.error("Using existing record %04x", mem_addr)
+                    _LOGGER.debug("Using existing record %04x", mem_addr)
                 record.mem_addr = mem_addr
             # We assume a direct ACK is a confirmation of write.
             # Should we re-read to ensure it is correct.
@@ -105,7 +109,7 @@ class ALDB(ALDBBase):
             retries = 0
             while response != ResponseStatus.SUCCESS and retries < 3:
                 response = await self._write_manager.async_write(record)
-                _LOGGER.error("Response: %s", str(response))
+                _LOGGER.debug("Response: %s", str(response))
                 retries += 1
             if response == ResponseStatus.SUCCESS:
                 self._records[record.mem_addr] = record
@@ -236,10 +240,10 @@ class ALDB(ALDBBase):
             record = self._records[mem_addr]
             last_record = record
             if not record.is_in_use:
-                _LOGGER.error("Using the available record %04x", record.mem_addr)
+                _LOGGER.debug("Using the available record %04x", record.mem_addr)
                 return record.mem_addr
 
-        _LOGGER.error("Using the next vailable record %04x", record.mem_addr)
+        _LOGGER.debug("Using the next vailable record %04x", record.mem_addr)
         return last_record.mem_addr - 8
 
     def _calc_load_status(self):

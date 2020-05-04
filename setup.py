@@ -11,7 +11,7 @@ def readme():
 
 setup(
     name="pyinsteon",
-    version="0.1.0rc4",
+    version="1.0.0",
     author="The pyinsteon Development Team",
     author_email="pyinsteon@harrisnj.net",
     url="https://github.com/pyinsteon/pyinsteon",
@@ -27,7 +27,7 @@ setup(
         "pyserial-asyncio",
         "aiohttp",
         "pypubsub",
-        "aiofile",
+        "aiofiles",
         "async_generator",
         "pyyaml",
     ],

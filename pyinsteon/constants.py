@@ -116,6 +116,15 @@ class ALDBVersion(Enum):
     V2CS = 20
 
 
+class EngineVersion(HexIntEnum):
+    """Insteon Engine Version."""
+
+    I1 = 0x00
+    I2 = 0x01
+    I2CS = 0x02
+    UNKNOWN = 0x03
+
+
 class X10CommandType(HexIntEnum):
     """X10 command types."""
 
@@ -138,9 +147,18 @@ class FanSpeed(HexIntEnum):
     """Fan speeds."""
 
     OFF = 0x00
-    LOW = 0x3F
-    MEDIUM = 0xBE
+    LOW = 0x40
+    MEDIUM = 0xC0
     HIGH = 0xFF
+
+
+class FanSpeedRange(Enum):
+    """Fan speed ranges."""
+
+    OFF = [0x00]
+    LOW = range(0x01, 0x7F)
+    MEDIUM = range(0x80, 0xFE)
+    HIGH = [0xFF]
 
 
 class RelayMode(HexIntEnum):
@@ -250,6 +268,7 @@ class ResponseStatus(HexIntEnum):
     UNCLEAR = 2
     INPROGRESS = 4
     UNSENT = 8
+    RUN_ON_WAKE = 0x10
 
 
 class LinkStatus(Enum):

@@ -20,6 +20,7 @@ from ..events import (
     Event,
     HeartbeatEvent,
     LowBatteryEvent,
+    WetDryEvent,
 )
 from ..extended_property import (
     AMBIENT_LIGHT_INTENSITY,
@@ -37,7 +38,8 @@ from ..groups import (
     CO_SENSOR,
     DOOR_SENSOR,
     HEARTBEAT,
-    LEAK_SENSOR,
+    LEAK_SENSOR_DRY,
+    LEAK_SENSOR_WET,
     LIGHT_SENSOR,
     LOW_BATTERY,
     MOTION_SENSOR,
@@ -47,6 +49,7 @@ from ..groups import (
     TEST_SENSOR,
 )
 from ..groups.on_off import Heartbeat, LowBattery, OnOff
+from ..groups.wet_dry import Wet, Dry
 from ..handlers.from_device.on_level import OnLevelInbound
 from ..managers.heartbeat_manager import HeartbeatManager
 from ..managers.low_batter_manager import LowBatteryManager
@@ -101,7 +104,7 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
             description=description,
             model=model,
             buttons=buttons,
-            on_event=OPEN_EVENT,
+            on_event_name=OPEN_EVENT,
             off_event_name=CLOSE_EVENT,
         )
 
@@ -121,20 +124,21 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
         )
 
         self._groups[self.HEARTBEAT_GROUP] = Heartbeat(
-            name=HEARTBEAT, address=self._address, group=self.HEARTBEAT_GROUP
+            name=HEARTBEAT,
+            address=self._address,
+            group=self.HEARTBEAT_GROUP,
+            default=False,
         )
 
     def _register_events(self):
         """Register events for the Door Sensor."""
-        lb_event = self._events[LOW_BATTERY_EVENT] = LowBatteryEvent(
+        super()._register_events()
+        self._events[LOW_BATTERY_EVENT] = LowBatteryEvent(
             name=LOW_BATTERY_EVENT, address=self._address, group=self.LOW_BATTERY_GROUP
         )
-        self._low_battery_manger.subscribe_low_battery_event(lb_event.trigger)
-
-        hb_event = self._events[HEARTBEAT_EVENT] = HeartbeatEvent(
+        self._events[HEARTBEAT_EVENT] = HeartbeatEvent(
             name=HEARTBEAT_EVENT, address=self._address, group=self.HEARTBEAT_GROUP
         )
-        self._heartbeat_manger.subscribe(hb_event.trigger)
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
@@ -144,6 +148,10 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
         self._heartbeat_manger.subscribe_on(self._groups[self.DOOR_GROUP].set_value)
         self._heartbeat_manger.subscribe_off(self._groups[self.DOOR_GROUP].set_value)
         self._heartbeat_manger.subscribe(self._groups[self.HEARTBEAT_GROUP].set_value)
+        self._low_battery_manger.subscribe_low_battery_event(
+            self._events[LOW_BATTERY_EVENT].trigger
+        )
+        self._heartbeat_manger.subscribe(self._events[HEARTBEAT_EVENT].trigger)
 
     def _register_operating_flags(self):
         """Register operating flags for Door Sensor."""
@@ -216,14 +224,12 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
     MOTION_GROUP = 1
     LIGHT_GROUP = 2
     LOW_BATTERY_GROUP = 3
-    HEARTBEAT_GROUP = 4
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the SecurityHealthSafety_DoorSensor class."""
         buttons = {1: MOTION_SENSOR}
         self._light_manager = OnLevelManager(address, self.LIGHT_GROUP)
         self._low_battery_manager = LowBatteryManager(address, self.LOW_BATTERY_GROUP)
-        self._heartbeat_manager = HeartbeatManager(address, self.HEARTBEAT_GROUP)
         super().__init__(
             address=address,
             cat=cat,
@@ -246,9 +252,6 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
         self._groups[self.LOW_BATTERY_GROUP] = LowBattery(
             LOW_BATTERY, self._address, self.LOW_BATTERY_GROUP
         )
-        self._groups[self.HEARTBEAT_GROUP] = Heartbeat(
-            HEARTBEAT, self._address, self.HEARTBEAT_GROUP
-        )
 
     def _register_events(self):
         """Register events for the Door Sensor."""
@@ -264,10 +267,6 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
         self._events[self.LOW_BATTERY_GROUP][LOW_BATTERY_EVENT] = LowBatteryEvent(
             LOW_BATTERY_EVENT, self._address, self.LOW_BATTERY_GROUP
         )
-        self._events[self.HEARTBEAT_GROUP] = {}
-        self._events[self.HEARTBEAT_GROUP][HEARTBEAT_EVENT] = HeartbeatEvent(
-            HEARTBEAT_EVENT, self._address, self.HEARTBEAT_GROUP
-        )
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
@@ -275,7 +274,6 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
         self._low_battery_manager.subscribe(
             self._groups[self.LOW_BATTERY_GROUP].set_value
         )
-        self._heartbeat_manager.subscribe(self._groups[self.HEARTBEAT_GROUP].set_value)
 
         self._light_manager.subscribe_on(
             self._events[self.LIGHT_GROUP][LIGHT_DETECTED_EVENT].trigger
@@ -285,9 +283,6 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
         )
         self._low_battery_manager.subscribe_low_battery_event(
             self._events[self.LOW_BATTERY_GROUP][LOW_BATTERY_EVENT].trigger
-        )
-        self._heartbeat_manager.subscribe(
-            self._events[self.HEARTBEAT_GROUP][HEARTBEAT_EVENT].trigger
         )
 
     def _register_operating_flags(self):
@@ -336,34 +331,22 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
             modem_data2=0,
             modem_data3=0,
         )
-        link_heartbeat = DefaultLink(
-            is_controller=True,
-            group=self.HEARTBEAT_GROUP,
-            dev_data1=255,
-            dev_data2=28,
-            dev_data3=self.HEARTBEAT_GROUP,
-            modem_data1=0,
-            modem_data2=0,
-            modem_data3=0,
-        )
         self._default_links.append(link_light)
         self._default_links.append(link_battery)
-        self._default_links.append(link_heartbeat)
 
 
 class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
     """Leak Sensor device."""
 
-    STATE_NAME = LEAK_SENSOR
     DRY_GROUP = 1
     WET_GROUP = 2
     HEARTBEAT_GROUP = 4
+    WET_DRY_MANGER = "manager"
 
     def _register_handlers_and_managers(self):
         """Regsister handlers and managers for the Leak Sensor."""
-        self._managers[self.DRY_GROUP] = WetDryManager(
-            self._address, self.WET_GROUP, self.DRY_GROUP
-        )
+        super()._register_handlers_and_managers()
+        self._managers[self.WET_DRY_MANGER] = WetDryManager(self._address)
         self._managers[self.HEARTBEAT_GROUP] = HeartbeatManager(
             self._address, self.HEARTBEAT_GROUP
         )
@@ -377,17 +360,22 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
         # When an ON message (0x11) is received for group 2 the sensor is wet.
         # Dry state is handled via the Dry event below
 
-        self._groups[self.DRY_GROUP] = OnOff(LEAK_SENSOR, self._address, self.DRY_GROUP)
+        self._groups[self.DRY_GROUP] = Dry(
+            LEAK_SENSOR_DRY, self._address, self.DRY_GROUP
+        )
+        self._groups[self.WET_GROUP] = Wet(
+            LEAK_SENSOR_WET, self._address, self.WET_GROUP
+        )
         self._groups[self.HEARTBEAT_GROUP] = Heartbeat(
-            HEARTBEAT, self._address, self.HEARTBEAT_GROUP
+            HEARTBEAT, self._address, self.HEARTBEAT_GROUP, default=False
         )
 
     def _register_events(self):
         """Register events for the Door Sensor."""
-        self._events[LEAK_DRY_EVENT] = Event(
+        self._events[LEAK_DRY_EVENT] = WetDryEvent(
             LEAK_DRY_EVENT, self._address, self.DRY_GROUP
         )
-        self._events[LEAK_WET_EVENT] = Event(
+        self._events[LEAK_WET_EVENT] = WetDryEvent(
             LEAK_WET_EVENT, self._address, self.WET_GROUP
         )
         self._events[HEARTBEAT_EVENT] = HeartbeatEvent(
@@ -397,23 +385,35 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
     def _subscribe_to_handelers_and_managers(self):
         """Subscribe to handlers and managers."""
         super()._subscribe_to_handelers_and_managers()
-        self._managers[self.DRY_GROUP].subscribe(self._groups[self.DRY_GROUP].set_value)
+        dry_group = self._groups[self.DRY_GROUP]
+        wet_group = self._groups[self.WET_GROUP]
+        dry_event = self._events[LEAK_DRY_EVENT]
+        wet_event = self._events[LEAK_WET_EVENT]
+        hb_event = self._events[HEARTBEAT_EVENT]
+        wet_dry_mgr = self._managers[self.WET_DRY_MANGER]
+        hb_mgr = self._managers[self.HEARTBEAT_GROUP]
 
-        self._managers[self.DRY_GROUP].subscribe_dry(
-            self._events[LEAK_DRY_EVENT].trigger
-        )
-        self._managers[self.DRY_GROUP].subscribe_wet(
-            self._events[LEAK_WET_EVENT].trigger
-        )
-        self._managers[self.HEARTBEAT_GROUP].subscribe(
-            self._events[HEARTBEAT_EVENT].trigger
-        )
-        self._managers[self.HEARTBEAT_GROUP].subscribe_on(
-            self._groups[self.DRY_GROUP].set_value
-        )
-        self._managers[self.HEARTBEAT_GROUP].subscribe_off(
-            self._groups[self.DRY_GROUP].set_value
-        )
+        wet_dry_mgr.subscribe(dry_group.set_value)
+        wet_dry_mgr.subscribe(wet_group.set_value)
+
+        wet_dry_mgr.subscribe_dry(dry_event.trigger)
+        wet_dry_mgr.subscribe_wet(wet_event.trigger)
+
+        hb_mgr.subscribe(hb_event.trigger)
+        hb_mgr.subscribe_on(self._heartbeat_dry)
+        hb_mgr.subscribe_off(self._heartbeat_wet)
+
+    def _heartbeat_dry(self, on_level):
+        """Receive heartbeat on/off message and create wet/dry status."""
+        self._groups[self.DRY_GROUP].value = True
+        self._groups[self.WET_GROUP].value = False
+        self._events[LEAK_DRY_EVENT].trigger(on_level)
+
+    def _heartbeat_wet(self, on_level):
+        """Receive heartbeat on/off message and create wet/dry status."""
+        self._groups[self.DRY_GROUP].value = False
+        self._groups[self.WET_GROUP].value = True
+        self._events[LEAK_WET_EVENT].trigger(on_level)
 
     def _register_operating_flags(self):
         # bit 0 = Cleanup Report
@@ -512,6 +512,7 @@ class SecurityHealthSafety_Smokebridge(Device):
         )
 
     def _register_groups(self):
+        super()._register_groups()
         self._groups[self.SMOKE_DETECTED_GROUP] = OnOff(
             SMOKE_SENSOR, self._address, self.SMOKE_DETECTED_GROUP
         )
@@ -531,10 +532,11 @@ class SecurityHealthSafety_Smokebridge(Device):
             SENSOR_MALFUNCTION, self._address, self.SENSOR_MALFUNCTION_GROUP
         )
         self._groups[self.HEARTBEAT_GROUP] = Heartbeat(
-            SENSOR_MALFUNCTION, self._address, self.HEARTBEAT_GROUP
+            SENSOR_MALFUNCTION, self._address, self.HEARTBEAT_GROUP, default=False
         )
 
     def _register_events(self):
+        super()._register_events()
         self._events[SMOKE_DETECTED_EVENT] = Event(
             SMOKE_DETECTED_EVENT, self._address, self.SMOKE_DETECTED_GROUP
         )
@@ -617,6 +619,7 @@ class SecurityHealthSafety_Smokebridge(Device):
             self._groups[self.SENSOR_MALFUNCTION_GROUP].set_value(0)
 
     def _register_operating_flags(self):
+        super()._register_operating_flags()
         self._add_operating_flag(
             name=PROGRAM_LOCK_ON, group=0, bit=0, set_cmd=0, unset_cmd=1
         )

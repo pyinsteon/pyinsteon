@@ -38,15 +38,13 @@ class ImReadManager:
     async def async_load(self):
         """Load the Insteon Modem ALDB."""
         response = False
-        self._retries = 0
+        retries = 3
         await self._load_lock.acquire()
-        while response != ResponseStatus.SUCCESS and not self._max_retries():
+        while response != ResponseStatus.SUCCESS and retries:
             response = await self._get_first_handler.async_send()
-            self._retries += 1
+            self._retries -= 1
         if response == ResponseStatus.SUCCESS:
-            await self._load_lock.acquire()
-        if self._load_lock.locked():
-            self._load_lock.release()
+            await self._get_next_record()
         return ResponseStatus.SUCCESS
 
     def _max_retries(self):
@@ -82,15 +80,18 @@ class ImReadManager:
             bit4=bit4,
         )
         self._aldb[self._last_mem_addr] = record
-        asyncio.ensure_future(self._get_next_record())
 
     async def _get_next_record(self):
         """Get the next ALDB record."""
         response = ResponseStatus.FAILURE
-        self._retries = 0
-        while response != ResponseStatus.SUCCESS and not self._max_retries():
-            # TODO check for success or failure
+        retries = 3
+        unsent = 50
+        while retries and unsent:
             response = await self._get_next_handler.async_send()
-            self._retries += 1
-        if self._max_retries() and self._load_lock.locked():
-            self._load_lock.release()
+            if response == ResponseStatus.SUCCESS:
+                retries = 3
+                unsent = 50
+            if response == ResponseStatus.FAILURE:
+                retries -= 1
+            if response == ResponseStatus.UNSENT:
+                unsent -= 1

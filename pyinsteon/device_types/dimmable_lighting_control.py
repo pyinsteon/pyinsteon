@@ -14,9 +14,8 @@ from ..extended_property import (
     TRIGGER_GROUP_MASK,
     NON_TOGGLE_ON_OFF_MASK,
 )
+from ..events import ON_EVENT, OFF_EVENT, ON_FAST_EVENT, OFF_FAST_EVENT
 
-# from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
-# from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
 from ..groups import (
     DIMMABLE_FAN,
     DIMMABLE_LIGHT,
@@ -32,7 +31,9 @@ from ..groups import (
     ON_OFF_SWITCH_H,
 )
 from ..groups.on_off import OnOff
+from ..groups.on_level import OnLevel
 from ..handlers import ResponseStatus
+from ..handlers.from_device.manual_change import ManualChangeInbound
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..operating_flag import (
@@ -53,20 +54,41 @@ from ..operating_flag import (
 )
 from .variable_responder_base import VariableResponderBase
 
-from .commands import (  # TRIGGER_SCENE_ON_COMMAND,; TRIGGER_SCENE_OFF_COMMAND,
+from .commands import (
     OFF_COMMAND,
     OFF_FAST_COMMAND,
     ON_COMMAND,
     ON_FAST_COMMAND,
     SET_LEDS_COMMAND,
+    GET_LEDS_COMMAND,
     STATUS_COMMAND_FAN,
 )
-from ..utils import set_bit, bit_is_set
+from ..utils import set_bit, bit_is_set, multiple_status, set_fan_speed
 from .variable_controller_base import ON_LEVEL_MANAGER
 
 
 class DimmableLightingControl(VariableResponderBase):
     """Dimmable Lighting Control Device."""
+
+    def _register_handlers_and_managers(self):
+        """Register command handlers and managers."""
+        super()._register_handlers_and_managers()
+        for group in self._groups:
+            if isinstance(self._groups[group], OnLevel):
+                self._handlers[group]["manual_change"] = ManualChangeInbound(
+                    self._address, group
+                )
+
+    def _subscribe_to_handelers_and_managers(self):
+        """Subscribe methods to handlers and managers."""
+        super()._subscribe_to_handelers_and_managers()
+        for group in self._groups:
+            if isinstance(self._groups[group], OnLevel):
+                self._handlers[group]["manual_change"].subscribe(self._on_manual_change)
+
+    def _on_manual_change(self):
+        """Respond to a manual change of the device."""
+        self.status()
 
 
 class DimmableLightingControl_LampLinc(DimmableLightingControl):
@@ -203,7 +225,7 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         """
         group = 2
         command = ON_FAST_COMMAND if fast else ON_COMMAND
-        self._handlers[group][command].send(on_level=on_level)
+        self._handlers[group][command].send(on_level=int(set_fan_speed(on_level)))
 
     async def async_fan_on(self, on_level: FanSpeed = FanSpeed.HIGH, fast=False):
         """Turn on the device.
@@ -221,7 +243,9 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         """
         group = 2
         command = ON_FAST_COMMAND if fast else ON_COMMAND
-        return await self._handlers[group][command].async_send(on_level)
+        return await self._handlers[group][command].async_send(
+            on_level=int(set_fan_speed(on_level))
+        )
 
     def fan_off(self, fast=False):
         """Turn off the device.
@@ -251,11 +275,6 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         group = 2
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
         return await self._handlers[group][command].async_send()
-
-    def status(self):
-        """Request the status of the light and the fan."""
-        super().status()
-        self.fan_status()
 
     async def async_status(self):
         """Request the status fo the light and the fan."""
@@ -326,14 +345,7 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         self._add_property(ON_LEVEL, 8, 6)
 
     def _handle_fan_status(self, db_version, status):
-        if int(status) == 0:
-            self._groups[2].set_value(FanSpeed.OFF)
-        elif int(status) <= int(FanSpeed.LOW):
-            self._groups[2].set_value(FanSpeed.LOW)
-        elif int(status) <= int(FanSpeed.MEDIUM):
-            self._groups[2].set_value(FanSpeed.MEDIUM)
-        else:
-            self._groups[2].set_value(FanSpeed.HIGH)
+        self._groups[2].set_value(status)
 
 
 # TODO setup operating flags for each KPL button
@@ -359,16 +371,41 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
     async def async_on(self, on_level: int = 0xFF, group: int = 0, fast: bool = False):
         """Turn on the button LED."""
         if group in [0, 1]:
-            return await super().async_on(on_level=on_level, group=group, fast=fast)
-        kwargs = self._change_led_status(led=group, is_on=True)
-        return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+            result = await super().async_on(on_level=on_level, group=group, fast=fast)
+        else:
+            kwargs = self._change_led_status(led=group, is_on=True)
+            result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+        if result == ResponseStatus.SUCCESS:
+            event = ON_FAST_EVENT if fast else ON_EVENT
+            self._update_leds(group=group, value=on_level, event=event)
+        elif result == ResponseStatus.UNCLEAR:
+            await self.async_status()
+        return result
 
     async def async_off(self, group: int = 0, fast: bool = False):
         """Turn off the button LED."""
         if group in [0, 1]:
-            return await super().async_off(group=group, fast=fast)
-        kwargs = self._change_led_status(led=group, is_on=False)
-        return await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+            result = await super().async_off(group=group, fast=fast)
+        else:
+            kwargs = self._change_led_status(led=group, is_on=False)
+            result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+        if result == ResponseStatus.SUCCESS:
+            event = OFF_FAST_EVENT if fast else OFF_EVENT
+            self._update_leds(group=group, value=0, event=event)
+        elif result == ResponseStatus.UNCLEAR:
+            await self.async_status()
+        return result
+
+    async def async_status(self):
+        """Check the status of the device."""
+        retries = 5
+        status = ResponseStatus.UNSENT
+        while retries and status != ResponseStatus.SUCCESS:
+            status0 = await super().async_status()
+            status1 = await self._handlers[GET_LEDS_COMMAND].async_send()
+            status = multiple_status(status0, status1)
+            retries -= 1
+        return status
 
     async def async_set_radio_buttons(self, buttons: Iterable):
         """Set a group of buttons to act as radio buttons.
@@ -431,16 +468,30 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
+        self._handlers[GET_LEDS_COMMAND] = StatusRequestCommand(
+            self._address, status_type=1
+        )
+        for group in self._groups:
+            if isinstance(self._groups[group], OnLevel):
+                self._handlers[group]["manual_change"] = ManualChangeInbound(
+                    self._address, group
+                )
 
     def _register_groups(self):
-        super()._register_groups()
         for button in self._buttons:
             name = self._buttons[button]
-            self._groups[button] = OnOff(name=name, address=self._address, group=button)
+            if button == 1:
+                self._groups[button] = OnLevel(
+                    name=name, address=self._address, group=button
+                )
+            else:
+                self._groups[button] = OnOff(
+                    name=name, address=self._address, group=button
+                )
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-        self._handlers[SET_LEDS_COMMAND].subscribe(self._update_leds)
+        self._handlers[GET_LEDS_COMMAND].subscribe(self._led_status)
         for group in self._buttons:
             if self._groups.get(group) is not None:
                 led_method = partial(self._led_follow_check, group=group)
@@ -466,16 +517,31 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         leds = {}
         for curr_led in range(1, 9):
             var = "group{}".format(curr_led)
-            leds[var] = is_on if curr_led == led else bool(self._groups.get(curr_led))
+            curr_group = self._groups.get(curr_led)
+            curr_val = bool(curr_group.value) if curr_group else False
+            leds[var] = is_on if curr_led == led else curr_val
         return leds
 
-    def _update_leds(self, group, value):
+    def _update_leds(self, group, value, event):
         """Check if the LED is toggle or not and set value."""
-        non_toogle = bit_is_set(self._properties[NON_TOGGLE_MASK].value, group)
+        if not self._groups.get(group):
+            return
+        if self._properties[NON_TOGGLE_MASK].value is not None:
+            non_toogle = bit_is_set(self._properties[NON_TOGGLE_MASK].value, group)
+        else:
+            non_toogle = False
         if non_toogle:
             self._groups[group].value = 0
         else:
             self._groups[group].value = value
+        self._events[group][event].trigger(value)
+
+    def _led_status(self, db_version, status):
+        """Set the on level of the LED from a status command."""
+        for bit in range(2, 9):
+            state = self._groups.get(bit)
+            if state:
+                state.value = bit_is_set(status, bit - 1)
 
     def _register_operating_flags(self):
         """Register operating flags."""

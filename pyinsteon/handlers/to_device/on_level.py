@@ -28,7 +28,7 @@ class OnLevelCommand(DirectCommandHandlerBase):
         return await super().async_send(on_level=on_level, group=self._group)
 
     @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
+    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the ON response direct ACK."""
         if self._response_lock.locked():
             self._call_subscribers(on_level=cmd2 if cmd2 else 0xFF)

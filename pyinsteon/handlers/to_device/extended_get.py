@@ -44,5 +44,4 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
             or not user_data["data2"] == self._data2
         ):
             return
-        _LOGGER.error("Extended Get message sent")
         super().handle_ack(cmd1, cmd2, user_data)

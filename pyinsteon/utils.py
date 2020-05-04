@@ -1,6 +1,7 @@
 """Utility methods."""
 import logging
 from enum import Enum, IntEnum
+import traceback
 from typing import Iterable
 
 from . import pub
@@ -12,10 +13,14 @@ from .constants import (
     MessageFlagType,
     ResponseStatus,
     X10Commands,
+    ThermostatMode,
+    FanSpeedRange,
+    FanSpeed,
 )
 from .protocol.commands import commands
 
 _LOGGER = logging.getLogger(__name__)
+_LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")
 
 
 def housecode_to_byte(housecode: str) -> int:
@@ -90,7 +95,7 @@ def vars_to_bytes(vals: Iterable) -> bytes:
     for val in vals:
         if val is None:
             pass
-        elif isinstance(val, (int, bytes)):
+        elif isinstance(val, int):
             msg.extend(bytes([val]))
         else:
             msg.extend(bytes(val))
@@ -106,8 +111,10 @@ def vars_to_string(vals: Iterable) -> str:
             pass
         elif isinstance(val, (Enum, IntEnum)):
             valstr = str(val)
-        elif isinstance(val, (int, bytes)):
+        elif isinstance(val, int):
             valstr = "0x{0:02x}".format(val)
+        elif isinstance(val, bytes):
+            valstr = "0x{:s}".format(val.hex())
         else:
             valstr = str(val)
         output.append("{}: {}".format(fld, valstr))
@@ -122,8 +129,10 @@ def vars_to_repr(vals: Iterable) -> str:
             pass
         elif isinstance(val, (Enum, IntEnum)):
             valstr = repr(val)
-        elif isinstance(val, (int, bytes)):
+        elif isinstance(val, int):
             valstr = "0x{0:02x}".format(val)
+        elif isinstance(val, bytes):
+            valstr = "0x{:s}".format(val.hex())
         else:
             valstr = repr(val)
         output.append("{}: {}".format(fld, valstr))
@@ -149,11 +158,6 @@ def _include_address(prefix, topic, address, message_type):
 
     if prefix == "send" and message_type == MessageFlagType.DIRECT:
         return False
-
-    # if message_type in [MessageFlagType.ALL_LINK_CLEANUP,
-    #                     MessageFlagType.DIRECT_ACK,
-    #                     MessageFlagType.DIRECT_NAK]:
-    #     return False
 
     if commands.get(topic) is None:
         return False
@@ -242,6 +246,7 @@ def log_error(msg, ex, topic=None, kwargs=None):
     _LOGGER.error("MSG: %s", msg)
     _LOGGER.error("Topic: %s data: %s", topic, kwargs)
     _LOGGER.error("Error: %s", str(ex))
+    _LOGGER_TOPICS.debug(traceback.format_exc())
     if topic is not None:
         topic_mgr = pub.getDefaultTopicMgr()
         topic = topic_mgr.getTopic(topic, okIfNone=True)
@@ -257,7 +262,35 @@ def to_celsius(fahrenheit):
 
 def to_fahrenheit(celsius):
     """Convert celsius to fahrenheit."""
-    return int(round(celsius * 9 / 5) + 32, 0)
+    return int(round(celsius * 9 / 5 + 32, 0))
+
+
+def calc_thermostat_temp(high_byte, low_byte):
+    """Calculate the temperature."""
+    return (low_byte | (high_byte << 8)) * 0.1
+
+
+def calc_thermostat_mode(mode_byte, sys_mode_map=None, sys_low=True):
+    """Calculate the system and fan mode."""
+    if sys_mode_map is None:
+        sys_mode_map = {
+            int(ThermostatMode.OFF): ThermostatMode.OFF,
+            int(ThermostatMode.AUTO): ThermostatMode.AUTO,
+            int(ThermostatMode.HEAT): ThermostatMode.HEAT,
+            int(ThermostatMode.COOL): ThermostatMode.COOL,
+        }
+
+    mode1 = mode_byte & 0x0F
+    mode2 = mode_byte >> 4
+    system_mode, fan_mode = (mode1, mode2) if sys_low else (mode2, mode1)
+    if fan_mode in (0, 4):
+        fan_mode = ThermostatMode.FAN_AUTO
+    else:
+        fan_mode = ThermostatMode.FAN_ALWAYS_ON
+    sys_mode = sys_mode_map.get(system_mode)
+    if sys_mode is None:
+        sys_mode = ThermostatMode.AUTO
+    return sys_mode, fan_mode
 
 
 def publish_topic(topic, logger=None, **kwargs):
@@ -309,3 +342,14 @@ def unsubscribe_topic(listener, topic_name):
     topic = topic_mgr.getOrCreateTopic(topic_name)
     if pub.isSubscribed(listener, topicName=topic.name):
         pub.unsubscribe(listener, topic.name)
+
+
+def set_fan_speed(on_level):
+    """Map a value to a fan speed."""
+    if on_level in FanSpeedRange.OFF.value:
+        return FanSpeed.OFF
+    if on_level in FanSpeedRange.LOW.value:
+        return FanSpeed.LOW
+    if on_level in FanSpeedRange.MEDIUM.value:
+        return FanSpeed.MEDIUM
+    return FanSpeed.HIGH

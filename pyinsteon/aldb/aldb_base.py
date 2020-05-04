@@ -31,6 +31,7 @@ class ALDBBase(ABC):
         self._cb_aldb_loaded = None
         self._read_manager = None
         self._dirty_records = []
+        self._hwm_record = None
         subscribe_topic(self.update_version, f"{repr(self._address)}.{ALDB_VERSION}")
 
     def __len__(self):
@@ -78,16 +79,29 @@ class ALDBBase(ABC):
     @property
     def high_water_mark_mem_addr(self):
         """Return the High Water Mark record memory address."""
-        for mem_addr in self._records:
-            record = self._records[mem_addr]
-            if record.is_high_water_mark:
-                return record.mem_addr
+        if self._hwm_record:
+            return self._hwm_record.mem_addr
         return None
 
     @property
     def is_loaded(self) -> bool:
         """Test if the ALDB is loaded."""
+        if self._status == ALDBStatus.LOADING:
+            loaded = self._calc_load_status()
+            if loaded:
+                self._status = ALDBStatus.LOADED
         return self._status == ALDBStatus.LOADED
+
+    def clear(self):
+        """Clear all records from the ALDB.
+
+        This does not write to the device.
+        """
+        for mem in self._records:
+            rec = self._records[mem]
+            self._notify_change(rec, force_delete=True)
+        self._records = {}
+        self._dirty_records = []
 
     def get(self, mem_addr, default=None):
         """Get the record at address 'mem_addr'."""
@@ -114,9 +128,9 @@ class ALDBBase(ABC):
             self._status = status
         else:
             self._status = ALDBStatus(status)
+        self.clear()
         for mem_addr in records:
             record = records[mem_addr]
-            self._notify_change(record, force_delete=True)
             self._records[mem_addr] = record
             self._notify_change(record)
         if self.is_loaded and self._records:
@@ -142,3 +156,8 @@ class ALDBBase(ABC):
     @classmethod
     def _send_change(cls, topic, controller, responder, group):
         publish_topic(topic, controller=controller, responder=responder, group=group)
+
+    # pylint: disable=no-self-use
+    def _calc_load_status(self):
+        """Calculate the load status."""
+        return False

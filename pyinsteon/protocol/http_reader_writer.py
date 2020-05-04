@@ -2,12 +2,14 @@
 import asyncio
 import logging
 
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientTimeout
 from aiohttp.client_exceptions import ClientError
 
 from .hub_connection_exception import HubConnectionException
 
 _LOGGER = logging.getLogger(__name__)
+SESSION_TIMEOUT = ClientTimeout(total=5)
+PRIOR_CONN_CLOSE_PAUSE = 0.1
 
 
 def _log_error(status):
@@ -34,40 +36,44 @@ class HttpReaderWriter:
         """Init the HttpReaderWriter class."""
         self._auth = auth
         self._last_read = asyncio.Queue()
+        self._read_write_lock = asyncio.Lock()
 
     async def async_test_connection(self, url):
         """Test the connection to the hub."""
-        response_status = 999
         try:
-            async with ClientSession(auth=self._auth) as session:
-                async with session.get(url, timeout=10) as response:
-                    if response:
-                        response_status = response.status
-                        if response.status == 200:
-                            _LOGGER.debug(
-                                "Test connection status is %d", response.status
-                            )
-                            return True
-                        _log_error(response.status)
-        except (asyncio.TimeoutError, ClientError) as ex:
-            _LOGGER.error(
-                "An aiohttp error occurred: %s with status %s", str(ex), response_status
-            )
-        _LOGGER.debug("Connection test failed")
+            async with self._read_write_lock:
+                await asyncio.sleep(PRIOR_CONN_CLOSE_PAUSE)
+                async with ClientSession(
+                    auth=self._auth, timeout=SESSION_TIMEOUT
+                ) as session:
+                    async with session.get(url) as response:
+                        if response:
+                            _LOGGER.debug("Test connection status: %d", response.status)
+                            if response.status == 200:
+                                return True
+                            _log_error(response.status)
+        except asyncio.TimeoutError:
+            _LOGGER.error("An aiohttp timeout error occured during test connection.")
+        except ClientError as exc:
+            _LOGGER.error("An client error occurred: %s", str(exc))
         return False
 
     async def async_read(self, url):
         """Read from the url."""
         try:
-            async with ClientSession(auth=self._auth) as session:
-                async with session.get(url, timeout=10) as response:
-                    if response.status == 200:
-                        html = await response.text()
-                    else:
-                        _log_error(response.status)
-                        raise HubConnectionException(
-                            "Connection status error: {}".format(response.status)
-                        )
+            async with self._read_write_lock:
+                await asyncio.sleep(PRIOR_CONN_CLOSE_PAUSE)
+                async with ClientSession(
+                    auth=self._auth, timeout=SESSION_TIMEOUT
+                ) as session:
+                    async with session.get(url) as response:
+                        if response.status == 200:
+                            html = await response.text()
+                        else:
+                            _log_error(response.status)
+                            raise HubConnectionException(
+                                "Connection status error: {}".format(response.status)
+                            )
         except (asyncio.TimeoutError, ClientError) as ex:
             await session.close()
             _LOGGER.error("Client error: (%s) %s", type(ex), str(ex))
@@ -86,14 +92,17 @@ class HttpReaderWriter:
         return_status = 500
         _LOGGER.debug("Writing message: %s", url)
         try:
-            async with ClientSession(auth=self._auth) as session:
-                async with session.post(url, timeout=10) as response:
-                    return_status = response.status
-                    _LOGGER.debug("Post status: %s", response.status)
-                    if response.status == 200:
-                        await self.reset_reader()
-                    else:
-                        _log_error(response.status)
+            async with self._read_write_lock:
+                async with ClientSession(
+                    auth=self._auth, timeout=SESSION_TIMEOUT
+                ) as session:
+                    async with session.post(url) as response:
+                        return_status = response.status
+                        _LOGGER.debug("Post status: %s", response.status)
+                        if response.status == 200:
+                            await self.reset_reader()
+                        else:
+                            _log_error(response.status)
         except ClientError:
             _LOGGER.error("Hub write failure (ClienError)")
         except asyncio.TimeoutError:

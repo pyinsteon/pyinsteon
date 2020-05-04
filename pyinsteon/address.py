@@ -25,12 +25,6 @@ def _normalize(addr):
             normalize = binascii.unhexlify(addr_clean.lower())
         except binascii.Error:
             raise ValueError("Improper address value: {}".format(addr))
-
-    elif addr is None:
-        normalize = None
-
-    else:
-        _LOGGER.warning("Address class init with unknown type %s: %r", type(addr), addr)
     return normalize
 
 

@@ -128,7 +128,7 @@ class GetSetOperatingFlagsManager:
         This is called when the command is responded to with a Direct NAK. The code in cmd2
         is returned in response.
         """
-        _LOGGER.error("Received set command response: %s", response)
+        _LOGGER.debug("Received set command response: %s", response)
         if response == 0xFD:
             self._extended_write = True
 
@@ -141,6 +141,7 @@ class GetSetOperatingFlagsManager:
             flag_info = self._groups[group]
             flag = self._op_flags[flag_info.name]
             flag.load(flags)
+            return
 
         for bit in self._groups[group]:
             flag_info = self._groups[group][bit]

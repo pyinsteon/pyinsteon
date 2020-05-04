@@ -10,11 +10,6 @@ def _to_url(host, port, cmd):
 
 def convert_to_url(host, port, msg: Outbound) -> str:
     """Convert a message to a URL."""
-    # if isinstance(msg, Outbound):
-    #     if msg.message_id == MessageId.START_ALL_LINKING:
-    #         return start_all_link_url(host, port, msg)
-    #     if msg.message_id == MessageId.CANCEL_ALL_LINKING:
-    #         return cancel_all_linking_url(host, port, msg)
     return _to_url(host, port, "3?{:s}=I=3".format(bytes(msg).hex()))
 
 

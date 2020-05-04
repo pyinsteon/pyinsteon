@@ -40,10 +40,10 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
         """Handle the message ACK."""
 
     @direct_nak_handler
-    def handle_direct_nak(self, cmd1, cmd2, target, user_data):
+    def handle_direct_nak(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the message ACK."""
         pass
 
     @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
+    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the direct ACK."""

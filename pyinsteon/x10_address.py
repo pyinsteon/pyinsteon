@@ -62,7 +62,7 @@ class X10Address:
 
     def __str__(self):
         """Return the string representation of an X10 device address."""
-        str_rep = {"housecode": self.housecode, "unitcode": self.unitcode}
+        str_rep = f"X10.{self.housecode}.{self.unitcode:02d}"
         return str(str_rep)
 
     def __bytes__(self):
@@ -83,6 +83,10 @@ class X10Address:
             return self.unitcode_byte
         err = "Item index must be 0 or 1: {}".format(byte)
         raise ValueError(err)
+
+    def __hash__(self):
+        """Return a hash of the address."""
+        return hash(str)
 
     def _check_housecode_unitcode(self):
         """Check to confirm housecode and unitcode are valid."""

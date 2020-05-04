@@ -29,7 +29,7 @@ class GetOperatingFlagsCommand(DirectCommandHandlerBase):
         return await super().async_send(flags_requested=self._group)
 
     @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
+    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the direct ACK message."""
         self._call_subscribers(group=self._group, flags=cmd2)
         self._group = None

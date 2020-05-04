@@ -6,7 +6,7 @@ from ..groups import DIMMABLE_LIGHT
 from ..groups.on_level import OnLevel
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..managers.on_level_manager import OnLevelManager
-from .commands import STATUS_COMMAND
+from .commands import STATUS_COMMAND, STATUS_COMMAND_HUB
 from .device_base import Device
 
 ON_LEVEL_MANAGER = "on_level_manager"
@@ -28,11 +28,6 @@ class VariableControllerBase(Device):
         """Init the VariableControllerBase class."""
         self._buttons = {1: DIMMABLE_LIGHT} if buttons is None else buttons
         super().__init__(address, cat, subcat, firmware, description, model)
-
-    # pylint: disable=arguments-differ
-    def status(self):
-        """Request the status of the device."""
-        self._handlers[STATUS_COMMAND].send()
 
     # pylint: disable=arguments-differ
     async def async_status(self):
@@ -70,6 +65,10 @@ class VariableControllerBase(Device):
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
         self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address)
+        # Added for the Hub status request which is often sending cmd2 = 2
+        self._handlers[STATUS_COMMAND_HUB] = StatusRequestCommand(
+            self._address, status_type=2
+        )
         for group in self._buttons:
             if self._managers.get(group) is None:
                 self._managers[group] = {}
@@ -88,18 +87,24 @@ class VariableControllerBase(Device):
         for group in self._buttons:
             if self._events.get(group) is None:
                 self._events[group] = {}
-            self._events[group][ON_EVENT] = Event(ON_EVENT, self._address, group)
-            self._events[group][OFF_EVENT] = Event(OFF_EVENT, self._address, group)
+            button = self._buttons[group]
+            self._events[group][ON_EVENT] = Event(
+                ON_EVENT, self._address, group, button
+            )
+            self._events[group][OFF_EVENT] = Event(
+                OFF_EVENT, self._address, group, button
+            )
             self._events[group][ON_FAST_EVENT] = Event(
-                ON_FAST_EVENT, self._address, group
+                ON_FAST_EVENT, self._address, group, button
             )
             self._events[group][OFF_FAST_EVENT] = Event(
-                OFF_FAST_EVENT, self._address, group
+                OFF_FAST_EVENT, self._address, group, button
             )
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[STATUS_COMMAND].subscribe(self._handle_status)
+        self._handlers[STATUS_COMMAND_HUB].subscribe(self._handle_status)
         for group in self._buttons:
             state = self._groups[group]
             self._managers[group][ON_LEVEL_MANAGER].subscribe(state.set_value)

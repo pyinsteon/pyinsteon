@@ -5,7 +5,7 @@ from ..groups import ON_OFF_SWITCH
 from ..groups.on_off import OnOff
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..managers.on_level_manager import OnLevelManager
-from .commands import STATUS_COMMAND
+from .commands import STATUS_COMMAND, STATUS_COMMAND_HUB
 from .device_base import Device
 
 ON_LEVEL_MANAGER = "on_level_manager"
@@ -66,6 +66,7 @@ class OnOffControllerBase(Device):
         super()._register_handlers_and_managers()
 
         self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address, 0)
+        self._handlers[STATUS_COMMAND_HUB] = StatusRequestCommand(self._address, 2)
         for group in self._buttons:
             if self._managers.get(group) is None:
                 self._managers[group] = {}
@@ -84,29 +85,31 @@ class OnOffControllerBase(Device):
         super()._register_events()
         for group in self._buttons:
             self._events[group] = {}
+            button = self._buttons[group]
             if self._on_event_name:
                 self._events[group][self._on_event_name] = Event(
-                    self._on_event_name, self._address, group
+                    self._on_event_name, self._address, group, button
                 )
 
             if self._off_event_name:
                 self._events[group][self._off_event_name] = Event(
-                    self._off_event_name, self._address, group
+                    self._off_event_name, self._address, group, button
                 )
 
             if self._on_fast_event_name:
                 self._events[group][self._on_fast_event_name] = Event(
-                    self._on_fast_event_name, self._address, group
+                    self._on_fast_event_name, self._address, group, button
                 )
 
             if self._off_fast_event_name:
                 self._events[group][self._off_fast_event_name] = Event(
-                    self._off_fast_event_name, self._address, group
+                    self._off_fast_event_name, self._address, group, button
                 )
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[STATUS_COMMAND].subscribe(self._handle_status)
+        self._handlers[STATUS_COMMAND_HUB].subscribe(self._handle_status)
         for group in self._buttons:
             if self._groups.get(group) is not None:
                 self._managers[group][ON_LEVEL_MANAGER].subscribe(

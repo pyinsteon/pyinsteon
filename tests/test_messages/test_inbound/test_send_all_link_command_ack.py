@@ -2,7 +2,7 @@
 import unittest
 from binascii import unhexlify
 
-from pyinsteon.constants import AckNak, AllLinkMode, MessageId
+from pyinsteon.constants import AckNak, MessageId
 from tests import set_log_levels
 from tests.utils import hex_to_inbound_message
 
@@ -13,11 +13,12 @@ class TestSendAllLinkCommandAck(unittest.TestCase):
 
     def setUp(self):
         """Set up test."""
-        self.hex = "02610301"
-        self.hex_ack = "0261030106"
+        self.hex = "0261031122"
+        self.hex_ack = "026103112206"
         self.message_id = MessageId(0x61)
         self.group = int(0x03)
-        self.mode = AllLinkMode(0x01)
+        self.cmd1 = int(0x11)
+        self.cmd2 = int(0x22)
         self.ack = AckNak(0x06)
 
         self.msg, self.msg_bytes = hex_to_inbound_message(self.hex_ack)

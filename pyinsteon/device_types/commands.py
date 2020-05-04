@@ -13,6 +13,7 @@ ON_HEARTBEAT_INBOUND = "on_heartbeat_inbound"
 OFF_HEARTBEAT_INBOUND = "off_heartbeat_inbound"
 
 STATUS_COMMAND = "status_command"
+STATUS_COMMAND_HUB = "status_command_hub"
 STATUS_COMMAND_FAN = "status_command_fan"
 
 ON_COMMAND = "on_command"
@@ -27,6 +28,7 @@ EXTENDED_SET_COMMAND = "extended_set"
 EXTENDED_GET_RESPONSE = "extended_get_response"
 
 SET_LEDS_COMMAND = "set_leds"
+GET_LEDS_COMMAND = "get_leds"
 TRIGGER_SCENE_ON_COMMAND = "trigger_scene_on"
 TRIGGER_SCENE_OFF_COMMAND = "trigger_scene_off"
 

@@ -177,6 +177,55 @@ def direct_ack_handler(func):
     return wrapper
 
 
+def status_ack_handler(timeout=TIMEOUT):
+    """Register the message ACK handler."""
+
+    def register_topic(
+        instance_func, topic, address=None, group=None, message_type=None
+    ):
+        """Register an inbound ACK message."""
+        _register_handler(
+            instance_func,
+            topic,
+            prefix="ack",
+            address=address,
+            group=group,
+            message_type=message_type,
+        )
+
+    async def _wait_response(self):
+        """Wait for the direct ACK message, and post False if timeout reached."""
+        # TODO: Need to consider the risk of this. We may be unlocking a prior send command.
+        # This would mean that the prior command will terminate. What happens when the
+        # prior command returns a direct ACK then this command returns a direct ACK?
+        # Do not believe this is an issue but need to test.
+        if self.response_lock.locked():
+            self.response_lock.release()
+        await self.response_lock.acquire()
+        try:
+            await asyncio.wait_for(self.response_lock.acquire(), TIMEOUT)
+        except asyncio.TimeoutError:
+            if self.response_lock.locked():
+                await self.message_response.put(ResponseStatus.FAILURE)
+        if self.response_lock.locked():
+            self.response_lock.release()
+        self.status_active = False
+
+    def setup(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            cmd2 = kwargs.get("cmd2")
+            if cmd2 == self.status_type:
+                self.status_active = True
+                asyncio.ensure_future(_wait_response(self))
+                return func(self, *args, **kwargs)
+
+        wrapper.register_topic = register_topic
+        return wrapper
+
+    return setup
+
+
 def status_handler(func):
     """Register the status response handler."""
 
@@ -188,9 +237,10 @@ def status_handler(func):
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        asyncio.ensure_future(
-            _async_post_response(self, ResponseStatus.SUCCESS, func, args, kwargs)
-        )
+        if self.status_active:
+            asyncio.ensure_future(
+                _async_post_response(self, ResponseStatus.SUCCESS, func, args, kwargs)
+            )
 
     wrapper.register_status = register_status
     return wrapper
@@ -225,6 +275,7 @@ def direct_nak_handler(func):
 def broadcast_handler(func):
     """Register the BROADCAST message handler."""
     last_command = datetime(1, 1, 1)
+    last_hops_left = None
 
     def register_topic(
         instance_func, topic, address=None, group=None, message_type=None
@@ -249,33 +300,15 @@ def broadcast_handler(func):
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        nonlocal last_command
+        nonlocal last_command, last_hops_left
         curr_time = datetime.now()
         tdelta = curr_time - last_command
         last_command = curr_time
-        if tdelta.seconds >= 2:
+        hops_left = kwargs["hops_left"]
+        if last_hops_left is None or hops_left >= last_hops_left or tdelta.seconds >= 2:
+            last_hops_left = hops_left
             return func(self, *args, **kwargs)
-
-    wrapper.register_topic = register_topic
-    return wrapper
-
-
-def all_link_cleanup_handler(func):
-    """Register the c message handler."""
-    last_command = datetime(1, 1, 1)
-
-    def register_topic(instance_func, topic):
-        topic = "{}.all_link_cleanup".format(topic)
-        subscribe_topic(instance_func, topic)
-
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        nonlocal last_command
-        curr_time = datetime.now()
-        tdelta = curr_time - last_command
-        last_command = curr_time
-        if tdelta.seconds >= 2:
-            return func(self, *args, **kwargs)
+        last_hops_left = hops_left
 
     wrapper.register_topic = register_topic
     return wrapper

@@ -36,7 +36,10 @@ from .switched_lighting_control import (
     SwitchedLightingControl_ToggleLinc,
 )
 
-from .climate_control import Thermostat
+from .climate_control import (
+    ClimateControl_Thermostat,
+    ClimateControl_WirelessThermostat,
+)
 
 from .security_health_safety import (
     SecurityHealthSafety,
@@ -47,7 +50,6 @@ from .security_health_safety import (
     SecurityHealthSafety_Smokebridge,
 )
 
-# Motion Sensor II
 from .sensors_actuators import SensorsActuators, SensorsActuators_IOLink
 
 from .window_coverings import WindowCovering

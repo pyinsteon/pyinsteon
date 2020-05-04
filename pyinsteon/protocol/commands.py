@@ -226,7 +226,7 @@ class Commands:
                 found = True
                 yield topic
         if not found:
-            if bool(user_data):
+            if user_data is None:
                 yield SEND_STANDARD if send else STANDARD_RECEIVED
             else:
                 yield SEND_EXTENDED if send else EXTENDED_RECEIVED
@@ -236,7 +236,7 @@ commands = Commands()
 
 
 commands.add(STANDARD_RECEIVED, -1, None, False)
-commands.add(EXTENDED_RECEIVED, -1, None, {})
+commands.add(EXTENDED_RECEIVED, -1, None, True)
 commands.add(SEND_STANDARD, -2, None, False)
 commands.add(SEND_EXTENDED, -2, None, {})
 commands.add(ASSIGN_TO_ALL_LINK_GROUP, 0x01, None, False)
@@ -247,7 +247,7 @@ commands.add(DEVICE_TEXT_STRING_REQUEST, 0x03, 0x02, False)
 commands.add(SET_DEVICE_TEXT_STRING, 0x03, 0x03, {})
 commands.add(SET_ALL_LINK_COMMAND_ALIAS, 0x03, 0x04, {})
 commands.add(SET_ALL_LINK, 0x03, 0x04, {})
-commands.add(ALL_LINK_CLEANUP_STATUS_REPORT, 0x06, None, None)
+commands.add(ALL_LINK_CLEANUP_STATUS_REPORT, 0x06, None, None, True)
 commands.add(ENTER_LINKING_MODE, 0x09, None, None)
 commands.add(ENTER_UNLINKING_MODE, 0x0A, None, False)
 commands.add(GET_INSTEON_ENGINE_VERSION, 0x0D, None, False)
@@ -379,10 +379,10 @@ commands.add(THERMOSTAT_ZONE_TEMPERATURE_UP, 0x68, None, {})
 commands.add(THERMOSTAT_TEMPERATURE_DOWN, 0x69, None, False)
 commands.add(THERMOSTAT_ZONE_TEMPERATURE_DOWN, 0x69, None, {})
 commands.add(THERMOSTAT_GET_ZONE_INFORMATION, 0x6A, None, False)
-commands.add(THERMOSTAT_CONTROL, 0x6B, None, False)
-commands.add(THERMOSTAT_SET_COOL_SETPOINT, 0x6C, None, False)
+commands.add(THERMOSTAT_CONTROL, 0x6B, None, None, False)
+commands.add(THERMOSTAT_SET_COOL_SETPOINT, 0x6C, None, None, False)
 commands.add(THERMOSTAT_SET_ZONE_COOL_SETPOINT, 0x6C, None, {})
-commands.add(THERMOSTAT_SET_HEAT_SETPOINT, 0x6D, None, False)
+commands.add(THERMOSTAT_SET_HEAT_SETPOINT, 0x6D, None, None, False)
 commands.add(THERMOSTAT_SET_ZONE_HEAT_SETPOINT, 0x6D, None, {})
 commands.add(THERMOSTAT_TEMPERATURE_STATUS, 0x6E, None, False)
 commands.add(THERMOSTAT_HUMIDITY_STATUS, 0x6F, None, False)

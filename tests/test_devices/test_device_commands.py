@@ -5,7 +5,7 @@ from asyncio import Queue, sleep
 from binascii import unhexlify
 from functools import partial
 
-from aiofile import AIOFile
+import aiofiles
 
 import pyinsteon.device_types as device_types
 from pyinsteon.address import Address
@@ -28,7 +28,13 @@ def convert_response(response, address):
     cmd1 = convert_to_int(response["cmd1"])
     cmd2 = convert_to_int(response["cmd2"])
     target = Address(response["target"])
-    kwargs = {"cmd1": cmd1, "cmd2": cmd2, "target": target, "user_data": None}
+    kwargs = {
+        "cmd1": cmd1,
+        "cmd2": cmd2,
+        "target": target,
+        "user_data": None,
+        "hops_left": 3,
+    }
     topic_item = TopicItem(topic, kwargs, 2)
     return topic_item
 
@@ -39,7 +45,7 @@ async def import_commands():
 
     curr_path = path.dirname(path.abspath(__file__))
     command_file = path.join(curr_path, FILE)
-    async with AIOFile(command_file, "r") as afp:
+    async with aiofiles.open(command_file, "r") as afp:
         json_file = ""
         json_file = await afp.read()
     return json.loads(json_file)
@@ -96,7 +102,6 @@ class TestDeviceCommands(unittest.TestCase):
             assert int(result) == 1
         # pylint: disable=broad-except
         except Exception as ex:
-            print("Something failed")
             _LOGGER.error("Failed: device: %s  command: %s", device_type, command)
             _LOGGER.error(ex)
             assert False

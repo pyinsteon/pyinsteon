@@ -11,9 +11,9 @@ from .msg_to_url import convert_to_url
 from .hub_connection_exception import HubConnectionException
 
 _LOGGER = logging.getLogger(__name__)
-READ_WAIT = 1
+READ_WAIT = 0.5
 SESSION_RETRIES = 30
-RECONNECT_WAIT = 0.5
+RECONNECT_WAIT = 7
 
 
 async def async_connect_http(host, username, password, protocol, port=None):
@@ -128,7 +128,7 @@ class HttpTransport(asyncio.Transport):
             if response_status != 200:
                 _LOGGER.debug("Hub write request failed for url %s", url)
                 retry += 1
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(READ_WAIT)
             else:
                 self._last_msg = msg
         if self._read_write_lock.locked():
@@ -161,8 +161,6 @@ class HttpTransport(asyncio.Transport):
         await self._clear_buffer()
         await self._reader_writer.reset_reader()
         url = "http://{:s}:{:d}/buffstatus.xml".format(self._host, self._port)
-        # _LOGGER.debug("Calling connection made")
-        # self._protocol.connection_made(self)
         retry = 0
         while not self._closing:
             buffer = None

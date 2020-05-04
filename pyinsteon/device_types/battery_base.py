@@ -3,7 +3,7 @@
 import asyncio
 import logging
 from functools import partial
-from inspect import iscoroutine, iscoroutinefunction
+from inspect import getfullargspec
 
 from ..utils import subscribe_topic
 from ..aldb.aldb_battery import ALDBBattery
@@ -12,20 +12,6 @@ from ..handlers.to_device.extended_set import ExtendedSetCommand
 
 _LOGGER = logging.getLogger(__name__)
 TIMEOUT = 2
-
-
-async def _run_command(command):
-    """Run an individual command."""
-    if isinstance(command, partial):
-        _LOGGER.error("Command is a partial")
-        if iscoroutine(command.func) or iscoroutinefunction(command.func):
-            _LOGGER.error("Command is a coroutine (partial)")
-            return await command()
-    if iscoroutine(command) or iscoroutinefunction(command):
-        _LOGGER.error("Command is a coroutine (not partial)")
-        return await command()
-    _LOGGER.error("Command is just a command")
-    return command()
 
 
 # pylint: disable=no-member
@@ -61,22 +47,64 @@ class BatteryDeviceBase:
     def _run_on_wake(self, command, retries=3, **kwargs):
         cmd = partial(command, **kwargs)
         self._commands_queue.put_nowait((cmd, retries))
+        return ResponseStatus.RUN_ON_WAKE
+
+    def close(self):
+        """Close the command listener."""
+        self._commands_queue.put_nowait((None, None))
+
+    async def async_status(self, group=None):
+        """Get device status."""
+        args = getfullargspec(super(BatteryDeviceBase, self).async_status)
+        if "group" in args[0]:
+            return self._run_on_wake(
+                super(BatteryDeviceBase, self).async_status, group=group
+            )
+        return self._run_on_wake(super(BatteryDeviceBase, self).async_status)
 
     async def async_read_op_flags(self):
         """Read the device operating flags."""
-        self._run_on_wake(super(BatteryDeviceBase, self).async_read_op_flags)
+        return self._run_on_wake(super(BatteryDeviceBase, self).async_read_op_flags)
 
     async def async_write_op_flags(self):
         """Write the operating flags to the device."""
-        self._run_on_wake(super(BatteryDeviceBase, self).async_write_op_flags)
+        return self._run_on_wake(super(BatteryDeviceBase, self).async_write_op_flags)
 
     async def async_read_ext_properties(self):
         """Get the device extended properties."""
-        self._run_on_wake(super(BatteryDeviceBase, self).async_read_ext_properties)
+        return self._run_on_wake(
+            super(BatteryDeviceBase, self).async_read_ext_properties
+        )
+
+    async def async_get_engine_version(self):
+        """Read the device engine version."""
+        return self._run_on_wake(
+            super(BatteryDeviceBase, self).async_get_engine_version
+        )
 
     async def async_add_default_links(self):
         """Add default links to the device."""
-        self._run_on_wake(super(BatteryDeviceBase, self).async_add_default_links)
+        return self._run_on_wake(super(BatteryDeviceBase, self).async_add_default_links)
+
+    async def async_read_config(self):
+        """Get all configuration settings.
+
+        This includes:
+        - Operating flags
+        - Extended properties
+        - All-Link Database records.
+        """
+        return self._run_on_wake(super(BatteryDeviceBase, self).async_add_default_links)
+
+    async def async_read_product_id(self):
+        """Get the product ID."""
+        return self._run_on_wake(super(BatteryDeviceBase, self).async_read_product_id)
+
+    async def async_write_ext_properties(self):
+        """Write the extended properties."""
+        return self._run_on_wake(
+            super(BatteryDeviceBase, self).async_write_ext_properties
+        )
 
     async def async_keep_awake(self, awake_time=0xFF):
         """Keep the device awake to ensure commands are heard."""
@@ -87,7 +115,7 @@ class BatteryDeviceBase:
         if self._commands_queue.empty():
             return
         if self._last_run is None or self._last_run.done():
-            _LOGGER.error("We have commands to run so let's get to it")
+            _LOGGER.debug("We have commands to run so let's get to it")
             self._last_run = asyncio.ensure_future(self._ensure_commands())
 
     async def _ensure_commands(self):
@@ -95,11 +123,11 @@ class BatteryDeviceBase:
         keep_awake_retry = 3
         while keep_awake_retry:
             result = await self.async_keep_awake()
-            _LOGGER.error("Keep awake result: %s", str(result))
+            _LOGGER.debug("Keep awake result: %s", str(result))
             if result == ResponseStatus.SUCCESS:
                 return await self._run_commands()
             keep_awake_retry -= 1
-            _LOGGER.error("Retries: %d", keep_awake_retry)
+            _LOGGER.debug("Retries: %d", keep_awake_retry)
             await asyncio.sleep(3)
 
     async def _run_commands(self):
@@ -110,9 +138,11 @@ class BatteryDeviceBase:
                 command, retries = await asyncio.wait_for(
                     self._commands_queue.get(), TIMEOUT
                 )
-                _LOGGER.error("got a command to run YAY")
-                _LOGGER.error(str(command))
-                result = await _run_command(command)
+                _LOGGER.debug("got a command to run YAY")
+                _LOGGER.debug(str(command))
+                if command is None:
+                    return
+                result = await command()
                 if result != ResponseStatus.SUCCESS and retries:
                     retry_cmds.append((command, retries - 1))
             except asyncio.TimeoutError:

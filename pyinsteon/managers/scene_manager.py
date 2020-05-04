@@ -1,14 +1,11 @@
 """Manage Insteon Scenes."""
+import asyncio
 import logging
 
 from .. import devices
 from ..device_types.plm import PLM
-from ..handlers.to_device.off_all_link_broadcast import OffAllLinkBroadcastCommand
-from ..handlers.to_device.off_all_link_cleanup import OffAllLinkCleanupCommand
-from ..handlers.to_device.on_level_all_link_broadcast import (
-    OnLevelAllLinkBroadcastCommand,
-)
-from ..handlers.to_device.on_level_all_link_cleanup import OnLevelAllLinkCleanupCommand
+from ..handlers.send_all_link_off import SendAllLinkOffCommandHandler
+from ..handlers.send_all_link_on import SendAllLinkOnCommandHandler
 from .link_manager import async_link_devices
 
 _LOGGER = logging.getLogger(__name__)
@@ -37,7 +34,8 @@ class Scenes:
         scene = self._scenes.get(group)
         if scene:
             for device in scene:
-                yield device
+                if device:
+                    yield device
 
 
 def identify_scenes():
@@ -82,19 +80,22 @@ async def async_trigger_scene_on(group):
     """Trigger an Insteon scene."""
     scenes = identify_scenes()
 
-    await OnLevelAllLinkBroadcastCommand(group=group).async_send()
+    await SendAllLinkOnCommandHandler().async_send(group=group)
+
+    await asyncio.sleep(2)
     for device in scenes.get_devices(group):
-        # TODO check for success or failure
-        await OnLevelAllLinkCleanupCommand(device.address, group).async_send()
+        await device.async_status()
 
 
 async def async_trigger_scene_off(group):
     """Trigger an Insteon scene."""
     scenes = identify_scenes()
-    await OffAllLinkBroadcastCommand(group=group).async_send()
+
+    await SendAllLinkOffCommandHandler().async_send(group=group)
+
+    await asyncio.sleep(2)
     for device in scenes.get_devices(group):
-        # TODO check for success or failure
-        await OffAllLinkCleanupCommand(address=device.address, group=group).async_send()
+        await device.async_status()
 
 
 async def _plm_add_device_to_scene(group, device, on_level, ramp_rate, button):

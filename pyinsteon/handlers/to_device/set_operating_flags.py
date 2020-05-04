@@ -27,11 +27,11 @@ class SetOperatingFlagsCommand(DirectCommandHandlerBase):
         """Send Get Operating Flags message asyncronously."""
         cmd_response = await super().async_send(cmd=cmd, extended=extended)
         if cmd_response == ResponseStatus.UNCLEAR and not extended:
-            _LOGGER.error("Attempting resend with extended message")
+            _LOGGER.debug("Attempting resend with extended message")
             cmd_response = await super().async_send(cmd=cmd, extended=True)
         return cmd_response
 
     @direct_nak_handler
-    def handle_direct_nak(self, cmd1, cmd2, target, user_data):
+    def handle_direct_nak(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the direct ACK."""
         self._call_subscribers(response=cmd2)

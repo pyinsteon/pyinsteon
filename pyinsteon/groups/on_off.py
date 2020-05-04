@@ -22,7 +22,7 @@ class LowBattery(GroupBase):
     """Low battery state."""
 
     def __init__(
-        self, name: str, address: Address, group: int = 0, default: int = None
+        self, name: str, address: Address, group: int = 0, default: bool = None
     ):
         """Init the LowBattery class."""
         super().__init__(name, address, group, default, value_type=bool)
@@ -37,7 +37,7 @@ class Heartbeat(GroupBase):
     """Heartbeat state."""
 
     def __init__(
-        self, name: str, address: Address, group: int = 0, default: int = None
+        self, name: str, address: Address, group: int = 0, default: bool = None
     ):
         """Init the Hearbeat class."""
         super().__init__(name, address, group, default, value_type=bool)

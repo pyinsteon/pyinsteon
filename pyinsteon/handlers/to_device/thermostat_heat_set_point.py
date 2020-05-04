@@ -7,31 +7,21 @@ from .direct_command import DirectCommandHandlerBase
 class ThermostatHeatSetPointCommand(DirectCommandHandlerBase):
     """Manage an outbound THERMOSTAT_SET_COOL_SETPOINT command to a device."""
 
-    def __init__(self, address, celsius):
+    def __init__(self, address):
         """Init the ThermostatHeatSetPointCommand class."""
         super().__init__(topic=THERMOSTAT_SET_HEAT_SETPOINT, address=address)
-        self._celsius = celsius
 
     # pylint: disable=arguments-differ
     def send(self, degrees):
-        """Send the OFF command."""
-        if hasattr(self._celsius, "value"):
-            celsius = self._celsius.value
-        else:
-            celsius = self._celsius
-
-        super().send(degrees=degrees, celsuis=celsius)
+        """Send the THERMOSTAT_SET_HEAT_SETPOINT command."""
+        super().send(degrees=degrees)
 
     # pylint: disable=arguments-differ
     async def async_send(self, degrees):
-        """Send the OFF command async."""
-        if hasattr(self._celsius, "value"):
-            celsius = self._celsius.value
-        else:
-            celsius = self._celsius
-        return await super().async_send(degrees=degrees, celsuis=celsius)
+        """Send the THERMOSTAT_SET_HEAT_SETPOINT command async."""
+        return await super().async_send(degrees=degrees)
 
     @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data):
+    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the OFF response direct ACK."""
         self._call_subscribers(degrees=cmd2 * 0.5)

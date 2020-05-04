@@ -2,7 +2,7 @@
 import asyncio
 from ..events import CLOSE_EVENT, OPEN_EVENT, Event, ON_EVENT, OFF_EVENT
 from ..extended_property import DELAY, PRESCALER, X10_HOUSE, X10_UNIT
-from ..groups import OPEN_CLOSE_SENSOR, ON_OFF_SWITCH
+from ..groups import OPEN_CLOSE_SENSOR, RELAY
 from ..groups.open_close import NormallyOpen
 from ..handlers.to_device.status_request import STATUS_REQUEST, StatusRequestCommand
 from ..handlers.to_device.on_level import OnLevelCommand
@@ -26,7 +26,7 @@ from ..default_link import DefaultLink
 from ..constants import RelayMode
 
 ON_LEVEL_MANAGER = "on_level_manager"
-SWITCH_GROUP = 1
+RELAY_GROUP = 1
 SENSOR_GROUP = 2
 
 
@@ -102,21 +102,21 @@ class SensorsActuators_IOLink(Device):
         self._properties[DELAY].new_value = delay
         await self.async_write_ext_properties()
 
-    def on(self):
+    def on(self, group: int = 0):
         """Turn on the relay."""
-        self._handlers[SWITCH_GROUP][ON_COMMAND].send()
+        self._handlers[RELAY_GROUP][ON_COMMAND].send()
 
-    async def async_on(self):
+    async def async_on(self, group: int = 0):
         """Turn on the relay."""
-        return await self._handlers[SWITCH_GROUP][ON_COMMAND].async_send()
+        return await self._handlers[RELAY_GROUP][ON_COMMAND].async_send()
 
-    def off(self):
+    def off(self, group: int = 0):
         """Turn off the relay."""
-        self._handlers[SWITCH_GROUP][OFF_COMMAND].send()
+        self._handlers[RELAY_GROUP][OFF_COMMAND].send()
 
-    async def async_off(self):
+    async def async_off(self, group: int = 0):
         """Turn off the relay."""
-        return await self._handlers[SWITCH_GROUP][OFF_COMMAND].async_send()
+        return await self._handlers[RELAY_GROUP][OFF_COMMAND].async_send()
 
     def status(self, group=None):
         """Get the status of the relay and/or the sensor."""
@@ -137,11 +137,11 @@ class SensorsActuators_IOLink(Device):
 
     def relay_status(self):
         """Get the status of the relay switch."""
-        self._handlers[SWITCH_GROUP][STATUS_REQUEST].send()
+        self._handlers[RELAY_GROUP][STATUS_REQUEST].send()
 
     async def async_relay_status(self):
         """Get the status of the relay switch."""
-        return await self._handlers[SWITCH_GROUP][STATUS_REQUEST].async_send()
+        return await self._handlers[RELAY_GROUP][STATUS_REQUEST].async_send()
 
     def sensor_status(self):
         """Get the status of the sensor."""
@@ -167,14 +167,15 @@ class SensorsActuators_IOLink(Device):
         self._add_property(X10_UNIT, 6, None)
 
     def _register_handlers_and_managers(self):
-        self._handlers[SWITCH_GROUP] = {}
-        self._handlers[SWITCH_GROUP][ON_COMMAND] = OnLevelCommand(
-            self._address, SWITCH_GROUP
+        super()._register_handlers_and_managers()
+        self._handlers[RELAY_GROUP] = {}
+        self._handlers[RELAY_GROUP][ON_COMMAND] = OnLevelCommand(
+            self._address, RELAY_GROUP
         )
-        self._handlers[SWITCH_GROUP][OFF_COMMAND] = OffCommand(
-            self._address, SWITCH_GROUP
+        self._handlers[RELAY_GROUP][OFF_COMMAND] = OffCommand(
+            self._address, RELAY_GROUP
         )
-        self._handlers[SWITCH_GROUP][STATUS_REQUEST] = StatusRequestCommand(
+        self._handlers[RELAY_GROUP][STATUS_REQUEST] = StatusRequestCommand(
             self._address
         )
 
@@ -189,18 +190,18 @@ class SensorsActuators_IOLink(Device):
         )
 
     def _register_groups(self):
-        self._groups[SWITCH_GROUP] = OnOff(ON_OFF_SWITCH, self._address, SWITCH_GROUP)
+        self._groups[RELAY_GROUP] = OnOff(RELAY, self._address, RELAY_GROUP)
         self._groups[SENSOR_GROUP] = NormallyOpen(
             OPEN_CLOSE_SENSOR, self._address, SENSOR_GROUP
         )
 
     def _register_events(self):
-        self._events[SWITCH_GROUP] = {}
-        self._events[SWITCH_GROUP][ON_EVENT] = Event(
-            ON_EVENT, self._address, SWITCH_GROUP
+        self._events[RELAY_GROUP] = {}
+        self._events[RELAY_GROUP][ON_EVENT] = Event(
+            ON_EVENT, self._address, RELAY_GROUP
         )
-        self._events[SWITCH_GROUP][OFF_EVENT] = Event(
-            OFF_EVENT, self._address, SWITCH_GROUP
+        self._events[RELAY_GROUP][OFF_EVENT] = Event(
+            OFF_EVENT, self._address, RELAY_GROUP
         )
         self._events[SENSOR_GROUP] = {}
         self._events[SENSOR_GROUP][OPEN_EVENT] = Event(
@@ -211,11 +212,12 @@ class SensorsActuators_IOLink(Device):
         )
 
     def _subscribe_to_handelers_and_managers(self):
-        switch_on_event = self._events[SWITCH_GROUP][ON_EVENT]
-        switch_off_event = self._events[SWITCH_GROUP][OFF_EVENT]
-        on_cmd = self._handlers[SWITCH_GROUP][ON_COMMAND]
-        off_cmd = self._handlers[SWITCH_GROUP][OFF_COMMAND]
-        switch_status_cmd = self._handlers[SWITCH_GROUP][STATUS_REQUEST]
+        super()._subscribe_to_handelers_and_managers()
+        switch_on_event = self._events[RELAY_GROUP][ON_EVENT]
+        switch_off_event = self._events[RELAY_GROUP][OFF_EVENT]
+        on_cmd = self._handlers[RELAY_GROUP][ON_COMMAND]
+        off_cmd = self._handlers[RELAY_GROUP][OFF_COMMAND]
+        switch_status_cmd = self._handlers[RELAY_GROUP][STATUS_REQUEST]
 
         on_cmd.subscribe(self._switch_changed)
         off_cmd.subscribe(self._switch_changed)
@@ -237,7 +239,7 @@ class SensorsActuators_IOLink(Device):
     def _register_default_links(self):
         link = DefaultLink(
             is_controller=True,
-            group=SWITCH_GROUP,
+            group=RELAY_GROUP,
             dev_data1=0,
             dev_data2=0,
             dev_data3=0,
@@ -249,7 +251,7 @@ class SensorsActuators_IOLink(Device):
 
     def _switch_changed(self, on_level):
         """Catch on/off signal and fire appropriate response."""
-        self._groups[SWITCH_GROUP].value = on_level
+        self._groups[RELAY_GROUP].value = on_level
         if on_level:
             if self._operating_flags[MOMENTARY_MODE_ON].value:
                 asyncio.ensure_future(self._delay_wait())
@@ -258,17 +260,20 @@ class SensorsActuators_IOLink(Device):
         """Calculate the momentary delay based on properties and flags."""
         delay = self._properties[DELAY].value
         delay = 255 if delay == 0 else delay
-        prescaler = max(self._properties[PRESCALER].value, 1)
+        if self._properties[PRESCALER].value is not None:
+            prescaler = max(self._properties[PRESCALER].value, 1)
+        else:
+            prescaler = 1
         return delay * prescaler / 10
 
     async def _delay_wait(self):
         await asyncio.sleep(self._calc_delay())
-        self._groups[SWITCH_GROUP].value = 0
-        self._events[SWITCH_GROUP][OFF_EVENT].trigger(on_level=0)
+        self._groups[RELAY_GROUP].value = 0
+        self._events[RELAY_GROUP][OFF_EVENT].trigger(on_level=0)
 
     def _handle_switch_status(self, db_version, status):
         """Handle status response."""
-        self._groups[SWITCH_GROUP].set_value(status)
+        self._groups[RELAY_GROUP].set_value(status)
 
     def _handle_sensor_status(self, db_version, status):
         """Handle status response."""

@@ -5,6 +5,8 @@ from asyncio import Transport
 
 from ..handlers.get_im_configuration import GetImConfigurationHandler
 from ..handlers.set_im_configuration import SetImConfigurationHandler
+from ..handlers.all_link_cleanup_report import AllLinkCleanupStatusReport
+from ..handlers.all_link_cleanup_failure_report import AllLinkCleanupFailureReport
 from ..protocol.protocol import Protocol
 from .commands import GET_IM_CONFIG_COMMAND
 from .device_base import Device
@@ -90,7 +92,6 @@ class ModemBase(Device, metaclass=ABCMeta):
 
     async def async_close(self):
         """Close the connection to the transport ascynronously."""
-        # pub.unsubscribe(self.connect, 'connection.lost')
         if self._protocol:
             self._protocol.close()
             wait_time = 0.0001
@@ -141,8 +142,6 @@ class ModemBase(Device, metaclass=ABCMeta):
     def _subscribe_topics(self):
         """Subscribe to modem specific topics."""
 
-    #     pub.subscribe(self.connect, "connection.lost")
-
     def _register_groups(self):
         """No groups to register for modems."""
 
@@ -151,6 +150,9 @@ class ModemBase(Device, metaclass=ABCMeta):
 
     def _register_handlers_and_managers(self):
         """Register command handlers for modems."""
+        super()._register_handlers_and_managers()
+        self._handlers["cleanup_status_report"] = AllLinkCleanupStatusReport()
+        self._handlers["cleanup_failure_report"] = AllLinkCleanupFailureReport()
         self._handlers[GET_IM_CONFIG_COMMAND] = GetImConfigurationHandler()
         self._handlers[GET_IM_CONFIG_COMMAND].subscribe(self._update_flags)
 

@@ -23,12 +23,12 @@ class ThermostatHumidityHandler(InboundHandlerBase):
             message_type=MessageFlagType.DIRECT,
         )
         self._subscriber_topic = build_topic(
-            prefix="handler.{}".format(self._address),  # Force address
+            prefix="handler.{}".format(self._address.id),  # Force address
             topic=THERMOSTAT_HUMIDITY_STATUS,
             message_type=MessageFlagType.DIRECT,
         )
 
     @inbound_handler
-    def handle_response(self, cmd1, cmd2, target, user_data):
+    def handle_response(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the Humidity set point response from a device."""
         self._call_subscribers(humidity=cmd2)

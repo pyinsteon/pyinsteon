@@ -82,7 +82,14 @@ def _create_rcv_std_ext_msg(topic, address, flags, cmd1, cmd2, target, user_data
         group=group,
         message_type=flags.message_type,
     )
-    kwargs = {"cmd1": cmd1, "cmd2": cmd2, "target": target, "user_data": user_data}
+    hops_left = flags.hops_left
+    kwargs = {
+        "cmd1": cmd1,
+        "cmd2": cmd2,
+        "target": target,
+        "user_data": user_data,
+        "hops_left": hops_left,
+    }
     return (topic, kwargs)
 
 
@@ -180,7 +187,7 @@ def get_im_info(msg: Inbound) -> (str, {}):
 def send_all_link_command(msg: Inbound) -> (str, {}):
     """Create a topic from an SEND_ALL_LINK_COMMAND message."""
     topic = build_topic(prefix=msg.ack, topic=SEND_ALL_LINK_COMMAND)
-    kwargs = {"group": msg.group, "mode": msg.mode}
+    kwargs = {"group": msg.group, "cmd1": msg.cmd1, "cmd2": msg.cmd2}
     yield (topic, kwargs)
 
 
@@ -278,10 +285,6 @@ def get_next_all_link_record(msg: Inbound) -> (str, {}):
 def set_im_configuration(msg: Inbound) -> (str, {}):
     """Create a topic from an set_im_configuration message."""
     topic = build_topic(prefix=msg.ack, topic=SET_IM_CONFIGURATION)
-    # disable_auto_linking = bool(msg.flags & 1 << 7)
-    # monitor_mode = bool(msg.flags & 1 << 6)
-    # auto_led = bool(msg.flags & 1 << 5)
-    # deadman = bool(msg.flags & 1 << 4)
 
     kwargs = {
         "disable_auto_linking": msg.flags.is_auto_link,
@@ -352,11 +355,6 @@ def rf_sleep(msg: Inbound) -> (str, {}):
 def get_im_configuration(msg: Inbound) -> (str, {}):
     """Create a topic from an get_im_configuration message."""
     topic = build_topic(prefix=msg.ack, topic=GET_IM_CONFIGURATION)
-    # disable_auto_linking = bool(msg.flags & 1 << 7)
-    # monitor_mode = bool(msg.flags & 1 << 6)
-    # auto_led = bool(msg.flags & 1 << 5)
-    # deadman = bool(msg.flags & 1 << 4)
-
     kwargs = {
         "disable_auto_linking": msg.flags.is_auto_link,
         "monitor_mode": msg.flags.is_monitor_mode,

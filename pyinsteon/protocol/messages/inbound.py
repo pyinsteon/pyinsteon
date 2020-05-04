@@ -25,8 +25,6 @@ class Inbound(MessageBase):
     def __init__(self, msg_def: MessageDefinition, raw_data: bytearray):
         """Init the Inbound message class."""
         self._fields = msg_def.fields
-        # self.start_code = raw_data[0]
-        # self.message_id = msg_def.message_id
         self._len = len(msg_def)
 
         slices = self._create_slices()

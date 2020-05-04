@@ -5,7 +5,7 @@ from asyncio import Queue, sleep
 from binascii import unhexlify
 from functools import partial
 
-from aiofile import AIOFile
+import aiofiles
 
 from pyinsteon import pub
 from pyinsteon.protocol.protocol import Protocol
@@ -21,7 +21,7 @@ async def import_commands():
 
     curr_path = path.dirname(path.abspath(__file__))
     command_file = path.join(curr_path, FILE)
-    async with AIOFile(command_file, "r") as afp:
+    async with aiofiles.open(command_file, "r") as afp:
         json_file = ""
         json_file = await afp.read()
     return json.loads(json_file)
@@ -55,17 +55,19 @@ class TestDirectMsgToTopic(unittest.TestCase):
     """Test direct messages mapped to topics."""
 
     def setUp(self):
-        """Setup the tests."""
+        """Set up the tests."""
         self._topic = None
 
-    def capture_topic(self, topic=pub.AUTO_TOPIC, **kwargs):
+    def capture_topic(
+        self, cmd1, cmd2, target, user_data, hops_left, topic=pub.AUTO_TOPIC
+    ):
         """Save the last topic."""
         self._topic = topic
         set_log_levels(
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=False,
+            logger_topics=True,
         )
 
     @async_case
@@ -82,17 +84,17 @@ class TestDirectMsgToTopic(unittest.TestCase):
         protocol = Protocol(connect_method=connect_method)
 
         tests = await import_commands()
-        pub.subscribe(self.capture_topic, pub.ALL_TOPICS)
         await protocol.async_connect()
-        await sleep(0.1)
+        await sleep(0.01)
 
         for test_info in tests:
             self._topic = None
             curr_test = tests[test_info]
 
             msgs = [create_message(curr_test)]
+            pub.subscribe(self.capture_topic, curr_test.get("topic"))
             send_data(msgs, read_queue)
-            await sleep(0.2)
+            await sleep(0.13)
             try:
                 assert self._topic.name == curr_test.get("topic")
             except AssertionError:
@@ -101,3 +103,5 @@ class TestDirectMsgToTopic(unittest.TestCase):
                         test_info, self._topic.name, curr_test.get("topic")
                     )
                 )
+            finally:
+                pub.subscribe(self.capture_topic, curr_test.get("topic"))
