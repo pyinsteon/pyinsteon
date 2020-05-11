@@ -24,8 +24,8 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
             message_type=MessageFlagType.DIRECT,
         )
         self._subscriber_topic = build_topic(
-            prefix="handler.{}".format(self._address),  # Force address
-            topic="ext_get_response",
+            prefix="handler.{}".format(self._address.id),  # Force address
+            topic=EXTENDED_GET_RESPONSE,
             message_type=MessageFlagType.DIRECT,
         )
 
