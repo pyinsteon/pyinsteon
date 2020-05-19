@@ -38,7 +38,7 @@ class TestExtendedPropertyManager(unittest.TestCase):
         self._address = Address("010203")
         self._properties = {}
         self._epm = GetSetExtendedPropertyManager(self._address)
-        set_log_levels(logger_topics=True)
+        set_log_levels(logger_topics=False)
 
     @async_case
     async def test_data_update(self):

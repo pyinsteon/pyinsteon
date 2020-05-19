@@ -429,7 +429,7 @@ class SwitchedLightingControl_KeypadLinc_8(SwitchedLightingControl_KeypadLinc):
             firmware=firmware,
             description=description,
             model=model,
-            button=buttons,
+            buttons=buttons,
         )
 
 

@@ -29,7 +29,7 @@ class ImReadManager:
             self._receive_record_handler.subscribe(self._receive_record)
         self._retries = 0
         self._load_lock = asyncio.Lock()
-        self._last_mem_addr = 0x0FFF
+        self._last_mem_addr = 0
 
     def load(self):
         """Load the Insteon Modem ALDB."""
@@ -37,14 +37,15 @@ class ImReadManager:
 
     async def async_load(self):
         """Load the Insteon Modem ALDB."""
+        self._last_mem_addr = self._aldb.first_mem_addr + 8
         response = False
         retries = 3
-        await self._load_lock.acquire()
-        while response != ResponseStatus.SUCCESS and retries:
-            response = await self._get_first_handler.async_send()
-            self._retries -= 1
-        if response == ResponseStatus.SUCCESS:
-            await self._get_next_record()
+        async with self._load_lock:
+            while response != ResponseStatus.SUCCESS and retries:
+                response = await self._get_first_handler.async_send()
+                retries -= 1
+            if response == ResponseStatus.SUCCESS:
+                await self._get_next_record()
         return ResponseStatus.SUCCESS
 
     def _max_retries(self):
@@ -65,7 +66,7 @@ class ImReadManager:
         bit4: bool,
     ):
         """Receive a record and load into the ALDB."""
-        self._last_mem_addr = self._last_mem_addr - 8
+        self._last_mem_addr -= 8
         record = ALDBRecord(
             memory=self._last_mem_addr,
             controller=controller,

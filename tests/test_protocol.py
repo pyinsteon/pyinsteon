@@ -8,15 +8,22 @@ from pyinsteon.address import Address
 from pyinsteon.protocol.protocol import Protocol
 from pyinsteon.topics import ON
 from tests import async_connect_mock, set_log_levels
-from tests.utils import (DataItem, TopicItem, async_case, create_std_ext_msg,
-                         send_data, send_topics, random_address)
+from tests.utils import (
+    DataItem,
+    TopicItem,
+    async_case,
+    create_std_ext_msg,
+    send_data,
+    send_topics,
+    random_address,
+)
 
 
 class TestProtocol(unittest.TestCase):
     """Test the protocol class."""
 
     def setUp(self):
-        """Setup the tests."""
+        """Set up the tests."""
         self._read_queue = asyncio.Queue()
         self._write_queue = asyncio.Queue()
         self._protocol = None
@@ -27,25 +34,29 @@ class TestProtocol(unittest.TestCase):
         )
         self._protocol = Protocol(connect_method=self._connect_method)
         self._last_topic = ""
-        pub.subscribe(self._topic_received, pub.ALL_TOPICS)
         set_log_levels(logger_topics=False)
-
-    def _topic_received(self, topic=pub.AUTO_TOPIC, **kwargs):
-        """Receive the OFF topic for a device."""
-        self._last_topic = topic.name
 
     @async_case
     async def test_send_on_topic(self):
         """Test sending the ON command."""
+        received_topic = ""
+
+        def expected_topic_received(cmd1, cmd2, user_data, topic=pub.AUTO_TOPIC):
+            nonlocal received_topic
+            received_topic = topic.name
+
         address = random_address()
         on_topic = "send.{}.1".format(ON)
         topics = [
             TopicItem(on_topic, {"address": address, "on_level": 0xFF, "group": 0}, 0)
         ]
         await self._protocol.async_connect()
+        self._last_topic = None
+        expected_topic = "ack.{}.1.on.direct".format(address.id)
+        pub.subscribe(expected_topic_received, expected_topic)
         send_topics(topics)
         await asyncio.sleep(0.05)
-        assert self._last_topic == "ack.{}.1.on.direct".format(address.id)
+        assert received_topic == expected_topic
         self._protocol.close()
         await asyncio.sleep(0.1)
 
@@ -53,6 +64,7 @@ class TestProtocol(unittest.TestCase):
     async def test_receive_on_msg(self):
         """Test receiving an ON message."""
         last_topic = None
+
         def topic_received(topic=pub.AUTO_TOPIC, **kwargs):
             """Receive the OFF topic for a device."""
             nonlocal last_topic
@@ -80,6 +92,7 @@ class TestProtocol(unittest.TestCase):
         )
 
         last_topic = None
+
         def topic_received(topic=pub.AUTO_TOPIC, **kwargs):
             """Receive the OFF topic for a device."""
             nonlocal last_topic

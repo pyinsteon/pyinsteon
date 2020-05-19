@@ -327,10 +327,7 @@ UC_LOOKUP = {
     14: 0x08,
     15: 0x04,
     16: 0x0C,
-    20: 0x20,  # All Units Off fake device
-    21: 0x21,  # All Lights On fake device
-    22: 0x22,
-}  # All Lights Off fake device
+}
 
 RAMP_RATES = {
     0x00: 2,

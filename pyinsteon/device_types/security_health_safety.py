@@ -504,6 +504,9 @@ class SecurityHealthSafety_Smokebridge(Device):
             self._address, self.SENSOR_MALFUNCTION_GROUP
         )
 
+        self._handlers[self.ALL_CLEAR_GROUP] = OnLevelInbound(
+            self._address, self.ALL_CLEAR_GROUP
+        )
         self._managers[self.LOW_BATTERY_GROUP] = LowBatteryManager(
             self._address, self.LOW_BATTERY_GROUP
         )
@@ -528,7 +531,7 @@ class SecurityHealthSafety_Smokebridge(Device):
         self._groups[self.LOW_BATTERY_GROUP] = LowBattery(
             LOW_BATTERY, self._address, self.LOW_BATTERY_GROUP
         )
-        self._groups[self.SMOKE_DETECTED_GROUP] = OnOff(
+        self._groups[self.SENSOR_MALFUNCTION_GROUP] = OnOff(
             SENSOR_MALFUNCTION, self._address, self.SENSOR_MALFUNCTION_GROUP
         )
         self._groups[self.HEARTBEAT_GROUP] = Heartbeat(
@@ -569,40 +572,37 @@ class SecurityHealthSafety_Smokebridge(Device):
             self._groups[self.SMOKE_DETECTED_GROUP].set_value
         )
         self._handlers[self.SMOKE_DETECTED_GROUP].subscribe(
-            self._events[self.SMOKE_DETECTED_GROUP].trigger
+            self._events[SMOKE_DETECTED_EVENT].trigger
         )
 
         self._handlers[self.CO_DETECTED_GROUP].subscribe(
             self._groups[self.CO_DETECTED_GROUP].set_value
         )
         self._handlers[self.CO_DETECTED_GROUP].subscribe(
-            self._events[self.CO_DETECTED_GROUP].trigger
+            self._events[CO_DETECTED_EVENT].trigger
         )
 
         self._handlers[self.TEST_DETECTED_GROUP].subscribe(
             self._groups[self.TEST_DETECTED_GROUP].set_value
         )
         self._handlers[self.TEST_DETECTED_GROUP].subscribe(
-            self._events[self.TEST_DETECTED_GROUP].trigger
+            self._events[TEST_DETECTED_EVENT].trigger
         )
 
         self._handlers[self.NEW_DETECTED_GROUP].subscribe(
             self._groups[self.NEW_DETECTED_GROUP].set_value
         )
         self._handlers[self.NEW_DETECTED_GROUP].subscribe(
-            self._events[self.NEW_DETECTED_GROUP].trigger
+            self._events[NEW_DETECTED_EVENT].trigger
         )
 
         self._handlers[self.SENSOR_MALFUNCTION_GROUP].subscribe(
             self._groups[self.SENSOR_MALFUNCTION_GROUP].set_value
         )
         self._handlers[self.SENSOR_MALFUNCTION_GROUP].subscribe(
-            self._events[self.SENSOR_MALFUNCTION_GROUP].trigger
+            self._events[SENSOR_MALFUNCTION_EVENT].trigger
         )
 
-        self._handlers[self.ALL_CLEAR_GROUP].subscribe(
-            self._events[self.ALL_CLEAR_GROUP].trigger
-        )
         self._handlers[self.ALL_CLEAR_GROUP].subscribe(self._all_clear_received)
 
     def _all_clear_received(self, on_level):

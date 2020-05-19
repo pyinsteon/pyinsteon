@@ -21,7 +21,7 @@ class TestHeartbeatManager(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=True,
+            logger_topics=False,
         )
         self._address = random_address()
         self._group = 4

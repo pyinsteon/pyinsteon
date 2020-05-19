@@ -2,6 +2,7 @@
 import logging
 from datetime import datetime
 from ..aldb import ALDB
+from ..aldb.aldb_battery import ALDBBattery
 from ..default_link import DefaultLink
 from ..groups import (
     COOL_SET_POINT,
@@ -426,6 +427,20 @@ class ClimateControl_Thermostat(Device):
 
 class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermostat):
     """Wireless Thermostat device."""
+
+    def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
+        """Init the Wireless Thermostat class."""
+        super(ClimateControl_WirelessThermostat, self).__init__(
+            address=address,
+            cat=cat,
+            subcat=subcat,
+            firmware=firmware,
+            description=description,
+            model=model,
+        )
+        self._aldb = ALDBBattery(
+            address=address, mem_addr=0x1FFF, run_command=self._run_on_wake
+        )
 
     async def async_set_humidity_high_set_point(self, humidity):
         """Set the humdity high set point."""
