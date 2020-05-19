@@ -26,7 +26,7 @@ class ModemALDB(ALDBBase):
     modem.aldb.load: Triggers the loading of the ALDB.
     """
 
-    def __init__(self, address, version=ALDBVersion.V2, mem_addr=0x0000):
+    def __init__(self, address, version=ALDBVersion.V2, mem_addr=0x1FFF):
         """Init the ModemALDB."""
 
         super().__init__(address, version, mem_addr)
