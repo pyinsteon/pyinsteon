@@ -34,14 +34,14 @@ class TestProtocol(unittest.TestCase):
         )
         self._protocol = Protocol(connect_method=self._connect_method)
         self._last_topic = ""
-        set_log_levels(logger_topics=True)
+        set_log_levels(logger_topics=False)
 
     @async_case
     async def test_send_on_topic(self):
         """Test sending the ON command."""
         received_topic = ""
 
-        def expected_topic_received(msg, priority=5, topic=pub.AUTO_TOPIC):
+        def expected_topic_received(cmd1, cmd2, user_data, topic=pub.AUTO_TOPIC):
             nonlocal received_topic
             received_topic = topic.name
 
@@ -52,7 +52,7 @@ class TestProtocol(unittest.TestCase):
         ]
         await self._protocol.async_connect()
         self._last_topic = None
-        expected_topic = "send_message.on.1"
+        expected_topic = "ack.{}.1.on.direct".format(address.id)
         pub.subscribe(expected_topic_received, expected_topic)
         send_topics(topics)
         await asyncio.sleep(0.05)
@@ -65,9 +65,7 @@ class TestProtocol(unittest.TestCase):
         """Test receiving an ON message."""
         last_topic = None
 
-        def topic_received(
-            cmd1, cmd2, user_data, target, hops_left, topic=pub.AUTO_TOPIC
-        ):
+        def topic_received(topic=pub.AUTO_TOPIC, **kwargs):
             """Receive the OFF topic for a device."""
             nonlocal last_topic
             last_topic = topic.name
@@ -96,7 +94,7 @@ class TestProtocol(unittest.TestCase):
 
         last_topic = None
 
-        def topic_received(cmd1, cmd2, user_data, topic=pub.AUTO_TOPIC):
+        def topic_received(topic=pub.AUTO_TOPIC, **kwargs):
             """Receive the OFF topic for a device."""
             nonlocal last_topic
             last_topic = topic.name
