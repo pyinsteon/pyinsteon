@@ -1,4 +1,5 @@
 """Protocol classes to interface with serial, socket and http devices."""
+import asyncio
 import logging
 from functools import partial
 
@@ -34,10 +35,13 @@ async def async_modem_connect(
 
     """
     device_id = None
+    id_lock = asyncio.Lock()
 
     def set_im_info(address, cat, subcat, firmware):
-        nonlocal device_id
+        nonlocal device_id, id_lock
         device_id = DeviceId(address, cat, subcat, firmware)
+        if id_lock.locked():
+            id_lock.release()
 
     transport = None
     if not device and not host:
@@ -66,6 +70,8 @@ async def async_modem_connect(
     get_im_info = GetImInfoHandler()
     get_im_info.subscribe(set_im_info)
     await get_im_info.async_send()
+    # Wait for a max of 60 seconds for the modem to respond
+    asyncio.wait_for(id_lock.acquire(), 60)
     if device_id is None:
         raise ConnectionError("Modem did not respond to ID request")
     modem = create_device(device_id)
