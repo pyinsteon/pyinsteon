@@ -65,7 +65,9 @@ class TestProtocol(unittest.TestCase):
         """Test receiving an ON message."""
         last_topic = None
 
-        def topic_received(topic=pub.AUTO_TOPIC, **kwargs):
+        def topic_received(
+            cmd1, cmd2, target, user_data, hops_left, topic=pub.AUTO_TOPIC
+        ):
             """Receive the OFF topic for a device."""
             nonlocal last_topic
             last_topic = topic.name
@@ -87,14 +89,14 @@ class TestProtocol(unittest.TestCase):
 
     @async_case
     async def test_send_on_all_link_broadcast_topic(self):
-        """Test sending the ON command."""
+        """Test sending the broadcast ON command."""
         from pyinsteon.handlers.to_device.on_level_all_link_broadcast import (
             OnLevelAllLinkBroadcastCommand,
         )
 
         last_topic = None
 
-        def topic_received(topic=pub.AUTO_TOPIC, **kwargs):
+        def topic_received(cmd1, cmd2, user_data, topic=pub.AUTO_TOPIC):
             """Receive the OFF topic for a device."""
             nonlocal last_topic
             last_topic = topic.name
