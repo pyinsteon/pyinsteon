@@ -31,6 +31,7 @@ class X10OnOffSensor(X10DeviceBase):
 
     def _register_handlers_and_managers(self):
         self._managers[ON_OFF_SWITCH] = X10OnOffManager(self._address)
+        self._managers[ALL_UNITS_OFF] = X10AllUnitsOffManager(self._address)
 
     def _register_groups(self):
         self._groups[1] = OnOff(ON_OFF_SWITCH, self._address, 1)
@@ -42,9 +43,11 @@ class X10OnOffSensor(X10DeviceBase):
 
     def _subscribe_to_handelers_and_managers(self):
         self._managers[ON_OFF_SWITCH].subscribe(self._groups[1].set_value)
+        self._managers[ALL_UNITS_OFF].subscribe(self._groups[1].set_value)
 
         self._managers[ON_OFF_SWITCH].subscribe_on(self._events[1][ON_EVENT].trigger)
         self._managers[ON_OFF_SWITCH].subscribe_off(self._events[1][OFF_EVENT].trigger)
+        self._managers[ALL_UNITS_OFF].subscribe(self._events[1][OFF_EVENT].trigger)
 
 
 class X10OnOff(X10OnOffSensor):
@@ -90,20 +93,17 @@ class X10OnOff(X10OnOffSensor):
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
         self._managers[ALL_LIGHTS_ON_OFF] = X10AllLightsOnOffManager(self._address)
-        self._managers[ALL_UNITS_OFF] = X10AllUnitsOffManager(self._address)
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
 
         self._managers[ALL_LIGHTS_ON_OFF].subscribe(self._groups[1].set_value)
-        self._managers[ALL_UNITS_OFF].subscribe(self._groups[1].set_value)
         self._managers[ALL_LIGHTS_ON_OFF].subscribe_on(
             self._events[1][ON_EVENT].trigger
         )
         self._managers[ALL_LIGHTS_ON_OFF].subscribe_off(
             self._events[1][OFF_EVENT].trigger
         )
-        self._managers[ALL_UNITS_OFF].subscribe(self._events[1][OFF_EVENT].trigger)
 
 
 class X10Dimmable(X10OnOff):
