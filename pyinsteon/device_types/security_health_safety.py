@@ -535,7 +535,7 @@ class SecurityHealthSafety_Smokebridge(Device):
             SENSOR_MALFUNCTION, self._address, self.SENSOR_MALFUNCTION_GROUP
         )
         self._groups[self.HEARTBEAT_GROUP] = Heartbeat(
-            SENSOR_MALFUNCTION, self._address, self.HEARTBEAT_GROUP, default=False
+            HEARTBEAT, self._address, self.HEARTBEAT_GROUP, default=False
         )
 
     def _register_events(self):

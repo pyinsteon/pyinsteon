@@ -62,8 +62,8 @@ def byte_to_int(bytecode: bytes) -> int:
 
 def raw_x10_to_bytes(raw_x10: int) -> int:
     """Return the byte value of a raw X10 command."""
-    house_code_byte = raw_x10[0]
-    uc_or_cmd_byte = raw_x10[1]
+    house_code_byte = raw_x10 >> 4
+    uc_or_cmd_byte = raw_x10 & 0x0F
     return house_code_byte, uc_or_cmd_byte
 
 

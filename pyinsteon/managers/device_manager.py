@@ -103,17 +103,18 @@ class DeviceManager(SubscriberBase):
             return
         self._id_manager.set_device_id(address, cat, subcat, firmware)
 
-    async def async_reidentify_device(self, address: Address):
-        """Remove a device from the device list and reidentify it.
+    async def async_identify_device(self, address: Address):
+        """Identify a device.
 
-        This will remove the device from the known device list. The device will be
-        placed back on the unknown device list to be reidentified. This is typically
-        used when a `set_id` command has been run to create a device override. The
-        `async_reidentify_device` command will reset that override and allow normal device
-        identification to run.
+        The device will be placed into the unknown device list to be identified.
+
+        If the device has already been identified, this method will remove the device
+        from the known device list. This is typically used when a `set_id` command has
+        been run to create a device override. The `async_reidentify_device` command will
+        reset that override and allow normal device identification to run.
         """
         self._devices.pop(Address(address))
-        await self._id_manager.async_id_devices(refresh=True)
+        await self._id_manager.async_id_device(address=address, refresh=True)
 
     def add_x10_device(
         self,
@@ -155,13 +156,11 @@ class DeviceManager(SubscriberBase):
 
         """
         if workdir:
-            await self._loading_saved_lock.acquire()
-            saved_devices_manager = SavedDeviceManager(workdir, self.modem)
-            devices = await saved_devices_manager.async_load()
-            for address in devices:
-                self[address] = devices[address]
-            if self._loading_saved_lock.locked():
-                self._loading_saved_lock.release()
+            async with self._loading_saved_lock:
+                saved_devices_manager = SavedDeviceManager(workdir, self.modem)
+                devices = await saved_devices_manager.async_load()
+                for address in devices:
+                    self[address] = devices[address]
 
         if load_modem_aldb == 0:
             load_modem_aldb = False

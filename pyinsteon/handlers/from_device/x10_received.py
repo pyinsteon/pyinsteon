@@ -4,7 +4,7 @@ from .. import inbound_handler
 from ... import pub
 from ...constants import X10Commands, X10CommandType
 from ...topics import X10_RECEIVED
-from ...utils import byte_to_command, byte_to_housecode, byte_to_unitcode, parse_x10
+from ...utils import byte_to_command, byte_to_unitcode, parse_x10
 from ...x10_address import create
 from ..inbound_base import InboundHandlerBase
 
@@ -23,7 +23,7 @@ class X10Received(InboundHandlerBase):
         """Manage X10 inbound messages."""
         housecode, uc_or_cmd = parse_x10(raw_x10)
         if x10_flag == X10CommandType.COMMAND:
-            self._notify_subscribers(housecode, byte_to_command(uc_or_cmd))
+            self._notify_subscribers(housecode, uc_or_cmd)
         else:
             self._last_housecode = housecode
             self._last_unitcode = byte_to_unitcode(uc_or_cmd)
@@ -37,7 +37,7 @@ class X10Received(InboundHandlerBase):
             X10Commands.ALL_LIGHTS_ON,
             X10Commands.ALL_UNITS_OFF,
         ]:
-            topic = "x10{}.{}".format(byte_to_housecode(housecode), str(cmd))
+            topic = "x10{}.{}".format(housecode.lower(), str(cmd))
         if self._last_housecode == housecode and self._last_unitcode is not None:
             address = create(housecode, self._last_unitcode)
             topic = "{}.{}".format(address.id, str(cmd))

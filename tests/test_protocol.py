@@ -46,7 +46,7 @@ class TestProtocol(unittest.TestCase):
             received_topic = topic.name
 
         address = random_address()
-        on_topic = "send.{}.1".format(ON)
+        on_topic = "send.{}.1.direct".format(ON)
         topics = [
             TopicItem(on_topic, {"address": address, "on_level": 0xFF, "group": 0}, 0)
         ]
@@ -65,7 +65,9 @@ class TestProtocol(unittest.TestCase):
         """Test receiving an ON message."""
         last_topic = None
 
-        def topic_received(topic=pub.AUTO_TOPIC, **kwargs):
+        def topic_received(
+            cmd1, cmd2, target, user_data, hops_left, topic=pub.AUTO_TOPIC
+        ):
             """Receive the OFF topic for a device."""
             nonlocal last_topic
             last_topic = topic.name
@@ -74,26 +76,27 @@ class TestProtocol(unittest.TestCase):
         byte_data = create_std_ext_msg(
             address, 0x80, 0x11, 0xFF, target=Address("000001")
         )
-        pub.subscribe(topic_received, address.id)
+        expected_topic = "{}.{}.on.broadcast".format(address.id, 1)
+        pub.subscribe(topic_received, expected_topic)
         on_cmd = DataItem(byte_data, 0)
         data = [on_cmd]
         await self._protocol.async_connect()
         send_data(data, self._read_queue)
         await asyncio.sleep(0.05)
-        assert last_topic == "{}.{}.on.broadcast".format(address.id, 1)
+        assert last_topic == expected_topic
         self._protocol.close()
         await asyncio.sleep(0.1)
 
     @async_case
     async def test_send_on_all_link_broadcast_topic(self):
-        """Test sending the ON command."""
+        """Test sending the broadcast ON command."""
         from pyinsteon.handlers.to_device.on_level_all_link_broadcast import (
             OnLevelAllLinkBroadcastCommand,
         )
 
         last_topic = None
 
-        def topic_received(topic=pub.AUTO_TOPIC, **kwargs):
+        def topic_received(cmd1, cmd2, user_data, topic=pub.AUTO_TOPIC):
             """Receive the OFF topic for a device."""
             nonlocal last_topic
             last_topic = topic.name
@@ -101,7 +104,7 @@ class TestProtocol(unittest.TestCase):
         group = 3
         target = Address(bytearray([0x00, 0x00, group]))
         ack_topic = "ack.{}.on.all_link_broadcast".format(target.id)
-        pub.subscribe(topic_received, f"ack.{target.id}")
+        pub.subscribe(topic_received, ack_topic)
         cmd = OnLevelAllLinkBroadcastCommand(group=group)
         await self._protocol.async_connect()
         await cmd.async_send()  # Mock transport auto sends ACK/NAK

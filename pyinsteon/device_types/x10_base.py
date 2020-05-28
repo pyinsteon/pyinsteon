@@ -92,6 +92,11 @@ class X10DeviceBase:
         """Return True if the device is battery operated."""
         return False
 
+    @property
+    def engine_version(self):
+        """Return an engine version."""
+        return 0
+
     def status(self, group=None):
         """Get the status of the device."""
 
