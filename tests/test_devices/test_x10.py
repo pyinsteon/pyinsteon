@@ -2,8 +2,13 @@
 import asyncio
 import unittest
 
-from pyinsteon.constants import (HC_LOOKUP, UC_LOOKUP, ResponseStatus,
-                                 X10Commands, X10CommandType)
+from pyinsteon.constants import (
+    HC_LOOKUP,
+    UC_LOOKUP,
+    ResponseStatus,
+    X10Commands,
+    X10CommandType,
+)
 from pyinsteon.device_types import X10Dimmable, X10OnOff, X10OnOffSensor
 from pyinsteon.topics import X10_RECEIVED, X10_SEND
 from tests import set_log_levels
@@ -18,9 +23,9 @@ class TestX10Devices(unittest.TestCase):
         """Test X10 Sensor device."""
         set_log_levels(logger_topics=False)
         device = X10OnOffSensor("a", 1)
-        hc_uc = bytes(bytearray([HC_LOOKUP["a"], UC_LOOKUP[1]]))
+        hc_uc = (HC_LOOKUP["a"] << 4) + UC_LOOKUP[1]
         uc_msg = {"raw_x10": hc_uc, "x10_flag": X10CommandType.UNITCODE}
-        hc_cmd = bytes(bytearray([HC_LOOKUP["a"], int(X10Commands.ON)]))
+        hc_cmd = (HC_LOOKUP["a"] << 4) + int(X10Commands.ON)
         cmd_msg = {"raw_x10": hc_cmd, "x10_flag": X10CommandType.COMMAND}
 
         msgs = [
@@ -38,9 +43,9 @@ class TestX10Devices(unittest.TestCase):
         set_log_levels(logger_topics=False)
         device = X10OnOff("b", 2)
         ack = "ack.{}".format(X10_SEND)
-        hc_uc = bytes(bytearray([HC_LOOKUP["b"], UC_LOOKUP[2]]))
+        hc_uc = (HC_LOOKUP["b"] << 4) + UC_LOOKUP[2]
         uc_msg = {"raw_x10": hc_uc, "x10_flag": X10CommandType.UNITCODE}
-        hc_cmd = bytes(bytearray([HC_LOOKUP["b"], int(X10Commands.ON)]))
+        hc_cmd = (HC_LOOKUP["b"] << 4) + X10Commands.ON
         cmd_msg = {"raw_x10": hc_cmd, "x10_flag": X10CommandType.COMMAND}
 
         msgs = [

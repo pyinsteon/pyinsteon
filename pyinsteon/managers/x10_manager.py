@@ -1,5 +1,5 @@
 """Manage X10 functions."""
-from ..utils import subscribe_topic
+from ..utils import subscribe_topic, publish_topic
 from ..constants import X10Commands
 from ..handlers.to_device.x10_send import X10CommandSend
 from ..subscriber_base import SubscriberBase
@@ -35,24 +35,26 @@ class X10OnOffManager(SubscriberBase):
         off_topic = "{}.{}".format(address.id, str(X10Commands.OFF))
         subscribe_topic(self._on_received, on_topic)
         subscribe_topic(self._off_received, off_topic)
+        self._on_subscriber_topic = f"{self._subscriber_topic}_on"
+        self._off_subscriber_topic = f"{self._subscriber_topic}_off"
 
-    def subscribe_on(self, callback):
-        """Subscribe to ON events."""
-        topic = "{}.{}".format(self._subscriber_topic, str(X10Commands.ON))
-        subscribe_topic(callback, topic)
+    def subscribe_on(self, callback: callable):
+        """Subscribe to the ON event."""
+        subscribe_topic(callback, self._on_subscriber_topic)
 
-    def subscribe_off(self, callback):
-        """Subscribe to OFF events."""
-        topic = "{}.{}".format(self._subscriber_topic, str(X10Commands.OFF))
-        subscribe_topic(callback, topic)
+    def subscribe_off(self, callback: callable):
+        """Subscribe to the OFF event."""
+        subscribe_topic(callback, self._off_subscriber_topic)
 
     def _on_received(self):
         """Receive an ON message."""
         self._call_subscribers(on_level=0xFF)
+        publish_topic(self._on_subscriber_topic, on_level=0xFF)
 
     def _off_received(self):
         """Recieve an OFF message."""
         self._call_subscribers(on_level=0x00)
+        publish_topic(self._off_subscriber_topic, on_level=0x00)
 
 
 class X10DimBrightenManager(SubscriberBase):
@@ -66,16 +68,6 @@ class X10DimBrightenManager(SubscriberBase):
         bright_topic = "{}.{}".format(address.id, str(X10Commands.BRIGHT))
         subscribe_topic(self._dim_received, dim_topic)
         subscribe_topic(self._bright_received, bright_topic)
-
-    def subscribe_dim(self, callback):
-        """Subscribe to DIM events."""
-        topic = "{}.{}".format(self._subscriber_topic, str(X10Commands.DIM))
-        subscribe_topic(callback, topic)
-
-    def subscribe_bright(self, callback):
-        """Subscribe to BRIGHT events."""
-        topic = "{}.{}".format(self._subscriber_topic, str(X10Commands.BRIGHT))
-        subscribe_topic(callback, topic)
 
     def _dim_received(self):
         """Receive an ON message."""
@@ -101,24 +93,28 @@ class X10AllLightsOnOffManager(SubscriberBase):
         )
         subscribe_topic(self._on_received, on_topic)
         subscribe_topic(self._off_received, off_topic)
+        self._on_subscriber_topic = f"{self._subscriber_topic}_on"
+        self._off_subscriber_topic = f"{self._subscriber_topic}_off"
 
-    def subscribe_on(self, callback):
-        """Subscribe to ON events."""
-        topic = "{}.{}".format(self._subscriber_topic, str(X10Commands.ALL_LIGHTS_ON))
+    def subscribe_on(self, callback: callable):
+        """Subscribe to the on command."""
+        topic = f"{self._subscriber_topic}_on"
         subscribe_topic(callback, topic)
 
-    def subscribe_off(self, callback):
-        """Subscribe to OFF events."""
-        topic = "{}.{}".format(self._subscriber_topic, str(X10Commands.ALL_LIGHTS_OFF))
+    def subscribe_off(self, callback: callable):
+        """Subscribe to the off command."""
+        topic = f"{self._subscriber_topic}_off"
         subscribe_topic(callback, topic)
 
     def _on_received(self):
         """Receive an ON message."""
         self._call_subscribers(on_level=0xFF)
+        publish_topic(self._on_subscriber_topic, on_level=0xFF)
 
     def _off_received(self):
         """Recieve an OFF message."""
         self._call_subscribers(on_level=0x00)
+        publish_topic(self._off_subscriber_topic, on_level=0x00)
 
 
 class X10AllUnitsOffManager(SubscriberBase):
