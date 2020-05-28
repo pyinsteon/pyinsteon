@@ -63,7 +63,7 @@ class TestX10Address(unittest.TestCase):
     def test_from_string(self):
         """Test create from string."""
         addr = X10Address("X10.A.02")
-        assert bytes(addr) == b"\x62"
+        assert bytes(addr) == b"n"
 
 
 if __name__ == "__main__":

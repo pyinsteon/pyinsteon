@@ -14,18 +14,29 @@ _LOGGER = logging.getLogger(__name__)
 
 def _normalize(addr):
     """Take any format of address and turn it into a byte."""
-    if isinstance(addr, (X10Address, bytearray, bytes)):
-        return bytes(addr)
+
+    def to_housecode_unitcode(hc_uc_byte):
+        """Convert a byte value to a housecode and unitcode."""
+        hc_uc = int.from_bytes(hc_uc_byte, byteorder="big")
+        housecode = hc_uc >> 4
+        unitcode = hc_uc & 0x0F
+        return housecode, unitcode
+
+    if isinstance(addr, X10Address):
+        return addr.housecode_byte, addr.unitcode_byte
+
+    if isinstance(addr, (bytearray, bytes)):
+        return to_housecode_unitcode(bytes(addr))
 
     if isinstance(addr, int):
-        return bytes([addr])
+        return to_housecode_unitcode(bytes([addr]))
 
     if isinstance(addr, str):
         addr_clean = addr.replace(".", "").lower()
         if len(addr_clean) == 6:
             housecode = housecode_to_byte(addr_clean[3])
             unitcode = unitcode_to_byte(int(addr_clean[4:]))
-            return bytes([(housecode << 4) + unitcode])
+            return housecode, unitcode
     raise ValueError(f"Improper X10 address: {addr}")
 
 
@@ -60,9 +71,9 @@ class X10Address:
 
     def __init__(self, housecode_unitcode: (bytes, bytearray, str, int)):
         """Create an X10 device address."""
-        housecode_unitcode = _normalize(housecode_unitcode)
-        self._housecode_byte = housecode_unitcode >> 4
-        self._unitcode_byte = housecode_unitcode & 0x0F
+        housecode, unitcode = _normalize(housecode_unitcode)
+        self._housecode_byte = housecode
+        self._unitcode_byte = unitcode
         if not self._check_housecode_unitcode():
             raise ValueError("Invalid housecode or unitcode byte")
 
