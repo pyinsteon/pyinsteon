@@ -26,6 +26,8 @@ DeviceId = namedtuple("DeviceId", "address cat subcat firmware")  # product_id')
 
 def _normalize_identifier(value):
     """Convert a byte, str or int to int."""
+    if value is None:
+        return value
     if isinstance(value, (bytearray, bytes)):
         return int.from_bytes(value, "big")
     if isinstance(value, str):
@@ -115,7 +117,7 @@ class DeviceIdManager(SubscriberBase):
         address = Address(address)
         self.append(address)
         if refresh:
-            self._device_ids = DeviceId(None, None, None, None)
+            self._device_ids[address] = DeviceId(None, None, None, None)
         id_handler = IdRequestCommand(address)
         id_response_handler = AssignToAllLinkGroupCommand(address)
         id_response_handler.subscribe(self._id_response)
