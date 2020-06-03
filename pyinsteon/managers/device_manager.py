@@ -72,6 +72,14 @@ class DeviceManager(SubscriberBase):
             address = X10Address(address)
         return self._devices.get(address)
 
+    def pop(self, address):
+        """Remove a device from the device list."""
+        try:
+            address = Address(Address)
+        except ValueError:
+            address = X10Address(address)
+        self._devices.pop(address)
+
     @property
     def modem(self):
         """Return the Insteon Modem."""
