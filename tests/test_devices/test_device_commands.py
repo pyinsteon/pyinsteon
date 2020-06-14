@@ -88,7 +88,10 @@ class TestDeviceCommands(unittest.TestCase):
         params = config["params"]
         for param in params:
             params[param] = convert_to_int(params[param])
-        topic_item = convert_response(config["response"], address)
+        if config.get("response"):
+            topic_item = convert_response(config["response"], address)
+        else:
+            topic_item = None
 
         device_class = getattr(device_types, device_type)
 
@@ -97,7 +100,8 @@ class TestDeviceCommands(unittest.TestCase):
                 address=address, cat=0x01, subcat=0x02, description=device_type
             )
             method = getattr(device, command)
-            send_topics([topic_item])
+            if topic_item:
+                send_topics([topic_item])
             result = await method(**params)
             assert int(result) == 1
         # pylint: disable=broad-except
@@ -105,6 +109,32 @@ class TestDeviceCommands(unittest.TestCase):
             _LOGGER.error("Failed: device: %s  command: %s", device_type, command)
             _LOGGER.error(ex)
             assert False
+
+    @async_case
+    async def test_x10_commands(self):
+        """Test X10 commands."""
+        read_queue = Queue()
+        write_queue = Queue()
+        connect_method = partial(
+            async_connect_mock,
+            read_queue=read_queue,
+            write_queue=write_queue,
+            random_nak=False,
+        )
+        protocol = Protocol(connect_method=connect_method)
+        await protocol.async_connect()
+        await sleep(0.1)
+
+        x10_types = ["X10OnOff", "X10Dimmable"]
+        for device_type in x10_types:
+            device_class = getattr(device_types, device_type)
+            device = device_class("A", 3)
+            result = await device.async_on()
+            assert int(result) == 1
+            assert device.groups[1].value == 255
+            result = await device.async_off()
+            assert int(result) == 1
+            assert device.groups[1].value == 0
 
 
 if __name__ == "__main__":

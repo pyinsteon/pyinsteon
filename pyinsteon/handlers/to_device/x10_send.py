@@ -25,9 +25,7 @@ class X10CommandSend(OutboundHandlerBase):
             X10Commands.ALL_UNITS_OFF,
         ]:
             cmd_int = int(self._cmd)
-            byte_array = bytearray([self._address.housecode_byte])
-            byte_array.append(cmd_int)
-            raw_x10 = bytes(byte_array)
+            raw_x10 = (self._address.housecode_byte << 4) + cmd_int
             return await super().async_send(
                 raw_x10=raw_x10, x10_flag=X10CommandType.COMMAND
             )
@@ -41,9 +39,7 @@ class X10CommandSend(OutboundHandlerBase):
             return uc_result
 
         cmd_int = int(self._cmd)
-        byte_array = bytearray([self._address.housecode_byte])
-        byte_array.append(cmd_int)
-        raw_x10 = bytes(byte_array)
+        raw_x10 = (self._address.housecode_byte << 4) + cmd_int
         return await super().async_send(
             raw_x10=raw_x10, x10_flag=X10CommandType.COMMAND
         )
