@@ -10,7 +10,13 @@ import aiofiles
 from pyinsteon import pub
 from pyinsteon.protocol.protocol import Protocol
 from tests import async_connect_mock, set_log_levels
-from tests.utils import DataItem, async_case, create_std_ext_msg, send_data
+from tests.utils import (
+    DataItem,
+    async_case,
+    create_std_ext_msg,
+    send_data,
+    random_address,
+)
 
 FILE = "msg_to_cmd.json"
 
@@ -57,18 +63,18 @@ class TestDirectMsgToTopic(unittest.TestCase):
     def setUp(self):
         """Set up the tests."""
         self._topic = None
-
-    def capture_topic(
-        self, cmd1, cmd2, target, user_data, hops_left, topic=pub.AUTO_TOPIC
-    ):
-        """Save the last topic."""
-        self._topic = topic
         set_log_levels(
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,
         )
+
+    def capture_topic(
+        self, cmd1, cmd2, target, user_data, hops_left, topic=pub.AUTO_TOPIC
+    ):
+        """Save the last topic."""
+        self._topic = topic
 
     @async_case
     async def test_message_to_topic(self):
@@ -89,19 +95,22 @@ class TestDirectMsgToTopic(unittest.TestCase):
 
         for test_info in tests:
             self._topic = None
+            address = repr(random_address())
             curr_test = tests[test_info]
-
+            if curr_test.get("address"):
+                curr_test["address"] = address
             msgs = [create_message(curr_test)]
-            pub.subscribe(self.capture_topic, curr_test.get("topic"))
+            curr_topic = curr_test["topic"].format(address)
+            pub.subscribe(self.capture_topic, curr_topic)
             send_data(msgs, read_queue)
-            await sleep(0.13)
+            await sleep(0.15)
             try:
-                assert self._topic.name == curr_test.get("topic")
-            except AssertionError:
+                assert self._topic.name == curr_topic
+            except (AssertionError, AttributeError):
                 raise AssertionError(
                     "Failed test {} with message topic {} and test topic {}".format(
                         test_info, self._topic.name, curr_test.get("topic")
                     )
                 )
             finally:
-                pub.subscribe(self.capture_topic, curr_test.get("topic"))
+                pub.unsubscribe(self.capture_topic, curr_topic)
