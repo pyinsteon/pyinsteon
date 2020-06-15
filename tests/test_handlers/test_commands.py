@@ -35,7 +35,7 @@ from pyinsteon.handlers.to_device.read_aldb import ReadALDBCommandHandler
 from pyinsteon.handlers.to_device.set_operating_flags import SetOperatingFlagsCommand
 from pyinsteon.handlers.to_device.status_request import StatusRequestCommand
 from pyinsteon.handlers.to_device.write_aldb import WriteALDBCommandHandler
-from pyinsteon.protocol.protocol import Protocol
+import pyinsteon.protocol.protocol
 
 # pylint: enable=unused-import
 from tests import async_connect_mock, set_log_levels
@@ -45,6 +45,7 @@ from tests.utils import (
     create_std_ext_msg,
     get_class_or_method,
     send_data,
+    random_address,
 )
 
 FILE = "commands.json"
@@ -92,7 +93,9 @@ class TestDirectCommands(unittest.TestCase):
             write_queue=self._write_queue,
             random_nak=False,
         )
-        self._protocol = Protocol(connect_method=self._connect_method)
+        self._protocol = pyinsteon.protocol.protocol.Protocol(
+            connect_method=self._connect_method
+        )
         set_log_levels(
             logger="info",
             logger_pyinsteon="info",
@@ -119,6 +122,7 @@ class TestDirectCommands(unittest.TestCase):
     @async_case
     async def test_command(self):
         """Test direct command."""
+        pyinsteon.protocol.protocol.WRITE_WAIT = .1
         msgs = []
 
         def listen_for_ack():
@@ -130,11 +134,14 @@ class TestDirectCommands(unittest.TestCase):
         await self._protocol.async_connect()
 
         for test_info in tests:
+            address = random_address()
             self._current_test = test_info
             test_command = tests[test_info]
             command = test_command.get("command")
             cmd_class = command.get("class")
             params = command.get("params")
+            if params.get("address"):
+                params["address"] = address
             send_params = command.get("send_params")
             test_response = test_command.get("response")
             obj = get_class_or_method(commands, cmd_class)
@@ -144,6 +151,7 @@ class TestDirectCommands(unittest.TestCase):
             msgs = []
             for message in messages:
                 msg_dict = messages[message]
+                msg_dict["address"] = address
                 msgs.append(create_message(msg_dict))
             self._assert_tests = test_command.get("assert_tests")
 
@@ -167,6 +175,7 @@ class TestDirectCommands(unittest.TestCase):
         pub.unsubscribe(self.validate_values, pub.ALL_TOPICS)
         self._protocol.close()
         await sleep(0.1)
+        pyinsteon.protocol.protocol.WRITE_WAIT = 1.5
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@
 
 import unittest
 
+import pyinsteon.handlers
 from pyinsteon.address import Address
 from pyinsteon.constants import ResponseStatus
 from pyinsteon.handlers.to_device.on_level import OnLevelCommand
@@ -28,23 +29,26 @@ class TestNoDirectAck(unittest.TestCase):
         )
 
     def set_on_level(self, on_level, group):
-        """Callback to on_level direct_ack."""
+        """Handle callback for on_level direct_ack."""
         self._on_level = on_level
         self._group = group
 
     @async_case
     async def test_no_direct_ack(self):
         """Test no direct ACK received."""
+        orig_timeout = pyinsteon.handlers.TIMEOUT
+        pyinsteon.handlers.TIMEOUT = 0.1
         cmd1 = 0x99
         cmd2 = 0xAA
         topics = [
             TopicItem(
-                self.ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}, 0.5
+                self.ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}, 0.2
             )
         ]
         send_topics(topics)
         assert await self.handler.async_send(on_level=cmd2) == ResponseStatus.FAILURE
         assert self._on_level is None
+        pyinsteon.handlers.TIMEOUT = orig_timeout
 
 
 if __name__ == "__main__":
