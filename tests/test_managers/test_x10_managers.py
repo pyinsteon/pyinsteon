@@ -26,7 +26,7 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=True,
+            logger_topics=False,
         )
 
     def handle_on_off(self, on_level):
