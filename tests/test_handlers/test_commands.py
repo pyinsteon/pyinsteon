@@ -1,8 +1,7 @@
 """Test the sending and receiving of direct commands using the MockPLM."""
 import json
 import unittest
-from asyncio import Queue, sleep
-from functools import partial
+from asyncio import sleep
 
 import aiofiles
 
@@ -35,10 +34,9 @@ from pyinsteon.handlers.to_device.read_aldb import ReadALDBCommandHandler
 from pyinsteon.handlers.to_device.set_operating_flags import SetOperatingFlagsCommand
 from pyinsteon.handlers.to_device.status_request import StatusRequestCommand
 from pyinsteon.handlers.to_device.write_aldb import WriteALDBCommandHandler
-import pyinsteon.protocol.protocol
 
 # pylint: enable=unused-import
-from tests import async_connect_mock, set_log_levels
+from tests import set_log_levels
 from tests.utils import (
     DataItem,
     async_case,
@@ -46,10 +44,10 @@ from tests.utils import (
     get_class_or_method,
     send_data,
     random_address,
+    async_protocol_manager
 )
 
 
-pyinsteon.protocol.protocol.WRITE_WAIT = .1
 FILE = "commands.json"
 
 
@@ -86,30 +84,13 @@ class TestDirectCommands(unittest.TestCase):
     def setUp(self):
         """Set up the tests."""
         self._assert_tests = []
-        self._read_queue = Queue()
-        self._write_queue = Queue()
         self._current_test = None
-        self._connect_method = partial(
-            async_connect_mock,
-            read_queue=self._read_queue,
-            write_queue=self._write_queue,
-            random_nak=False,
-        )
-        self._protocol = pyinsteon.protocol.protocol.Protocol(
-            connect_method=self._connect_method
-        )
         set_log_levels(
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
             logger_topics=False,
         )
-
-    def tearDown(self):
-        """Tear down the test class."""
-        pub.unsubAll("send")
-        pub.unsubAll("send_message")
-        self._protocol.close()
 
     def validate_values(self, topic=pub.ALL_TOPICS, **kwargs):
         """Validate what should be returned from the handler."""
@@ -130,58 +111,55 @@ class TestDirectCommands(unittest.TestCase):
     @async_case
     async def test_command(self):
         """Test direct command."""
-        msgs = []
-
-        def listen_for_ack():
-            send_data(msgs, self._read_queue)
-
-        tests = await import_commands()
-        pub.subscribe(self.validate_values, pub.ALL_TOPICS)
-        pub.subscribe(listen_for_ack, "ack")
-        await self._protocol.async_connect()
-
-        for test_info in tests:
-            address = random_address()
-            self._current_test = test_info
-            test_command = tests[test_info]
-            command = test_command.get("command")
-            cmd_class = command.get("class")
-            params = command.get("params")
-            if params.get("address"):
-                params["address"] = address
-            send_params = command.get("send_params")
-            test_response = test_command.get("response")
-            obj = get_class_or_method(commands, cmd_class)
-            cmd = obj(**params)
-
-            messages = test_command.get("messages")
+        async with async_protocol_manager() as protocol:
             msgs = []
-            for message in messages:
-                msg_dict = messages[message]
-                msg_dict["address"] = address
-                msgs.append(create_message(msg_dict))
-            self._assert_tests = test_command.get("assert_tests")
 
-            # send_data(msgs, self._read_queue)
-            try:
-                response = await cmd.async_send(**send_params)
-            except Exception as ex:
-                raise Exception(
-                    "Failed test {} with error: {}".format(self._current_test, str(ex))
-                )
-            if test_response:
+            def listen_for_ack():
+                send_data(msgs, protocol.read_queue)
+
+            tests = await import_commands()
+            pub.subscribe(self.validate_values, pub.ALL_TOPICS)
+            pub.subscribe(listen_for_ack, "ack")
+
+            for test_info in tests:
+                address = random_address()
+                self._current_test = test_info
+                test_command = tests[test_info]
+                command = test_command.get("command")
+                cmd_class = command.get("class")
+                params = command.get("params")
+                if params.get("address"):
+                    params["address"] = address
+                send_params = command.get("send_params")
+                test_response = test_command.get("response")
+                obj = get_class_or_method(commands, cmd_class)
+                cmd = obj(**params)
+
+                messages = test_command.get("messages")
+                msgs = []
+                for message in messages:
+                    msg_dict = messages[message]
+                    msg_dict["address"] = address
+                    msgs.append(create_message(msg_dict))
+                self._assert_tests = test_command.get("assert_tests")
+
+                # send_data(msgs, self._read_queue)
                 try:
-                    assert int(response) == test_response
-                except AssertionError:
-                    raise AssertionError(
-                        "Failed test: {} command response: {}".format(
-                            self._current_test, response
-                        )
+                    response = await cmd.async_send(**send_params)
+                except Exception as ex:
+                    raise Exception(
+                        "Failed test {} with error: {}".format(self._current_test, str(ex))
                     )
-            await sleep(0.1)
-        pub.unsubscribe(self.validate_values, pub.ALL_TOPICS)
-        self._protocol.close()
-        await sleep(0.1)
+                if test_response:
+                    try:
+                        assert int(response) == test_response
+                    except AssertionError:
+                        raise AssertionError(
+                            "Failed test: {} command response: {}".format(
+                                self._current_test, response
+                            )
+                        )
+                await sleep(0.1)
 
 
 if __name__ == "__main__":
