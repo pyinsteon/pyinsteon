@@ -48,6 +48,8 @@ from tests.utils import (
     random_address,
 )
 
+
+pyinsteon.protocol.protocol.WRITE_WAIT = .1
 FILE = "commands.json"
 
 
@@ -103,6 +105,12 @@ class TestDirectCommands(unittest.TestCase):
             logger_topics=False,
         )
 
+    def tearDown(self):
+        """Tear down the test class."""
+        pub.unsubAll("send")
+        pub.unsubAll("send_message")
+        self._protocol.close()
+
     def validate_values(self, topic=pub.ALL_TOPICS, **kwargs):
         """Validate what should be returned from the handler."""
         for assert_test in self._assert_tests:
@@ -122,7 +130,6 @@ class TestDirectCommands(unittest.TestCase):
     @async_case
     async def test_command(self):
         """Test direct command."""
-        pyinsteon.protocol.protocol.WRITE_WAIT = .1
         msgs = []
 
         def listen_for_ack():
@@ -175,7 +182,6 @@ class TestDirectCommands(unittest.TestCase):
         pub.unsubscribe(self.validate_values, pub.ALL_TOPICS)
         self._protocol.close()
         await sleep(0.1)
-        pyinsteon.protocol.protocol.WRITE_WAIT = 1.5
 
 
 if __name__ == "__main__":

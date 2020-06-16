@@ -7,12 +7,14 @@ from functools import partial
 
 import aiofiles
 
+import pyinsteon
 import pyinsteon.device_types as device_types
 from pyinsteon.address import Address
-from pyinsteon.protocol.protocol import Protocol
+import pyinsteon.protocol.protocol
 from tests import _LOGGER, async_connect_mock, set_log_levels
 from tests.utils import TopicItem, async_case, send_topics, random_address
 
+pyinsteon.protocol.protocol.WRITE_WAIT = 0.01
 FILE = "device_commands.json"
 
 
@@ -35,7 +37,7 @@ def convert_response(response, address):
         "user_data": None,
         "hops_left": 3,
     }
-    topic_item = TopicItem(topic, kwargs, 2)
+    topic_item = TopicItem(topic, kwargs, 0.02)
     return topic_item
 
 
@@ -60,6 +62,11 @@ class TestDeviceCommands(unittest.TestCase):
         self._last_value = None
         set_log_levels("info", "info", "info", False)
 
+    def tearDown(self):
+        """Tear down the test."""
+        pyinsteon.pub.unsubAll("send")
+        pyinsteon.pub.unsubAll("send_message")
+
     @async_case
     async def test_device_commands(self):
         """Test sending a command from a device."""
@@ -71,7 +78,7 @@ class TestDeviceCommands(unittest.TestCase):
             write_queue=write_queue,
             random_nak=False,
         )
-        protocol = Protocol(connect_method=connect_method)
+        protocol = pyinsteon.protocol.protocol.Protocol(connect_method=connect_method)
 
         tests = await import_commands()
         await protocol.async_connect()
@@ -82,6 +89,7 @@ class TestDeviceCommands(unittest.TestCase):
             for command in test_configs:
                 await self._execute_command(device_type, command, test_configs[command])
         protocol.close()
+        await sleep(0.1)
 
     async def _execute_command(self, device_type, command, config):
         address = random_address()
@@ -121,7 +129,7 @@ class TestDeviceCommands(unittest.TestCase):
             write_queue=write_queue,
             random_nak=False,
         )
-        protocol = Protocol(connect_method=connect_method)
+        protocol = pyinsteon.protocol.protocol.Protocol(connect_method=connect_method)
         await protocol.async_connect()
         await sleep(0.1)
 
@@ -135,6 +143,9 @@ class TestDeviceCommands(unittest.TestCase):
             result = await device.async_off()
             assert int(result) == 1
             assert device.groups[1].value == 0
+
+        protocol.close()
+        await sleep(0.01)
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ from tests import set_log_levels
 from tests.utils import TopicItem, async_case, send_topics, random_address
 
 
-class TestIdRequest(unittest.TestCase):
+class TestStatusRequest(unittest.TestCase):
     """Test the id_request command handler."""
 
     def setUp(self):

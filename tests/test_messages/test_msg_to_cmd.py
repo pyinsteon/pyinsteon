@@ -8,7 +8,7 @@ from functools import partial
 import aiofiles
 
 from pyinsteon import pub
-from pyinsteon.protocol.protocol import Protocol
+import pyinsteon.protocol.protocol
 from tests import async_connect_mock, set_log_levels
 from tests.utils import (
     DataItem,
@@ -18,6 +18,7 @@ from tests.utils import (
     random_address,
 )
 
+pyinsteon.protocol.protocol.WRITE_WAIT = 0.01
 FILE = "msg_to_cmd.json"
 
 
@@ -54,7 +55,7 @@ def create_message(msg_dict):
     msg = create_std_ext_msg(
         address, flags, cmd1, cmd2, user_data=user_data, target=target, ack=ack
     )
-    return DataItem(msg, 0.1)
+    return DataItem(msg, 0.02)
 
 
 class TestDirectMsgToTopic(unittest.TestCase):
@@ -69,6 +70,11 @@ class TestDirectMsgToTopic(unittest.TestCase):
             logger_messages="info",
             logger_topics=False,
         )
+
+    def tearDown(self):
+        """Tear down the test."""
+        pub.unsubAll("send")
+        pub.unsubAll("send_message")
 
     def capture_topic(
         self, cmd1, cmd2, target, user_data, hops_left, topic=pub.AUTO_TOPIC
@@ -87,7 +93,7 @@ class TestDirectMsgToTopic(unittest.TestCase):
             write_queue=write_queue,
             random_nak=False,
         )
-        protocol = Protocol(connect_method=connect_method)
+        protocol = pyinsteon.protocol.protocol.Protocol(connect_method=connect_method)
 
         tests = await import_commands()
         await protocol.async_connect()
@@ -103,7 +109,7 @@ class TestDirectMsgToTopic(unittest.TestCase):
             curr_topic = curr_test["topic"].format(address)
             pub.subscribe(self.capture_topic, curr_topic)
             send_data(msgs, read_queue)
-            await sleep(0.15)
+            await sleep(0.07)
             try:
                 assert self._topic.name == curr_topic
             except (AssertionError, AttributeError):
@@ -114,3 +120,5 @@ class TestDirectMsgToTopic(unittest.TestCase):
                 )
             finally:
                 pub.unsubscribe(self.capture_topic, curr_topic)
+        protocol.close()
+        await sleep(0.1)

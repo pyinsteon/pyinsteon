@@ -5,7 +5,7 @@ from functools import partial
 
 from pyinsteon import pub
 from pyinsteon.address import Address
-from pyinsteon.protocol.protocol import Protocol
+import pyinsteon.protocol.protocol
 from pyinsteon.topics import ON
 from tests import async_connect_mock, set_log_levels
 from tests.utils import (
@@ -18,6 +18,8 @@ from tests.utils import (
     random_address,
 )
 
+pyinsteon.protocol.protocol.WRITE_WAIT = 0.1
+
 
 class TestProtocol(unittest.TestCase):
     """Test the protocol class."""
@@ -26,15 +28,22 @@ class TestProtocol(unittest.TestCase):
         """Set up the tests."""
         self._read_queue = asyncio.Queue()
         self._write_queue = asyncio.Queue()
-        self._protocol = None
         self._connect_method = partial(
             async_connect_mock,
             read_queue=self._read_queue,
             write_queue=self._write_queue,
         )
-        self._protocol = Protocol(connect_method=self._connect_method)
+        self._protocol = pyinsteon.protocol.protocol.Protocol(
+            connect_method=self._connect_method
+        )
         self._last_topic = ""
-        set_log_levels(logger_topics=False)
+        set_log_levels(logger_topics=True)
+
+    def tearDown(self):
+        """Tear down the test class."""
+        pub.unsubAll("send")
+        pub.unsubAll("send_message")
+        self._protocol.close()
 
     @async_case
     async def test_send_on_topic(self):

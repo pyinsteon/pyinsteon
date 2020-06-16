@@ -77,7 +77,6 @@ def send_data(data_items, queue):
 
 def create_std_ext_msg(address, flags, cmd1, cmd2, user_data=None, target=None, ack=0):
     """Create a standard or extended message."""
-    from pyinsteon.address import Address
     from pyinsteon.protocol.messages.user_data import UserData
 
     address = Address(address)
@@ -110,7 +109,6 @@ def create_std_ext_msg(address, flags, cmd1, cmd2, user_data=None, target=None, 
 
 def cmd_kwargs(cmd1, cmd2, user_data, target=None, address=None, hops_left=3):
     """Return a kwargs dict for a standard messsage command."""
-    from pyinsteon.address import Address
 
     kwargs = {"cmd1": cmd1, "cmd2": cmd2, "user_data": user_data}
     if target:
@@ -125,7 +123,6 @@ def make_command_response_messages(
     address, topic, cmd1, cmd2, target="000000", user_data=None
 ):
     """Return a colleciton of ACK and Direct ACK responses to commands."""
-    from pyinsteon.address import Address
 
     address = Address(address)
     ack = "ack.{}.{}".format(address.id, topic)
