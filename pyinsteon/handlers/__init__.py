@@ -53,7 +53,7 @@ def inbound_handler(func):
             topic,
             prefix=None,
             address=address,
-            group=None,
+            group=group,
             message_type=message_type,
         )
 
