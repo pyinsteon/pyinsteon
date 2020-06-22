@@ -194,3 +194,36 @@ class TestOnLevelManager(unittest.TestCase):
             )
         ]
         await self.run_test(topics, 0, 1)
+
+    @async_case
+    async def test_on_then_off(self):
+        """Test one on and one off message => on_level = 0 & call_count = 2."""
+        kwargs0 = cmd_kwargs(0x11, 0x00, None, self.target, hops_left=3)
+        kwargs1 = cmd_kwargs(0x13, 0x00, None, self.target, hops_left=3)
+        topics = [
+            self.create_topic(ON, MessageFlagType.ALL_LINK_BROADCAST, 6, kwargs0, 0.1),
+            self.create_topic(OFF, MessageFlagType.ALL_LINK_BROADCAST, 6, kwargs1, 0.3),
+        ]
+        await self.run_test(topics, 0, 2)
+
+    @async_case
+    async def test_on_and_on_cleanup(self):
+        """Test one on and one on cleanup => on_level = 255 and call_count = 1."""
+        kwargs0 = cmd_kwargs(0x11, 0x00, None, self.target, hops_left=3)
+        kwargs1 = cmd_kwargs(0x11, 0x00, None, self.target, hops_left=3)
+        topics = [
+            self.create_topic(ON, MessageFlagType.ALL_LINK_BROADCAST, 6, kwargs0, 0.1),
+            self.create_topic(ON, MessageFlagType.ALL_LINK_CLEANUP, 6, kwargs1, 0.3),
+        ]
+        await self.run_test(topics, 255, 1)
+
+    @async_case
+    async def test_off_and_off_cleanup(self):
+        """Test one off and one off cleanup => on_level = 255 and call_count = 1."""
+        kwargs0 = cmd_kwargs(0x13, 0x00, None, self.target, hops_left=3)
+        kwargs1 = cmd_kwargs(0x13, 0x00, None, self.target, hops_left=3)
+        topics = [
+            self.create_topic(OFF, MessageFlagType.ALL_LINK_BROADCAST, 6, kwargs0, 0.1),
+            self.create_topic(OFF, MessageFlagType.ALL_LINK_CLEANUP, 6, kwargs1, 0.3),
+        ]
+        await self.run_test(topics, 0, 1)
