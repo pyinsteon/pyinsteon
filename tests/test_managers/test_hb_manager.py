@@ -2,6 +2,7 @@
 import asyncio
 import unittest
 
+from pyinsteon.address import Address
 import pyinsteon.managers.heartbeat_manager
 from pyinsteon.utils import build_topic
 from pyinsteon.topics import ON, OFF
@@ -61,7 +62,7 @@ class TestHeartbeatManager(unittest.TestCase):
             {
                 "cmd1": 0x11,
                 "cmd2": 0xFF,
-                "target": "000004",
+                "target": Address("000004"),
                 "user_data": None,
                 "hops_left": 3,
             },
@@ -81,7 +82,7 @@ class TestHeartbeatManager(unittest.TestCase):
             {
                 "cmd1": 0x13,
                 "cmd2": 0x00,
-                "target": "000004",
+                "target": Address("000004"),
                 "user_data": None,
                 "hops_left": 3,
             },
