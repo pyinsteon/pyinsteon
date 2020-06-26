@@ -1,3 +1,4 @@
+"""Test the Address class."""
 import unittest
 from binascii import unhexlify
 
@@ -31,7 +32,7 @@ class TestAddress(unittest.TestCase):
         assert self.address[2] == 0x03
         try:
             # pylint: disable=unused-variable
-            failtest = self.address[3]
+            failtest = self.address[3]  # noqa: F841
             assert False
         except ValueError:
             assert True

@@ -285,7 +285,7 @@ def on(address: Address, on_level: int, group=0, topic=pub.AUTO_TOPIC):
     if group and group > 1:
         user_data = UserData({"d1": group})
     _create_direct_message(
-        topic=topic, address=address, cmd2=on_level, user_data=user_data
+        topic=topic, address=address, cmd2=on_level, user_data=user_data, priority=3
     )
 
 
@@ -296,7 +296,7 @@ def on_fast(address: Address, on_level: int, group: int, topic=pub.AUTO_TOPIC):
     if group and group > 1:
         user_data = UserData({"d1": group})
     _create_direct_message(
-        topic=topic, address=address, cmd2=on_level, user_data=user_data
+        topic=topic, address=address, cmd2=on_level, user_data=user_data, priority=3
     )
 
 
@@ -306,7 +306,9 @@ def off(address: Address, group: int, cmd2: int = 0, topic=pub.AUTO_TOPIC):
     user_data = None
     if group and group > 1:
         user_data = UserData({"d1": group})
-    _create_direct_message(topic=topic, address=address, cmd2=cmd2, user_data=user_data)
+    _create_direct_message(
+        topic=topic, address=address, cmd2=cmd2, user_data=user_data, priority=3
+    )
 
 
 @topic_to_command_handler(register_list=topic_register, topic=OFF_FAST)
@@ -315,31 +317,35 @@ def off_fast(address: Address, group: int, topic=pub.AUTO_TOPIC):
     user_data = None
     if group and group > 1:
         user_data = UserData({"d1": group})
-    _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
+    _create_direct_message(
+        topic=topic, address=address, cmd2=0, user_data=user_data, priority=3
+    )
 
 
 @topic_to_command_handler(register_list=topic_register, topic=BRIGHTEN_ONE_STEP)
 def brighten_one_step(address: Address, topic=pub.AUTO_TOPIC):
     """Create a BRIGHTEN_ONE_STEP command."""
-    _create_direct_message(topic=topic, address=address, cmd2=0)
+    _create_direct_message(topic=topic, address=address, cmd2=0, priority=3)
 
 
 @topic_to_command_handler(register_list=topic_register, topic=DIM_ONE_STEP)
 def dim_one_step(address: Address, topic=pub.AUTO_TOPIC):
     """Create a DIM_ONE_STEP command."""
-    _create_direct_message(topic=topic, address=address, cmd2=0)
+    _create_direct_message(topic=topic, address=address, cmd2=0, priority=3)
 
 
 @topic_to_command_handler(register_list=topic_register, topic=STATUS_REQUEST)
 def status_request(address: Address, status_type: int = 0, topic=pub.AUTO_TOPIC):
     """Create a STATUS_REQUEST command."""
-    _create_direct_message(topic=topic, address=address, cmd2=status_type)
+    _create_direct_message(topic=topic, address=address, cmd2=status_type, priority=7)
 
 
 @topic_to_command_handler(register_list=topic_register, topic=GET_OPERATING_FLAGS)
 def get_operating_flags(address: Address, flags_requested: int, topic=pub.AUTO_TOPIC):
     """Create a GET_OPERATING_FLAGS command."""
-    _create_direct_message(topic=topic, address=address, cmd2=flags_requested)
+    _create_direct_message(
+        topic=topic, address=address, cmd2=flags_requested, priority=7
+    )
 
 
 @topic_to_command_handler(register_list=topic_register, topic=SET_OPERATING_FLAGS)
@@ -354,7 +360,7 @@ def set_operating_flags(
 @topic_to_command_handler(register_list=topic_register, topic=INSTANT_CHANGE)
 def instant_change(address: Address, on_level: int, topic=pub.AUTO_TOPIC):
     """Create a INSTANT_CHANGE command."""
-    _create_direct_message(topic=topic, address=address, cmd2=on_level)
+    _create_direct_message(topic=topic, address=address, cmd2=on_level, priority=3)
 
 
 @topic_to_command_handler(register_list=topic_register, topic=SET_STATUS)
@@ -401,7 +407,7 @@ def on_at_ramp_rate(
     on_level = min(0x10, on_level & 0xF0)
     ramp_rate = ceil(int(ramp_rate) / 2) + 1 & 0x0F
     cmd2 = on_level + ramp_rate
-    _create_direct_message(topic=topic, address=address, cmd2=cmd2)
+    _create_direct_message(topic=topic, address=address, cmd2=cmd2, priority=3)
 
 
 @topic_to_command_handler(register_list=topic_register, topic=EXTENDED_GET_SET)
@@ -473,7 +479,7 @@ def off_at_ramp_rate(
     on_level = min(0x10, on_level & 0xF0)
     ramp_rate = ceil(int(ramp_rate) / 2) + 1 & 0x0F
     cmd2 = on_level + ramp_rate
-    _create_direct_message(topic=topic, address=address, cmd2=cmd2)
+    _create_direct_message(topic=topic, address=address, cmd2=cmd2, priority=3)
 
 
 def _read_aldb(address, mem_addr, num_recs, topic):

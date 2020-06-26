@@ -2,13 +2,20 @@
 import asyncio
 from binascii import unhexlify
 from collections import namedtuple
-from functools import wraps
+
+try:
+    from contextlib import asynccontextmanager
+except ImportError:
+    from async_generator import asynccontextmanager
+from functools import partial, wraps
 from random import randint
 
+import pyinsteon.protocol.protocol
 from pyinsteon import pub
 from pyinsteon.address import Address
 from pyinsteon.protocol.messages.inbound import create
-from tests import _LOGGER_MESSAGES
+
+from tests import _LOGGER_MESSAGES, async_connect_mock
 
 
 def hex_to_inbound_message(hex_data):
@@ -77,7 +84,6 @@ def send_data(data_items, queue):
 
 def create_std_ext_msg(address, flags, cmd1, cmd2, user_data=None, target=None, ack=0):
     """Create a standard or extended message."""
-    from pyinsteon.address import Address
     from pyinsteon.protocol.messages.user_data import UserData
 
     address = Address(address)
@@ -110,7 +116,6 @@ def create_std_ext_msg(address, flags, cmd1, cmd2, user_data=None, target=None, 
 
 def cmd_kwargs(cmd1, cmd2, user_data, target=None, address=None, hops_left=3):
     """Return a kwargs dict for a standard messsage command."""
-    from pyinsteon.address import Address
 
     kwargs = {"cmd1": cmd1, "cmd2": cmd2, "user_data": user_data}
     if target:
@@ -125,7 +130,6 @@ def make_command_response_messages(
     address, topic, cmd1, cmd2, target="000000", user_data=None
 ):
     """Return a colleciton of ACK and Direct ACK responses to commands."""
-    from pyinsteon.address import Address
 
     address = Address(address)
     ack = "ack.{}.{}".format(address.id, topic)
@@ -154,3 +158,47 @@ def random_address():
             address = f"{address}."
         address = f"{address}{rand_int:02x}"
     return Address(address)
+
+
+PROTOCOL_LOCK = asyncio.Lock()
+MAX_LOCK = 60
+
+
+@asynccontextmanager
+async def async_protocol_manager():
+    """Manage the protocol to ensure a single instance."""
+    async with PROTOCOL_LOCK:
+        protocol = await async_create_protocol()
+        try:
+            yield protocol
+        finally:
+            await async_release_protocol(protocol)
+
+
+async def async_create_protocol():
+    """Create a protocol using a mock transport.
+
+    Need to ensure only one protocol is available at a time.
+    """
+    pyinsteon.protocol.protocol.WRITE_WAIT = 0.01
+    read_queue = asyncio.Queue()
+    write_queue = asyncio.Queue()
+    connect_method = partial(
+        async_connect_mock,
+        read_queue=read_queue,
+        write_queue=write_queue,
+        random_nak=False,
+    )
+    protocol = pyinsteon.protocol.protocol.Protocol(connect_method=connect_method)
+    await protocol.async_connect()
+    protocol.read_queue = read_queue
+    protocol.write_queue = write_queue
+    return protocol
+
+
+async def async_release_protocol(protocol):
+    """Close the protocol and release subscriptions."""
+    protocol.close()
+    await asyncio.sleep(0.1)
+    pub.unsubAll("send")
+    pub.unsubAll("send_message")

@@ -1,7 +1,6 @@
 """Insteon message and command handlers."""
 import asyncio
 import logging
-from datetime import datetime
 from functools import wraps
 
 from ..utils import subscribe_topic
@@ -54,7 +53,7 @@ def inbound_handler(func):
             topic,
             prefix=None,
             address=address,
-            group=None,
+            group=group,
             message_type=message_type,
         )
 
@@ -274,8 +273,6 @@ def direct_nak_handler(func):
 
 def broadcast_handler(func):
     """Register the BROADCAST message handler."""
-    last_command = datetime(1, 1, 1)
-    last_hops_left = None
 
     def register_topic(
         instance_func, topic, address=None, group=None, message_type=None
@@ -300,15 +297,9 @@ def broadcast_handler(func):
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        nonlocal last_command, last_hops_left
-        curr_time = datetime.now()
-        tdelta = curr_time - last_command
-        last_command = curr_time
-        hops_left = kwargs["hops_left"]
-        if last_hops_left is None or hops_left >= last_hops_left or tdelta.seconds >= 2:
-            last_hops_left = hops_left
+        """Wrap the handler to test for duplicate messages."""
+        if self.is_first_message(**kwargs):
             return func(self, *args, **kwargs)
-        last_hops_left = hops_left
 
     wrapper.register_topic = register_topic
     return wrapper

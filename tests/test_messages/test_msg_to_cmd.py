@@ -1,21 +1,20 @@
 """Test the sending and receiving of messages using the MockPLM and receive topics."""
 import json
 import unittest
-from asyncio import Queue, sleep
+from asyncio import sleep
 from binascii import unhexlify
-from functools import partial
 
 import aiofiles
 
 from pyinsteon import pub
-from pyinsteon.protocol.protocol import Protocol
-from tests import async_connect_mock, set_log_levels
+from tests import set_log_levels
 from tests.utils import (
     DataItem,
     async_case,
     create_std_ext_msg,
     send_data,
     random_address,
+    async_protocol_manager,
 )
 
 FILE = "msg_to_cmd.json"
@@ -54,7 +53,7 @@ def create_message(msg_dict):
     msg = create_std_ext_msg(
         address, flags, cmd1, cmd2, user_data=user_data, target=target, ack=ack
     )
-    return DataItem(msg, 0.1)
+    return DataItem(msg, 0.02)
 
 
 class TestDirectMsgToTopic(unittest.TestCase):
@@ -70,6 +69,11 @@ class TestDirectMsgToTopic(unittest.TestCase):
             logger_topics=False,
         )
 
+    def tearDown(self):
+        """Tear down the test."""
+        pub.unsubAll("send")
+        pub.unsubAll("send_message")
+
     def capture_topic(
         self, cmd1, cmd2, target, user_data, hops_left, topic=pub.AUTO_TOPIC
     ):
@@ -79,38 +83,27 @@ class TestDirectMsgToTopic(unittest.TestCase):
     @async_case
     async def test_message_to_topic(self):
         """Test converting a message to a topic."""
-        read_queue = Queue()
-        write_queue = Queue()
-        connect_method = partial(
-            async_connect_mock,
-            read_queue=read_queue,
-            write_queue=write_queue,
-            random_nak=False,
-        )
-        protocol = Protocol(connect_method=connect_method)
+        async with async_protocol_manager() as protocol:
+            tests = await import_commands()
 
-        tests = await import_commands()
-        await protocol.async_connect()
-        await sleep(0.01)
-
-        for test_info in tests:
-            self._topic = None
-            address = repr(random_address())
-            curr_test = tests[test_info]
-            if curr_test.get("address"):
-                curr_test["address"] = address
-            msgs = [create_message(curr_test)]
-            curr_topic = curr_test["topic"].format(address)
-            pub.subscribe(self.capture_topic, curr_topic)
-            send_data(msgs, read_queue)
-            await sleep(0.15)
-            try:
-                assert self._topic.name == curr_topic
-            except (AssertionError, AttributeError):
-                raise AssertionError(
-                    "Failed test {} with message topic {} and test topic {}".format(
-                        test_info, self._topic.name, curr_test.get("topic")
+            for test_info in tests:
+                self._topic = None
+                address = repr(random_address())
+                curr_test = tests[test_info]
+                if curr_test.get("address"):
+                    curr_test["address"] = address
+                msgs = [create_message(curr_test)]
+                curr_topic = curr_test["topic"].format(address)
+                pub.subscribe(self.capture_topic, curr_topic)
+                send_data(msgs, protocol.read_queue)
+                await sleep(0.07)
+                try:
+                    assert self._topic.name == curr_topic
+                except (AssertionError, AttributeError):
+                    raise AssertionError(
+                        "Failed test {} with message topic {} and test topic {}".format(
+                            test_info, self._topic.name, curr_test.get("topic")
+                        )
                     )
-                )
-            finally:
-                pub.unsubscribe(self.capture_topic, curr_topic)
+                finally:
+                    pub.unsubscribe(self.capture_topic, curr_topic)

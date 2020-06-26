@@ -89,8 +89,9 @@ class Protocol(asyncio.Protocol):
             msg, self._buffer = create(self._buffer)
             if msg:
                 self._publish_message(msg)
+                msg = None
 
-            if last_buffer == self._buffer or not self._buffer:
+            if not self._buffer or last_buffer == self._buffer:
                 break
 
     def connection_lost(self, exc):
