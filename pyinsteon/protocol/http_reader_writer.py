@@ -8,7 +8,7 @@ from aiohttp.client_exceptions import ClientError
 from .hub_connection_exception import HubConnectionException
 
 _LOGGER = logging.getLogger(__name__)
-SESSION_TIMEOUT = ClientTimeout(total=5)
+SESSION_TIMEOUT = ClientTimeout(total=300)
 PRIOR_CONN_CLOSE_PAUSE = 0.1
 
 
