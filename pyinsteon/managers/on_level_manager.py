@@ -142,19 +142,19 @@ class OnLevelManager:
 
     def _process_off_event(self, is_cleanup=False):
         if not is_cleanup or self._process_event("off"):
-            self._on.call_subscribers(on_level=0)
+            self._off.call_subscribers(on_level=0)
             self._last_event = datetime.now()
             self._last_event_type = "off"
 
     def _process_on_fast_event(self, on_level, is_cleanup=False):
         if not is_cleanup or self._process_event("on_fast"):
-            self._on.call_subscribers(on_level=on_level)
+            self._on_fast.call_subscribers(on_level=on_level)
             self._last_event = datetime.now()
             self._last_event_type = "on_fast"
 
     def _process_off_fast_event(self, is_cleanup=False):
         if not is_cleanup or self._process_event("off_fast"):
-            self._on.call_subscribers(on_level=0)
+            self._off_fast.call_subscribers(on_level=0)
             self._last_event = datetime.now()
             self._last_event_type = "off_fast"
 
