@@ -71,7 +71,7 @@ class CmdTools(ToolsBase):
             address = None
 
         addresses = await self._get_addresses(
-            address=address, allow_cancel=True, allow_all=False
+            address=address, allow_cancel=True, allow_all=False, match_device=True
         )
         if not addresses:
             return
@@ -97,7 +97,7 @@ class CmdTools(ToolsBase):
             address = None
 
         addresses = await self._get_addresses(
-            address=address, allow_cancel=True, allow_all=False
+            address=address, allow_cancel=True, allow_all=False, match_device=True
         )
         if not addresses:
             return
@@ -182,7 +182,7 @@ class CmdTools(ToolsBase):
             return
 
         addresses = await self._get_addresses(
-            address=address, allow_cancel=True, allow_all=False
+            address=address, allow_cancel=True, allow_all=False, match_device=True
         )
         if not addresses:
             return

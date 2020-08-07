@@ -2,6 +2,8 @@
 import asyncio
 import logging
 
+from async_generator import async_generator, yield_
+
 from .. import pub
 from ..address import Address
 from ..aldb.aldb_record import ALDBRecord
@@ -29,15 +31,24 @@ class ImReadManager:
             self._receive_record_handler.subscribe(self._receive_record)
         self._retries = 0
         self._load_lock = asyncio.Lock()
-        self._last_mem_addr = 0
+        self._record_queue = asyncio.Queue()
 
     def load(self):
         """Load the Insteon Modem ALDB."""
         asyncio.ensure_future(self.async_load())
 
+    @async_generator
     async def async_load(self):
         """Load the Insteon Modem ALDB."""
-        self._last_mem_addr = self._aldb.first_mem_addr + 8
+        asyncio.ensure_future(self._get_records())
+        while True:
+            rec = await self._record_queue.get()
+            if rec is None:
+                return
+            await yield_(rec)
+
+    async def _get_records(self):
+        """Init the process to read records."""
         response = False
         retries = 3
         async with self._load_lock:
@@ -46,7 +57,7 @@ class ImReadManager:
                 retries -= 1
             if response == ResponseStatus.SUCCESS:
                 await self._get_next_record()
-        return ResponseStatus.SUCCESS
+        self._record_queue.put_nowait(None)
 
     def _max_retries(self):
         """Test if max retries reached."""
@@ -66,9 +77,8 @@ class ImReadManager:
         bit4: bool,
     ):
         """Receive a record and load into the ALDB."""
-        self._last_mem_addr -= 8
         record = ALDBRecord(
-            memory=self._last_mem_addr,
+            memory=0,
             controller=controller,
             group=group,
             target=target,
@@ -80,7 +90,7 @@ class ImReadManager:
             bit5=bit5,
             bit4=bit4,
         )
-        self._aldb[self._last_mem_addr] = record
+        self._record_queue.put_nowait(record)
 
     async def _get_next_record(self):
         """Get the next ALDB record."""

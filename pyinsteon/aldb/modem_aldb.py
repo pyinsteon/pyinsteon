@@ -4,13 +4,11 @@ from typing import Callable
 
 from . import ALDBBase
 from .. import pub
-from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion, ManageAllLinkRecordAction
 from ..handlers import ResponseStatus
 from ..handlers.manage_all_link_record import ManageAllLinkRecordCommand
 from ..managers.im_read_manager import ImReadManager
 from ..topics import ALL_LINK_RECORD_RESPONSE
-from .aldb_record import ALDBRecord
 
 _LOGGER = logging.getLogger(__name__)
 MAX_RETRIES = 3
@@ -41,147 +39,56 @@ class ModemALDB(ALDBBase):
 
         self._write_cmd = ManageAllLinkRecordCommand()
 
-    def __setitem__(self, mem_addr, record):
-        """Add or Update a device in the ALDB."""
-        if not isinstance(record, ALDBRecord):
-            raise ValueError
-
-        self._records[mem_addr] = record
-
     # pylint: disable=arguments-differ
     async def async_load(self, callback: Callable = None):
         """Load the All-Link Database."""
+        next_mem_addr = self.first_mem_addr
         _LOGGER.debug("Loading the modem ALDB")
         self._records = {}
         if self._read_manager is not None:
-            await self._read_manager.async_load()
+            async for rec in self._read_manager.async_load():
+                rec.mem_addr = next_mem_addr
+                self._records[next_mem_addr] = rec
+                next_mem_addr -= 8
         self._status = ALDBStatus.LOADED
         if callback:
             callback()
         return self._status
 
-    def add(
-        self,
-        group: int,
-        target: Address,
-        controller: bool,
-        data1: int = 0,
-        data2: int = 0,
-        data3: int = 0,
-    ):
-        """Add a record to the All-Link database."""
-        record = ALDBRecord(
-            memory=0,
-            in_use=True,
-            controller=controller,
-            high_water_mark=False,
-            bit5=True,
-            group=group,
-            target=target,
-            data1=data1,
-            data2=data2,
-            data3=data3,
-        )
-        self._dirty_records.append(record)
+    async def _async_write_change(self, record):
+        """Write a changed record."""
+        if record.is_controller:
+            action = ManageAllLinkRecordAction.MOD_FIRST_CTRL_OR_ADD
+        else:
+            action = ManageAllLinkRecordAction.MOD_FIRST_RESP_OR_ADD
+        return await self._async_write_record(action, record)
 
-    def remove(self, controller, group, target):
-        """Remove a record to the All-Link database."""
-        record = ALDBRecord(
-            memory=0,
-            in_use=False,
-            controller=controller,
-            high_water_mark=False,
-            bit5=True,
-            group=group,
-            target=target,
-            data1=0,
-            data2=0,
-            data3=0,
-        )
-        self._dirty_records.append(record)
+    async def _async_write_delete(self, record):
+        """Write a deleted record."""
+        action = ManageAllLinkRecordAction.DELETE_FIRST
+        return await self._async_write_record(action, record)
 
-    async def async_write(self):
-        """Write modified records to the device.
+    async def _async_write_new(self, record):
+        """Write a new record."""
+        return await self._async_write_change(record)
 
-        Returns a tuple of (completed, failed) record counts.
-        """
-        completed = []
-        failed = []
-        self._id_recs_to_restore()
-        while self._dirty_records:
-            rec = self._dirty_records.pop()
-            if not rec.is_in_use:
-                action = ManageAllLinkRecordAction.DELETE_FIRST
-            elif rec.is_controller:
-                action = ManageAllLinkRecordAction.MOD_FIRST_CTRL_OR_ADD
-            else:
-                action = ManageAllLinkRecordAction.MOD_FIRST_RESP_OR_ADD
-            retries = 0
-            response = ResponseStatus.UNSENT
-            while response != ResponseStatus.SUCCESS and retries < MAX_RETRIES:
-                response = await self._write_cmd.async_send(
-                    action=action,
-                    controller=rec.is_controller,
-                    group=rec.group,
-                    target=rec.target,
-                    data1=rec.data1,
-                    data2=rec.data2,
-                    data3=rec.data3,
-                    in_use=rec.is_in_use,
-                    high_water_mark=rec.is_high_water_mark,
-                    bit5=rec.is_bit5_set,
-                    bit4=rec.is_bit4_set,
-                )
-                retries += 1
-            if response == ResponseStatus.SUCCESS:
-                completed.append(rec)
-            else:
-                failed.append(rec)
-
-        return len(completed), len(failed)
-
-    def _id_recs_to_restore(self):
-        """Find matching records to delete and restore.
-
-        When deleting a record it is required to delete all that match the target and group
-        then restore all the ones that do not match the controller. (yes it is stupid)
-        """
-        deleted_recs = []
-        restore_recs = []
-        multi_delete = []
-        for rec in self._dirty_records:
-            if not rec.is_in_use:
-                deleted_recs.append(rec)
-
-        for del_rec in deleted_recs:
-            found_restore = False
-            for mem_addr in self._records:
-                rec = self._records[mem_addr]
-                if rec.target == del_rec.target and rec.group == del_rec.group:
-                    new_rec = self._set_not_in_use(rec)
-                    multi_delete.append(new_rec)
-                    if (
-                        not rec.is_controller == del_rec.is_controller
-                        and not found_restore
-                    ):
-                        # We only need one controller or responder for a target and group
-                        restore_recs.append(rec)
-        self._dirty_records.extend(multi_delete)
-        self._dirty_records.extend(restore_recs)
-
-    @classmethod
-    def _set_not_in_use(cls, rec):
-        new_rec = ALDBRecord(
-            memory=rec.mem_addr,
-            controller=rec.is_controller,
-            group=rec.group,
-            target=rec.target,
-            data1=rec.data1,
-            data2=rec.data2,
-            data3=rec.data3,
-            in_use=False,
-            high_water_mark=False,
-            bit4=True,
-            bit5=False,
-        )
-        return new_rec
+    async def _async_write_record(self, action, record):
+        """Perform the ALDB write action."""
+        retries = 0
+        response = ResponseStatus.UNSENT
+        while response != ResponseStatus.SUCCESS and retries < MAX_RETRIES:
+            response = await self._write_cmd.async_send(
+                action=action,
+                controller=record.is_controller,
+                group=record.group,
+                target=record.target,
+                data1=record.data1,
+                data2=record.data2,
+                data3=record.data3,
+                in_use=record.is_in_use,
+                high_water_mark=record.is_high_water_mark,
+                bit5=record.is_bit5_set,
+                bit4=record.is_bit4_set,
+            )
+            retries += 1
+        return True

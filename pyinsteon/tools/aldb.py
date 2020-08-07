@@ -33,7 +33,7 @@ class ToolsAldb(ToolsBase):
             refresh_yn = ""
 
         addresses = await self._get_addresses(
-            address=address, allow_cancel=True, allow_all=True,
+            address=address, allow_cancel=True, allow_all=True, match_device=True
         )
         if not addresses:
             return
@@ -97,7 +97,7 @@ class ToolsAldb(ToolsBase):
             address = None
 
         addresses = await self._get_addresses(
-            address=address, allow_all=False, allow_cancel=True,
+            address=address, allow_all=False, allow_cancel=True, match_device=True
         )
         if not addresses:
             return
@@ -152,7 +152,7 @@ class ToolsAldb(ToolsBase):
             data3 = None
 
         addresses = await self._get_addresses(
-            address=address, allow_all=False, allow_cancel=True,
+            address=address, allow_all=False, allow_cancel=True, match_device=True
         )
         if not addresses:
             return
