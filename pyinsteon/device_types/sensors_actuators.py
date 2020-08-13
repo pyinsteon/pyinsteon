@@ -13,6 +13,7 @@ from ..operating_flag import (
     MOMENTARY_FOLLOW_SENSE,
     MOMENTARY_MODE_ON,
     MOMENTARY_ON_OFF_TRIGGER,
+    SENSE_SENDS_OFF,
     PROGRAM_LOCK_ON,
     RELAY_ON_SENSE_ON,
     X10_OFF,
@@ -23,7 +24,7 @@ from .on_off_responder_base import OnOffResponderBase
 from .device_base import Device
 from ..groups.on_off import OnOff
 from ..default_link import DefaultLink
-from ..constants import RelayMode
+from ..constants import RelayMode, ResponseStatus
 
 ON_LEVEL_MANAGER = "on_level_manager"
 RELAY_GROUP = 1
@@ -141,7 +142,12 @@ class SensorsActuators_IOLink(Device):
 
     async def async_relay_status(self):
         """Get the status of the relay switch."""
-        return await self._handlers[RELAY_GROUP][STATUS_REQUEST].async_send()
+        response = None
+        retries = 3
+        while response != ResponseStatus.SUCCESS and retries:
+            response = await self._handlers[RELAY_GROUP][STATUS_REQUEST].async_send()
+            retries -= 1
+        return response
 
     def sensor_status(self):
         """Get the status of the sensor."""
@@ -149,7 +155,12 @@ class SensorsActuators_IOLink(Device):
 
     async def async_sensor_status(self):
         """Get the status of the sensor."""
-        return await self._handlers[SENSOR_GROUP][STATUS_REQUEST].async_send()
+        response = None
+        retries = 3
+        while response != ResponseStatus.SUCCESS and retries:
+            response = await self._handlers[SENSOR_GROUP][STATUS_REQUEST].async_send()
+            retries -= 1
+        return response
 
     def _register_operating_flags(self):
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
@@ -158,7 +169,7 @@ class SensorsActuators_IOLink(Device):
         self._add_operating_flag(MOMENTARY_MODE_ON, 0, 3, 6, 7)
         self._add_operating_flag(MOMENTARY_ON_OFF_TRIGGER, 0, 4, 0x12, 0x13)
         self._add_operating_flag(X10_OFF, 0, 5, 0x0C, 0x0D)
-        self._add_operating_flag(MOMENTARY_FOLLOW_SENSE, 0, 6, 0x0E, 0x0F)
+        self._add_operating_flag(SENSE_SENDS_OFF, 0, 6, 0x0E, 0x0F)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 7, 0x14, 0x15)
 
         self._add_property(PRESCALER, 3, 7)
@@ -167,7 +178,17 @@ class SensorsActuators_IOLink(Device):
         self._add_property(X10_UNIT, 6, None)
 
     def _register_handlers_and_managers(self):
+        """Register handlers and managers.
+
+        The relay is controlled through group 1.
+        The sensor and the relay both use group 1 to notify of changes. T
+        When an on/off broadcast message is received, we need to check what the
+        current status of the device is for both the relay and the sensor.
+        """
         super()._register_handlers_and_managers()
+
+        self._managers[ON_LEVEL_MANAGER] = OnLevelManager(self._address, 1)
+
         self._handlers[RELAY_GROUP] = {}
         self._handlers[RELAY_GROUP][ON_COMMAND] = OnLevelCommand(
             self._address, RELAY_GROUP
@@ -179,17 +200,18 @@ class SensorsActuators_IOLink(Device):
             self._address
         )
 
-        # Sensor group controls group 1, not group 2
-        self._managers[SENSOR_GROUP] = {}
-        self._managers[SENSOR_GROUP][ON_LEVEL_MANAGER] = OnLevelManager(
-            self._address, 1
-        )
         self._handlers[SENSOR_GROUP] = {}
         self._handlers[SENSOR_GROUP][STATUS_REQUEST] = StatusRequestCommand(
             self.address, 1
         )
 
     def _register_groups(self):
+        """Register the device groups.
+
+        There really is only one group in the device, group 1. Both the relay and the sensor
+        both send updates on group 1 for broadcast messages. We create two groups because
+        we can keep the status of the relay and the sensor separate.
+        """
         self._groups[RELAY_GROUP] = OnOff(RELAY, self._address, RELAY_GROUP)
         self._groups[SENSOR_GROUP] = NormallyOpen(
             OPEN_CLOSE_SENSOR, self._address, SENSOR_GROUP
@@ -212,6 +234,13 @@ class SensorsActuators_IOLink(Device):
         )
 
     def _subscribe_to_handelers_and_managers(self):
+        """Subscribe to handelers and managers.
+
+        The relay is controlled through group 1.
+        The sensor and the relay both use group 1 to notify of changes. T
+        When an on/off broadcast message is received, we need to check what the
+        current status of the device is for both the relay and the sensor.
+        """
         super()._subscribe_to_handelers_and_managers()
         switch_on_event = self._events[RELAY_GROUP][ON_EVENT]
         switch_off_event = self._events[RELAY_GROUP][OFF_EVENT]
@@ -225,15 +254,10 @@ class SensorsActuators_IOLink(Device):
         off_cmd.subscribe(switch_off_event.trigger)
         switch_status_cmd.subscribe(self._handle_switch_status)
 
-        sensor = self._groups[SENSOR_GROUP]
-        close_event = self._events[SENSOR_GROUP][CLOSE_EVENT]
-        open_event = self._events[SENSOR_GROUP][OPEN_EVENT]
-        manager = self._managers[SENSOR_GROUP][ON_LEVEL_MANAGER]
+        manager = self._managers[ON_LEVEL_MANAGER]
         sensor_status_cmd = self._handlers[SENSOR_GROUP][STATUS_REQUEST]
 
-        manager.subscribe(sensor.set_value)
-        manager.subscribe_on(open_event.trigger)
-        manager.subscribe_off(close_event.trigger)
+        manager.subscribe(self._on_off_received)
         sensor_status_cmd.subscribe(self._handle_sensor_status)
 
     def _register_default_links(self):
@@ -252,9 +276,8 @@ class SensorsActuators_IOLink(Device):
     def _switch_changed(self, on_level):
         """Catch on/off signal and fire appropriate response."""
         self._groups[RELAY_GROUP].value = on_level
-        if on_level:
-            if self._operating_flags[MOMENTARY_MODE_ON].value:
-                asyncio.ensure_future(self._delay_wait())
+        if on_level and self._operating_flags[MOMENTARY_MODE_ON].value:
+            asyncio.ensure_future(self._delay_wait())
 
     def _calc_delay(self):
         """Calculate the momentary delay based on properties and flags."""
@@ -278,3 +301,42 @@ class SensorsActuators_IOLink(Device):
     def _handle_sensor_status(self, db_version, status):
         """Handle status response."""
         self._groups[SENSOR_GROUP].set_value(status)
+
+    def _on_off_received(self, on_level):
+        """Receive an on or off broadcast command."""
+        asyncio.ensure_future(self._async_on_off_received(on_level))
+
+    async def _async_on_off_received(self, on_level):
+        """Process an on or off broadcast command."""
+        orig_sensor = self._groups[SENSOR_GROUP].value
+        orig_relay = self._groups[RELAY_GROUP].value
+
+        # Need to get status since we don't know if the on/off message was for the relay
+        # or the sensor. Get the sensor first since that is the most likely change.
+        await self.async_sensor_status()
+        if self._groups[SENSOR_GROUP].value != orig_sensor:
+            if self._trigger_close(on_level):
+                self._events[SENSOR_GROUP][CLOSE_EVENT].trigger(on_level)
+            else:
+                self._events[SENSOR_GROUP][OPEN_EVENT].trigger(on_level)
+
+        await self.async_relay_status()
+        if self._groups[RELAY_GROUP].value != orig_relay:
+            if on_level:
+                self._events[RELAY_GROUP][ON_EVENT].trigger(on_level)
+                if self._operating_flags[MOMENTARY_MODE_ON].value:
+                    await self._delay_wait()
+            else:
+                self._events[RELAY_GROUP][OFF_EVENT].trigger(on_level)
+
+    def _trigger_close(self, on_level):
+        """Trigger a close event if on_level corresponds to SENSE_SENDS_OFF operating flag.
+
+        When SENSE_SENDS_OFF is False (Default) the sensor sends an ON message when it is closed.
+        When SENSE_SENDS_OFF is True the sensor sends an OFF message when it is closed.
+        """
+        if self.operating_flags[SENSE_SENDS_OFF].value is None:
+            sense_sends_off = False
+        else:
+            sense_sends_off = self.operating_flags[SENSE_SENDS_OFF].value
+        return sense_sends_off != bool(on_level)
