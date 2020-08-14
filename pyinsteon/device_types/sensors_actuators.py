@@ -165,12 +165,14 @@ class SensorsActuators_IOLink(Device):
     def _register_operating_flags(self):
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(RELAY_ON_SENSE_ON, 0, 2, 4, 5)
+        self._add_operating_flag(RELAY_ON_SENSE_ON, 0, 2, 4, 5)  # Sensor triggers relay
         self._add_operating_flag(MOMENTARY_MODE_ON, 0, 3, 6, 7)
         self._add_operating_flag(MOMENTARY_ON_OFF_TRIGGER, 0, 4, 0x12, 0x13)
         self._add_operating_flag(X10_OFF, 0, 5, 0x0C, 0x0D)
         self._add_operating_flag(SENSE_SENDS_OFF, 0, 6, 0x0E, 0x0F)
-        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 7, 0x14, 0x15)
+        self._add_operating_flag(
+            MOMENTARY_FOLLOW_SENSE, 0, 7, 0x14, 0x15
+        )  # Check sensor before triggering?
 
         self._add_property(PRESCALER, 3, 7)
         self._add_property(DELAY, 4, 6)
