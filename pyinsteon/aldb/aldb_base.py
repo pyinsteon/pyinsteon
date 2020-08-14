@@ -266,7 +266,7 @@ class ALDBBase(ABC):
                 "ALDB must be loaded before it can be written Status: %s",
                 str(self._status),
             )
-            return
+            return 0, 0
         success = 0
         failed = []
         for mem_addr in self._dirty_records:
