@@ -46,6 +46,7 @@ class ModemALDB(ALDBBase):
         _LOGGER.debug("Loading the modem ALDB")
         self._records = {}
         if self._read_manager is not None:
+            # pylint: disable=not-an-iterable
             async for rec in self._read_manager.async_load():
                 rec.mem_addr = next_mem_addr
                 self._records[next_mem_addr] = rec
