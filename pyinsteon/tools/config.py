@@ -21,7 +21,7 @@ class ToolsConfig(ToolsBase):
             address = None
 
         addresses = await self._get_addresses(
-            address=address, allow_cancel=True, allow_all=True
+            address=address, allow_cancel=True, allow_all=True, match_device=True
         )
         if not addresses:
             return
@@ -52,7 +52,7 @@ class ToolsConfig(ToolsBase):
             address = None
 
         addresses = await self._get_addresses(
-            address, allow_cancel=True, allow_all=True
+            address, allow_cancel=True, allow_all=True, match_device=True
         )
         if not addresses:
             return
@@ -82,7 +82,7 @@ class ToolsConfig(ToolsBase):
             address = None
 
         addresses = await self._get_addresses(
-            address, allow_cancel=True, allow_all=True
+            address, allow_cancel=True, allow_all=True, match_device=True
         )
         if not addresses:
             return
@@ -132,7 +132,7 @@ class ToolsConfig(ToolsBase):
             address = None
 
         addresses = await self._get_addresses(
-            address, allow_cancel=True, allow_all=False
+            address, allow_cancel=True, allow_all=False, match_device=True
         )
         if not addresses:
             return
@@ -201,7 +201,7 @@ class ToolsConfig(ToolsBase):
             address = None
 
         addresses = await self._get_addresses(
-            address, allow_cancel=True, allow_all=True
+            address, allow_cancel=True, allow_all=True, match_device=True
         )
         if not addresses:
             return
@@ -235,7 +235,7 @@ class ToolsConfig(ToolsBase):
             address = None
 
         addresses = await self._get_addresses(
-            address, allow_cancel=True, allow_all=False
+            address, allow_cancel=True, allow_all=False, match_device=True
         )
         if not addresses:
             return
@@ -275,7 +275,7 @@ class ToolsConfig(ToolsBase):
             address = None
 
         addresses = await self._get_addresses(
-            address, allow_cancel=True, allow_all=False
+            address, allow_cancel=True, allow_all=False, match_device=True
         )
         if not addresses:
             return
@@ -373,7 +373,7 @@ class ToolsConfig(ToolsBase):
             address = None
 
         addresses = await self._get_addresses(
-            address, allow_cancel=True, allow_all=False
+            address, allow_cancel=True, allow_all=False, match_device=True
         )
         if not addresses:
             return
@@ -403,7 +403,7 @@ class ToolsConfig(ToolsBase):
             address = None
 
         addresses = await self._get_addresses(
-            address, allow_cancel=True, allow_all=True
+            address, allow_cancel=True, allow_all=True, match_device=True
         )
         if not addresses:
             return

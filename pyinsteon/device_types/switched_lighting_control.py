@@ -475,9 +475,9 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
 
         if self._handlers.get(self.BOTTOM_GROUP) is None:
             self._handlers[self.BOTTOM_GROUP] = {}
-        self._handlers[self.BOTTOM_GROUP][STATUS_COMMAND] = StatusRequestCommand(
-            self._address, 0
-        )
+        self._handlers[self.BOTTOM_GROUP][STATUS_COMMAND] = self._handlers[
+            STATUS_COMMAND
+        ]
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
@@ -485,19 +485,14 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
         self._handlers[self.TOP_GROUP][STATUS_COMMAND].subscribe(
             self._handle_top_status
         )
-        self._handlers[self.TOP_GROUP][STATUS_COMMAND].subscribe(
-            self._handle_bottom_status
-        )
 
-    def _handle_status(self, db_version, status):
-        """Set the status of the top and bottom outlets state."""
-        self._groups[self.TOP_GROUP].value = status & 0x01
-        self._groups[self.BOTTOM_GROUP].value = status & 0x02
+        self._handlers[STATUS_COMMAND].subscribe(self._handle_status)
 
     def _handle_top_status(self, db_version, status):
         """Set the status of the top outlet."""
         self._groups[self.TOP_GROUP].value = status
 
-    def _handle_bottom_status(self, db_version, status):
-        """Set the status of the bottom outlet."""
-        self._groups[self.BOTTOM_GROUP].value = status
+    def _handle_status(self, db_version, status):
+        """Set the status of the top and bottom outlets."""
+        self._groups[self.TOP_GROUP].value = 1 if (status & 0x01) else 0
+        self._groups[self.BOTTOM_GROUP].value = 1 if (status & 0x02) else 0

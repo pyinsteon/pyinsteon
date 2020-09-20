@@ -9,6 +9,7 @@ import os
 import sys
 from cmd import Cmd
 from collections import namedtuple
+import traceback
 
 from .. import devices
 from .log_filter import CommandFilter, StdoutFilter
@@ -88,7 +89,13 @@ class ToolsBase(Cmd):
                     if not line:
                         line = "EOF"
                 line = self.precmd(line)
-                stop = await self.onecmd(line)
+                try:
+                    stop = await self.onecmd(line)
+                # pylint: disable=broad-except
+                except Exception as ex:
+                    self._log_stdout("An error occured executing command.")
+                    self._log_stdout(str(ex))
+                    _LOGGING.debug(traceback.format_exc())
                 stop = self.postcmd(stop, line)
             self.postloop()
         finally:
@@ -114,7 +121,7 @@ class ToolsBase(Cmd):
         self.lastcmd = line
 
         if line == "EOF":
-            self.lastcmd = ""
+            return
 
         if cmd == "":
             return self.default(line)
@@ -345,7 +352,7 @@ class ToolsBase(Cmd):
 
         tasks = []
         addresses = await self._get_addresses(
-            address=address, allow_all=True, allow_cancel=True
+            address=address, allow_all=True, allow_cancel=True, match_device=True
         )
         if not addresses:
             return
@@ -623,6 +630,7 @@ class ToolsBase(Cmd):
         address=None,
         allow_cancel=False,
         allow_all=True,
+        match_device=True,
         prompt="Enter device address",
     ):
         """Get the address of a device or all devices."""
@@ -652,7 +660,7 @@ class ToolsBase(Cmd):
                     for addr in devices:
                         addresses.append(addr)
                     return addresses
-                elif devices[address]:
+                elif devices[address] or not match_device:
                     addresses.append(address)
                     return addresses
                 else:
@@ -671,7 +679,7 @@ class ToolsBase(Cmd):
             address = None
 
         addresses = await self._get_addresses(
-            address=address, allow_all=True, allow_cancel=True
+            address=address, allow_all=True, allow_cancel=True, match_device=True
         )
         if not addresses:
             return

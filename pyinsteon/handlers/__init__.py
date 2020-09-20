@@ -237,9 +237,14 @@ def status_handler(func):
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         if self.status_active:
-            asyncio.ensure_future(
-                _async_post_response(self, ResponseStatus.SUCCESS, func, args, kwargs)
-            )
+            topic = kwargs.get("topic")
+            msg_type = topic.name.split(".")[-1]
+            if msg_type == str(MessageFlagType.DIRECT_ACK):
+                asyncio.ensure_future(
+                    _async_post_response(
+                        self, ResponseStatus.SUCCESS, func, args, kwargs
+                    )
+                )
 
     wrapper.register_status = register_status
     return wrapper
