@@ -41,7 +41,7 @@ class ALDB(ALDBBase):
     ):
         """Load the All-Link Database."""
         _LOGGER.debug("Loading the ALDB async")
-        self._status = ALDBStatus.LOADING
+        self._update_status(ALDBStatus.LOADING)
         if refresh:
             self.clear()
         # pylint: disable=not-an-iterable
@@ -117,11 +117,11 @@ class ALDB(ALDBBase):
         """Review the ALDB records and identify the load status."""
         _LOGGER.debug("Setting the load status")
         if self._calc_load_status():
-            self._status = ALDBStatus.LOADED
+            self._update_status(ALDBStatus.LOADED)
         elif self._records:
-            self._status = ALDBStatus.PARTIAL
+            self._update_status(ALDBStatus.PARTIAL)
         else:
-            self._status = ALDBStatus.EMPTY
+            self._update_status(ALDBStatus.EMPTY)
 
     def _confirm_hwm(self, rec):
         """Confirm the new record is not below the High Wter Mark.
