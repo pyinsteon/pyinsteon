@@ -141,6 +141,8 @@ class DimmableLightingControl_ToggleLinc(DimmableLightingControl):
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
 
+        if self._firmware >= 0x3A:
+            self._add_property(LED_DIMMING, 2, 3)
         self._add_property(X10_HOUSE, 5, None)
         self._add_property(X10_UNIT, 6, None)
         self._add_property(RAMP_RATE, 7, 5)
@@ -435,7 +437,7 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
                 off_mask_new_value = set_bit(off_mask_new_value, bit, off_mask_value)
             on_mask.new_value = on_mask_new_value
             off_mask.new_value = off_mask_new_value
-        await self.async_write_ext_properties()
+        # await self.async_write_ext_properties()
 
     async def async_set_toggle_mode(self, button: int, mode: int):
         """Set the toggle mode of a button.
@@ -463,7 +465,7 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         else:
             toggle_mask.new_value = set_bit(toggle_mask.value, button - 1, True)
             on_off_mask.new_value = set_bit(on_off_mask.value, button - 1, False)
-        await self.async_write_ext_properties()
+        # await self.async_write_ext_properties()
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
