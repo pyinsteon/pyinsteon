@@ -26,8 +26,11 @@ class TestCreateDevices(unittest.TestCase):
                     model=prod.model,
                 )
             # pylint: disable=broad-except
-            except Exception:
-                _LOGGER.error("Failed with cat %02x subcat %02x", prod.cat, prod.subcat)
+            except Exception as e:
+                cat = None if prod.cat is None else f"{int(prod.cat):02x}"
+                subcat = None if prod.subcat is None else f"{int(prod.subcat):02x}"
+                _LOGGER.error("Failed with cat %s subcat %s", cat, subcat)
+                _LOGGER.error(e)
                 _LOGGER.debug(traceback.format_exc())
                 failed = True
 

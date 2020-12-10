@@ -7,7 +7,7 @@ from datetime import datetime
 
 from ..address import Address
 from ..aldb import ALDB
-from ..constants import EngineVersion
+from ..constants import EngineVersion, DeviceCategory
 from ..default_link import DefaultLink
 from ..handlers.to_device.product_data_request import ProductDataRequestCommand
 from ..handlers.to_device.engine_version_request import EngineVersionRequest
@@ -35,7 +35,7 @@ class Device(ABC):
     ):
         """Init the Device class."""
         self._address = Address(address)
-        self._cat = cat
+        self._cat = DeviceCategory(0xFF) if cat is None else DeviceCategory(int(cat))
         self._subcat = subcat
         if self._subcat is None:
             self._subcat = 0x00
@@ -248,7 +248,7 @@ class Device(ABC):
             dev_data1=0,
             dev_data2=0,
             dev_data3=0,
-            modem_data1=self.cat,
+            modem_data1=int(self.cat),
             modem_data2=self.subcat,
             modem_data3=self.firmware,
         )
