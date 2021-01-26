@@ -1,5 +1,5 @@
 pyserial
-pyserial-asyncio
+pyserial-asyncio>=0.5
 aiohttp
 pypubsub
 aiofiles

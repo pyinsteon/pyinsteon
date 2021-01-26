@@ -24,7 +24,7 @@ setup(
     zip_safe=True,
     install_requires=[
         "pyserial",
-        "pyserial-asyncio",
+        "pyserial-asyncio>=0.5",
         "aiohttp",
         "pypubsub",
         "aiofiles",
