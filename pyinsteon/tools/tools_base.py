@@ -204,7 +204,7 @@ class ToolsBase(Cmd):
         for addr in devices:
             device = devices[addr]
             self._log_stdout(
-                f"{addr}  0x{device.cat:02x}  0x{device.subcat:02x}   {device.description}"
+                f"{addr}  {device.cat!r}  0x{int(device.subcat):02x}   {device.description}"
             )
         self._log_stdout(f"Total devices: {len(devices)}")
 

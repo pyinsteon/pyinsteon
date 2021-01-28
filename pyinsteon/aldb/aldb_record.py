@@ -46,11 +46,11 @@ class ALDBRecord:
             "bit5": str(self._bit5),
             "bit4": str(self._bit4),
             "highwater": str(self._high_water_mark),
-            "group": f"0x{self.group:02x}",
+            "group": f"0x{int(self.group):02x}",
             "target": str(self.target),
-            "data1": f"0x{self.data1:02x}",
-            "data2": f"0x{self.data2:02x}",
-            "data3": f"0x{self.data3:02x}",
+            "data1": f"0x{int(self.data1):02x}",
+            "data2": f"0x{int(self.data2):02x}",
+            "data3": f"0x{int(self.data3):02x}",
         }
         return str(rec)
 
@@ -58,12 +58,12 @@ class ALDBRecord:
         """Return a representation of the record."""
         rec = {
             "memory": f"0x{self._memory_location:04x}",
-            "control_flags": f"0x{self.control_flags:02x}",
-            "group": f"0x{self.group:02x}",
+            "control_flags": f"0x{int(self.control_flags):02x}",
+            "group": f"0x{int(self.group):02x}",
             "target": str(self.target),
-            "data1": f"0x{self.data1:02x}",
-            "data2": f"0x{self.data2:02x}",
-            "data3": f"0x{self.data3:02x}",
+            "data1": f"0x{int(self.data1):02x}",
+            "data2": f"0x{int(self.data2):02x}",
+            "data3": f"0x{int(self.data3):02x}",
         }
         return str(rec)
 

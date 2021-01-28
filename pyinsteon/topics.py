@@ -182,3 +182,4 @@ DEVICE_LINK_RESPONDER_CREATED = "device_link_responder_created"
 DEVICE_LINK_RESPONDER_REMOVED = "device_link_responder_removed"
 
 ALDB_VERSION = "aldb_version"
+ALDB_STATUS_CHANGED = "aldb_status_changed"

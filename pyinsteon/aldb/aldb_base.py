@@ -8,6 +8,7 @@ from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion
 from ..topics import (
     ALDB_VERSION,
+    ALDB_STATUS_CHANGED,
     DEVICE_LINK_CONTROLLER_CREATED,
     DEVICE_LINK_CONTROLLER_REMOVED,
     DEVICE_LINK_RESPONDER_CREATED,
@@ -97,7 +98,7 @@ class ALDBBase(ABC):
         if self._status == ALDBStatus.LOADING:
             loaded = self._calc_load_status()
             if loaded:
-                self._status = ALDBStatus.LOADED
+                self._update_status(ALDBStatus.LOADED)
         return self._status == ALDBStatus.LOADED
 
     def clear(self):
@@ -111,9 +112,10 @@ class ALDBBase(ABC):
         self._records = {}
         self._dirty_records = {}
 
-    def get_pending(self):
+    @property
+    def pending_changes(self):
         """Return pending changes."""
-        return [self._dirty_records[mem_addr] for mem_addr in self._dirty_records]
+        return self._dirty_records
 
     def clear_pending(self):
         """Remove pending changes."""
@@ -134,16 +136,18 @@ class ALDBBase(ABC):
         """Update the ALDB version number."""
         self._version = version
 
+    def _update_status(self, status):
+        """Update the status of the ALDB and notify listeners."""
+        self._status = ALDBStatus(int(status))
+        publish_topic(f"{self._address.id}.{ALDB_STATUS_CHANGED}")
+
     @abstractmethod
     async def async_load(self, *args, **kwargs):
         """Load the All-Link Database."""
 
     def load_saved_records(self, status: ALDBStatus, records: [ALDBRecord]):
         """Load All-Link records from a dictionary of saved records."""
-        if isinstance(status, ALDBStatus):
-            self._status = status
-        else:
-            self._status = ALDBStatus(status)
+        self._update_status(status)
         self.clear()
         for mem_addr in records:
             record = records[mem_addr]
@@ -290,13 +294,13 @@ class ALDBBase(ABC):
         group = record.group
         is_in_use = True if force_delete else record.is_in_use
         if record.is_controller and is_in_use:
-            topic = DEVICE_LINK_CONTROLLER_CREATED
+            topic = f"{DEVICE_LINK_CONTROLLER_CREATED}.{self._address.id}"
         elif record.is_controller and not is_in_use:
-            topic = DEVICE_LINK_CONTROLLER_REMOVED
+            topic = f"{DEVICE_LINK_CONTROLLER_REMOVED}.{self._address.id}"
         elif not record.is_controller and is_in_use:
-            topic = DEVICE_LINK_RESPONDER_CREATED
+            topic = f"{DEVICE_LINK_RESPONDER_CREATED}.{self._address.id}"
         else:
-            topic = DEVICE_LINK_RESPONDER_REMOVED
+            topic = f"{DEVICE_LINK_RESPONDER_REMOVED}.{self._address.id}"
 
         self._send_change(topic, self._address, target, group)
 

@@ -37,7 +37,7 @@ async def async_link_devices(
         target=responder.address,
         group=group,
         is_controller=True,
-        data1=responder.cat,
+        data1=int(responder.cat),
         data2=responder.subcat,
         data3=responder.firmware,
     ) and _add_link_to_device(

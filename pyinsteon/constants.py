@@ -8,7 +8,7 @@ class HexIntEnum(IntEnum):
 
     def __repr__(self):
         """Emit the representation of the Enum."""
-        return "0x{0:02x}".format(self.value)
+        return f"0x{self.value:02x}"
 
     def __str__(self):
         """Emit the string of the Enum."""
@@ -25,6 +25,7 @@ class DeviceCategory(HexIntEnum):
     NETWORK_BRIDGES = 0x03
     IRRIGATION_CONTROL = 0x04
     CLIMATE_CONTROL = 0x05
+    POOL_AND_SPA_CONTROL = 0x06
     SENSORS_AND_ACTUATORS = 0x07
     HOME_ENTERTAINMENT = 0x08
     ENERGY_MANAGEMENT = 0x09
@@ -40,6 +41,7 @@ class DeviceCategory(HexIntEnum):
     PET_CARE = 0x13
     TIMEKEEPING = 0x15
     HOLIDAY = 0x16
+    UNKNOWN = 0xFF
 
 
 class MessageId(HexIntEnum):

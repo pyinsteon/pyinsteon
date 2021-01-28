@@ -233,7 +233,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
             retries -= 1
         return status
 
-    async def async_set_radio_buttons(self, buttons: Iterable):
+    def set_radio_buttons(self, buttons: Iterable):
         """Set a group of buttons to act as radio buttons.
 
         This takes in a iterable set of buttons (eg. (3,4,5,6)) to act as radio buttons where
@@ -241,13 +241,16 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         """
         if len(buttons) < 2:
             raise IndexError("At least two buttons required.")
-        await self.async_read_ext_properties()
+
         for button in buttons:
             if button not in self._buttons.keys():
                 raise ValueError(f"Button {button} not in button list.")
             button_str = f"_{button}" if button != 1 else ""
             on_mask = self._properties[f"{ON_MASK}{button_str}"]
             off_mask = self._properties[f"{OFF_MASK}{button_str}"]
+            if not on_mask.is_loaded or not off_mask.is_loaded:
+                on_mask.load(0)
+                off_mask.load(0)
             on_mask_new_value = 0
             off_mask_new_value = 0
             for bit in range(0, 8):
@@ -261,9 +264,8 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
                 off_mask_new_value = set_bit(off_mask_new_value, bit, off_mask_value)
             on_mask.new_value = on_mask_new_value
             off_mask.new_value = off_mask_new_value
-        await self.async_write_ext_properties()
 
-    async def async_set_toggle_mode(self, button: int, mode: int):
+    def set_toggle_mode(self, button: int, mode: int):
         """Set the toggle mode of a button.
 
         Usage:
@@ -277,9 +279,12 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
             raise ValueError(f"Button {button} not in button list.")
         if mode not in [0, 1, 2]:
             raise ValueError(f"Mode {mode} invalid. Valid mode are [0, 1, 2]")
-        await self.async_read_ext_properties(group=1)
+
         toggle_mask = self.properties[NON_TOGGLE_MASK]
         on_off_mask = self.properties[NON_TOGGLE_ON_OFF_MASK]
+        if not toggle_mask.is_loaded or not on_off_mask.is_loaded:
+            toggle_mask.load(0)
+            on_off_mask.load(0)
         if mode == 0:
             toggle_mask.new_value = set_bit(toggle_mask.value, button - 1, False)
             on_off_mask.new_value = set_bit(on_off_mask.value, button - 1, False)
@@ -289,7 +294,6 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         else:
             toggle_mask.new_value = set_bit(toggle_mask.value, button - 1, True)
             on_off_mask.new_value = set_bit(on_off_mask.value, button - 1, False)
-        await self.async_write_ext_properties()
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()

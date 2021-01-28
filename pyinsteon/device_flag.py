@@ -38,9 +38,12 @@ class DeviceFlagBase(SubscriberBase):
         This is the primary method to set the value of the flag.
         It sets the `new_value` property and the `is_dirty` property.
         """
-        if value != self._value:
+        if value != self._value and value is not None:
             self._new_value = self._type(value)
             self._is_dirty = True
+        else:
+            self._new_value = None
+            self._is_dirty = False
 
     @property
     def is_dirty(self):
