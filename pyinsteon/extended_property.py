@@ -46,8 +46,10 @@ HUMIDITY_OFFSET = "humidity_offset"
 class ExtendedProperty(DeviceFlagBase):
     """Representation of an extended property of a device."""
 
-    def __init__(self, address, name, flag_type: type, is_reversed=False):
+    def __init__(
+        self, address, name, flag_type: type, is_reversed=False, is_read_only=False
+    ):
         """Init the ExtendedProperty class."""
         self._address = Address(address)
         topic = "{}.property.{}".format(self._address.id, name)
-        super().__init__(topic, name, flag_type, is_reversed)
+        super().__init__(topic, name, flag_type, is_reversed, is_read_only)

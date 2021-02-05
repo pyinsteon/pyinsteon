@@ -69,8 +69,10 @@ SOFTWARE_LOCK_ON = "SOFTWARE_LOCK_ON"
 class OperatingFlag(DeviceFlagBase):
     """Operating flag for a device."""
 
-    def __init__(self, address, name, flag_type: type, is_reversed=False):
+    def __init__(
+        self, address, name, flag_type: type, is_reversed=False, is_read_only=False
+    ):
         """Init the OperatingFlag class."""
         self._address = Address(address)
         topic = "{}.operating_flag.{}".format(self._address.id, name)
-        super().__init__(topic, name, flag_type, is_reversed)
+        super().__init__(topic, name, flag_type, is_reversed, is_read_only)

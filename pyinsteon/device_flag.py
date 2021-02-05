@@ -25,11 +25,6 @@ class DeviceFlagBase(SubscriberBase):
         return self._name
 
     @property
-    def read_only(self):
-        """Return the read only flag."""
-        return self._read_only
-
-    @property
     def value(self):
         """Return the value of the flag."""
         return self._value
@@ -49,6 +44,9 @@ class DeviceFlagBase(SubscriberBase):
         if self._read_only:
             return
 
+        if self._type is bool and self._reversed:
+            value = not value
+
         if value != self._value and value is not None:
             self._new_value = self._type(value)
             self._is_dirty = True
@@ -60,6 +58,11 @@ class DeviceFlagBase(SubscriberBase):
     def is_dirty(self):
         """Return if the Operating flag has been changed."""
         return self._is_dirty
+
+    @property
+    def is_read_only(self):
+        """Return the read only flag."""
+        return self._read_only
 
     @property
     def is_loaded(self):
