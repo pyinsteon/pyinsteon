@@ -15,7 +15,7 @@ from ..operating_flag import (
     KEY_BEEP_ON,
     LED_BLINK_ON_ERROR_OFF,
     LED_BLINK_ON_TX_ON,
-    LED_ON,
+    LED_OFF,
     MOMENTARY_LINE_ON,
     NOT_3_WAY,
     PROGRAM_LOCK_ON,
@@ -38,7 +38,7 @@ class WindowCovering(OpenCloseResponderBase):
 
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(LED_ON, 0, 4, 0x0A, 0x0B, is_reversed=True)
+        self._add_operating_flag(LED_OFF, 0, 4, 0x0A, 0x0B)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0C, 0x0D)
 
         self._add_operating_flag(LED_BLINK_ON_ERROR_OFF, 2, 3, 0x15, 0x16)

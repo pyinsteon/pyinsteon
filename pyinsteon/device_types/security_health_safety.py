@@ -64,6 +64,7 @@ from ..operating_flag import (
     HEART_BEAT_ON,
     IGNORE_JUMPER_ON,
     LED_BLINK_ON_TX_ON,
+    LED_OFF,
     LED_ON,
     LINK_TO_FF_GROUP,
     MULTI_SEND_ON,
@@ -162,7 +163,7 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
         self._add_operating_flag(REPEAT_OPEN_ON, 0, 2, 0x10, 0x11)
         self._add_operating_flag(REPEAT_CLOSED_ON, 0, 3, 8, 9)
         self._add_operating_flag(LINK_TO_FF_GROUP, 0, 4, 6, 7)
-        self._add_operating_flag(LED_ON, 0, 5, 2, 3, is_reversed=True)
+        self._add_operating_flag(LED_OFF, 0, 5, 2, 3)
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 7, 0, 1)
 
         self._add_operating_flag(STAY_AWAKE_ON, 0, 6, 18, 19)
@@ -626,9 +627,7 @@ class SecurityHealthSafety_Smokebridge(Device):
         self._add_operating_flag(
             name=LED_BLINK_ON_TX_ON, group=0, bit=1, set_cmd=2, unset_cmd=3
         )
-        self._add_operating_flag(
-            name=LED_ON, group=0, bit=4, set_cmd=8, unset_cmd=9, is_reversed=True
-        )
+        self._add_operating_flag(name=LED_OFF, group=0, bit=4, set_cmd=8, unset_cmd=9)
         self._add_operating_flag(
             name=HEART_BEAT_ON, group=0, bit=5, set_cmd=6, unset_cmd=7
         )
