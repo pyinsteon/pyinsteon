@@ -5,7 +5,9 @@ from .subscriber_base import SubscriberBase
 class DeviceFlagBase(SubscriberBase):
     """Operating flag or Extended Property."""
 
-    def __init__(self, topic, name, flag_type: type, is_reversed=False):
+    def __init__(
+        self, topic, name, flag_type: type, is_reversed=False, is_read_only=False
+    ):
         """Init the DeviceFlag class."""
         super().__init__(topic)
         self._name = name
@@ -15,6 +17,7 @@ class DeviceFlagBase(SubscriberBase):
         self._is_dirty = False
         self._is_loaded = False
         self._reversed = is_reversed
+        self._read_only = is_read_only
 
     @property
     def name(self):
@@ -38,6 +41,12 @@ class DeviceFlagBase(SubscriberBase):
         This is the primary method to set the value of the flag.
         It sets the `new_value` property and the `is_dirty` property.
         """
+        if self._read_only:
+            return
+
+        if self._type is bool and self._reversed:
+            value = not value
+
         if value != self._value and value is not None:
             self._new_value = self._type(value)
             self._is_dirty = True
@@ -49,6 +58,11 @@ class DeviceFlagBase(SubscriberBase):
     def is_dirty(self):
         """Return if the Operating flag has been changed."""
         return self._is_dirty
+
+    @property
+    def is_read_only(self):
+        """Return the read only flag."""
+        return self._read_only
 
     @property
     def is_loaded(self):

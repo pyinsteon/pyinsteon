@@ -54,8 +54,9 @@ class GetSetExtendedPropertyManager:
         flags[data_field] = field
         self._groups[group] = flags
         self._flags[name] = flag_info
+        read_only = set_cmd is None
         self._properties[name] = ExtendedProperty(
-            self._address, name, prop_type, is_revsersed
+            self._address, name, prop_type, is_revsersed, read_only
         )
         return self._properties[name]
 

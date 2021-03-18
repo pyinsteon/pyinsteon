@@ -11,7 +11,7 @@ def readme():
 
 setup(
     name="pyinsteon",
-    version="1.0.9",
+    version="1.0.10",
     author="The pyinsteon Development Team",
     author_email="pyinsteon@harrisnj.net",
     url="https://github.com/pyinsteon/pyinsteon",

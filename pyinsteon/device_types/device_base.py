@@ -263,9 +263,10 @@ class Device(ABC):
     def _add_operating_flag(
         self, name, group, bit, set_cmd, unset_cmd, is_reversed=False
     ):
+        read_only = set_cmd is None or unset_cmd is None
         flag_type = bool if bit is not None else int
         self._operating_flags[name] = OperatingFlag(
-            self._address, name, flag_type, is_reversed
+            self._address, name, flag_type, is_reversed, read_only
         )
         self._op_flags_manager.subscribe(name, group, bit, set_cmd, unset_cmd)
 

@@ -34,9 +34,10 @@ from ..handlers.to_device.status_request import StatusRequestCommand
 from ..operating_flag import (
     DUAL_LINE_ON,
     KEY_BEEP_ON,
+    LED_BLINK_ON_ERROR_OFF,
     LED_BLINK_ON_ERROR_ON,
     LED_BLINK_ON_TX_ON,
-    LED_ON,
+    LED_OFF,
     MOMENTARY_LINE_ON,
     PROGRAM_LOCK_ON,
     RESUME_DIM_ON,
@@ -93,7 +94,7 @@ class SwitchedLightingControl_ApplianceLinc(SwitchedLightingControl):
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
+        self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
 
 
 class SwitchedLightingControl_SwitchLinc(SwitchedLightingControl):
@@ -104,7 +105,7 @@ class SwitchedLightingControl_SwitchLinc(SwitchedLightingControl):
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
+        self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
 
@@ -139,7 +140,7 @@ class SwitchedLightingControl_OutletLinc(SwitchedLightingControl):
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
+        self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
 
         self._add_property(X10_HOUSE, 5, None)
         self._add_property(X10_UNIT, 6, None)
@@ -152,7 +153,7 @@ class SwitchedLightingControl_Micro(SwitchedLightingControl):
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
+        self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
 
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 2, 2, 0x15, 0x14)
@@ -170,7 +171,7 @@ class SwitchedLightingControl_DinRail(SwitchedLightingControl):
         super()._register_operating_flags()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
+        self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
 
         self._add_property(LED_DIMMING, 3, 3)
@@ -368,13 +369,11 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
-        self._add_operating_flag(LED_ON, 0, 4, 8, 9, is_reversed=True)
+        self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
         self._add_operating_flag(RF_DISABLE_ON, 0, 6, 0x0C, 0x0D)
         self._add_operating_flag(POWERLINE_DISABLE_ON, 0, 7, 0x0E, 0x0F)
-        self._add_operating_flag(
-            LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15, is_reversed=True
-        )
+        self._add_operating_flag(LED_BLINK_ON_ERROR_OFF, 5, 2, 0x14, 0x15)
 
         self._add_property(LED_DIMMING, 9, 7, 1)
         self._add_property(NON_TOGGLE_MASK, 0x0A, 0x08)
