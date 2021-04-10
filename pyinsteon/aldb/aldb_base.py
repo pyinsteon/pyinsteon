@@ -67,7 +67,7 @@ class ALDBBase(ABC):
 
     @property
     def address(self) -> Address:
-        """Returnt the status of the device."""
+        """Return the address of the device."""
         return self._address
 
     @property
