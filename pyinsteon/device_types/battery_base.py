@@ -124,7 +124,7 @@ class BatteryDeviceBase:
         if self._last_run is None or self._last_run.done():
             _LOGGER.debug("Checking topic name: %s", topic.name)
             if topic.name.split(".")[2] == ALL_LINK_CLEANUP_STATUS_REPORT \
-                or topic.name.split(".")[2] == ALL_LINK_CLEANUP_FAILURE_REPORT:
+                    or topic.name.split(".")[2] == ALL_LINK_CLEANUP_FAILURE_REPORT:
                 _LOGGER.debug("We have commands to run so keep device awake")
                 self._last_run = asyncio.ensure_future(self._ensure_commands())
 
