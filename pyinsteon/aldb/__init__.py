@@ -109,7 +109,7 @@ class ALDB(ALDBBase):
             if last_addr != 0x0000:
                 has_all = (last_addr - mem_addr) == 8
             if len(self._records) == 1 and has_last:
-                #Empty ALDB; yes it is possible with some devices like motion
+                # Empty ALDB; yes it is possible with some devices like motion
                 has_all = True
             last_addr = mem_addr
         _LOGGER.debug("Has First is %s", has_first)
