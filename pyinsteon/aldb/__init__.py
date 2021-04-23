@@ -98,15 +98,19 @@ class ALDB(ALDBBase):
         has_all = False
         last_addr = 0x0000
         first = True
+        _LOGGER.debug("Checking ALDB load status: %s", self._address.id)
         for mem_addr in sorted(self._records, reverse=True):
             if first:
-                _LOGGER.debug("First Addr: 0x%4x", mem_addr)
+                _LOGGER.debug("First Addr: 0x%04x", mem_addr)
             if mem_addr == self._mem_addr:
                 has_first = True
             if self._records[mem_addr].is_high_water_mark:
                 has_last = True
             if last_addr != 0x0000:
                 has_all = (last_addr - mem_addr) == 8
+            if len(self._records) == 1 and has_last and has_first:
+                # Empty ALDB; yes it is possible with some devices like motion
+                has_all = True
             last_addr = mem_addr
         _LOGGER.debug("Has First is %s", has_first)
         _LOGGER.debug("Has Last is %s", has_last)
