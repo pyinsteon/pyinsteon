@@ -3,7 +3,10 @@ import asyncio
 from binascii import unhexlify
 from collections import namedtuple
 
-from contextlib import asynccontextmanager
+try:
+    from contextlib import asynccontextmanager
+except ImportError:
+    from async_generator import asynccontextmanager
 from functools import partial, wraps
 from random import randint
 
