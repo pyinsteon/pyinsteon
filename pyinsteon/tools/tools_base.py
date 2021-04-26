@@ -525,7 +525,7 @@ class ToolsBase(Cmd):
     async def _get_int(self, prompt, default=None, values=None):
         """Get an integer value."""
         value = None
-        if default:
+        if default is not None:
             prompt = f"{prompt} (Default {default}): "
         else:
             prompt = f"{prompt}: "
@@ -555,7 +555,7 @@ class ToolsBase(Cmd):
     async def _get_float(self, prompt, default=None, maximum=None, minimum=None):
         """Get a floating point value."""
         value = None
-        if default:
+        if default is not None:
             prompt = f"{prompt} (Default {default}): "
         else:
             prompt = f"{prompt}: "
@@ -564,7 +564,7 @@ class ToolsBase(Cmd):
             if value:
                 try:
                     value = float(value)
-                    if value < maximum or value > maximum:
+                    if value < minimum or value > maximum:
                         raise ValueError()
                     break
                 except ValueError:
@@ -592,7 +592,7 @@ class ToolsBase(Cmd):
 
     async def _get_char(self, prompt, default=None, values=None):
         """Get a character string value."""
-        if default:
+        if default is not None:
             prompt = f"{prompt} (Default {default.upper()}): "
         else:
             prompt = f"{prompt}: "
