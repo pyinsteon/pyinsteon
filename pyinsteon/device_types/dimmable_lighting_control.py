@@ -522,16 +522,16 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
             toggle_mask.load(0)
             on_off_mask.load(0)
 
-        toggle_mask_test = (
-            toggle_mask.value
-            if toggle_mask.new_value is None
-            else toggle_mask.new_value
-        )
-        on_off_mask_test = (
-            on_off_mask.value
-            if on_off_mask.new_value is None
-            else on_off_mask.new_value
-        )
+        if toggle_mask.new_value is None:
+            toggle_mask_test = toggle_mask.value
+        else:
+            toggle_mask_test = toggle_mask.new_value
+
+        if on_off_mask.new_value is None:
+            on_off_mask_test = on_off_mask.value
+        else:
+            on_off_mask_test = on_off_mask.new_value
+
         if mode == 0:
             toggle_mask.new_value = set_bit(toggle_mask_test, button - 1, False)
             on_off_mask.new_value = set_bit(on_off_mask_test, button - 1, False)
