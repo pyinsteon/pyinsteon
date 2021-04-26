@@ -34,12 +34,15 @@ class TestProtocol(unittest.TestCase):
     @async_case
     async def test_send_on_topic(self):
         """Test sending the ON command."""
+        topic_lock = asyncio.Lock()
         async with async_protocol_manager():
             received_topic = ""
 
             def expected_topic_received(cmd1, cmd2, user_data, topic=pub.AUTO_TOPIC):
                 nonlocal received_topic
                 received_topic = topic.name
+                if topic_lock.locked():
+                    topic_lock.release()
 
             address = random_address()
             on_topic = "send.{}.1.direct".format(ON)
@@ -52,13 +55,20 @@ class TestProtocol(unittest.TestCase):
             self._last_topic = None
             expected_topic = "ack.{}.1.on.direct".format(address.id)
             pub.subscribe(expected_topic_received, expected_topic)
+            await topic_lock.acquire()
             send_topics(topics)
-            await asyncio.sleep(0.05)
-            assert received_topic == expected_topic
+            try:
+                await asyncio.wait_for(topic_lock.acquire(), 2)
+                assert received_topic == expected_topic
+            except asyncio.TimeoutError:
+                assert expected_topic is None
+            if topic_lock.locked():
+                topic_lock.release()
 
     @async_case
     async def test_receive_on_msg(self):
         """Test receiving an ON message."""
+        topic_lock = asyncio.Lock()
         async with async_protocol_manager() as protocol:
             last_topic = None
 
@@ -68,6 +78,8 @@ class TestProtocol(unittest.TestCase):
                 """Receive the OFF topic for a device."""
                 nonlocal last_topic
                 last_topic = topic.name
+                if topic_lock.locked():
+                    topic_lock.release()
 
             address = random_address()
             byte_data = create_std_ext_msg(
@@ -77,9 +89,15 @@ class TestProtocol(unittest.TestCase):
             pub.subscribe(topic_received, expected_topic)
             on_cmd = DataItem(byte_data, 0)
             data = [on_cmd]
+            await topic_lock.acquire()
             send_data(data, protocol.read_queue)
-            await asyncio.sleep(0.05)
-            assert last_topic == expected_topic
+            try:
+                await asyncio.wait_for(topic_lock.acquire(), 2)
+                assert last_topic == expected_topic
+            except asyncio.TimeoutError:
+                assert expected_topic is None
+            if topic_lock.locked():
+                topic_lock.release()
 
     @async_case
     async def test_send_on_all_link_broadcast_topic(self):
@@ -88,6 +106,7 @@ class TestProtocol(unittest.TestCase):
             OnLevelAllLinkBroadcastCommand,
         )
 
+        topic_lock = asyncio.Lock()
         async with async_protocol_manager():
             last_topic = None
 
@@ -95,12 +114,20 @@ class TestProtocol(unittest.TestCase):
                 """Receive the OFF topic for a device."""
                 nonlocal last_topic
                 last_topic = topic.name
+                if topic_lock.locked():
+                    topic_lock.release()
 
             group = 3
             target = Address(bytearray([0x00, 0x00, group]))
             ack_topic = "ack.{}.on.all_link_broadcast".format(target.id)
             pub.subscribe(topic_received, ack_topic)
             cmd = OnLevelAllLinkBroadcastCommand(group=group)
+            await topic_lock.acquire()
             await cmd.async_send()  # Mock transport auto sends ACK/NAK
-            await asyncio.sleep(0.1)
-            assert last_topic == ack_topic
+            try:
+                await asyncio.wait_for(topic_lock.acquire(), 2)
+                assert last_topic == ack_topic
+            except asyncio.TimeoutError:
+                assert ack_topic is None
+            if topic_lock.locked():
+                topic_lock.release()
