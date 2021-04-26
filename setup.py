@@ -11,7 +11,7 @@ def readme():
 
 setup(
     name="pyinsteon",
-    version="1.0.10",
+    version="1.0.11",
     author="The pyinsteon Development Team",
     author_email="pyinsteon@harrisnj.net",
     url="https://github.com/pyinsteon/pyinsteon",
@@ -28,7 +28,6 @@ setup(
         "aiohttp",
         "pypubsub",
         "aiofiles",
-        "async_generator",
         "pyyaml",
     ],
     entry_points={"console_scripts": ["insteon_tools = pyinsteon.tools:tools"]},

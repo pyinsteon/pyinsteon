@@ -2,8 +2,6 @@
 import asyncio
 import logging
 
-from async_generator import async_generator, yield_
-
 from ..aldb.aldb_record import ALDBRecord
 from ..handlers.from_device.receive_aldb_record import ReceiveALDBRecordHandler
 from ..handlers.to_device.read_aldb import ReadALDBCommandHandler
@@ -47,7 +45,6 @@ class ALDBReadManager:
         self._record_handler.subscribe(self._receive_record)
         self._timer_lock = asyncio.Lock()
 
-    @async_generator
     async def async_read(self, mem_addr: int = 0x00, num_recs: int = 0):
         """Start the reading process to enable iteration."""
         asyncio.ensure_future(
@@ -58,7 +55,7 @@ class ALDBReadManager:
             record = await self._records_to_return.get()
             if record is None:
                 return
-            await yield_(record)
+            yield record
 
     async def _async_read(self, mem_addr: int = 0x00, num_recs: int = 0):
         """Perform the device read function."""
