@@ -254,7 +254,7 @@ class AdvancedTools(ToolsBase):
                 else:
                     mode = "R"
                 self._log_stdout(
-                    f"{address:s}     {mem_addr:04x} {rec.target:s} {rec.group:5d}   {mode:s} {status_txt:.40s}"
+                    f"{str(address)}     {mem_addr:04x} {str(rec.target)} {rec.group:5d}   {mode:s} {status_txt:.40s}"
                 )
 
     async def do_change_link(self, *args, **kwargs):
