@@ -2,8 +2,6 @@
 import asyncio
 import logging
 
-from async_generator import async_generator, yield_
-
 from .. import pub
 from ..address import Address
 from ..aldb.aldb_record import ALDBRecord
@@ -37,7 +35,6 @@ class ImReadManager:
         """Load the Insteon Modem ALDB."""
         asyncio.ensure_future(self.async_load())
 
-    @async_generator
     async def async_load(self):
         """Load the Insteon Modem ALDB."""
         asyncio.ensure_future(self._get_records())
@@ -45,7 +42,7 @@ class ImReadManager:
             rec = await self._record_queue.get()
             if rec is None:
                 return
-            await yield_(rec)
+            yield rec
 
     async def _get_records(self):
         """Init the process to read records."""

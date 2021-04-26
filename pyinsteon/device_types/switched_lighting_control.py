@@ -266,6 +266,65 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
             on_mask.new_value = on_mask_new_value
             off_mask.new_value = off_mask_new_value
 
+    def clear_radio_buttons(self, buttons: Iterable):
+        """Clear the radio button behavior of the button.
+
+        This takes in a single button number or a collection of buttons.
+        For any button received, the radio button behavior of that button and
+        any button that is grouped with that button will be cleared.
+
+        Example:
+            - Buttons C and D are currently radio buttons
+            - Call `clear_radio_buttons(3)` which represents the C button.
+            - Because C and D are currently grouped as radio buttons,
+              both C and D will have their on and off masks changed to clear the
+              link to the other button.
+
+        """
+        other_buttons = [button for button in range(1, 9) if button not in buttons]
+        addl_buttons = []
+        for other_button in other_buttons:
+            button_str = f"_{other_button}" if other_button != 1 else ""
+            on_mask = self._properties[f"{ON_MASK}{button_str}"]
+            off_mask = self._properties[f"{OFF_MASK}{button_str}"]
+            if on_mask.is_loaded and off_mask.is_loaded:
+                for button in buttons:
+                    bit = button - 1
+                    on_set = (
+                        bit_is_set(on_mask.new_value, bit)
+                        if on_mask.is_dirty
+                        else bit_is_set(on_mask.value, bit)
+                    )
+                    off_set = (
+                        bit_is_set(off_mask.new_value, bit)
+                        if off_mask.is_dirty
+                        else bit_is_set(off_mask.value, bit)
+                    )
+                    if on_set or off_set and other_button not in addl_buttons:
+                        addl_buttons.append(other_button)
+                        continue
+
+        for button in buttons:
+            button_str = f"_{button}" if button != 1 else ""
+            on_mask = self._properties[f"{ON_MASK}{button_str}"]
+            off_mask = self._properties[f"{OFF_MASK}{button_str}"]
+            on_mask.new_value = 0
+            off_mask.new_value = 0
+
+        for addl_button in addl_buttons:
+            button_str = f"_{addl_button}" if addl_button != 1 else ""
+            on_mask = self._properties[f"{ON_MASK}{button_str}"]
+            off_mask = self._properties[f"{OFF_MASK}{button_str}"]
+            for button in buttons:
+                if on_mask.is_dirty:
+                    on_mask.new_value = set_bit(on_mask.new_value, button - 1, False)
+                else:
+                    on_mask.new_value = set_bit(on_mask.value, button - 1, False)
+                if off_mask.is_dirty:
+                    off_mask.new_value = set_bit(off_mask.new_value, button - 1, False)
+                else:
+                    off_mask.new_value = set_bit(off_mask.value, button - 1, False)
+
     def set_toggle_mode(self, button: int, mode: int):
         """Set the toggle mode of a button.
 
@@ -286,15 +345,26 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         if not toggle_mask.is_loaded or not on_off_mask.is_loaded:
             toggle_mask.load(0)
             on_off_mask.load(0)
-        if mode == 0:
-            toggle_mask.new_value = set_bit(toggle_mask.value, button - 1, False)
-            on_off_mask.new_value = set_bit(on_off_mask.value, button - 1, False)
-        elif mode == 1:
-            toggle_mask.new_value = set_bit(toggle_mask.value, button - 1, True)
-            on_off_mask.new_value = set_bit(on_off_mask.value, button - 1, True)
+
+        if toggle_mask.new_value is None:
+            toggle_mask_test = toggle_mask.value
         else:
-            toggle_mask.new_value = set_bit(toggle_mask.value, button - 1, True)
-            on_off_mask.new_value = set_bit(on_off_mask.value, button - 1, False)
+            toggle_mask_test = toggle_mask.new_value
+
+        if on_off_mask.new_value is None:
+            on_off_mask_test = on_off_mask.value
+        else:
+            on_off_mask_test = on_off_mask.new_value
+
+        if mode == 0:
+            toggle_mask.new_value = set_bit(toggle_mask_test, button - 1, False)
+            on_off_mask.new_value = set_bit(on_off_mask_test, button - 1, False)
+        elif mode == 1:
+            toggle_mask.new_value = set_bit(toggle_mask_test, button - 1, True)
+            on_off_mask.new_value = set_bit(on_off_mask_test, button - 1, True)
+        else:
+            toggle_mask.new_value = set_bit(toggle_mask_test, button - 1, True)
+            on_off_mask.new_value = set_bit(on_off_mask_test, button - 1, False)
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()

@@ -1,7 +1,7 @@
 """Test the sending and receiving of messages using the MockPLM and receive topics."""
+import asyncio
 import json
 import unittest
-from asyncio import sleep
 from binascii import unhexlify
 
 import aiofiles
@@ -61,12 +61,13 @@ class TestDirectMsgToTopic(unittest.TestCase):
 
     def setUp(self):
         """Set up the tests."""
+        self._test_lock = asyncio.Lock()
         self._topic = None
         set_log_levels(
             logger="info",
             logger_pyinsteon="info",
-            logger_messages="info",
-            logger_topics=False,
+            logger_messages="debug",
+            logger_topics=True,
         )
 
     def tearDown(self):
@@ -79,10 +80,13 @@ class TestDirectMsgToTopic(unittest.TestCase):
     ):
         """Save the last topic."""
         self._topic = topic
+        if self._test_lock.locked():
+            self._test_lock.release()
 
     @async_case
     async def test_message_to_topic(self):
         """Test converting a message to a topic."""
+
         async with async_protocol_manager() as protocol:
             tests = await import_commands()
 
@@ -96,14 +100,24 @@ class TestDirectMsgToTopic(unittest.TestCase):
                 curr_topic = curr_test["topic"].format(address)
                 pub.subscribe(self.capture_topic, curr_topic)
                 send_data(msgs, protocol.read_queue)
-                await sleep(0.07)
+                await self._test_lock.acquire()
                 try:
+                    await asyncio.wait_for(self._test_lock.acquire(), 2)
                     assert self._topic.name == curr_topic
+
+                except asyncio.TimeoutError:
+                    raise AssertionError(
+                        "Failed timed out {} with test topic {}".format(
+                            test_info, curr_test.get("topic")
+                        )
+                    )
                 except (AssertionError, AttributeError):
                     raise AssertionError(
-                        "Failed test {} with message topic {} and test topic {}".format(
-                            test_info, self._topic.name, curr_test.get("topic")
+                        "Failed test {} with test topic {}".format(
+                            test_info, curr_test.get("topic")
                         )
                     )
                 finally:
                     pub.unsubscribe(self.capture_topic, curr_topic)
+                    if self._test_lock.locked():
+                        self._test_lock.release()

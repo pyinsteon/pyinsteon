@@ -1,4 +1,5 @@
 """Utility methods."""
+from functools import partial
 import logging
 from enum import Enum, IntEnum
 import traceback
@@ -9,6 +10,7 @@ from .address import Address
 from .constants import (
     HC_LOOKUP,
     RAMP_RATES,
+    RAMP_RATES_SEC,
     UC_LOOKUP,
     MessageFlagType,
     ResponseStatus,
@@ -219,25 +221,24 @@ def ramp_rate_to_seconds(ramp_rate: int):
     return RAMP_RATES[int(ramp_rate)]
 
 
+def _abs_diff(list_value, test_value):
+    """Return the absolute difference between two numbers."""
+    return abs(list_value - test_value)
+
+
 def seconds_to_ramp_rate(seconds: float):
     """Return the ramp rate asscociated with a number of seconds."""
-    if seconds > 480:
-        raise ValueError("Ramp rate cannot be more than 480 seconds (8 minutes)")
 
-    max_sec = 999
-    min_sec = -1
-    ramp_rate = None
-    for curr_rr in RAMP_RATES:
-        rr_secs = RAMP_RATES[curr_rr]
-        if rr_secs >= seconds and ((rr_secs - seconds) < (max_sec - seconds)):
-            max_sec = rr_secs
-            if (max_sec - seconds) < (seconds - min_sec):
-                ramp_rate = curr_rr
-        if rr_secs <= seconds and ((seconds - rr_secs) < (seconds - min_sec)):
-            min_sec = rr_secs
-            if (seconds - min_sec) <= (max_sec - seconds):
-                ramp_rate = curr_rr
-    return ramp_rate
+    if seconds > 480 or seconds < 0.1:
+        raise ValueError(
+            "Ramp rate cannot be less than 0.1 seconds or more than 480 seconds (8 minutes)"
+        )
+
+    rr_sec_list = list(map(float, RAMP_RATES_SEC.keys()))
+    abs_diff = partial(_abs_diff, test_value=seconds)
+    rr_sec = min(rr_sec_list, key=abs_diff)
+
+    return RAMP_RATES_SEC[rr_sec]
 
 
 def log_error(msg, ex, topic=None, kwargs=None):

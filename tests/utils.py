@@ -44,8 +44,7 @@ def async_case(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        coro = asyncio.coroutine(func)
-        future = coro(*args, **kwargs)
+        future = func(*args, **kwargs)
         loop = asyncio.get_event_loop()
         loop.run_until_complete(future)
 
