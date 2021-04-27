@@ -9,6 +9,11 @@ from ..utils import subscribe_topic
 from ..aldb.aldb_battery import ALDBBattery
 from ..constants import ResponseStatus
 from ..handlers.to_device.extended_set import ExtendedSetCommand
+from ..topics import (
+    ALL_LINK_CLEANUP_FAILURE_REPORT,
+    ALL_LINK_CLEANUP_STATUS_REPORT,
+)
+from .. import pub
 
 _LOGGER = logging.getLogger(__name__)
 TIMEOUT = 2
@@ -45,6 +50,8 @@ class BatteryDeviceBase:
         asyncio.ensure_future(self.async_keep_awake())
 
     def _run_on_wake(self, command, retries=3, **kwargs):
+        _LOGGER.debug("Queuing command for battery device YAY")
+        _LOGGER.debug(str(command))
         cmd = partial(command, **kwargs)
         self._commands_queue.put_nowait((cmd, retries))
         return ResponseStatus.RUN_ON_WAKE
@@ -110,13 +117,16 @@ class BatteryDeviceBase:
         """Keep the device awake to ensure commands are heard."""
         return await self._keep_awake_cmd.async_send(data3=awake_time, priority=1)
 
-    def _device_awake(self, **kwargs):
+    def _device_awake(self, topic=pub.AUTO_TOPIC, **kwargs):
         """Execute the commands that were requested while sleeping."""
         if self._commands_queue.empty():
             return
         if self._last_run is None or self._last_run.done():
-            _LOGGER.debug("We have commands to run so let's get to it")
-            self._last_run = asyncio.ensure_future(self._ensure_commands())
+            _LOGGER.debug("Checking topic name: %s", topic.name)
+            if topic.name.split(".")[2] == ALL_LINK_CLEANUP_STATUS_REPORT \
+                    or topic.name.split(".")[2] == ALL_LINK_CLEANUP_FAILURE_REPORT:
+                _LOGGER.debug("We have commands to run so keep device awake")
+                self._last_run = asyncio.ensure_future(self._ensure_commands())
 
     async def _ensure_commands(self):
         """Ensure any commands are run."""
@@ -127,7 +137,7 @@ class BatteryDeviceBase:
             if result == ResponseStatus.SUCCESS:
                 return await self._run_commands()
             keep_awake_retry -= 1
-            _LOGGER.debug("Retries: %d", keep_awake_retry)
+            _LOGGER.debug("Keep awake retries: %d", keep_awake_retry)
             await asyncio.sleep(3)
 
     async def _run_commands(self):
@@ -139,7 +149,7 @@ class BatteryDeviceBase:
                     self._commands_queue.get(), TIMEOUT
                 )
                 _LOGGER.debug("got a command to run YAY")
-                _LOGGER.debug(str(command))
+                _LOGGER.debug("command: %s", str(command))
                 if command is None:
                     return
                 result = await command()
