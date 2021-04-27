@@ -39,6 +39,7 @@ from .switched_lighting_control import (
 from .climate_control import (
     ClimateControl_Thermostat,
     ClimateControl_WirelessThermostat,
+    ClimateControl_Thermostat_2441V,
 )
 
 from .security_health_safety import (

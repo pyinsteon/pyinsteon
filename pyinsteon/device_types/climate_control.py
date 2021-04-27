@@ -29,6 +29,7 @@ from ..groups.on_off import OnOff
 from ..managers.on_level_manager import OnLevelManager
 from ..handlers.from_device.thermostat_status_response import (
     ThermostatStatusResponseHandler,
+    ThermostatStatusResponseHandler2441V,
 )
 from ..handlers.from_device.thermostat_set_point_response import (
     ThermostatSetPointResponseHandler,
@@ -41,13 +42,13 @@ from ..handlers.from_device.thermostat_heat_set_point import (
 )
 from ..handlers.from_device.thermostat_mode import ThermostatModeHandler
 from ..handlers.from_device.thermostat_humidity import ThermostatHumidityHandler
-from ..handlers.from_device.thermostat_temperature import ThermostatTemperatureHandler
+from ..handlers.from_device.thermostat_temperature import ThermostatTemperatureHandler, ThermostatTemperatureHandler2441V
 from ..handlers.to_device.thermostat_cool_set_point import ThermostatCoolSetPointCommand
 from ..handlers.to_device.thermostat_heat_set_point import ThermostatHeatSetPointCommand
 from ..handlers.to_device.thermostat_mode import ThermostatModeCommand
 from ..handlers.to_device.extended_set import ExtendedSetCommand
 from ..handlers.to_device.extended_set_2 import ExtendedSet2Command
-from ..managers.thermostat_status_manager import GetThermostatStatus
+from ..managers.thermostat_status_manager import GetThermostatStatus, GetThermostatStatus2441V
 from ..operating_flag import (
     BUTTON_LOCK_ON,
     CELSIUS,
@@ -359,10 +360,6 @@ class ClimateControl_Thermostat(Device):
 
     def _status_received(
         self,
-        day,
-        hour,
-        minute,
-        second,
         system_mode,
         fan_mode,
         cool_set_point,
@@ -372,6 +369,10 @@ class ClimateControl_Thermostat(Device):
         heating,
         celsius,
         heat_set_point,
+        day = 0,
+        hour = 0,
+        minute = 0,
+        second = 0,
     ):
         """Receive the status update."""
         self._groups[GRP_COOL_ON].set_value(cooling)
@@ -491,3 +492,221 @@ class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermo
             super(BatteryDeviceBase, self).async_set_heat_set_point,
             temperature=temperature,
         )
+
+
+class ClimateControl_Thermostat_2441V(Device):
+    """Thermostat device."""
+
+    def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
+        """Init the Thermostat class."""
+        super().__init__(
+            address=address,
+            cat=cat,
+            subcat=subcat,
+            firmware=firmware,
+            description=description,
+            model=model,
+        )
+        self._aldb = ALDB(self._address, mem_addr=0x1FFF)
+
+    # pylint: disable=arguments-differ
+    async def async_status(self, group=None):
+        """Get the status of the device."""
+        return await self._managers[STATUS_COMMAND].async_status()
+
+    async def async_set_cool_set_point(self, temperature):
+        """Set the cool set point."""
+        temperature = max(1, min(temperature, 127))
+        return await self._handlers["cool_set_point_command"].async_send(temperature)
+
+    async def async_set_heat_set_point(self, temperature):
+        """Set the cool set point."""
+        temperature = max(1, min(temperature, 127))
+        return await self._handlers["heat_set_point_command"].async_send(temperature)
+
+    async def async_set_mode(self, mode):
+        """Set the thermastat mode."""
+        return await self._handlers["mode_command"].async_send(mode)
+
+    async def async_set_notify_changes(self):
+        """Set the thermostat to notify of changes."""
+        return await self._handlers["notify_changes_command"].async_send()
+
+    async def async_add_default_links(self):
+        """Add the default links betweent he modem and the device."""
+        result_links = await super().async_add_default_links()
+        result_notify = await self.async_set_notify_changes()
+        return multiple_status(result_links, result_notify)
+
+    def _register_groups(self):
+        """Register the thermostat groups."""
+        self._groups[GRP_COOL_ON] = OnOff(COOLING, self._address, GRP_COOL_ON)
+        self._groups[GRP_HEAT_ON] = OnOff(HEATING, self._address, GRP_HEAT_ON)
+
+        self._groups[GRP_TEMP] = Temperature(TEMPERATURE, self._address, GRP_TEMP, 0)
+        self._groups[GRP_HUMID] = Humidity(
+            HUMIDITY, self._address, group=GRP_HUMID, default=0
+        )
+        self._groups[GRP_SYS_MODE] = SystemMode(
+            SYSTEM_MODE, self._address, group=GRP_SYS_MODE, default=0
+        )
+        self._groups[GRP_FAN_MODE] = FanMode(
+            FAN_MODE, self._address, group=GRP_FAN_MODE, default=4
+        )
+        self._groups[GRP_COOL_SP] = SetPoint(
+            COOL_SET_POINT, self._address, group=GRP_COOL_SP, default=65,
+        )
+        self._groups[GRP_HEAT_SP] = SetPoint(
+            HEAT_SET_POINT, self._address, group=GRP_HEAT_SP, default=95,
+        )
+
+    def _register_handlers_and_managers(self):
+        """Register thermostat handlers and managers."""
+        super()._register_handlers_and_managers()
+        self._managers[GRP_COOL_ON] = OnLevelManager(self._address, GRP_COOL_ON, 0x00)
+        self._managers[GRP_HEAT_ON] = OnLevelManager(self._address, GRP_HEAT_ON, 0x00)
+        self._managers[STATUS_COMMAND] = GetThermostatStatus2441V(self._address)
+        self._handlers["status_response"] = ThermostatStatusResponseHandler2441V(
+            self._address
+        )
+        self._handlers["set_point_response"] = ThermostatSetPointResponseHandler(
+            self._address
+        )
+        self._handlers["cool_set_point_handler"] = ThermostatCoolSetPointHandler(
+            self._address
+        )
+        self._handlers["heat_set_point_handler"] = ThermostatHeatSetPointHandler(
+            self._address
+        )
+        self._handlers["humidity_handler"] = ThermostatHumidityHandler(self._address)
+        self._handlers["temperature_handler"] = ThermostatTemperatureHandler2441V(
+            self._address
+        )
+        self._handlers["mode_handler"] = ThermostatModeHandler(self._address)
+
+        self._handlers["cool_set_point_command"] = ThermostatCoolSetPointCommand(
+            self._address
+        )
+        self._handlers["heat_set_point_command"] = ThermostatHeatSetPointCommand(
+            self._address
+        )
+        self._handlers["mode_command"] = ThermostatModeCommand(self._address)
+        self._handlers["notify_changes_command"] = ExtendedSetCommand(
+            self._address, 0x00, 0x08
+        )
+
+    def _subscribe_to_handelers_and_managers(self):
+        """Subscribe to handlers and managers."""
+        super()._subscribe_to_handelers_and_managers()
+        self._managers[GRP_COOL_ON].subscribe(self._groups[GRP_COOL_ON].set_value)
+        self._managers[GRP_HEAT_ON].subscribe(self._groups[GRP_HEAT_ON].set_value)
+        self._handlers["status_response"].subscribe(self._status_received)
+        self._handlers["set_point_response"].subscribe(self._set_point_received)
+        self._handlers["cool_set_point_handler"].subscribe(
+            self._groups[GRP_COOL_SP].set_value
+        )
+        self._handlers["heat_set_point_handler"].subscribe(
+            self._groups[GRP_HEAT_SP].set_value
+        )
+        self._handlers["humidity_handler"].subscribe(self._groups[GRP_HUMID].set_value)
+        self._handlers["temperature_handler"].subscribe(self._temp_received)
+        self._handlers["mode_handler"].subscribe(self._mode_received)
+        self._properties[CELSIUS].subscribe(self._temp_format_first_set)
+
+    def _register_default_links(self):
+        """Register default links."""
+        super()._register_default_links()
+        link_1 = DefaultLink(
+            is_controller=True,
+            group=GRP_COOL_ON,
+            dev_data1=0,
+            dev_data2=0,
+            dev_data3=GRP_COOL_ON,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=GRP_COOL_ON,
+        )
+        link_2 = DefaultLink(
+            is_controller=True,
+            group=GRP_HEAT_ON,
+            dev_data1=0,
+            dev_data2=0,
+            dev_data3=GRP_HEAT_ON,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=GRP_HEAT_ON,
+        )
+        link_ef = DefaultLink(
+            is_controller=True,
+            group=GRP_NOTIFY,
+            dev_data1=0x03,
+            dev_data2=0,
+            dev_data3=GRP_NOTIFY,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=GRP_NOTIFY,
+        )
+        self._default_links.append(link_1)
+        self._default_links.append(link_2)
+        self._default_links.append(link_ef)
+
+    def _status_received(
+        self,
+        system_mode,
+        fan_mode,
+        cool_set_point,
+        humidity,
+        temperature,
+        cooling,
+        heating,
+        celsius,
+        heat_set_point,
+    ):
+        """Receive the status update."""
+        self._groups[GRP_COOL_ON].set_value(cooling)
+        self._groups[GRP_HEAT_ON].set_value(heating)
+        self._groups[GRP_SYS_MODE].set_value(system_mode)
+        self._groups[GRP_FAN_MODE].set_value(fan_mode)
+        self._groups[GRP_COOL_SP].set_value(cool_set_point)
+        self._groups[GRP_HEAT_SP].set_value(heat_set_point)
+        if not self._properties[CELSIUS].value:
+            temperature = to_fahrenheit(temperature)
+        self._groups[GRP_TEMP].set_value(temperature)
+        self._groups[GRP_HUMID].set_value(humidity)
+
+    def _set_point_received(
+        self,
+        stage_1_on_minutes,
+        humidity_high,
+        humidity_low,
+        firmwire,
+        cool_set_point,
+        heat_set_point,
+        rf_offset,
+    ):
+        """Receive set point info."""
+        self._groups[GRP_COOL_SP].set_value(cool_set_point)
+        self._groups[GRP_HEAT_SP].set_value(heat_set_point)
+
+    def _mode_received(self, system_mode, fan_mode):
+        """Receive current temperature notification."""
+        self._groups[GRP_SYS_MODE].set_value(system_mode)
+        self._groups[GRP_FAN_MODE].set_value(fan_mode)
+
+    def _temp_received(self, degrees):
+        """Receive temperature status update and convert to celsius if needed."""
+        self._groups[GRP_TEMP].value = degrees
+
+    def _temp_format_changed(self, name, value):
+        """Recieve notification that the thermostat has changed to/from C/F."""
+        self.status()
+
+    def _temp_format_first_set(self, name, value):
+        """Set up the trigger for a temperature format change.
+
+        The first time the format is set, we don't need to do anything. If
+        the format changes later, we need to get the status update to change the
+        measurements from F to C or vise versa.
+        """
+        self._properties[CELSIUS].unsubscribe(self._temp_format_first_set)
+        self._properties[CELSIUS].unsubscribe(self._temp_format_changed)

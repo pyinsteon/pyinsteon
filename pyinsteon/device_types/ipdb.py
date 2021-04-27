@@ -2,7 +2,10 @@
 import collections
 import logging
 
-from . import (PLM, ClimateControl_Thermostat, ClimateControl_WirelessThermostat, DimmableLightingControl,
+from . import (PLM, ClimateControl_Thermostat, 
+               ClimateControl_WirelessThermostat, 
+               ClimateControl_Thermostat_2441V,
+               DimmableLightingControl,
                DimmableLightingControl_DinRail,
                DimmableLightingControl_FanLinc,
                DimmableLightingControl_InLineLinc,
@@ -237,7 +240,7 @@ class IPDB:
         Product(0x05, 0x00, None, "Broan SMSC080 Exhaust Fan", "", UnknownDevice),
         Product(0x05, 0x01, 0x000002, "EZTherm", "", UnknownDevice),
         Product(0x05, 0x02, None, "Broan SMSC110 Exhaust Fan", "", UnknownDevice),
-        Product(0x05, 0x03, 0x00001F, "Thermostat Adapter", "2441V", ClimateControl_Thermostat),
+        Product(0x05, 0x03, 0x00001F, "Thermostat Adapter 2441V", "2441V", ClimateControl_Thermostat_2441V),
         Product(0x05, 0x04, 0x000024, "EZTherm", "", UnknownDevice),
         Product(0x05, 0x05, 0x000038, "Broan, Venmar, BEST Rangehoods", "", UnknownDevice),
         Product(0x05, 0x07, None, 'Wireless Thermostat', '2441ZTH', ClimateControl_WirelessThermostat),
@@ -344,6 +347,7 @@ class IPDB:
 
         for product in self._products:
             if cat == product.cat and subcat == product.subcat:
+                _LOGGER.debug(f"Found product {product.description} for cat {product.cat}, subcat {product.subcat}")
                 device_product = product
 
         # We failed to find a device in the database, so we will make a best
@@ -351,10 +355,12 @@ class IPDB:
         if not device_product:
             for product in self._products:
                 if cat == product.cat and product.subcat is None:
+                    _LOGGER.debug(f"Using generic deivce for cat {product.cat}, subcat {product.subcat}")
                     return product
 
         # We did not find the device or even a generic device of that category
         if not device_product:
+            _LOGGER.debug(f"Did not find any device for cat {cat}, subcat {subcat}")
             device_product = Product(cat, subcat, None, "", "", UnknownDevice)
 
         return device_product

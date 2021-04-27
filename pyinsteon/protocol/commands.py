@@ -288,6 +288,7 @@ commands.add(
 )
 commands.add(EXTENDED_GET_SET_2, 0x2E, 0x02, None)
 commands.add(THERMOSTAT_STATUS_RESPONSE, 0x2E, 0x02, {"d1": 0x01})
+commands.add(THERMOSTAT_STATUS_RESPONSE, 0x2E, 0x00, {"d2": 0x01})
 
 # cmd2 ne 0x00 => no confict w/ read aldb
 commands.add(OFF_AT_RAMP_RATE, 0x2F, None, False, True)

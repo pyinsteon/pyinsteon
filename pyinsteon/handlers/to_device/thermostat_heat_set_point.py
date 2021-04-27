@@ -7,7 +7,7 @@ from .direct_command import DirectCommandHandlerBase
 class ThermostatHeatSetPointCommand(DirectCommandHandlerBase):
     """Manage an outbound THERMOSTAT_SET_COOL_SETPOINT command to a device."""
 
-    def __init__(self, address):
+    def __init__(self, address, multiplier = 0.5):
         """Init the ThermostatHeatSetPointCommand class."""
         super().__init__(topic=THERMOSTAT_SET_HEAT_SETPOINT, address=address)
 
@@ -24,4 +24,5 @@ class ThermostatHeatSetPointCommand(DirectCommandHandlerBase):
     @direct_ack_handler
     def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the OFF response direct ACK."""
-        self._call_subscribers(degrees=cmd2 * 0.5)
+        self._call_subscribers(degrees=cmd2 * self.multiplier)
+
