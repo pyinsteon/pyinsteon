@@ -1,27 +1,42 @@
 """Manage links beteween devices."""
 import logging
 
+from ...address import Address
 from ...constants import AllLinkMode, LinkStatus, ResponseStatus
 from ...handlers.start_all_linking import StartAllLinkingCommandHandler
+from ...handlers.cancel_all_linking import CancelAllLinkingCommandHandler
+from ...handlers.to_device.enter_linking_mode import EnterLinkingModeCommand
+from ...handlers.to_device.enter_unlinking_mode import EnterUnlinkingModeCommand
 
 TIMEOUT = 3
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_enter_linking_mode(is_controller: bool, group: int):
+async def async_enter_linking_mode(
+    is_controller: bool, group: int, address: Address = None, continuous=False
+):
     """Put the Insteon Modem into linking mode."""
     link_cmd = StartAllLinkingCommandHandler()
     mode = AllLinkMode.CONTROLLER if is_controller else AllLinkMode.RESPONDER
     response = await link_cmd.async_send(mode=mode, group=group)
     _LOGGER.debug("Enter linking mode response: %s", str(response))
+
+    if address is not None:
+        link_cmd = EnterLinkingModeCommand(address)
+        await link_cmd.async_send(group=group)
     return response
 
 
-async def async_enter_unlinking_mode(group: int):
+async def async_enter_unlinking_mode(group: int, address: Address = None):
     """Put the Insteon Modem into unlinking mode."""
     link_cmd = StartAllLinkingCommandHandler()
     mode = AllLinkMode.DELETE
     response = await link_cmd.async_send(mode=mode, group=group)
+
+    if address is not None:
+        link_cmd = EnterUnlinkingModeCommand(address)
+        await link_cmd.async_send(group=group)
+
     return response
 
 
@@ -54,6 +69,12 @@ async def async_link_devices(
         if failed_1 or failed_2:
             return ResponseStatus.FAILURE
         return ResponseStatus.SUCCESS
+
+
+async def async_cancel_linking_mode():
+    """Cancel an All-Link session with the modem."""
+    cmd = CancelAllLinkingCommandHandler()
+    await cmd.async_send()
 
 
 async def async_unlink_devices(controller, responder, group: int = 0):
