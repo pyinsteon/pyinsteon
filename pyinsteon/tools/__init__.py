@@ -14,13 +14,18 @@ from .aldb import ToolsAldb
 from .cmd import CmdTools
 from ..address import Address
 from ..topics import ALL_LINKING_COMPLETED
-from ..managers.link_manager import async_enter_linking_mode, async_enter_unlinking_mode, async_cancel_linking_mode
+from ..managers.link_manager import (
+    async_enter_linking_mode,
+    async_enter_unlinking_mode,
+    async_cancel_linking_mode,
+)
 
 
 class InsteonCmd(ToolsBase):
     """Command class to test interactivity."""
 
     def __init__(self, loop, args=None, menu=None, stdin=None, stdout=None):
+        """Init the InsteonCmd class."""
         super().__init__(loop, args=args, menu=menu, stdin=stdin, stdout=stdout)
         self._link_mode_lock = asyncio.Lock()
         self._reset_link_mode_queue = asyncio.Queue()
@@ -185,7 +190,9 @@ class InsteonCmd(ToolsBase):
                 "Press the set button on the device. Linking will occur in the background."
             )
         if multi:
-            self._log_stdout("The modem will stay in linking mode untile the `cancel_linking` command is issued.")
+            self._log_stdout(
+                "The modem will stay in linking mode untile the `cancel_linking` command is issued."
+            )
             pub.subscribe(self._linking_complete, ALL_LINKING_COMPLETED)
             asyncio.ensure_future(self._repeat_linking_mode())
         else:
@@ -372,10 +379,12 @@ class InsteonCmd(ToolsBase):
         devices.delay_inspection = True
         while True:
             try:
-                await async_enter_linking_mode(is_controller=True, group=0, address=None)
+                await async_enter_linking_mode(
+                    is_controller=True, group=0, address=None
+                )
                 result = asyncio.wait_for(self._reset_link_mode_queue.get(), 150)
                 if result:
-                    asyncio.sleep(.1)
+                    asyncio.sleep(0.1)
                 else:
                     return
             except asyncio.TimeoutError:

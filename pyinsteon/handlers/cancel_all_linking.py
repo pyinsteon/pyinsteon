@@ -12,14 +12,8 @@ class CancelAllLinkingCommandHandler(OutboundHandlerBase):
         """Init the CancelAllLinkingCommandHandler class."""
         super().__init__(topic=CANCEL_ALL_LINKING)
 
-    def send(self):
-        """Send the Cancel All-Linking Command."""
-        super().send()
-
-    async def async_send(self):
-        """Send the Cancel All-Linking Command."""
-        return await super().async_send()
-
     @ack_handler()
-    def handle_ack(self,):
+    def handle_ack(
+        self,
+    ):
         """Handle the ACK message."""

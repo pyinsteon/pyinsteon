@@ -46,7 +46,7 @@ async def async_add_default_links(device):
     return multiple_status(*results)
 
 
-def _link_exists(controller, responder, group: int)-> bool:
+def _link_exists(controller, responder, group: int) -> bool:
     """Test if a link exists for a group in both the controller and the responder."""
     controller_exists = False
     responder_exists = False
@@ -58,7 +58,11 @@ def _link_exists(controller, responder, group: int)-> bool:
 
     for mem_addr in responder.aldb:
         rec = responder.aldb[mem_addr]
-        if not rec.is_controller and rec.target == responder.address and rec.group == group:
+        if (
+            not rec.is_controller
+            and rec.target == responder.address
+            and rec.group == group
+        ):
             responder_exists = True
             break
 
