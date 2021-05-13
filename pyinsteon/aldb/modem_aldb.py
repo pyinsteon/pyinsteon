@@ -1,6 +1,7 @@
 """All-Link database for an Insteon Modem."""
 import logging
 from typing import Callable
+import inspect
 
 from . import ALDBBase
 from .. import pub
@@ -53,7 +54,10 @@ class ModemALDB(ALDBBase):
                 next_mem_addr -= 8
         self._status = ALDBStatus.LOADED
         if callback:
-            callback()
+            if inspect.iscoroutinefunction(callback) or inspect.isawaitable(callback):
+                await callback()
+            else:
+                callback()
         return self._status
 
     async def _async_write_change(self, record):
