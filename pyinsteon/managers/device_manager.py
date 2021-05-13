@@ -31,6 +31,9 @@ class DeviceManager(SubscriberBase):
         self._loading_saved_lock = asyncio.Lock()
         self._link_manager = DeviceLinkManager(self)
 
+        self._delay_device_inspection = False
+        self._to_be_inspected = []
+
     def __getitem__(self, address) -> Device:
         """Return a a device from the device address."""
         try:
@@ -97,6 +100,29 @@ class DeviceManager(SubscriberBase):
     def id_manager(self):
         """Return the ID manager instance."""
         return self._id_manager
+
+    @property
+    def delay_inspection(self):
+        """Return the status of device inspection after identification.
+
+        When a new device is identified the Device Manager will inspect the device
+        for its operating flags, extended properties and All-Link Database automatically
+        by default. Setting this property to `False` will delay device inspection until
+        `inspect_devices` is called.
+
+        """
+        return self._delay_device_inspection
+
+    @delay_inspection.setter
+    def delay_inspection(self, value):
+        """Set the delay inspection property."""
+        self._delay_device_inspection = bool(value)
+
+    async def async_inspect_devices(self):
+        """Inspect the properties of the devices who's inspection was delayed ealier."""
+        for device in self._to_be_inspected:
+            await device.async_get_engine_version()
+            await self.async_setup_device(device)
 
     def set_id(self, address: Address, cat: int, subcat: int, firmware: int):
         """Add a device override to identify the device information.
@@ -210,11 +236,14 @@ class DeviceManager(SubscriberBase):
                     return
             self[device_id.address] = device
             if device_id.cat != 0x03:
-                asyncio.ensure_future(device.async_get_engine_version())
-                asyncio.ensure_future(self.async_setup_device(device))
+                if self._delay_device_inspection:
+                    self._to_be_inspected.append(device)
+                else:
+                    asyncio.ensure_future(device.async_get_engine_version())
+                    asyncio.ensure_future(self.async_setup_device(device))
             _LOGGER.debug("Device %s added", device.address)
 
-    async def async_setup_device(self, device):
+    async def async_setup_device(self, device: Device):
         """Set up device."""
         await device.aldb.async_load(refresh=True)
         await device.async_read_op_flags()
