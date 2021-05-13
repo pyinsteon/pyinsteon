@@ -36,8 +36,30 @@ async def async_add_default_links(device):
             data1 = link_info.dev_data1
             data2 = link_info.dev_data2
             data3 = link_info.dev_data3
-        result = await async_link_devices(
-            controller, responder, group, data1, data2, data3
-        )
-        results.append(result)
+        if not _link_exists(controller, responder, group):
+            result = await async_link_devices(
+                controller, responder, group, data1, data2, data3
+            )
+            results.append(result)
+    if not results:
+        results.append(ResponseStatus.SUCCESS)
     return multiple_status(*results)
+
+
+def _link_exists(controller, responder, group: int)-> bool:
+    """Test if a link exists for a group in both the controller and the responder."""
+    controller_exists = False
+    responder_exists = False
+    for mem_addr in controller.aldb:
+        rec = controller.aldb[mem_addr]
+        if rec.is_controller and rec.target == responder.address and rec.group == group:
+            controller_exists = True
+            break
+
+    for mem_addr in responder.aldb:
+        rec = responder.aldb[mem_addr]
+        if not rec.is_controller and rec.target == responder.address and rec.group == group:
+            responder_exists = True
+            break
+
+    return controller_exists and responder_exists
