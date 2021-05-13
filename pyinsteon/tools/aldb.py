@@ -176,7 +176,8 @@ class ToolsAldb(ToolsBase):
 
         if not scene:
             scene = await self._get_int(
-                "Scene number or blank to cancel", values=range(25, 256),
+                "Scene number or blank to cancel",
+                values=range(25, 256),
             )
             if not scene:
                 return
@@ -199,7 +200,10 @@ class ToolsAldb(ToolsBase):
                     data2_seconds = None
                 if data2_seconds is None:
                     data2_seconds = await self._get_float(
-                        "Ramp rate", default=0.5, maximum=480, minimum=0.1,
+                        "Ramp rate",
+                        default=0.5,
+                        maximum=480,
+                        minimum=0.1,
                     )
             else:
                 data2_seconds = data2
