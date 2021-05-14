@@ -190,7 +190,7 @@ class HttpTransport(asyncio.Transport):
                     self._protocol.data_received(bin_buffer)
             if self._read_write_lock.locked():
                 self._read_write_lock.release()
-            if not self.is_closing:
+            if not self.is_closing():
                 await asyncio.sleep(READ_WAIT)
         _LOGGER.info("Insteon Hub reader stopped")
 
