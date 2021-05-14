@@ -5,7 +5,6 @@ from math import ceil
 from .. import pub
 from ..address import Address
 from ..constants import RampRate
-from ..utils import subscribe_topic
 from ..topics import (
     ASSIGN_TO_ALL_LINK_GROUP,
     ASSIGN_TO_COMPANION_GROUP,
@@ -116,8 +115,8 @@ from ..topics import (
     SPRINKLER_VALVE_OFF,
     SPRINKLER_VALVE_ON,
     STATUS_REQUEST,
-    THERMOSTAT_GET_ZONE_INFORMATION,
     THERMOSTAT_CONTROL,
+    THERMOSTAT_GET_ZONE_INFORMATION,
     THERMOSTAT_SET_COOL_SETPOINT,
     THERMOSTAT_SET_HEAT_SETPOINT,
     THERMOSTAT_SET_ZONE_COOL_SETPOINT,
@@ -132,6 +131,7 @@ from ..topics import (
     WINDOW_COVERING_PROGRAM,
     WINDOW_COVERING_STOP,
 )
+from ..utils import subscribe_topic
 from .commands import commands
 from .messages.all_link_record_flags import create
 from .messages.message_flags import create as create_flags

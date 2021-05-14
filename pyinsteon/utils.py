@@ -1,8 +1,8 @@
 """Utility methods."""
-from functools import partial
 import logging
-from enum import Enum, IntEnum
 import traceback
+from enum import Enum, IntEnum
+from functools import partial
 from typing import Iterable
 
 from . import pub
@@ -12,12 +12,12 @@ from .constants import (
     RAMP_RATES,
     RAMP_RATES_SEC,
     UC_LOOKUP,
+    FanSpeed,
+    FanSpeedRange,
     MessageFlagType,
     ResponseStatus,
-    X10Commands,
     ThermostatMode,
-    FanSpeedRange,
-    FanSpeed,
+    X10Commands,
 )
 from .protocol.commands import commands
 

@@ -49,7 +49,7 @@ from ..groups import (
     TEST_SENSOR,
 )
 from ..groups.on_off import Heartbeat, LowBattery, OnOff
-from ..groups.wet_dry import Wet, Dry
+from ..groups.wet_dry import Dry, Wet
 from ..handlers.from_device.on_level import OnLevelInbound
 from ..managers.heartbeat_manager import HeartbeatManager
 from ..managers.low_batter_manager import LowBatteryManager

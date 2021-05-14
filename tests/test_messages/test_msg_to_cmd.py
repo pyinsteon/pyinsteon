@@ -11,10 +11,10 @@ from tests import set_log_levels
 from tests.utils import (
     DataItem,
     async_case,
-    create_std_ext_msg,
-    send_data,
-    random_address,
     async_protocol_manager,
+    create_std_ext_msg,
+    random_address,
+    send_data,
 )
 
 FILE = "msg_to_cmd.json"

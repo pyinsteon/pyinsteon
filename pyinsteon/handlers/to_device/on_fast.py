@@ -1,7 +1,7 @@
 """Manage outbound ON command to a device."""
 
-from .. import direct_ack_handler
 from ...topics import ON_FAST
+from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 

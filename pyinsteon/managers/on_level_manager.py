@@ -5,13 +5,13 @@ from ..address import Address
 from ..handlers.from_device.off import OffInbound
 from ..handlers.from_device.off_all_link_cleanup import OffAllLinkCleanupInbound
 from ..handlers.from_device.off_fast import OffFastInbound
-from ..handlers.from_device.on_fast import OnFastInbound
-from ..handlers.from_device.on_level import OnLevelInbound
-from ..handlers.from_device.on_level_all_link_cleanup import OnAllLinkCleanupInbound
 from ..handlers.from_device.off_fast_all_link_cleanup import (
     OffFastAllLinkCleanupInbound,
 )
+from ..handlers.from_device.on_fast import OnFastInbound
 from ..handlers.from_device.on_fast_all_link_cleanup import OnFastAllLinkCleanupInbound
+from ..handlers.from_device.on_level import OnLevelInbound
+from ..handlers.from_device.on_level_all_link_cleanup import OnAllLinkCleanupInbound
 from ..subscriber_base import SubscriberBase
 
 TIMEOUT = timedelta(seconds=0.7)

@@ -5,16 +5,17 @@ import logging
 from functools import partial
 from inspect import getfullargspec
 
-from ..utils import subscribe_topic
 from ..aldb.aldb_battery import ALDBBattery
 from ..constants import ResponseStatus
 from ..handlers.to_device.extended_set import ExtendedSetCommand
+from ..utils import subscribe_topic
 
 _LOGGER = logging.getLogger(__name__)
 TIMEOUT = 2
 
 
 # pylint: disable=no-member
+# pylint: disable=super-with-arguments
 class BatteryDeviceBase:
     """Base class for battery operated devices."""
 

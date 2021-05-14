@@ -2,8 +2,8 @@
 import logging
 from binascii import hexlify
 
-from . import MessageBase
 from ...constants import MessageId
+from . import MessageBase
 from .message_definition import MessageDefinition
 from .message_definitions import FLD_EXT_SEND_ACK, FLD_STD_SEND_ACK, INBOUND_MSG_DEF
 from .message_flags import MessageFlags

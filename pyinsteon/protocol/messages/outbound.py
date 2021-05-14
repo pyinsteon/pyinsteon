@@ -1,5 +1,6 @@
 """Create outbound messages."""
 import logging
+
 from ... import pub
 from ...address import Address
 from ...constants import (

@@ -1,6 +1,6 @@
 """Send a Start All-Linking command."""
-from . import ack_handler
 from ..topics import SEND_ALL_LINK_COMMAND
+from . import ack_handler
 from .outbound_base import OutboundHandlerBase
 
 

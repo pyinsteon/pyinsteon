@@ -4,7 +4,7 @@ import unittest
 
 from pyinsteon.handlers.to_device.status_request import StatusRequestCommand
 from tests import set_log_levels
-from tests.utils import TopicItem, async_case, send_topics, random_address
+from tests.utils import TopicItem, async_case, random_address, send_topics
 
 
 class TestStatusRequest(unittest.TestCase):

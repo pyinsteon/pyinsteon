@@ -1,8 +1,8 @@
 """Command line interface for Operation Flag and Extended Properites Management."""
 
-from .tools_base import ToolsBase
 from .. import devices
-from ..constants import ResponseStatus, RelayMode
+from ..constants import RelayMode, ResponseStatus
+from .tools_base import ToolsBase
 
 
 class ToolsConfig(ToolsBase):

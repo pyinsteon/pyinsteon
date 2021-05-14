@@ -1,14 +1,14 @@
 """Device manager."""
-import logging
 import asyncio
+import logging
 
 from ..address import Address
-from ..x10_address import X10Address
 from ..device_types.device_base import Device
-from ..device_types.x10_base import X10DeviceBase
 from ..device_types.modem_base import ModemBase
+from ..device_types.x10_base import X10DeviceBase
 from ..managers.saved_devices_manager import SavedDeviceManager
 from ..subscriber_base import SubscriberBase
+from ..x10_address import X10Address
 from .device_id_manager import DeviceId, DeviceIdManager
 from .device_link_manager import DeviceLinkManager
 from .utils import create_device, create_x10_device

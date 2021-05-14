@@ -3,17 +3,17 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 
-from ..utils import publish_topic, subscribe_topic
 from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion
 from ..topics import (
-    ALDB_VERSION,
     ALDB_STATUS_CHANGED,
+    ALDB_VERSION,
     DEVICE_LINK_CONTROLLER_CREATED,
     DEVICE_LINK_CONTROLLER_REMOVED,
     DEVICE_LINK_RESPONDER_CREATED,
     DEVICE_LINK_RESPONDER_REMOVED,
 )
+from ..utils import publish_topic, subscribe_topic
 from .aldb_record import ALDBRecord
 
 _LOGGER = logging.getLogger(__name__)

@@ -1,9 +1,9 @@
 """Send an X10 command."""
 
-from .. import ack_handler, nak_handler
 from ...constants import ResponseStatus, X10Commands, X10CommandType
 from ...topics import X10_SEND
 from ...x10_address import X10Address
+from .. import ack_handler, nak_handler
 from ..outbound_base import OutboundHandlerBase
 
 
