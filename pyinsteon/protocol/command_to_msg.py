@@ -4,6 +4,7 @@ from math import ceil
 
 from .. import pub
 from ..address import Address
+from ..commands import commands
 from ..constants import RampRate
 from ..topics import (
     ASSIGN_TO_ALL_LINK_GROUP,
@@ -132,7 +133,6 @@ from ..topics import (
     WINDOW_COVERING_STOP,
 )
 from ..utils import subscribe_topic
-from .commands import commands
 from .messages.all_link_record_flags import create
 from .messages.message_flags import create as create_flags
 from .messages.outbound import send_extended, send_standard

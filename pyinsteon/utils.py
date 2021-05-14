@@ -7,6 +7,7 @@ from typing import Iterable
 
 from . import pub
 from .address import Address
+from .commands import commands
 from .constants import (
     HC_LOOKUP,
     RAMP_RATES,
@@ -19,7 +20,6 @@ from .constants import (
     ThermostatMode,
     X10Commands,
 )
-from .protocol.commands import commands
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")
