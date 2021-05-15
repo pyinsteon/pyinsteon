@@ -54,7 +54,7 @@ from ..operating_flag import (
     X10_OFF,
 )
 from ..utils import bit_is_set, multiple_status, set_bit, set_fan_speed
-from .commands import (
+from .device_commands import (
     GET_LEDS_COMMAND,
     OFF_COMMAND,
     OFF_FAST_COMMAND,

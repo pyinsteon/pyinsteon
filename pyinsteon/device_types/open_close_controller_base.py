@@ -5,8 +5,8 @@ from ..groups import OPEN_CLOSE_SENSOR
 from ..groups.open_close import NormallyClosed, NormallyOpen
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..managers.on_level_manager import OnLevelManager
-from .commands import STATUS_COMMAND
 from .device_base import Device
+from .device_commands import STATUS_COMMAND
 
 
 class OpenCloseControllerBase(Device):

@@ -55,8 +55,8 @@ from ..operating_flag import (
 )
 from ..utils import multiple_status, set_bit, to_fahrenheit
 from .battery_base import BatteryDeviceBase
-from .commands import STATUS_COMMAND
 from .device_base import Device
+from .device_commands import STATUS_COMMAND
 
 _LOGGER = logging.getLogger(__name__)
 

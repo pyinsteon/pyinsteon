@@ -23,8 +23,8 @@ from ..operating_flag import (
     X10_OFF,
 )
 from ..utils import multiple_status
-from .commands import OFF_COMMAND, ON_COMMAND
 from .device_base import Device
+from .device_commands import OFF_COMMAND, ON_COMMAND
 from .on_off_responder_base import OnOffResponderBase
 
 ON_LEVEL_MANAGER = "on_level_manager"

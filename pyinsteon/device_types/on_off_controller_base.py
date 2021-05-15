@@ -5,8 +5,8 @@ from ..groups import ON_OFF_SWITCH
 from ..groups.on_off import OnOff
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..managers.on_level_manager import OnLevelManager
-from .commands import STATUS_COMMAND, STATUS_COMMAND_HUB
 from .device_base import Device
+from .device_commands import STATUS_COMMAND, STATUS_COMMAND_HUB
 
 ON_LEVEL_MANAGER = "on_level_manager"
 

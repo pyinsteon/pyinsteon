@@ -47,7 +47,7 @@ from ..operating_flag import (
     THREE_WAY_ON,
 )
 from ..utils import bit_is_set, multiple_status, set_bit
-from .commands import GET_LEDS_COMMAND, SET_LEDS_COMMAND, STATUS_COMMAND
+from .device_commands import GET_LEDS_COMMAND, SET_LEDS_COMMAND, STATUS_COMMAND
 from .on_off_controller_base import ON_LEVEL_MANAGER
 from .on_off_responder_base import OnOffResponderBase
 
