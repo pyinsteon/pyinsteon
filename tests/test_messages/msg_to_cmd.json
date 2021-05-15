@@ -7,7 +7,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "{}.assign_to_all_link_group.direct",
+        "topic": "{}.assign_to_all_link_group.direct"
     },
     "DELETE_FROM_ALL_LINK_GROUP-DIRECT": {
         "address": "010203",
@@ -17,7 +17,7 @@
         "cmd2": "02",
         "user_data": "",
         "ack": "",
-        "topic": "{}.delete_from_all_link_group.direct",
+        "topic": "{}.delete_from_all_link_group.direct"
     },
     "PRODUCT_DATA_REQUEST-DIRECT": {
         "address": "010203",
@@ -27,7 +27,7 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "{}.product_data_request.direct",
+        "topic": "{}.product_data_request.direct"
     },
     "FX_USERNAME-DIRECT": {
         "address": "010203",
@@ -37,7 +37,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "{}.fx_username.direct",
+        "topic": "{}.fx_username.direct"
     },
     "DEVICE_TEXT_STRING_REQUEST-DIRECT": {
         "address": "010203",
@@ -47,7 +47,7 @@
         "cmd2": "02",
         "user_data": "",
         "ack": "",
-        "topic": "{}.device_text_string_request.direct",
+        "topic": "{}.device_text_string_request.direct"
     },
     "ALL_LINK_CLEANUP_STATUS_REPORT-DIRECT": {
         "address": "010203",
@@ -57,7 +57,7 @@
         "cmd2": "03",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.all_link_cleanup_status_report.direct",
+        "topic": "{}.1.all_link_cleanup_status_report.direct"
     },
     "ENTER_LINKING_MODE-DIRECT": {
         "address": "010203",
@@ -67,7 +67,7 @@
         "cmd2": "04",
         "user_data": "",
         "ack": "",
-        "topic": "{}.enter_linking_mode.direct",
+        "topic": "{}.enter_linking_mode.direct"
     },
     "ENTER_UNLINKING_MODE-DIRECT": {
         "address": "010203",
@@ -77,7 +77,7 @@
         "cmd2": "05",
         "user_data": "",
         "ack": "",
-        "topic": "{}.enter_unlinking_mode.direct",
+        "topic": "{}.enter_unlinking_mode.direct"
     },
     "GET_INSTEON_ENGINE_VERSION-DIRECT": {
         "address": "010203",
@@ -87,7 +87,7 @@
         "cmd2": "06",
         "user_data": "",
         "ack": "",
-        "topic": "{}.get_insteon_engine_version.direct",
+        "topic": "{}.get_insteon_engine_version.direct"
     },
     "PING-DIRECT": {
         "address": "010203",
@@ -97,7 +97,7 @@
         "cmd2": "07",
         "user_data": "",
         "ack": "",
-        "topic": "{}.ping.direct",
+        "topic": "{}.ping.direct"
     },
     "ID_REQUEST-DIRECT": {
         "address": "010203",
@@ -107,7 +107,7 @@
         "cmd2": "08",
         "user_data": "",
         "ack": "",
-        "topic": "{}.id_request.direct",
+        "topic": "{}.id_request.direct"
     },
     "ON-DIRECT": {
         "address": "010203",
@@ -117,7 +117,7 @@
         "cmd2": "09",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.on.direct",
+        "topic": "{}.1.on.direct"
     },
     "ON_FAST-DIRECT": {
         "address": "010203",
@@ -127,7 +127,7 @@
         "cmd2": "10",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.on_fast.direct",
+        "topic": "{}.1.on_fast.direct"
     },
     "OFF-DIRECT": {
         "address": "010203",
@@ -137,7 +137,7 @@
         "cmd2": "11",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.off.direct",
+        "topic": "{}.1.off.direct"
     },
     "OFF_FAST-DIRECT": {
         "address": "010203",
@@ -147,7 +147,7 @@
         "cmd2": "12",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.off_fast.direct",
+        "topic": "{}.1.off_fast.direct"
     },
     "BRIGHTEN_ONE_STEP-DIRECT": {
         "address": "010203",
@@ -157,7 +157,7 @@
         "cmd2": "13",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.brighten_one_step.direct",
+        "topic": "{}.1.brighten_one_step.direct"
     },
     "DIM_ONE_STEP-DIRECT": {
         "address": "010203",
@@ -167,7 +167,7 @@
         "cmd2": "14",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.dim_one_step.direct",
+        "topic": "{}.1.dim_one_step.direct"
     },
     "START_MANUAL_CHANGE_DOWN-DIRECT": {
         "address": "010203",
@@ -177,7 +177,7 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.start_manual_change_down.direct",
+        "topic": "{}.1.start_manual_change_down.direct"
     },
     "START_MANUAL_CHANGE_UP-DIRECT": {
         "address": "010203",
@@ -187,7 +187,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.start_manual_change_up.direct",
+        "topic": "{}.1.start_manual_change_up.direct"
     },
     "STOP_MANUAL_CHANGE-DIRECT": {
         "address": "010203",
@@ -197,7 +197,7 @@
         "cmd2": "15",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.stop_manual_change.direct",
+        "topic": "{}.1.stop_manual_change.direct"
     },
     "STATUS_REQUEST-DIRECT": {
         "address": "010203",
@@ -207,7 +207,7 @@
         "cmd2": "16",
         "user_data": "",
         "ack": "",
-        "topic": "{}.status_request.direct",
+        "topic": "{}.status_request.direct"
     },
     "GET_OPERATING_FLAGS-DIRECT": {
         "address": "010203",
@@ -217,7 +217,7 @@
         "cmd2": "17",
         "user_data": "",
         "ack": "",
-        "topic": "{}.get_operating_flags.direct",
+        "topic": "{}.get_operating_flags.direct"
     },
     "SET_OPERATING_FLAGS-DIRECT": {
         "address": "010203",
@@ -227,7 +227,7 @@
         "cmd2": "18",
         "user_data": "",
         "ack": "",
-        "topic": "{}.set_operating_flags.direct",
+        "topic": "{}.set_operating_flags.direct"
     },
     "INSTANT_CHANGE-DIRECT": {
         "address": "010203",
@@ -237,7 +237,7 @@
         "cmd2": "19",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.instant_change.direct",
+        "topic": "{}.1.instant_change.direct"
     },
     "MANUALLY_TURNED_OFF-DIRECT": {
         "address": "010203",
@@ -247,7 +247,7 @@
         "cmd2": "20",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.manually_turned_off.direct",
+        "topic": "{}.1.manually_turned_off.direct"
     },
     "MANUALLY_TURNED_ON-DIRECT": {
         "address": "010203",
@@ -257,7 +257,7 @@
         "cmd2": "21",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.manually_turned_on.direct",
+        "topic": "{}.1.manually_turned_on.direct"
     },
     "ASSIGN_TO_ALL_LINK_GROUP-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -267,7 +267,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "{}.assign_to_all_link_group.all_link_cleanup",
+        "topic": "{}.assign_to_all_link_group.all_link_cleanup"
     },
     "DELETE_FROM_ALL_LINK_GROUP-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -277,7 +277,7 @@
         "cmd2": "02",
         "user_data": "",
         "ack": "",
-        "topic": "{}.delete_from_all_link_group.all_link_cleanup",
+        "topic": "{}.delete_from_all_link_group.all_link_cleanup"
     },
     "PRODUCT_DATA_REQUEST-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -287,7 +287,7 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "{}.product_data_request.all_link_cleanup",
+        "topic": "{}.product_data_request.all_link_cleanup"
     },
     "FX_USERNAME-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -297,7 +297,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "{}.fx_username.all_link_cleanup",
+        "topic": "{}.fx_username.all_link_cleanup"
     },
     "DEVICE_TEXT_STRING_REQUEST-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -307,7 +307,7 @@
         "cmd2": "02",
         "user_data": "",
         "ack": "",
-        "topic": "{}.device_text_string_request.all_link_cleanup",
+        "topic": "{}.device_text_string_request.all_link_cleanup"
     },
     "ALL_LINK_CLEANUP_STATUS_REPORT-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -317,7 +317,7 @@
         "cmd2": "03",
         "user_data": "",
         "ack": "",
-        "topic": "{}.3.all_link_cleanup_status_report.all_link_cleanup",
+        "topic": "{}.3.all_link_cleanup_status_report.all_link_cleanup"
     },
     "ENTER_LINKING_MODE-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -327,7 +327,7 @@
         "cmd2": "04",
         "user_data": "",
         "ack": "",
-        "topic": "{}.enter_linking_mode.all_link_cleanup",
+        "topic": "{}.enter_linking_mode.all_link_cleanup"
     },
     "ENTER_UNLINKING_MODE-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -337,7 +337,7 @@
         "cmd2": "05",
         "user_data": "",
         "ack": "",
-        "topic": "{}.enter_unlinking_mode.all_link_cleanup",
+        "topic": "{}.enter_unlinking_mode.all_link_cleanup"
     },
     "GET_INSTEON_ENGINE_VERSION-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -347,7 +347,7 @@
         "cmd2": "06",
         "user_data": "",
         "ack": "",
-        "topic": "{}.get_insteon_engine_version.all_link_cleanup",
+        "topic": "{}.get_insteon_engine_version.all_link_cleanup"
     },
     "PING-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -357,7 +357,7 @@
         "cmd2": "07",
         "user_data": "",
         "ack": "",
-        "topic": "{}.ping.all_link_cleanup",
+        "topic": "{}.ping.all_link_cleanup"
     },
     "ID_REQUEST-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -367,7 +367,7 @@
         "cmd2": "08",
         "user_data": "",
         "ack": "",
-        "topic": "{}.id_request.all_link_cleanup",
+        "topic": "{}.id_request.all_link_cleanup"
     },
     "ON-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -377,7 +377,7 @@
         "cmd2": "09",
         "user_data": "",
         "ack": "",
-        "topic": "{}.9.on.all_link_cleanup",
+        "topic": "{}.9.on.all_link_cleanup"
     },
     "ON_FAST-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -387,7 +387,7 @@
         "cmd2": "10",
         "user_data": "",
         "ack": "",
-        "topic": "{}.16.on_fast.all_link_cleanup",
+        "topic": "{}.16.on_fast.all_link_cleanup"
     },
     "OFF-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -397,7 +397,7 @@
         "cmd2": "11",
         "user_data": "",
         "ack": "",
-        "topic": "{}.17.off.all_link_cleanup",
+        "topic": "{}.17.off.all_link_cleanup"
     },
     "OFF_FAST-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -407,7 +407,7 @@
         "cmd2": "12",
         "user_data": "",
         "ack": "",
-        "topic": "{}.18.off_fast.all_link_cleanup",
+        "topic": "{}.18.off_fast.all_link_cleanup"
     },
     "BRIGHTEN_ONE_STEP-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -417,7 +417,7 @@
         "cmd2": "13",
         "user_data": "",
         "ack": "",
-        "topic": "{}.19.brighten_one_step.all_link_cleanup",
+        "topic": "{}.19.brighten_one_step.all_link_cleanup"
     },
     "DIM_ONE_STEP-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -427,7 +427,7 @@
         "cmd2": "14",
         "user_data": "",
         "ack": "",
-        "topic": "{}.20.dim_one_step.all_link_cleanup",
+        "topic": "{}.20.dim_one_step.all_link_cleanup"
     },
     "START_MANUAL_CHANGE_DOWN-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -437,7 +437,7 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.start_manual_change_down.all_link_cleanup",
+        "topic": "{}.1.start_manual_change_down.all_link_cleanup"
     },
     "START_MANUAL_CHANGE_UP-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -447,7 +447,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.start_manual_change_up.all_link_cleanup",
+        "topic": "{}.1.start_manual_change_up.all_link_cleanup"
     },
     "STOP_MANUAL_CHANGE-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -457,7 +457,7 @@
         "cmd2": "15",
         "user_data": "",
         "ack": "",
-        "topic": "{}.21.stop_manual_change.all_link_cleanup",
+        "topic": "{}.21.stop_manual_change.all_link_cleanup"
     },
     "STATUS_REQUEST-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -467,7 +467,7 @@
         "cmd2": "16",
         "user_data": "",
         "ack": "",
-        "topic": "{}.status_request.all_link_cleanup",
+        "topic": "{}.status_request.all_link_cleanup"
     },
     "GET_OPERATING_FLAGS-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -477,7 +477,7 @@
         "cmd2": "17",
         "user_data": "",
         "ack": "",
-        "topic": "{}.get_operating_flags.all_link_cleanup",
+        "topic": "{}.get_operating_flags.all_link_cleanup"
     },
     "SET_OPERATING_FLAGS-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -487,7 +487,7 @@
         "cmd2": "18",
         "user_data": "",
         "ack": "",
-        "topic": "{}.set_operating_flags.all_link_cleanup",
+        "topic": "{}.set_operating_flags.all_link_cleanup"
     },
     "INSTANT_CHANGE-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -497,7 +497,7 @@
         "cmd2": "19",
         "user_data": "",
         "ack": "",
-        "topic": "{}.25.instant_change.all_link_cleanup",
+        "topic": "{}.25.instant_change.all_link_cleanup"
     },
     "MANUALLY_TURNED_OFF-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -507,7 +507,7 @@
         "cmd2": "20",
         "user_data": "",
         "ack": "",
-        "topic": "{}.32.manually_turned_off.all_link_cleanup",
+        "topic": "{}.32.manually_turned_off.all_link_cleanup"
     },
     "MANUALLY_TURNED_ON-ALL_LINK_CLEANUP": {
         "address": "010203",
@@ -517,7 +517,7 @@
         "cmd2": "21",
         "user_data": "",
         "ack": "",
-        "topic": "{}.33.manually_turned_on.all_link_cleanup",
+        "topic": "{}.33.manually_turned_on.all_link_cleanup"
     },
     "ASSIGN_TO_ALL_LINK_GROUP-BROADCAST": {
         "address": "010203",
@@ -527,7 +527,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "{}.assign_to_all_link_group.broadcast",
+        "topic": "{}.assign_to_all_link_group.broadcast"
     },
     "DELETE_FROM_ALL_LINK_GROUP-BROADCAST": {
         "address": "010203",
@@ -537,7 +537,7 @@
         "cmd2": "02",
         "user_data": "",
         "ack": "",
-        "topic": "{}.delete_from_all_link_group.broadcast",
+        "topic": "{}.delete_from_all_link_group.broadcast"
     },
     "PRODUCT_DATA_REQUEST-BROADCAST": {
         "address": "010203",
@@ -547,7 +547,7 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "{}.product_data_request.broadcast",
+        "topic": "{}.product_data_request.broadcast"
     },
     "FX_USERNAME-BROADCAST": {
         "address": "010203",
@@ -557,7 +557,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "{}.fx_username.broadcast",
+        "topic": "{}.fx_username.broadcast"
     },
     "DEVICE_TEXT_STRING_REQUEST-BROADCAST": {
         "address": "010203",
@@ -567,7 +567,7 @@
         "cmd2": "02",
         "user_data": "",
         "ack": "",
-        "topic": "{}.device_text_string_request.broadcast",
+        "topic": "{}.device_text_string_request.broadcast"
     },
     "ALL_LINK_CLEANUP_STATUS_REPORT-BROADCAST": {
         "address": "010203",
@@ -577,7 +577,7 @@
         "cmd2": "03",
         "user_data": "",
         "ack": "",
-        "topic": "{}.6.all_link_cleanup_status_report.broadcast",
+        "topic": "{}.6.all_link_cleanup_status_report.broadcast"
     },
     "ENTER_LINKING_MODE-BROADCAST": {
         "address": "010203",
@@ -587,7 +587,7 @@
         "cmd2": "04",
         "user_data": "",
         "ack": "",
-        "topic": "{}.enter_linking_mode.broadcast",
+        "topic": "{}.enter_linking_mode.broadcast"
     },
     "ENTER_UNLINKING_MODE-BROADCAST": {
         "address": "010203",
@@ -597,7 +597,7 @@
         "cmd2": "05",
         "user_data": "",
         "ack": "",
-        "topic": "{}.enter_unlinking_mode.broadcast",
+        "topic": "{}.enter_unlinking_mode.broadcast"
     },
     "GET_INSTEON_ENGINE_VERSION-BROADCAST": {
         "address": "010203",
@@ -607,7 +607,7 @@
         "cmd2": "06",
         "user_data": "",
         "ack": "",
-        "topic": "{}.get_insteon_engine_version.broadcast",
+        "topic": "{}.get_insteon_engine_version.broadcast"
     },
     "PING-BROADCAST": {
         "address": "010203",
@@ -617,7 +617,7 @@
         "cmd2": "07",
         "user_data": "",
         "ack": "",
-        "topic": "{}.ping.broadcast",
+        "topic": "{}.ping.broadcast"
     },
     "ID_REQUEST-BROADCAST": {
         "address": "010203",
@@ -627,7 +627,7 @@
         "cmd2": "08",
         "user_data": "",
         "ack": "",
-        "topic": "{}.id_request.broadcast",
+        "topic": "{}.id_request.broadcast"
     },
     "ON-BROADCAST": {
         "address": "010203",
@@ -637,7 +637,7 @@
         "cmd2": "09",
         "user_data": "",
         "ack": "",
-        "topic": "{}.18.on.broadcast",
+        "topic": "{}.18.on.broadcast"
     },
     "ON_FAST-BROADCAST": {
         "address": "010203",
@@ -647,7 +647,7 @@
         "cmd2": "10",
         "user_data": "",
         "ack": "",
-        "topic": "{}.19.on_fast.broadcast",
+        "topic": "{}.19.on_fast.broadcast"
     },
     "OFF-BROADCAST": {
         "address": "010203",
@@ -657,7 +657,7 @@
         "cmd2": "11",
         "user_data": "",
         "ack": "",
-        "topic": "{}.20.off.broadcast",
+        "topic": "{}.20.off.broadcast"
     },
     "OFF_FAST-BROADCAST": {
         "address": "010203",
@@ -667,7 +667,7 @@
         "cmd2": "12",
         "user_data": "",
         "ack": "",
-        "topic": "{}.21.off_fast.broadcast",
+        "topic": "{}.21.off_fast.broadcast"
     },
     "BRIGHTEN_ONE_STEP-BROADCAST": {
         "address": "010203",
@@ -677,7 +677,7 @@
         "cmd2": "13",
         "user_data": "",
         "ack": "",
-        "topic": "{}.22.brighten_one_step.broadcast",
+        "topic": "{}.22.brighten_one_step.broadcast"
     },
     "DIM_ONE_STEP-BROADCAST": {
         "address": "010203",
@@ -687,7 +687,7 @@
         "cmd2": "14",
         "user_data": "",
         "ack": "",
-        "topic": "{}.23.dim_one_step.broadcast",
+        "topic": "{}.23.dim_one_step.broadcast"
     },
     "START_MANUAL_CHANGE_DOWN-BROADCAST": {
         "address": "010203",
@@ -697,7 +697,7 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "{}.24.start_manual_change_down.broadcast",
+        "topic": "{}.24.start_manual_change_down.broadcast"
     },
     "START_MANUAL_CHANGE_UP-BROADCAST": {
         "address": "010203",
@@ -707,7 +707,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "{}.25.start_manual_change_up.broadcast",
+        "topic": "{}.25.start_manual_change_up.broadcast"
     },
     "STOP_MANUAL_CHANGE-BROADCAST": {
         "address": "010203",
@@ -717,7 +717,7 @@
         "cmd2": "15",
         "user_data": "",
         "ack": "",
-        "topic": "{}.32.stop_manual_change.broadcast",
+        "topic": "{}.32.stop_manual_change.broadcast"
     },
     "STATUS_REQUEST-BROADCAST": {
         "address": "010203",
@@ -727,7 +727,7 @@
         "cmd2": "16",
         "user_data": "",
         "ack": "",
-        "topic": "{}.status_request.broadcast",
+        "topic": "{}.status_request.broadcast"
     },
     "GET_OPERATING_FLAGS-BROADCAST": {
         "address": "010203",
@@ -737,7 +737,7 @@
         "cmd2": "17",
         "user_data": "",
         "ack": "",
-        "topic": "{}.get_operating_flags.broadcast",
+        "topic": "{}.get_operating_flags.broadcast"
     },
     "SET_OPERATING_FLAGS-BROADCAST": {
         "address": "010203",
@@ -747,7 +747,7 @@
         "cmd2": "18",
         "user_data": "",
         "ack": "",
-        "topic": "{}.set_operating_flags.broadcast",
+        "topic": "{}.set_operating_flags.broadcast"
     },
     "INSTANT_CHANGE-BROADCAST": {
         "address": "010203",
@@ -757,7 +757,7 @@
         "cmd2": "19",
         "user_data": "",
         "ack": "",
-        "topic": "{}.36.instant_change.broadcast",
+        "topic": "{}.36.instant_change.broadcast"
     },
     "MANUALLY_TURNED_OFF-BROADCAST": {
         "address": "010203",
@@ -767,7 +767,7 @@
         "cmd2": "20",
         "user_data": "",
         "ack": "",
-        "topic": "{}.37.manually_turned_off.broadcast",
+        "topic": "{}.37.manually_turned_off.broadcast"
     },
     "MANUALLY_TURNED_ON-BROADCAST": {
         "address": "010203",
@@ -777,7 +777,7 @@
         "cmd2": "21",
         "user_data": "",
         "ack": "",
-        "topic": "{}.38.manually_turned_on.broadcast",
+        "topic": "{}.38.manually_turned_on.broadcast"
     },
     "ASSIGN_TO_ALL_LINK_GROUP-DIRECT_ACK": {
         "address": "010203",
@@ -787,7 +787,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "{}.assign_to_all_link_group.direct_ack",
+        "topic": "{}.assign_to_all_link_group.direct_ack"
     },
     "DELETE_FROM_ALL_LINK_GROUP-DIRECT_ACK": {
         "address": "010203",
@@ -797,7 +797,7 @@
         "cmd2": "02",
         "user_data": "",
         "ack": "",
-        "topic": "{}.delete_from_all_link_group.direct_ack",
+        "topic": "{}.delete_from_all_link_group.direct_ack"
     },
     "PRODUCT_DATA_REQUEST-DIRECT_ACK": {
         "address": "010203",
@@ -807,7 +807,7 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "{}.product_data_request.direct_ack",
+        "topic": "{}.product_data_request.direct_ack"
     },
     "FX_USERNAME-DIRECT_ACK": {
         "address": "010203",
@@ -817,7 +817,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "{}.fx_username.direct_ack",
+        "topic": "{}.fx_username.direct_ack"
     },
     "DEVICE_TEXT_STRING_REQUEST-DIRECT_ACK": {
         "address": "010203",
@@ -827,7 +827,7 @@
         "cmd2": "02",
         "user_data": "",
         "ack": "",
-        "topic": "{}.device_text_string_request.direct_ack",
+        "topic": "{}.device_text_string_request.direct_ack"
     },
     "ALL_LINK_CLEANUP_STATUS_REPORT-DIRECT_ACK": {
         "address": "010203",
@@ -837,7 +837,7 @@
         "cmd2": "03",
         "user_data": "",
         "ack": "",
-        "topic": "{}.all_link_cleanup_status_report.direct_ack",
+        "topic": "{}.all_link_cleanup_status_report.direct_ack"
     },
     "ENTER_LINKING_MODE-DIRECT_ACK": {
         "address": "010203",
@@ -847,7 +847,7 @@
         "cmd2": "04",
         "user_data": "",
         "ack": "",
-        "topic": "{}.enter_linking_mode.direct_ack",
+        "topic": "{}.enter_linking_mode.direct_ack"
     },
     "ENTER_UNLINKING_MODE-DIRECT_ACK": {
         "address": "010203",
@@ -857,7 +857,7 @@
         "cmd2": "05",
         "user_data": "",
         "ack": "",
-        "topic": "{}.enter_unlinking_mode.direct_ack",
+        "topic": "{}.enter_unlinking_mode.direct_ack"
     },
     "GET_INSTEON_ENGINE_VERSION-DIRECT_ACK": {
         "address": "010203",
@@ -867,7 +867,7 @@
         "cmd2": "06",
         "user_data": "",
         "ack": "",
-        "topic": "{}.get_insteon_engine_version.direct_ack",
+        "topic": "{}.get_insteon_engine_version.direct_ack"
     },
     "PING-DIRECT_ACK": {
         "address": "010203",
@@ -877,7 +877,7 @@
         "cmd2": "07",
         "user_data": "",
         "ack": "",
-        "topic": "{}.ping.direct_ack",
+        "topic": "{}.ping.direct_ack"
     },
     "ID_REQUEST-DIRECT_ACK": {
         "address": "010203",
@@ -887,7 +887,7 @@
         "cmd2": "08",
         "user_data": "",
         "ack": "",
-        "topic": "{}.id_request.direct_ack",
+        "topic": "{}.id_request.direct_ack"
     },
     "ON-DIRECT_ACK": {
         "address": "010203",
@@ -897,7 +897,7 @@
         "cmd2": "09",
         "user_data": "",
         "ack": "",
-        "topic": "{}.on.direct_ack",
+        "topic": "{}.on.direct_ack"
     },
     "ON_FAST-DIRECT_ACK": {
         "address": "010203",
@@ -907,7 +907,7 @@
         "cmd2": "10",
         "user_data": "",
         "ack": "",
-        "topic": "{}.on_fast.direct_ack",
+        "topic": "{}.on_fast.direct_ack"
     },
     "OFF-DIRECT_ACK": {
         "address": "010203",
@@ -917,7 +917,7 @@
         "cmd2": "11",
         "user_data": "",
         "ack": "",
-        "topic": "{}.off.direct_ack",
+        "topic": "{}.off.direct_ack"
     },
     "OFF_FAST-DIRECT_ACK": {
         "address": "010203",
@@ -927,7 +927,7 @@
         "cmd2": "12",
         "user_data": "",
         "ack": "",
-        "topic": "{}.off_fast.direct_ack",
+        "topic": "{}.off_fast.direct_ack"
     },
     "BRIGHTEN_ONE_STEP-DIRECT_ACK": {
         "address": "010203",
@@ -937,7 +937,7 @@
         "cmd2": "13",
         "user_data": "",
         "ack": "",
-        "topic": "{}.brighten_one_step.direct_ack",
+        "topic": "{}.brighten_one_step.direct_ack"
     },
     "DIM_ONE_STEP-DIRECT_ACK": {
         "address": "010203",
@@ -947,7 +947,7 @@
         "cmd2": "14",
         "user_data": "",
         "ack": "",
-        "topic": "{}.dim_one_step.direct_ack",
+        "topic": "{}.dim_one_step.direct_ack"
     },
     "START_MANUAL_CHANGE_DOWN-DIRECT_ACK": {
         "address": "010203",
@@ -957,7 +957,7 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "{}.start_manual_change_down.direct_ack",
+        "topic": "{}.start_manual_change_down.direct_ack"
     },
     "START_MANUAL_CHANGE_UP-DIRECT_ACK": {
         "address": "010203",
@@ -967,7 +967,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "{}.start_manual_change_up.direct_ack",
+        "topic": "{}.start_manual_change_up.direct_ack"
     },
     "STOP_MANUAL_CHANGE-DIRECT_ACK": {
         "address": "010203",
@@ -977,7 +977,7 @@
         "cmd2": "15",
         "user_data": "",
         "ack": "",
-        "topic": "{}.stop_manual_change.direct_ack",
+        "topic": "{}.stop_manual_change.direct_ack"
     },
     "STATUS_REQUEST-DIRECT_ACK": {
         "address": "010203",
@@ -987,7 +987,7 @@
         "cmd2": "16",
         "user_data": "",
         "ack": "",
-        "topic": "{}.status_request.direct_ack",
+        "topic": "{}.status_request.direct_ack"
     },
     "GET_OPERATING_FLAGS-DIRECT_ACK": {
         "address": "010203",
@@ -997,7 +997,7 @@
         "cmd2": "17",
         "user_data": "",
         "ack": "",
-        "topic": "{}.get_operating_flags.direct_ack",
+        "topic": "{}.get_operating_flags.direct_ack"
     },
     "SET_OPERATING_FLAGS-DIRECT_ACK": {
         "address": "010203",
@@ -1007,7 +1007,7 @@
         "cmd2": "18",
         "user_data": "",
         "ack": "",
-        "topic": "{}.set_operating_flags.direct_ack",
+        "topic": "{}.set_operating_flags.direct_ack"
     },
     "INSTANT_CHANGE-DIRECT_ACK": {
         "address": "010203",
@@ -1017,7 +1017,7 @@
         "cmd2": "19",
         "user_data": "",
         "ack": "",
-        "topic": "{}.instant_change.direct_ack",
+        "topic": "{}.instant_change.direct_ack"
     },
     "MANUALLY_TURNED_OFF-DIRECT_ACK": {
         "address": "010203",
@@ -1027,7 +1027,7 @@
         "cmd2": "20",
         "user_data": "",
         "ack": "",
-        "topic": "{}.manually_turned_off.direct_ack",
+        "topic": "{}.manually_turned_off.direct_ack"
     },
     "MANUALLY_TURNED_ON-DIRECT_ACK": {
         "address": "010203",
@@ -1037,6 +1037,6 @@
         "cmd2": "21",
         "user_data": "",
         "ack": "",
-        "topic": "{}.manually_turned_on.direct_ack",
-    },
+        "topic": "{}.manually_turned_on.direct_ack"
+    }
 }
