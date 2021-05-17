@@ -4,7 +4,7 @@ from ..handlers.to_device.off_fast import OffFastCommand
 from ..handlers.to_device.on_fast import OnFastCommand
 from ..handlers.to_device.on_level import OnLevelCommand
 from ..handlers.to_device.status_request import StatusRequestCommand
-from .commands import (
+from .device_commands import (
     OFF_COMMAND,
     OFF_FAST_COMMAND,
     ON_COMMAND,

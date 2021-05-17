@@ -2,11 +2,11 @@
 
 import logging
 
-from . import inbound_handler
 from ..address import Address
 from ..constants import AllLinkMode
 from ..protocol.messages.all_link_record_flags import AllLinkRecordFlags
 from ..topics import ALL_LINK_RECORD_RESPONSE
+from . import inbound_handler
 from .inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)

@@ -3,10 +3,9 @@ import asyncio
 import logging
 from functools import wraps
 
-from ..utils import subscribe_topic
 from ..address import Address
 from ..constants import MessageFlagType, ResponseStatus
-from ..utils import build_topic
+from ..utils import build_topic, subscribe_topic
 
 TIMEOUT = 3  # Time out between ACK and Direct ACK
 _LOGGER = logging.getLogger(__name__)

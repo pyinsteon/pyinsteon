@@ -1,9 +1,12 @@
 """Termostat device types."""
 import logging
 from datetime import datetime
+
 from ..aldb import ALDB
 from ..aldb.aldb_battery import ALDBBattery
+from ..constants import ResponseStatus
 from ..default_link import DefaultLink
+from ..extended_property import BACKLIGHT, CHANGE_DELAY, HUMIDITY_OFFSET, TEMP_OFFSET
 from ..groups import (
     COOL_SET_POINT,
     COOLING,
@@ -12,41 +15,35 @@ from ..groups import (
     HEAT_SET_POINT,
     HEATING,
     HUMIDIFYING,
+    HUMIDITY,
     HUMIDITY_HIGH,
     HUMIDITY_LOW,
     SYSTEM_MODE,
     TEMPERATURE,
-    HUMIDITY,
 )
-from ..extended_property import (
-    BACKLIGHT,
-    CHANGE_DELAY,
-    TEMP_OFFSET,
-    HUMIDITY_OFFSET,
-)
-from ..groups.thermostat import FanMode, Humidity, SystemMode, Temperature, SetPoint
 from ..groups.on_off import OnOff
-from ..managers.on_level_manager import OnLevelManager
-from ..handlers.from_device.thermostat_status_response import (
-    ThermostatStatusResponseHandler,
-)
-from ..handlers.from_device.thermostat_set_point_response import (
-    ThermostatSetPointResponseHandler,
-)
+from ..groups.thermostat import FanMode, Humidity, SetPoint, SystemMode, Temperature
 from ..handlers.from_device.thermostat_cool_set_point import (
     ThermostatCoolSetPointHandler,
 )
 from ..handlers.from_device.thermostat_heat_set_point import (
     ThermostatHeatSetPointHandler,
 )
-from ..handlers.from_device.thermostat_mode import ThermostatModeHandler
 from ..handlers.from_device.thermostat_humidity import ThermostatHumidityHandler
+from ..handlers.from_device.thermostat_mode import ThermostatModeHandler
+from ..handlers.from_device.thermostat_set_point_response import (
+    ThermostatSetPointResponseHandler,
+)
+from ..handlers.from_device.thermostat_status_response import (
+    ThermostatStatusResponseHandler,
+)
 from ..handlers.from_device.thermostat_temperature import ThermostatTemperatureHandler
+from ..handlers.to_device.extended_set import ExtendedSetCommand
+from ..handlers.to_device.extended_set_2 import ExtendedSet2Command
 from ..handlers.to_device.thermostat_cool_set_point import ThermostatCoolSetPointCommand
 from ..handlers.to_device.thermostat_heat_set_point import ThermostatHeatSetPointCommand
 from ..handlers.to_device.thermostat_mode import ThermostatModeCommand
-from ..handlers.to_device.extended_set import ExtendedSetCommand
-from ..handlers.to_device.extended_set_2 import ExtendedSet2Command
+from ..managers.on_level_manager import OnLevelManager
 from ..managers.thermostat_status_manager import GetThermostatStatus
 from ..operating_flag import (
     BUTTON_LOCK_ON,
@@ -56,11 +53,10 @@ from ..operating_flag import (
     PROGRAM_LOCK_ON,
     TIME_24_HOUR_FORMAT,
 )
-from .commands import STATUS_COMMAND
-from .device_base import Device
+from ..utils import multiple_status, set_bit, to_fahrenheit
 from .battery_base import BatteryDeviceBase
-from ..utils import multiple_status, to_fahrenheit, set_bit
-from ..constants import ResponseStatus
+from .device_base import Device
+from .device_commands import STATUS_COMMAND
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -210,10 +206,16 @@ class ClimateControl_Thermostat(Device):
             FAN_MODE, self._address, group=GRP_FAN_MODE, default=4
         )
         self._groups[GRP_COOL_SP] = SetPoint(
-            COOL_SET_POINT, self._address, group=GRP_COOL_SP, default=65,
+            COOL_SET_POINT,
+            self._address,
+            group=GRP_COOL_SP,
+            default=65,
         )
         self._groups[GRP_HEAT_SP] = SetPoint(
-            HEAT_SET_POINT, self._address, group=GRP_HEAT_SP, default=95,
+            HEAT_SET_POINT,
+            self._address,
+            group=GRP_HEAT_SP,
+            default=95,
         )
         self._groups[GRP_HUMID_HI_SP] = Humidity(
             HUMIDITY_HIGH, self._address, group=GRP_HUMID_HI_SP, default=0
@@ -430,6 +432,7 @@ class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermo
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the Wireless Thermostat class."""
+        # pylint: disable=super-with-arguments
         super(ClimateControl_WirelessThermostat, self).__init__(
             address=address,
             cat=cat,

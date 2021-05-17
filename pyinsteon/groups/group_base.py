@@ -1,6 +1,7 @@
 """Base class for all group value entities."""
 
 from abc import ABC, abstractmethod
+
 from ..address import Address
 from ..subscriber_base import SubscriberBase
 

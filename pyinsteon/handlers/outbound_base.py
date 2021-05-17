@@ -2,11 +2,9 @@
 import asyncio
 from abc import ABCMeta
 
+from ..utils import build_topic, publish_topic
 from . import ResponseStatus
-from ..utils import publish_topic
-from ..utils import build_topic
 from .inbound_base import InboundHandlerBase
-
 
 MSG_TIME = 4  # seconds to send each message in queue, used for timeout below
 

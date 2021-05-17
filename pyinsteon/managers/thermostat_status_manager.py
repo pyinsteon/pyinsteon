@@ -5,14 +5,14 @@ from collections import namedtuple
 
 from ..address import Address
 from ..constants import ResponseStatus
+from ..handlers.from_device.thermostat_set_point_response import (
+    ThermostatSetPointResponseHandler,
+)
 from ..handlers.from_device.thermostat_status_response import (
     ThermostatStatusResponseHandler,
 )
 from ..handlers.to_device.extended_get_2 import ExtendedGet2Command
 from ..handlers.to_device.thermostat_get_set_point import ThermostatGetSetPointCommand
-from ..handlers.from_device.thermostat_set_point_response import (
-    ThermostatSetPointResponseHandler,
-)
 from ..utils import multiple_status
 
 _LOGGER = logging.getLogger(__name__)

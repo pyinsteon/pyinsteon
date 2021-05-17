@@ -1,8 +1,8 @@
 """On Leve state."""
 import logging
 
-from .group_base import GroupBase
 from ..address import Address
+from .group_base import GroupBase
 
 _LOGGER = logging.getLogger(__name__)
 

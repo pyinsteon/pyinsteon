@@ -7,9 +7,9 @@ import inspect
 import logging
 import os
 import sys
+import traceback
 from cmd import Cmd
 from collections import namedtuple
-import traceback
 
 from .. import devices
 from .log_filter import CommandFilter, StdoutFilter
@@ -60,8 +60,8 @@ class ToolsBase(Cmd):
             if hasattr(args, "logging") and self.workdir:
                 self.do_log_to_file("y", self.workdir)
 
-    async def cmdloop(self, intro=None):
-        """Override standard cmdloop to make this async.
+    async def async_cmdloop(self, intro=None):
+        """Replace standard cmdloop to make this async.
 
         Repeatedly issue a prompt, accept input, parse an initial prefix
         off the received input, and dispatch to action methods, passing them
@@ -90,7 +90,7 @@ class ToolsBase(Cmd):
                         line = "EOF"
                 line = self.precmd(line)
                 try:
-                    stop = await self.onecmd(line)
+                    stop = await self.async_onecmd(line)
                 # pylint: disable=broad-except
                 except Exception as ex:
                     self._log_stdout("An error occured executing command.")
@@ -101,8 +101,8 @@ class ToolsBase(Cmd):
         finally:
             pass
 
-    async def onecmd(self, line):
-        """Override the method to make it async.
+    async def async_onecmd(self, line):
+        """Replace the onecmd method to make it async.
 
         Interpret the argument as though it had been typed in response
         to the prompt.
@@ -171,7 +171,7 @@ class ToolsBase(Cmd):
         intro = "The command line module for pyinsteon is designed to test devices and perform certain common functions."
 
         try:
-            loop.run_until_complete(cls(loop, args).cmdloop(intro=intro))
+            loop.run_until_complete(cls(loop, args).async_cmdloop(intro=intro))
         except KeyboardInterrupt:
             loop.stop()
             pending = asyncio.Task.all_tasks(loop=loop)
@@ -187,7 +187,7 @@ class ToolsBase(Cmd):
 
     async def start_menu(self):
         """Start the menu."""
-        await self.cmdloop()
+        await self.async_cmdloop()
 
     # pylint: disable=no-self-use
     def do_list_devices(self, *args, **kwargs):
@@ -279,13 +279,14 @@ class ToolsBase(Cmd):
         self._log_command(f"save_devices {self.workdir}")
         await devices.async_save(workdir=self.workdir)
 
-    def do_exit(self, *args, **kwargs):
+    async def do_exit(self, *args, **kwargs):
         """Exit the current menu.
 
         Usage:
             exit
         """
         self._log_command("exit")
+        await self.do_log_to_file("n")
         return -1
 
     async def do_set_log_level(self, *args, **kwargs):
@@ -421,11 +422,14 @@ class ToolsBase(Cmd):
             password = getpass.getpass(prompt="Hub password: ")
             if not self.hub_version:
                 self.hub_version = await self._get_int(
-                    "Hub version", default=2, values=[1, 2],
+                    "Hub version",
+                    default=2,
+                    values=[1, 2],
                 )
             if not self.port:
                 self.port = await self._get_int(
-                    "Hub port", default=25105 if self.hub_version == 2 else 9761,
+                    "Hub port",
+                    default=25105 if self.hub_version == 2 else 9761,
                 )
         return password
 
@@ -619,7 +623,7 @@ class ToolsBase(Cmd):
             "Enter a working directory where the saved file is (and will be saved to after loading.)"
         )
         workdir = await self._input(
-            f"Working directory (enter . for current director): "
+            "Working directory (enter . for current director): "
         )
         if workdir == ".":
             return os.getcwd()

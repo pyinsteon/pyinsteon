@@ -1,7 +1,7 @@
 """Assign a device to an all link group."""
-from .. import broadcast_handler
 from ...address import Address
 from ...topics import ASSIGN_TO_ALL_LINK_GROUP
+from .. import broadcast_handler
 from .broadcast_command import BroadcastCommandHandlerBase
 
 

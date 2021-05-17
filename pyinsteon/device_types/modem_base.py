@@ -3,13 +3,13 @@ import asyncio
 from abc import ABCMeta
 from asyncio import Transport
 
+from ..handlers.all_link_cleanup_failure_report import AllLinkCleanupFailureReport
+from ..handlers.all_link_cleanup_report import AllLinkCleanupStatusReport
 from ..handlers.get_im_configuration import GetImConfigurationHandler
 from ..handlers.set_im_configuration import SetImConfigurationHandler
-from ..handlers.all_link_cleanup_report import AllLinkCleanupStatusReport
-from ..handlers.all_link_cleanup_failure_report import AllLinkCleanupFailureReport
 from ..protocol.protocol import Protocol
-from .commands import GET_IM_CONFIG_COMMAND
 from .device_base import Device
+from .device_commands import GET_IM_CONFIG_COMMAND
 
 
 class ModemBase(Device, metaclass=ABCMeta):

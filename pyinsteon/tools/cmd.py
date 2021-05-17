@@ -3,12 +3,9 @@
 import inspect
 from types import MethodType
 
-from .tools_base import ToolsBase
 from .. import devices
-from ..managers.scene_manager import (
-    async_trigger_scene_off,
-    async_trigger_scene_on,
-)
+from ..managers.scene_manager import async_trigger_scene_off, async_trigger_scene_on
+from .tools_base import ToolsBase
 
 
 def _convert_val(val):
@@ -123,7 +120,8 @@ class CmdTools(ToolsBase):
 
         if not scene:
             scene = await self._get_int(
-                "Scene number or blank to cancel", values=range(25, 256),
+                "Scene number or blank to cancel",
+                values=range(25, 256),
             )
 
         if not scene:
@@ -146,7 +144,8 @@ class CmdTools(ToolsBase):
 
         if not scene:
             scene = await self._get_int(
-                "Scene number or blank to cancel", values=range(25, 256),
+                "Scene number or blank to cancel",
+                values=range(25, 256),
             )
 
         if not scene:
@@ -178,7 +177,7 @@ class CmdTools(ToolsBase):
         try:
             address, cmd, kwargs = _parse_cmd(*args)
         except AttributeError:
-            self._log_stdout(f"Device command not found.")
+            self._log_stdout("Device command not found.")
             return
 
         addresses = await self._get_addresses(

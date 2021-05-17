@@ -10,11 +10,11 @@ from tests.utils import (
     DataItem,
     TopicItem,
     async_case,
+    async_protocol_manager,
     create_std_ext_msg,
+    random_address,
     send_data,
     send_topics,
-    random_address,
-    async_protocol_manager,
 )
 
 

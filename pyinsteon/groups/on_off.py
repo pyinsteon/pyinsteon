@@ -1,6 +1,6 @@
 """On / Off state."""
-from .group_base import GroupBase
 from ..address import Address
+from .group_base import GroupBase
 
 
 class OnOff(GroupBase):

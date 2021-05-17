@@ -13,9 +13,9 @@ from tests import _LOGGER, set_log_levels
 from tests.utils import (
     TopicItem,
     async_case,
-    send_topics,
-    random_address,
     async_protocol_manager,
+    random_address,
+    send_topics,
 )
 
 FILE = "device_commands.json"

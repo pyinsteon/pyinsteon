@@ -1,18 +1,18 @@
 """Python module for controlling Insteon devices."""
 import asyncio
 import logging
+
 from pubsub import pub
-from .protocol import async_modem_connect
-from .managers.device_manager import DeviceManager
-from .listener_exception_handler import ListenerExceptionHandler
+
 from .handlers.from_device.x10_received import X10Received
+from .listener_exception_handler import ListenerExceptionHandler
+from .managers.device_manager import DeviceManager
 
 # pylint: disable=unused-import
-from .managers.x10_manager import (  # noqa: F401
-    async_x10_all_lights_off,
-    async_x10_all_lights_on,
-    async_x10_all_units_off,
-)
+from .managers.x10_manager import async_x10_all_lights_off  # noqa: F401
+from .managers.x10_manager import async_x10_all_lights_on  # noqa: F401
+from .managers.x10_manager import async_x10_all_units_off  # noqa: F401
+from .protocol import async_modem_connect
 
 _LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")
 X10_RECEIVED_HANDLER = X10Received()
