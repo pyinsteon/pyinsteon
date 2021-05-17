@@ -1,5 +1,4 @@
 """Manage inbound ON command from device."""
-
 from ...topics import OFF
 from .. import broadcast_handler
 from .broadcast_command import BroadcastCommandHandlerBase
