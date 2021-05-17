@@ -2,7 +2,6 @@
 import inspect
 import logging
 from typing import Callable
-import inspect
 
 from .. import pub
 from ..constants import (
