@@ -2,11 +2,11 @@
 import logging
 from collections import OrderedDict
 
-from .. import inbound_handler
 from ...address import Address
 from ...constants import MessageFlagType
 from ...topics import EXTENDED_GET_RESPONSE
 from ...utils import build_topic
+from .. import inbound_handler
 from ..inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)

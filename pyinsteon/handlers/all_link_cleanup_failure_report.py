@@ -1,7 +1,7 @@
 """Handle All-Link Cleanup Status Reports."""
 from ..topics import ALL_LINK_CLEANUP_FAILURE_REPORT
-from .outbound_base import OutboundHandlerBase
 from . import ack_handler, nak_handler
+from .outbound_base import OutboundHandlerBase
 
 
 class AllLinkCleanupFailureReport(OutboundHandlerBase):

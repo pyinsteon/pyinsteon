@@ -6,8 +6,8 @@ from os import path
 import aiofiles
 
 from ..address import Address
-from ..constants import EngineVersion
 from ..aldb.aldb_record import ALDBRecord
+from ..constants import EngineVersion
 from ..x10_address import X10Address
 from .device_id_manager import DeviceId
 from .utils import create_device

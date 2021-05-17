@@ -10,7 +10,7 @@ class CommandFilter(Filter):
 
     def __init__(self, prompt):
         """Init the CommandFilter class."""
-        super(CommandFilter, self).__init__()
+        super().__init__()
         self.prompt = prompt
 
     def filter(self, record):
@@ -25,7 +25,7 @@ class StdoutFilter(Filter):
 
     def __init__(self, prefix):
         """Init the CommandFilter class."""
-        super(StdoutFilter, self).__init__()
+        super().__init__()
         self.prefix = prefix
 
     def filter(self, record):

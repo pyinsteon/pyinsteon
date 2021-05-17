@@ -1,25 +1,25 @@
 """Utility methods."""
-from functools import partial
 import logging
-from enum import Enum, IntEnum
 import traceback
+from enum import Enum, IntEnum
+from functools import partial
 from typing import Iterable
 
 from . import pub
 from .address import Address
+from .commands import commands
 from .constants import (
     HC_LOOKUP,
     RAMP_RATES,
     RAMP_RATES_SEC,
     UC_LOOKUP,
+    FanSpeed,
+    FanSpeedRange,
     MessageFlagType,
     ResponseStatus,
-    X10Commands,
     ThermostatMode,
-    FanSpeedRange,
-    FanSpeed,
+    X10Commands,
 )
-from .protocol.commands import commands
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")

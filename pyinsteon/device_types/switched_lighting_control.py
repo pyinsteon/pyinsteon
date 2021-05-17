@@ -6,13 +6,13 @@ from ..constants import ResponseStatus
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..extended_property import (
     LED_DIMMING,
-    X10_HOUSE,
-    X10_UNIT,
-    ON_MASK,
-    OFF_MASK,
     NON_TOGGLE_MASK,
     NON_TOGGLE_ON_OFF_MASK,
+    OFF_MASK,
+    ON_MASK,
     TRIGGER_GROUP_MASK,
+    X10_HOUSE,
+    X10_UNIT,
 )
 from ..groups import (
     ON_OFF_OUTLET_BOTTOM,
@@ -39,17 +39,17 @@ from ..operating_flag import (
     LED_BLINK_ON_TX_ON,
     LED_OFF,
     MOMENTARY_LINE_ON,
+    POWERLINE_DISABLE_ON,
     PROGRAM_LOCK_ON,
     RESUME_DIM_ON,
     REVERSED_ON,
-    THREE_WAY_ON,
     RF_DISABLE_ON,
-    POWERLINE_DISABLE_ON,
+    THREE_WAY_ON,
 )
-from .commands import SET_LEDS_COMMAND, STATUS_COMMAND, GET_LEDS_COMMAND
-from .on_off_responder_base import OnOffResponderBase
-from ..utils import bit_is_set, set_bit, multiple_status
+from ..utils import bit_is_set, multiple_status, set_bit
+from .device_commands import GET_LEDS_COMMAND, SET_LEDS_COMMAND, STATUS_COMMAND
 from .on_off_controller_base import ON_LEVEL_MANAGER
+from .on_off_responder_base import OnOffResponderBase
 
 
 class SwitchedLightingControl(OnOffResponderBase):

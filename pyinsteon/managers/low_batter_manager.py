@@ -2,11 +2,11 @@
 
 import asyncio
 
-from ..utils import subscribe_topic
 from ..address import Address
 from ..handlers.from_device.off import OffInbound
 from ..handlers.from_device.on_level import OnLevelInbound
 from ..subscriber_base import SubscriberBase
+from ..utils import subscribe_topic
 
 WAIT_TIME = 5
 

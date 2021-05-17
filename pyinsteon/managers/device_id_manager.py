@@ -1,20 +1,19 @@
 """Manage identifying unknown devices."""
 import asyncio
 import logging
+from binascii import unhexlify
 from collections import namedtuple
 
-from binascii import unhexlify
-
 from .. import pub
-from ..utils import subscribe_topic, unsubscribe_topic
 from ..address import Address
-from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
 from ..handlers.all_link_completed import AllLinkCompletedHandler
+from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
 from ..handlers.from_device.delete_from_all_link_group import (
     DeleteFromAllLinkGroupCommand,
 )
 from ..handlers.to_device.id_request import IdRequestCommand
 from ..subscriber_base import SubscriberBase
+from ..utils import subscribe_topic, unsubscribe_topic
 
 _LOGGER = logging.getLogger(__name__)
 MAX_RETRIES = 5

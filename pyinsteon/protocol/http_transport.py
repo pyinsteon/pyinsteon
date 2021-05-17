@@ -7,8 +7,8 @@ from contextlib import suppress
 import aiohttp
 
 from .http_reader_writer import HttpReaderWriter
-from .msg_to_url import convert_to_url
 from .hub_connection_exception import HubConnectionException
+from .msg_to_url import convert_to_url
 
 _LOGGER = logging.getLogger(__name__)
 READ_WAIT = 0.5

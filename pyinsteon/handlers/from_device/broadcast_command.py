@@ -1,5 +1,6 @@
 """Base class to handle Broadcast messages from devices."""
 from datetime import datetime
+
 from ...address import Address
 from ...constants import MessageFlagType
 from ..inbound_base import InboundHandlerBase

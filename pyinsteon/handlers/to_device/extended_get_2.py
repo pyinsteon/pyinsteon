@@ -3,8 +3,8 @@ import logging
 
 from ...address import Address
 from ...topics import EXTENDED_GET_SET_2
-from .direct_command import DirectCommandHandlerBase
 from .. import direct_ack_handler
+from .direct_command import DirectCommandHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
 

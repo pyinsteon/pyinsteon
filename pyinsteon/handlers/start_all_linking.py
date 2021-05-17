@@ -1,7 +1,7 @@
 """Start All-Linking."""
-from . import ack_handler
 from ..constants import AllLinkMode
 from ..topics import START_ALL_LINKING
+from . import ack_handler
 from .outbound_base import OutboundHandlerBase
 
 

@@ -1,8 +1,8 @@
 """Modem command to get next ALDB record."""
 import logging
 
-from . import ack_handler, nak_handler
 from ..topics import GET_NEXT_ALL_LINK_RECORD
+from . import ack_handler, nak_handler
 from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)

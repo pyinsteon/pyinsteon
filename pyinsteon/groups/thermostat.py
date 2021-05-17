@@ -1,14 +1,18 @@
 """Temperature state."""
-from .group_base import GroupBase
 from ..address import Address
 from ..constants import ThermostatMode
+from .group_base import GroupBase
 
 
 class Temperature(GroupBase):
     """Temperature state."""
 
     def __init__(
-        self, name: str, address: Address, group: int = 0, default: float = None,
+        self,
+        name: str,
+        address: Address,
+        group: int = 0,
+        default: float = None,
     ):
         """Init the Temperature class."""
         super().__init__(name, address, group, default, value_type=float)
