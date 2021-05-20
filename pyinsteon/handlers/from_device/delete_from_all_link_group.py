@@ -10,12 +10,13 @@ class DeleteFromAllLinkGroupCommand(BroadcastCommandHandlerBase):
 
     def __init__(self, address: Address):
         """Init the DeleteFromAllLinkGroupCommand class."""
-        self._address = Address(address)
-        super().__init__(topic=DELETE_FROM_ALL_LINK_GROUP, address=self._address)
+        super().__init__(topic=DELETE_FROM_ALL_LINK_GROUP, address=address)
 
     @broadcast_handler
     def receive_id(self, cmd1, cmd2, target, user_data, hops_left):
         """Receive the device ID information."""
+        if not self.is_first_message(target, hops_left):
+            return
         cat = target.high
         subcat = target.middle
         firmware = target.low

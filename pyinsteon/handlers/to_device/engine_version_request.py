@@ -25,3 +25,4 @@ class EngineVersionRequest(DirectCommandHandlerBase):
         except ValueError:
             version = EngineVersion.UNKNOWN
         self._call_subscribers(engine_version=version)
+        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

@@ -1,7 +1,6 @@
 """Thermostat Status Response Handler."""
 import logging
 
-from ...address import Address
 from ...constants import MessageFlagType, ThermostatMode
 from ...topics import THERMOSTAT_STATUS_RESPONSE
 from ...utils import bit_is_set, build_topic, calc_thermostat_mode, calc_thermostat_temp
@@ -33,10 +32,9 @@ class ThermostatStatusResponseHandler(InboundHandlerBase):
 
     def __init__(self, address):
         """Init the ThermostatStatusResponseHandler class."""
-        self._address = Address(address)
         super().__init__(
             topic=THERMOSTAT_STATUS_RESPONSE,
-            address=self._address,
+            address=address,
             message_type=MessageFlagType.DIRECT,
         )
         self._subscriber_topic = build_topic(

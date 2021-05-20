@@ -268,7 +268,7 @@ class ResponseStatus(HexIntEnum):
     FAILURE = 0
     SUCCESS = 1
     UNCLEAR = 2
-    INPROGRESS = 4
+    DEVICE_UNRESPONSIVE = 4
     UNSENT = 8
     RUN_ON_WAKE = 0x10
 

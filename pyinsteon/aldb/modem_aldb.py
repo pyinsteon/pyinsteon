@@ -4,8 +4,12 @@ import logging
 from typing import Callable
 
 from .. import pub
-from ..constants import ALDBStatus, ALDBVersion, ManageAllLinkRecordAction
-from ..handlers import ResponseStatus
+from ..constants import (
+    ALDBStatus,
+    ALDBVersion,
+    ManageAllLinkRecordAction,
+    ResponseStatus,
+)
 from ..handlers.manage_all_link_record import ManageAllLinkRecordCommand
 from ..managers.im_read_manager import ImReadManager
 from ..topics import ALL_LINK_RECORD_RESPONSE

@@ -93,7 +93,7 @@ class TestExtendedPropertyManager(unittest.TestCase):
         )
 
         topic_ack = TopicItem(
-            ack, cmd_kwargs(0x2E, 0x00, UserData({"d1": 0, "d2": 1})), 1
+            ack, cmd_kwargs(0x2E, 0x00, UserData({"d1": 1, "d2": 0})), 1
         )
         topic_dir_ack = TopicItem(
             dir_ack, cmd_kwargs(0x2E, 0x00, None, target="030405"), 0.1

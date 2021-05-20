@@ -3,7 +3,7 @@ from ..address import Address
 from ..constants import ManageAllLinkRecordAction
 from ..protocol.messages.all_link_record_flags import create
 from ..topics import MANAGE_ALL_LINK_RECORD
-from . import ack_handler, nak_handler
+from . import nak_handler
 from .outbound_base import OutboundHandlerBase
 
 
@@ -46,10 +46,6 @@ class ManageAllLinkRecordCommand(OutboundHandlerBase):
             data2=data2,
             data3=data3,
         )
-
-    @ack_handler()
-    def handle_ack(self, action, flags, group, target, data1, data2, data3):
-        """Handle ACK response."""
 
     @nak_handler
     def handle_nak(self, action, flags, group, target, data1, data2, data3):

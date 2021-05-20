@@ -2,7 +2,7 @@
 from functools import partial
 from typing import Iterable
 
-from ..constants import FanSpeed
+from ..constants import FanSpeed, ResponseStatus
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..extended_property import (
     LED_DIMMING,
@@ -32,7 +32,6 @@ from ..groups import (
 )
 from ..groups.on_level import OnLevel
 from ..groups.on_off import OnOff
-from ..handlers import ResponseStatus
 from ..handlers.from_device.manual_change import ManualChangeInbound
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
