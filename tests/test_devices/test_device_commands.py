@@ -67,7 +67,7 @@ class TestDeviceCommands(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=False,
+            logger_topics=True,
         )
 
     def tearDown(self):

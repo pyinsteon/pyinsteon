@@ -51,3 +51,4 @@ class ThermostatModeCommand(DirectCommandHandlerBase):
             mode = ThermostatMode.OFF
 
         self._call_subscribers(mode=mode)
+        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

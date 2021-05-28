@@ -2,7 +2,6 @@
 import logging
 
 from ..topics import SET_IM_CONFIGURATION
-from . import ack_handler
 from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -46,7 +45,3 @@ class SetImConfigurationHandler(OutboundHandlerBase):
             auto_led=auto_led,
             deadman=deadman,
         )
-
-    @ack_handler(wait_response=False)
-    def handle_ack(self, disable_auto_linking, monitor_mode, auto_led, deadman):
-        """Receive the ACK message and return True."""

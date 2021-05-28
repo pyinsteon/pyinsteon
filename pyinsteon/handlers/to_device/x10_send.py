@@ -44,9 +44,10 @@ class X10CommandSend(OutboundHandlerBase):
             raw_x10=raw_x10, x10_flag=X10CommandType.COMMAND
         )
 
-    @ack_handler(wait_response=False)
+    @ack_handler
     def handle_ack(self, raw_x10, x10_flag):
         """Handle the X10 message ACK."""
+        super().handle_ack()
 
     @nak_handler
     def handle_nak(self, raw_x10, x10_flag):

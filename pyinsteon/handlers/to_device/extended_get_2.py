@@ -32,3 +32,4 @@ class ExtendedGet2Command(DirectCommandHandlerBase):
     def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the direct ACK."""
         self._call_subscribers()
+        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

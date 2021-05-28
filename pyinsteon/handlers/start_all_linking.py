@@ -21,6 +21,7 @@ class StartAllLinkingCommandHandler(OutboundHandlerBase):
         """Send the Start All-Linking Command."""
         return await super().async_send(mode=mode, group=group)
 
-    @ack_handler()
+    @ack_handler
     def handle_ack(self, mode: AllLinkMode, group: int):
         """Handle the ACK message."""
+        super().handle_ack(mode=mode, group=group)
