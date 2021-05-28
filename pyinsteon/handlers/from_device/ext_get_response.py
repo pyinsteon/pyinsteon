@@ -2,7 +2,6 @@
 import logging
 from collections import OrderedDict
 
-from ...address import Address
 from ...constants import MessageFlagType
 from ...topics import EXTENDED_GET_RESPONSE
 from ...utils import build_topic
@@ -17,10 +16,9 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
 
     def __init__(self, address):
         """Init the OffInbound class."""
-        self._address = Address(address)
         super().__init__(
             topic=EXTENDED_GET_RESPONSE,
-            address=self._address,
+            address=address,
             message_type=MessageFlagType.DIRECT,
         )
         self._subscriber_topic = build_topic(

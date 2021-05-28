@@ -32,3 +32,4 @@ class OnLevelCommand(DirectCommandHandlerBase):
         """Handle the ON response direct ACK."""
         if self._response_lock.locked():
             self._call_subscribers(on_level=cmd2 if cmd2 else 0xFF)
+        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

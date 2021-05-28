@@ -3,9 +3,8 @@
 import unittest
 
 from pyinsteon.address import Address
-from pyinsteon.device_types.dimmable_lighting_control import \
-    DimmableLightingControl
-from pyinsteon.handlers import ResponseStatus
+from pyinsteon.constants import ResponseStatus
+from pyinsteon.device_types.dimmable_lighting_control import DimmableLightingControl
 from pyinsteon.topics import OFF, OFF_FAST, ON, ON_FAST
 from tests import set_log_levels
 from tests.utils import TopicItem, async_case, cmd_kwargs, send_topics

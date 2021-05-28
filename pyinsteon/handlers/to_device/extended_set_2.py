@@ -49,8 +49,8 @@ class ExtendedSet2Command(DirectCommandHandlerBase):
                 kwargs["data{}".format(item)] = data
         return await super().async_send(**kwargs)
 
-    @ack_handler(wait_response=True)
+    @ack_handler
     def handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK."""
-        if user_data["data1"] == self._data1 and user_data["data2"] == self._data2:
-            super().handle_ack(cmd1, cmd2, user_data)
+        if user_data["d1"] == self._data1 and user_data["d2"] == self._data2:
+            super().handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
