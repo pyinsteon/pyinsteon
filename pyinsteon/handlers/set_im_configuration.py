@@ -2,7 +2,6 @@
 import logging
 
 from ..topics import SET_IM_CONFIGURATION
-from . import ack_handler
 from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
