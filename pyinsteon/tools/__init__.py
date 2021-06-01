@@ -1,24 +1,21 @@
 """Command line tools to interact with the Insteon devices."""
 import asyncio
-from binascii import unhexlify
 import os
 from binascii import unhexlify
 
-from .. import async_close, async_connect, devices
+from .. import async_close, async_connect, devices, pub
 from ..address import Address
 from ..constants import HC_LOOKUP, UC_LOOKUP
-from .. import pub
-from .tools_base import ToolsBase
-from .config import ToolsConfig
-from .aldb import ToolsAldb
-from .cmd import CmdTools
-from ..address import Address
-from ..topics import ALL_LINKING_COMPLETED
 from ..managers.link_manager import (
+    async_cancel_linking_mode,
     async_enter_linking_mode,
     async_enter_unlinking_mode,
-    async_cancel_linking_mode,
 )
+from ..topics import ALL_LINKING_COMPLETED
+from .aldb import ToolsAldb
+from .cmd import CmdTools
+from .config import ToolsConfig
+from .tools_base import ToolsBase
 
 
 class InsteonCmd(ToolsBase):
