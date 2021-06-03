@@ -1,5 +1,4 @@
 """Cancel All-Linking."""
-from . import ack_handler
 from ..topics import CANCEL_ALL_LINKING
 from .outbound_base import OutboundHandlerBase
 
