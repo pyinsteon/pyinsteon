@@ -143,7 +143,7 @@ class DeviceIdManager(SubscriberBase):
         except ValueError:
             pass
         unsubscribe_topic(self._device_awake, address.id)
-        self._call_subscribers(device_id=device_id)
+        self._call_subscribers(device_id=device_id, mode=mode)
 
     def _set_device_info(
         self, address, cat=None, subcat=None, firmware=None, product_id=None
