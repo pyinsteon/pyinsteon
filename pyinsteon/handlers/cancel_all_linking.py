@@ -1,5 +1,4 @@
 """Cancel All-Linking."""
-from . import ack_handler
 from ..topics import CANCEL_ALL_LINKING
 from .outbound_base import OutboundHandlerBase
 
@@ -11,9 +10,3 @@ class CancelAllLinkingCommandHandler(OutboundHandlerBase):
     def __init__(self):
         """Init the CancelAllLinkingCommandHandler class."""
         super().__init__(topic=CANCEL_ALL_LINKING)
-
-    @ack_handler()
-    def handle_ack(
-        self,
-    ):
-        """Handle the ACK message."""
