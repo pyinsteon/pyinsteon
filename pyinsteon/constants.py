@@ -400,3 +400,10 @@ RAMP_RATES_SEC = {
     0.2: 0x1E,
     0.1: 0x1F,
 }
+
+
+class DeviceAction(Enum):
+    """Device list actions."""
+
+    ADDED = 0
+    REMOVED = 1
