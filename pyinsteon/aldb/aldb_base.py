@@ -2,6 +2,7 @@
 import asyncio
 import logging
 from abc import ABC, abstractmethod
+from typing import List
 
 from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion
@@ -145,7 +146,7 @@ class ALDBBase(ABC):
     async def async_load(self, *args, **kwargs):
         """Load the All-Link Database."""
 
-    def load_saved_records(self, status: ALDBStatus, records: [ALDBRecord]):
+    def load_saved_records(self, status: ALDBStatus, records: List[ALDBRecord]):
         """Load All-Link records from a dictionary of saved records."""
         self._update_status(status)
         self.clear()
@@ -288,6 +289,31 @@ class ALDBBase(ABC):
                 failed.append(rec)
         self._dirty_records = {rec.mem_addr: rec for rec in failed}
         return success, len(self._dirty_records)
+
+    def find(
+        self,
+        group: int = None,
+        target: Address = None,
+        is_controller: bool = None,
+        in_use: bool = None,
+    ):
+        """Find all records matching the criteria.
+
+        This method is a coroutine.
+        """
+        if group is None and target is None and is_controller is None:
+            raise ValueError("Must have at least one criteria")
+
+        for mem_addr in self._records:
+            rec = self._records[mem_addr]
+            group_match = group is None or rec.group == group
+            target_match = target is None or rec.target == target
+            is_controller_match = (
+                is_controller is None or rec.is_controller == is_controller
+            )
+            in_use_match = in_use is None or rec.is_in_use == in_use
+            if group_match and target_match and is_controller_match and in_use_match:
+                yield rec
 
     def _notify_change(self, record, force_delete=False):
         target = record.target
