@@ -3,8 +3,8 @@ import logging
 
 from ...address import Address
 from ...constants import AllLinkMode, LinkStatus, ResponseStatus
-from ...handlers.start_all_linking import StartAllLinkingCommandHandler
 from ...handlers.cancel_all_linking import CancelAllLinkingCommandHandler
+from ...handlers.start_all_linking import StartAllLinkingCommandHandler
 from ...handlers.to_device.enter_linking_mode import EnterLinkingModeCommand
 from ...handlers.to_device.enter_unlinking_mode import EnterUnlinkingModeCommand
 
@@ -13,7 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_enter_linking_mode(
-    is_controller: bool, group: int, address: Address = None, continuous=False
+    is_controller: bool, group: int, address: Address = None
 ):
     """Put the Insteon Modem into linking mode."""
     link_cmd = StartAllLinkingCommandHandler()
@@ -74,7 +74,7 @@ async def async_link_devices(
 async def async_cancel_linking_mode():
     """Cancel an All-Link session with the modem."""
     cmd = CancelAllLinkingCommandHandler()
-    await cmd.async_send()
+    return await cmd.async_send()
 
 
 async def async_unlink_devices(controller, responder, group: int = 0):
