@@ -1,4 +1,5 @@
 """Constants used to ensure topic consistantancy."""
+DEVICE_LIST_CHANGED = "device_list_changed"
 
 STANDARD_RECEIVED = "standard_received"
 EXTENDED_RECEIVED = "extended_received"
