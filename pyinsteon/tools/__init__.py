@@ -3,14 +3,12 @@ import asyncio
 import os
 from binascii import unhexlify
 
+import async_timeout
+
 from .. import async_close, async_connect, devices, pub
 from ..address import Address
-from ..constants import HC_LOOKUP, UC_LOOKUP
-from ..managers.link_manager import (
-    async_cancel_linking_mode,
-    async_enter_linking_mode,
-    async_enter_unlinking_mode,
-)
+from ..constants import HC_LOOKUP, UC_LOOKUP, DeviceAction
+from ..managers.link_manager import async_cancel_linking_mode, async_enter_linking_mode
 from ..topics import ALL_LINKING_COMPLETED
 from .aldb import ToolsAldb
 from .cmd import CmdTools
@@ -144,7 +142,7 @@ class InsteonCmd(ToolsBase):
         self._log_command("tests")
         await self._call_next_menu(CmdTools, "commands")
 
-    async def do_link_device(self, *args, **kwargs):
+    async def do_add_device(self, *args, **kwargs):
         """Link a device to the modem.
 
         Usage:
@@ -188,14 +186,14 @@ class InsteonCmd(ToolsBase):
             )
         if multi:
             self._log_stdout(
-                "The modem will stay in linking mode untile the `cancel_linking` command is issued."
+                "The modem will stay in linking mode until the `stop_linking` command is issued."
             )
             pub.subscribe(self._linking_complete, ALL_LINKING_COMPLETED)
             asyncio.ensure_future(self._repeat_linking_mode())
         else:
             await async_enter_linking_mode(is_controller=True, group=0, address=address)
 
-    async def do_cancel_linking(self, *args, **kwargs):
+    async def do_stop_linking(self, *args, **kwargs):
         """Cancel an All-Link session.
 
         Usage:
@@ -289,6 +287,15 @@ class InsteonCmd(ToolsBase):
 
     async def do_remove_device(self, *args, **kwargs):
         """Add a device."""
+        removed_queue = asyncio.Queue()
+
+        def device_removed(address, action):
+            nonlocal removed_queue
+            if action == DeviceAction.REMOVED:
+                removed_queue.put_nowait(Address(address))
+
+        devices.subscribe(device_removed)
+
         self._log_command("remove_device")
         args = args[0].split()
         try:
@@ -297,15 +304,23 @@ class InsteonCmd(ToolsBase):
             address = None
 
         if address is not None:
-            self._log_stdout("Attempting to place device %s into linking mode.")
             self._log_stdout(
-                "If the device does not link with the modem within a minute, press the set button on the device."
+                f"Attempting to place device {address} into unlinking mode."
+            )
+            self._log_stdout(
+                "If the device does not unlink with the modem within a minute, press the set button on the device."
             )
         else:
             self._log_stdout(
                 "Press the set button on the device. Unlinking will occur in the background."
             )
-        await async_enter_unlinking_mode(group=0, address=address)
+        await devices.async_remove_device(address=address)
+        try:
+            async with async_timeout.timeout(3 * 60):
+                address = await removed_queue.get()
+                self._log_stdout(f"Device {str(address)} removed")
+        except asyncio.TimeoutError:
+            self._log_stdout("No device was removed due to a timeout error.")
 
     async def do_add_x10_device(self, *args, **kwargs):
         """Add an X10 device.
