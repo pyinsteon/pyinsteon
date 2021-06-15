@@ -6,7 +6,6 @@ import os
 from .. import async_close, async_connect, devices
 from ..address import Address
 from ..constants import HC_LOOKUP, UC_LOOKUP, DeviceAction
-from .. import pub
 from .tools_base import ToolsBase
 from .config import ToolsConfig
 from .aldb import ToolsAldb
