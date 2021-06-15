@@ -68,7 +68,7 @@ class DeviceManager(SubscriberBase):
                     address=device.address.id, action=DeviceAction.REMOVED
                 )
             # Schedule the modem records to be cleaned up
-            asyncio.ensure_future(self._remove_all_modem_links(address=address))
+            asyncio.ensure_future(self._async_remove_all_modem_links(address=address))
             return
 
         _LOGGER.info("Adding device to INSTEON devices list: %s", address.id)
@@ -202,6 +202,7 @@ class DeviceManager(SubscriberBase):
         This method will remove all links in the modem were the device is the target and
         all links in the device where the modem is the target.
         """
+        await self._async_remove_all_device_links(address)
         await async_enter_unlinking_mode(group=0, address=address)
 
     async def async_cancel_add_device(self):
@@ -213,12 +214,25 @@ class DeviceManager(SubscriberBase):
         self._delay_device_inspection = False
         await self.async_inspect_devices()
 
-    async def _remove_all_modem_links(self, address: Address):
+    async def _async_remove_all_modem_links(self, address: Address):
         """Remove all references to a device from the modem."""
         # Remove all records in the modem with the device as a target
         for rec in self.modem.aldb.find(target=Address(address), in_use=True):
             self[address].aldb.modify(mem_addr=rec.mem_addr, in_use=False)
         await self.modem.aldb.async_write()
+
+    async def _async_remove_all_device_links(self, address: Address):
+        """Remove all ALDB records from the device to the modem.
+
+        This does not remove the modem as a controller to group 0.
+        That is removed via All-Linking.
+        """
+        if self._devices.get(address) is None:
+            return
+        for rec in self[address].aldb.find(target=self.modem.address, in_use=True):
+            if rec.group != 0 and not rec.is_controller:
+                self[address].aldb.modify(mem_addr=rec.mem_addr, in_use=False)
+        await self[address].aldb.async_write()
 
     def add_x10_device(
         self,
