@@ -400,7 +400,7 @@ class InsteonCmd(ToolsBase):
                 else:
                     return
             except asyncio.TimeoutError:
-                self.do_cancel_linking()
+                self.do_stop_linking()
                 return
 
 
