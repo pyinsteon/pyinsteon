@@ -64,9 +64,7 @@ class DeviceManager(SubscriberBase):
             _LOGGER.info("Removing device from INSTEON devices list: %s", address.id)
             if address in self._devices:
                 self._devices.pop(address)
-                self._call_subscribers(
-                    address=device.address.id, action=DeviceAction.REMOVED
-                )
+                self._call_subscribers(address=address.id, action=DeviceAction.REMOVED)
             # Schedule the modem records to be cleaned up
             asyncio.ensure_future(self._async_remove_all_modem_links(address=address))
             return
