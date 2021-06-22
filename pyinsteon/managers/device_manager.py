@@ -216,7 +216,7 @@ class DeviceManager(SubscriberBase):
         """Remove all references to a device from the modem."""
         # Remove all records in the modem with the device as a target
         for rec in self.modem.aldb.find(target=Address(address), in_use=True):
-            self[address].aldb.modify(mem_addr=rec.mem_addr, in_use=False)
+            self.modem.aldb.modify(mem_addr=rec.mem_addr, in_use=False)
         await self.modem.aldb.async_write()
 
     async def _async_remove_all_device_links(self, address: Address):
