@@ -28,7 +28,7 @@ class InsteonCmd(ToolsBase):
         """Init the InsteonCmd class."""
         super().__init__(loop, args=args, menu=menu, stdin=stdin, stdout=stdout)
         self._link_mode_lock = asyncio.Lock()
-        self._reset_link_mode_queue = asyncio.Queue()
+        self._link_queue = asyncio.Queue()
 
     async def do_connect(self, *args, **kwargs):
         """Connect to the Insteon modem.
@@ -189,28 +189,20 @@ class InsteonCmd(ToolsBase):
             self._log_stdout(
                 "Press the set button on the device. Linking will occur in the background."
             )
-        if multi:
-            self._log_stdout(
-                "The modem will stay in linking mode until the `stop_linking` command is issued."
-            )
-            pub.subscribe(self._linking_complete, ALL_LINKING_COMPLETED)
-            asyncio.ensure_future(self._repeat_linking_mode())
-        else:
-            await async_enter_linking_mode(is_controller=True, group=0, address=address)
 
-    async def do_stop_linking(self, *args, **kwargs):
-        """Cancel an All-Link session.
+        self._log_stdout("Press enter to stop linking.")
+        try:
+            for address in await self._start_all_linking(
+                address=address, mode=DeviceAction.ADDED, multi=multi
+            ):
+                if address is not None:
+                    self._log_stdout(f"Device {str(address)} was added.")
+        except asyncio.TimeoutError:
+            self._log_stdout("All-Linking has timed out.")
 
-        Usage:
-            cancel_linking
-
-        This command is used after starting a linking session using the `link_device` command.
-
-        """
-        pub.unsubscribe(self._linking_complete, ALL_LINKING_COMPLETED)
+    async def _async_stop_linking(self, *args, **kwargs):
+        """Cancel an All-Link session."""
         await async_cancel_linking_mode()
-        await devices.async_inspect_devices()
-        devices.delay_inspection = False
 
     async def do_add_device_manually(self, *args, **kwargs):
         """Add a device using a cat and subcat.
@@ -321,9 +313,11 @@ class InsteonCmd(ToolsBase):
             )
         await devices.async_remove_device(address=address)
         try:
-            async with async_timeout.timeout(3 * 60):
-                address = await removed_queue.get()
-                self._log_stdout(f"Device {str(address)} removed")
+            for address in await self._start_all_linking(
+                address=address, mode=DeviceAction.REMOVED, multi=False
+            ):
+                if address is not None:
+                    self._log_stdout(f"Device {str(address)} was removed.")
         except asyncio.TimeoutError:
             self._log_stdout("No device was removed due to a timeout error.")
 
@@ -386,27 +380,65 @@ class InsteonCmd(ToolsBase):
 
         devices.add_x10_device(housecode, unitcode, x10_type, steps, 255)
 
-    def _linking_complete(self, mode, group, target, cat, subcat, firmware):
-        """Put the modem back in linking mode after a device is linked."""
-        self._log_stdout(f"Device {str(target)} added to device list.")
-        self._reset_link_mode_queue.put_nowait(True)
-
-    async def _repeat_linking_mode(self):
+    async def _start_all_linking(self, address, mode, multi=False):
         """Put the modem into linking mode repeatedly or cancel on timeout."""
         devices.delay_inspection = True
-        while True:
-            try:
+        added_queue = asyncio.Queue()
+
+        def device_added(address, action):
+            nonlocal added_queue
+            if action == mode:
+                added_queue.put_nowait(Address(address))
+
+        devices.subscribe(device_added)
+        run_again = True
+        while run_again:
+            if mode == DeviceAction.ADDED:
                 await async_enter_linking_mode(
-                    is_controller=True, group=0, address=None
+                    is_controller=True, group=0, address=address
                 )
-                result = asyncio.wait_for(self._reset_link_mode_queue.get(), 150)
-                if result:
-                    asyncio.sleep(0.1)
-                else:
-                    return
-            except asyncio.TimeoutError:
-                self.do_stop_linking()
-                return
+            else:
+                await async_enter_unlinking_mode(group=0, address=address)
+            address = None
+            run_again = multi
+
+            response = await self._wait_for_link_response(mode)
+            if isinstance(response, Address):
+                yield response
+            else:
+                run_again = False
+                yield None
+
+    async def _wait_for_link_response(self, mode):
+        """Wait for a link response or keyboard entry."""
+
+        def linking_completed(address, action):
+            if action == mode:
+                self._link_queue.put_nowait(Address(address))
+
+        devices.subscribe(linking_completed)
+
+        timeout = False
+        try:
+            async with async_timeout.timeout(3 * 50):
+                finished, unfinished = await asyncio.wait(
+                    [self._link_queue.get(), self._input()],
+                    return_when=asyncio.FIRST_COMPLETED,
+                )
+                for task in finished:
+                    result = task.result()
+                for task in unfinished:
+                    task.cancel()
+                await asyncio.wait(unfinished)
+        except asyncio.TimeoutError:
+            timeout = True
+        finally:
+            devices.unsubscribe(linking_completed)
+
+        if timeout:
+            raise asyncio.TimeoutError
+
+        return result
 
 
 def tools():

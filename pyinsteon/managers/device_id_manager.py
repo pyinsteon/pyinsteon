@@ -56,6 +56,11 @@ class DeviceIdManager(SubscriberBase):
         address = Address(address)
         return self._device_ids.get(address)
 
+    @property
+    def unknown_devices(self):
+        """Return a list of addresses where the device type has not been identified."""
+        return self._unknown_devices
+
     def start(self):
         """Start the ID manager for unknown devices."""
         asyncio.ensure_future(self._id_awake_devices())
