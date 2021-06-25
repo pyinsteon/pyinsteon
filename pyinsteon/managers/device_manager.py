@@ -138,6 +138,11 @@ class DeviceManager(SubscriberBase):
         """Set the delay inspection property."""
         self._delay_device_inspection = bool(value)
 
+    @property
+    def unknown_devices(self):
+        """Return a list of addresses where the device type is unknown."""
+        return self._id_manager.unknown_devices
+
     async def async_inspect_devices(self):
         """Inspect the properties of the devices who's inspection was delayed ealier."""
         for device in self._to_be_inspected:
@@ -200,6 +205,13 @@ class DeviceManager(SubscriberBase):
         This method will remove all links in the modem were the device is the target and
         all links in the device where the modem is the target.
         """
+        address = Address(address) if address is not None else None
+        if (
+            address is not None
+            and self._devices.get(address) is None
+            and address not in self._id_manager.unknown_devices
+        ):
+            address = None
         await self._async_remove_all_device_links(address)
         await async_enter_unlinking_mode(group=0, address=address)
 
