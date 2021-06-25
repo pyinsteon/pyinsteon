@@ -190,7 +190,7 @@ class InsteonCmd(ToolsBase):
 
         self._log_stdout("Press enter to stop linking.")
         try:
-            for address in await self._start_all_linking(
+            async for address in self._start_all_linking(
                 address=address, mode=DeviceAction.ADDED, multi=multi
             ):
                 if address is not None:
@@ -311,7 +311,7 @@ class InsteonCmd(ToolsBase):
             )
         await devices.async_remove_device(address=address)
         try:
-            for address in await self._start_all_linking(
+            async for address in self._start_all_linking(
                 address=address, mode=DeviceAction.REMOVED, multi=False
             ):
                 if address is not None:
