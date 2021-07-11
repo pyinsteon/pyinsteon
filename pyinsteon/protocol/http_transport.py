@@ -7,8 +7,8 @@ from contextlib import suppress
 import aiohttp
 
 from .http_reader_writer import HttpReaderWriter
-from .msg_to_url import convert_to_url
 from .hub_connection_exception import HubConnectionException
+from .msg_to_url import convert_to_url
 
 _LOGGER = logging.getLogger(__name__)
 READ_WAIT = 0.5
@@ -186,7 +186,7 @@ class HttpTransport(asyncio.Transport):
                         buffer = self._check_strong_nak(buffer)
                         bin_buffer = unhexlify(buffer)
                         self._protocol.data_received(bin_buffer)
-            if not self.is_closing:
+            if not self.is_closing():
                 await asyncio.sleep(READ_WAIT)
         _LOGGER.info("Insteon Hub reader stopped")
 
