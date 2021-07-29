@@ -3,8 +3,6 @@ import asyncio
 import os
 from binascii import unhexlify
 
-import async_timeout
-
 from .. import async_close, async_connect, devices
 from ..address import Address
 from ..constants import HC_LOOKUP, UC_LOOKUP, DeviceAction
