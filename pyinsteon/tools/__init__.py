@@ -311,7 +311,6 @@ class InsteonCmd(ToolsBase):
             self._log_stdout(
                 "Press the set button on the device. Unlinking will occur in the background."
             )
-        await devices.async_remove_device(address=address)
         try:
             async for address in self._start_all_linking(
                 address=address, mode=DeviceAction.REMOVED, multi=False
@@ -382,7 +381,7 @@ class InsteonCmd(ToolsBase):
 
     async def _start_all_linking(self, address, mode, multi=False):
         """Put the modem into linking mode repeatedly or cancel on timeout."""
-        devices.delay_inspection = True
+        devices.delay_inspection = multi
         added_queue = asyncio.Queue()
 
         def device_added(address, action):
@@ -419,21 +418,20 @@ class InsteonCmd(ToolsBase):
         devices.subscribe(linking_completed)
 
         timeout = False
+        unfinished = []
         try:
-            async with async_timeout.timeout(3 * 50):
-                finished, unfinished = await asyncio.wait(
-                    [self._link_queue.get(), self._input()],
-                    return_when=asyncio.FIRST_COMPLETED,
-                )
-                for task in finished:
-                    result = task.result()
-                for task in unfinished:
-                    task.cancel()
-                await asyncio.wait(unfinished)
-        except asyncio.TimeoutError:
-            timeout = True
+            finished, unfinished = await asyncio.wait(
+                [self._link_queue.get(), self._input(), asyncio.sleep(3 * 60)],
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+            for task in finished:
+                result = task.result()
         finally:
             devices.unsubscribe(linking_completed)
+            for task in unfinished:
+                task.cancel()
+            await asyncio.wait(unfinished)
+            await asyncio.sleep(1)
 
         if timeout:
             raise asyncio.TimeoutError
