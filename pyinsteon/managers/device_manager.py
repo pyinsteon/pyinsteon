@@ -145,8 +145,8 @@ class DeviceManager(SubscriberBase):
 
     async def async_inspect_devices(self):
         """Inspect the properties of the devices who's inspection was delayed ealier."""
-        for device in self._to_be_inspected:
-            await device.async_get_engine_version()
+        while self._to_be_inspected:
+            device = self._to_be_inspected.pop()
             await self.async_setup_device(device)
 
     def set_id(self, address: Address, cat: int, subcat: int, firmware: int):
@@ -188,16 +188,19 @@ class DeviceManager(SubscriberBase):
         This command can be canceled at any time with the `async_cancel_add_device` command.
         """
         self._delay_device_inspection = multiple
-        while True:
-            async_enter_linking_mode(is_controller=True, group=0, address=address)
+        link_next = True
+        while link_next:
+            await async_enter_linking_mode(is_controller=True, group=0, address=address)
             if not multiple:
                 return
             try:
                 async with async_timeout.timeout(4 * 60):
-                    if not await self._link_next_device.get():
-                        raise asyncio.TimeoutError
+                    link_next = await self._link_next_device.get()
             except asyncio.TimeoutError:
+                link_next = False
                 await self.async_cancel_add_device()
+                while not self._link_next_device.empty():
+                    self._link_next_device.get_nowait()
 
     async def async_remove_device(self, address: Address = None):
         """Remove one or more devices.
@@ -220,6 +223,7 @@ class DeviceManager(SubscriberBase):
 
         This command takes the modem out of linking mode.
         """
+        self._link_next_device.put_nowait(False)
         await async_cancel_linking_mode()
         self._delay_device_inspection = False
         await self.async_inspect_devices()
@@ -340,7 +344,6 @@ class DeviceManager(SubscriberBase):
                     self._to_be_inspected.append(device)
                     self._link_next_device.put_nowait(True)
                 else:
-                    asyncio.ensure_future(device.async_get_engine_version())
                     asyncio.ensure_future(self.async_setup_device(device))
             _LOGGER.debug("Device %s added", str(device.address))
 
@@ -353,6 +356,7 @@ class DeviceManager(SubscriberBase):
             Reading the Extended Properties
             Setting up the default links
         """
+        await device.async_get_engine_version()
         await device.aldb.async_load(refresh=True)
         await device.async_read_op_flags()
         await device.async_read_ext_properties()
