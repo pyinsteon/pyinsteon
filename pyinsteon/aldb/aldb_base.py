@@ -273,10 +273,10 @@ class ALDBBase(ABC):
             )
             return 0, 0
         success = 0
-        failed = []
-        for mem_addr in self._dirty_records:
+        failed = {}
+        while self._dirty_records:
+            mem_addr, rec = self._dirty_records.popitem()
             result = False
-            rec = self._dirty_records[mem_addr]
             if mem_addr < 0:
                 result = await self._async_write_new(rec)
             elif not rec.is_in_use:
@@ -286,8 +286,9 @@ class ALDBBase(ABC):
             if result:
                 success += 1
             else:
-                failed.append(rec)
-        self._dirty_records = {rec.mem_addr: rec for rec in failed}
+                failed[mem_addr] = rec
+
+        self._dirty_records = failed
         return success, len(self._dirty_records)
 
     def find(
