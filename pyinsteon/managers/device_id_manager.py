@@ -3,6 +3,7 @@ import asyncio
 import logging
 from binascii import unhexlify
 from collections import namedtuple
+from pyinsteon.constants import DeviceAction
 
 from .. import pub
 from ..address import Address
@@ -96,8 +97,11 @@ class DeviceIdManager(SubscriberBase):
         except ValueError:
             pass
         device_id = DeviceId(address, cat, subcat, firmware)
+        curr_id = self._device_ids.get(address)
+        if curr_id and curr_id.cat == device_id.cat and curr_id.subcat == device_id.subcat and curr_id.firmware == device_id.firmware:
+            return
         self._device_ids[address] = device_id
-        self._call_subscribers(device_id=device_id)
+        self._call_subscribers(device_id=device_id, mode=DeviceAction.ADDED)
 
     async def async_id_devices(self, refresh: bool = False):
         """Identify the devices in the unknown device list."""
