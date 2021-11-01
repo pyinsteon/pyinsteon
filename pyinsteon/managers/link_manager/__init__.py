@@ -1,5 +1,8 @@
 """Manage links beteween devices."""
+from __future__ import annotations
+
 import logging
+from typing import Union
 
 from ...address import Address
 from ...constants import AllLinkMode, LinkStatus, ResponseStatus
@@ -45,6 +48,9 @@ async def async_link_devices(
 ):
     """Link two devices."""
 
+    failed_1 = 0
+    failed_2 = 0
+
     if not hasattr(controller, "address") or not hasattr(responder, "address"):
         raise TypeError("controller and responder must be devices")
     if _add_link_to_device(
@@ -55,7 +61,10 @@ async def async_link_devices(
         data1=int(responder.cat),
         data2=responder.subcat,
         data3=responder.firmware,
-    ) and _add_link_to_device(
+    ):
+        _, failed_1 = await controller.aldb.async_write()
+
+    if _add_link_to_device(
         device=responder,
         target=controller.address,
         group=group,
@@ -64,11 +73,11 @@ async def async_link_devices(
         data2=data2,
         data3=data3,
     ):
-        _, failed_1 = await controller.aldb.async_write()
         _, failed_2 = await responder.aldb.async_write()
-        if failed_1 or failed_2:
-            return ResponseStatus.FAILURE
-        return ResponseStatus.SUCCESS
+
+    if failed_1 or failed_2:
+        return ResponseStatus.FAILURE
+    return ResponseStatus.SUCCESS
 
 
 async def async_cancel_linking_mode():
@@ -77,36 +86,44 @@ async def async_cancel_linking_mode():
     return await cmd.async_send()
 
 
-async def async_unlink_devices(controller, responder, group: int = 0):
-    """Unlink two devices."""
-    if not hasattr(controller, "address") or not hasattr(responder, "address"):
-        raise TypeError("controller and responder must be devices")
-    if _remove_link_from_device(
-        device=controller, is_controller=True, group=group, target=responder.address
-    ) and _remove_link_from_device(
-        device=responder, is_controller=False, group=group, target=controller.address
-    ):
-        _, failed_1 = await controller.aldb.async_write()
-        _, failed_2 = await responder.aldb.async_write()
-        if failed_1 or failed_2:
-            return ResponseStatus.FAILURE
-        return ResponseStatus.SUCCESS
-    return ResponseStatus.FAILURE
+async def async_unlink_devices(device1, device2, group: Union(int, None) = None):
+    """Unlink two devices.
 
+    `device2` can be passed as `Device` or `Address`. When `device2` are passed as `Address`, only the links in `device1` will be removed.
 
-def _remove_link_from_device(device, is_controller, group, target):
-    found_rec = None
-    for addr in device.aldb:
-        rec = device.aldb[addr]
-        if (
-            rec.target == target
-            and rec.is_controller == is_controller
-            and rec.group == group
-        ):
-            found_rec = rec
-    if found_rec:
-        device.aldb.remove(found_rec.mem_addr)
-    return True
+    `group` can be passed as an `int` or `None`. When `group` is `None` all links between the two devices will be removed. When
+    `group` is an `int`, only that group wil be removed.
+    """
+    try:
+        addr1 = device1.address
+    except AttributeError:
+        raise TypeError("device1 must be a Device")
+
+    device2_is_device = True
+    try:
+        addr2 = device2.address
+    except AttributeError:
+        try:
+            addr2 = Address(device2)
+            device2_is_device = False
+        except TypeError:
+            raise TypeError("device2 must be a Device or an Address")
+
+    failed_1 = 0
+    failed_2 = 0
+
+    for rec in device1.aldb.find(target=addr2, group=group):
+        device1.aldb.modify(mem_addr=rec.mem_addr, in_use=False)
+        _, failed_1 = await device1.aldb.async_write()
+
+    if device2_is_device:
+        for rec in device2.aldb.find(target=addr1, group=group):
+            device2.aldb.modify(mem_addr=rec.mem_addr, in_use=False)
+            _, failed_2 = await device2.aldb.async_write()
+
+    if failed_1 or failed_2:
+        return ResponseStatus.FAILURE
+    return ResponseStatus.SUCCESS
 
 
 def find_broken_links(devices):
@@ -148,7 +165,34 @@ def _test_broken(address, rec, devices):
 
 
 def _add_link_to_device(device, is_controller, group, target, data1, data2, data3):
-    """Add a link to a device."""
+    """Add a link to a device.
+
+    If the link already exists it will not be added.
+    """
+    for rec in device.aldb.find(
+        target=Address(target), group=group, is_controller=is_controller
+    ):
+        if (
+            not rec.is_in_use
+            or rec.data1 != data1
+            or rec.data2 != data2
+            or rec.data3 != data3
+        ):
+            try:
+                device.aldb.modify(
+                    mem_addr=rec.mem_addr,
+                    in_use=True,
+                    group=group,
+                    controller=is_controller,
+                    target=target,
+                    data1=data1,
+                    data2=data2,
+                    data3=data3,
+                )
+                return True
+            except NotImplementedError:
+                return False
+        return False
     try:
         device.aldb.add(
             group=group,

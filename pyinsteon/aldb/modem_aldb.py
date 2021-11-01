@@ -1,7 +1,7 @@
 """All-Link database for an Insteon Modem."""
 import inspect
 import logging
-from typing import Callable
+from typing import Callable, Tuple
 
 from .. import pub
 from ..constants import (
@@ -14,6 +14,7 @@ from ..handlers.manage_all_link_record import ManageAllLinkRecordCommand
 from ..managers.im_read_manager import ImReadManager
 from ..topics import ALL_LINK_RECORD_RESPONSE
 from . import ALDBBase
+from .aldb_record import ALDBRecord
 
 _LOGGER = logging.getLogger(__name__)
 MAX_RETRIES = 3
@@ -64,7 +65,9 @@ class ModemALDB(ALDBBase):
                 callback()
         return self._status
 
-    async def _async_write_change(self, record):
+    async def _async_write_change(
+        self, record: ALDBRecord
+    ) -> Tuple[ResponseStatus, ALDBRecord]:
         """Write a changed record."""
         if record.is_controller:
             action = ManageAllLinkRecordAction.MOD_FIRST_CTRL_OR_ADD
@@ -72,16 +75,21 @@ class ModemALDB(ALDBBase):
             action = ManageAllLinkRecordAction.MOD_FIRST_RESP_OR_ADD
         return await self._async_write_record(action, record)
 
-    async def _async_write_delete(self, record):
+    async def _async_write_delete(self, record) -> Tuple[ResponseStatus, ALDBRecord]:
         """Write a deleted record."""
         action = ManageAllLinkRecordAction.DELETE_FIRST
         return await self._async_write_record(action, record)
 
-    async def _async_write_new(self, record):
+    async def _async_write_new(self, record) -> Tuple[ResponseStatus, ALDBRecord]:
         """Write a new record."""
-        return await self._async_write_change(record)
+        result, _ = await self._async_write_change(record)
+        if result == ResponseStatus.SUCCESS:
+            mem_addr = min(self._records) - 8
+            self._records[mem_addr] = record
 
-    async def _async_write_record(self, action, record):
+    async def _async_write_record(
+        self, action, record
+    ) -> Tuple[ResponseStatus, ALDBRecord]:
         """Perform the ALDB write action."""
         retries = 0
         response = ResponseStatus.UNSENT
@@ -100,4 +108,5 @@ class ModemALDB(ALDBBase):
                 bit4=record.is_bit4_set,
             )
             retries += 1
-        return True
+
+        return response, record

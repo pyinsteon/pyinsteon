@@ -107,6 +107,7 @@ class ALDBStatus(HexIntEnum):
     LOADING = 2
     FAILED = 3
     PARTIAL = 4
+    DIRTY = 5
 
 
 class ALDBVersion(Enum):

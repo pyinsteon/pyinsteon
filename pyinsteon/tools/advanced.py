@@ -8,7 +8,11 @@ import aiofiles
 from .. import devices
 from ..aldb.aldb_record import ALDBRecord
 from ..constants import ALDBStatus, LinkStatus
-from ..managers.link_manager import find_broken_links
+from ..managers.link_manager import (
+    async_cancel_linking_mode,
+    async_enter_linking_mode,
+    find_broken_links,
+)
 from ..managers.saved_devices_manager import aldb_rec_to_dict, dict_to_aldb_record
 from .tools_base import ToolsBase
 
@@ -411,7 +415,7 @@ class AdvancedTools(ToolsBase):
         device = devices[address]
 
         if location is None:
-            location = self._get_workdir()
+            location = await self._get_workdir()
 
         if filename is None:
             filename = f"{device.address.id}_aldb.json"
@@ -464,7 +468,7 @@ class AdvancedTools(ToolsBase):
         device = devices[address]
 
         if location is None:
-            location = self._get_workdir()
+            location = await self._get_workdir()
 
         if filename is None:
             filename = f"{device.address.id}_aldb.json"
@@ -494,6 +498,30 @@ class AdvancedTools(ToolsBase):
             self._log_stdout("Some records not written")
         else:
             self._log_stdout("All records written succesfully")
+
+    async def do_enter_linking_mode(self, *args, **kwargs):
+        """Put the modem into linking mode."""
+        args = args[0].split()
+        try:
+            char_mode = args[0].lower()
+            if char_mode not in ["c", "r"]:
+                is_controller = True
+            else:
+                is_controller = char_mode == "c"
+        except IndexError:
+            is_controller = True
+
+        try:
+            group = int(args[1])
+        except (TypeError, IndexError):
+            group = 0
+        await async_enter_linking_mode(
+            is_controller=is_controller, group=group, address=None
+        )
+
+    async def do_cancel_linking_mode(self, *args, **kwargs):
+        """Take the modem out of linking mode."""
+        await async_cancel_linking_mode()
 
     async def _write_aldb_file(self, aldb_dict, location, filename):
         device_file = path.join(location, filename)

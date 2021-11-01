@@ -4,8 +4,11 @@ The All-Link database contains database records that represent links to other
 Insteon devices that either respond to or control the current device.
 """
 import asyncio
+import inspect
 import logging
-from typing import Callable
+from typing import Callable, Tuple
+
+from pyinsteon.aldb.aldb_record import ALDBRecord
 
 from ..constants import ALDBStatus, ALDBVersion, ResponseStatus
 from ..managers.aldb_read_manager import ALDBReadManager
@@ -59,7 +62,10 @@ class ALDB(ALDBBase):
             self._notify_change(rec)
         self.set_load_status()
         if callback:
-            callback()
+            if inspect.iscoroutinefunction(callback) or inspect.isawaitable(callback):
+                await callback()
+            else:
+                callback()
         return self._status
 
     def _existing_link(self, is_controller, group, address):
@@ -164,7 +170,7 @@ class ALDB(ALDBBase):
 
         return True
 
-    async def _async_write_change(self, record):
+    async def _async_write_change(self, record) -> Tuple[ResponseStatus, ALDBRecord]:
         """Write a changed record."""
         response = ResponseStatus.UNSENT
         retries = 0
@@ -172,13 +178,27 @@ class ALDB(ALDBBase):
             response = await self._write_manager.async_write(record)
             _LOGGER.debug("Response: %s", str(response))
             retries += 1
-        return response == ResponseStatus.SUCCESS
+        return response, record
 
-    async def _async_write_delete(self, record):
+    async def _async_write_delete(
+        self, record: ALDBRecord
+    ) -> Tuple[ResponseStatus, ALDBRecord]:
         """Write a deleted record."""
-        return await self._async_write_change(record)
+        del_rec = ALDBRecord(
+            memory=record.mem_addr,
+            controller=record.is_controller,
+            group=record.group,
+            target=record.target,
+            data1=record.data1,
+            data2=record.data2,
+            data3=record.data3,
+            in_use=False,
+        )
+        return await self._async_write_change(del_rec)
 
-    async def _async_write_new(self, record):
+    async def _async_write_new(
+        self, record: ALDBRecord
+    ) -> Tuple[ResponseStatus, ALDBRecord]:
         """Write a new record."""
         mem_addr = self._existing_link(
             record.is_controller, record.group, record.target

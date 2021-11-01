@@ -30,11 +30,11 @@ class ToolsBase(Cmd):
         super().__init__()
         self.stdin = stdin
         self.stdout = stdout
-        prompt = "pyinsteon"
+        self._prompt_base = "pyinsteon"
         if menu:
-            self.prompt = f"{prompt} - {menu}: "
+            self.prompt = f"{self._prompt_base} - {menu}: "
         else:
-            self.prompt = f"{prompt}: "
+            self.prompt = f"{self._prompt_base}: "
         self._log_prefix = "STDOUT: "
         self.loop = loop
         self.workdir = None
@@ -279,15 +279,25 @@ class ToolsBase(Cmd):
         self._log_command(f"save_devices {self.workdir}")
         await devices.async_save(workdir=self.workdir)
 
+    async def do_back(self, *args, **kwargs):
+        """Go back to the previous menu.
+
+        Usage:
+            back
+        """
+        self._log_command("back")
+        if self.prompt[:-2] != self._prompt_base:
+            return -1
+
     async def do_exit(self, *args, **kwargs):
-        """Exit the current menu.
+        """Exit the tool.
 
         Usage:
             exit
         """
         self._log_command("exit")
         await self.do_log_to_file("n")
-        return -1
+        exit()
 
     async def do_set_log_level(self, *args, **kwargs):
         """Set the log level to INFO (i) or VERBOSE (v).

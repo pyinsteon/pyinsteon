@@ -2,10 +2,10 @@
 import asyncio
 import logging
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Tuple
 
 from ..address import Address
-from ..constants import ALDBStatus, ALDBVersion
+from ..constants import ALDBStatus, ALDBVersion, ResponseStatus
 from ..topics import (
     ALDB_STATUS_CHANGED,
     ALDB_VERSION,
@@ -278,12 +278,14 @@ class ALDBBase(ABC):
             mem_addr, rec = self._dirty_records.popitem()
             result = False
             if mem_addr < 0:
-                result = await self._async_write_new(rec)
+                result, new_rec = await self._async_write_new(rec)
             elif not rec.is_in_use:
-                result = await self._async_write_delete(rec)
+                result, new_rec = await self._async_write_delete(rec)
             else:
-                result = await self._async_write_change(rec)
-            if result:
+                result, new_rec = await self._async_write_change(rec)
+            if result == ResponseStatus.SUCCESS:
+                if new_rec.mem_addr > 0:
+                    self._records[new_rec.mem_addr] = new_rec
                 success += 1
             else:
                 failed[mem_addr] = rec
@@ -297,7 +299,7 @@ class ALDBBase(ABC):
         target: Address = None,
         is_controller: bool = None,
         in_use: bool = None,
-    ):
+    ) -> List[ALDBRecord]:
         """Find all records matching the criteria.
 
         This method is a coroutine.
@@ -347,13 +349,13 @@ class ALDBBase(ABC):
         return min(min(self._dirty_records.keys()), 0) - 1
 
     @abstractmethod
-    async def _async_write_new(self, record):
+    async def _async_write_new(self, record) -> Tuple[ResponseStatus, ALDBRecord]:
         """Write a new record."""
 
     @abstractmethod
-    async def _async_write_delete(self, record):
+    async def _async_write_delete(self, record) -> Tuple[ResponseStatus, ALDBRecord]:
         """Write a deleted record."""
 
     @abstractmethod
-    async def _async_write_change(self, record):
+    async def _async_write_change(self, record) -> Tuple[ResponseStatus, ALDBRecord]:
         """Write a changed record."""

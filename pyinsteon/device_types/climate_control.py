@@ -442,7 +442,7 @@ class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermo
             model=model,
         )
         self._aldb = ALDBBattery(
-            address=address, mem_addr=0x1FFF, run_command=self._run_on_wake
+            address=address, mem_addr=0x0FFF, run_command=self._run_on_wake
         )
 
     async def async_set_humidity_high_set_point(self, humidity):

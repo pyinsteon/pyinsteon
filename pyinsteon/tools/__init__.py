@@ -2,15 +2,12 @@
 import asyncio
 import os
 from binascii import unhexlify
+from functools import partial
 
 from .. import async_close, async_connect, devices
 from ..address import Address
-from ..constants import HC_LOOKUP, UC_LOOKUP, DeviceAction
-from ..managers.link_manager import (
-    async_cancel_linking_mode,
-    async_enter_linking_mode,
-    async_enter_unlinking_mode,
-)
+from ..constants import HC_LOOKUP, UC_LOOKUP
+from ..managers.link_manager import async_cancel_linking_mode, async_unlink_devices
 from .aldb import ToolsAldb
 from .cmd import CmdTools
 from .config import ToolsConfig
@@ -147,7 +144,7 @@ class InsteonCmd(ToolsBase):
         """Link a device to the modem.
 
         Usage:
-            link_device [address] | [multiple | m]
+            add_device [address] | [multiple | m]
 
             <address> (Optional): Insteon address of the device to link
             multiple | m (optional): Add multiple devices at in one session.
@@ -177,6 +174,13 @@ class InsteonCmd(ToolsBase):
                 multi = True
 
         if address is not None:
+            try:
+                if args[1][0].lower() == "m":
+                    multi = True
+            except IndexError:
+                pass
+
+        if address is not None:
             self._log_stdout("Attempting to place device %s into linking mode.")
             self._log_stdout(
                 "If the device does not link with the modem within a minute, press the set button on the device."
@@ -187,18 +191,13 @@ class InsteonCmd(ToolsBase):
             )
 
         self._log_stdout("Press enter to stop linking.")
+        link_function = partial(
+            self._add_device_with_yield, address=address, multiple=multi
+        )
         try:
-            async for address in self._start_all_linking(
-                address=address, mode=DeviceAction.ADDED, multi=multi
-            ):
-                if address is not None:
-                    self._log_stdout(f"Device {str(address)} was added.")
+            await self._start_all_linking(link_function)
         except asyncio.TimeoutError:
             self._log_stdout("All-Linking has timed out.")
-
-    async def _async_stop_linking(self, *args, **kwargs):
-        """Cancel an All-Link session."""
-        await async_cancel_linking_mode()
 
     async def do_add_device_manually(self, *args, **kwargs):
         """Add a device using a cat and subcat.
@@ -279,15 +278,23 @@ class InsteonCmd(ToolsBase):
         devices.set_id(address, cat, subcat, firmware)
 
     async def do_remove_device(self, *args, **kwargs):
-        """Add a device."""
-        removed_queue = asyncio.Queue()
+        """Remove a device.
 
-        def device_removed(address, action):
-            nonlocal removed_queue
-            if action == DeviceAction.REMOVED:
-                removed_queue.put_nowait(Address(address))
+        Usage:
+          remove_device [address [f|force]]
 
-        devices.subscribe(device_removed)
+        address (optional): Device address
+        f or force (optional): Force removal.
+
+        This command will perform the following steps:
+          - Remove all modem links from the device
+          - Unlink the device from the modem
+          - Remove all device links from the modem
+
+        The force option is used when the device is no longer available, for example, if it has been removed from the network.
+        If the force option is used,  all links will be removed from the modem. This will not attempt to unlink the device or
+        remove modem links from the device.
+        """
 
         self._log_command("remove_device")
         args = args[0].split()
@@ -295,6 +302,16 @@ class InsteonCmd(ToolsBase):
             address = Address(args[0])
         except (IndexError, ValueError):
             address = None
+
+        try:
+            force = args[1].lower() == "f" or args[1].lower() == "force"
+        except (IndexError, ValueError):
+            force = False
+
+        if force:
+            await async_unlink_devices(devices.modem, address)
+            devices[address] = None
+            return
 
         if address is not None:
             self._log_stdout(
@@ -307,12 +324,12 @@ class InsteonCmd(ToolsBase):
             self._log_stdout(
                 "Press the set button on the device. Unlinking will occur in the background."
             )
+
+        link_function = partial(devices.async_remove_device, address=address)
         try:
-            async for address in self._start_all_linking(
-                address=address, mode=DeviceAction.REMOVED, multi=False
-            ):
-                if address is not None:
-                    self._log_stdout(f"Device {str(address)} was removed.")
+            linked_address = await self._start_all_linking(link_function=link_function)
+            if linked_address:
+                self._log_stdout(f"Device {str(address)} was removed.")
         except asyncio.TimeoutError:
             self._log_stdout("No device was removed due to a timeout error.")
 
@@ -375,64 +392,34 @@ class InsteonCmd(ToolsBase):
 
         devices.add_x10_device(housecode, unitcode, x10_type, steps, 255)
 
-    async def _start_all_linking(self, address, mode, multi=False):
+    async def _start_all_linking(self, link_function):
         """Put the modem into linking mode repeatedly or cancel on timeout."""
-        devices.delay_inspection = multi
-        added_queue = asyncio.Queue()
-
-        def device_added(address, action):
-            nonlocal added_queue
-            if action == mode:
-                added_queue.put_nowait(Address(address))
-
-        devices.subscribe(device_added)
-        run_again = True
-        while run_again:
-            if mode == DeviceAction.ADDED:
-                await async_enter_linking_mode(
-                    is_controller=True, group=0, address=address
-                )
-            else:
-                await async_enter_unlinking_mode(group=0, address=address)
-            address = None
-            run_again = multi
-
-            response = await self._wait_for_link_response(mode)
-            if isinstance(response, Address):
-                yield response
-            else:
-                run_again = False
-                yield None
-
-    async def _wait_for_link_response(self, mode):
-        """Wait for a link response or keyboard entry."""
-
-        def linking_completed(address, action):
-            if action == mode:
-                self._link_queue.put_nowait(Address(address))
-
-        devices.subscribe(linking_completed)
-
-        timeout = False
         unfinished = []
+        result = ""
         try:
             finished, unfinished = await asyncio.wait(
-                [self._link_queue.get(), self._input(), asyncio.sleep(3 * 60)],
+                [link_function(), self._input()],
                 return_when=asyncio.FIRST_COMPLETED,
             )
             for task in finished:
-                result = task.result()
+                return task.result()
         finally:
-            devices.unsubscribe(linking_completed)
             for task in unfinished:
                 task.cancel()
             await asyncio.wait(unfinished)
+            if result == "":
+                await async_cancel_linking_mode()
             await asyncio.sleep(1)
 
-        if timeout:
-            raise asyncio.TimeoutError
+    async def _add_device_with_yield(self, address: Address, multiple: bool):
+        """Act as a frontend to devices.async_add_device to capture the yielding of addresses."""
+        async for address in devices.async_add_device(
+            address=address, multiple=multiple
+        ):
+            self._log_stdout(f"Device {str(address)} was added.")
 
-        return result
+    async def _wait_for_link_response(self, link_function):
+        """Wait for a link response or keyboard entry."""
 
 
 def tools():
