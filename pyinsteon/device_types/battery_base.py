@@ -39,6 +39,7 @@ class BatteryDeviceBase:
         self._last_run = None
         self._keep_awake_cmd = ExtendedSetCommand(self._address, data1=0, data2=0x04)
         subscribe_topic(self._device_awake, self._address.id)
+        self._ping_task = None
         # This may or may not make sense.
         # It it helps to set default links when the device first connect,
         # then this probably makes sense.
@@ -47,6 +48,7 @@ class BatteryDeviceBase:
     def _run_on_wake(self, command, retries=3, **kwargs):
         cmd = partial(command, **kwargs)
         self._commands_queue.put_nowait((cmd, retries))
+        self._ping_task = asyncio.ensure_future(self._ping_device())
         return ResponseStatus.RUN_ON_WAKE
 
     def close(self):
@@ -110,8 +112,22 @@ class BatteryDeviceBase:
         """Keep the device awake to ensure commands are heard."""
         return await self._keep_awake_cmd.async_send(data3=awake_time, priority=1)
 
+    async def _ping_device(self):
+        """Ping the device every 20 seconds to see if it is awake."""
+        if self._commands_queue.empty():
+            return
+        while True:
+            result = await self.async_ping()
+            if result == ResponseStatus.SUCCESS:
+                return
+            await asyncio.sleep(20)
+
     def _device_awake(self, **kwargs):
         """Execute the commands that were requested while sleeping."""
+
+        if self._ping_task is not None and not self._ping_task.cancelled():
+            self._ping_task.cancel()
+
         if self._commands_queue.empty():
             return
         if self._last_run is None or self._last_run.done():
