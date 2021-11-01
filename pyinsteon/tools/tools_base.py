@@ -297,7 +297,7 @@ class ToolsBase(Cmd):
         """
         self._log_command("exit")
         await self.do_log_to_file("n")
-        exit()
+        sys.exit()
 
     async def do_set_log_level(self, *args, **kwargs):
         """Set the log level to INFO (i) or VERBOSE (v).
