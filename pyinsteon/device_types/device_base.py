@@ -11,6 +11,7 @@ from ..constants import EngineVersion, DeviceCategory
 from ..default_link import DefaultLink
 from ..handlers.to_device.product_data_request import ProductDataRequestCommand
 from ..handlers.to_device.engine_version_request import EngineVersionRequest
+from ..handlers.to_device.ping import PingCommand
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
 from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
 from ..managers.link_manager.default_links import async_add_default_links
@@ -226,6 +227,11 @@ class Device(ABC):
     async def async_get_engine_version(self):
         """Read the device engine version."""
         return await self._handlers["engine_version_cmd"].async_send()
+
+    async def async_ping(self):
+        """Ping the device."""
+        cmd = PingCommand(self.address)
+        return await cmd.async_send()
 
     def _register_groups(self):
         """Add the groups to the device."""
