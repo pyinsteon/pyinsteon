@@ -4,6 +4,7 @@ The All-Link database contains database records that represent links to other
 Insteon devices that either respond to or control the current device.
 """
 import asyncio
+import inspect
 import logging
 from typing import Callable
 
@@ -60,7 +61,10 @@ class ALDB(ALDBBase):
             self._notify_change(rec)
         self.set_load_status()
         if callback:
-            callback()
+            if inspect.iscoroutinefunction(callback) or inspect.isawaitable(callback):
+                await callback()
+            else:
+                callback()
         return self._status
 
     def _existing_link(self, is_controller, group, address):
