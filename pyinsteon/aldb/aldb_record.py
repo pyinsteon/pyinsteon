@@ -196,16 +196,28 @@ class ALDBRecord:
 
 def new_aldb_record_from_existing(rec: ALDBRecord, **kwargs):
     """Create a new ALDB record from an existing record."""
-    mem_addr = int(kwargs.get("mem_addr", rec.mem_addr))
-    in_use = bool(kwargs.get("in_use", rec.is_in_use))
-    controller = bool(kwargs.get("controller", rec.is_controller))
-    target = Address(kwargs.get("target", rec.target))
-    group = int(kwargs.get("group", rec.group))
-    data1 = int(kwargs.get("data1", rec.data1))
-    data2 = int(kwargs.get("data2", rec.data2))
-    data3 = int(kwargs.get("data3", rec.data3))
-    bit5_set = bool(kwargs.get("bit5_set", rec.data3))
-    bit4_set = bool(kwargs.get("data3", rec.data3))
+
+    def get_element_or_default(key: str, default: any, **kwargs):
+        """Return the value of the key or the default.
+
+        Need to use this since the kwarg.get(key, default) can return
+        `None` even if the default is not None if kwargs[key] is None.
+        """
+        value = kwargs.get(key)
+        if value is not None:
+            return value
+        return default
+
+    mem_addr = int(get_element_or_default("mem_addr", rec.mem_addr, **kwargs))
+    in_use = bool(get_element_or_default("in_use", rec.is_in_use, **kwargs))
+    controller = bool(get_element_or_default("controller", rec.is_controller, **kwargs))
+    target = Address(get_element_or_default("target", rec.target, **kwargs))
+    group = int(get_element_or_default("group", rec.group, **kwargs))
+    data1 = int(get_element_or_default("data1", rec.data1, **kwargs))
+    data2 = int(get_element_or_default("data2", rec.data2, **kwargs))
+    data3 = int(get_element_or_default("data3", rec.data3, **kwargs))
+    bit5_set = bool(get_element_or_default("bit5_set", rec.data3, **kwargs))
+    bit4_set = bool(get_element_or_default("data3", rec.data3, **kwargs))
 
     return ALDBRecord(
         memory=mem_addr,
