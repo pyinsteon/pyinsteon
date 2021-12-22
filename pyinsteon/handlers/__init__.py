@@ -1,228 +1,80 @@
 """Insteon message and command handlers."""
-import asyncio
 import logging
-from functools import wraps
+from functools import partial, wraps
 
-from ..utils import subscribe_topic
 from ..address import Address
-from ..constants import MessageFlagType, ResponseStatus
-from ..utils import build_topic
+from ..constants import MessageFlagType
+from ..utils import build_topic, subscribe_topic
 
 TIMEOUT = 3  # Time out between ACK and Direct ACK
 _LOGGER = logging.getLogger(__name__)
 
 
-async def _async_post_response(
-    obj, response: ResponseStatus, func=None, args=None, kwargs=None
-):
-    """Post a response status to the resonse queue."""
-    if hasattr(obj, "response_lock"):
-        if obj.response_lock.locked():
-            await obj.message_response.put(response)
-            if func is not None:
-                func(obj, *args, **kwargs)
-        if obj.response_lock.locked():
-            obj.response_lock.release()
-    else:
-        await obj.message_response.put(response)
-        if func is not None:
-            func(obj, *args, **kwargs)
-
-
 def _register_handler(
-    instance_func, topic, prefix=None, address=None, group=None, message_type=None
+    func,
+    presets=None,
+    topic=None,
+    prefix=None,
+    address=None,
+    group=None,
+    message_type=None,
 ):
+    """Register the function with a topic."""
+    presets = presets or {}
+    topic = presets.get("topic") or topic
+    address = presets.get("address") or address
+    get_group = presets.get("group", -1)
+    group = get_group if get_group != -1 else group
+    message_type = presets.get("message_type") or message_type
     full_topic = build_topic(
         topic=topic,
-        prefix=prefix,
+        prefix=presets.get("prefix"),
         address=address,
         group=group,
         message_type=message_type,
     )
-    subscribe_topic(instance_func, full_topic)
+    subscribe_topic(func, full_topic)
+
+
+def _setup_handler(reg_func, func):
+    """Set up the handler function."""
+
+    @wraps(func)
+    def _wrapper(self, *args, **kwargs):
+        """Wrap a function."""
+        return func(self, *args, **kwargs)
+
+    _wrapper.register_handler = reg_func
+    return _wrapper
 
 
 def inbound_handler(func):
     """Register any inbound message handler."""
-
-    def register_topic(
-        instance_func, topic, address=None, group=None, message_type=None
-    ):
-        _register_handler(
-            instance_func,
-            topic,
-            prefix=None,
-            address=address,
-            group=group,
-            message_type=message_type,
-        )
-
-    func.register_topic = register_topic
-    return func
+    reg_func = partial(
+        _register_handler,
+    )
+    return _setup_handler(reg_func, func)
 
 
-def ack_handler(wait_response=False, timeout=TIMEOUT):
+def ack_handler(func):
     """Register the message ACK handler."""
-
-    def register_topic(
-        instance_func, topic, address=None, group=None, message_type=None
-    ):
-        """Register an inbound ACK message."""
-        _register_handler(
-            instance_func,
-            topic,
-            prefix="ack",
-            address=address,
-            group=group,
-            message_type=message_type,
-        )
-
-    async def _wait_response(lock: asyncio.Lock, queue: asyncio.Queue):
-        """Wait for the direct ACK message, and post False if timeout reached."""
-        # TODO: Need to consider the risk of this. We may be unlocking a prior send command.
-        # This would mean that the prior command will terminate. What happens when the
-        # prior command returns a direct ACK then this command returns a direct ACK?
-        # Do not believe this is an issue but need to test.
-        if lock.locked():
-            lock.release()
-        await lock.acquire()
-        try:
-            await asyncio.wait_for(lock.acquire(), TIMEOUT)
-        except asyncio.TimeoutError:
-            if lock.locked():
-                await queue.put(ResponseStatus.FAILURE)
-        if lock.locked():
-            lock.release()
-
-    def setup(func):
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            if hasattr(self, "group"):
-                group = (
-                    1 if not kwargs.get("user_data") else kwargs.get("user_data")["d1"]
-                )
-                if self.group != group:
-                    return
-            if wait_response:
-                asyncio.ensure_future(
-                    _wait_response(self.response_lock, self.message_response)
-                )
-            else:
-                asyncio.ensure_future(
-                    _async_post_response(self, ResponseStatus.SUCCESS)
-                )
-            return func(self, *args, **kwargs)
-
-        wrapper.register_topic = register_topic
-        return wrapper
-
-    return setup
+    reg_func = partial(_register_handler, presets={"prefix": "ack"})
+    return _setup_handler(reg_func, func)
 
 
 def nak_handler(func):
-    """Register the message NAK handler.
-
-    This should only be used if the command requires a special NAK
-    handler. Under normal conditions all NAK responses are resent by the
-    Protocol.
-    """
-
-    def register_topic(
-        instance_func, topic, address=None, group=None, message_type=None
-    ):
-        """Register an inbound ACK message."""
-        _register_handler(
-            instance_func,
-            topic,
-            prefix="nak",
-            address=address,
-            group=group,
-            message_type=message_type,
-        )
-
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        asyncio.ensure_future(
-            _async_post_response(self, ResponseStatus.FAILURE, func, args, kwargs)
-        )
-
-    wrapper.register_topic = register_topic
-    return wrapper
+    """Register the message NAK handler."""
+    reg_func = partial(_register_handler, presets={"prefix": "nak"})
+    return _setup_handler(reg_func, func)
 
 
 def direct_ack_handler(func):
     """Register the DIRECT_ACK response handler."""
-
-    def register_topic(
-        instance_func, topic, address=None, group=None, message_type=None
-    ):
-        """Register an inbound ACK message."""
-        _register_handler(
-            instance_func,
-            topic,
-            prefix=None,
-            address=address,
-            group=None,
-            message_type=MessageFlagType.DIRECT_ACK,
-        )
-
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        asyncio.ensure_future(
-            _async_post_response(self, ResponseStatus.SUCCESS, func, args, kwargs)
-        )
-
-    wrapper.register_topic = register_topic
-    return wrapper
-
-
-def status_ack_handler(timeout=TIMEOUT):
-    """Register the message ACK handler."""
-
-    def register_topic(
-        instance_func, topic, address=None, group=None, message_type=None
-    ):
-        """Register an inbound ACK message."""
-        _register_handler(
-            instance_func,
-            topic,
-            prefix="ack",
-            address=address,
-            group=group,
-            message_type=message_type,
-        )
-
-    async def _wait_response(self):
-        """Wait for the direct ACK message, and post False if timeout reached."""
-        # TODO: Need to consider the risk of this. We may be unlocking a prior send command.
-        # This would mean that the prior command will terminate. What happens when the
-        # prior command returns a direct ACK then this command returns a direct ACK?
-        # Do not believe this is an issue but need to test.
-        if self.response_lock.locked():
-            self.response_lock.release()
-        await self.response_lock.acquire()
-        try:
-            await asyncio.wait_for(self.response_lock.acquire(), TIMEOUT)
-        except asyncio.TimeoutError:
-            if self.response_lock.locked():
-                await self.message_response.put(ResponseStatus.FAILURE)
-        if self.response_lock.locked():
-            self.response_lock.release()
-        self.status_active = False
-
-    def setup(func):
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            cmd2 = kwargs.get("cmd2")
-            if cmd2 == self.status_type:
-                self.status_active = True
-                asyncio.ensure_future(_wait_response(self))
-                return func(self, *args, **kwargs)
-
-        wrapper.register_topic = register_topic
-        return wrapper
-
-    return setup
+    reg_func = partial(
+        _register_handler,
+        presets={"group": None, "message_type": MessageFlagType.DIRECT_ACK},
+    )
+    return _setup_handler(reg_func, func)
 
 
 def status_handler(func):
@@ -234,129 +86,60 @@ def status_handler(func):
         address = Address(address)
         subscribe_topic(instance_func, address.id)
 
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        if self.status_active:
-            topic = kwargs.get("topic")
-            msg_type = topic.name.split(".")[-1]
-            if msg_type == str(MessageFlagType.DIRECT_ACK):
-                asyncio.ensure_future(
-                    _async_post_response(
-                        self, ResponseStatus.SUCCESS, func, args, kwargs
-                    )
-                )
-
-    wrapper.register_status = register_status
-    return wrapper
+    func.register_status = register_status
+    return func
 
 
 def direct_nak_handler(func):
     """Register the DIRECT_NAK response handler."""
-
-    def register_topic(
-        instance_func, topic, address=None, group=None, message_type=None
-    ):
-        """Register an inbound DIRECT NAK message."""
-        _register_handler(
-            instance_func,
-            topic,
-            prefix=None,
-            address=address,
-            group=None,
-            message_type=MessageFlagType.DIRECT_NAK,
-        )
-
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        asyncio.ensure_future(
-            _async_post_response(self, ResponseStatus.UNCLEAR, func, args, kwargs)
-        )
-
-    wrapper.register_topic = register_topic
-    return wrapper
+    reg_func = partial(
+        _register_handler,
+        presets={"group": None, "message_type": MessageFlagType.DIRECT_NAK},
+    )
+    return _setup_handler(reg_func, func)
 
 
 def broadcast_handler(func):
     """Register the BROADCAST message handler."""
 
-    def register_topic(
-        instance_func, topic, address=None, group=None, message_type=None
+    def _register_broadcast_handler(
+        func, topic, address=None, group=None, message_type=None
     ):
-        """Register an inbound BROADCAST message."""
-        _register_handler(
-            instance_func,
-            topic,
+        """Register the function with a topic."""
+        broadcast_topic = build_topic(
+            topic=topic,
             prefix=None,
             address=address,
             group=group,
             message_type=MessageFlagType.BROADCAST,
         )
-        _register_handler(
-            instance_func,
-            topic,
+        all_link_topic = build_topic(
+            topic=topic,
             prefix=None,
             address=address,
             group=group,
             message_type=MessageFlagType.ALL_LINK_BROADCAST,
         )
+        subscribe_topic(func, broadcast_topic)
+        subscribe_topic(func, all_link_topic)
 
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        """Wrap the handler to test for duplicate messages."""
-        if self.is_first_message(**kwargs):
-            return func(self, *args, **kwargs)
-
-    wrapper.register_topic = register_topic
-    return wrapper
+    reg_func = partial(_register_broadcast_handler)
+    return _setup_handler(reg_func, func)
 
 
 def all_link_cleanup_ack_handler(func):
     """Register the all_link_cleanup ACK response handler."""
-
-    def register_topic(
-        instance_func, topic, address=None, group=None, message_type=None
-    ):
-        """Register an inbound BROADCAST message."""
-        _register_handler(
-            instance_func,
-            topic,
-            prefix=None,
-            address=address,
-            group=None,
-            message_type=MessageFlagType.ALL_LINK_CLEANUP_ACK,
-        )
-
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        asyncio.ensure_future(
-            _async_post_response(self, ResponseStatus.FAILURE, func, args, kwargs)
-        )
-
-    wrapper.register_topic = register_topic
-    return wrapper
+    reg_func = partial(
+        _register_handler,
+        presets={"message_type": MessageFlagType.ALL_LINK_CLEANUP_ACK},
+    )
+    return _setup_handler(reg_func, func)
 
 
 def all_link_cleanup_nak_handler(func):
     """Register the all_link_cleanup NAK response handler."""
-
-    def register_topic(
-        instance_func, topic, address=None, group=None, message_type=None
-    ):
-        """Register an inbound BROADCAST message."""
-        _register_handler(
-            instance_func,
-            topic,
-            prefix=None,
-            address=address,
-            group=None,
-            message_type=MessageFlagType.ALL_LINK_CLEANUP_NAK,
-        )
-
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        asyncio.ensure_future(
-            _async_post_response(self, ResponseStatus.FAILURE, func, args, kwargs)
-        )
-
-    wrapper.register_topic = register_topic
-    return wrapper
+    reg_func = partial(
+        _register_handler,
+        presets={"message_type": MessageFlagType.ALL_LINK_CLEANUP_ACK},
+    )
+    return _setup_handler(reg_func, func)

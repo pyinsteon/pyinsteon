@@ -1,7 +1,7 @@
 """Thermostat temperature up command."""
-from .. import direct_ack_handler
-from ...topics import THERMOSTAT_CONTROL
 from ...constants import ThermostatMode
+from ...topics import THERMOSTAT_CONTROL
+from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 
@@ -51,3 +51,4 @@ class ThermostatModeCommand(DirectCommandHandlerBase):
             mode = ThermostatMode.OFF
 
         self._call_subscribers(mode=mode)
+        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

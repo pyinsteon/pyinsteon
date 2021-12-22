@@ -6,11 +6,11 @@ from os import path
 import aiofiles
 
 from .. import devices
+from ..aldb.aldb_record import ALDBRecord
 from ..constants import ALDBStatus, LinkStatus
 from ..managers.link_manager import find_broken_links
 from ..managers.saved_devices_manager import aldb_rec_to_dict, dict_to_aldb_record
 from .tools_base import ToolsBase
-from ..aldb.aldb_record import ALDBRecord
 
 
 def _convert_val(val):
@@ -104,7 +104,10 @@ class AdvancedTools(ToolsBase):
             pass
 
         addresses = await self._get_addresses(
-            address=address, allow_cancel=True, allow_all=False, match_device=True,
+            address=address,
+            allow_cancel=True,
+            allow_all=False,
+            match_device=True,
         )
         if not addresses:
             return
@@ -190,7 +193,10 @@ class AdvancedTools(ToolsBase):
             pass
 
         addresses = await self._get_addresses(
-            address=address, allow_cancel=True, allow_all=False, match_device=True,
+            address=address,
+            allow_cancel=True,
+            allow_all=False,
+            match_device=True,
         )
         if not addresses:
             return
@@ -302,7 +308,7 @@ class AdvancedTools(ToolsBase):
         device = devices[addresses[0]]
         rec = device.aldb[mem_addr]
         if not rec:
-            self._log_stdout(f"All-Link record not found")
+            self._log_stdout("All-Link record not found")
             return
 
         if not kwargs:
@@ -393,7 +399,10 @@ class AdvancedTools(ToolsBase):
             address = None
 
         addresses = await self._get_addresses(
-            address=address, allow_cancel=True, allow_all=False, match_device=True,
+            address=address,
+            allow_cancel=True,
+            allow_all=False,
+            match_device=True,
         )
         if not addresses:
             return

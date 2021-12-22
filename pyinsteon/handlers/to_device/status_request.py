@@ -1,7 +1,10 @@
 """Manage outbound ON command to a device."""
-from .. import status_handler, status_ack_handler
+
+from pyinsteon.constants import MessageFlagType, ResponseStatus
+
 from ... import pub
 from ...topics import STATUS_REQUEST
+from .. import ack_handler, status_handler
 from .direct_command import DirectCommandHandlerBase
 
 
@@ -43,13 +46,29 @@ class StatusRequestCommand(DirectCommandHandlerBase):
         """Send the ON command async."""
         return await super().async_send(status_type=self._status_type)
 
-    @status_ack_handler()
+    @ack_handler
     def handle_ack(self, cmd1, cmd2, user_data):
         """Handle the message ACK."""
+        if cmd2 == self.status_type:
+            self.status_active = True
+            super().handle_ack(cmd1, cmd2, user_data)
 
     @status_handler
     def handle_direct_ack(self, topic=pub.AUTO_TOPIC, **kwargs):
-        """Handle the ON response direct ACK."""
+        """Handle the ON response direct ACK.
+
+        This handler listens to all topics for a device therefore we need to
+        confirm the message is a status response.
+        """
+        if not self.status_active:
+            return
+
+        msg_type = topic.name.split(".")[-1]
+        if msg_type != str(MessageFlagType.DIRECT_ACK):
+            return
+
+        self._message_response.put_nowait(ResponseStatus.SUCCESS)
+
         cmd1 = kwargs.get("cmd1")
         cmd2 = kwargs.get("cmd2")
         if cmd2 is not None:

@@ -7,46 +7,40 @@ import aiofiles
 
 import pyinsteon.handlers.to_device as commands
 from pyinsteon import pub
-
 # pylint: disable=unused-import
-from pyinsteon.handlers.to_device.enter_linking_mode import EnterLinkingModeCommand
-from pyinsteon.handlers.to_device.enter_unlinking_mode import EnterUnlinkingModeCommand
+from pyinsteon.handlers.to_device.enter_linking_mode import \
+    EnterLinkingModeCommand
+from pyinsteon.handlers.to_device.enter_unlinking_mode import \
+    EnterUnlinkingModeCommand
 from pyinsteon.handlers.to_device.extended_get import ExtendedGetCommand
 from pyinsteon.handlers.to_device.extended_set import ExtendedSetCommand
-from pyinsteon.handlers.to_device.get_operating_flags import GetOperatingFlagsCommand
+from pyinsteon.handlers.to_device.get_operating_flags import \
+    GetOperatingFlagsCommand
 from pyinsteon.handlers.to_device.id_request import IdRequestCommand
 from pyinsteon.handlers.to_device.off import OffCommand
-from pyinsteon.handlers.to_device.off_all_link_broadcast import (
-    OffAllLinkBroadcastCommand,
-)
-from pyinsteon.handlers.to_device.off_all_link_cleanup import OffAllLinkCleanupCommand
+from pyinsteon.handlers.to_device.off_all_link_broadcast import \
+    OffAllLinkBroadcastCommand
+from pyinsteon.handlers.to_device.off_all_link_cleanup import \
+    OffAllLinkCleanupCommand
 from pyinsteon.handlers.to_device.off_fast import OffFastCommand
 from pyinsteon.handlers.to_device.on_fast import OnFastCommand
 from pyinsteon.handlers.to_device.on_level import OnLevelCommand
-from pyinsteon.handlers.to_device.on_level_all_link_broadcast import (
-    OnLevelAllLinkBroadcastCommand,
-)
-from pyinsteon.handlers.to_device.on_level_all_link_cleanup import (
-    OnLevelAllLinkCleanupCommand,
-)
-from pyinsteon.handlers.to_device.product_data_request import ProductDataRequestCommand
+from pyinsteon.handlers.to_device.on_level_all_link_broadcast import \
+    OnLevelAllLinkBroadcastCommand
+from pyinsteon.handlers.to_device.on_level_all_link_cleanup import \
+    OnLevelAllLinkCleanupCommand
+from pyinsteon.handlers.to_device.product_data_request import \
+    ProductDataRequestCommand
 from pyinsteon.handlers.to_device.read_aldb import ReadALDBCommandHandler
-from pyinsteon.handlers.to_device.set_operating_flags import SetOperatingFlagsCommand
+from pyinsteon.handlers.to_device.set_operating_flags import \
+    SetOperatingFlagsCommand
 from pyinsteon.handlers.to_device.status_request import StatusRequestCommand
 from pyinsteon.handlers.to_device.write_aldb import WriteALDBCommandHandler
-
 # pylint: enable=unused-import
 from tests import set_log_levels
-from tests.utils import (
-    DataItem,
-    async_case,
-    create_std_ext_msg,
-    get_class_or_method,
-    send_data,
-    random_address,
-    async_protocol_manager
-)
-
+from tests.utils import (DataItem, async_case, async_protocol_manager,
+                         create_std_ext_msg, get_class_or_method,
+                         random_address, send_data)
 
 FILE = "commands.json"
 
@@ -89,7 +83,7 @@ class TestDirectCommands(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=False,
+            logger_topics=True,
         )
 
     def validate_values(self, topic=pub.ALL_TOPICS, **kwargs):
@@ -148,7 +142,9 @@ class TestDirectCommands(unittest.TestCase):
                     response = await cmd.async_send(**send_params)
                 except Exception as ex:
                     raise Exception(
-                        "Failed test {} with error: {}".format(self._current_test, str(ex))
+                        "Failed test {} with error: {}".format(
+                            self._current_test, str(ex)
+                        )
                     )
                 if test_response:
                     try:

@@ -7,7 +7,6 @@ from tests import set_log_levels
 from tests.utils import hex_to_inbound_message
 
 
-
 # pylint: disable=no-member
 class TestCancelAllLinking(unittest.TestCase):
     """Test Cancel All-Linking."""

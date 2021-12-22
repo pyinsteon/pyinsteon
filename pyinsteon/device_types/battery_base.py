@@ -5,16 +5,17 @@ import logging
 from functools import partial
 from inspect import getfullargspec
 
-from ..utils import subscribe_topic
 from ..aldb.aldb_battery import ALDBBattery
 from ..constants import ResponseStatus
 from ..handlers.to_device.extended_set import ExtendedSetCommand
+from ..utils import subscribe_topic
 
 _LOGGER = logging.getLogger(__name__)
 TIMEOUT = 2
 
 
 # pylint: disable=no-member
+# pylint: disable=super-with-arguments
 class BatteryDeviceBase:
     """Base class for battery operated devices."""
 
@@ -48,7 +49,8 @@ class BatteryDeviceBase:
     def _run_on_wake(self, command, retries=3, **kwargs):
         cmd = partial(command, **kwargs)
         self._commands_queue.put_nowait((cmd, retries))
-        self._ping_task = asyncio.ensure_future(self._ping_device())
+        if not self._ping_task:
+            self._ping_task = asyncio.ensure_future(self._ping_device())
         return ResponseStatus.RUN_ON_WAKE
 
     def close(self):
@@ -119,6 +121,7 @@ class BatteryDeviceBase:
         while True:
             result = await self.async_ping()
             if result == ResponseStatus.SUCCESS:
+                self._ping_task = None
                 return
             await asyncio.sleep(20)
 

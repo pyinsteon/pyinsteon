@@ -1,6 +1,6 @@
 """Thermostat temperature up command."""
-from .. import direct_ack_handler
 from ...topics import THERMOSTAT_TEMPERATURE_UP
+from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 
@@ -25,3 +25,4 @@ class TemperatureUpCommand(DirectCommandHandlerBase):
     def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the OFF response direct ACK."""
         self._call_subscribers(degrees=cmd2 * 0.5)
+        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

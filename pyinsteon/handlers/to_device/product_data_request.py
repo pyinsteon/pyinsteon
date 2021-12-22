@@ -1,6 +1,6 @@
 """Manage outbound ON command to a device."""
-from .. import direct_ack_handler
 from ...topics import PRODUCT_DATA_REQUEST
+from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 
@@ -26,3 +26,4 @@ class ProductDataRequestCommand(DirectCommandHandlerBase):
         cat = user_data["d5"]
         subcat = user_data["d6"]
         self._call_subscribers(product_id=product_id, cat=cat, subcat=subcat)
+        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

@@ -1,6 +1,6 @@
 """Open / Close sensor groups."""
-from .group_base import GroupBase
 from ..address import Address
+from .group_base import GroupBase
 
 
 class NormallyOpen(GroupBase):

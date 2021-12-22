@@ -7,10 +7,10 @@ from pyinsteon.device_types.dimmable_lighting_control import (
     DimmableLightingControl_KeypadLinc_8,
 )
 from pyinsteon.extended_property import (
-    ON_MASK,
-    OFF_MASK,
     NON_TOGGLE_MASK,
     NON_TOGGLE_ON_OFF_MASK,
+    OFF_MASK,
+    ON_MASK,
 )
 from pyinsteon.utils import bit_is_set
 from tests import set_log_levels

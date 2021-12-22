@@ -1,30 +1,31 @@
 """Sensor/Actuator devices."""
 import asyncio
-from ..events import CLOSE_EVENT, OPEN_EVENT, Event, ON_EVENT, OFF_EVENT
+
+from ..constants import RelayMode, ResponseStatus
+from ..default_link import DefaultLink
+from ..events import CLOSE_EVENT, OFF_EVENT, ON_EVENT, OPEN_EVENT, Event
 from ..extended_property import DELAY, PRESCALER, X10_HOUSE, X10_UNIT
 from ..groups import OPEN_CLOSE_SENSOR, RELAY
+from ..groups.on_off import OnOff
 from ..groups.open_close import NormallyOpen
-from ..handlers.to_device.status_request import STATUS_REQUEST, StatusRequestCommand
-from ..handlers.to_device.on_level import OnLevelCommand
 from ..handlers.to_device.off import OffCommand
+from ..handlers.to_device.on_level import OnLevelCommand
+from ..handlers.to_device.status_request import STATUS_REQUEST, StatusRequestCommand
 from ..managers.on_level_manager import OnLevelManager
 from ..operating_flag import (
     LED_BLINK_ON_TX_ON,
     MOMENTARY_FOLLOW_SENSE,
     MOMENTARY_MODE_ON,
     MOMENTARY_ON_OFF_TRIGGER,
-    SENSE_SENDS_OFF,
     PROGRAM_LOCK_ON,
     RELAY_ON_SENSE_ON,
+    SENSE_SENDS_OFF,
     X10_OFF,
 )
-from .commands import ON_COMMAND, OFF_COMMAND
 from ..utils import multiple_status
-from .on_off_responder_base import OnOffResponderBase
 from .device_base import Device
-from ..groups.on_off import OnOff
-from ..default_link import DefaultLink
-from ..constants import RelayMode, ResponseStatus
+from .device_commands import OFF_COMMAND, ON_COMMAND
+from .on_off_responder_base import OnOffResponderBase
 
 ON_LEVEL_MANAGER = "on_level_manager"
 RELAY_GROUP = 1

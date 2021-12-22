@@ -1,7 +1,7 @@
 """Manage outbound ON command to a device."""
-from .. import direct_ack_handler
-from ...topics import GET_INSTEON_ENGINE_VERSION
 from ...constants import EngineVersion
+from ...topics import GET_INSTEON_ENGINE_VERSION
+from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 
@@ -25,3 +25,4 @@ class EngineVersionRequest(DirectCommandHandlerBase):
         except ValueError:
             version = EngineVersion.UNKNOWN
         self._call_subscribers(engine_version=version)
+        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

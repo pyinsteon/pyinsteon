@@ -1,9 +1,9 @@
 """Handle sending a read request for ALDB records."""
 import logging
 
-from .. import ack_handler, direct_ack_handler
 from ...address import Address
 from ...topics import EXTENDED_GET_SET
+from .. import ack_handler, direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class ThermostatGetSetPointCommand(DirectCommandHandlerBase):
         response = await super().async_send(data3=0x01)
         return response
 
-    @ack_handler(wait_response=True)
+    @ack_handler
     def handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK response.
 
@@ -30,9 +30,9 @@ class ThermostatGetSetPointCommand(DirectCommandHandlerBase):
         """
         if (
             not user_data
-            or not user_data["data1"] == 0x00
-            or not user_data["data2"] == 0x00
-            or not user_data["data3"] == 0x01
+            or not user_data["d1"] == 0x00
+            or not user_data["d2"] == 0x00
+            or not user_data["d3"] == 0x01
         ):
             return
         super().handle_ack(cmd1, cmd2, user_data)
@@ -45,3 +45,4 @@ class ThermostatGetSetPointCommand(DirectCommandHandlerBase):
         shoudl be coming.
         """
         self._call_subscribers()
+        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

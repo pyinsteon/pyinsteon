@@ -1,21 +1,21 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
 from functools import partial
 from typing import Iterable
-from ..constants import FanSpeed
+
+from ..constants import FanSpeed, ResponseStatus
+from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..extended_property import (
     LED_DIMMING,
+    NON_TOGGLE_MASK,
+    NON_TOGGLE_ON_OFF_MASK,
+    OFF_MASK,
     ON_LEVEL,
+    ON_MASK,
     RAMP_RATE,
+    TRIGGER_GROUP_MASK,
     X10_HOUSE,
     X10_UNIT,
-    ON_MASK,
-    OFF_MASK,
-    NON_TOGGLE_MASK,
-    TRIGGER_GROUP_MASK,
-    NON_TOGGLE_ON_OFF_MASK,
 )
-from ..events import ON_EVENT, OFF_EVENT, ON_FAST_EVENT, OFF_FAST_EVENT
-
 from ..groups import (
     DIMMABLE_FAN,
     DIMMABLE_LIGHT,
@@ -30,9 +30,8 @@ from ..groups import (
     ON_OFF_SWITCH_G,
     ON_OFF_SWITCH_H,
 )
-from ..groups.on_off import OnOff
 from ..groups.on_level import OnLevel
-from ..handlers import ResponseStatus
+from ..groups.on_off import OnOff
 from ..handlers.from_device.manual_change import ManualChangeInbound
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
@@ -41,8 +40,8 @@ from ..operating_flag import (
     CRC_ERROR_COUNT,
     DATABASE_DELTA,
     KEY_BEEP_ON,
-    LED_BLINK_ON_ERROR_ON,
     LED_BLINK_ON_ERROR_OFF,
+    LED_BLINK_ON_ERROR_ON,
     LED_BLINK_ON_TX_ON,
     LED_OFF,
     LOAD_SENSE_ON,
@@ -53,19 +52,18 @@ from ..operating_flag import (
     SIGNAL_TO_NOISE_FAILURE_COUNT,
     X10_OFF,
 )
-from .variable_responder_base import VariableResponderBase
-
-from .commands import (
+from ..utils import bit_is_set, multiple_status, set_bit, set_fan_speed
+from .device_commands import (
+    GET_LEDS_COMMAND,
     OFF_COMMAND,
     OFF_FAST_COMMAND,
     ON_COMMAND,
     ON_FAST_COMMAND,
     SET_LEDS_COMMAND,
-    GET_LEDS_COMMAND,
     STATUS_COMMAND_FAN,
 )
-from ..utils import set_bit, bit_is_set, multiple_status, set_fan_speed
 from .variable_controller_base import ON_LEVEL_MANAGER
+from .variable_responder_base import VariableResponderBase
 
 
 class DimmableLightingControl(VariableResponderBase):

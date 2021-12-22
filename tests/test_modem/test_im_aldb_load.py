@@ -13,7 +13,6 @@ from pyinsteon.topics import (
 from tests import _LOGGER, set_log_levels
 from tests.utils import TopicItem, async_case, random_address
 
-
 SEND_FIRST_TOPIC = "send.{}".format(GET_FIRST_ALL_LINK_RECORD)
 SEND_TOPIC = "send.{}".format(GET_NEXT_ALL_LINK_RECORD)
 ACK_FIRST_TOPIC = "ack.{}".format(GET_FIRST_ALL_LINK_RECORD)

@@ -1,7 +1,6 @@
 """Modem command to get the IM configuration."""
 import logging
 
-from . import ack_handler
 from ..topics import SET_IM_CONFIGURATION
 from .outbound_base import OutboundHandlerBase
 
@@ -46,7 +45,3 @@ class SetImConfigurationHandler(OutboundHandlerBase):
             auto_led=auto_led,
             deadman=deadman,
         )
-
-    @ack_handler(wait_response=False)
-    def handle_ack(self, disable_auto_linking, monitor_mode, auto_led, deadman):
-        """Receive the ACK message and return True."""

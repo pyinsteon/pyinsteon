@@ -10,7 +10,6 @@ from pyinsteon.managers.x10_manager import (
     X10OnOffManager,
 )
 from pyinsteon.x10_address import create
-
 from tests import set_log_levels
 
 

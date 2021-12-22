@@ -1,10 +1,10 @@
 """Utilities for managers."""
-from ..device_types.ipdb import IPDB
 from .device_id_manager import DeviceId
 
 
 def create_device(device_id: DeviceId):
     """Create an Insteon Device from a DeviceId named Tuple."""
+    from ..device_types.ipdb import IPDB
 
     ipdb = IPDB()
     product = ipdb[[device_id.cat, device_id.subcat]]
@@ -29,6 +29,7 @@ def create_x10_device(
     max_level: int = 255,
 ):
     """Create an Insteon Device from a DeviceId named Tuple."""
+    from ..device_types.ipdb import IPDB
 
     ipdb = IPDB()
     product = ipdb.x10(x10_feature)

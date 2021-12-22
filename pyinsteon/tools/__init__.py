@@ -1,14 +1,15 @@
 """Command line tools to interact with the Insteon devices."""
-from binascii import unhexlify
 import os
-from .. import async_connect, async_close, devices
+from binascii import unhexlify
+
+from .. import async_close, async_connect, devices
+from ..address import Address
 from ..constants import HC_LOOKUP, UC_LOOKUP
-from .tools_base import ToolsBase
-from .config import ToolsConfig
+from ..managers.link_manager import async_enter_linking_mode, async_enter_unlinking_mode
 from .aldb import ToolsAldb
 from .cmd import CmdTools
-from ..address import Address
-from ..managers.link_manager import async_enter_linking_mode, async_enter_unlinking_mode
+from .config import ToolsConfig
+from .tools_base import ToolsBase
 
 
 class InsteonCmd(ToolsBase):
@@ -224,16 +225,6 @@ class InsteonCmd(ToolsBase):
             "Press the set button on the device. Unlinking will occur in the background."
         )
         await async_enter_unlinking_mode(group=0)
-
-    async def do_exit(self, *args, **kwargs):
-        """Exit the current menu.
-
-        Usage:
-            exit
-        """
-        self._log_command("exit")
-        await self.do_log_to_file("n")
-        return -1
 
     async def do_add_x10_device(self, *args, **kwargs):
         """Add an X10 device.

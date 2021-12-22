@@ -1,9 +1,9 @@
 """Handle sending a read request for ALDB records."""
 import logging
 
-from .. import ack_handler
 from ...address import Address
 from ...topics import EXTENDED_GET_SET
+from .. import ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
         self._data1 = None
         return response
 
-    @ack_handler(wait_response=True)
+    @ack_handler
     def handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK response.
 
@@ -40,8 +40,8 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
         """
         if (
             not user_data
-            or not user_data["data1"] == self._data1
-            or not user_data["data2"] == self._data2
+            or not user_data["d1"] == self._data1
+            or not user_data["d2"] == self._data2
         ):
             return
-        super().handle_ack(cmd1, cmd2, user_data)
+        super().handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)

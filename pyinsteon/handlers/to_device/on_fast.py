@@ -1,7 +1,7 @@
 """Manage outbound ON command to a device."""
 
-from .. import direct_ack_handler
 from ...topics import ON_FAST
+from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 
@@ -26,3 +26,4 @@ class OnFastCommand(DirectCommandHandlerBase):
     def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the ON FAST response direct ACK."""
         self._call_subscribers(on_level=cmd2 if cmd2 else 0xFF)
+        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

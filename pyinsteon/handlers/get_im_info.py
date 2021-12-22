@@ -1,8 +1,10 @@
 """Modem command to get next ALDB record."""
 import logging
 
-from . import ack_handler
+from pyinsteon.constants import ResponseStatus
+
 from ..topics import GET_IM_INFO
+from . import ack_handler
 from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -15,9 +17,11 @@ class GetImInfoHandler(OutboundHandlerBase):
         """Init the GetNextAldbRecordNak class."""
         super().__init__(topic=GET_IM_INFO)
 
-    @ack_handler()
+    # pylint: disable=arguments-differ
+    @ack_handler
     def handle_ack(self, address, cat, subcat, firmware):
         """Receive the ACK message and return True."""
+        self._message_response.put_nowait(ResponseStatus.SUCCESS)
         self._call_subscribers(
             address=address, cat=cat, subcat=subcat, firmware=firmware
         )

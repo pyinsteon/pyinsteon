@@ -1,9 +1,11 @@
 """Handle sending a read request for ALDB records."""
 import logging
 
-from .. import ack_handler
+from pyinsteon.constants import ResponseStatus
+
 from ...address import Address
 from ...topics import EXTENDED_GET_SET
+from .. import ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -50,8 +52,8 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
                 kwargs["data{}".format(item)] = data
         return await super().async_send(priority=5, **kwargs)
 
-    @ack_handler(wait_response=True)
+    @ack_handler
     def handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK."""
-        if user_data["data1"] == self._data1 and user_data["data2"] == self._data2:
-            super().handle_ack(cmd1, cmd2, user_data)
+        if user_data["d1"] == self._data1 and user_data["d2"] == self._data2:
+            self._message_response.put_nowait(ResponseStatus.SUCCESS)

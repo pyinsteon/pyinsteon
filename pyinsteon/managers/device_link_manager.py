@@ -17,7 +17,7 @@ def _topic_to_addr_group(topic):
         group = int(elements[1])
         msg_type = getattr(MessageFlagType, elements[-1].upper())
     except [KeyError, TypeError]:
-        return None, None
+        return None, None, None
     return address, group, msg_type
 
 

@@ -1,9 +1,9 @@
 """Utilities for tests."""
+import logging
 import os
 import sys
-import logging
-from pyinsteon import pub
 
+from pyinsteon import pub
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_PYINSTEON = logging.getLogger("pyinsteon")

@@ -4,14 +4,11 @@ import logging
 from functools import partial
 
 from ..handlers.get_im_info import GetImInfoHandler
+from ..managers.device_id_manager import DeviceId
+from ..managers.utils import create_device
 from .http_transport import async_connect_http
 from .protocol import Protocol
-from .serial_transport import (
-    async_connect_serial,
-    async_connect_socket,
-)
-from ..managers.utils import create_device
-from ..managers.device_id_manager import DeviceId
+from .serial_transport import async_connect_serial, async_connect_socket
 
 _LOGGER = logging.getLogger(__name__)
 

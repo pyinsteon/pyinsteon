@@ -1,6 +1,6 @@
 """KeypadLinc command handler to trigger a button scene."""
-from .. import ack_handler, direct_ack_handler
 from ...topics import EXTENDED_TRIGGER_ALL_LINK
+from .. import ack_handler, direct_ack_handler
 from ..to_device.direct_command import DirectCommandHandlerBase
 
 
@@ -30,17 +30,18 @@ class TriggerSceneOnCommandHandler(DirectCommandHandlerBase):
 
         return await super().async_send(**kwargs)
 
-    @ack_handler(True)
+    @ack_handler
     def handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK response.
 
         Required since the BEEP command uses the same cmd1, cmd2 values.
         """
-        if not user_data and not user_data["data1"] == self._group:
+        if not user_data and not user_data["d1"] == self._group:
             return
-        return super().handle_ack(cmd1, cmd2, user_data)
+        return super().handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
 
     @direct_ack_handler
     def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the direct ACK message."""
         self._call_subscribers(on_level=self._on_level)
+        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

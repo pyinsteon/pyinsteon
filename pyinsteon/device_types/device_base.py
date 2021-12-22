@@ -1,13 +1,13 @@
 """Base device object."""
-from inspect import getfullargspec
+import asyncio
 import logging
 from abc import ABC
-import asyncio
 from datetime import datetime
+from inspect import getfullargspec
 
 from ..address import Address
 from ..aldb import ALDB
-from ..constants import EngineVersion, DeviceCategory
+from ..constants import DeviceCategory, EngineVersion
 from ..default_link import DefaultLink
 from ..handlers.to_device.product_data_request import ProductDataRequestCommand
 from ..handlers.to_device.engine_version_request import EngineVersionRequest

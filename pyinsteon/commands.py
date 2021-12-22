@@ -3,7 +3,7 @@ import logging
 from collections import namedtuple
 from typing import Iterable
 
-from ..topics import (
+from .topics import (
     ALL_LINK_CLEANUP_STATUS_REPORT,
     ASSIGN_TO_ALL_LINK_GROUP,
     ASSIGN_TO_COMPANION_GROUP,
