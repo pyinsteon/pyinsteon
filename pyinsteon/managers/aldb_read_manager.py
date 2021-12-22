@@ -77,11 +77,10 @@ class ALDBReadManager:
                     record = await self._record_queue.get()
                     if record is not None and record.mem_addr == mem_addr:
                         return record
-                    else:
-                        return
             except asyncio.TimeoutError:
                 retries -= 1
                 await asyncio.sleep(0.1)
+        return None
 
     async def _read_all(self):
         """Read all records."""

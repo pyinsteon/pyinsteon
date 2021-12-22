@@ -99,7 +99,6 @@ class ModemALDB(ALDBBase):
             self._records[record.mem_addr] = record
             if record.is_high_water_mark:
                 return
-            _LOGGER.debug(f"Reading {next_mem_addr:04x} from EEPROM")
             record = await self._read_manager.async_read_record(next_mem_addr)
             next_mem_addr -= 8
 
