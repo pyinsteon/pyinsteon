@@ -1,10 +1,10 @@
 """Test creation of all devices."""
-import unittest
 import traceback
+import unittest
 
 from pyinsteon.device_types.ipdb import IPDB
-from tests.utils import random_address
 from tests import _LOGGER
+from tests.utils import random_address
 
 
 class TestCreateDevices(unittest.TestCase):

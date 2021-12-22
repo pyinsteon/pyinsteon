@@ -1,11 +1,10 @@
 """Manage inbound ON command from device."""
 import logging
 
-from .. import inbound_handler
-from ...address import Address
 from ...constants import MessageFlagType
 from ...topics import THERMOSTAT_COOL_SET_POINT_STATUS
 from ...utils import build_topic
+from .. import inbound_handler
 from ..inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -16,10 +15,9 @@ class ThermostatCoolSetPointHandler(InboundHandlerBase):
 
     def __init__(self, address):
         """Init the ThermostatSetPointResponseHandler class."""
-        self._address = Address(address)
         super().__init__(
             topic=THERMOSTAT_COOL_SET_POINT_STATUS,
-            address=self._address,
+            address=address,
             message_type=MessageFlagType.DIRECT,
         )
         self._subscriber_topic = build_topic(

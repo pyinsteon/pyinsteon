@@ -1,11 +1,11 @@
 """Command line tools to interact with the Insteon devices."""
 
 from .. import devices
-from ..constants import ALDBStatus, DeviceCategory, RAMP_RATES
+from ..constants import RAMP_RATES, ALDBStatus, DeviceCategory
 from ..managers.scene_manager import async_add_device_to_scene
 from ..utils import seconds_to_ramp_rate
-from .tools_base import ToolsBase
 from .advanced import AdvancedTools
+from .tools_base import ToolsBase
 
 
 class ToolsAldb(ToolsBase):
@@ -176,7 +176,8 @@ class ToolsAldb(ToolsBase):
 
         if not scene:
             scene = await self._get_int(
-                "Scene number or blank to cancel", values=range(25, 256),
+                "Scene number or blank to cancel",
+                values=range(25, 256),
             )
             if not scene:
                 return
@@ -199,7 +200,10 @@ class ToolsAldb(ToolsBase):
                     data2_seconds = None
                 if data2_seconds is None:
                     data2_seconds = await self._get_float(
-                        "Ramp rate", default=0.5, maximum=480, minimum=0.1,
+                        "Ramp rate",
+                        default=0.5,
+                        maximum=480,
+                        minimum=0.1,
                     )
             else:
                 data2_seconds = data2

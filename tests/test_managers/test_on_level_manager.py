@@ -1,12 +1,13 @@
 """Test the on/off manager."""
-from asyncio import sleep
 import unittest
+from asyncio import sleep
+
 from pyinsteon.address import Address
-from pyinsteon.managers.on_level_manager import OnLevelManager
-from pyinsteon.topics import ON, ON_FAST, OFF, OFF_FAST
 from pyinsteon.constants import MessageFlagType
+from pyinsteon.managers.on_level_manager import OnLevelManager
+from pyinsteon.topics import OFF, OFF_FAST, ON, ON_FAST
 from tests import set_log_levels
-from tests.utils import TopicItem, send_topics, async_case, random_address, cmd_kwargs
+from tests.utils import TopicItem, async_case, cmd_kwargs, random_address, send_topics
 
 
 class TestOnLevelManager(unittest.TestCase):

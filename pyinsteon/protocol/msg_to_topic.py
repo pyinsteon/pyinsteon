@@ -1,6 +1,7 @@
 """Convert a message to a topic and an args, kwargs arguments."""
 import logging
 
+from ..commands import commands
 from ..constants import MessageFlagType
 from ..topics import (
     ALL_LINK_CLEANUP_FAILURE_REPORT,
@@ -31,7 +32,6 @@ from ..topics import (
     X10_SEND,
 )
 from ..utils import build_topic
-from .commands import commands
 from .messages.inbound import Inbound
 
 MSG_CONVERTER = {}

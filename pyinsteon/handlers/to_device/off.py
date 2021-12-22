@@ -1,6 +1,6 @@
 """Manage outbound ON command to a device."""
-from .. import direct_ack_handler
 from ...topics import OFF
+from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 
@@ -20,3 +20,4 @@ class OffCommand(DirectCommandHandlerBase):
     def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the OFF response direct ACK."""
         self._call_subscribers(on_level=0)
+        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

@@ -8,17 +8,27 @@
 
 exclude: '(/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|_build|buck-out|build|dist|tests|samples)/|.*ipdb|.*test_commands)'
 repos:
--   repo: https://github.com/psf/black
-    rev: 19.10b0
+  - repo: https://github.com/psf/black
+    rev: 21.5b1
     hooks:
-    -   id: black
+      - id: black
         args:
           - --safe
           - --quiet
--   repo: https://gitlab.com/pycqa/flake8
-    rev: 3.7.9
+        files: ^((pyinsteon|tests)/.+)?[^/]+\.py$
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.2
     hooks:
     -   id: flake8
         additional_dependencies:
-          - flake8-docstrings==1.5.0
-          - pydocstyle==4.0.1
+          - pycodestyle==2.7.0
+          - pyflakes==2.3.1
+          - flake8-docstrings==1.6.0
+          - pydocstyle==6.0.0
+          - flake8-comprehensions==3.4.0
+          - flake8-noqa==1.1.0
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.8.0
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]

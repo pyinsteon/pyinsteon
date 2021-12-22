@@ -1,7 +1,7 @@
 """Manage outbound ON command to a device."""
 
-from .. import direct_ack_handler
 from ...topics import ON
+from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 
@@ -32,3 +32,4 @@ class OnLevelCommand(DirectCommandHandlerBase):
         """Handle the ON response direct ACK."""
         if self._response_lock.locked():
             self._call_subscribers(on_level=cmd2 if cmd2 else 0xFF)
+        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

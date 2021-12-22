@@ -1,7 +1,7 @@
 """Fan On Level state."""
-from .group_base import GroupBase
 from ..address import Address
 from ..constants import FanSpeed, FanSpeedRange
+from .group_base import GroupBase
 
 
 class FanOnLevel(GroupBase):

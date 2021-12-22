@@ -1,7 +1,7 @@
 """Assign a device to an all link group."""
-from .. import broadcast_handler
 from ...address import Address
 from ...topics import ASSIGN_TO_ALL_LINK_GROUP
+from .. import broadcast_handler
 from .broadcast_command import BroadcastCommandHandlerBase
 
 
@@ -10,12 +10,13 @@ class AssignToAllLinkGroupCommand(BroadcastCommandHandlerBase):
 
     def __init__(self, address: Address):
         """Init the AssignToAllLinkGroupCommand class."""
-        self._address = Address(address)
-        super().__init__(topic=ASSIGN_TO_ALL_LINK_GROUP, address=self._address)
+        super().__init__(topic=ASSIGN_TO_ALL_LINK_GROUP, address=address)
 
     @broadcast_handler
     def receive_id(self, cmd1, cmd2, target, user_data, hops_left):
         """Receive the device ID information."""
+        if not self.is_first_message(target, hops_left):
+            return
         cat = target.high
         subcat = target.middle
         firmware = target.low

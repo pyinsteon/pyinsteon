@@ -2,8 +2,8 @@
 # pylint: disable=no-self-use
 import logging
 
-from . import ack_handler, nak_handler
 from ..topics import GET_FIRST_ALL_LINK_RECORD
+from . import nak_handler
 from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -16,10 +16,6 @@ class GetFirstAllLinkRecordHandler(OutboundHandlerBase):
         """Init the GetNextAldbRecordNak class."""
         super().__init__(topic=GET_FIRST_ALL_LINK_RECORD)
         _LOGGER.debug("Setup GetFirstAllLinkRecordHandler")
-
-    @ack_handler()
-    def handle_ack(self):
-        """Handle the ACK message and return True."""
 
     @nak_handler
     def handle_nak(self, **kwargs):

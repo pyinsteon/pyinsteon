@@ -7,6 +7,7 @@ try:
     from contextlib import asynccontextmanager
 except ImportError:
     from async_generator import asynccontextmanager
+
 from functools import partial, wraps
 from random import randint
 
@@ -14,7 +15,6 @@ import pyinsteon.protocol.protocol
 from pyinsteon import pub
 from pyinsteon.address import Address
 from pyinsteon.protocol.messages.inbound import create
-
 from tests import _LOGGER_MESSAGES, async_connect_mock
 
 

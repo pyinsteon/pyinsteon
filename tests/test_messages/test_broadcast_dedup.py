@@ -1,12 +1,10 @@
 """Test broadcast messages for deduplication."""
-from asyncio import sleep
 import unittest
+from asyncio import sleep
 
 from pyinsteon.handlers.from_device.on_level import OnLevelInbound
-
 from tests import set_log_levels
-from tests.utils import send_topics, TopicItem, random_address, async_case, cmd_kwargs
-
+from tests.utils import TopicItem, async_case, cmd_kwargs, random_address, send_topics
 
 ON_MSG = "{}.{}.on.all_link_broadcast"
 ON_CLEANUP = "{}.{}.on.all_link_cleanup"

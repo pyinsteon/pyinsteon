@@ -2,10 +2,10 @@
 import logging
 
 from ...address import Address
-from ...topics import SET_OPERATING_FLAGS
-from .direct_command import DirectCommandHandlerBase
-from .. import direct_nak_handler
 from ...constants import ResponseStatus
+from ...topics import SET_OPERATING_FLAGS
+from .. import direct_nak_handler
+from .direct_command import DirectCommandHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
 

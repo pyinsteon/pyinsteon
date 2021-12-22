@@ -1,8 +1,8 @@
 """Manage X10 functions."""
-from ..utils import subscribe_topic, publish_topic
 from ..constants import X10Commands
 from ..handlers.to_device.x10_send import X10CommandSend
 from ..subscriber_base import SubscriberBase
+from ..utils import publish_topic, subscribe_topic
 from ..x10_address import X10Address, create
 
 

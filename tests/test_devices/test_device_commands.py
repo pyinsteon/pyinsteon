@@ -13,9 +13,9 @@ from tests import _LOGGER, set_log_levels
 from tests.utils import (
     TopicItem,
     async_case,
-    send_topics,
-    random_address,
     async_protocol_manager,
+    random_address,
+    send_topics,
 )
 
 FILE = "device_commands.json"
@@ -67,7 +67,7 @@ class TestDeviceCommands(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=False,
+            logger_topics=True,
         )
 
     def tearDown(self):

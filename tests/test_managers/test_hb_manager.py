@@ -2,13 +2,13 @@
 import asyncio
 import unittest
 
-from pyinsteon.address import Address
 import pyinsteon.managers.heartbeat_manager
-from pyinsteon.utils import build_topic
-from pyinsteon.topics import ON, OFF
+from pyinsteon.address import Address
 from pyinsteon.constants import MessageFlagType
-from tests.utils import random_address, send_topics, async_case, TopicItem
+from pyinsteon.topics import OFF, ON
+from pyinsteon.utils import build_topic
 from tests import set_log_levels
+from tests.utils import TopicItem, async_case, random_address, send_topics
 
 HB_CHECK_BUFFER = 0
 
