@@ -13,7 +13,7 @@ from .msg_to_topic import convert_to_topic
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_MSG = logging.getLogger("pyinsteon.messages")
-WRITE_WAIT = 1.5  # Time to wait between writes to transport
+WRITE_WAIT = 0.5  # Time to wait between writes to transport
 
 
 def _is_nak(msg):
