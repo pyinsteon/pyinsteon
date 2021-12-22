@@ -117,7 +117,7 @@ class InsteonCmd(ToolsBase):
             load_modem_aldb = None
         if load_modem_aldb not in [0, 1, 2]:
             load_modem_aldb = await self._get_int(
-                "Identify devices (0=No, 1=If no loaded, 2=Load", 1, [0, 1, 2]
+                "Load the IM ALDB (0=No, 1=If not loaded, 2=Load", 1, [0, 1, 2]
             )
         self._log_command(f"load_devices {self.workdir} {id_devices}")
         await devices.async_load(

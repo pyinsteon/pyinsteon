@@ -21,6 +21,7 @@ from ...topics import (
     LED_OFF,
     LED_ON,
     MANAGE_ALL_LINK_RECORD,
+    READ_EEPROM,
     RESET_IM,
     RF_SLEEP,
     SEND_ALL_LINK_COMMAND,
@@ -32,6 +33,7 @@ from ...topics import (
     SET_IM_CONFIGURATION,
     SET_NAK_MESSAGE_BYTE,
     START_ALL_LINKING,
+    WRITE_EEPROM,
     X10_SEND,
 )
 from ...utils import publish_topic, subscribe_topic
@@ -312,3 +314,36 @@ def rf_sleep(topic=pub.AUTO_TOPIC) -> Outbound:
 def get_im_configuration(topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a GET_IM_CONFIGURATION outbound message."""
     _create_outbound_message(topic=topic, priority=7)
+
+
+@topic_to_message_handler(register_list=topic_register, topic=READ_EEPROM)
+def read_eeprom(mem_hi: int, mem_low: int, topic=pub.AUTO_TOPIC) -> Outbound:
+    """Create a READ_EEPROM outbound message."""
+    _create_outbound_message(mem_hi=mem_hi, mem_low=mem_low, topic=topic, priority=10)
+
+
+@topic_to_message_handler(register_list=topic_register, topic=WRITE_EEPROM)
+def write_eeprom(
+    mem_hi: int,
+    mem_low: int,
+    flags: AllLinkRecordFlags,
+    group: int,
+    target: Address,
+    data1: int,
+    data2: int,
+    data3: int,
+    topic=pub.AUTO_TOPIC,
+) -> Outbound:
+    """Create a WRITE_EEPROM outbound message."""
+    _create_outbound_message(
+        mem_hi=mem_hi,
+        mem_low=mem_low,
+        flags=flags,
+        group=group,
+        target=target,
+        data1=data1,
+        data2=data2,
+        data3=data3,
+        topic=topic,
+        priority=10,
+    )

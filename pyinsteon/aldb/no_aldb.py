@@ -1,7 +1,4 @@
 """All-Link Database for devices with no All-Link Database."""
-import inspect
-from typing import Callable
-
 from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion
 
@@ -50,14 +47,8 @@ class NoALDB:
         mem_addr: int = 0x00,
         num_recs: int = 0x00,
         refresh: bool = False,
-        callback: Callable = None,
     ):
         """Load the All-Link Database."""
-        if callback:
-            if inspect.iscoroutinefunction(callback) or inspect.isawaitable(callback):
-                await callback()
-            else:
-                callback()
         return ALDBStatus.LOADED
 
     async def async_write(self):

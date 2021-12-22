@@ -177,3 +177,45 @@ class ALDBRecord:
             | int(self._bit4) << 4
             | int(not self._high_water_mark) << 1
         )
+
+    def copy(self):
+        """Create a new record as a copy of the current record."""
+        return ALDBRecord(
+            memory=self._memory_location,
+            controller=self._controller,
+            group=self._group,
+            target=self._target,
+            data1=self._data1,
+            data2=self._data2,
+            data3=self._data3,
+            in_use=self._in_use,
+            bit5=self._bit5,
+            bit4=self._bit4,
+        )
+
+
+def new_aldb_record_from_existing(rec: ALDBRecord, **kwargs):
+    """Create a new ALDB record from an existing record."""
+    mem_addr = int(kwargs.get("mem_addr", rec.mem_addr))
+    in_use = bool(kwargs.get("in_use", rec.is_in_use))
+    controller = bool(kwargs.get("controller", rec.is_controller))
+    target = Address(kwargs.get("target", rec.target))
+    group = int(kwargs.get("group", rec.group))
+    data1 = int(kwargs.get("data1", rec.data1))
+    data2 = int(kwargs.get("data2", rec.data2))
+    data3 = int(kwargs.get("data3", rec.data3))
+    bit5_set = bool(kwargs.get("bit5_set", rec.data3))
+    bit4_set = bool(kwargs.get("data3", rec.data3))
+
+    return ALDBRecord(
+        memory=mem_addr,
+        controller=controller,
+        group=group,
+        target=target,
+        data1=data1,
+        data2=data2,
+        data3=data3,
+        in_use=in_use,
+        bit5=bit5_set,
+        bit4=bit4_set,
+    )

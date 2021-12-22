@@ -174,7 +174,7 @@ class ToolsBase(Cmd):
             loop.run_until_complete(cls(loop, args).async_cmdloop(intro=intro))
         except KeyboardInterrupt:
             loop.stop()
-            pending = asyncio.Task.all_tasks(loop=loop)
+            pending = asyncio.all_tasks(loop=loop)
             for task in pending:
                 task.cancel()
                 try:
@@ -704,21 +704,20 @@ class ToolsBase(Cmd):
         """Print the ALDB to the log."""
         for address in addresses:
             device = devices[address]
-            self._log_stdout("")
-            self._log_stdout(
-                f"Device: {device.address}  Load Status: {str(device.aldb.status)}"
-            )
-            self._log_stdout(
-                "RecID In Use Mode HWM Group Address  Data 1 Data 2 Data 3"
-            )
-            self._log_stdout(
-                "----- ------ ---- --- ----- -------- ------ ------ ------"
-            )
-            for mem_addr in device.aldb:
-                rec = device.aldb[mem_addr]
-                in_use = "Y" if rec.is_in_use else "N"
-                mode = "C" if rec.is_controller else "R"
-                hwm = "Y" if rec.is_high_water_mark else "N"
-                line = f" {rec.mem_addr:04x}    {in_use:s}     {mode:s}   {hwm:s}    {rec.group:3d} {rec.target}   {rec.data1:3d}   {rec.data2:3d}   {rec.data3:3d}"
-                self._log_stdout(line)
-            self._log_stdout("")
+            records = [device.aldb[mem_addr] for mem_addr in device.aldb]
+            self._print_aldb_output(device, records)
+
+    def _print_aldb_output(self, device, records):
+        self._log_stdout("")
+        self._log_stdout(
+            f"Device: {device.address}  Load Status: {str(device.aldb.status)}"
+        )
+        self._log_stdout("RecID In Use Mode HWM Group Address  Data 1 Data 2 Data 3")
+        self._log_stdout("----- ------ ---- --- ----- -------- ------ ------ ------")
+        for rec in records:
+            in_use = "Y" if rec.is_in_use else "N"
+            mode = "C" if rec.is_controller else "R"
+            hwm = "Y" if rec.is_high_water_mark else "N"
+            line = f" {rec.mem_addr:04x}    {in_use:s}     {mode:s}   {hwm:s}    {rec.group:3d} {rec.target}   {rec.data1:3d}   {rec.data2:3d}   {rec.data3:3d}"
+            self._log_stdout(line)
+        self._log_stdout("")

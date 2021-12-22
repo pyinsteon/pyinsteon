@@ -88,6 +88,15 @@ def _device_to_dict(device_list):
                 "operating_flags": operating_flags,
                 "properties": properties,
             }
+            try:
+                device_info["read_write_mode"] = device.aldb.read_write_mode
+                device_info["disable_auto_linking"] = device.aldb.disable_auto_linking
+                device_info["monitor_mode"] = device.aldb.monitor_mode
+                device_info["auto_led"] = device.aldb.auto_led
+                device_info["deadman"] = device.aldb.deadman
+            except AttributeError:
+                pass
+            device_info["first_mem_addr"] = device.aldb.first_mem_addr
             device_dict.append(device_info)
     return device_dict
 
@@ -235,8 +244,10 @@ class SavedDeviceManager:
             else:
                 aldb_status = saved_device.get("aldb_status", 0)
                 aldb = saved_device.get("aldb", {})
+                read_write_mode = saved_device.get("read_write_mode", 0)
                 aldb_records = dict_to_aldb_record(aldb)
                 self._modem.aldb.load_saved_records(aldb_status, aldb_records)
+                self._modem.aldb.read_write_mode = read_write_mode
         return device_list
 
     async def _read_saved_devices(self):

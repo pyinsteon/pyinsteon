@@ -43,6 +43,7 @@ from ..handlers.to_device.extended_set_2 import ExtendedSet2Command
 from ..handlers.to_device.thermostat_cool_set_point import ThermostatCoolSetPointCommand
 from ..handlers.to_device.thermostat_heat_set_point import ThermostatHeatSetPointCommand
 from ..handlers.to_device.thermostat_mode import ThermostatModeCommand
+from ..managers.link_manager.default_links import async_add_default_links
 from ..managers.on_level_manager import OnLevelManager
 from ..managers.thermostat_status_manager import GetThermostatStatus
 from ..operating_flag import (
@@ -442,7 +443,7 @@ class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermo
             model=model,
         )
         self._aldb = ALDBBattery(
-            address=address, mem_addr=0x0FFF, run_command=self._run_on_wake
+            address=address, mem_addr=0x1FFF, run_command=self._run_on_wake
         )
 
     async def async_set_humidity_high_set_point(self, humidity):
@@ -494,3 +495,26 @@ class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermo
             super(BatteryDeviceBase, self).async_set_heat_set_point,
             temperature=temperature,
         )
+
+    async def async_add_default_links(self):
+        """Add default links to the device."""
+        self._run_on_wake(self.async_add_default_links_on_wake)
+
+    async def async_add_default_links_on_wake(self):
+        """Add default links to the device when the device wakes up."""
+        aldb_write_save = self.aldb.async_write
+        aldb_load_save = self.aldb.async_load
+        self.aldb.async_write = self.aldb.async_write_on_wake
+        self.aldb.async_load = self.aldb.async_load_on_wake
+
+        result_links = ResponseStatus.FAILURE
+        result_notify = ResponseStatus.FAILURE
+
+        try:
+            result_links = await async_add_default_links(self)
+            result_notify = await super().async_set_notify_changes()
+        finally:
+            self.aldb.async_write = aldb_write_save
+            self.aldb.async_load = aldb_load_save
+
+        return multiple_status(result_links, result_notify)

@@ -342,7 +342,7 @@ def unsubscribe_topic(listener, topic_name):
     topic_mgr = pub.getDefaultTopicMgr()
     topic = topic_mgr.getOrCreateTopic(topic_name)
     if pub.isSubscribed(listener, topicName=topic.name):
-        pub.unsubscribe(listener, topic.name)
+        pub.unsubscribe(listener, topic_name)
 
 
 def set_fan_speed(on_level):

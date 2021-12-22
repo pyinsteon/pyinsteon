@@ -172,27 +172,20 @@ def _add_link_to_device(device, is_controller, group, target, data1, data2, data
     for rec in device.aldb.find(
         target=Address(target), group=group, is_controller=is_controller
     ):
-        if (
-            not rec.is_in_use
-            or rec.data1 != data1
-            or rec.data2 != data2
-            or rec.data3 != data3
-        ):
-            try:
-                device.aldb.modify(
-                    mem_addr=rec.mem_addr,
-                    in_use=True,
-                    group=group,
-                    controller=is_controller,
-                    target=target,
-                    data1=data1,
-                    data2=data2,
-                    data3=data3,
-                )
-                return True
-            except NotImplementedError:
-                return False
-        return False
+        try:
+            device.aldb.modify(
+                mem_addr=rec.mem_addr,
+                in_use=True,
+                group=group,
+                controller=is_controller,
+                target=target,
+                data1=data1,
+                data2=data2,
+                data3=data3,
+            )
+            return True
+        except NotImplementedError:
+            return False
     try:
         device.aldb.add(
             group=group,

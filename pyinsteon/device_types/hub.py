@@ -1,6 +1,6 @@
 """Insteon Hub version 2."""
 
-from ..aldb.hub_aldb import HubALDB
+from ..aldb.modem_aldb import ModemALDB
 from .modem_base import ModemBase
 
 
@@ -18,4 +18,4 @@ class Hub(ModemBase):
     ):
         """Init the Modem class."""
         super().__init__(address, cat, subcat, firmware, description, model)
-        self._aldb = HubALDB(self._address)
+        self._aldb = ModemALDB(self._address)

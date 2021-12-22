@@ -7,7 +7,7 @@ import aiofiles
 
 from .. import devices
 from ..aldb.aldb_record import ALDBRecord
-from ..constants import ALDBStatus, LinkStatus
+from ..constants import ALDBStatus, LinkStatus, ResponseStatus
 from ..managers.link_manager import (
     async_cancel_linking_mode,
     async_enter_linking_mode,
@@ -378,6 +378,7 @@ class AdvancedTools(ToolsBase):
             self._log_stdout(
                 f"An issue occured writing to the database of device {device.address}"
             )
+            device.aldb.clear_pending()
 
     async def do_export_aldb(self, *args, **kwargs):
         """Export the All-Link Database for a device to a file.
@@ -476,21 +477,30 @@ class AdvancedTools(ToolsBase):
 
         aldb_dict = await self._read_device_aldb(location, filename)
         aldb_recs = dict_to_aldb_record(aldb_dict)
-        device.aldb.load_saved_records(ALDBStatus.LOADED, aldb_recs)
-        last_rec = None
-        for mem in device.aldb:
-            rec = device.aldb[mem]
-            device.aldb[mem] = rec
-            last_rec = rec
-        if last_rec and not last_rec.is_high_water_mark:
-            mem = last_rec.mem_addr - 8
-            new_rec = ALDBRecord(mem, False, 0, "00.00.00", 0, 0, 0, False, True, 0, 0)
-            device.aldb[mem] = new_rec
+        aldb_array = [aldb_recs[mem_addr] for mem_addr in aldb_recs]
         self._log_stdout("Preview of changes:")
-        self._print_aldb_out([device.address])
+        self._print_aldb_output(device, aldb_array)
         confirm = await self._get_char("Continue", default="n", values=["y", "n"])
-        if confirm == "y":
+        if confirm.lower() == "y":
+            device.aldb.load_saved_records(ALDBStatus.LOADED, aldb_recs)
+            last_rec = None
+            for mem in device.aldb:
+                rec = device.aldb[mem]
+                device.aldb[mem] = rec
+                last_rec = rec
+            if last_rec and not last_rec.is_high_water_mark:
+                mem = last_rec.mem_addr - 8
+                new_rec = ALDBRecord(
+                    mem, False, 0, "00.00.00", 0, 0, 0, False, True, 0, 0
+                )
+                device.aldb[mem] = new_rec
             done, not_done = await device.aldb.async_write(force=True)
+
+        if device.is_battery:
+            self._log_stdout(
+                "This device is battery operated. The ALDB will be written when the device wakes up."
+            )
+            return
 
         if not done:
             self._log_stdout("No records were written")
@@ -522,6 +532,146 @@ class AdvancedTools(ToolsBase):
     async def do_cancel_linking_mode(self, *args, **kwargs):
         """Take the modem out of linking mode."""
         await async_cancel_linking_mode()
+
+    async def do_find_im_records(self, *args, **kwargs):
+        """Find one or more records in the Modem All-Link Database.
+
+        Useage:
+            add_device_link address group
+        """
+        args = args[0].split()
+        try:
+            address = args[0]
+        except IndexError:
+            address = None
+        addresses = await self._get_addresses(
+            address=address, allow_cancel=True, allow_all=False, match_device=False
+        )
+        if not addresses:
+            return
+
+        try:
+            group = int(args[1])
+        except [IndexError, TypeError]:
+            return
+
+        recs = [
+            rec async for rec in devices.modem.aldb.async_find_records(address, group)
+        ]
+        if not recs:
+            self._log_stdout("No records found")
+            return
+
+        self._print_aldb_output(devices.modem, recs)
+
+    async def do_read_eeprom(self, *args, **kwargs):
+        """Read from EEPROM."""
+        args = args[0].split()
+        try:
+            rec_id = args[0]
+            mem_addr = int.from_bytes(unhexlify(rec_id), byteorder="big")
+        except [IndexError, TypeError]:
+            self._log_stdout("A memory address is required.")
+            return
+
+        rec = await devices.modem.aldb.async_read_record(mem_addr=mem_addr)
+        if rec:
+            self._print_aldb_output(devices.modem, [rec])
+        else:
+            self._log_stdout("No record found.")
+
+    async def do_load_from_eeprom(self, *arg, **kwargs):
+        """Load the modem ALDB using Read EEPROM."""
+        mem_addr = devices.modem.aldb.first_mem_addr
+        hwm = False
+        recs = []
+        while not hwm:
+            rec = await devices.modem.aldb.async_read_record(mem_addr=mem_addr)
+            hwm = rec.is_high_water_mark
+            mem_addr -= 8
+            recs.append(rec)
+        self._print_aldb_output(devices.modem, recs)
+
+    async def do_write_to_eeprom(self, *args, **kwargs):
+        """Write to the modem ALDB using Write EEPROM."""
+        args = args[0].split()
+        try:
+            rec_id = args[0]
+            mem_addr = int.from_bytes(unhexlify(rec_id), byteorder="big")
+        except (IndexError, ValueError):
+            self._log_stdout("Bad memory address.")
+            return
+
+        kwargs = {}
+        for arg in args[1:]:
+            kwarg, val = arg.split("=")
+            val = _convert_val(val)
+            kwargs[kwarg] = val
+
+        if mem_addr is None:
+            rec_id = await self._get_char("Record ID (eg. 1fff)")
+            try:
+                mem_addr = int.from_bytes(unhexlify(rec_id), byteorder="big")
+            except ValueError:
+                self._log_stdout("Invalid record id")
+
+        rec = await devices.modem.aldb.async_read_record(mem_addr)
+        if not rec:
+            self._log_stdout("All-Link record not found")
+            return
+
+        if not kwargs:
+            while True:
+                arg = await self._get_char(
+                    "Enter argument (eg. mode=c). Press enter for last argument",
+                    default="",
+                )
+                if arg == "":
+                    break
+                kwarg, val = arg.split("=")
+                val = _convert_val(val)
+                kwargs[kwarg] = val
+
+        for kwarg in kwargs:
+            if kwarg not in [
+                "in_use",
+                "mode",
+                "high_water_mark",
+                "target",
+                "group",
+                "data1",
+                "data2",
+                "data3",
+            ]:
+                self._log_stdout(f"Invalid argument: {kwarg}")
+                return
+
+        in_use = kwargs.get("in_use", rec.is_in_use)
+        controller = kwargs.get("mode", rec.is_controller)
+        high_water_mark = kwargs.get("high_water_mark", rec.is_high_water_mark)
+        target = kwargs.get("target", rec.target)
+        group = kwargs.get("group", rec.group)
+        data1 = kwargs.get("data1", rec.data1)
+        data2 = kwargs.get("data2", rec.data2)
+        data3 = kwargs.get("data3", rec.data3)
+
+        response = await devices.modem.aldb.async_write_record(
+            mem_addr=mem_addr,
+            in_use=in_use,
+            controller=controller,
+            high_water_mark=high_water_mark,
+            group=group,
+            target=target,
+            data1=data1,
+            data2=data2,
+            data3=data3,
+            bit5=rec.is_bit5_set,
+            bit4=rec.is_bit4_set,
+        )
+        if response == ResponseStatus.SUCCESS:
+            self._log_stdout("Record written.")
+        else:
+            self._log_stdout("Write failed")
 
     async def _write_aldb_file(self, aldb_dict, location, filename):
         device_file = path.join(location, filename)

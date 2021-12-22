@@ -36,6 +36,7 @@ class ModemBase(Device, metaclass=ABCMeta):
         self._monitor_mode = False
         self._auto_led = False
         self._deadman = False
+        self._io_manager = None
 
     @property
     def connected(self) -> bool:
@@ -52,22 +53,22 @@ class ModemBase(Device, metaclass=ABCMeta):
     @property
     def disable_auto_linking(self):
         """Return the Disable Auto Linking flag value."""
-        self._disable_auto_linking = False
+        return self._disable_auto_linking
 
     @property
     def monitor_mode(self):
         """Return the Monitor Mode flag value."""
-        self._monitor_mode = False
+        return self._monitor_mode
 
     @property
     def auto_led(self):
         """Return the Auto LED flag value."""
-        self._auto_led = False
+        return self._auto_led
 
     @property
     def deadman(self):
         """Return the Deadman flag value."""
-        self._deadman = False
+        return self._deadman
 
     @protocol.setter
     def protocol(self, value):
@@ -117,12 +118,24 @@ class ModemBase(Device, metaclass=ABCMeta):
 
     async def async_set_configuration(
         self,
-        disable_auto_linking: bool,
-        monitor_mode: bool,
-        auto_led: bool,
-        deadman: bool,
+        disable_auto_linking: bool = None,
+        monitor_mode: bool = None,
+        auto_led: bool = None,
+        deadman: bool = None,
     ):
         """Set the modem flags."""
+        if disable_auto_linking is None:
+            disable_auto_linking = self._disable_auto_linking
+
+        if monitor_mode is None:
+            monitor_mode = self._monitor_mode
+
+        if auto_led is None:
+            auto_led = self._auto_led
+
+        if deadman is None:
+            deadman = self._deadman
+
         return await SetImConfigurationHandler().async_send(
             disable_auto_linking=disable_auto_linking,
             monitor_mode=monitor_mode,
@@ -132,6 +145,7 @@ class ModemBase(Device, metaclass=ABCMeta):
 
     async def async_get_operating_flags(self, group=None):
         """Read the device operating flags."""
+        return await self.async_get_configuration()
 
     async def async_set_operating_flags(self, group=None, force=False):
         """Write the operating flags to the device."""
