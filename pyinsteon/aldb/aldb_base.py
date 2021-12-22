@@ -179,7 +179,9 @@ class ALDBBase(ABC):
         """Load the All-Link Database."""
         raise NotImplementedError
 
-    def load_saved_records(self, status: ALDBStatus, records: List[ALDBRecord]):
+    def load_saved_records(
+        self, status: ALDBStatus, records: List[ALDBRecord], first_mem_addr: int = None
+    ):
         """Load All-Link records from a dictionary of saved records."""
         self._update_status(status)
         self.clear()
@@ -189,6 +191,8 @@ class ALDBBase(ABC):
             self._notify_change(record)
         if self.is_loaded and self._records:
             self._mem_addr = max(self._records)
+        if first_mem_addr is not None:
+            self._mem_addr = first_mem_addr
 
     def add(
         self,

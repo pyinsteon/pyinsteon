@@ -102,5 +102,5 @@ class NoALDB:
     def update_version(self, version):
         """Update the ALDB version number."""
 
-    def load_saved_records(self, status, records):
+    def load_saved_records(self, status, records, first_mem_addr):
         """Load All-Link records from a dictionary of saved records."""
