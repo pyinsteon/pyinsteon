@@ -4,8 +4,9 @@ import logging
 
 from . import (
     PLM,
-    ClimateControl_Thermostat,
-    ClimateControl_WirelessThermostat,
+    ClimateControl_Thermostat_Generic,
+    ClimateControl_Thermostat_Wireless,
+    ClimateControl_Thermostat_2441V,
     DimmableLightingControl,
     DimmableLightingControl_DinRail,
     DimmableLightingControl_FanLinc,
@@ -1054,7 +1055,7 @@ class IPDB:
             0x00001F,
             "Thermostat Adapter",
             "2441V",
-            ClimateControl_Thermostat,
+            ClimateControl_Thermostat_2441V,
         ),
         Product(0x05, 0x04, 0x000024, "EZTherm", "", UnknownDevice),
         Product(
@@ -1066,9 +1067,9 @@ class IPDB:
             None,
             "Wireless Thermostat",
             "2441ZTH",
-            ClimateControl_WirelessThermostat,
+            ClimateControl_Thermostat_Wireless,
         ),
-        Product(0x05, 0x08, None, "Thermostat", "2441TH", ClimateControl_Thermostat),
+        Product(0x05, 0x08, None, "Thermostat", "2441TH", ClimateControl_Thermostat_Generic),
         Product(0x05, 0x09, 0x000094, "7 Day Thermostat", "4715", UnknownDevice),
         Product(
             0x05,
@@ -1076,9 +1077,9 @@ class IPDB:
             None,
             "Wireless Thermostat",
             "2441ZTH",
-            ClimateControl_WirelessThermostat,
+            ClimateControl_Thermostat_Wireless,
         ),
-        Product(0x05, 0x0B, None, "Thermostat", "2441TH", ClimateControl_Thermostat),
+        Product(0x05, 0x0B, None, "Thermostat", "2441TH", ClimateControl_Thermostat_Generic),
         Product(
             0x05,
             0x0E,
@@ -1087,15 +1088,15 @@ class IPDB:
             "2491T1E",
             UnknownDevice,
         ),
-        Product(0x05, 0x0F, None, "Thermostat", "2732-422", ClimateControl_Thermostat),
-        Product(0x05, 0x10, None, "Thermostat", "2732-522", ClimateControl_Thermostat),
+        Product(0x05, 0x0F, None, "Thermostat", "2732-422", ClimateControl_Thermostat_Generic),
+        Product(0x05, 0x10, None, "Thermostat", "2732-522", ClimateControl_Thermostat_Generic),
         Product(
             0x05,
             0x11,
             None,
             "Wireless Thermostat",
             "2732-432",
-            ClimateControl_WirelessThermostat,
+            ClimateControl_Thermostat_Wireless,
         ),
         Product(
             0x05,
@@ -1103,7 +1104,7 @@ class IPDB:
             None,
             "Wireless Thermostat",
             "2732-532",
-            ClimateControl_WirelessThermostat,
+            ClimateControl_Thermostat_Wireless,
         ),
         Product(
             0x05,
@@ -1111,7 +1112,7 @@ class IPDB:
             None,
             "Thermostat Heat Pump",
             "2732-232",
-            ClimateControl_Thermostat,
+            ClimateControl_Thermostat_Generic,
         ),
         Product(
             0x05,
@@ -1119,7 +1120,7 @@ class IPDB:
             None,
             "Thermostat Heat Pump",
             "2732-432",
-            ClimateControl_Thermostat,
+            ClimateControl_Thermostat_Generic,
         ),
         Product(
             0x05,
@@ -1127,10 +1128,10 @@ class IPDB:
             None,
             "Thermostat Heat Pump",
             "2732-532",
-            ClimateControl_Thermostat,
+            ClimateControl_Thermostat_Generic,
         ),
         Product(
-            0x05, 0x16, None, "Insteon Thermostat", "2441TH", ClimateControl_Thermostat
+            0x05, 0x16, None, "Insteon Thermostat", "2441TH", ClimateControl_Thermostat_Generic
         ),
         Product(
             0x05,
@@ -1138,7 +1139,7 @@ class IPDB:
             None,
             "Insteon Thermostat",
             "2732-422",
-            ClimateControl_Thermostat,
+            ClimateControl_Thermostat_Generic,
         ),
         Product(
             0x05,
@@ -1146,7 +1147,7 @@ class IPDB:
             None,
             "Insteon Thermostat",
             "2732-522",
-            ClimateControl_Thermostat,
+            ClimateControl_Thermostat_Generic,
         ),
         Product(0x06, None, None, "Generic Pool Controller", "", UnknownDevice),
         Product(0x06, 0x00, 0x000003, "EZPool", "", UnknownDevice),

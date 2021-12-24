@@ -10,6 +10,7 @@ from ..handlers.from_device.thermostat_set_point_response import (
 )
 from ..handlers.from_device.thermostat_status_response import (
     ThermostatStatusResponseHandler,
+    ThermostatStatusResponseHandler2441V,
 )
 from ..handlers.to_device.extended_get_2 import ExtendedGet2Command
 from ..handlers.to_device.thermostat_get_set_point import ThermostatGetSetPointCommand
@@ -21,7 +22,7 @@ TIMEOUT = 5
 PropertyInfo = namedtuple("PropertyInfo", "name group data_field bit set_cmd")
 
 
-class GetThermostatStatus:
+class GetThermostatStatusBase:
     """Thermostat status manager."""
 
     def __init__(self, address):
@@ -29,11 +30,9 @@ class GetThermostatStatus:
         self._address = Address(address)
         self._get_status_command = ExtendedGet2Command(self._address)
         self._get_set_point_command = ThermostatGetSetPointCommand(self._address)
-        self._status_response = ThermostatStatusResponseHandler(self._address)
         self._set_point_response = ThermostatSetPointResponseHandler(self._address)
         self._response_status = asyncio.Queue()
         self._response_set_point = asyncio.Queue()
-        self._status_response.subscribe(self._status_received)
         self._set_point_response.subscribe(self._set_point_received)
 
     async def async_status(self):
@@ -75,6 +74,30 @@ class GetThermostatStatus:
             retries -= 1
         return response_set_point
 
+    def _set_point_received(
+        self,
+        stage_1_on_minutes,
+        humidity_high,
+        humidity_low,
+        firmwire,
+        cool_set_point,
+        heat_set_point,
+        rf_offset,
+    ):
+        """Notify read process that the st point response was received."""
+        self._response_set_point.put_nowait(ResponseStatus.SUCCESS)
+
+
+class GetThermostatStatusGeneric(GetThermostatStatusBase):
+    """Thermostat status manager."""
+
+    def __init__(self, address):
+        """Init the GetThermostatStatus2441V class."""
+
+        super(GetThermostatStatusGeneric).__init__(address=address)
+        self._status_response.subscribe(self._status_received)
+        self._status_response = ThermostatStatusResponseHandler(self._address)
+
     def _status_received(
         self,
         day,
@@ -94,15 +117,28 @@ class GetThermostatStatus:
         """Notify the read process that the resonse was received."""
         self._response_status.put_nowait(ResponseStatus.SUCCESS)
 
-    def _set_point_received(
+
+class GetThermostatStatus2441V(GetThermostatStatusBase):
+    """Thermostat status manager."""
+
+    def __init__(self, address):
+        """Init the GetThermostatStatus2441V class."""
+
+        super(GetThermostatStatus2441V).__init__(address=address)
+        self._status_response.subscribe(self._status_received)
+        self._status_response = ThermostatStatusResponseHandler2441V(self._address)
+
+    def _status_received(
         self,
-        stage_1_on_minutes,
-        humidity_high,
-        humidity_low,
-        firmwire,
+        system_mode,
+        fan_mode,
         cool_set_point,
+        humidity,
+        temperature,
+        cooling,
+        heating,
+        celsius,
         heat_set_point,
-        rf_offset,
     ):
-        """Notify read process that the st point response was received."""
-        self._response_set_point.put_nowait(ResponseStatus.SUCCESS)
+        """Notify the read process that the resonse was received."""
+        self._response_status.put_nowait(ResponseStatus.SUCCESS)

@@ -10,7 +10,7 @@ from ..inbound_base import InboundHandlerBase
 _LOGGER = logging.getLogger(__name__)
 
 
-class ThermostatTemperatureHandler(InboundHandlerBase):
+class ThermostatTemperatureHandlerBase(InboundHandlerBase):
     """Heat set point command inbound."""
 
     def __init__(self, address):
@@ -26,7 +26,30 @@ class ThermostatTemperatureHandler(InboundHandlerBase):
             message_type=MessageFlagType.DIRECT,
         )
 
+
+class ThermostatTemperatureHandlerGeneric(InboundHandlerBase):
+    """Heat set point command inbound."""
+
+    def __init__(self, address):
+        """Init the ThermostatTemperatureHandler class."""
+
+        super(ThermostatTemperatureHandlerGeneric).__init__(address=address)
+
     @inbound_handler
     def handle_response(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the Temperature response from a device."""
         self._call_subscribers(degrees=int(round(cmd2 / 2, 0)))
+
+
+class ThermostatTemperatureHandler2441V(InboundHandlerBase):
+    """Heat set point command inbound."""
+
+    def __init__(self, address):
+        """Init the ThermostatTemperatureHandler class."""
+
+        super(ThermostatTemperatureHandler2441V).__init__(address=address)
+
+    @inbound_handler
+    def handle_response(self, cmd1, cmd2, target, user_data, hops_left):
+        """Handle the Temperature response from a device."""
+        self._call_subscribers(degrees=int(cmd2))

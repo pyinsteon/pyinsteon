@@ -36,15 +36,22 @@ from ..handlers.from_device.thermostat_set_point_response import (
 )
 from ..handlers.from_device.thermostat_status_response import (
     ThermostatStatusResponseHandler,
+    ThermostatStatusResponseHandler2441V,
 )
-from ..handlers.from_device.thermostat_temperature import ThermostatTemperatureHandler
+from ..handlers.from_device.thermostat_temperature import (
+    ThermostatTemperatureHandler2441V,
+    ThermostatTemperatureHandlerGeneric,
+)
 from ..handlers.to_device.extended_set import ExtendedSetCommand
 from ..handlers.to_device.extended_set_2 import ExtendedSet2Command
 from ..handlers.to_device.thermostat_cool_set_point import ThermostatCoolSetPointCommand
 from ..handlers.to_device.thermostat_heat_set_point import ThermostatHeatSetPointCommand
 from ..handlers.to_device.thermostat_mode import ThermostatModeCommand
 from ..managers.on_level_manager import OnLevelManager
-from ..managers.thermostat_status_manager import GetThermostatStatus
+from ..managers.thermostat_status_manager import (
+    GetThermostatStatus2441V,
+    GetThermostatStatusGeneric,
+)
 from ..operating_flag import (
     BUTTON_LOCK_ON,
     CELSIUS,
@@ -78,7 +85,7 @@ GRP_HUMID_LO_SP = 17
 OP_FLAG_POS = 13
 
 
-class ClimateControl_Thermostat(Device):
+class ClimateControl_Thermostat_Base(Device):
     """Thermostat device."""
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
@@ -91,7 +98,6 @@ class ClimateControl_Thermostat(Device):
             description=description,
             model=model,
         )
-        self._aldb = ALDB(self._address, mem_addr=0x1FFF)
 
     # pylint: disable=arguments-differ
     async def async_status(self, group=None):
@@ -236,7 +242,7 @@ class ClimateControl_Thermostat(Device):
             self._address, GRP_HUMID_LO_ON, 0x00
         )
 
-        self._managers[STATUS_COMMAND] = GetThermostatStatus(self._address)
+        self._managers[STATUS_COMMAND] = GetThermostatStatusGeneric(self._address)
         self._handlers["status_response"] = ThermostatStatusResponseHandler(
             self._address
         )
@@ -250,7 +256,7 @@ class ClimateControl_Thermostat(Device):
             self._address
         )
         self._handlers["humidity_handler"] = ThermostatHumidityHandler(self._address)
-        self._handlers["temperature_handler"] = ThermostatTemperatureHandler(
+        self._handlers["temperature_handler"] = ThermostatTemperatureHandlerGeneric(
             self._address
         )
         self._handlers["mode_handler"] = ThermostatModeHandler(self._address)
@@ -427,13 +433,31 @@ class ClimateControl_Thermostat(Device):
         self._properties[CELSIUS].unsubscribe(self._temp_format_changed)
 
 
-class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermostat):
+class ClimateControl_Thermostat_Generic(ClimateControl_Thermostat_Base):
+    """Thermostat device."""
+
+    def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
+        """Init the Thermostat class."""
+        super(ClimateControl_Thermostat_Generic).__init__(
+            address=address,
+            cat=cat,
+            subcat=subcat,
+            firmware=firmware,
+            description=description,
+            model=model,
+        )
+        self._aldb = ALDB(self._address, mem_addr=0x1FFF)
+
+
+class ClimateControl_Thermostat_Wireless(
+    BatteryDeviceBase, ClimateControl_Thermostat_Base
+):
     """Wireless Thermostat device."""
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the Wireless Thermostat class."""
         # pylint: disable=super-with-arguments
-        super(ClimateControl_WirelessThermostat, self).__init__(
+        super(ClimateControl_Thermostat_Wireless, self).__init__(
             address=address,
             cat=cat,
             subcat=subcat,
@@ -493,4 +517,19 @@ class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermo
         return self._run_on_wake(
             super(BatteryDeviceBase, self).async_set_heat_set_point,
             temperature=temperature,
+        )
+
+
+class ClimateControl_Thermostat_2441V(ClimateControl_Thermostat_Generic):
+    """2441V Thermostat."""
+
+    def _register_handlers_and_managers(self):
+        """Register thermostat handlers and managers."""
+        super()._register_handlers_and_managers()
+        self._managers[STATUS_COMMAND] = GetThermostatStatus2441V(self._address)
+        self._handlers["status_response"] = ThermostatStatusResponseHandler2441V(
+            self._address
+        )
+        self._handlers["temperature_handler"] = ThermostatTemperatureHandler2441V(
+            self._address
         )

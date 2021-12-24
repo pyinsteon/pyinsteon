@@ -1,8 +1,9 @@
 """Insteon device types."""
 
 from .climate_control import (
-    ClimateControl_Thermostat,
-    ClimateControl_WirelessThermostat,
+    ClimateControl_Thermostat_2441V,
+    ClimateControl_Thermostat_Generic,
+    ClimateControl_Thermostat_Wireless,
 )
 from .dimmable_lighting_control import (
     DimmableLightingControl,
