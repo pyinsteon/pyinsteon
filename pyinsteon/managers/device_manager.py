@@ -328,14 +328,14 @@ class DeviceManager(SubscriberBase):
         await device.async_read_ext_properties()
         await device.async_add_default_links()
 
-    def _device_identified(self, device_id: DeviceId, mode: AllLinkMode):
+    def _device_identified(self, device_id: DeviceId, link_mode: AllLinkMode):
         """Device identified by device ID manager."""
         if self._loading_saved_lock.locked():
             return
 
         self._linked_device.put_nowait(device_id.address)
 
-        if mode == AllLinkMode.DELETE:
+        if link_mode == AllLinkMode.DELETE:
             _LOGGER.debug("Device %s removed", str(device_id.address))
             self[device_id.address] = None
             return

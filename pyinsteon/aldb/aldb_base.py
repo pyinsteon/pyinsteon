@@ -398,10 +398,10 @@ class ALDBBase(ABC):
         Looks for an existing memory address with the same:
         1. Target
         2. Group
-        3. Mode (ie. controller / responder)
+        3. Link mode (ie. controller / responder)
 
         If it finds an existing record with the same values, it overwrites the original rather than
-        creating a new record. This ensures there is only one record with the same target, group and mode.
+        creating a new record. This ensures there is only one record with the same target, group and link mode.
 
         If it cannot find an existing record than it returns the next unused record.
 

@@ -123,7 +123,7 @@ def all_linking_completed(msg: Inbound) -> (str, {}):
     """Create a topic from an ALL_LINKING_COMPLETED message."""
     topic = ALL_LINKING_COMPLETED
     kwargs = {
-        "mode": msg.mode,
+        "link_mode": msg.link_mode,
         "group": msg.group,
         "target": msg.target,
         "cat": msg.cat,
@@ -256,7 +256,7 @@ def x10_send(msg: Inbound) -> (str, {}):
 def start_all_linking(msg: Inbound) -> (str, {}):
     """Create a topic from an start_all_linking message."""
     topic = build_topic(prefix=msg.ack, topic=START_ALL_LINKING)
-    kwargs = {"mode": msg.mode, "group": msg.group}
+    kwargs = {"link_mode": msg.link_mode, "group": msg.group}
     yield (topic, kwargs)
 
 

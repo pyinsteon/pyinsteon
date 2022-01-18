@@ -114,7 +114,7 @@ class Protocol(asyncio.Protocol):
                 last_msg_nak.extend(bytes([0x15]))
                 msg, _ = create(last_msg_nak)
             if msg:
-                self._publish_message(msg)
+                asyncio.ensure_future(self._publish_message(msg))
                 msg = None
 
             if not self._buffer or last_buffer == self._buffer:
@@ -161,7 +161,7 @@ class Protocol(asyncio.Protocol):
         self._message_queue.put_nowait((0, None))
 
     # pylint: disable=broad-except
-    def _publish_message(self, msg):
+    async def _publish_message(self, msg):
         _LOGGER_MSG.debug("RX: %s", repr(msg))
         topic = None
         kwargs = {}

@@ -125,9 +125,9 @@ class ClimateControl_Thermostat(Device):
             self._groups[GRP_HUMID_LO_SP].value = humidity
         return cmd_status
 
-    async def async_set_mode(self, mode):
+    async def async_set_mode(self, thermostat_mode):
         """Set the thermastat mode."""
-        return await self._handlers["mode_command"].async_send(mode)
+        return await self._handlers["mode_command"].async_send(thermostat_mode)
 
     async def async_set_master(self, master):
         """Set the thermastat master mode."""
@@ -466,10 +466,11 @@ class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermo
             super(BatteryDeviceBase, self).async_set_master, master=master
         )
 
-    async def async_set_mode(self, mode):
+    async def async_set_mode(self, thermostat_mode):
         """Set the thermastat mode."""
         return self._run_on_wake(
-            super(BatteryDeviceBase, self).async_set_mode, mode=mode
+            super(BatteryDeviceBase, self).async_set_mode,
+            thermostat_mode=thermostat_mode,
         )
 
     async def async_set_notify_changes(self):

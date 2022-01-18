@@ -26,5 +26,5 @@ class DeleteFromAllLinkGroupCommand(BroadcastCommandHandlerBase):
             subcat=subcat,
             firmware=firmware,
             group=cmd2,
-            mode=None,
+            link_mode=None,
         )

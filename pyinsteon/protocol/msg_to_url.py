@@ -15,7 +15,7 @@ def convert_to_url(host, port, msg: Outbound) -> str:
 
 def start_all_link_url(host, port, msg: Outbound):
     """Convert a Start All-Linking message to URL."""
-    if msg.mode == AllLinkMode.DELETE:
+    if msg.link_mode == AllLinkMode.DELETE:
         return _to_url(host, port, "3?{:s}=I=3".format(bytes(msg).hex()))
     return _to_url(host, port, "0?09{:02d}".format(msg.group))
 

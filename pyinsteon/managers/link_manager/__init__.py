@@ -20,8 +20,8 @@ async def async_enter_linking_mode(
 ):
     """Put the Insteon Modem into linking mode."""
     link_cmd = StartAllLinkingCommandHandler()
-    mode = AllLinkMode.CONTROLLER if is_controller else AllLinkMode.RESPONDER
-    response = await link_cmd.async_send(mode=mode, group=group)
+    link_mode = AllLinkMode.CONTROLLER if is_controller else AllLinkMode.RESPONDER
+    response = await link_cmd.async_send(link_mode=link_mode, group=group)
     _LOGGER.debug("Enter linking mode response: %s", str(response))
 
     if address is not None:
@@ -33,8 +33,8 @@ async def async_enter_linking_mode(
 async def async_enter_unlinking_mode(group: int, address: Address = None):
     """Put the Insteon Modem into unlinking mode."""
     link_cmd = StartAllLinkingCommandHandler()
-    mode = AllLinkMode.DELETE
-    response = await link_cmd.async_send(mode=mode, group=group)
+    link_mode = AllLinkMode.DELETE
+    response = await link_cmd.async_send(link_mode=link_mode, group=group)
 
     if address is not None:
         link_cmd = EnterUnlinkingModeCommand(address)

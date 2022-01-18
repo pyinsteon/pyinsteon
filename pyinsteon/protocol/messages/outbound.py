@@ -184,9 +184,11 @@ def x10_send(raw_x10: int, x10_flag: X10CommandType, topic=pub.AUTO_TOPIC) -> Ou
 
 
 @topic_to_message_handler(register_list=topic_register, topic=START_ALL_LINKING)
-def start_all_linking(mode: AllLinkMode, group: int, topic=pub.AUTO_TOPIC) -> Outbound:
+def start_all_linking(
+    link_mode: AllLinkMode, group: int, topic=pub.AUTO_TOPIC
+) -> Outbound:
     """Create a START_ALL_LINKING outbound message."""
-    _create_outbound_message(mode=mode, group=group, topic=topic, priority=7)
+    _create_outbound_message(link_mode=link_mode, group=group, topic=topic, priority=7)
 
 
 @topic_to_message_handler(register_list=topic_register, topic=CANCEL_ALL_LINKING)

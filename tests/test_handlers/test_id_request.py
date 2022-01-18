@@ -35,10 +35,10 @@ class TestIdRequest(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=False,
+            logger_topics=True,
         )
 
-    def set_id(self, address, cat, subcat, firmware, group, mode):
+    def set_id(self, address, cat, subcat, firmware, group, link_mode):
         """Handle callback to on_level direct_ack."""
         self._cat = cat
         self._subcat = subcat

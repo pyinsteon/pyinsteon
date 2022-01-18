@@ -36,13 +36,13 @@ class ALDBRecord:
     def __str__(self):
         """Return the string representation of an ALDB record."""
         if self._controller:
-            mode = "C"
+            link_mode = "C"
         else:
-            mode = "R"
+            link_mode = "R"
         rec = {
             "memory": f"0x{self._memory_location:04x}",
             "inuse": self._in_use,
-            "mode": mode,
+            "link_mode": link_mode,
             "bit5": str(self._bit5),
             "bit4": str(self._bit4),
             "highwater": str(self._high_water_mark),

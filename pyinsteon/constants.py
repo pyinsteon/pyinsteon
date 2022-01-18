@@ -186,6 +186,14 @@ class RelayMode(HexIntEnum):
     MOMENTARY_C = 3
 
 
+class ToggleMode(HexIntEnum):
+    """Toggle mode used by KeypadLinc device class 0x01 and 0x02."""
+
+    TOGGLE = 0
+    ON_ONLY = 1
+    OFF_ONLY = 2
+
+
 class X10Commands(HexIntEnum):
     """X10 Commands."""
 

@@ -43,7 +43,7 @@ class ReadEepromResponseHandler(InboundHandlerBase):
         data3: int,
     ):
         """Recieve an all link record."""
-        controller = flags.mode == AllLinkMode.CONTROLLER
+        controller = flags.link_mode == AllLinkMode.CONTROLLER
         self._call_subscribers(
             mem_addr=mem_addr,
             in_use=flags.is_in_use,

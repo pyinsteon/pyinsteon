@@ -111,7 +111,7 @@ class DeviceIdManager(SubscriberBase):
         cat: int,
         subcat: int,
         firmware: int = 0x00,
-        mode=DeviceAction.ADDED,
+        link_mode=DeviceAction.ADDED,
     ):
         """Set the device ID of a device."""
         address = Address(address)
@@ -136,7 +136,7 @@ class DeviceIdManager(SubscriberBase):
             return
 
         self._device_ids[address] = device_id
-        self._call_subscribers(device_id=device_id, mode=mode)
+        self._call_subscribers(device_id=device_id, link_mode=link_mode)
 
     async def async_id_devices(self, refresh: bool = False):
         """Identify the devices in the unknown device list."""
@@ -156,7 +156,7 @@ class DeviceIdManager(SubscriberBase):
 
         received_queue = asyncio.Queue()
 
-        def device_id_received(device_id, mode):
+        def device_id_received(device_id, link_mode):
             """Receive notification a device has been identified."""
             nonlocal received_queue
             received_queue.put_nowait(device_id)
@@ -190,10 +190,14 @@ class DeviceIdManager(SubscriberBase):
 
         return device_id
 
-    def _id_response(self, address, cat, subcat, firmware, group, mode):
+    def _id_response(self, address, cat, subcat, firmware, group, link_mode):
         """Receive a device ID response."""
         self.set_device_id(
-            address=address, cat=cat, subcat=subcat, firmware=firmware, mode=mode
+            address=address,
+            cat=cat,
+            subcat=subcat,
+            firmware=firmware,
+            link_mode=link_mode,
         )
 
     async def _id_awake_devices(self):
@@ -235,9 +239,11 @@ class DeviceIdManager(SubscriberBase):
             self._awake_devices_queue = asyncio.Queue()
         self._awake_devices_queue.put_nowait(address)
 
-    def _all_link_complete_received(self, mode, group, target, cat, subcat, firmware):
+    def _all_link_complete_received(
+        self, link_mode, group, target, cat, subcat, firmware
+    ):
         """Receive All-Link complete message."""
-        self._id_response(target, cat, subcat, firmware, group, mode)
+        self._id_response(target, cat, subcat, firmware, group, link_mode)
 
     async def _ping_device(self, address):
         """Ping the device until awake."""

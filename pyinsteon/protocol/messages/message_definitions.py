@@ -46,7 +46,7 @@ FLD_X10_SEND_REC_ACK.append(MessageField("ack", 1, AckNak))
 
 # ALL-Linking Completed 0x53
 FLD_ALL_LINK_COMPLETE = [
-    MessageField("mode", 1, AllLinkMode),
+    MessageField("link_mode", 1, AllLinkMode),
     MessageField("group", 1, int),
     MessageField("target", 3, Address),
     MessageField("cat", 1, DeviceCategory),
@@ -132,7 +132,7 @@ FLD_EXT_SEND_ACK.append(MessageField("ack", 1, AckNak))
 
 # Start All-Linking 0x64
 FLD_START_ALL_LINKING = [
-    MessageField("mode", 1, AllLinkMode),
+    MessageField("link_mode", 1, AllLinkMode),
     MessageField("group", 1, int),
 ]
 FLD_START_ALL_LINKING_ACK = FLD_START_ALL_LINKING.copy()
