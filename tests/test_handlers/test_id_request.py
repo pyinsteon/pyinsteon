@@ -35,7 +35,7 @@ class TestIdRequest(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=True,
+            logger_topics=False,
         )
 
     def set_id(self, address, cat, subcat, firmware, group, link_mode):

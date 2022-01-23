@@ -80,7 +80,7 @@ class TestModemALDBLoad(unittest.TestCase):
             logger="debug",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=True,
+            logger_topics=False,
         )
         _LOGGER.debug("Running setUp")
         self.record = 0

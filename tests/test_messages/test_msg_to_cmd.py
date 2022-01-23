@@ -67,7 +67,7 @@ class TestDirectMsgToTopic(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="debug",
-            logger_topics=True,
+            logger_topics=False,
         )
 
     def tearDown(self):

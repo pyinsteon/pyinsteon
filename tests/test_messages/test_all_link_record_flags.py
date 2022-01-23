@@ -31,7 +31,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=True,
+            logger_topics=False,
         )
 
     def test_flags_00(self):
