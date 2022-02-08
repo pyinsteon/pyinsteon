@@ -1,5 +1,4 @@
 """Manage outbound ON command to a device."""
-
 from pyinsteon.constants import MessageFlagType, ResponseStatus
 
 from ... import pub
@@ -16,12 +15,10 @@ class StatusRequestCommand(DirectCommandHandlerBase):
     state 2)
     """
 
-    _status_type = None
-    _status_active = False
-
     def __init__(self, address, status_type: int = 0):
         """Init the OnLevelCommand class."""
         super().__init__(topic=STATUS_REQUEST, address=address)
+        self._status_active = False
         self._status_type = status_type
         if status_type:
             self._subscriber_topic = f"{self._subscriber_topic}_{status_type}"
@@ -29,12 +26,18 @@ class StatusRequestCommand(DirectCommandHandlerBase):
     @property
     def status_type(self):
         """Return the type of status message."""
-        return self._status_type
+        try:
+            return self._status_type
+        except AttributeError:
+            return 0
 
     @property
     def status_active(self):
         """Return if the status command is active."""
-        return self._status_active
+        try:
+            return self._status_active
+        except AttributeError:
+            return False
 
     @status_active.setter
     def status_active(self, value: bool):
@@ -44,7 +47,10 @@ class StatusRequestCommand(DirectCommandHandlerBase):
     # pylint: disable=arguments-differ, useless-super-delegation
     async def async_send(self):
         """Send the ON command async."""
-        return await super().async_send(status_type=self._status_type)
+        response = await super().async_send(status_type=self._status_type)
+        # return response
+        self._status_active = False
+        return response
 
     @ack_handler
     def handle_ack(self, cmd1, cmd2, user_data):
