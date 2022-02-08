@@ -28,6 +28,7 @@ from tests.utils import (
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
 
+
 class TestKeyPadLinkFeatures(unittest.TestCase):
     """Test setting the KeyPadLink features."""
 

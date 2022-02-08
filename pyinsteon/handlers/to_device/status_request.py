@@ -1,5 +1,4 @@
 """Manage outbound ON command to a device."""
-import async_timeout
 from pyinsteon.constants import MessageFlagType, ResponseStatus
 
 from ... import pub
@@ -15,7 +14,6 @@ class StatusRequestCommand(DirectCommandHandlerBase):
     rather than a handler per status command (ie. one for state 1 and one for
     state 2)
     """
-
 
     def __init__(self, address, status_type: int = 0):
         """Init the OnLevelCommand class."""
@@ -60,7 +58,7 @@ class StatusRequestCommand(DirectCommandHandlerBase):
         if cmd2 == self.status_type:
             self.status_active = True
             super().handle_ack(cmd1, cmd2, user_data)
-        
+
     @status_handler
     def handle_direct_ack(self, topic=pub.AUTO_TOPIC, **kwargs):
         """Handle the ON response direct ACK.
