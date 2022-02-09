@@ -28,8 +28,6 @@ class ExtendedGet2Command(DirectCommandHandlerBase):
         """Send Get Operating Flags message asyncronously."""
         return await super().async_send(data1=self._data1)
 
-    @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
-        """Handle the direct ACK."""
+    def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
+        """Update subscribers."""
         self._call_subscribers()
-        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

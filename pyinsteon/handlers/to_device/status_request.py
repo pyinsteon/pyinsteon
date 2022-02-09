@@ -8,12 +8,7 @@ from .direct_command import DirectCommandHandlerBase
 
 
 class StatusRequestCommand(DirectCommandHandlerBase):
-    """Manage an outbound Status command to a device.
-
-    TODO Confirm that the status command is best with a single status handler
-    rather than a handler per status command (ie. one for state 1 and one for
-    state 2)
-    """
+    """Manage an outbound Status command to a device."""
 
     def __init__(self, address, status_type: int = 0):
         """Init the OnLevelCommand class."""
@@ -56,12 +51,13 @@ class StatusRequestCommand(DirectCommandHandlerBase):
     def handle_ack(self, cmd1, cmd2, user_data):
         """Handle the message ACK."""
         if cmd2 == self.status_type:
-            self.status_active = True
-            super().handle_ack(cmd1, cmd2, user_data)
+           self.status_active = True
+           super().handle_ack(cmd1, cmd2, user_data)
+        # super().handle_ack(cmd1, cmd2, user_data)
 
     @status_handler
     def handle_direct_ack(self, topic=pub.AUTO_TOPIC, **kwargs):
-        """Handle the ON response direct ACK.
+        """Handle the Status Request response direct ACK.
 
         This handler listens to all topics for a device therefore we need to
         confirm the message is a status response.

@@ -22,10 +22,10 @@ class TestStatusRequest(unittest.TestCase):
         self.ack_topic = "ack.{}.status_request.direct".format(self._address.id)
         self.direct_ack_topic = "{}.any_topic.direct_ack".format(self._address.id)
         set_log_levels(
-            logger="info",
+            logger="debug",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=False,
+            logger_topics=True,
         )
 
     def set_status(self, db_version, status):

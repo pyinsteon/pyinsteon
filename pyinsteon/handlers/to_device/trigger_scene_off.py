@@ -37,8 +37,6 @@ class TriggerSceneOffCommandHandler(DirectCommandHandlerBase):
             return
         return super().handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
 
-    @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
-        """Handle the direct ACK message."""
+    def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
+        """Update subscribers."""
         self._call_subscribers(on_level=0)
-        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

@@ -11,13 +11,16 @@ class OffCommand(DirectCommandHandlerBase):
         """Init the OnLevelCommand class."""
         super().__init__(topic=OFF, address=address, group=group)
 
+    @property
+    def group(self):
+        """Return the group property."""
+        return self._group
+
     # pylint: disable=arguments-differ
     async def async_send(self):
         """Send the OFF command async."""
         return await super().async_send(group=self._group)
 
-    @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
-        """Handle the OFF response direct ACK."""
+    def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
+        """Update subscribers."""
         self._call_subscribers(on_level=0)
-        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

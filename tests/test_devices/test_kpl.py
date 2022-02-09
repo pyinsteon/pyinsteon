@@ -4,7 +4,7 @@ import random
 import unittest
 
 from pyinsteon import pub
-from pyinsteon.commands import ON, STATUS_REQUEST
+from pyinsteon.commands import ON, OFF, STATUS_REQUEST
 from pyinsteon.constants import ResponseStatus
 from pyinsteon.device_types.dimmable_lighting_control import (
     DimmableLightingControl_KeypadLinc_8,
@@ -26,7 +26,6 @@ from tests.utils import (
 )
 
 _LOGGER = logging.getLogger(__name__)
-_LOGGER.setLevel(logging.DEBUG)
 
 
 class TestKeyPadLinkFeatures(unittest.TestCase):
@@ -35,10 +34,10 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
     def setUp(self):
         """Set up the test."""
         set_log_levels(
-            logger="info",
+            logger="debug",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=False,
+            logger_topics=True,
         )
 
     def test_set_radio_buttons(self):
@@ -201,7 +200,7 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
         for button in device.groups:
             device.groups[button].set_value(0)
             device.groups[button].subscribe(state_updated)
-        cmd1 = 0x22
+        cmd1 = 0x11
         cmd2 = 0x23
         target = device.address
         user_data = None
@@ -214,6 +213,43 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
         send_topics(responses)
 
         response = await device.async_on(on_level=cmd2, fast=False)
+        assert response == ResponseStatus.SUCCESS
+        assert state_values.get(1) == cmd2
+        for button in device.groups:
+            if button == 1:
+                continue
+            assert state_values.get(2) is None
+
+    @async_case
+    async def test_off_command(self):
+        """Test an OFF message."""
+        state_values = {}
+
+        def state_updated(value, group, name, address):
+            """Run when the state is updated."""
+            nonlocal state_values
+            state_values[group] = value
+
+        address = random_address()
+        device = DimmableLightingControl_KeypadLinc_8(
+            address, 0x01, 0x02, 0x03, "Test", "KPL"
+        )
+        for button in device.groups:
+            device.groups[button].set_value(255)
+            device.groups[button].subscribe(state_updated)
+        cmd1 = 0x13
+        cmd2 = 0x00
+        target = device.address
+        user_data = None
+        ack = "ack.{}.1.{}.direct".format(device.address.id, OFF)
+        direct_ack = "{}.{}.direct_ack".format(device.address.id, OFF)
+        responses = [
+            TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), 0.25),
+            TopicItem(direct_ack, cmd_kwargs(cmd1, cmd2, user_data, target), 0.25),
+        ]
+        send_topics(responses)
+
+        response = await device.async_off(fast=False)
         assert response == ResponseStatus.SUCCESS
         assert state_values.get(1) == cmd2
         for button in device.groups:
@@ -257,7 +293,7 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
         cmd2_status = random.randint(0, 255)
         cmd1_status_1 = random.randint(0, 255)
         cmd2_status_1 = random.randint(0, 255)
-        cmd1_on = random.randint(0, 255)
+        cmd1_on = 0x11
         cmd2_on = random.randint(0, 255)
         target = device.address
         user_data = None

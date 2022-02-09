@@ -11,10 +11,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class SetOperatingFlagsCommand(DirectCommandHandlerBase):
-    """Handle sending a read request for ALDB records."""
+    """Handle sending a Set Operating Flags command."""
 
     def __init__(self, address: Address):
-        """Init the ReadALDBCommandHandler."""
+        """Init the SetOperatingFlagsCommand."""
         super().__init__(topic=SET_OPERATING_FLAGS, address=address)
 
     # pylint: disable=arguments-differ
@@ -31,7 +31,6 @@ class SetOperatingFlagsCommand(DirectCommandHandlerBase):
             cmd_response = await super().async_send(cmd=cmd, extended=True)
         return cmd_response
 
-    @direct_nak_handler
-    def handle_direct_nak(self, cmd1, cmd2, target, user_data, hops_left):
-        """Handle the direct ACK."""
+    def _update_subscribers_on_nak(self, cmd1, cmd2, target, user_data, hops_left):
+        """Update subscribers on NAK received."""
         self._call_subscribers(response=cmd2)
