@@ -27,7 +27,6 @@ class OnLevelCommand(DirectCommandHandlerBase):
         """Send the ON command async."""
         return await super().async_send(on_level=on_level, group=self._group)
 
-
     def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
         """Update subscribers."""
         self._call_subscribers(on_level=cmd2 if cmd2 else 0xFF)
