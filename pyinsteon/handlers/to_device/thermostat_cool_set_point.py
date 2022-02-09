@@ -1,6 +1,5 @@
 """Thermostat temperature up command."""
 from ...topics import THERMOSTAT_SET_COOL_SETPOINT
-from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 

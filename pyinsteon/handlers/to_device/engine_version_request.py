@@ -1,7 +1,6 @@
 """Manage outbound ON command to a device."""
 from ...constants import EngineVersion
 from ...topics import GET_INSTEON_ENGINE_VERSION
-from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 
