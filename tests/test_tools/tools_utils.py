@@ -164,9 +164,6 @@ class MockDevices:
 
     def __init__(self):
         """Init the MockDevices class."""
-        # Do not do anything if python version < 3.8
-        if sys.version_info[0:2] < (3, 8):
-            return
 
         self._devices = {}
         self.devices_to_add = []
@@ -187,6 +184,10 @@ class MockDevices:
 
         device4 = create_device(ClimateControl_Thermostat, random_address(), 0x07, 0x05)
         self._devices[device4.address] = device4
+
+        # Do not set methods to AyncMock if python version < 3.8
+        if sys.version_info[0:2] < (3, 8):
+            return
 
         for addr in self._devices:
             self._devices[addr].aldb.async_load = AsyncMock()
