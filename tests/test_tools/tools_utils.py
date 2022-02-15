@@ -3,7 +3,12 @@ import asyncio
 import os
 from io import StringIO
 from unittest import TestCase
-from unittest.mock import AsyncMock, MagicMock
+
+try:
+    from unittest.mock import AsyncMock, MagicMock
+except ImportError:
+    from unittest.mock import MagicMock
+    from asyncmock import AsyncMock
 
 from pyinsteon.address import Address
 from pyinsteon.device_types import (

@@ -3,7 +3,12 @@
 import os
 import random
 from binascii import unhexlify
-from unittest.mock import AsyncMock, MagicMock, patch
+
+try:
+    from unittest.mock import AsyncMock, MagicMock, patch
+except ImportError:
+    from unittest.mock import MagicMock, patch
+    from asyncmock import AsyncMock
 
 import pyinsteon
 from pyinsteon.address import Address
@@ -773,7 +778,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         "",
                         "",
                     )
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    cmd_mgr, _, _ = self.setup_cmd_tool(
                         AdvancedTools,
                         inputs,
                         allow_logging=True,
@@ -814,7 +819,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         str(data2),
                         str(data3),
                     )
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    cmd_mgr, _, _ = self.setup_cmd_tool(
                         AdvancedTools,
                         inputs,
                         allow_logging=True,
@@ -858,7 +863,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     inputs = create_tools_commands(
                         mode, "add_link", "", str(group), str(target), link_mode
                     )
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    cmd_mgr, _, _ = self.setup_cmd_tool(
                         AdvancedTools,
                         inputs,
                         allow_logging=True,
@@ -878,7 +883,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     inputs = create_tools_commands(
                         mode, "add_link", str(good_address), ""
                     )
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    cmd_mgr, _, _ = self.setup_cmd_tool(
                         AdvancedTools,
                         inputs,
                         allow_logging=True,
@@ -1140,35 +1145,6 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     mock_cancel_linking_mode.call_count = 0
                     await cmd_mgr.async_cmdloop("")
                     assert mock_cancel_linking_mode.call_count == 1
-
-        """Test the fine broken links command."""
-        async with self.test_lock:
-            with patch.object(
-                pyinsteon.tools.advanced, "devices", devices
-            ), patch.object(pyinsteon.tools.tools_base, "devices", devices):
-                for mode in ["input", "background"]:
-
-                    inputs = create_tools_commands(
-                        mode, "find_broken_links", curr_dir=curr_dir
-                    )
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=True,
-                    )
-                    stdout.buffer = []
-                    remove_log_file(curr_dir)
-                    await cmd_mgr.async_cmdloop("")
-                    check_output(
-                        mode,
-                        1,
-                        None,
-                        "Device   Mem Addr Target    Group Mode Status\n",
-                        0,
-                        "Device   Mem Addr Target    Group Mode Status\n",
-                        stdout.buffer,
-                        curr_dir,
-                    )
 
     @async_case
     async def test_find_im_records(self):

@@ -1,6 +1,10 @@
 """Test the commands menu of tools."""
 import random
-from unittest.mock import patch, AsyncMock
+try:
+    from unittest.mock import patch, AsyncMock
+except ImportError:
+    from unittest.mock import patch
+    from asyncmock import AsyncMock
 import pyinsteon
 from pyinsteon.device_types import (
     UnknownDevice,
@@ -401,7 +405,7 @@ class TestToolsCommandsMenu(ToolsTestBase):
                     cmd_mgr, _, stdout = self.setup_cmd_tool(
                         ToolsCommands,
                         [
-                            f"help cmd not.an.address",
+                            "help cmd not.an.address",
                             "exit",
                         ],
                     )

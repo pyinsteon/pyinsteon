@@ -1,6 +1,11 @@
 """Test the ALDB commands."""
 import random
-from unittest.mock import AsyncMock, patch
+
+try:
+    from unittest.mock import AsyncMock, patch
+except ImportError:
+    from unittest.mock import patch
+    from asyncmock import AsyncMock
 
 import pyinsteon
 from pyinsteon.constants import ALDBStatus, DeviceCategory
