@@ -1,10 +1,12 @@
 """Test the commands menu of tools."""
 import random
+import sys
+
+from unittest import skipIf
 try:
     from unittest.mock import patch, AsyncMock
 except ImportError:
-    from unittest.mock import patch
-    from asyncmock import AsyncMock
+    pass
 import pyinsteon
 from pyinsteon.device_types import (
     UnknownDevice,
@@ -47,6 +49,7 @@ devices[device_unknown.address] = device_unknown
 class TestToolsCommandsMenu(ToolsTestBase):
     """Test the tools commands menu"""
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_on_off(self):
         """Test the on and off commands of the tools function."""
@@ -187,6 +190,7 @@ class TestToolsCommandsMenu(ToolsTestBase):
                     assert device_01.async_on.call_count == 0
                     assert device_01.async_off.call_count == 0
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_scene_on_off(self):
         """Test the scene_on and scene_off commands of the tools function."""
@@ -325,6 +329,7 @@ class TestToolsCommandsMenu(ToolsTestBase):
                     assert device_01.async_on.call_count == 0
                     assert device_01.async_off.call_count == 0
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_help_commands_menu(self):
         """Test the help command of the commands tools function."""
@@ -428,7 +433,7 @@ class TestToolsCommandsMenu(ToolsTestBase):
                     buffer = clean_buffer(stdout.buffer)
                     assert buffer[-1] == f"Method {method} not found for device {device_01.address}.\n"
 
-
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_cmd(self):
         """Test the cmd command of the commands tools function."""

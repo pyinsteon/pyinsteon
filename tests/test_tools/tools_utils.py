@@ -1,14 +1,14 @@
 """Utilities used to test tools functions."""
 import asyncio
 import os
+import sys
 from io import StringIO
 from unittest import TestCase
 
 try:
     from unittest.mock import AsyncMock, MagicMock
 except ImportError:
-    from unittest.mock import MagicMock
-    from asyncmock import AsyncMock
+    pass
 
 from pyinsteon.address import Address
 from pyinsteon.device_types import (
@@ -164,6 +164,10 @@ class MockDevices:
 
     def __init__(self):
         """Init the MockDevices class."""
+        # Do not do anything if python version < 3.8
+        if sys.version_info[0:2] < (3, 8):
+            return
+
         self._devices = {}
         self.devices_to_add = []
 

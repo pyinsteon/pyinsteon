@@ -14,4 +14,3 @@ async_generator
 black==21.5b1
 pytest-cov==3.0.0
 pytest==6.2.5
-asyncmock==0.4.2

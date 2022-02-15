@@ -2,13 +2,14 @@
 
 import os
 import random
+import sys
 from binascii import unhexlify
+from unittest import skipIf
 
 try:
     from unittest.mock import AsyncMock, MagicMock, patch
 except ImportError:
-    from unittest.mock import MagicMock, patch
-    from asyncmock import AsyncMock
+    pass
 
 import pyinsteon
 from pyinsteon.address import Address
@@ -101,6 +102,7 @@ def create_tools_commands(mode, command, *inputs, curr_dir=None):
 class TestToolsAdvancedMenu(ToolsTestBase):
     """Test the tools Advanced menu."""
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_enter_linking_mode(self):
         """Test the enter_linking_mode command of the tools function."""
@@ -242,6 +244,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     )
                     assert mock_enter_linking_mode.call_count == 0
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_remove_link(self):
         """Test the remove link command."""
@@ -426,6 +429,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     assert battery_device.aldb.remove.call_count == 1
                     assert battery_device.aldb.async_write.call_count == 1
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_export_replace_aldb(self):
         """Test exporting and replacing the ALDB."""
@@ -745,6 +749,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         len(battery_device.aldb.pending_changes) == 3
                     )  # Includes new HWM
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_add_link(self):
         """Test adding a link."""
@@ -1090,6 +1095,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     assert len(battery_device.aldb.pending_changes) == 1
                     assert battery_device.aldb.async_write.call_count == 1
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_find_broken_links(self):
         """Test the fine broken links command."""
@@ -1121,6 +1127,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         curr_dir,
                     )
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_cancel_linking_mode(self):
         """Test the cancel_linking_mode command."""
@@ -1143,6 +1150,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     await cmd_mgr.async_cmdloop("")
                     assert mock_cancel_linking_mode.call_count == 1
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_find_im_records(self):
         """Test the find_im_records command."""
@@ -1256,6 +1264,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     await cmd_mgr.async_cmdloop("")
                     assert call_count == 0
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_change_link(self):
         """Test the change_link command.

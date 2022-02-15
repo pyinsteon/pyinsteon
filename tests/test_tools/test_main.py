@@ -1,12 +1,13 @@
 """Test the main menu commands."""
 import logging
 import os
+import sys
+from unittest import skipIf
 
 try:
     from unittest.mock import AsyncMock, patch
 except ImportError:
-    from unittest.mock import patch
-    from asyncmock import AsyncMock
+    pass
 
 import pyinsteon
 from pyinsteon.tools import InsteonCmd
@@ -33,6 +34,7 @@ good_address = get_good_address(devices)
 class TestToolsMainMenu(ToolsTestBase):
     """Test the tools main menu."""
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_help(self):
         """Test the help command of the tools function."""
@@ -43,6 +45,7 @@ class TestToolsMainMenu(ToolsTestBase):
             buffer = clean_buffer(stdout.buffer)
             assert buffer[1] == "Documented commands (type help <topic>):\n"
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_connect(self):
         """Test the connect command of the tools function."""
@@ -239,6 +242,7 @@ class TestToolsMainMenu(ToolsTestBase):
                     == "Connection failed. Please review connection information.\n"
                 )
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_disconnect(self):
         """Test the disconnect command."""
@@ -256,6 +260,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 await cmd_mgr.async_cmdloop("")
                 assert mock_close.call_count == 1
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_add_device(self):
         """Test adding a device."""
@@ -338,6 +343,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 buffer = clean_buffer(stdout.buffer)
                 assert buffer[3] == "All-Linking has timed out.\n"
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_list_devices(self):
         """Test the list_devices command of the tools function."""
@@ -351,6 +357,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 buffer = clean_buffer(stdout.buffer)
                 assert buffer[1] == "Address   Cat   Subcat Description\n"
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_log_to_file(self):
         """Test the log_to_file command of the tools function."""
@@ -368,6 +375,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 buffer = log_file_lines(curr_dir)
                 assert buffer[0] == "Address   Cat   Subcat Description\n"
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_set_log_level(self):
         """Test set_log_level tools command."""
@@ -426,6 +434,7 @@ class TestToolsMainMenu(ToolsTestBase):
             assert topic_logger.level == logging.ERROR
             assert message_logger.level == logging.ERROR
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_save_devices(self):
         """Test save_devices tools command."""
@@ -441,6 +450,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 assert cmd_mgr.workdir == curr_dir
                 assert devices.async_save.call_count == 1
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_status(self):
         """Test the status tools command."""
@@ -560,6 +570,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 assert buffer[1] == "Invalid device address or device not found\n"
                 assert good_device.async_status.call_count == 4
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_load_devices(self):
         """Test the load_devices tools command."""
@@ -655,6 +666,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 await cmd_mgr.async_cmdloop()
                 assert devices.async_load.call_count == 5
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_add_device_manually(self):
         """Test the add_device_manually tools command."""
@@ -917,6 +929,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 await cmd_mgr.async_cmdloop()
                 assert devices.set_id.call_count == 6
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_remove_device(self):
         """Test the add_device_manually tools command."""
@@ -1027,6 +1040,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 buffer = clean_buffer(stdout.buffer)
                 assert buffer[0] == "No device was removed due to a timeout error.\n"
 
+    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_add_x10_device(self):
         """Test the add_device_manually tools command."""
