@@ -104,3 +104,7 @@ class NoALDB:
 
     def load_saved_records(self, status, records, first_mem_addr):
         """Load All-Link records from a dictionary of saved records."""
+
+    def find(self, *args, **kwargs):
+        """Return no records."""
+        return []

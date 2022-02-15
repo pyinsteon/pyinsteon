@@ -46,7 +46,7 @@ def _dict_to_device(device_dict):
     engine_version = device_dict.get("engine_version", 3)
     operating_flags = device_dict.get("operating_flags", {})
     properties = device_dict.get("properties", {})
-    first_mem_addr = device_dict.get("first_mem_addr", {})
+    first_mem_addr = device_dict.get("first_mem_addr")
     device_id = DeviceId(address, cat, subcat, firmware)
     device = create_device(device_id)
     if device:

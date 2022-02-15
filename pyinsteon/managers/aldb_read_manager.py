@@ -13,6 +13,7 @@ RETRIES_ONE_MAX = 20
 RETRIES_WRITE_MAX = 5
 TIMER = 5
 TIMER_INCREMENT = 3
+TIMER_20_MIN = 60 * 20
 _LOGGER = logging.getLogger(__name__)
 WRITE = 3
 CANCEL = 0
@@ -54,13 +55,17 @@ class ALDBReadManager:
         )
         self._clear_read_queue()
 
-        if _is_multiple_records(mem_addr, num_recs):
-            async for record in self._read_all():
-                yield record
-        else:
-            record = await self._read_one(mem_addr)
-            if record is not None:
-                yield record
+        try:
+            async with async_timeout.timeout(TIMER_20_MIN):
+                if _is_multiple_records(mem_addr, num_recs):
+                    async for record in self._read_all():
+                        yield record
+                else:
+                    record = await self._read_one(mem_addr)
+                    if record is not None:
+                        yield record
+        except asyncio.TimeoutError:
+            pass
 
     async def _read_one(self, mem_addr):
         """Read one record."""

@@ -68,6 +68,9 @@ class ALDB(ALDBBase):
             if rec.is_high_water_mark:
                 self._hwm_record = rec
 
+            if self._calc_load_status():
+                break
+
         self.set_load_status()
 
         return self._status
