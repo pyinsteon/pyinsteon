@@ -745,9 +745,6 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         len(battery_device.aldb.pending_changes) == 3
                     )  # Includes new HWM
 
-                if os.path.isfile(aldb_file):
-                    os.remove(aldb_file)
-
     @async_case
     async def test_add_link(self):
         """Test adding a link."""
