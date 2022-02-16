@@ -6,7 +6,8 @@ from unittest import skipIf
 try:
     from unittest.mock import patch, AsyncMock
 except ImportError:
-    pass
+    from unittest.mock import patch
+    from .asyncmock_patch import AsyncMock
 import pyinsteon
 from pyinsteon.device_types import (
     UnknownDevice,

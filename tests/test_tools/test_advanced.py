@@ -1,5 +1,5 @@
 """Test the advanced Advanced commands."""
-
+import asyncio
 import os
 import random
 import sys
@@ -9,7 +9,8 @@ from unittest import skipIf
 try:
     from unittest.mock import AsyncMock, MagicMock, patch
 except ImportError:
-    pass
+    from unittest.mock import MagicMock, patch
+    from .asyncmock_patch import AsyncMock
 
 import pyinsteon
 from pyinsteon.address import Address
@@ -444,138 +445,300 @@ class TestToolsAdvancedMenu(ToolsTestBase):
         aldb_filename = "aldb_export.json"
         aldb_file = os.path.join(curr_dir, aldb_filename)
 
+        def cleanup_files():
+            """Remove the temp files."""
+            if os.path.isfile(default_file):
+                os.remove(default_file)
+            if os.path.isfile(aldb_file):
+                os.remove(aldb_file)
+
+        async def run_export_tests(mode):
+            """Run the export tests."""
+            # happy path
+            inputs = create_tools_commands(
+                mode, "export_aldb", str(good_address), curr_dir, aldb_filename
+            )
+            cmd_mgr, _, stdout = self.setup_cmd_tool(
+                AdvancedTools,
+                inputs,
+                allow_logging=True,
+            )
+            stdout.buffer = []
+            remove_log_file(curr_dir)
+            cleanup_files()
+            await cmd_mgr.async_cmdloop()
+            await asyncio.sleep(0.1)
+            assert os.path.isfile(aldb_file)
+
+            # No address
+            inputs = create_tools_commands(
+                mode, "export_aldb", "", aldb_filename, curr_dir=curr_dir
+            )
+            cmd_mgr, _, stdout = self.setup_cmd_tool(
+                AdvancedTools,
+                inputs,
+                allow_logging=True,
+            )
+            cleanup_files()
+            stdout.buffer = []
+            remove_log_file(curr_dir)
+            await cmd_mgr.async_cmdloop()
+            check_output(
+                mode,
+                0,
+                0,
+                "Address is required\n",
+                0,
+                "Invalid device address or device not found\n",
+                stdout.buffer,
+                curr_dir,
+            )
+
+            # No location
+            inputs = create_tools_commands(
+                mode, "export_aldb", str(good_address), "", curr_dir=curr_dir
+            )
+            cmd_mgr, _, stdout = self.setup_cmd_tool(
+                AdvancedTools,
+                inputs,
+                allow_logging=False,
+            )
+            cleanup_files()
+            stdout.buffer = []
+            remove_log_file(curr_dir)
+            await cmd_mgr.async_cmdloop()
+            await asyncio.sleep(0.1)
+            if mode == "background":
+                assert os.path.isfile(default_file)
+                os.remove(default_file)
+            else:
+                check_output(
+                    mode,
+                    2,
+                    2,
+                    "File location is required\n",
+                    None,
+                    None,
+                    stdout.buffer,
+                    None,
+                )
+
+            # No filename
+            inputs = create_tools_commands(
+                mode,
+                "export_aldb",
+                str(good_address),
+                curr_dir,
+                "",
+                curr_dir=curr_dir,
+            )
+            cmd_mgr, _, stdout = self.setup_cmd_tool(
+                AdvancedTools,
+                inputs,
+                allow_logging=False,
+            )
+            cleanup_files()
+            stdout.buffer = []
+            remove_log_file(curr_dir)
+            cmd_mgr.workdir = None
+            await cmd_mgr.async_cmdloop()
+            await asyncio.sleep(0.1)
+            assert os.path.isfile(default_file)
+            os.remove(default_file)
+
+            # Filename is "." (cwd)
+            inputs = create_tools_commands(
+                mode,
+                "export_aldb",
+                str(good_address),
+                ".",
+                aldb_filename,
+                curr_dir=curr_dir,
+            )
+            cmd_mgr, _, stdout = self.setup_cmd_tool(
+                AdvancedTools,
+                inputs,
+                allow_logging=False,
+            )
+            cleanup_files()
+            stdout.buffer = []
+            remove_log_file(curr_dir)
+            cmd_mgr.workdir = None
+            await cmd_mgr.async_cmdloop()
+            await asyncio.sleep(0.1)
+            cwd_dir = os.getcwd()
+            cwd_file = os.path.join(cwd_dir, aldb_filename)
+            assert os.path.isfile(cwd_file)
+            os.remove(cwd_file)
+
+        async def run_replace_tests(mode):
+            """Run the replace aldb tests."""
+            # Happy path
+            inputs = create_tools_commands(
+                mode,
+                "replace_aldb",
+                str(new_address),
+                curr_dir,
+                aldb_filename,
+                curr_dir=curr_dir,
+            )
+            inputs.insert(len(inputs) - 1, "y")
+            cmd_mgr, _, _ = self.setup_cmd_tool(
+                AdvancedTools,
+                inputs,
+                allow_logging=False,
+            )
+            new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
+            new_device.aldb.async_write = AsyncMock(return_value=(2, 0))
+            await cmd_mgr.async_cmdloop()
+            assert len(new_device.aldb.pending_changes) == 3  # Includes new HWM
+
+            # Do not confirm
+            inputs = create_tools_commands(
+                mode,
+                "replace_aldb",
+                str(new_address),
+                curr_dir,
+                aldb_filename,
+                curr_dir=curr_dir,
+            )
+            inputs.insert(len(inputs) - 1, "n")
+            cmd_mgr, _, _ = self.setup_cmd_tool(
+                AdvancedTools,
+                inputs,
+                allow_logging=False,
+            )
+            new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
+            new_device.aldb.async_write = AsyncMock(return_value=(2, 0))
+            await cmd_mgr.async_cmdloop()
+            assert len(new_device.aldb.pending_changes) == 0
+
+            # No address
+            inputs = create_tools_commands(mode, "replace_aldb", "")
+            cmd_mgr, _, _ = self.setup_cmd_tool(
+                AdvancedTools,
+                inputs,
+                allow_logging=False,
+            )
+            new_device.aldb.async_write = AsyncMock(return_value=(2, 0))
+            new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
+            await cmd_mgr.async_cmdloop()
+            assert len(new_device.aldb.pending_changes) == 0
+
+            # No location  (No file exists so fail)
+            inputs = create_tools_commands(
+                mode, "replace_aldb", str(new_address), "", ""
+            )
+            cmd_mgr, _, _ = self.setup_cmd_tool(
+                AdvancedTools,
+                inputs,
+                allow_logging=False,
+            )
+            new_device.aldb.async_write = AsyncMock(return_value=(2, 0))
+            new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
+            await cmd_mgr.async_cmdloop()
+            assert len(new_device.aldb.pending_changes) == 0
+
+            # No filename  (No file exists so fail)
+            inputs = create_tools_commands(
+                mode, "replace_aldb", str(new_address), curr_dir, ""
+            )
+            cmd_mgr, _, _ = self.setup_cmd_tool(
+                AdvancedTools,
+                inputs,
+                allow_logging=False,
+            )
+            new_device.aldb.async_write = AsyncMock(return_value=(2, 0))
+            new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
+            await cmd_mgr.async_cmdloop()
+            assert len(new_device.aldb.pending_changes) == 0
+
+            # location is "."  (No file exists so fail)
+            inputs = create_tools_commands(
+                mode, "replace_aldb", str(new_address), ".", ""
+            )
+            cmd_mgr, _, _ = self.setup_cmd_tool(
+                AdvancedTools,
+                inputs,
+                allow_logging=False,
+            )
+            new_device.aldb.async_write = AsyncMock(return_value=(2, 0))
+            new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
+            await cmd_mgr.async_cmdloop()
+            assert len(new_device.aldb.pending_changes) == 0
+
+            # Writing failes fully
+            inputs = create_tools_commands(
+                mode,
+                "replace_aldb",
+                str(new_address),
+                curr_dir,
+                aldb_filename,
+                curr_dir=curr_dir,
+            )
+            inputs.insert(len(inputs) - 1, "y")
+            cmd_mgr, _, _ = self.setup_cmd_tool(
+                AdvancedTools,
+                inputs,
+                allow_logging=False,
+            )
+            new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
+            new_device.aldb.async_write = AsyncMock(return_value=(0, 3))
+            await cmd_mgr.async_cmdloop()
+            assert len(new_device.aldb.pending_changes) == 3  # Includes new HWM
+
+            # Writing failes partially
+            inputs = create_tools_commands(
+                mode,
+                "replace_aldb",
+                str(new_address),
+                curr_dir,
+                aldb_filename,
+                curr_dir=curr_dir,
+            )
+            inputs.insert(len(inputs) - 1, "y")
+            cmd_mgr, _, _ = self.setup_cmd_tool(
+                AdvancedTools,
+                inputs,
+                allow_logging=False,
+            )
+            new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
+            new_device.aldb.async_write = AsyncMock(return_value=(1, 2))
+            await cmd_mgr.async_cmdloop()
+            assert len(new_device.aldb.pending_changes) == 3  # Includes new HWM
+
+            # Battery device
+            inputs = create_tools_commands(
+                mode,
+                "replace_aldb",
+                str(battery_address),
+                curr_dir,
+                aldb_filename,
+                curr_dir=curr_dir,
+            )
+            inputs.insert(len(inputs) - 1, "y")
+            cmd_mgr, _, _ = self.setup_cmd_tool(
+                AdvancedTools,
+                inputs,
+                allow_logging=False,
+            )
+            battery_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
+            battery_device.aldb.async_write = AsyncMock(return_value=(2, 0))
+            await cmd_mgr.async_cmdloop()
+            assert len(battery_device.aldb.pending_changes) == 3
+
         async with self.test_lock:
             with patch.object(
                 pyinsteon.tools.advanced, "devices", devices
             ), patch.object(pyinsteon.tools.tools_base, "devices", devices):
                 for mode in ["input", "inline", "background"]:
-                    # happy path
-                    inputs = create_tools_commands(
-                        mode, "export_aldb", str(good_address), curr_dir, aldb_filename
-                    )
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=True,
-                    )
-                    if os.path.isfile(default_file):
-                        os.remove(default_file)
-                    if os.path.isfile(aldb_file):
-                        os.remove(aldb_file)
-                    stdout.buffer = []
-                    remove_log_file(curr_dir)
-                    await cmd_mgr.async_cmdloop()
-                    assert os.path.isfile(aldb_file)
-
-                    # No address
-                    inputs = create_tools_commands(
-                        mode, "export_aldb", "", aldb_filename, curr_dir=curr_dir
-                    )
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=True,
-                    )
-                    if os.path.isfile(default_file):
-                        os.remove(default_file)
-                    if os.path.isfile(aldb_file):
-                        os.remove(aldb_file)
-                    stdout.buffer = []
-                    remove_log_file(curr_dir)
-                    await cmd_mgr.async_cmdloop()
-                    check_output(
-                        mode,
-                        0,
-                        0,
-                        "Address is required\n",
-                        0,
-                        "Invalid device address or device not found\n",
-                        stdout.buffer,
-                        curr_dir,
-                    )
-
-                    # No location
-                    inputs = create_tools_commands(
-                        mode, "export_aldb", str(good_address), "", curr_dir=curr_dir
-                    )
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=False,
-                    )
-                    if os.path.isfile(default_file):
-                        os.remove(default_file)
-                    if os.path.isfile(aldb_file):
-                        os.remove(aldb_file)
-                    stdout.buffer = []
-                    remove_log_file(curr_dir)
-                    await cmd_mgr.async_cmdloop()
-                    if mode == "background":
-                        assert os.path.isfile(default_file)
-                        os.remove(default_file)
-                    else:
-                        check_output(
-                            mode,
-                            2,
-                            2,
-                            "File location is required\n",
-                            None,
-                            None,
-                            stdout.buffer,
-                            None,
-                        )
-
-                    # No filename
-                    inputs = create_tools_commands(
-                        mode,
-                        "export_aldb",
-                        str(good_address),
-                        curr_dir,
-                        "",
-                        curr_dir=curr_dir,
-                    )
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=False,
-                    )
-                    if os.path.isfile(default_file):
-                        os.remove(default_file)
-                    if os.path.isfile(aldb_file):
-                        os.remove(aldb_file)
-                    stdout.buffer = []
-                    remove_log_file(curr_dir)
-                    cmd_mgr.workdir = None
-                    await cmd_mgr.async_cmdloop()
-                    assert os.path.isfile(default_file)
-                    os.remove(default_file)
-
-                    # Filename is "." (cwd)
-                    inputs = create_tools_commands(
-                        mode,
-                        "export_aldb",
-                        str(good_address),
-                        ".",
-                        aldb_filename,
-                        curr_dir=curr_dir,
-                    )
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=False,
-                    )
-                    if os.path.isfile(default_file):
-                        os.remove(default_file)
-                    if os.path.isfile(aldb_file):
-                        os.remove(aldb_file)
-                    stdout.buffer = []
-                    remove_log_file(curr_dir)
-                    cmd_mgr.workdir = None
-                    await cmd_mgr.async_cmdloop()
-                    cwd_dir = os.getcwd()
-                    cwd_file = os.path.join(cwd_dir, aldb_filename)
-                    assert os.path.isfile(cwd_file)
-                    os.remove(cwd_file)
+                    try:
+                        await run_export_tests(mode)
+                    finally:
+                        if os.path.isfile(default_file):
+                            os.remove(default_file)
+                        if os.path.isfile(aldb_file):
+                            os.remove(aldb_file)
 
                 # Create a new ALDB export to use with importing
                 inputs = create_tools_commands(
@@ -587,167 +750,20 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     allow_logging=False,
                 )
                 await cmd_mgr.async_cmdloop()
+                await asyncio.sleep(0.1)
                 assert os.path.isfile(aldb_file)
                 new_address = random_address()
                 new_device = type(good_device)(new_address, 0x00, 0x00)
                 devices[new_address] = new_device
 
-                for mode in ["input", "inline"]:
-                    # Happy path
-                    inputs = create_tools_commands(
-                        mode,
-                        "replace_aldb",
-                        str(new_address),
-                        curr_dir,
-                        aldb_filename,
-                        curr_dir=curr_dir,
-                    )
-                    inputs.insert(len(inputs) - 1, "y")
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=False,
-                    )
-                    new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
-                    new_device.aldb.async_write = AsyncMock(return_value=(2, 0))
-                    await cmd_mgr.async_cmdloop()
-                    assert len(new_device.aldb.pending_changes) == 3  # Includes new HWM
-
-                    # Do not confirm
-                    inputs = create_tools_commands(
-                        mode,
-                        "replace_aldb",
-                        str(new_address),
-                        curr_dir,
-                        aldb_filename,
-                        curr_dir=curr_dir,
-                    )
-                    inputs.insert(len(inputs) - 1, "n")
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=False,
-                    )
-                    new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
-                    new_device.aldb.async_write = AsyncMock(return_value=(2, 0))
-                    await cmd_mgr.async_cmdloop()
-                    assert len(new_device.aldb.pending_changes) == 0
-
-                    # No address
-                    inputs = create_tools_commands(mode, "replace_aldb", "")
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=False,
-                    )
-                    new_device.aldb.async_write = AsyncMock(return_value=(2, 0))
-                    new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
-                    await cmd_mgr.async_cmdloop()
-                    assert len(new_device.aldb.pending_changes) == 0
-
-                    # No location  (No file exists so fail)
-                    inputs = create_tools_commands(
-                        mode, "replace_aldb", str(new_address), "", ""
-                    )
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=False,
-                    )
-                    new_device.aldb.async_write = AsyncMock(return_value=(2, 0))
-                    new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
-                    await cmd_mgr.async_cmdloop()
-                    assert len(new_device.aldb.pending_changes) == 0
-
-                    # No filename  (No file exists so fail)
-                    inputs = create_tools_commands(
-                        mode, "replace_aldb", str(new_address), curr_dir, ""
-                    )
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=False,
-                    )
-                    new_device.aldb.async_write = AsyncMock(return_value=(2, 0))
-                    new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
-                    await cmd_mgr.async_cmdloop()
-                    assert len(new_device.aldb.pending_changes) == 0
-
-                    # location is "."  (No file exists so fail)
-                    inputs = create_tools_commands(
-                        mode, "replace_aldb", str(new_address), ".", ""
-                    )
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=False,
-                    )
-                    new_device.aldb.async_write = AsyncMock(return_value=(2, 0))
-                    new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
-                    await cmd_mgr.async_cmdloop()
-                    assert len(new_device.aldb.pending_changes) == 0
-
-                    # Writing failes fully
-                    inputs = create_tools_commands(
-                        mode,
-                        "replace_aldb",
-                        str(new_address),
-                        curr_dir,
-                        aldb_filename,
-                        curr_dir=curr_dir,
-                    )
-                    inputs.insert(len(inputs) - 1, "y")
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=False,
-                    )
-                    new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
-                    new_device.aldb.async_write = AsyncMock(return_value=(0, 3))
-                    await cmd_mgr.async_cmdloop()
-                    assert len(new_device.aldb.pending_changes) == 3  # Includes new HWM
-
-                    # Writing failes partially
-                    inputs = create_tools_commands(
-                        mode,
-                        "replace_aldb",
-                        str(new_address),
-                        curr_dir,
-                        aldb_filename,
-                        curr_dir=curr_dir,
-                    )
-                    inputs.insert(len(inputs) - 1, "y")
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=False,
-                    )
-                    new_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
-                    new_device.aldb.async_write = AsyncMock(return_value=(1, 2))
-                    await cmd_mgr.async_cmdloop()
-                    assert len(new_device.aldb.pending_changes) == 3  # Includes new HWM
-
-                    # Battery device
-                    inputs = create_tools_commands(
-                        mode,
-                        "replace_aldb",
-                        str(battery_address),
-                        curr_dir,
-                        aldb_filename,
-                        curr_dir=curr_dir,
-                    )
-                    inputs.insert(len(inputs) - 1, "y")
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        AdvancedTools,
-                        inputs,
-                        allow_logging=False,
-                    )
-                    battery_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
-                    battery_device.aldb.async_write = AsyncMock(return_value=(2, 0))
-                    await cmd_mgr.async_cmdloop()
-                    assert (
-                        len(battery_device.aldb.pending_changes) == 3
-                    )  # Includes new HWM
+                try:
+                    for mode in ["input", "inline"]:
+                        await run_replace_tests(mode)
+                finally:
+                    if os.path.isfile(default_file):
+                        os.remove(default_file)
+                    if os.path.isfile(aldb_file):
+                        os.remove(aldb_file)
 
     @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case

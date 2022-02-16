@@ -7,7 +7,8 @@ from unittest import skipIf
 try:
     from unittest.mock import AsyncMock, patch
 except ImportError:
-    pass
+    from unittest.mock import patch
+    from .asyncmock_patch import AsyncMock
 
 import pyinsteon
 from pyinsteon.tools import InsteonCmd

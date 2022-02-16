@@ -8,7 +8,8 @@ from unittest import TestCase
 try:
     from unittest.mock import AsyncMock, MagicMock
 except ImportError:
-    pass
+    from unittest.mock import MagicMock
+    from .asyncmock_patch import AsyncMock
 
 from pyinsteon.address import Address
 from pyinsteon.device_types import (
