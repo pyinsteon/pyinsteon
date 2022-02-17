@@ -1,5 +1,4 @@
 """Manage outbound ON command to a device."""
-
 from pyinsteon.constants import MessageFlagType, ResponseStatus
 
 from ... import pub
@@ -9,19 +8,12 @@ from .direct_command import DirectCommandHandlerBase
 
 
 class StatusRequestCommand(DirectCommandHandlerBase):
-    """Manage an outbound Status command to a device.
-
-    TODO Confirm that the status command is best with a single status handler
-    rather than a handler per status command (ie. one for state 1 and one for
-    state 2)
-    """
-
-    _status_type = None
-    _status_active = False
+    """Manage an outbound Status command to a device."""
 
     def __init__(self, address, status_type: int = 0):
         """Init the OnLevelCommand class."""
         super().__init__(topic=STATUS_REQUEST, address=address)
+        self._status_active = False
         self._status_type = status_type
         if status_type:
             self._subscriber_topic = f"{self._subscriber_topic}_{status_type}"
@@ -29,12 +21,18 @@ class StatusRequestCommand(DirectCommandHandlerBase):
     @property
     def status_type(self):
         """Return the type of status message."""
-        return self._status_type
+        try:
+            return self._status_type
+        except AttributeError:
+            return 0
 
     @property
     def status_active(self):
         """Return if the status command is active."""
-        return self._status_active
+        try:
+            return self._status_active
+        except AttributeError:
+            return False
 
     @status_active.setter
     def status_active(self, value: bool):
@@ -55,7 +53,7 @@ class StatusRequestCommand(DirectCommandHandlerBase):
 
     @status_handler
     def handle_direct_ack(self, topic=pub.AUTO_TOPIC, **kwargs):
-        """Handle the ON response direct ACK.
+        """Handle the Status Request response direct ACK.
 
         This handler listens to all topics for a device therefore we need to
         confirm the message is a status response.
@@ -67,6 +65,7 @@ class StatusRequestCommand(DirectCommandHandlerBase):
         if msg_type != str(MessageFlagType.DIRECT_ACK):
             return
 
+        self._status_active = False
         self._message_response.put_nowait(ResponseStatus.SUCCESS)
 
         cmd1 = kwargs.get("cmd1")

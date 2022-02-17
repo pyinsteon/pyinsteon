@@ -3,10 +3,8 @@ import logging
 
 from ...address import Address
 from ...topics import EXTENDED_GET_SET
-from .. import ack_handler, direct_ack_handler
+from .. import ack_handler
 from .direct_command import DirectCommandHandlerBase
-
-_LOGGER = logging.getLogger(__name__)
 
 
 class ThermostatGetSetPointCommand(DirectCommandHandlerBase):
@@ -37,12 +35,10 @@ class ThermostatGetSetPointCommand(DirectCommandHandlerBase):
             return
         super().handle_ack(cmd1, cmd2, user_data)
 
-    @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
-        """Handle the direct ACK.
+    def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
+        """Update subscribers.
 
         Just need to notify listeners that the Set Point Response
         shoudl be coming.
         """
         self._call_subscribers()
-        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)
