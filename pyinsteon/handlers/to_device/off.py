@@ -1,6 +1,5 @@
 """Manage outbound ON command to a device."""
 from ...topics import OFF
-from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 
@@ -10,11 +9,6 @@ class OffCommand(DirectCommandHandlerBase):
     def __init__(self, address, group):
         """Init the OnLevelCommand class."""
         super().__init__(topic=OFF, address=address, group=group)
-
-    @property
-    def group(self):
-        """Return the group property."""
-        return self._group
 
     # pylint: disable=arguments-differ
     async def async_send(self):

@@ -174,6 +174,7 @@ class ToolsBase(Cmd):
             loop.run_until_complete(cls(loop, args).async_cmdloop(intro=intro))
         except KeyboardInterrupt:
             loop.stop()
+            # pylint: disable=no-member
             pending = asyncio.Task.all_tasks(loop=loop)
             for task in pending:
                 task.cancel()

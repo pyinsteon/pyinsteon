@@ -3,7 +3,6 @@ import logging
 
 from ...address import Address
 from ...topics import EXTENDED_READ_WRITE_ALDB
-from .. import direct_ack_handler, direct_nak_handler
 from .direct_command import DirectCommandHandlerBase
 
 _LOGGER = logging.getLogger(__name__)

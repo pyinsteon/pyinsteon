@@ -1,5 +1,4 @@
 """Handle sending a read request for ALDB records."""
-import logging
 
 from ...address import Address
 from ...topics import EXTENDED_GET_SET
