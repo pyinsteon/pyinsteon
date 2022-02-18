@@ -12,40 +12,40 @@ class ThermostatModeCommand(DirectCommandHandlerBase):
         super().__init__(topic=THERMOSTAT_CONTROL, address=address)
 
     # pylint: disable=arguments-differ
-    def send(self, mode):
+    def send(self, thermostat_mode):
         """Send the OFF command."""
-        super().send(mode=mode)
+        super().send(thermostat_mode=thermostat_mode)
 
     # pylint: disable=arguments-differ
-    async def async_send(self, mode):
+    async def async_send(self, thermostat_mode):
         """Send the OFF command async."""
-        if mode == ThermostatMode.HEAT:
+        if thermostat_mode == ThermostatMode.HEAT:
             send_mode = 0x04
-        elif mode == ThermostatMode.COOL:
+        elif thermostat_mode == ThermostatMode.COOL:
             send_mode = 0x05
-        elif mode == ThermostatMode.AUTO:
+        elif thermostat_mode == ThermostatMode.AUTO:
             send_mode = 0x06
-        elif mode == ThermostatMode.FAN_ALWAYS_ON:
+        elif thermostat_mode == ThermostatMode.FAN_ALWAYS_ON:
             send_mode = 0x07
-        elif mode == ThermostatMode.FAN_AUTO:
+        elif thermostat_mode == ThermostatMode.FAN_AUTO:
             send_mode = 0x08
-        elif mode == ThermostatMode.OFF:
+        elif thermostat_mode == ThermostatMode.OFF:
             send_mode = 0x09
-        return await super().async_send(mode=send_mode)
+        return await super().async_send(thermostat_mode=send_mode)
 
     def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
         """Update subscribers."""
         if cmd2 == 0x04:
-            mode = ThermostatMode.HEAT
+            thermostat_mode = ThermostatMode.HEAT
         elif cmd2 == 0x05:
-            mode = ThermostatMode.COOL
+            thermostat_mode = ThermostatMode.COOL
         elif cmd2 == 0x06:
-            mode = ThermostatMode.AUTO
+            thermostat_mode = ThermostatMode.AUTO
         elif cmd2 == 0x07:
-            mode = ThermostatMode.FAN_ALWAYS_ON
+            thermostat_mode = ThermostatMode.FAN_ALWAYS_ON
         elif cmd2 == 0x08:
-            mode = ThermostatMode.FAN_AUTO
+            thermostat_mode = ThermostatMode.FAN_AUTO
         elif cmd2 == 0x09:
-            mode = ThermostatMode.OFF
+            thermostat_mode = ThermostatMode.OFF
 
-        self._call_subscribers(mode=mode)
+        self._call_subscribers(thermostat_mode=thermostat_mode)

@@ -46,7 +46,7 @@ FLD_X10_SEND_REC_ACK.append(MessageField("ack", 1, AckNak))
 
 # ALL-Linking Completed 0x53
 FLD_ALL_LINK_COMPLETE = [
-    MessageField("mode", 1, AllLinkMode),
+    MessageField("link_mode", 1, AllLinkMode),
     MessageField("group", 1, int),
     MessageField("target", 3, Address),
     MessageField("cat", 1, DeviceCategory),
@@ -80,6 +80,18 @@ FLD_ALL_LINK_RECORD_RESP = [
 # All-Link Cleanup Status Report 0x58
 FLD_ALL_LINK_CLEANUP_REPORT = []
 FLD_ALL_LINK_CLEANUP_REPORT_ACK = [MessageField("ack", 1, AckNak)]
+
+# Read from EEPROM Response 0x59
+FLD_READ_EEPROM_RESPONSE = [
+    MessageField("mem_hi", 1, int),
+    MessageField("mem_low", 1, int),
+    MessageField("flags", 1, AllLinkRecordFlags),
+    MessageField("group", 1, int),
+    MessageField("target", 3, Address),
+    MessageField("data1", 1, int),
+    MessageField("data2", 1, int),
+    MessageField("data3", 1, int),
+]
 
 # Get IM Info 0x60
 FLD_GET_IM_INFO_SEND = []
@@ -120,7 +132,7 @@ FLD_EXT_SEND_ACK.append(MessageField("ack", 1, AckNak))
 
 # Start All-Linking 0x64
 FLD_START_ALL_LINKING = [
-    MessageField("mode", 1, AllLinkMode),
+    MessageField("link_mode", 1, AllLinkMode),
     MessageField("group", 1, int),
 ]
 FLD_START_ALL_LINKING_ACK = FLD_START_ALL_LINKING.copy()
@@ -201,6 +213,35 @@ FLD_GET_IM_CONFIG_ACK = [
     MessageField("ack", 1, AckNak),
 ]
 
+FLD_GET_IM_CONFIG_ACK = [
+    MessageField("flags", 1, IMConfigurationFlags),
+    MessageField("spare1", 1, int),
+    MessageField("spare2", 1, int),
+    MessageField("ack", 1, AckNak),
+]
+
+# Get IM Configuration 0x75
+FLD_READ_EEPROM = [
+    MessageField("mem_hi", 1, int),
+    MessageField("mem_low", 1, int),
+]
+FLD_READ_EEPROM_ACK = FLD_READ_EEPROM.copy()
+FLD_READ_EEPROM_ACK.append(MessageField("ack", 1, AckNak))
+
+# Write to EEPROM 0x76
+FLD_WRITE_EEPROM = [
+    MessageField("mem_hi", 1, int),
+    MessageField("mem_low", 1, int),
+    MessageField("flags", 1, AllLinkRecordFlags),
+    MessageField("group", 1, int),
+    MessageField("target", 3, Address),
+    MessageField("data1", 1, int),
+    MessageField("data2", 1, int),
+    MessageField("data3", 1, int),
+]
+FLD_WRITE_EEPROM_ACK = FLD_WRITE_EEPROM.copy()
+FLD_WRITE_EEPROM_ACK.append(MessageField("ack", 1, AckNak))
+
 INBOUND_MSG_DEF = {}
 INBOUND_MSG_DEF[MessageId.STANDARD_RECEIVED] = MessageDefinition(
     MessageId.STANDARD_RECEIVED, FLD_STD_REC
@@ -228,6 +269,9 @@ INBOUND_MSG_DEF[MessageId.ALL_LINK_RECORD_RESPONSE] = MessageDefinition(
 )
 INBOUND_MSG_DEF[MessageId.ALL_LINK_CLEANUP_STATUS_REPORT] = MessageDefinition(
     MessageId.ALL_LINK_CLEANUP_STATUS_REPORT, FLD_ALL_LINK_CLEANUP_REPORT_ACK
+)
+INBOUND_MSG_DEF[MessageId.READ_EEPROM_RESPONSE] = MessageDefinition(
+    MessageId.READ_EEPROM_RESPONSE, FLD_READ_EEPROM_RESPONSE
 )
 INBOUND_MSG_DEF[MessageId.GET_IM_INFO] = MessageDefinition(
     MessageId.GET_IM_INFO, FLD_GET_IM_INFO_REC
@@ -288,6 +332,12 @@ INBOUND_MSG_DEF[MessageId.RF_SLEEP] = MessageDefinition(
 )
 INBOUND_MSG_DEF[MessageId.GET_IM_CONFIGURATION] = MessageDefinition(
     MessageId.GET_IM_CONFIGURATION, FLD_GET_IM_CONFIG_ACK
+)
+INBOUND_MSG_DEF[MessageId.READ_EEPROM] = MessageDefinition(
+    MessageId.READ_EEPROM, FLD_READ_EEPROM_ACK
+)
+INBOUND_MSG_DEF[MessageId.WRITE_EEPROM] = MessageDefinition(
+    MessageId.WRITE_EEPROM, FLD_WRITE_EEPROM_ACK
 )
 
 OUTBOUND_MSG_DEF = {}
@@ -351,4 +401,12 @@ OUTBOUND_MSG_DEF[MessageId.RF_SLEEP] = MessageDefinition(
 )
 OUTBOUND_MSG_DEF[MessageId.GET_IM_CONFIGURATION] = MessageDefinition(
     MessageId.GET_IM_CONFIGURATION, FLD_GET_IM_CONFIG
+)
+
+OUTBOUND_MSG_DEF[MessageId.READ_EEPROM] = MessageDefinition(
+    MessageId.READ_EEPROM, FLD_READ_EEPROM
+)
+
+OUTBOUND_MSG_DEF[MessageId.WRITE_EEPROM] = MessageDefinition(
+    MessageId.WRITE_EEPROM, FLD_WRITE_EEPROM
 )

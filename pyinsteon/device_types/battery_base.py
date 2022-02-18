@@ -8,6 +8,7 @@ from inspect import getfullargspec
 from ..aldb.aldb_battery import ALDBBattery
 from ..constants import ResponseStatus
 from ..handlers.to_device.extended_set import ExtendedSetCommand
+from ..managers.link_manager.default_links import async_add_default_links
 from ..utils import subscribe_topic
 
 _LOGGER = logging.getLogger(__name__)
@@ -88,7 +89,22 @@ class BatteryDeviceBase:
 
     async def async_add_default_links(self):
         """Add default links to the device."""
-        return self._run_on_wake(super(BatteryDeviceBase, self).async_add_default_links)
+        return self._run_on_wake(self.async_add_default_links_on_wake)
+
+    async def async_add_default_links_on_wake(self):
+        """Add default links to the device when the device wakes up."""
+        aldb_write_save = self.aldb.async_write
+        aldb_load_save = self.aldb.async_load
+        self.aldb.async_write = self.aldb.async_write_on_wake
+        self.aldb.async_load = self.aldb.async_load_on_wake
+
+        result = ResponseStatus.FAILURE
+        try:
+            result = await async_add_default_links(self)
+        finally:
+            self.aldb.async_write = aldb_write_save
+            self.aldb.async_load = aldb_load_save
+        return result
 
     async def async_read_config(self):
         """Get all configuration settings.
@@ -154,6 +170,7 @@ class BatteryDeviceBase:
         retry_cmds = []
         while True:
             try:
+                await self.async_keep_awake()
                 command, retries = await asyncio.wait_for(
                     self._commands_queue.get(), TIMEOUT
                 )

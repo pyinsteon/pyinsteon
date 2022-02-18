@@ -4,10 +4,10 @@ from binascii import unhexlify
 
 from pyinsteon.address import Address
 from pyinsteon.constants import ManageAllLinkRecordAction, MessageId
-from pyinsteon.protocol.messages.all_link_record_flags import \
-    AllLinkRecordFlags
+from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
+
 # pylint: disable=unused-import
-from pyinsteon.protocol.messages.outbound import manage_all_link_record
+from pyinsteon.protocol.messages.outbound import manage_all_link_record  # noqa: F401
 from tests import set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
 

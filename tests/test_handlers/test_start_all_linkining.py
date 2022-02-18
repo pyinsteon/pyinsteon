@@ -24,13 +24,17 @@ class TestSendAllLinkingCommandHandler(unittest.TestCase):
         """Test the async_send method."""
         topics = [
             TopicItem(
-                self.ack_message, {"mode": AllLinkMode.CONTROLLER, "group": 0x01}, 0.5
+                self.ack_message,
+                {"link_mode": AllLinkMode.CONTROLLER, "group": 0x01},
+                0.5,
             )
         ]
         send_topics(topics)
-        assert await self.handler.async_send(mode=AllLinkMode.CONTROLLER, group=0x01)
+        assert await self.handler.async_send(
+            link_mode=AllLinkMode.CONTROLLER, group=0x01
+        )
 
-    def send_listener(self, mode, group):
+    def send_listener(self, link_mode, group):
         """Subscribe to the start_all_linking topic."""
         self._sent = True
 

@@ -3,8 +3,10 @@
 import asyncio
 import logging
 from enum import Enum
+from queue import SimpleQueue
 
 from .. import pub
+from ..constants import AckNak
 from ..utils import log_error, publish_topic, subscribe_topic
 from .command_to_msg import register_command_handlers
 from .messages.inbound import create
@@ -57,9 +59,11 @@ class Protocol(asyncio.Protocol):
         super().__init__(*args, **kwargs)
         self._transport = None
         self._message_queue = asyncio.PriorityQueue()
+        self._last_message = SimpleQueue()
         self._buffer = bytearray()
         self._should_reconnect = True
         self._connect_method = connect_method
+        self._streaming = False
         register_outbound_handlers()
         register_command_handlers()
         subscribe_topic(self._write, "send_message")
@@ -75,6 +79,16 @@ class Protocol(asyncio.Protocol):
         """Return the queue of messages to write to the transport."""
         return self._message_queue
 
+    @property
+    def streaming(self) -> bool:
+        """Return streaming mode."""
+        return self._streaming
+
+    @streaming.setter
+    def streaming(self, value: bool):
+        """Set streaming mode."""
+        self._streaming = bool(value)
+
     def connection_made(self, transport):
         """Run when a connection to the transport has been made."""
         self._transport = transport
@@ -87,8 +101,20 @@ class Protocol(asyncio.Protocol):
         while True:
             last_buffer = self._buffer
             msg, self._buffer = create(self._buffer)
+
+            # Sometimes the modem only responds with NAK and not the original message
+            if (
+                not msg
+                and last_buffer
+                and last_buffer[-1] == AckNak.NAK
+                and not self._last_message.empty()
+            ):
+                last_msg = self._last_message.get()
+                last_msg_nak = bytearray(bytes(last_msg))
+                last_msg_nak.extend(bytes([0x15]))
+                msg, _ = create(last_msg_nak)
             if msg:
-                self._publish_message(msg)
+                asyncio.ensure_future(self._publish_message(msg))
                 msg = None
 
             if not self._buffer or last_buffer == self._buffer:
@@ -135,7 +161,7 @@ class Protocol(asyncio.Protocol):
         self._message_queue.put_nowait((0, None))
 
     # pylint: disable=broad-except
-    def _publish_message(self, msg):
+    async def _publish_message(self, msg):
         _LOGGER_MSG.debug("RX: %s", repr(msg))
         topic = None
         kwargs = {}
@@ -178,12 +204,14 @@ class Protocol(asyncio.Protocol):
 
     async def _write_messages(self):
         """Write data to the transport."""
-        _LOGGER.debug("Starting _write_messages")
+        _LOGGER.debug("Modem writer started.")
         while not self._transport.is_closing():
-            _LOGGER.debug("Started")
             _, msg = await self._message_queue.get()
             if msg:
                 _LOGGER_MSG.debug("TX: %s", repr(msg))
+                while not self._last_message.empty():
+                    self._last_message.get()
+                self._last_message.put(msg)
                 await self._transport.async_write(msg)
                 await asyncio.sleep(WRITE_WAIT)
         _LOGGER.debug("Modem writer stopped.")

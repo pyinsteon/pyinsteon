@@ -43,6 +43,7 @@ from ..handlers.to_device.extended_set_2 import ExtendedSet2Command
 from ..handlers.to_device.thermostat_cool_set_point import ThermostatCoolSetPointCommand
 from ..handlers.to_device.thermostat_heat_set_point import ThermostatHeatSetPointCommand
 from ..handlers.to_device.thermostat_mode import ThermostatModeCommand
+from ..managers.link_manager.default_links import async_add_default_links
 from ..managers.on_level_manager import OnLevelManager
 from ..managers.thermostat_status_manager import GetThermostatStatus
 from ..operating_flag import (
@@ -124,9 +125,9 @@ class ClimateControl_Thermostat(Device):
             self._groups[GRP_HUMID_LO_SP].value = humidity
         return cmd_status
 
-    async def async_set_mode(self, mode):
+    async def async_set_mode(self, thermostat_mode):
         """Set the thermastat mode."""
-        return await self._handlers["mode_command"].async_send(mode)
+        return await self._handlers["mode_command"].async_send(thermostat_mode)
 
     async def async_set_master(self, master):
         """Set the thermastat master mode."""
@@ -465,10 +466,11 @@ class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermo
             super(BatteryDeviceBase, self).async_set_master, master=master
         )
 
-    async def async_set_mode(self, mode):
+    async def async_set_mode(self, thermostat_mode):
         """Set the thermastat mode."""
         return self._run_on_wake(
-            super(BatteryDeviceBase, self).async_set_mode, mode=mode
+            super(BatteryDeviceBase, self).async_set_mode,
+            thermostat_mode=thermostat_mode,
         )
 
     async def async_set_notify_changes(self):
@@ -494,3 +496,26 @@ class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermo
             super(BatteryDeviceBase, self).async_set_heat_set_point,
             temperature=temperature,
         )
+
+    async def async_add_default_links(self):
+        """Add default links to the device."""
+        self._run_on_wake(self.async_add_default_links_on_wake)
+
+    async def async_add_default_links_on_wake(self):
+        """Add default links to the device when the device wakes up."""
+        aldb_write_save = self.aldb.async_write
+        aldb_load_save = self.aldb.async_load
+        self.aldb.async_write = self.aldb.async_write_on_wake
+        self.aldb.async_load = self.aldb.async_load_on_wake
+
+        result_links = ResponseStatus.FAILURE
+        result_notify = ResponseStatus.FAILURE
+
+        try:
+            result_links = await async_add_default_links(self)
+            result_notify = await super().async_set_notify_changes()
+        finally:
+            self.aldb.async_write = aldb_write_save
+            self.aldb.async_load = aldb_load_save
+
+        return multiple_status(result_links, result_notify)

@@ -56,6 +56,7 @@ class MessageId(HexIntEnum):
     ALL_LINK_CLEANUP_FAILURE_REPORT = 0x56
     ALL_LINK_RECORD_RESPONSE = 0x57
     ALL_LINK_CLEANUP_STATUS_REPORT = 0x58
+    READ_EEPROM_RESPONSE = 0x59
     GET_IM_INFO = 0x60
     SEND_ALL_LINK_COMMAND = 0x61
     SEND_STANDARD = 0x62
@@ -77,6 +78,10 @@ class MessageId(HexIntEnum):
     SET_ACK_MESSAGE_TWO_BYTES = 0x71
     RF_SLEEP = 0x72
     GET_IM_CONFIGURATION = 0x73
+    CANCEL_CLEANUP = 0x74
+    READ_EEPROM = 0x75
+    WRITE_EEPROM = 0x76
+    BEEP = 0x77
 
 
 class MessageFlagType(HexIntEnum):
@@ -107,6 +112,7 @@ class ALDBStatus(HexIntEnum):
     LOADING = 2
     FAILED = 3
     PARTIAL = 4
+    DIRTY = 5
 
 
 class ALDBVersion(Enum):
@@ -116,6 +122,14 @@ class ALDBVersion(Enum):
     V1 = 1
     V2 = 2
     V2CS = 20
+
+
+class ReadWriteMode(HexIntEnum):
+    """Modem read mode."""
+
+    UNKNOWN = 0x00
+    STANDARD = 0x01
+    EEPROM = 0x02
 
 
 class EngineVersion(HexIntEnum):
@@ -170,6 +184,14 @@ class RelayMode(HexIntEnum):
     MOMENTARY_A = 1
     MOMENTARY_B = 2
     MOMENTARY_C = 3
+
+
+class ToggleMode(HexIntEnum):
+    """Toggle mode used by KeypadLinc device class 0x01 and 0x02."""
+
+    TOGGLE = 0
+    ON_ONLY = 1
+    OFF_ONLY = 2
 
 
 class X10Commands(HexIntEnum):
@@ -400,3 +422,10 @@ RAMP_RATES_SEC = {
     0.2: 0x1E,
     0.1: 0x1F,
 }
+
+
+class DeviceAction(Enum):
+    """Device list actions."""
+
+    ADDED = 0
+    REMOVED = 1

@@ -55,6 +55,11 @@ class DeviceFlagBase(SubscriberBase):
             self._is_dirty = False
 
     @property
+    def prop_type(self):
+        """Return the property type."""
+        return self._type
+
+    @property
     def is_dirty(self):
         """Return if the Operating flag has been changed."""
         return self._is_dirty
