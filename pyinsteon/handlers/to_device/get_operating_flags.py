@@ -1,12 +1,9 @@
 """Handle sending a read request for ALDB records."""
-import logging
 
 from ...address import Address
 from ...topics import GET_OPERATING_FLAGS
 from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
-
-_LOGGER = logging.getLogger(__name__)
 
 
 class GetOperatingFlagsCommand(DirectCommandHandlerBase):
@@ -28,9 +25,7 @@ class GetOperatingFlagsCommand(DirectCommandHandlerBase):
         self._group = flags_requested
         return await super().async_send(flags_requested=self._group)
 
-    @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
-        """Handle the direct ACK message."""
+    def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
+        """Update subscribers."""
         self._call_subscribers(group=self._group, flags=cmd2)
         self._group = None
-        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

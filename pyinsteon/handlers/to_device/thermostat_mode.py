@@ -1,7 +1,6 @@
 """Thermostat temperature up command."""
 from ...constants import ThermostatMode
 from ...topics import THERMOSTAT_CONTROL
-from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 
@@ -34,9 +33,8 @@ class ThermostatModeCommand(DirectCommandHandlerBase):
             send_mode = 0x09
         return await super().async_send(thermostat_mode=send_mode)
 
-    @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
-        """Handle the OFF response direct ACK."""
+    def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
+        """Update subscribers."""
         if cmd2 == 0x04:
             thermostat_mode = ThermostatMode.HEAT
         elif cmd2 == 0x05:
@@ -51,4 +49,3 @@ class ThermostatModeCommand(DirectCommandHandlerBase):
             thermostat_mode = ThermostatMode.OFF
 
         self._call_subscribers(thermostat_mode=thermostat_mode)
-        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

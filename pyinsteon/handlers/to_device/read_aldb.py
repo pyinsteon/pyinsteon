@@ -28,14 +28,10 @@ class ReadALDBCommandHandler(DirectCommandHandlerBase):
             action=0x00, mem_addr=mem_addr, num_recs=num_recs
         )
 
-    @direct_ack_handler
-    def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
-        """Handle the direct ACK."""
+    def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
+        """Update subscribers."""
         self._call_subscribers(ack_response=cmd2)
-        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)
 
-    @direct_nak_handler
-    def handle_direct_nak(self, cmd1, cmd2, target, user_data, hops_left):
-        """Handle a direct NAK which will provide an error message."""
+    def _update_subscribers_on_nak(self, cmd1, cmd2, target, user_data, hops_left):
+        """Update subscribers on NAK received."""
         self._call_subscribers(ack_response=cmd2)
-        super().handle_direct_nak(cmd1, cmd2, target, user_data, hops_left)
