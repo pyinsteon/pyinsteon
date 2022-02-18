@@ -2,7 +2,6 @@
 
 from ...address import Address
 from ...topics import GET_OPERATING_FLAGS
-from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 

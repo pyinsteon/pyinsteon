@@ -1,6 +1,5 @@
 """Thermostat temperature up command."""
 from ...topics import THERMOSTAT_TEMPERATURE_DOWN
-from .. import direct_ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 

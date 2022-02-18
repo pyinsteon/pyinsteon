@@ -11,11 +11,6 @@ class OffCommand(DirectCommandHandlerBase):
         """Init the OnLevelCommand class."""
         super().__init__(topic=OFF, address=address, group=group)
 
-    @property
-    def group(self):
-        """Return the group property."""
-        return self._group
-
     # pylint: disable=arguments-differ
     async def async_send(self):
         """Send the OFF command async."""
