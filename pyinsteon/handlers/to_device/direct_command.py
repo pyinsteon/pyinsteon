@@ -36,7 +36,6 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
                     async with self._response_lock:
                         return await self._message_response.get()
             except asyncio.TimeoutError:
-                # return ResponseStatus.DEVICE_UNRESPONSIVE
                 pass
         return ResponseStatus.FAILURE
 
@@ -49,13 +48,19 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
     @direct_nak_handler
     def handle_direct_nak(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the message ACK."""
-        if not self._response_lock.locked():
-            return
-        self._message_response.put_nowait(ResponseStatus.UNCLEAR)
+        if self._response_lock.locked():
+            self._message_response.put_nowait(ResponseStatus.UNCLEAR)
+            self._update_subscribers_on_nak(cmd1, cmd2, target, user_data, hops_left)
 
     @direct_ack_handler
     def handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the direct ACK."""
-        if not self._response_lock.locked():
-            return
-        self._message_response.put_nowait(ResponseStatus.SUCCESS)
+        if self._response_lock.locked():
+            self._message_response.put_nowait(ResponseStatus.SUCCESS)
+            self._update_subscribers(cmd1, cmd2, target, user_data, hops_left)
+
+    def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
+        """Update subscribers."""
+
+    def _update_subscribers_on_nak(self, cmd1, cmd2, target, user_data, hops_left):
+        """Update subscribers on NAK received."""

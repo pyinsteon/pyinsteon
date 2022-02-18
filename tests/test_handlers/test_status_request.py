@@ -22,10 +22,10 @@ class TestStatusRequest(unittest.TestCase):
         self.ack_topic = "ack.{}.status_request.direct".format(self._address.id)
         self.direct_ack_topic = "{}.any_topic.direct_ack".format(self._address.id)
         set_log_levels(
-            logger="info",
+            logger="debug",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=False,
+            logger_topics=True,
         )
 
     def set_status(self, db_version, status):
@@ -110,7 +110,7 @@ class TestStatusRequest(unittest.TestCase):
         status = 0x77
         topics = [
             TopicItem(
-                self.ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}, 0.5
+                self.ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}, 0.1
             ),
             TopicItem(
                 self.direct_ack_topic,
@@ -121,16 +121,20 @@ class TestStatusRequest(unittest.TestCase):
                     "user_data": None,
                     "hops_left": 3,
                 },
-                0.5,
+                0.1,
             ),
         ]
+        self.set_status(-1, -1)
+        self.set_status_1(-2, -2)
         send_topics(topics)
         assert await status_1_command.async_send()
-        await asyncio.sleep(1)
+
         assert self._db_version_1 == db_version
         assert self._status_1 == status
-        assert self._db_version is None
-        assert self._status is None
+
+        # Confirm status 1 did not respond.
+        assert self._status == -1
+        assert self._db_version == -1
 
 
 if __name__ == "__main__":
