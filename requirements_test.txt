@@ -9,7 +9,7 @@ pyflakes==2.3.1
 pycodestyle==2.7.0
 pydocstyle==6.0.0
 pylint==2.8.2
-isort==5.8.0
+isort==5.10.1
 async_generator
 black==21.5b1
 pytest-cov==3.0.0
