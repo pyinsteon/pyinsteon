@@ -21,7 +21,7 @@ class AllLinkCompletedHandler(InboundHandlerBase):
     @inbound_handler
     def handle_response(
         self,
-        mode: AllLinkMode,
+        link_mode: AllLinkMode,
         group: int,
         target: Address,
         cat: int,
@@ -30,7 +30,7 @@ class AllLinkCompletedHandler(InboundHandlerBase):
     ):
         """Recieve an all link record."""
         self._call_subscribers(
-            mode=mode,
+            link_mode=link_mode,
             group=group,
             target=target,
             cat=cat,

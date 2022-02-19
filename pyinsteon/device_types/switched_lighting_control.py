@@ -2,7 +2,7 @@
 from functools import partial
 from typing import Iterable
 
-from ..constants import ResponseStatus
+from ..constants import ResponseStatus, ToggleMode
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..extended_property import (
     LED_DIMMING,
@@ -325,20 +325,25 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
                 else:
                     off_mask.new_value = set_bit(off_mask.value, button - 1, False)
 
-    def set_toggle_mode(self, button: int, mode: int):
+    def set_toggle_mode(self, button: int, toggle_mode: ToggleMode):
         """Set the toggle mode of a button.
 
         Usage:
             button: Integer of the button number
-            mode: Integer of the mode
+            toggle_mode: Integer of the toggle mode
                 0: Toggle
                 1: Non-Toggle ON only
                 2: Non-Toggle OFF only
         """
         if button not in self._buttons.keys():
             raise ValueError(f"Button {button} not in button list.")
-        if mode not in [0, 1, 2]:
-            raise ValueError(f"Mode {mode} invalid. Valid mode are [0, 1, 2]")
+
+        try:
+            toggle_mode = ToggleMode(toggle_mode)
+        except ValueError as err:
+            raise ValueError(
+                "Toggle mode {toggle_mode} invalid. Valid modes are [0, 1, 2]"
+            ) from err
 
         toggle_mask = self.properties[NON_TOGGLE_MASK]
         on_off_mask = self.properties[NON_TOGGLE_ON_OFF_MASK]
@@ -356,10 +361,10 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         else:
             on_off_mask_test = on_off_mask.new_value
 
-        if mode == 0:
+        if toggle_mode == ToggleMode.TOGGLE:
             toggle_mask.new_value = set_bit(toggle_mask_test, button - 1, False)
             on_off_mask.new_value = set_bit(on_off_mask_test, button - 1, False)
-        elif mode == 1:
+        elif toggle_mode == ToggleMode.ON_ONLY:
             toggle_mask.new_value = set_bit(toggle_mask_test, button - 1, True)
             on_off_mask.new_value = set_bit(on_off_mask_test, button - 1, True)
         else:

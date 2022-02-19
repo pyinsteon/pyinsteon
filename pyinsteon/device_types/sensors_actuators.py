@@ -72,19 +72,19 @@ class SensorsActuators_IOLink(Device):
             return RelayMode.MOMENTARY_B
         return RelayMode.MOMENTARY_A
 
-    async def async_set_relay_mode(self, mode: RelayMode):
+    async def async_set_relay_mode(self, relay_mode: RelayMode):
         """Set the relay mode and write to device."""
-        mode = RelayMode(int(mode))
+        relay_mode = RelayMode(int(relay_mode))
         self._operating_flags[MOMENTARY_MODE_ON].new_value = not (
-            mode == RelayMode.LATCHING
+            relay_mode == RelayMode.LATCHING
         )
-        if mode == RelayMode.MOMENTARY_A:
+        if relay_mode == RelayMode.MOMENTARY_A:
             self._operating_flags[MOMENTARY_FOLLOW_SENSE].new_value = False
             self._operating_flags[MOMENTARY_ON_OFF_TRIGGER].new_value = False
-        if mode == RelayMode.MOMENTARY_B:
+        if relay_mode == RelayMode.MOMENTARY_B:
             self._operating_flags[MOMENTARY_FOLLOW_SENSE].new_value = False
             self._operating_flags[MOMENTARY_ON_OFF_TRIGGER].new_value = True
-        if mode == RelayMode.MOMENTARY_C:
+        if relay_mode == RelayMode.MOMENTARY_C:
             self._operating_flags[MOMENTARY_FOLLOW_SENSE].new_value = True
             self._operating_flags[MOMENTARY_ON_OFF_TRIGGER].new_value = False
         await self.async_write_op_flags()

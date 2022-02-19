@@ -271,7 +271,7 @@ def calc_thermostat_temp(high_byte, low_byte):
     return (low_byte | (high_byte << 8)) * 0.1
 
 
-def calc_thermostat_mode(mode_byte, sys_mode_map=None, sys_low=True):
+def calc_thermostat_mode(thermostat_mode_byte, sys_mode_map=None, sys_low=True):
     """Calculate the system and fan mode."""
     if sys_mode_map is None:
         sys_mode_map = {
@@ -281,8 +281,8 @@ def calc_thermostat_mode(mode_byte, sys_mode_map=None, sys_low=True):
             int(ThermostatMode.COOL): ThermostatMode.COOL,
         }
 
-    mode1 = mode_byte & 0x0F
-    mode2 = mode_byte >> 4
+    mode1 = thermostat_mode_byte & 0x0F
+    mode2 = thermostat_mode_byte >> 4
     system_mode, fan_mode = (mode1, mode2) if sys_low else (mode2, mode1)
     if fan_mode in (0, 4):
         fan_mode = ThermostatMode.FAN_AUTO
@@ -342,7 +342,7 @@ def unsubscribe_topic(listener, topic_name):
     topic_mgr = pub.getDefaultTopicMgr()
     topic = topic_mgr.getOrCreateTopic(topic_name)
     if pub.isSubscribed(listener, topicName=topic.name):
-        pub.unsubscribe(listener, topic.name)
+        pub.unsubscribe(listener, topic_name)
 
 
 def set_fan_speed(on_level):

@@ -76,7 +76,7 @@ class AllLinkRecordFlags:
         """Return the hex representation of the flags."""
         val = {
             "in use": 1 if self.is_in_use else 0,
-            "mode": 1 if bool(self.mode.value) else 0,
+            "link_mode": 1 if bool(self.link_mode.value) else 0,
             "bit5": 1 if self.is_bit_5_set else 0,
             "bit4": 1 if self.is_bit_4_set else 0,
             "bit3": 1 if self.is_bit_3_set else 0,
@@ -101,7 +101,7 @@ class AllLinkRecordFlags:
         match = match & test_values_eq(self.is_bit_4_set, other.is_bit_4_set)
         match = match & test_values_eq(self.is_bit_5_set, other.is_bit_5_set)
         match = match & test_values_eq(self.is_in_use, other.is_in_use)
-        match = match & test_values_eq(self.mode, other.mode)
+        match = match & test_values_eq(self.link_mode, other.link_mode)
         match = match & test_values_eq(self.is_hwm, other.is_hwm)
         return match
 
@@ -115,7 +115,7 @@ class AllLinkRecordFlags:
         return self._in_use
 
     @property
-    def mode(self):
+    def link_mode(self):
         """Return if the record is a responder or controller."""
         return self._mode
 

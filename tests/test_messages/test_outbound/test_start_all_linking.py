@@ -3,8 +3,9 @@ import unittest
 from binascii import unhexlify
 
 from pyinsteon.constants import AllLinkMode, MessageId
+
 # pylint: disable=unused-import
-from pyinsteon.protocol.messages.outbound import start_all_linking
+from pyinsteon.protocol.messages.outbound import start_all_linking  # noqa: F401
 from tests import set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
 
@@ -16,10 +17,10 @@ class TestStartAllLinking(unittest.TestCase, OutboundBase):
         """Test set up."""
         self.hex = "02640304"
         self.message_id = MessageId.START_ALL_LINKING
-        self.mode = AllLinkMode(0x03)
+        self.link_mode = AllLinkMode(0x03)
         self.group = int(0x04)
 
-        kwargs = {"group": self.group, "mode": self.mode}
+        kwargs = {"group": self.group, "link_mode": self.link_mode}
 
         super(TestStartAllLinking, self).base_setup(
             self.message_id, unhexlify(self.hex), **kwargs
@@ -32,8 +33,8 @@ class TestStartAllLinking(unittest.TestCase, OutboundBase):
         )
 
     def test_mode(self):
-        """Test mode."""
-        assert self.msg.mode == self.mode
+        """Test link_mode."""
+        assert self.msg.link_mode == self.link_mode
 
     def test_group(self):
         """Test group."""

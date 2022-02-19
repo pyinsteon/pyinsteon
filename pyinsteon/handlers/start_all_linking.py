@@ -13,15 +13,15 @@ class StartAllLinkingCommandHandler(OutboundHandlerBase):
         """Init the StartAllLinkingCommandHandler class."""
         super().__init__(topic=START_ALL_LINKING)
 
-    def send(self, mode: AllLinkMode, group: int = 0):
+    def send(self, link_mode: AllLinkMode, group: int = 0):
         """Send the Start All-Linking Command."""
-        super().send(mode=mode, group=group)
+        super().send(link_mode=link_mode, group=group)
 
-    async def async_send(self, mode: AllLinkMode, group: int = 0):
+    async def async_send(self, link_mode: AllLinkMode, group: int = 0):
         """Send the Start All-Linking Command."""
-        return await super().async_send(mode=mode, group=group)
+        return await super().async_send(link_mode=link_mode, group=group)
 
     @ack_handler
-    def handle_ack(self, mode: AllLinkMode, group: int):
+    def handle_ack(self, link_mode: AllLinkMode, group: int):
         """Handle the ACK message."""
-        super().handle_ack(mode=mode, group=group)
+        super().handle_ack(link_mode=link_mode, group=group)

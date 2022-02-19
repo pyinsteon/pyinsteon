@@ -1,4 +1,5 @@
 """Manage outbound ON command to a device."""
+
 from ...topics import OFF
 from .direct_command import DirectCommandHandlerBase
 

@@ -1,4 +1,5 @@
 """Constants used to ensure topic consistantancy."""
+DEVICE_LIST_CHANGED = "device_list_changed"
 
 STANDARD_RECEIVED = "standard_received"
 EXTENDED_RECEIVED = "extended_received"
@@ -30,6 +31,10 @@ SET_NAK_MESSAGE_BYTE = "set_nak_message_byte"
 SET_ACK_MESSAGE_TWO_BYTES = "set_ack_message_two_bytes"
 RF_SLEEP = "rf_sleep"
 GET_IM_CONFIGURATION = "get_im_configuration"
+READ_EEPROM = "read_eeprom"
+READ_EEPROM_RESPONSE = "read_eeprom_response"
+WRITE_EEPROM = "write_eeprom"
+
 # Command Topics
 ASSIGN_TO_ALL_LINK_GROUP = "assign_to_all_link_group"
 DELETE_FROM_ALL_LINK_GROUP = "delete_from_all_link_group"

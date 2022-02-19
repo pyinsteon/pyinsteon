@@ -30,7 +30,7 @@ class TestBroadcastMessageDedup(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=True,
+            logger_topics=False,
         )
 
     def create_topic(self, group, hops, delay):

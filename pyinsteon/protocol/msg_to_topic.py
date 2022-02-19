@@ -18,6 +18,8 @@ from ..topics import (
     LED_OFF,
     LED_ON,
     MANAGE_ALL_LINK_RECORD,
+    READ_EEPROM,
+    READ_EEPROM_RESPONSE,
     RESET_IM,
     RF_SLEEP,
     SEND_ALL_LINK_COMMAND,
@@ -28,6 +30,7 @@ from ..topics import (
     SET_NAK_MESSAGE_BYTE,
     START_ALL_LINKING,
     USER_RESET_DETECTED,
+    WRITE_EEPROM,
     X10_RECEIVED,
     X10_SEND,
 )
@@ -120,7 +123,7 @@ def all_linking_completed(msg: Inbound) -> (str, {}):
     """Create a topic from an ALL_LINKING_COMPLETED message."""
     topic = ALL_LINKING_COMPLETED
     kwargs = {
-        "mode": msg.mode,
+        "link_mode": msg.link_mode,
         "group": msg.group,
         "target": msg.target,
         "cat": msg.cat,
@@ -169,6 +172,23 @@ def all_link_cleanup_status_report(msg: Inbound) -> (str, {}):
     """Create a topic from an ALL_LINK_CLEANUP_STATUS_REPORT message."""
     topic = build_topic(ALL_LINK_CLEANUP_STATUS_REPORT, prefix=msg.ack)
     kwargs = {}
+    yield (topic, kwargs)
+
+
+def read_eeprom_response(msg: Inbound) -> (str, {}):
+    """Create a topic from an read_eeprom message."""
+    topic = build_topic(topic=READ_EEPROM_RESPONSE)
+    mem_addr = (msg.mem_hi << 8) + msg.mem_low + 7
+
+    kwargs = {
+        "mem_addr": mem_addr,
+        "flags": msg.flags,
+        "group": msg.group,
+        "target": msg.target,
+        "data1": msg.data1,
+        "data2": msg.data2,
+        "data3": msg.data3,
+    }
     yield (topic, kwargs)
 
 
@@ -236,7 +256,7 @@ def x10_send(msg: Inbound) -> (str, {}):
 def start_all_linking(msg: Inbound) -> (str, {}):
     """Create a topic from an start_all_linking message."""
     topic = build_topic(prefix=msg.ack, topic=START_ALL_LINKING)
-    kwargs = {"mode": msg.mode, "group": msg.group}
+    kwargs = {"link_mode": msg.link_mode, "group": msg.group}
     yield (topic, kwargs)
 
 
@@ -364,6 +384,29 @@ def get_im_configuration(msg: Inbound) -> (str, {}):
     yield (topic, kwargs)
 
 
+def read_eeprom(msg: Inbound) -> (str, {}):
+    """Create a topic from an read_eeprom message."""
+    topic = build_topic(prefix=msg.ack, topic=READ_EEPROM)
+    kwargs = {"mem_hi": msg.mem_hi, "mem_low": msg.mem_low}
+    yield (topic, kwargs)
+
+
+def write_eeprom(msg: Inbound) -> (str, {}):
+    """Create a topic from a write eeprom message."""
+    topic = build_topic(prefix=msg.ack, topic=WRITE_EEPROM)
+    mem_addr = (msg.mem_hi << 8) + msg.mem_low + 7
+    kwargs = {
+        "mem_addr": mem_addr,
+        "flags": msg.flags,
+        "group": msg.group,
+        "target": msg.target,
+        "data1": msg.data1,
+        "data2": msg.data2,
+        "data3": msg.data3,
+    }
+    yield (topic, kwargs)
+
+
 MSG_CONVERTER[0x50] = standard_received
 MSG_CONVERTER[0x51] = extended_received
 MSG_CONVERTER[0x52] = x10_received
@@ -373,6 +416,7 @@ MSG_CONVERTER[0x55] = user_reset_detected
 MSG_CONVERTER[0x56] = all_link_cleanup_failure_report
 MSG_CONVERTER[0x57] = all_link_record_response
 MSG_CONVERTER[0x58] = all_link_cleanup_status_report
+MSG_CONVERTER[0x59] = read_eeprom_response
 MSG_CONVERTER[0x60] = get_im_info
 MSG_CONVERTER[0x61] = send_all_link_command
 MSG_CONVERTER[0x62] = send_standard_or_extended_message
@@ -393,3 +437,5 @@ MSG_CONVERTER[0x70] = set_nak_message_byte
 MSG_CONVERTER[0x71] = set_ack_message_two_bytes
 MSG_CONVERTER[0x72] = rf_sleep
 MSG_CONVERTER[0x73] = get_im_configuration
+MSG_CONVERTER[0x75] = read_eeprom
+MSG_CONVERTER[0x76] = write_eeprom

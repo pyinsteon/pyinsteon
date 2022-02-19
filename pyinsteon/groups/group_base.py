@@ -62,3 +62,4 @@ class GroupBase(SubscriberBase):
     @abstractmethod
     def set_value(self, **kwargs):
         """Set the value of the state from a Handler."""
+        raise NotImplementedError

@@ -191,7 +191,7 @@ class HttpTransport(asyncio.Transport):
         _LOGGER.info("Insteon Hub reader stopped")
 
     def _check_strong_nak(self, buffer):
-        """Check if a NAK message is received with multiple NAKs.
+        """Check if a NAK message is received with multiple `NAKs`.
 
         There appears to be a bug in the Hub that produces a series
         of NAK codes rather than returning the original message

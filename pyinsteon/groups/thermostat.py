@@ -90,9 +90,9 @@ class SystemMode(GroupBase):
         super().__init__(name, address, group, default, value_type=ThermostatMode)
 
     # pylint: disable=arguments-differ
-    def set_value(self, mode: ThermostatMode):
+    def set_value(self, thermostat_mode: ThermostatMode):
         """Set the system mode value."""
-        self.value = mode
+        self.value = thermostat_mode
 
     @property
     def value(self):
@@ -134,9 +134,9 @@ class FanMode(GroupBase):
         super().__init__(name, address, group, default, value_type=ThermostatMode)
 
     # pylint: disable=arguments-differ
-    def set_value(self, mode: ThermostatMode):
+    def set_value(self, thermostat_mode: ThermostatMode):
         """Set the system mode value."""
-        self.value = mode
+        self.value = thermostat_mode
 
     @property
     def value(self):

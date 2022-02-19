@@ -42,18 +42,23 @@ async def async_connect(
     Returns an Insteon Modem (PLM or Hub).
 
     """
-    modem = await async_modem_connect(
-        device=device,
-        host=host,
-        port=port,
-        username=username,
-        password=password,
-        hub_version=hub_version,
-        **kwargs,
-    )
-    devices.modem = modem
-    devices.id_manager.start()
-    return devices
+    try:
+        modem = await async_modem_connect(
+            device=device,
+            host=host,
+            port=port,
+            username=username,
+            password=password,
+            hub_version=hub_version,
+            **kwargs,
+        )
+    except ConnectionError as err:
+        raise ConnectionError from err
+    else:
+        devices.modem = modem
+        devices.id_manager.start()
+        await devices.modem.async_get_configuration()
+        return devices
 
 
 async def async_close():

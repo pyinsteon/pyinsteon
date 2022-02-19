@@ -2,12 +2,14 @@
 import json
 import logging
 from os import path
+from typing import Dict
 
 import aiofiles
 
 from ..address import Address
 from ..aldb.aldb_record import ALDBRecord
 from ..constants import EngineVersion
+from ..device_types.device_base import Device
 from ..x10_address import X10Address
 from .device_id_manager import DeviceId
 from .utils import create_device
@@ -44,12 +46,13 @@ def _dict_to_device(device_dict):
     engine_version = device_dict.get("engine_version", 3)
     operating_flags = device_dict.get("operating_flags", {})
     properties = device_dict.get("properties", {})
+    first_mem_addr = device_dict.get("first_mem_addr")
     device_id = DeviceId(address, cat, subcat, firmware)
     device = create_device(device_id)
     if device:
         device.engine_version = engine_version
         aldb_records = dict_to_aldb_record(aldb)
-        device.aldb.load_saved_records(aldb_status, aldb_records)
+        device.aldb.load_saved_records(aldb_status, aldb_records, first_mem_addr)
         for flag in operating_flags:
             value = operating_flags[flag]
             if device.operating_flags.get(flag):
@@ -88,6 +91,15 @@ def _device_to_dict(device_list):
                 "operating_flags": operating_flags,
                 "properties": properties,
             }
+            try:
+                device_info["read_write_mode"] = device.aldb.read_write_mode
+                device_info["disable_auto_linking"] = device.aldb.disable_auto_linking
+                device_info["monitor_mode"] = device.aldb.monitor_mode
+                device_info["auto_led"] = device.aldb.auto_led
+                device_info["deadman"] = device.aldb.deadman
+            except AttributeError:
+                pass
+            device_info["first_mem_addr"] = device.aldb.first_mem_addr
             device_dict.append(device_info)
     return device_dict
 
@@ -212,7 +224,7 @@ class SavedDeviceManager:
         device_dict = _device_to_dict(device_list)
         await self._write_saved_devices(device_dict)
 
-    async def async_load(self) -> {}:
+    async def async_load(self) -> Dict[Address, Device]:
         """Load devices from the saved device file."""
         saved_devices = await self._read_saved_devices()
         device_list = {}
@@ -235,8 +247,13 @@ class SavedDeviceManager:
             else:
                 aldb_status = saved_device.get("aldb_status", 0)
                 aldb = saved_device.get("aldb", {})
+                read_write_mode = saved_device.get("read_write_mode", 0)
+                first_mem_ddr = saved_device.get("first_mem_addr")
                 aldb_records = dict_to_aldb_record(aldb)
-                self._modem.aldb.load_saved_records(aldb_status, aldb_records)
+                self._modem.aldb.load_saved_records(
+                    aldb_status, aldb_records, first_mem_ddr
+                )
+                self._modem.aldb.read_write_mode = read_write_mode
         return device_list
 
     async def _read_saved_devices(self):
