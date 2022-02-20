@@ -133,7 +133,7 @@ class GetSetExtendedPropertyManager:
         if self._groups.get(group) is None:
             return
         for field in self._groups[group]:
-            value = data.get("data{}".format(field))
+            value = data.get(f"data{field}")
             self._update_one_field(group=group, field=field, value=value)
         self._response_queue.put_nowait(ResponseStatus.SUCCESS)
 

@@ -31,7 +31,7 @@ async def async_connect_socket(host, protocol, port=None):
 
     port = 9761 if not port else port
     loop = asyncio.get_event_loop()
-    url = "socket://{}:{}".format(host, port)
+    url = f"socket://{host}:{port}"
     try:
         ser = serial.serial_for_url(url=url, baudrate=19200)
         transport = SerialTransport(loop, protocol, ser, device=url)

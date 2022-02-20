@@ -74,5 +74,5 @@ class OperatingFlag(DeviceFlagBase):
     ):
         """Init the OperatingFlag class."""
         self._address = Address(address)
-        topic = "{}.operating_flag.{}".format(self._address.id, name)
+        topic = f"{self._address.id}.operating_flag.{name}"
         super().__init__(topic, name, flag_type, is_reversed, is_read_only)

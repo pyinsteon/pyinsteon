@@ -72,7 +72,7 @@ class HttpReaderWriter:
                         else:
                             _log_error(response.status)
                             raise HubConnectionException(
-                                "Connection status error: {}".format(response.status)
+                                f"Connection status error: {response.status}"
                             )
         except (asyncio.TimeoutError, ClientError) as ex:
             await session.close()
@@ -138,7 +138,7 @@ class HttpReaderWriter:
                 # The buffer was probably reset since the last read
                 buffer_hi = ""
             buffer_low = raw_text[0:this_stop]
-            buffer = "{:s}{:s}".format(buffer_hi, buffer_low)
+            buffer = f"{buffer_hi}{buffer_low}"
         else:
             buffer = None
         await self._set_last_read(this_stop)

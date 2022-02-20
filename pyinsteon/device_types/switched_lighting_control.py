@@ -342,7 +342,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
             toggle_mode = ToggleMode(toggle_mode)
         except ValueError as err:
             raise ValueError(
-                "Toggle mode {toggle_mode} invalid. Valid modes are [0, 1, 2]"
+                f"Toggle mode {toggle_mode} invalid. Valid modes are [0, 1, 2]"
             ) from err
 
         toggle_mask = self.properties[NON_TOGGLE_MASK]
@@ -411,7 +411,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
     def _change_led_status(self, led, is_on):
         leds = {}
         for curr_led in range(1, 9):
-            var = "group{}".format(curr_led)
+            var = f"group{curr_led}"
             curr_group = self._groups.get(curr_led)
             curr_val = bool(curr_group.value) if curr_group else False
             leds[var] = is_on if curr_led == led else curr_val

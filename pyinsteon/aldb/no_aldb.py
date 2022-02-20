@@ -29,7 +29,7 @@ class NoALDB:
     def __repr__(self):
         """Human representation of a device from the ALDB."""
         attrs = vars(self)
-        return ", ".join("%s: %r" % item for item in attrs.items())
+        return ", ".join(f"{k}: {repr(v)}" for k, v in attrs.items())
 
     @property
     def is_loaded(self) -> bool:

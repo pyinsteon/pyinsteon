@@ -46,7 +46,7 @@ def create(housecode: str, unitcode: int):
         byte_housecode = housecode_to_byte(housecode)
     else:
         if isinstance(housecode, str):
-            str_error = "X10 house code invalid: {}".format(housecode)
+            str_error = f"X10 house code invalid: {housecode}"
         else:
             str_error = "X10 house code is not a string"
             raise ValueError(str_error)
@@ -57,7 +57,7 @@ def create(housecode: str, unitcode: int):
         byte_unitcode = unitcode_to_byte(unitcode)
     else:
         if isinstance(unitcode, int):
-            str_error = "X10 unit code error: {}".format(unitcode)
+            str_error = f"X10 unit code error: {unitcode}"
         else:
             str_error = "X10 unit code is not an integer 1 - 16"
             raise ValueError(str_error)
@@ -105,7 +105,7 @@ class X10Address:
             return self.housecode_byte
         if byte == 1:
             return self.unitcode_byte
-        err = "Item index must be 0 or 1: {}".format(byte)
+        err = f"Item index must be 0 or 1: {byte}"
         raise ValueError(err)
 
     def __hash__(self):

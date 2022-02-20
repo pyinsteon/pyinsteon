@@ -21,7 +21,7 @@ class ThermostatCoolSetPointHandler(InboundHandlerBase):
             message_type=MessageFlagType.DIRECT,
         )
         self._subscriber_topic = build_topic(
-            prefix="handler.{}".format(self._address.id),  # Force address
+            prefix=f"handler.{self._address.id}",  # Force address
             topic=THERMOSTAT_COOL_SET_POINT_STATUS,
             message_type=MessageFlagType.DIRECT,
         )

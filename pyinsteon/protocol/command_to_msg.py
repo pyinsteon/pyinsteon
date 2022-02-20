@@ -433,7 +433,7 @@ def extended_get_set(
     data = {}
     items = locals()
     for index in range(1, 15):
-        data["d{}".format(index)] = items["data{}".format(index)]
+        data[f"d{index}"] = items[f"data{index}"]
     user_data = UserData(data)
     _create_direct_message(
         topic=topic, address=address, cmd2=0, user_data=user_data, crc=crc
@@ -463,7 +463,7 @@ def extended_get_set_2(
     data = {}
     items = locals()
     for index in range(1, 15):
-        data["d{}".format(index)] = items["data{}".format(index)]
+        data[f"d{index}"] = items[f"data{index}"]
     user_data = UserData(data)
     _create_direct_message(
         topic=topic, address=address, cmd2=0x02, user_data=user_data, crc=True

@@ -51,5 +51,5 @@ class ExtendedProperty(DeviceFlagBase):
     ):
         """Init the ExtendedProperty class."""
         self._address = Address(address)
-        topic = "{}.property.{}".format(self._address.id, name)
+        topic = f"{self._address.id}.property.{name}"
         super().__init__(topic, name, flag_type, is_reversed, is_read_only)

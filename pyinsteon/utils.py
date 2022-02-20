@@ -114,12 +114,12 @@ def vars_to_string(vals: Iterable) -> str:
         elif isinstance(val, (Enum, IntEnum)):
             valstr = str(val)
         elif isinstance(val, int):
-            valstr = "0x{0:02x}".format(val)
+            valstr = f"0x{val:02x}"
         elif isinstance(val, bytes):
-            valstr = "0x{:s}".format(val.hex())
+            valstr = f"0x{val.hex():s}"
         else:
             valstr = str(val)
-        output.append("{}: {}".format(fld, valstr))
+        output.append(f"{fld}: {valstr}")
     return ", ".join(output)
 
 
@@ -132,12 +132,12 @@ def vars_to_repr(vals: Iterable) -> str:
         elif isinstance(val, (Enum, IntEnum)):
             valstr = repr(val)
         elif isinstance(val, int):
-            valstr = "0x{0:02x}".format(val)
+            valstr = f"0x{val:02x}"
         elif isinstance(val, bytes):
-            valstr = "0x{:s}".format(val.hex())
+            valstr = f"0x{val.hex():s}"
         else:
             valstr = repr(val)
-        output.append("{}: {}".format(fld, valstr))
+        output.append(f"{fld}: {valstr}")
     return ", ".join(output)
 
 
@@ -185,18 +185,18 @@ def build_topic(topic, prefix=None, address=None, group=None, message_type=None)
     full_topic = ""
     if prefix is not None:
         # Adding the . separator since there must be something after a prefix
-        full_topic = "{}.".format(str(prefix))
+        full_topic = f"{prefix}."
 
     if _include_address(prefix, topic, address, message_type):
         addr = address.id if isinstance(address, Address) else address
-        full_topic = "{}{}.".format(full_topic, addr)
+        full_topic = f"{full_topic}{addr}."
         if commands.use_group(topic) and group is not None:
             group = group if group else 1
-            full_topic = "{}{}.".format(full_topic, group)
+            full_topic = f"{full_topic}{group}."
 
-    full_topic = "{}{}".format(full_topic, topic)
+    full_topic = f"{full_topic}{topic}"
     if message_type is not None:
-        full_topic = "{}.{}".format(full_topic, str(message_type))
+        full_topic = f"{full_topic}.{message_type}"
     return full_topic
 
 

@@ -16,7 +16,7 @@ def topic_to_message_handler(topic, register_list):
     """Register handler to topic."""
 
     def register(func):
-        register_list["send.{}".format(topic)] = func
+        register_list[f"send.{topic}"] = func
         return func
 
     return register
@@ -26,7 +26,7 @@ def topic_to_command_handler(topic, register_list):
     """Register handler to topic."""
 
     def register(func):
-        register_list["send.{}".format(topic)] = func
+        register_list[f"send.{topic}"] = func
         return func
 
     return register

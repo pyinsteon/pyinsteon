@@ -54,7 +54,7 @@ class Event(SubscriberBase):
         self._group = group
         self._name = name
         self._button = button
-        topic = "event_{}_{}_{}".format(self._address.id, group, name)
+        topic = f"event_{self._address.id}_{group}_{name}"
         super().__init__(subscriber_topic=topic)
 
     @property

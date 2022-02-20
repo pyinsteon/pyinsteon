@@ -134,7 +134,7 @@ class HttpTransport(asyncio.Transport):
 
     async def async_test_connection(self):
         """Test the connection to the hub."""
-        url = "http://{:s}:{:d}/buffstatus.xml".format(self._host, self._port)
+        url = f"http://{self._host}:{self._port}/buffstatus.xml"
         response = await self._reader_writer.async_test_connection(url)
         if not response:
             self.close()
@@ -150,7 +150,7 @@ class HttpTransport(asyncio.Transport):
 
     async def _clear_buffer(self):
         _LOGGER.debug("..................Clearing the buffer..............")
-        url = "http://{:s}:{:d}/1?XB=M=1".format(self._host, self._port)
+        url = f"http://{self._host}:{self._port}/1?XB=M=1"
         await self._async_write_url(url)
 
     # pylint: disable=broad-except
@@ -158,7 +158,7 @@ class HttpTransport(asyncio.Transport):
         _LOGGER.info("Insteon Hub reader started")
         await self._clear_buffer()
         await self._reader_writer.reset_reader()
-        url = "http://{:s}:{:d}/buffstatus.xml".format(self._host, self._port)
+        url = f"http://{self._host}:{self._port}/buffstatus.xml"
         retry = 0
         while not self._closing:
             buffer = None

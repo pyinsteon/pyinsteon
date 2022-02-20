@@ -55,13 +55,13 @@ class MessageFlags:
     def __repr__(self):
         """Representation of the message flags."""
         int_self = int.from_bytes(bytes(self), byteorder="big")
-        return "0x{:02x}".format(int_self)
+        return f"0x{int_self:02x}"
 
     def __str__(self):
         """Return a hexadecimal representation of the message flags."""
-        val = "{}'message_type': '{}', 'extended': {}, 'hops_left': {}, 'max_hops': {}{}".format(
-            "{", str(self._type), self._extended, self._hops_left, self._max_hops, "}"
-        )
+        start = "{"
+        end = "}"
+        val = f"{start}'message_type': '{self._type}', 'extended': {self._extended}, 'hops_left': {self._hops_left}, 'max_hops': {self._max_hops}{end}"
         return val
 
     def __bytes__(self):

@@ -130,7 +130,7 @@ class ToolsConfig(ToolsBase):
         for prop_name in device.properties:
             prop_names.append(prop_name)
 
-        if prop_names:
+        if not prop_names:
             log_stdout(f"Device {address} has no configurable settings.")
             return
 

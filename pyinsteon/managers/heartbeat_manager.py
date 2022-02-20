@@ -26,7 +26,7 @@ class HeartbeatManager(SubscriberBase):
         self._address = Address(address)
         self._group = group
         self._max_duration = max_duration
-        subscriber_topic = "subscriber_{}_heartbeat".format(self._address.id)
+        subscriber_topic = f"subscriber_{self._address.id}_heartbeat"
         super().__init__(subscriber_topic)
 
         self._on_inbound = OnLevelInbound(self._address, self._group)
@@ -34,8 +34,8 @@ class HeartbeatManager(SubscriberBase):
         self._on_inbound.subscribe(self._on_heartbeat_received)
         self._off_inbound.subscribe(self._off_heartbeat_received)
 
-        self._on_hb = self.OnOffHeartbeat("{}_{}".format(subscriber_topic, "on"))
-        self._off_hb = self.OnOffHeartbeat("{}_{}".format(subscriber_topic, "off"))
+        self._on_hb = self.OnOffHeartbeat(f"{subscriber_topic}_on")
+        self._off_hb = self.OnOffHeartbeat(f"{subscriber_topic}_off")
 
         self._last_heartbeat = datetime.now()
         self._schedule_next_check()
