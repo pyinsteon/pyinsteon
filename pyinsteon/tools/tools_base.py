@@ -304,10 +304,11 @@ class ToolsBase(Cmd):
                 try:
                     doc = getattr(self, "menu_" + arg).__doc__
                     if doc:
-                        self.stdout.write("%s\n" % str(doc))
+                        self.stdout.write(f"{doc}\n")
                         return
                 except AttributeError:
                     pass
+                # pylint: disable=consider-using-f-string
                 self.stdout.write("%s\n" % str(self.nohelp % (arg,)))
                 return
             func()
