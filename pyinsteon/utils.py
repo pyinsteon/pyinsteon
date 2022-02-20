@@ -185,7 +185,7 @@ def build_topic(topic, prefix=None, address=None, group=None, message_type=None)
     full_topic = ""
     if prefix is not None:
         # Adding the . separator since there must be something after a prefix
-        full_topic = f"{prefix}."
+        full_topic = f"{str(prefix).lower()}."
 
     if _include_address(prefix, topic, address, message_type):
         addr = address.id if isinstance(address, Address) else address
@@ -196,7 +196,7 @@ def build_topic(topic, prefix=None, address=None, group=None, message_type=None)
 
     full_topic = f"{full_topic}{topic}"
     if message_type is not None:
-        full_topic = f"{full_topic}.{message_type}"
+        full_topic = f"{full_topic}.{str(message_type).lower()}"
     return full_topic
 
 

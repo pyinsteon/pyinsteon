@@ -61,7 +61,7 @@ class MessageFlags:
         """Return a hexadecimal representation of the message flags."""
         start = "{"
         end = "}"
-        val = f"{start}'message_type': '{self._type}', 'extended': {self._extended}, 'hops_left': {self._hops_left}, 'max_hops': {self._max_hops}{end}"
+        val = f"{start}'message_type': '{str(self._type)}', 'extended': {self._extended}, 'hops_left': {self._hops_left}, 'max_hops': {self._max_hops}{end}"
         return val
 
     def __bytes__(self):
