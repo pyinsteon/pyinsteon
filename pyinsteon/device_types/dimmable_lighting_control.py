@@ -72,8 +72,8 @@ class DimmableLightingControl(VariableResponderBase):
     def _register_handlers_and_managers(self):
         """Register command handlers and managers."""
         super()._register_handlers_and_managers()
-        for group in self._groups:
-            if isinstance(self._groups[group], OnLevel):
+        for group, group_prop in self._groups.items():
+            if isinstance(group_prop, OnLevel):
                 self._handlers[group]["manual_change"] = ManualChangeInbound(
                     self._address, group
                 )
@@ -81,8 +81,8 @@ class DimmableLightingControl(VariableResponderBase):
     def _subscribe_to_handelers_and_managers(self):
         """Subscribe methods to handlers and managers."""
         super()._subscribe_to_handelers_and_managers()
-        for group in self._groups:
-            if isinstance(self._groups[group], OnLevel):
+        for group, group_prop in self._groups.items():
+            if isinstance(group_prop, OnLevel):
                 self._handlers[group]["manual_change"].subscribe(self._on_manual_change)
 
     def _on_manual_change(self):
@@ -283,10 +283,7 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         fan_status = await self.async_fan_status()
         if light_status == fan_status == ResponseStatus.SUCCESS:
             return ResponseStatus.SUCCESS
-        if (
-            light_status == ResponseStatus.UNCLEAR
-            or fan_status == ResponseStatus.UNCLEAR
-        ):
+        if ResponseStatus.UNCLEAR in (light_status, fan_status):
             return ResponseStatus.UNCLEAR
         return ResponseStatus.FAILURE
 
@@ -515,7 +512,7 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
             toggle_mode = ToggleMode(toggle_mode)
         except ValueError as err:
             raise ValueError(
-                "Toggle mode {toggle_mode} invalid. Valid modes are [0, 1, 2]"
+                f"Toggle mode {toggle_mode} invalid. Valid modes are [0, 1, 2]"
             ) from err
 
         toggle_mask = self.properties[NON_TOGGLE_MASK]
@@ -550,8 +547,8 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         self._handlers[GET_LEDS_COMMAND] = StatusRequestCommand(
             self._address, status_type=1
         )
-        for group in self._groups:
-            if isinstance(self._groups[group], OnLevel):
+        for group, group_prop in self._groups.items():
+            if isinstance(group_prop, OnLevel):
                 self._handlers[group]["manual_change"] = ManualChangeInbound(
                     self._address, group
                 )
@@ -595,7 +592,7 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
     def _change_led_status(self, led, is_on):
         leds = {}
         for curr_led in range(1, 9):
-            var = "group{}".format(curr_led)
+            var = f"group{curr_led}"
             curr_group = self._groups.get(curr_led)
             curr_val = bool(curr_group.value) if curr_group else False
             leds[var] = is_on if curr_led == led else curr_val

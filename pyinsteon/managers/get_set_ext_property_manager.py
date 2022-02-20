@@ -93,8 +93,8 @@ class GetSetExtendedPropertyManager:
     async def async_write(self):
         """Set the properties for a group."""
         results = []
-        for name in self._properties:
-            if self._properties[name].is_dirty:
+        for name, prop in self._properties.items():
+            if prop.is_dirty:
                 group = self._flags[name].group
                 data_field = self._flags[name].data_field
                 result = await self._write_flag(name, group, data_field)
@@ -133,7 +133,7 @@ class GetSetExtendedPropertyManager:
         if self._groups.get(group) is None:
             return
         for field in self._groups[group]:
-            value = data.get("data{}".format(field))
+            value = data.get(f"data{field}")
             self._update_one_field(group=group, field=field, value=value)
         self._response_queue.put_nowait(ResponseStatus.SUCCESS)
 

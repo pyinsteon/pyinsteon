@@ -184,9 +184,8 @@ class AdvancedTools(ToolsAldb):
         log_stdout(
             "-------- -------- --------- ----- ---- ----------------------------------------"
         )
-        for address in broken_links:
-            for mem_addr in broken_links[address]:
-                rec, status = broken_links[address][mem_addr]
+        for address, broken_link in broken_links.items():
+            for mem_addr, rec, status in broken_link:
                 if status == LinkStatus.MISSING_CONTROLLER:
                     status_txt = "Missing controller"
                 elif status == LinkStatus.MISSING_RESPONDER:
@@ -282,7 +281,7 @@ class AdvancedTools(ToolsAldb):
             "force",
         ]
 
-        kwargs_found = kwargs is not None and kwargs != {}
+        kwargs_found = bool(kwargs)
         changes = {}
         while True:
             if kwargs_found:
@@ -495,7 +494,7 @@ class AdvancedTools(ToolsAldb):
             self._log_stdout(f"Could not load the file {location}/{filename}")
             return
         aldb_recs = dict_to_aldb_record(aldb_dict)
-        aldb_array = [aldb_recs[mem_addr] for mem_addr in aldb_recs]
+        aldb_array = [rec for _, rec in aldb_recs.items()]
         self._log_stdout("Preview of changes:")
         self._print_aldb_output(self._log_stdout, device, aldb_array)
         confirm = await self._ensure_bool(

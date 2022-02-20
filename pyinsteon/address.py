@@ -21,10 +21,10 @@ def _normalize(addr):
         addr_clean = addr.replace(".", "")
         try:
             if len(addr_clean) != 6:
-                raise ValueError("Improper address value: {}".format(addr))
+                raise ValueError(f"Improper address value: {addr}")
             normalize = binascii.unhexlify(addr_clean.lower())
         except binascii.Error:
-            raise ValueError("Improper address value: {}".format(addr))
+            raise ValueError(f"Improper address value: {addr}")
     return normalize
 
 
@@ -43,9 +43,7 @@ class Address:
 
     def __str__(self):
         """Emit the address in human-readible format (AA.BB.CC)."""
-        return "{}.{}.{}".format(
-            self.__repr__()[0:2], self.__repr__()[2:4], self.__repr__()[4:6]
-        ).upper()
+        return f"{self.__repr__()[0:2]}.{self.__repr__()[2:4]}.{self.__repr__()[4:6]}".upper()
 
     def __bytes__(self):
         """Return the bytes representation of the address."""

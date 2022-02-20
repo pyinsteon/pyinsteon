@@ -37,10 +37,10 @@ class X10Received(InboundHandlerBase):
             X10Commands.ALL_LIGHTS_ON,
             X10Commands.ALL_UNITS_OFF,
         ]:
-            topic = "x10{}.{}".format(housecode.lower(), str(cmd))
+            topic = f"x10{housecode.lower()}.{str(cmd).lower()}"
         if self._last_housecode == housecode and self._last_unitcode is not None:
             address = create(housecode, self._last_unitcode)
-            topic = "{}.{}".format(address.id, str(cmd))
+            topic = f"{address.id}.{str(cmd).lower()}"
         if topic:
             pub.sendMessage(topic)
             self._last_housecode = None

@@ -71,7 +71,7 @@ class ALDBBase(ABC):
     def __repr__(self):
         """Human representation of a device from the ALDB."""
         attrs = vars(self)
-        return ", ".join("%s: %r" % item for item in attrs.items())
+        return ", ".join(f"{k}: {repr(v)}" for k, v in attrs.items())
 
     @property
     def address(self) -> Address:
@@ -96,8 +96,7 @@ class ALDBBase(ABC):
     @property
     def high_water_mark_mem_addr(self) -> int:
         """Return the High Water Mark record memory address."""
-        for mem_addr in self._records:
-            rec = self._records[mem_addr]
+        for mem_addr, rec in self._records.items():
             if rec.is_high_water_mark:
                 return mem_addr
         return None
@@ -121,8 +120,7 @@ class ALDBBase(ABC):
 
         This does not write to the device.
         """
-        for mem in self._records:
-            rec = self._records[mem]
+        for _, rec in self._records.items():
             self._notify_change(rec, force_delete=True)
         self._records = {}
         self._dirty_records = {}
@@ -143,8 +141,7 @@ class ALDBBase(ABC):
         a `responder` record that is not in the `controller`
         All-Link Database.
         """
-        for mem_addr in self._records:
-            rec = self._records[mem_addr]
+        for _, rec in self._records.items():
             if rec.is_controller and rec.group == group:
                 yield rec.target
 
@@ -345,8 +342,7 @@ class ALDBBase(ABC):
         ):
             raise ValueError("Must have at least one criteria")
 
-        for mem_addr in self._records:
-            rec = self._records[mem_addr]
+        for _, rec in self._records.items():
             group_match = group is None or rec.group == group
             target_match = target is None or rec.target == target
             is_controller_match = (
@@ -415,8 +411,7 @@ class ALDBBase(ABC):
         ):
             return existing_record.mem_addr
 
-        for mem_addr in self._records:
-            rec = self._records[mem_addr]
+        for mem_addr, rec in self._records.items():
             if not rec.is_in_use or rec.is_high_water_mark:
                 # This should always be the return if the ALDB is loaded
                 return mem_addr
@@ -457,8 +452,7 @@ class ALDBBase(ABC):
         irrelivant.
         """
         curr_hwm_mem_addr = 0x0000
-        for curr_mem_addr in self._records:
-            curr_rec = self._records[curr_mem_addr]
+        for curr_mem_addr, curr_rec in self._records.items():
             if curr_rec.is_high_water_mark:
                 curr_hwm_mem_addr = curr_mem_addr
                 break

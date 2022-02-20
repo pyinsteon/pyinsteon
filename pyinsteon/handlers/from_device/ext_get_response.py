@@ -22,7 +22,7 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
             message_type=MessageFlagType.DIRECT,
         )
         self._subscriber_topic = build_topic(
-            prefix="handler.{}".format(self._address.id),  # Force address
+            prefix=f"handler.{self._address.id}",  # Force address
             topic=EXTENDED_GET_RESPONSE,
             message_type=MessageFlagType.DIRECT,
         )
@@ -32,5 +32,5 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
         """Handle the Extended Get response from a device."""
         data = OrderedDict()
         for item in range(3, 15):
-            data["data{}".format(item)] = user_data["d{}".format(item)]
+            data[f"data{item}"] = user_data[f"d{item}"]
         self._call_subscribers(group=user_data["d1"], data=data)

@@ -304,10 +304,11 @@ class ToolsBase(Cmd):
                 try:
                     doc = getattr(self, "menu_" + arg).__doc__
                     if doc:
-                        self.stdout.write("%s\n" % str(doc))
+                        self.stdout.write(f"{doc}\n")
                         return
                 except AttributeError:
                     pass
+                # pylint: disable=consider-using-f-string
                 self.stdout.write("%s\n" % str(self.nohelp % (arg,)))
                 return
             func()
@@ -1370,9 +1371,9 @@ class ToolsBase(Cmd):
                 if values and not values_text:
                     val_length = 6
                     for val in values:
-                        for val_range in convert_length:
+                        for val_range, convert_len in convert_length.items():
                             if val in val_range:
-                                val_length = convert_length[val_range]
+                                val_length = convert_len
                                 break
                         if val_length == 2:
                             values_text.append(f"{val:02x}")

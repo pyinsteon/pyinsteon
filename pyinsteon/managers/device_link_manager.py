@@ -7,7 +7,7 @@ from ..utils import subscribe_topic
 
 
 def _controller_group_topic(responder, group):
-    return "{}.{}".format(responder.id, group)
+    return f"{responder.id}.{group}"
 
 
 def _topic_to_addr_group(topic):

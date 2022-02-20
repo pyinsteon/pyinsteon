@@ -21,7 +21,7 @@ def create_empty(val=0x00):
     """
     user_data_dict = {}
     for index in range(1, 15):
-        key = "d{}".format(index)
+        key = f"d{index}"
         user_data_dict.update({key: val})
     return user_data_dict
 
@@ -52,7 +52,7 @@ def _dict_to_dict(empty, user_data):
 def _bytes_to_dict(empty, user_data):
     if len(user_data) == 14:
         for index in range(1, 15):
-            key = "d{}".format(index)
+            key = f"d{index}"
             empty[key] = user_data[index - 1]
     else:
         raise ValueError
@@ -133,7 +133,7 @@ class UserData:
         """Emit the user data in human readable format."""
         data = []
         for index in range(1, 15):
-            key = "d{}".format(index)
+            key = f"d{index}"
             val = self._user_data[key]
             data.append((key, val))
         return vars_to_string(data)
@@ -161,7 +161,7 @@ class UserData:
         """Set the checksum."""
         data_sum = cmd1 + cmd2
         for index in range(1, 14):
-            data_sum += self._user_data["d{:d}".format(index)]
+            data_sum += self._user_data[f"d{index}"]
         chksum = 0xFF - (data_sum & 0xFF) + 1
         self._user_data["d14"] = chksum & 0xFF
 

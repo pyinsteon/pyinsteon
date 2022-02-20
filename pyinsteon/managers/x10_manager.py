@@ -29,10 +29,10 @@ class X10OnOffManager(SubscriberBase):
 
     def __init__(self, address: X10Address):
         """Init the X10OnOffManager class."""
-        topic = "subscribers.{}.on_off".format(address.id)
+        topic = f"subscribers.{address.id}.on_off"
         super().__init__(subscriber_topic=topic)
-        on_topic = "{}.{}".format(address.id, str(X10Commands.ON))
-        off_topic = "{}.{}".format(address.id, str(X10Commands.OFF))
+        on_topic = f"{address.id}.{str(X10Commands.ON)}"
+        off_topic = f"{address.id}.{str(X10Commands.OFF)}"
         subscribe_topic(self._on_received, on_topic)
         subscribe_topic(self._off_received, off_topic)
         self._on_subscriber_topic = f"{self._subscriber_topic}_on"
@@ -62,10 +62,10 @@ class X10DimBrightenManager(SubscriberBase):
 
     def __init__(self, address: X10Address):
         """Init the X10OnOffManager class."""
-        topic = "subscribers.{}.dim_bright".format(address.id)
+        topic = f"subscribers.{address.id}.dim_bright"
         super().__init__(subscriber_topic=topic)
-        dim_topic = "{}.{}".format(address.id, str(X10Commands.DIM))
-        bright_topic = "{}.{}".format(address.id, str(X10Commands.BRIGHT))
+        dim_topic = f"{address.id}.{str(X10Commands.DIM)}"
+        bright_topic = f"{address.id}.{str(X10Commands.BRIGHT)}"
         subscribe_topic(self._dim_received, dim_topic)
         subscribe_topic(self._bright_received, bright_topic)
 
@@ -83,14 +83,10 @@ class X10AllLightsOnOffManager(SubscriberBase):
 
     def __init__(self, address: X10Address):
         """Init the X10OnOffManager class."""
-        topic = "subscribers.{}.all_lights_on_off".format(address.id)
+        topic = f"subscribers.{address.id}.all_lights_on_off"
         super().__init__(subscriber_topic=topic)
-        on_topic = "x10{}.{}".format(
-            address.housecode.lower(), str(X10Commands.ALL_LIGHTS_ON)
-        )
-        off_topic = "x10{}.{}".format(
-            address.housecode.lower(), str(X10Commands.ALL_LIGHTS_OFF)
-        )
+        on_topic = f"x10{address.housecode.lower()}.{str(X10Commands.ALL_LIGHTS_ON)}"
+        off_topic = f"x10{address.housecode.lower()}.{str(X10Commands.ALL_LIGHTS_OFF)}"
         subscribe_topic(self._on_received, on_topic)
         subscribe_topic(self._off_received, off_topic)
         self._on_subscriber_topic = f"{self._subscriber_topic}_on"
@@ -122,11 +118,9 @@ class X10AllUnitsOffManager(SubscriberBase):
 
     def __init__(self, address: X10Address):
         """Init the X10AllUnitsOffManager class."""
-        topic = "subscribers.{}.{}".format(address.id, str(X10Commands.ALL_UNITS_OFF))
+        topic = f"subscribers.{address.id}.{str(X10Commands.ALL_UNITS_OFF)}"
         super().__init__(subscriber_topic=topic)
-        off_topic = "x10{}.{}".format(
-            address.housecode.lower(), str(X10Commands.ALL_UNITS_OFF)
-        )
+        off_topic = f"x10{address.housecode.lower()}.{str(X10Commands.ALL_UNITS_OFF)}"
         subscribe_topic(self._off_received, off_topic)
 
     def _off_received(self):

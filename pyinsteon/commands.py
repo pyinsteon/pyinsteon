@@ -220,8 +220,7 @@ class Commands:
     def get_topics(self, cmd1, cmd2, user_data=None, send=False) -> str:
         """Generate a topic from a cmd1, cmd2 and extended flag."""
         found = False
-        for topic in self._topics:
-            command = self._topics[topic]
+        for topic, command in self._topics.items():
             if _check_match(command, cmd1, cmd2, user_data):
                 found = True
                 yield topic

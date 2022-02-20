@@ -55,8 +55,7 @@ _LOGGER = logging.getLogger(__name__)
 
 def register_outbound_handlers():
     """Register outbound handlers."""
-    for topic in topic_register:
-        func = topic_register[topic]
+    for topic, func in topic_register.items():
         subscribe_topic(func, topic)
 
 
@@ -98,7 +97,7 @@ def _create_outbound_message(topic, priority=5, **kwargs) -> Outbound:
     msg_id = getattr(MessageId, topic.upper())
     msg_def = OUTBOUND_MSG_DEF[msg_id]
     msg = Outbound(msg_def, **kwargs)
-    publish_topic("send_message.{}".format(topic), msg=msg, priority=priority)
+    publish_topic(f"send_message.{topic}", msg=msg, priority=priority)
 
 
 @topic_to_message_handler(
@@ -144,9 +143,9 @@ def send_standard(
     flags = flags if flags is not None else _create_flags(topic, False)
     kwargs = {"address": address, "flags": flags, "cmd1": cmd1, "cmd2": cmd2}
     msg_def = MessageDefinition(MessageId.SEND_EXTENDED, FLD_STD_SEND)
-    send_topic = "send_message.{}".format(main_topic)
+    send_topic = f"send_message.{main_topic}"
     if msg_type is not None:
-        send_topic = "{}.{}".format(send_topic, msg_type)
+        send_topic = f"{send_topic}.{msg_type}"
     msg = Outbound(msg_def, **kwargs)
     publish_topic(send_topic, msg=msg, priority=priority)
 
@@ -172,7 +171,7 @@ def send_extended(
         "user_data": user_data,
     }
     msg_def = MessageDefinition(MessageId.SEND_EXTENDED, FLD_EXT_SEND)
-    send_topic = "send_message.{}".format(main_topic)
+    send_topic = f"send_message.{main_topic}"
     msg = Outbound(msg_def, **kwargs)
     publish_topic(send_topic, msg=msg, priority=priority)
 

@@ -45,11 +45,11 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
         loc = locals()
         for item in range(3, 15):
             try:
-                data = int(loc["data{}".format(item)])
+                data = int(loc[f"data{item}"])
             except ValueError:
                 _LOGGER.error("Property value must be an integer: %s", str(item))
             else:
-                kwargs["data{}".format(item)] = data
+                kwargs[f"data{item}"] = data
         return await super().async_send(priority=5, **kwargs)
 
     @ack_handler

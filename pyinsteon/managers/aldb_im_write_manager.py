@@ -43,6 +43,7 @@ class ImWriteManager:
 
         return await self._async_write_change_standard(record)
 
+    # pylint: disable=no-self-use
     async def async_write_record(self, record: ALDBRecord):
         """Write to EEPROM."""
         cmd = WriteEepromHandler()

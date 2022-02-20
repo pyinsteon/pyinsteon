@@ -5,6 +5,7 @@ from ..constants import ResponseStatus
 from ..x10_address import create
 
 
+# pylint: disable=no-self-use
 class X10DeviceBase:
     """X10 device base class."""
 

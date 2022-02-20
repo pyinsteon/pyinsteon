@@ -138,12 +138,9 @@ class ImReadManager:
         cmd = ReadEepromHandler()
         response = None
         while retries and response != ResponseStatus.SUCCESS:
-            _LOGGER.debug("Sending request for {mem_addr:04x} ALDB Record")
             response = await cmd.async_send(mem_addr=mem_addr)
-            _LOGGER.debug("Request response: %s", response)
             retries -= 1
             if response == ResponseStatus.SUCCESS:
-                _LOGGER.debug("Found {mem_addr:04x} ALDB Record")
                 try:
                     async with async_timeout.timeout(TIMEOUT):
                         return await self._record_queue.get()
