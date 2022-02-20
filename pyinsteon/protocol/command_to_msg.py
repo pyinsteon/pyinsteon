@@ -146,8 +146,7 @@ topic_register = {}
 
 def register_command_handlers():
     """Register outbound handlers."""
-    for topic in topic_register:
-        func = topic_register[topic]
+    for topic, func in topic_register.items():
         subscribe_topic(func, topic)
 
 

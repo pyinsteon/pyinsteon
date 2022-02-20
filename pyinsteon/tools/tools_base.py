@@ -1370,9 +1370,9 @@ class ToolsBase(Cmd):
                 if values and not values_text:
                     val_length = 6
                     for val in values:
-                        for val_range in convert_length:
+                        for val_range, convert_len in convert_length.items():
                             if val in val_range:
-                                val_length = convert_length[val_range]
+                                val_length = convert_len
                                 break
                         if val_length == 2:
                             values_text.append(f"{val:02x}")

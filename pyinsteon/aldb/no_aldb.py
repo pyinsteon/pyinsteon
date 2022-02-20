@@ -41,7 +41,7 @@ class NoALDB:
         """Return loaded status."""
         return ALDBStatus.LOADED
 
-    # pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ, no-self-use
     async def async_load(
         self,
         mem_addr: int = 0x00,
@@ -51,6 +51,7 @@ class NoALDB:
         """Load the All-Link Database."""
         return ALDBStatus.LOADED
 
+    # pylint: disable=no-self-use
     async def async_write(self):
         """Write modified records to the device."""
         return 0, 0

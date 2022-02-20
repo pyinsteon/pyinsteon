@@ -31,6 +31,7 @@ disable=
   abstract-class-little-used,
   abstract-method,
   cyclic-import,
+  consider-using-f-string,
   duplicate-code,
   fixme,
   global-statement,

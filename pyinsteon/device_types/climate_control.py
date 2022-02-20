@@ -155,16 +155,14 @@ class ClimateControl_Thermostat(Device):
     async def async_write_op_flags(self):
         """Write the operating flags to the device."""
         flags = 0x00
-        for flag_name in self._ext_property_manager.flag_info:
-            flag_info = self._ext_property_manager.flag_info[flag_name]
+        for flag_name, flag_info in self._ext_property_manager.flag_info:
             if flag_info.data_field == OP_FLAG_POS:
                 flag = self.properties[flag_name]
                 value = flag.new_value if flag.is_dirty else flag.value
                 flags = set_bit(flags, flag_info.bit, bool(value))
         result = await self._handlers["op_flag_write"].async_send(data4=flags)
         if result == ResponseStatus.SUCCESS:
-            for flag_name in self._ext_property_manager.flag_info:
-                flag_info = self._ext_property_manager.flag_info[flag_name]
+            for flag_name, flag_info in self._ext_property_manager.flag_info.items():
                 if flag_info.data_field == OP_FLAG_POS:
                     flag = self.properties[flag_name]
                     if flag.is_dirty:

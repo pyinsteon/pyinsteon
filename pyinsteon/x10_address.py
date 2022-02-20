@@ -42,7 +42,7 @@ def _normalize(addr):
 
 def create(housecode: str, unitcode: int):
     """Create an X10 device address."""
-    if housecode.lower() in HC_LOOKUP.keys():
+    if housecode.lower() in HC_LOOKUP:
         byte_housecode = housecode_to_byte(housecode)
     else:
         if isinstance(housecode, str):

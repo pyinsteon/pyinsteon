@@ -17,6 +17,12 @@ from .tools_base import DEFAULT_HUB_PORT, ToolsBase
 DEFAULT_HUB_VERSION = 2
 
 
+async def _add_device_with_yield(log_stdout, address: Address, multiple: bool):
+    """Act as a frontend to devices.async_add_device to capture the yielding of addresses."""
+    async for address in devices.async_add_device(address=address, multiple=multiple):
+        log_stdout(f"Device {str(address)} was added.")
+
+
 class InsteonCmd(ToolsBase):
     """Command class to test interactivity."""
 
@@ -90,6 +96,7 @@ class InsteonCmd(ToolsBase):
         except ConnectionError:
             self._log_stdout("Connection failed. Please review connection information.")
 
+    # pylint: disable=no-self-use
     async def do_disconnect(self):
         """Close the connection to the modem.
 
@@ -238,7 +245,7 @@ class InsteonCmd(ToolsBase):
 
         self._log_stdout("Press enter to stop linking.")
         link_function = partial(
-            self._add_device_with_yield,
+            _add_device_with_yield,
             log_stdout=self._log_stdout,
             address=address,
             multiple=multiple,
@@ -529,15 +536,6 @@ class InsteonCmd(ToolsBase):
                 self._log_command("Sending cancel command")
                 await async_cancel_linking_mode()
             await asyncio.sleep(0.1)
-
-    async def _add_device_with_yield(
-        self, log_stdout, address: Address, multiple: bool
-    ):
-        """Act as a frontend to devices.async_add_device to capture the yielding of addresses."""
-        async for address in devices.async_add_device(
-            address=address, multiple=multiple
-        ):
-            log_stdout(f"Device {str(address)} was added.")
 
 
 def tools():

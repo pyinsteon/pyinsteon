@@ -313,6 +313,8 @@ class DeviceManager(SubscriberBase):
         saved_devices_manager = SavedDeviceManager(workdir, self.modem)
         await saved_devices_manager.async_save(self._devices)
 
+    # Move this to a Device method rather than a device_manager method
+    # pylint: disable=no-self-use
     async def async_setup_device(self, device: Device):
         """Set up device.
 

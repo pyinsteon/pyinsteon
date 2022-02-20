@@ -83,8 +83,8 @@ class DeviceIdManager(SubscriberBase):
         """Close the ID listener."""
         if self._awake_devices_queue is not None:
             self._awake_devices_queue.put_nowait(None)
-        for address in self._ping_tasks:
-            self._ping_tasks[address].cancel()
+        for _, task in self._ping_tasks:
+            task.cancel()
 
     def append(self, address: Address, refresh=False):
         """Append a device address to the list."""
