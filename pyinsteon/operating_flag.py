@@ -1,5 +1,6 @@
 """Operating flags list."""
 from .address import Address
+from .constants import PropertyType
 from .device_flag import DeviceFlagBase
 
 PROGRAM_LOCK_ON = "program_lock_on"
@@ -70,9 +71,15 @@ class OperatingFlag(DeviceFlagBase):
     """Operating flag for a device."""
 
     def __init__(
-        self, address, name, flag_type: type, is_reversed=False, is_read_only=False
+        self,
+        address,
+        name,
+        value_type: type,
+        is_reversed=False,
+        is_read_only=False,
+        prop_type=PropertyType.STANDARD,
     ):
         """Init the OperatingFlag class."""
         self._address = Address(address)
         topic = f"{self._address.id}.operating_flag.{name}"
-        super().__init__(topic, name, flag_type, is_reversed, is_read_only)
+        super().__init__(topic, name, value_type, is_reversed, is_read_only, prop_type)

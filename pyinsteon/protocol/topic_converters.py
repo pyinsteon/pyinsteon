@@ -6,9 +6,9 @@ def topic_to_message_type(topic):
     """Return MessageFlagType from the topic."""
     subtopics = topic.name.split(".")
     flag = "direct" if len(subtopics) < 3 else subtopics[2]
-    for flag_type in MessageFlagType:
-        if flag.lower() == str(flag_type):
-            return flag_type
+    for msg_type in MessageFlagType:
+        if flag.lower() == str(msg_type):
+            return msg_type
     return MessageFlagType(0)
 
 

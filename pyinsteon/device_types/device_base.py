@@ -7,7 +7,7 @@ from inspect import getfullargspec
 
 from ..address import Address
 from ..aldb import ALDB
-from ..constants import DeviceCategory, EngineVersion
+from ..constants import DeviceCategory, EngineVersion, PropertyType
 from ..default_link import DefaultLink
 from ..handlers.to_device.engine_version_request import EngineVersionRequest
 from ..handlers.to_device.ping import PingCommand
@@ -58,6 +58,8 @@ class Device(ABC):
         self._default_links = []
         self._operating_flags = {}
         self._properties = {}
+        self._config = {}
+
         self._op_flags_manager = GetSetOperatingFlagsManager(
             self._address, self._operating_flags
         )
@@ -149,6 +151,11 @@ class Device(ABC):
     def properties(self):
         """Return the Extended Properties."""
         return self._properties
+
+    @property
+    def configuration(self):
+        """Return the configuration properties."""
+        return self._config
 
     @property
     def default_links(self):
@@ -267,20 +274,34 @@ class Device(ABC):
         """Add operating flags to the device."""
 
     def _add_operating_flag(
-        self, name, group, bit, set_cmd, unset_cmd, is_reversed=False
+        self,
+        name,
+        group,
+        bit,
+        set_cmd,
+        unset_cmd,
+        is_reversed=False,
+        prop_type=PropertyType.STANDARD,
     ):
         read_only = set_cmd is None or unset_cmd is None
-        flag_type = bool if bit is not None else int
+        value_type = bool if bit is not None else int
         self._operating_flags[name] = OperatingFlag(
-            self._address, name, flag_type, is_reversed, read_only
+            self._address, name, value_type, is_reversed, read_only, prop_type
         )
         self._op_flags_manager.subscribe(name, group, bit, set_cmd, unset_cmd)
 
     def _add_property(
-        self, name, data_field, set_cmd, group=1, bit=None, is_reversed=False
+        self,
+        name,
+        data_field,
+        set_cmd,
+        group=1,
+        bit=None,
+        is_reversed=False,
+        prop_type=PropertyType.STANDARD,
     ):
         self._properties[name] = self._ext_property_manager.create(
-            name, group, data_field, bit, set_cmd, is_reversed
+            name, group, data_field, bit, set_cmd, is_reversed, prop_type
         )
 
     def _remove_operating_flag(self, name, group=None):

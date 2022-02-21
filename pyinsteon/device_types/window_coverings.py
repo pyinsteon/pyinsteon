@@ -1,5 +1,5 @@
 """Window Covering devices."""
-
+from ..constants import PropertyType
 from ..extended_property import (
     DURATION_HIGH,
     DURATION_LOW,
@@ -48,9 +48,9 @@ class WindowCovering(OpenCloseResponderBase):
         self._add_operating_flag(NOT_3_WAY, 3, 3, 0x22, 0x23)
         self._add_operating_flag(FORWARD_ON, 3, 4, 0x24, 0x25)
 
-        self._add_property(X10_HOUSE, 5, None)  # 4
-        self._add_property(X10_UNIT, 6, None)  # 4
-        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)  # 4
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)  # 4
+        self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
 
         # Need to verify use_data position
         self._add_property(ON_LEVEL, 8, 6)

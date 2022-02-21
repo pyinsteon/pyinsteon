@@ -1,4 +1,5 @@
 """Operating flag or Extended Property for all device types."""
+from .constants import PropertyType
 from .subscriber_base import SubscriberBase
 
 
@@ -6,18 +7,25 @@ class DeviceFlagBase(SubscriberBase):
     """Operating flag or Extended Property."""
 
     def __init__(
-        self, topic, name, flag_type: type, is_reversed=False, is_read_only=False
+        self,
+        topic,
+        name,
+        value_type: type,
+        is_reversed=False,
+        is_read_only=False,
+        prop_type=PropertyType.STANDARD,
     ):
         """Init the DeviceFlag class."""
         super().__init__(topic)
         self._name = name
         self._value = None
-        self._type = flag_type
+        self._value_type = value_type
         self._new_value = None
         self._is_dirty = False
         self._is_loaded = False
         self._reversed = is_reversed
         self._read_only = is_read_only
+        self._prop_type = PropertyType(prop_type)
 
     @property
     def name(self):
@@ -44,20 +52,20 @@ class DeviceFlagBase(SubscriberBase):
         if self._read_only:
             return
 
-        if self._type is bool and self._reversed:
+        if self._value_type is bool and self._reversed:
             value = not value
 
         if value != self._value and value is not None:
-            self._new_value = self._type(value)
+            self._new_value = self._value_type(value)
             self._is_dirty = True
         else:
             self._new_value = None
             self._is_dirty = False
 
     @property
-    def prop_type(self):
+    def value_type(self):
         """Return the property type."""
-        return self._type
+        return self._value_type
 
     @property
     def is_dirty(self):
@@ -79,6 +87,11 @@ class DeviceFlagBase(SubscriberBase):
         """Return if the device flag is reverse of this value."""
         return self._reversed
 
+    @property
+    def property_type(self):
+        """Return the property type (Standard, Advanced or Derived)."""
+        return self._prop_type
+
     def load(self, value):
         """Load the flag from the device value.
 
@@ -88,9 +101,11 @@ class DeviceFlagBase(SubscriberBase):
         This method updates the `is_loaded` property and clears the `new value` and
         `is_dirty` properties.
         """
-        if self._type is bool and self._reversed:
+        if self._value_type is bool and self._reversed:
             value = not value
-        update_value = self._type(value) if value is not None else self._type(0)
+        update_value = (
+            self._value_type(value) if value is not None else self._value_type(0)
+        )
         self._is_dirty = False
         self._new_value = None
         self._is_loaded = True

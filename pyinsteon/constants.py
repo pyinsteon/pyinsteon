@@ -148,6 +148,14 @@ class X10CommandType(HexIntEnum):
     COMMAND = 0x80
 
 
+class PropertyType(HexIntEnum):
+    """Describes the device property class type."""
+
+    STANDARD = 0x00
+    ADVANCED = 0x01
+    DERIVED = 0x02
+
+
 class ThermostatMode(HexIntEnum):
     """Thermostat system modes."""
 

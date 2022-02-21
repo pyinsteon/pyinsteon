@@ -2,7 +2,7 @@
 from functools import partial
 from typing import Iterable
 
-from ..constants import ResponseStatus, ToggleMode
+from ..constants import PropertyType, ResponseStatus, ToggleMode
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..extended_property import (
     LED_DIMMING,
@@ -110,8 +110,8 @@ class SwitchedLightingControl_SwitchLinc(SwitchedLightingControl):
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
 
         self._add_property(LED_DIMMING, 3, 3)
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
 
 
 class SwitchedLightingControl_ToggleLinc(SwitchedLightingControl):
@@ -125,8 +125,8 @@ class SwitchedLightingControl_ToggleLinc(SwitchedLightingControl):
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
 
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
 
 
 class SwitchedLightingControl_InLineLinc(SwitchedLightingControl_SwitchLinc):
@@ -142,8 +142,8 @@ class SwitchedLightingControl_OutletLinc(SwitchedLightingControl):
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
 
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
 
 
 class SwitchedLightingControl_Micro(SwitchedLightingControl):
@@ -175,8 +175,8 @@ class SwitchedLightingControl_DinRail(SwitchedLightingControl):
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
 
         self._add_property(LED_DIMMING, 3, 3)
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
 
 
 class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
@@ -451,15 +451,35 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         self._add_operating_flag(LED_BLINK_ON_ERROR_OFF, 5, 2, 0x14, 0x15)
 
         self._add_property(LED_DIMMING, 9, 7, 1)
-        self._add_property(NON_TOGGLE_MASK, 0x0A, 0x08)
-        self._add_property(NON_TOGGLE_ON_OFF_MASK, 0x0D, 0x0B)
-        self._add_property(TRIGGER_GROUP_MASK, 0x0E, 0x0C)
+        self._add_property(NON_TOGGLE_MASK, 0x0A, 0x08, prop_type=PropertyType.ADVANCED)
+        self._add_property(
+            NON_TOGGLE_ON_OFF_MASK, 0x0D, 0x0B, prop_type=PropertyType.ADVANCED
+        )
+        self._add_property(
+            TRIGGER_GROUP_MASK, 0x0E, 0x0C, prop_type=PropertyType.ADVANCED
+        )
         for button in self._buttons:
             button_str = f"_{button}" if button != 1 else ""
-            self._add_property(f"{ON_MASK}{button_str}", 3, 2, button)
-            self._add_property(f"{OFF_MASK}{button_str}", 4, 3, button)
-            self._add_property(f"{X10_HOUSE}{button_str}", 5, None, button)
-            self._add_property(f"{X10_UNIT}{button_str}", 6, None, button)
+            self._add_property(
+                f"{ON_MASK}{button_str}", 3, 2, button, prop_type=PropertyType.ADVANCED
+            )
+            self._add_property(
+                f"{OFF_MASK}{button_str}", 4, 3, button, prop_type=PropertyType.ADVANCED
+            )
+            self._add_property(
+                f"{X10_HOUSE}{button_str}",
+                5,
+                None,
+                button,
+                prop_type=PropertyType.ADVANCED,
+            )
+            self._add_property(
+                f"{X10_UNIT}{button_str}",
+                6,
+                None,
+                button,
+                prop_type=PropertyType.ADVANCED,
+            )
 
 
 class SwitchedLightingControl_KeypadLinc_6(SwitchedLightingControl_KeypadLinc):

@@ -1,7 +1,7 @@
 """Sensor/Actuator devices."""
 import asyncio
 
-from ..constants import RelayMode, ResponseStatus
+from ..constants import PropertyType, RelayMode, ResponseStatus
 from ..default_link import DefaultLink
 from ..events import CLOSE_EVENT, OFF_EVENT, ON_EVENT, OPEN_EVENT, Event
 from ..extended_property import DELAY, PRESCALER, X10_HOUSE, X10_UNIT
@@ -175,10 +175,10 @@ class SensorsActuators_IOLink(Device):
             MOMENTARY_FOLLOW_SENSE, 0, 7, 0x14, 0x15
         )  # Check sensor before triggering?
 
-        self._add_property(PRESCALER, 3, 7)
-        self._add_property(DELAY, 4, 6)
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
+        self._add_property(PRESCALER, 3, 7, prop_type=PropertyType.ADVANCED)
+        self._add_property(DELAY, 4, 6, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
 
     def _register_handlers_and_managers(self):
         """Register handlers and managers.

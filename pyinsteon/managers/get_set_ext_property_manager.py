@@ -4,7 +4,7 @@ import logging
 from collections import namedtuple
 
 from ..address import Address
-from ..constants import ResponseStatus
+from ..constants import PropertyType, ResponseStatus
 from ..extended_property import ExtendedProperty
 from ..handlers.from_device.ext_get_response import ExtendedGetResponseHandler
 from ..handlers.to_device.extended_get import ExtendedGetCommand
@@ -38,12 +38,21 @@ class GetSetExtendedPropertyManager:
         """Return the flag information."""
         return self._flags
 
-    def create(self, name, group, data_field, bit, set_cmd, is_revsersed=False):
+    def create(
+        self,
+        name,
+        group,
+        data_field,
+        bit,
+        set_cmd,
+        is_revsersed=False,
+        prop_type=PropertyType.STANDARD,
+    ):
         """Subscribe a device property to Get and Set values.
 
         data is stored in self._groups[group][data_field]<[bit]>
         """
-        prop_type = bool if bit is not None else int
+        value_type = bool if bit is not None else int
         flag_info = PropertyInfo(name, group, data_field, bit, set_cmd)
         flags = self._groups.get(group, {})
         field = flags.get(data_field, {})
@@ -56,7 +65,7 @@ class GetSetExtendedPropertyManager:
         self._flags[name] = flag_info
         read_only = set_cmd is None
         self._properties[name] = ExtendedProperty(
-            self._address, name, prop_type, is_revsersed, read_only
+            self._address, name, value_type, is_revsersed, read_only, prop_type
         )
         return self._properties[name]
 

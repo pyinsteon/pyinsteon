@@ -161,8 +161,8 @@ def _create_direct_message(
     command = commands.get_command(main_topic)
     extended = user_data is not None
     cmd2 = command.cmd2 if command.cmd2 is not None else cmd2
-    flag_type = topic_to_message_type(topic)
-    flags = create_flags(flag_type, extended)
+    msg_type = topic_to_message_type(topic)
+    flags = create_flags(msg_type, extended)
     if extended:
         if crc:
             user_data.set_crc(command.cmd1, cmd2)

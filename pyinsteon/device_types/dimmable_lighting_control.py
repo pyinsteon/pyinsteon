@@ -2,7 +2,7 @@
 from functools import partial
 from typing import Iterable
 
-from ..constants import FanSpeed, ResponseStatus, ToggleMode
+from ..constants import FanSpeed, PropertyType, ResponseStatus, ToggleMode
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..extended_property import (
     LED_DIMMING,
@@ -102,9 +102,9 @@ class DimmableLightingControl_LampLinc(DimmableLightingControl):
         self._add_operating_flag(LOAD_SENSE_ON, 0, 5, 0x0A, 0x0B)
 
         self._add_property(LED_DIMMING, 3, 3)
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
-        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
 
 
@@ -122,9 +122,9 @@ class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
 
         self._add_property(LED_DIMMING, 3, 3)
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
-        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
 
 
@@ -142,9 +142,9 @@ class DimmableLightingControl_ToggleLinc(DimmableLightingControl):
 
         if self._firmware >= 0x3A:
             self._add_property(LED_DIMMING, 2, 3)
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
-        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
 
 
@@ -174,8 +174,8 @@ class DimmableLightingControl_OutletLinc(DimmableLightingControl):
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
 
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
 
 
 class DimmableLightingControl_DinRail(DimmableLightingControl):
@@ -189,9 +189,9 @@ class DimmableLightingControl_DinRail(DimmableLightingControl):
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
 
         self._add_property(LED_DIMMING, 3, 3)
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
-        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
 
 
@@ -337,9 +337,9 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
         self._add_operating_flag(CLEANUP_REPORT_ON, 5, 3, 0x16, 0x17)
 
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
-        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
 
     def _handle_fan_status(self, db_version, status):
@@ -632,17 +632,45 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         self._add_operating_flag(LED_BLINK_ON_ERROR_OFF, 5, 2, 0x14, 0x15)
 
         self._add_property(LED_DIMMING, 9, 7, 1)
-        self._add_property(NON_TOGGLE_MASK, 0x0A, 0x08)
-        self._add_property(NON_TOGGLE_ON_OFF_MASK, 0x0D, 0x0B)
-        self._add_property(TRIGGER_GROUP_MASK, 0x0E, 0x0C)
+        self._add_property(NON_TOGGLE_MASK, 0x0A, 0x08, prop_type=PropertyType.ADVANCED)
+        self._add_property(
+            NON_TOGGLE_ON_OFF_MASK, 0x0D, 0x0B, prop_type=PropertyType.ADVANCED
+        )
+        self._add_property(
+            TRIGGER_GROUP_MASK, 0x0E, 0x0C, prop_type=PropertyType.ADVANCED
+        )
         for button in self._buttons:
             button_str = f"_{button}" if button != 1 else ""
-            self._add_property(f"{ON_MASK}{button_str}", 3, 2, button)
-            self._add_property(f"{OFF_MASK}{button_str}", 4, 3, button)
-            self._add_property(f"{X10_HOUSE}{button_str}", 5, None, button)
-            self._add_property(f"{X10_UNIT}{button_str}", 6, None, button)
-            self._add_property(f"{RAMP_RATE}{button_str}", 7, 5, button)
-            self._add_property(f"{ON_LEVEL}{button_str}", 8, 6, button)
+            self._add_property(
+                f"{ON_MASK}{button_str}", 3, 2, button, prop_type=PropertyType.ADVANCED
+            )
+            self._add_property(
+                f"{OFF_MASK}{button_str}", 4, 3, button, prop_type=PropertyType.ADVANCED
+            )
+            self._add_property(
+                f"{X10_HOUSE}{button_str}",
+                5,
+                None,
+                button,
+                prop_type=PropertyType.ADVANCED,
+            )
+            self._add_property(
+                f"{X10_UNIT}{button_str}",
+                6,
+                None,
+                button,
+                prop_type=PropertyType.ADVANCED,
+            )
+            self._add_property(
+                f"{RAMP_RATE}{button_str}",
+                7,
+                5,
+                button,
+                prop_type=PropertyType.ADVANCED,
+            )
+            self._add_property(
+                f"{ON_LEVEL}{button_str}", 8, 6, button, prop_type=PropertyType.ADVANCED
+            )
 
 
 class DimmableLightingControl_KeypadLinc_6(DimmableLightingControl_KeypadLinc):
