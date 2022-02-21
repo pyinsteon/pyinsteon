@@ -7,6 +7,7 @@ from inspect import getfullargspec
 
 from ..address import Address
 from ..aldb import ALDB
+from ..config.operating_flag import OperatingFlag
 from ..constants import DeviceCategory, EngineVersion, PropertyType
 from ..default_link import DefaultLink
 from ..handlers.to_device.engine_version_request import EngineVersionRequest
@@ -15,7 +16,6 @@ from ..handlers.to_device.product_data_request import ProductDataRequestCommand
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
 from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
 from ..managers.link_manager.default_links import async_add_default_links
-from ..operating_flag import OperatingFlag
 from ..utils import multiple_status
 
 _LOGGER = logging.getLogger(__name__)
@@ -71,6 +71,7 @@ class Device(ABC):
         self._register_handlers_and_managers()
         self._subscribe_to_handelers_and_managers()
         self._register_default_links()
+        self._register_config()
 
     @property
     def address(self):
@@ -272,6 +273,16 @@ class Device(ABC):
 
     def _register_op_flags_and_props(self):
         """Add operating flags to the device."""
+
+    def _register_config(self):
+        """Set up the configuration properties."""
+        for name, prop in self._operating_flags.items():
+            if prop.property_type == PropertyType.STANDARD:
+                self._config[name] = prop
+
+        for name, prop in self._properties.items():
+            if prop.property_type == PropertyType.STANDARD:
+                self._config[name] = prop
 
     def _add_operating_flag(
         self,

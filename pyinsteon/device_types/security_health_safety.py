@@ -1,4 +1,38 @@
 """Security, Heath and Safety device types."""
+from ..config.extended_property import (
+    AMBIENT_LIGHT_INTENSITY,
+    BATTERY_LEVEL,
+    BATTERY_LOW_LEVEL,
+    HARDWARE_LIGHT_SENSITIVITY,
+    HARDWARE_TIMEOUT,
+    HEARBEAT_INTERVAL,
+    LED_BRIGHTNESS,
+    LIGHT_SENSITIVITY,
+    MOTION_TIMEOUT,
+    SENSOR_STATUS,
+)
+from ..config.operating_flag import (
+    CLEANUP_REPORT_ON,
+    DATABASE_DELTA,
+    HARDWARE_LED_OFF,
+    HARDWARE_NIGHT_MODE,
+    HARDWARE_SEND_ON_ONLY,
+    HEART_BEAT_ON,
+    IGNORE_JUMPER_ON,
+    LED_BLINK_ON_TX_ON,
+    LED_OFF,
+    LED_ON,
+    LINK_TO_FF_GROUP,
+    MULTI_SEND_ON,
+    NIGHT_MODE_ONLY,
+    PROGRAM_LOCK_ON,
+    REPEAT_CLOSED_ON,
+    REPEAT_OPEN_ON,
+    SEND_ON_ONLY,
+    SOFTWARE_SUPPORT_ON,
+    STAY_AWAKE_ON,
+    TWO_GROUPS_ON,
+)
 from ..default_link import DefaultLink
 from ..events import (
     ALL_CLEAR_EVENT,
@@ -22,18 +56,6 @@ from ..events import (
     LowBatteryEvent,
     WetDryEvent,
 )
-from ..extended_property import (
-    AMBIENT_LIGHT_INTENSITY,
-    BATTERY_LEVEL,
-    BATTERY_LOW_LEVEL,
-    HARDWARE_LIGHT_SENSITIVITY,
-    HARDWARE_TIMEOUT,
-    HEARBEAT_INTERVAL,
-    LED_BRIGHTNESS,
-    LIGHT_SENSITIVITY,
-    MOTION_TIMEOUT,
-    SENSOR_STATUS,
-)
 from ..groups import (
     CO_SENSOR,
     DOOR_SENSOR,
@@ -55,28 +77,6 @@ from ..managers.heartbeat_manager import HeartbeatManager
 from ..managers.low_batter_manager import LowBatteryManager
 from ..managers.on_level_manager import OnLevelManager
 from ..managers.wet_dry_manager import WetDryManager
-from ..operating_flag import (
-    CLEANUP_REPORT_ON,
-    DATABASE_DELTA,
-    HARDWARE_LED_OFF,
-    HARDWARE_NIGHT_MODE,
-    HARDWARE_SEND_ON_ONLY,
-    HEART_BEAT_ON,
-    IGNORE_JUMPER_ON,
-    LED_BLINK_ON_TX_ON,
-    LED_OFF,
-    LED_ON,
-    LINK_TO_FF_GROUP,
-    MULTI_SEND_ON,
-    NIGHT_MODE_ONLY,
-    PROGRAM_LOCK_ON,
-    REPEAT_CLOSED_ON,
-    REPEAT_OPEN_ON,
-    SEND_ON_ONLY,
-    SOFTWARE_SUPPORT_ON,
-    STAY_AWAKE_ON,
-    TWO_GROUPS_ON,
-)
 from .battery_base import BatteryDeviceBase
 from .device_base import Device
 from .on_off_controller_base import OnOffControllerBase

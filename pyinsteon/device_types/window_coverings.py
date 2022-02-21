@@ -1,6 +1,5 @@
 """Window Covering devices."""
-from ..constants import PropertyType
-from ..extended_property import (
+from ..config.extended_property import (
     DURATION_HIGH,
     DURATION_LOW,
     ON_LEVEL,
@@ -8,8 +7,7 @@ from ..extended_property import (
     X10_HOUSE,
     X10_UNIT,
 )
-from ..groups import COVER
-from ..operating_flag import (
+from ..config.operating_flag import (
     DUAL_LINE_ON,
     FORWARD_ON,
     KEY_BEEP_ON,
@@ -20,6 +18,8 @@ from ..operating_flag import (
     NOT_3_WAY,
     PROGRAM_LOCK_ON,
 )
+from ..constants import PropertyType
+from ..groups import COVER
 from .open_close_responder_base import OpenCloseResponderBase
 
 

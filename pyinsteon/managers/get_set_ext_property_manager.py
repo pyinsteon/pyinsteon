@@ -4,8 +4,8 @@ import logging
 from collections import namedtuple
 
 from ..address import Address
+from ..config.extended_property import ExtendedProperty
 from ..constants import PropertyType, ResponseStatus
-from ..extended_property import ExtendedProperty
 from ..handlers.from_device.ext_get_response import ExtendedGetResponseHandler
 from ..handlers.to_device.extended_get import ExtendedGetCommand
 from ..handlers.to_device.extended_set import ExtendedSetCommand

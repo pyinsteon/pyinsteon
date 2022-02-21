@@ -4,9 +4,22 @@ from datetime import datetime
 
 from ..aldb import ALDB
 from ..aldb.aldb_battery import ALDBBattery
+from ..config.extended_property import (
+    BACKLIGHT,
+    CHANGE_DELAY,
+    HUMIDITY_OFFSET,
+    TEMP_OFFSET,
+)
+from ..config.operating_flag import (
+    BUTTON_LOCK_ON,
+    CELSIUS,
+    KEY_BEEP_ON,
+    LED_ON,
+    PROGRAM_LOCK_ON,
+    TIME_24_HOUR_FORMAT,
+)
 from ..constants import ResponseStatus
 from ..default_link import DefaultLink
-from ..extended_property import BACKLIGHT, CHANGE_DELAY, HUMIDITY_OFFSET, TEMP_OFFSET
 from ..groups import (
     COOL_SET_POINT,
     COOLING,
@@ -46,14 +59,6 @@ from ..handlers.to_device.thermostat_mode import ThermostatModeCommand
 from ..managers.link_manager.default_links import async_add_default_links
 from ..managers.on_level_manager import OnLevelManager
 from ..managers.thermostat_status_manager import GetThermostatStatus
-from ..operating_flag import (
-    BUTTON_LOCK_ON,
-    CELSIUS,
-    KEY_BEEP_ON,
-    LED_ON,
-    PROGRAM_LOCK_ON,
-    TIME_24_HOUR_FORMAT,
-)
 from ..utils import multiple_status, set_bit, to_fahrenheit
 from .battery_base import BatteryDeviceBase
 from .device_base import Device

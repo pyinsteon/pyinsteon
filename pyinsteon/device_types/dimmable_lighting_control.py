@@ -2,9 +2,7 @@
 from functools import partial
 from typing import Iterable
 
-from ..constants import FanSpeed, PropertyType, ResponseStatus, ToggleMode
-from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
-from ..extended_property import (
+from ..config.extended_property import (
     LED_DIMMING,
     NON_TOGGLE_MASK,
     NON_TOGGLE_ON_OFF_MASK,
@@ -16,6 +14,25 @@ from ..extended_property import (
     X10_HOUSE,
     X10_UNIT,
 )
+from ..config.operating_flag import (
+    CLEANUP_REPORT_ON,
+    CRC_ERROR_COUNT,
+    DATABASE_DELTA,
+    KEY_BEEP_ON,
+    LED_BLINK_ON_ERROR_OFF,
+    LED_BLINK_ON_ERROR_ON,
+    LED_BLINK_ON_TX_ON,
+    LED_OFF,
+    LOAD_SENSE_ON,
+    POWERLINE_DISABLE_ON,
+    PROGRAM_LOCK_ON,
+    RESUME_DIM_ON,
+    RF_DISABLE_ON,
+    SIGNAL_TO_NOISE_FAILURE_COUNT,
+    X10_OFF,
+)
+from ..constants import FanSpeed, PropertyType, ResponseStatus, ToggleMode
+from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..groups import (
     DIMMABLE_FAN,
     DIMMABLE_LIGHT,
@@ -35,23 +52,6 @@ from ..groups.on_off import OnOff
 from ..handlers.from_device.manual_change import ManualChangeInbound
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
-from ..operating_flag import (
-    CLEANUP_REPORT_ON,
-    CRC_ERROR_COUNT,
-    DATABASE_DELTA,
-    KEY_BEEP_ON,
-    LED_BLINK_ON_ERROR_OFF,
-    LED_BLINK_ON_ERROR_ON,
-    LED_BLINK_ON_TX_ON,
-    LED_OFF,
-    LOAD_SENSE_ON,
-    POWERLINE_DISABLE_ON,
-    PROGRAM_LOCK_ON,
-    RESUME_DIM_ON,
-    RF_DISABLE_ON,
-    SIGNAL_TO_NOISE_FAILURE_COUNT,
-    X10_OFF,
-)
 from ..utils import bit_is_set, multiple_status, set_bit, set_fan_speed
 from .device_commands import (
     GET_LEDS_COMMAND,

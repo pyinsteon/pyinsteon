@@ -1,6 +1,6 @@
 """Operating flag or Extended Property for all device types."""
-from .constants import PropertyType
-from .subscriber_base import SubscriberBase
+from ..constants import PropertyType
+from ..subscriber_base import SubscriberBase
 
 
 class DeviceFlagBase(SubscriberBase):

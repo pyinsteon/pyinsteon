@@ -1,6 +1,6 @@
 """Operating flags list."""
-from .address import Address
-from .constants import PropertyType
+from ..address import Address
+from ..constants import PropertyType
 from .device_flag import DeviceFlagBase
 
 PROGRAM_LOCK_ON = "program_lock_on"

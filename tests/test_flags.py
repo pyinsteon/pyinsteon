@@ -2,8 +2,8 @@
 
 import unittest
 
-from pyinsteon.extended_property import ExtendedProperty
-from pyinsteon.operating_flag import OperatingFlag
+from pyinsteon.config.extended_property import ExtendedProperty
+from pyinsteon.config.operating_flag import OperatingFlag
 from tests.utils import randint, random_address
 
 

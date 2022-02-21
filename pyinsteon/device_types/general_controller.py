@@ -1,5 +1,13 @@
 """General controller devices (cat: 0x00)."""
 from ..aldb.no_aldb import NoALDB
+from ..config.operating_flag import (
+    GROUPED_ON,
+    KEY_BEEP_ON,
+    LED_ON,
+    PROGRAM_LOCK_ON,
+    SEND_ON_ONLY,
+    STAY_AWAKE_ON,
+)
 from ..constants import ResponseStatus
 from ..groups import (
     ON_OFF_SWITCH_A,
@@ -10,14 +18,6 @@ from ..groups import (
     ON_OFF_SWITCH_F,
     ON_OFF_SWITCH_G,
     ON_OFF_SWITCH_H,
-)
-from ..operating_flag import (
-    GROUPED_ON,
-    KEY_BEEP_ON,
-    LED_ON,
-    PROGRAM_LOCK_ON,
-    SEND_ON_ONLY,
-    STAY_AWAKE_ON,
 )
 from .battery_base import BatteryDeviceBase
 from .device_base import Device

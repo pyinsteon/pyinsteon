@@ -4,26 +4,20 @@ import random
 import unittest
 
 from pyinsteon import pub
-from pyinsteon.commands import ON, OFF, STATUS_REQUEST
-from pyinsteon.constants import ResponseStatus
-from pyinsteon.device_types.dimmable_lighting_control import (
-    DimmableLightingControl_KeypadLinc_8,
-)
-from pyinsteon.extended_property import (
+from pyinsteon.commands import OFF, ON, STATUS_REQUEST
+from pyinsteon.config.extended_property import (
     NON_TOGGLE_MASK,
     NON_TOGGLE_ON_OFF_MASK,
     OFF_MASK,
     ON_MASK,
 )
+from pyinsteon.constants import ResponseStatus
+from pyinsteon.device_types.dimmable_lighting_control import (
+    DimmableLightingControl_KeypadLinc_8,
+)
 from pyinsteon.utils import bit_is_set
 from tests import set_log_levels
-from tests.utils import (
-    random_address,
-    async_case,
-    cmd_kwargs,
-    TopicItem,
-    send_topics,
-)
+from tests.utils import TopicItem, async_case, cmd_kwargs, random_address, send_topics
 
 _LOGGER = logging.getLogger(__name__)
 
