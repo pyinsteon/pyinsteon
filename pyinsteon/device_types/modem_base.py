@@ -173,5 +173,5 @@ class ModemBase(Device, metaclass=ABCMeta):
     def _register_events(self):
         """Register events for modems."""
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
         """Register operating flags for modem."""

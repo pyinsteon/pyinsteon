@@ -93,8 +93,8 @@ class DimmableLightingControl(VariableResponderBase):
 class DimmableLightingControl_LampLinc(DimmableLightingControl):
     """LampLinc based dimmable lights."""
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
@@ -111,9 +111,9 @@ class DimmableLightingControl_LampLinc(DimmableLightingControl):
 class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
     """SwichLinc based dimmable lights."""
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
 
-        super()._register_operating_flags()
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
@@ -131,9 +131,9 @@ class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
 class DimmableLightingControl_ToggleLinc(DimmableLightingControl):
     """SwichLinc based dimmable lights."""
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
 
-        super()._register_operating_flags()
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
@@ -168,8 +168,8 @@ class DimmableLightingControl_OutletLinc(DimmableLightingControl):
             buttons=buttons,
         )
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
@@ -181,8 +181,8 @@ class DimmableLightingControl_OutletLinc(DimmableLightingControl):
 class DimmableLightingControl_DinRail(DimmableLightingControl):
     """DINRail based dimmable lights."""
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
@@ -318,8 +318,8 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[STATUS_COMMAND_FAN].subscribe(self._handle_fan_status)
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
 
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
@@ -619,9 +619,9 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
             if state:
                 state.value = bit_is_set(status, bit - 1)
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
         """Register operating flags."""
-        super()._register_operating_flags()
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)

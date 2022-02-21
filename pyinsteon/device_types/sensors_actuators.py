@@ -163,7 +163,7 @@ class SensorsActuators_IOLink(Device):
             retries -= 1
         return response
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RELAY_ON_SENSE_ON, 0, 2, 4, 5)  # Sensor triggers relay

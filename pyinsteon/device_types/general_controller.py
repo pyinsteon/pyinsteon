@@ -69,8 +69,8 @@ class GeneralController_RemoteLinc(BatteryDeviceBase, VariableControllerBase):
             address, cat, subcat, firmware, description, model, buttons=buttons
         )
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(STAY_AWAKE_ON, 0, 3, 6, 7)
 
 
@@ -97,8 +97,8 @@ class GeneralController_MiniRemoteBase(BatteryDeviceBase, VariableControllerBase
         """Return success always."""
         return ResponseStatus.SUCCESS
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_ON, 0, 1, 2, 3)
         self._add_operating_flag(KEY_BEEP_ON, 0, 2, 4, 5)

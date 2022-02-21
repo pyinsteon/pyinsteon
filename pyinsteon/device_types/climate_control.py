@@ -169,7 +169,7 @@ class ClimateControl_Thermostat(Device):
                         flag.load(flag.new_value)
         return result
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
         """Register thermostat operating flags."""
         self._add_property(PROGRAM_LOCK_ON, OP_FLAG_POS, None, 0, 0)
         self._add_property(KEY_BEEP_ON, OP_FLAG_POS, None, 0, 1)

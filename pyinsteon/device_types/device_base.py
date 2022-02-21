@@ -65,7 +65,7 @@ class Device(ABC):
         )
         self._ext_property_manager = GetSetExtendedPropertyManager(self._address)
 
-        self._register_operating_flags()
+        self._register_op_flags_and_props()
         self._register_groups()
         self._register_events()
         self._register_handlers_and_managers()
@@ -270,7 +270,7 @@ class Device(ABC):
     def _register_events(self):
         """Add events that are triggered when events are fired from the device."""
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
         """Add operating flags to the device."""
 
     def _add_operating_flag(
