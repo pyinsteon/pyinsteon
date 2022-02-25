@@ -10,8 +10,7 @@ except ImportError:
     from .asyncmock_patch import AsyncMock
 
 import pyinsteon
-from pyinsteon.config.extended_property import ON_LEVEL
-from pyinsteon.config.operating_flag import LED_OFF
+from pyinsteon.config import LED_OFF, ON_LEVEL
 from pyinsteon.constants import RelayMode, ResponseStatus, ToggleMode
 from pyinsteon.device_types import (
     ClimateControl_Thermostat,

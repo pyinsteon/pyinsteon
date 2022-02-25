@@ -5,12 +5,7 @@ import unittest
 
 from pyinsteon import pub
 from pyinsteon.commands import OFF, ON, STATUS_REQUEST
-from pyinsteon.config.extended_property import (
-    NON_TOGGLE_MASK,
-    NON_TOGGLE_ON_OFF_MASK,
-    OFF_MASK,
-    ON_MASK,
-)
+from pyinsteon.config import NON_TOGGLE_MASK, NON_TOGGLE_ON_OFF_MASK, OFF_MASK, ON_MASK
 from pyinsteon.constants import ResponseStatus
 from pyinsteon.device_types.dimmable_lighting_control import (
     DimmableLightingControl_KeypadLinc_8,
