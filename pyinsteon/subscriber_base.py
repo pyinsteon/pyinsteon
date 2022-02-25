@@ -16,6 +16,11 @@ class SubscriberBase(ABC):
         self._subscriber_topic = subscriber_topic
         self._subscribers = []
 
+    @property
+    def topic(self):
+        """Return the subscriber topic."""
+        return self._subscriber_topic
+
     def subscribe(self, callback: Callable, force_strong_ref=False):
         """Subscribe to the event."""
         if force_strong_ref and callback not in self._subscribers:

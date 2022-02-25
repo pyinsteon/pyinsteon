@@ -2,19 +2,7 @@
 from functools import partial
 from typing import Iterable
 
-from ..config.extended_property import (
-    LED_DIMMING,
-    NON_TOGGLE_MASK,
-    NON_TOGGLE_ON_OFF_MASK,
-    OFF_MASK,
-    ON_LEVEL,
-    ON_MASK,
-    RAMP_RATE,
-    TRIGGER_GROUP_MASK,
-    X10_HOUSE,
-    X10_UNIT,
-)
-from ..config.operating_flag import (
+from ..config import (
     CLEANUP_REPORT_ON,
     CRC_ERROR_COUNT,
     DATABASE_DELTA,
@@ -22,15 +10,31 @@ from ..config.operating_flag import (
     LED_BLINK_ON_ERROR_OFF,
     LED_BLINK_ON_ERROR_ON,
     LED_BLINK_ON_TX_ON,
+    LED_DIMMING,
     LED_OFF,
     LOAD_SENSE_ON,
+    NON_TOGGLE_MASK,
+    NON_TOGGLE_ON_OFF_MASK,
+    OFF_MASK,
+    ON_LEVEL,
+    ON_MASK,
     POWERLINE_DISABLE_ON,
     PROGRAM_LOCK_ON,
+    RADIO_BUTTON_GROUPS,
+    RAMP_RATE,
+    RAMP_RATE_IN_SEC,
     RESUME_DIM_ON,
     RF_DISABLE_ON,
     SIGNAL_TO_NOISE_FAILURE_COUNT,
+    TOGGLE_BUTTON,
+    TRIGGER_GROUP_MASK,
+    X10_HOUSE,
     X10_OFF,
+    X10_UNIT,
 )
+from ..config.radio_button import RadioButtonGroupsProperty
+from ..config.ramp_rate import RampRateProperty
+from ..config.toggle_button import ToggleButtonProperty
 from ..constants import FanSpeed, PropertyType, ResponseStatus, ToggleMode
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..groups import (
@@ -107,6 +111,13 @@ class DimmableLightingControl_LampLinc(DimmableLightingControl):
         self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
 
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
+        )
+
 
 class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
     """SwichLinc based dimmable lights."""
@@ -127,6 +138,13 @@ class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
         self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
 
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
+        )
+
 
 class DimmableLightingControl_ToggleLinc(DimmableLightingControl):
     """SwichLinc based dimmable lights."""
@@ -146,6 +164,13 @@ class DimmableLightingControl_ToggleLinc(DimmableLightingControl):
         self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
         self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
+        )
 
 
 class DimmableLightingControl_InLineLinc(DimmableLightingControl_SwitchLinc):
@@ -193,6 +218,13 @@ class DimmableLightingControl_DinRail(DimmableLightingControl):
         self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
         self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
+        )
 
 
 class DimmableLightingControl_FanLinc(DimmableLightingControl):
@@ -341,6 +373,13 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
         self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
+        )
 
     def _handle_fan_status(self, db_version, status):
         self._groups[2].set_value(status)
@@ -670,6 +709,26 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
             )
             self._add_property(
                 f"{ON_LEVEL}{button_str}", 8, 6, button, prop_type=PropertyType.ADVANCED
+            )
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
+        )
+        self._config[RADIO_BUTTON_GROUPS] = RadioButtonGroupsProperty(
+            self, RADIO_BUTTON_GROUPS
+        )
+        for button in self._groups:
+            if button == 1:
+                continue
+            self._config[f"{TOGGLE_BUTTON}_{button}"] = ToggleButtonProperty(
+                self._address,
+                TOGGLE_BUTTON,
+                button,
+                self.properties[NON_TOGGLE_MASK],
+                self.properties[NON_TOGGLE_ON_OFF_MASK],
             )
 
 

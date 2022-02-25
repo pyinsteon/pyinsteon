@@ -4,19 +4,18 @@ from datetime import datetime
 
 from ..aldb import ALDB
 from ..aldb.aldb_battery import ALDBBattery
-from ..config.extended_property import (
+from ..config import (
     BACKLIGHT,
-    CHANGE_DELAY,
-    HUMIDITY_OFFSET,
-    TEMP_OFFSET,
-)
-from ..config.operating_flag import (
     BUTTON_LOCK_ON,
     CELSIUS,
+    CHANGE_DELAY,
+    HUMIDITY_OFFSET,
     KEY_BEEP_ON,
     LED_ON,
     PROGRAM_LOCK_ON,
+    TEMP_OFFSET,
     TIME_24_HOUR_FORMAT,
+    get_usable_value,
 )
 from ..constants import ResponseStatus
 from ..default_link import DefaultLink
@@ -163,7 +162,7 @@ class ClimateControl_Thermostat(Device):
         for flag_name, flag_info in self._ext_property_manager.flag_info:
             if flag_info.data_field == OP_FLAG_POS:
                 flag = self.properties[flag_name]
-                value = flag.new_value if flag.is_dirty else flag.value
+                value = get_usable_value(flag)
                 flags = set_bit(flags, flag_info.bit, bool(value))
         result = await self._handlers["op_flag_write"].async_send(data4=flags)
         if result == ResponseStatus.SUCCESS:

@@ -2,31 +2,33 @@
 from functools import partial
 from typing import Iterable
 
-from ..config.extended_property import (
-    LED_DIMMING,
-    NON_TOGGLE_MASK,
-    NON_TOGGLE_ON_OFF_MASK,
-    OFF_MASK,
-    ON_MASK,
-    TRIGGER_GROUP_MASK,
-    X10_HOUSE,
-    X10_UNIT,
-)
-from ..config.operating_flag import (
+from ..config import (
     DUAL_LINE_ON,
     KEY_BEEP_ON,
     LED_BLINK_ON_ERROR_OFF,
     LED_BLINK_ON_ERROR_ON,
     LED_BLINK_ON_TX_ON,
+    LED_DIMMING,
     LED_OFF,
     MOMENTARY_LINE_ON,
+    NON_TOGGLE_MASK,
+    NON_TOGGLE_ON_OFF_MASK,
+    OFF_MASK,
+    ON_MASK,
     POWERLINE_DISABLE_ON,
     PROGRAM_LOCK_ON,
+    RADIO_BUTTON_GROUPS,
     RESUME_DIM_ON,
     REVERSED_ON,
     RF_DISABLE_ON,
     THREE_WAY_ON,
+    TOGGLE_BUTTON,
+    TRIGGER_GROUP_MASK,
+    X10_HOUSE,
+    X10_UNIT,
 )
+from ..config.radio_button import RadioButtonGroupsProperty
+from ..config.toggle_button import ToggleButtonProperty
 from ..constants import PropertyType, ResponseStatus, ToggleMode
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..groups import (
@@ -479,6 +481,23 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
                 None,
                 button,
                 prop_type=PropertyType.ADVANCED,
+            )
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RADIO_BUTTON_GROUPS] = RadioButtonGroupsProperty(
+            self, RADIO_BUTTON_GROUPS
+        )
+        for button in self._groups:
+            if button == 1:
+                continue
+            self._config[f"{TOGGLE_BUTTON}_{button}"] = ToggleButtonProperty(
+                self._address,
+                TOGGLE_BUTTON,
+                button,
+                self.properties[NON_TOGGLE_MASK],
+                self.properties[NON_TOGGLE_ON_OFF_MASK],
             )
 
 

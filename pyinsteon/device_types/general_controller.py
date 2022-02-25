@@ -1,6 +1,6 @@
 """General controller devices (cat: 0x00)."""
 from ..aldb.no_aldb import NoALDB
-from ..config.operating_flag import (
+from ..config import (
     GROUPED_ON,
     KEY_BEEP_ON,
     LED_ON,

@@ -1,10 +1,9 @@
 """IOLink momentary delay property."""
-from ..address import Address
-from ..constants import PropertyType
-from .device_flag import DeviceFlagBase
+from . import get_usable_value
+from .derived_property import DerivedProperty
 
 
-class MomentaryDelayProperty(DeviceFlagBase):
+class MomentaryDelayProperty(DerivedProperty):
     """IOLink momentary delay property."""
 
     def __init__(
@@ -15,35 +14,40 @@ class MomentaryDelayProperty(DeviceFlagBase):
         prescaler_prop,
     ):
         """Init the OnOffDelayProperty class."""
-        self._address = Address(address)
-        topic = f"{self._address.id}.property.{name}"
-        super().__init__(topic, name, float, False, False, PropertyType.DERIVED)
+        super().__init__(address, name, float, False, False)
 
         self._delay_prop = delay_prop
         self._prescaler_prop = prescaler_prop
 
-        self._delay_prop.subscribe(self._check_property_changes)
-        self._prescaler_prop.subscribe(self._check_property_changes)
+    @property
+    def value(self):
+        """Return the momentary delay value of the underlying proprties."""
+        prescaler = max(self._prescaler_prop.value, 1)
+        return self._delay_prop.value * prescaler / 10
 
     @property
     def new_value(self):
         """Return the new_value property."""
-        return super().new_value
+        if not (self._prescaler_prop.is_dirty or self._delay_prop.is_dirty):
+            return None
+        prescaler = get_usable_value(self._prescaler_prop)
+        delay = get_usable_value(self._delay_prop)
+        prescaler = max(prescaler, 1)
+        return delay * prescaler / 10
 
     @new_value.setter
     def new_value(self, value):
         """Set the new_value property."""
         seconds = self._value_type(value)
-        if seconds == self._value:
-            self._new_value = None
-            self._is_dirty = False
+
+        if not 0 < seconds < 6502:  # 255^2 / 10  or about 1 hour 48 min
+            raise ValueError
+
+        if seconds == self.value:
+            self._delay_prop.new_value = None
+            self._prescaler_prop.new_value = None
             return
 
-        if seconds > 6502:  # 255^2 / 10  or about 1 hour 48 min
-            raise ValueError("Delay too large")
-
-        self._new_value = seconds
-        self._is_dirty = True
         delay = seconds * 10
         prescaler = 1
         if delay > 255:
@@ -52,19 +56,12 @@ class MomentaryDelayProperty(DeviceFlagBase):
         self._prescaler_prop.new_value = prescaler
         self._delay_prop.new_value = delay
 
-    def _check_property_changes(self, name, value):
-        """Check for changes to underlying properties."""
-        prescaler = max(self._prescaler_prop.value, 1)
-        self._value = self._delay_prop.value * prescaler / 10
-        self._new_value = None
-        self._is_dirty = None
-        self._call_subscribers(name=self._name, value=self._value)
+    @property
+    def is_dirty(self):
+        """Return the change status of the underlying properties."""
+        return self._delay_prop.is_dirty or self._prescaler_prop.is_dirty
 
-        if self._delay_prop.is_dirty or self._prescaler_prop.is_dirty:
-            self._is_dirty = True
-            ps_prop = self._prescaler_prop
-            d_prop = self._delay_prop
-            prescaler = ps_prop.new_value if ps_prop.is_dirty else ps_prop.value
-            prescaler = max(prescaler, 1)
-            delay = d_prop.new_value if d_prop.is_dirty else d_prop.value
-            self._new_value = delay * prescaler / 10
+    @property
+    def is_loaded(self):
+        """Return the load status of the underlying properties."""
+        return self._delay_prop.is_loaded and self._prescaler_prop.is_loaded

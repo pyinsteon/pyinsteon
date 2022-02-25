@@ -1,14 +1,8 @@
 """Window Covering devices."""
-from ..config.extended_property import (
+from ..config import (
+    DUAL_LINE_ON,
     DURATION_HIGH,
     DURATION_LOW,
-    ON_LEVEL,
-    RAMP_RATE,
-    X10_HOUSE,
-    X10_UNIT,
-)
-from ..config.operating_flag import (
-    DUAL_LINE_ON,
     FORWARD_ON,
     KEY_BEEP_ON,
     LED_BLINK_ON_ERROR_OFF,
@@ -16,8 +10,14 @@ from ..config.operating_flag import (
     LED_OFF,
     MOMENTARY_LINE_ON,
     NOT_3_WAY,
+    ON_LEVEL,
     PROGRAM_LOCK_ON,
+    RAMP_RATE,
+    RAMP_RATE_IN_SEC,
+    X10_HOUSE,
+    X10_UNIT,
 )
+from ..config.ramp_rate import RampRateProperty
 from ..constants import PropertyType
 from ..groups import COVER
 from .open_close_responder_base import OpenCloseResponderBase
@@ -56,3 +56,10 @@ class WindowCovering(OpenCloseResponderBase):
         self._add_property(ON_LEVEL, 8, 6)
         self._add_property(DURATION_HIGH, 9, None)  # 0x10
         self._add_property(DURATION_LOW, 10, None)  # 0x10
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
+        )

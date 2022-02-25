@@ -1,16 +1,19 @@
 """Sensor/Actuator devices."""
 import asyncio
 
-from ..config.extended_property import DELAY, PRESCALER, X10_HOUSE, X10_UNIT
-from ..config.operating_flag import (
+from ..config import (
+    DELAY,
     LED_BLINK_ON_TX_ON,
     MOMENTARY_FOLLOW_SENSE,
     MOMENTARY_MODE_ON,
     MOMENTARY_ON_OFF_TRIGGER,
+    PRESCALER,
     PROGRAM_LOCK_ON,
     RELAY_ON_SENSE_ON,
     SENSE_SENDS_OFF,
+    X10_HOUSE,
     X10_OFF,
+    X10_UNIT,
 )
 from ..constants import PropertyType, RelayMode, ResponseStatus
 from ..default_link import DefaultLink
@@ -74,19 +77,30 @@ class SensorsActuators_IOLink(Device):
 
     async def async_set_relay_mode(self, relay_mode: RelayMode):
         """Set the relay mode and write to device."""
+
+        def set_relay_mode(momentary_mode_on, momentary_follow_sense, momentary_on_off):
+            """Set the values of the underlying properties."""
+            self._operating_flags[MOMENTARY_MODE_ON].new_value = momentary_mode_on
+            self._operating_flags[
+                MOMENTARY_FOLLOW_SENSE
+            ].new_value = momentary_follow_sense
+            self._operating_flags[MOMENTARY_ON_OFF_TRIGGER].new_value = momentary_on_off
+
+        if relay_mode is None:
+            set_relay_mode(None, None, None)
+            return
+
         relay_mode = RelayMode(int(relay_mode))
-        self._operating_flags[MOMENTARY_MODE_ON].new_value = not (
-            relay_mode == RelayMode.LATCHING
-        )
-        if relay_mode == RelayMode.MOMENTARY_A:
-            self._operating_flags[MOMENTARY_FOLLOW_SENSE].new_value = False
-            self._operating_flags[MOMENTARY_ON_OFF_TRIGGER].new_value = False
-        if relay_mode == RelayMode.MOMENTARY_B:
-            self._operating_flags[MOMENTARY_FOLLOW_SENSE].new_value = False
-            self._operating_flags[MOMENTARY_ON_OFF_TRIGGER].new_value = True
-        if relay_mode == RelayMode.MOMENTARY_C:
-            self._operating_flags[MOMENTARY_FOLLOW_SENSE].new_value = True
-            self._operating_flags[MOMENTARY_ON_OFF_TRIGGER].new_value = False
+
+        if relay_mode == RelayMode.LATCHING:
+            set_relay_mode(False, False, False)
+        elif relay_mode == RelayMode.MOMENTARY_A:
+            set_relay_mode(True, False, False)
+        elif relay_mode == RelayMode.MOMENTARY_B:
+            set_relay_mode(True, False, True)
+        elif relay_mode == RelayMode.MOMENTARY_C:
+            set_relay_mode(True, True, False)
+
         await self.async_write_op_flags()
 
     async def async_set_momentary_delay(self, seconds):

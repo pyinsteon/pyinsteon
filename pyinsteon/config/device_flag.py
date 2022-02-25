@@ -1,4 +1,5 @@
 """Operating flag or Extended Property for all device types."""
+from ..address import Address
 from ..constants import PropertyType
 from ..subscriber_base import SubscriberBase
 
@@ -8,7 +9,8 @@ class DeviceFlagBase(SubscriberBase):
 
     def __init__(
         self,
-        topic,
+        address,
+        topic_prefix,
         name,
         value_type: type,
         is_reversed=False,
@@ -16,12 +18,13 @@ class DeviceFlagBase(SubscriberBase):
         prop_type=PropertyType.STANDARD,
     ):
         """Init the DeviceFlag class."""
+        self._address = Address(address)
+        topic = f"{self._address.id}.{topic_prefix}.{name}"
         super().__init__(topic)
         self._name = name
         self._value = None
         self._value_type = value_type
         self._new_value = None
-        self._is_dirty = False
         self._is_loaded = False
         self._reversed = is_reversed
         self._read_only = is_read_only
@@ -57,10 +60,8 @@ class DeviceFlagBase(SubscriberBase):
 
         if value != self._value and value is not None:
             self._new_value = self._value_type(value)
-            self._is_dirty = True
         else:
             self._new_value = None
-            self._is_dirty = False
 
     @property
     def value_type(self):
@@ -70,7 +71,7 @@ class DeviceFlagBase(SubscriberBase):
     @property
     def is_dirty(self):
         """Return if the Operating flag has been changed."""
-        return self._is_dirty
+        return self._new_value is not None
 
     @property
     def is_read_only(self):
@@ -106,7 +107,6 @@ class DeviceFlagBase(SubscriberBase):
         update_value = (
             self._value_type(value) if value is not None else self._value_type(0)
         )
-        self._is_dirty = False
         self._new_value = None
         self._is_loaded = True
         is_changed = update_value != self._value
