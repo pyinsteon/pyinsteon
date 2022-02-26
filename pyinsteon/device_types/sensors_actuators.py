@@ -216,9 +216,9 @@ class SensorsActuators_IOLink(Device):
         self._config[RELAY_MODE] = RelayModeProperty(
             self._address,
             RELAY_MODE,
-            self._properties[MOMENTARY_MODE_ON],
-            self._properties[MOMENTARY_FOLLOW_SENSE],
-            self._properties[MOMENTARY_ON_OFF_TRIGGER],
+            self._operating_flags[MOMENTARY_MODE_ON],
+            self._operating_flags[MOMENTARY_FOLLOW_SENSE],
+            self._operating_flags[MOMENTARY_ON_OFF_TRIGGER],
         )
 
     def _register_handlers_and_managers(self):
