@@ -4,17 +4,21 @@ import asyncio
 from ..config import (
     DELAY,
     LED_BLINK_ON_TX_ON,
+    MOMENTARY_DELAY,
     MOMENTARY_FOLLOW_SENSE,
     MOMENTARY_MODE_ON,
     MOMENTARY_ON_OFF_TRIGGER,
     PRESCALER,
     PROGRAM_LOCK_ON,
+    RELAY_MODE,
     RELAY_ON_SENSE_ON,
     SENSE_SENDS_OFF,
     X10_HOUSE,
     X10_OFF,
     X10_UNIT,
 )
+from ..config.momentary_delay import MomentaryDelayProperty
+from ..config.relay_mode import RelayModeProperty
 from ..constants import PropertyType, RelayMode, ResponseStatus
 from ..default_link import DefaultLink
 from ..events import CLOSE_EVENT, OFF_EVENT, ON_EVENT, OPEN_EVENT, Event
@@ -199,6 +203,23 @@ class SensorsActuators_IOLink(Device):
         self._add_property(DELAY, 4, 6, prop_type=PropertyType.ADVANCED)
         self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
         self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[MOMENTARY_DELAY] = MomentaryDelayProperty(
+            self._address,
+            MOMENTARY_DELAY,
+            self._properties[DELAY],
+            self._properties[PRESCALER],
+        )
+        self._config[RELAY_MODE] = RelayModeProperty(
+            self._address,
+            RELAY_MODE,
+            self._properties[MOMENTARY_MODE_ON],
+            self._properties[MOMENTARY_FOLLOW_SENSE],
+            self._properties[MOMENTARY_ON_OFF_TRIGGER],
+        )
 
     def _register_handlers_and_managers(self):
         """Register handlers and managers.
