@@ -723,9 +723,10 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         for button in self._groups:
             if button == 1:
                 continue
-            self._config[f"{TOGGLE_BUTTON}_{button}"] = ToggleButtonProperty(
+            name = f"{TOGGLE_BUTTON}_{button}"
+            self._config[name] = ToggleButtonProperty(
                 self._address,
-                TOGGLE_BUTTON,
+                name,
                 button,
                 self.properties[NON_TOGGLE_MASK],
                 self.properties[NON_TOGGLE_ON_OFF_MASK],
