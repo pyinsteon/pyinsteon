@@ -489,10 +489,11 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         self._config[RADIO_BUTTON_GROUPS] = RadioButtonGroupsProperty(
             self, RADIO_BUTTON_GROUPS
         )
-        for button in self._groups:
-            if button == 1:
+        for group in self._groups:
+            if group == 1:
                 continue
-            name = f"{TOGGLE_BUTTON}_{button}"
+            button = self._buttons[group]
+            name = f"{TOGGLE_BUTTON}_{button[-1]}"
             self._config[name] = ToggleButtonProperty(
                 self._address,
                 name,
