@@ -335,6 +335,15 @@ class DeviceManager(SubscriberBase):
         if self._loading_saved_lock.locked():
             return
 
+        device = self._devices.get(device_id.address)
+        if (
+            device
+            and device.cat == device_id.cat
+            and device.subcat == device_id.subcat
+            and device.firmware == device_id.firmware
+        ):
+            return
+
         self._linked_device.put_nowait(device_id.address)
 
         if link_mode == AllLinkMode.DELETE:
