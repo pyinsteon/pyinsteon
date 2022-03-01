@@ -497,7 +497,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
             self._config[name] = ToggleButtonProperty(
                 self._address,
                 name,
-                button,
+                group,
                 self.properties[NON_TOGGLE_MASK],
                 self.properties[NON_TOGGLE_ON_OFF_MASK],
             )
