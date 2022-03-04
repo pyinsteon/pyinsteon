@@ -208,6 +208,11 @@ class Device(ABC):
         result_aldb = await self._aldb.async_load()
         return multiple_status(result_ext_prop, result_op_flags), result_aldb
 
+    async def async_write_config(self):
+        """Write the device configuration to the physical device."""
+        await self.async_write_op_flags()
+        await self.async_write_ext_properties()
+
     async def async_read_op_flags(self, group=None):
         """Read the device operating flags."""
         return await self._op_flags_manager.async_read(group=group)

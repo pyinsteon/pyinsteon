@@ -110,6 +110,13 @@ RAMP_RATE_IN_SEC = "ramp_rate_in_seconds"
 RELAY_MODE = "relay_mode"
 TOGGLE_BUTTON = "toggle_button"
 
+# Modem properties
+MODEM_CONFIG = "modem_config"
+DISABLE_AUTO_LINKING = "disable_auto_linking"
+MONITOR_MODE = "monitor_mode"
+AUTO_LED = "auto_led"
+DEADMAN = "deadman"
+
 
 def calc_toggle_mode(toggle_value, toggle_on_value):
     """Calculate the toggle mode value."""
