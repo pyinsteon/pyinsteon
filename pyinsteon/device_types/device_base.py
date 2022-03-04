@@ -8,7 +8,7 @@ from inspect import getfullargspec
 from ..address import Address
 from ..aldb import ALDB
 from ..config.operating_flag import OperatingFlag
-from ..constants import DeviceCategory, EngineVersion, PropertyType
+from ..constants import DeviceCategory, EngineVersion, PropertyType, ResponseStatus
 from ..default_link import DefaultLink
 from ..handlers.to_device.engine_version_request import EngineVersionRequest
 from ..handlers.to_device.ping import PingCommand
@@ -195,7 +195,7 @@ class Device(ABC):
     async def async_status(self, group=None):
         """Get the status of the device."""
 
-    async def async_read_config(self):
+    async def async_read_config(self, read_aldb: bool = True):
         """Get all configuration settings.
 
         This includes:
@@ -205,7 +205,10 @@ class Device(ABC):
         """
         result_op_flags = await self.async_read_op_flags()
         result_ext_prop = await self.async_read_ext_properties()
-        result_aldb = await self._aldb.async_load()
+        if read_aldb:
+            result_aldb = await self._aldb.async_load()
+        else:
+            result_aldb = ResponseStatus.SUCCESS
         return multiple_status(result_ext_prop, result_op_flags), result_aldb
 
     async def async_write_config(self):

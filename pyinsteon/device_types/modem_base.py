@@ -17,6 +17,7 @@ from ..handlers.all_link_cleanup_report import AllLinkCleanupStatusReport
 from ..handlers.get_im_configuration import GetImConfigurationHandler
 from ..handlers.set_im_configuration import SetImConfigurationHandler
 from ..protocol.protocol import Protocol
+from ..utils import multiple_status
 from .device_base import Device
 from .device_commands import GET_IM_CONFIG_COMMAND, SET_IM_CONFIG_COMMAND
 
@@ -134,9 +135,14 @@ class ModemBase(Device, metaclass=ABCMeta):
             deadman=deadman,
         )
 
-    async def async_read_config(self):
+    async def async_read_config(self, read_aldb: bool = True):
         """Read the modem configuration."""
-        return await self.async_get_configuration()
+        result_config = await self.async_get_configuration()
+        if read_aldb:
+            result_aldb = await self.aldb.async_load()
+        else:
+            result_aldb = ResponseStatus.SUCCESS
+        return multiple_status(result_config, result_aldb)
 
     async def async_write_config(self):
         """Write the configuration changes to the modem."""
