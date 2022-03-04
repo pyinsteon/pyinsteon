@@ -134,6 +134,10 @@ class ModemBase(Device, metaclass=ABCMeta):
             deadman=deadman,
         )
 
+    async def async_read_config(self):
+        """Read the modem configuration."""
+        return await self.async_get_configuration()
+
     async def async_write_config(self):
         """Write the configuration changes to the modem."""
         if (
