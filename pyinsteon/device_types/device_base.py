@@ -210,8 +210,9 @@ class Device(ABC):
 
     async def async_write_config(self):
         """Write the device configuration to the physical device."""
-        await self.async_write_op_flags()
-        await self.async_write_ext_properties()
+        result1 = await self.async_write_op_flags()
+        result2 = await self.async_write_ext_properties()
+        return multiple_status(result1, result2)
 
     async def async_read_op_flags(self, group=None):
         """Read the device operating flags."""
