@@ -215,7 +215,7 @@ def multiple_status(*args):
 
 def ramp_rate_to_seconds(ramp_rate: int):
     """Return the seconds associated with a ramp rate."""
-    if int(ramp_rate) not in range(0, 31):
+    if int(ramp_rate) not in range(0, 32):
         raise ValueError("Ramp rate must be between 0x00 and 0x1f (31)")
 
     return RAMP_RATES[int(ramp_rate)]
