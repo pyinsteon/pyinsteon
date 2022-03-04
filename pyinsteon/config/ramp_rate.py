@@ -37,6 +37,7 @@ class RampRateProperty(DerivedProperty):
         if value is None:
             self._ramp_rate_prop.new_value = None
             return
+        value = float(value)
         ramp_rate = seconds_to_ramp_rate(value)
         if int(ramp_rate) == self._ramp_rate_prop.value:
             self._ramp_rate_prop.new_value = None
