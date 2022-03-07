@@ -34,7 +34,7 @@ class DerivedProperty(DeviceFlagBase):
 
     def _properties_updated(self):
         """Update values based on underlying properties."""
-        self._call_subscribers(name=self._name, value=self._value)
+        self._call_subscribers(name=self._name, value=self.value)
 
     def load(self, value):
         """Do nothing.
