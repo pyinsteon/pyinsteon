@@ -152,7 +152,9 @@ class TestRadioButtonGroupsProperty(TestCase):
         device = DimmableLightingControl_KeypadLinc_8(address, 0x01, 0x02)
         test_prop = device.configuration[RADIO_BUTTON_GROUPS]
 
-        for button in range(2, 9):
+        for button in device.groups:
+            if button == 1:
+                continue
             assert not test_prop.is_loaded
             device.properties[on_mask_name(button)].load(0)
             assert not test_prop.is_loaded

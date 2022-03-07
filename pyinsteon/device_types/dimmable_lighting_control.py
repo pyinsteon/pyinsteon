@@ -491,7 +491,9 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
               link to the other button.
 
         """
-        other_buttons = [button for button in range(1, 9) if button not in buttons]
+        other_buttons = [
+            button for button in self._buttons if button not in buttons and button != 1
+        ]
         addl_buttons = []
         for other_button in other_buttons:
             button_str = f"_{other_button}" if other_button != 1 else ""

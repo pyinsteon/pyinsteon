@@ -56,13 +56,14 @@ def set_radio_buttons(device, radio_button_groups):
         group = list(group)
         if len(group) < 2:
             raise ValueError("Cannot have a radio button group with one button.")
+        group = [int(button) for button in group]
         group.sort()
         group_lists.append(group)
     group_lists = sort_groups(group_lists)
     reset_radio_button_groups(device)
     for new_group in group_lists:
         for button in new_group:
-            if not 1 < button < 9:
+            if button not in device.groups:
                 raise ValueError(f"Invalid button value: {button}")
         group_dirty = True
         for group in calc_radio_button_groups(device):
@@ -72,7 +73,9 @@ def set_radio_buttons(device, radio_button_groups):
             device.set_radio_buttons(new_group)
 
     clear_buttons = []
-    for button in range(2, 9):
+    for button in device.groups:
+        if button == 1:
+            continue
         button_in_group = False
         for group in radio_button_groups:
             if button in group:
