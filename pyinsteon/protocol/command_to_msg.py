@@ -340,10 +340,17 @@ def status_request(address: Address, status_type: int = 0, topic=pub.AUTO_TOPIC)
 
 
 @topic_to_command_handler(register_list=topic_register, topic=GET_OPERATING_FLAGS)
-def get_operating_flags(address: Address, flags_requested: int, topic=pub.AUTO_TOPIC):
+def get_operating_flags(
+    address: Address, flags_requested: int, extended: bool, topic=pub.AUTO_TOPIC
+):
     """Create a GET_OPERATING_FLAGS command."""
+    user_data = UserData() if extended else None
     _create_direct_message(
-        topic=topic, address=address, cmd2=flags_requested, priority=7
+        topic=topic,
+        address=address,
+        cmd2=flags_requested,
+        priority=7,
+        user_data=user_data,
     )
 
 
