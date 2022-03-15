@@ -81,17 +81,15 @@ class GetSetExtendedPropertyManager(SubscriberBase):
         while not self._response_queue.empty():
             self._response_queue.get_nowait()
 
-        await self._get_cmd_lock.acquire()
-        if group is None:
-            results = []
-            for curr_group in self._prop_groups:
-                result = await self._async_read(group=curr_group)
-                results.append(result)
-                await asyncio.sleep(2)
-            self._get_cmd_lock.release()
-            return multiple_status(*results)
-        result = await self._async_read(group=group)
-        self._get_cmd_lock.release()
+        async with await self._get_cmd_lock:
+            if group is None:
+                results = []
+                for curr_group in self._prop_groups:
+                    result = await self._async_read(group=curr_group)
+                    results.append(result)
+                    await asyncio.sleep(2)
+                return multiple_status(*results)
+            result = await self._async_read(group=group)
         self._call_subscribers()
         return result
 
