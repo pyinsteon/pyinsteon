@@ -29,7 +29,8 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
             logger_topics=True,
         )
 
-    def test_set_radio_buttons(self):
+    @async_case
+    async def test_set_radio_buttons(self):
         """Test the `set_radio_buttons` feature."""
 
         address = random_address()
@@ -56,7 +57,8 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
             assert on_mask.new_value == masks[button]
             assert off_mask.new_value == masks[button]
 
-    def test_clear_radio_buttons(self):
+    @async_case
+    async def test_clear_radio_buttons(self):
         """Test the `set_radio_buttons` feature."""
 
         address = random_address()
@@ -92,7 +94,8 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
             assert on_mask.new_value == masks[button]
             assert off_mask.new_value == masks[button]
 
-    def test_clear_radio_buttons_when_preset(self):
+    @async_case
+    async def test_clear_radio_buttons_when_preset(self):
         """Test clearing an existing radio button group."""
         address = random_address()
         device = DimmableLightingControl_KeypadLinc_8(
@@ -137,7 +140,8 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
             assert on_mask.new_value == masks[button]
             assert off_mask.new_value == masks[button]
 
-    def test_set_toggle_mode(self):
+    @async_case
+    async def test_set_toggle_mode(self):
         """Test setting toggle modes."""
         address = random_address()
         device = DimmableLightingControl_KeypadLinc_8(

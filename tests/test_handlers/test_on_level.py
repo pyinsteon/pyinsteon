@@ -12,7 +12,7 @@ from tests.utils import TopicItem, async_case, send_topics
 class TestOnLevel(unittest.TestCase):
     """Test the on_level command handler."""
 
-    def setUp(self):
+    async def async_setup(self):
         """Set up the test."""
         self._address = Address("aabbcc")
         self.handler1 = OnLevelCommand(self._address, group=1)
@@ -29,7 +29,7 @@ class TestOnLevel(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=False,
+            logger_topics=True,
         )
 
     def set_on_level_group_1(self, on_level, group=None):
@@ -47,6 +47,7 @@ class TestOnLevel(unittest.TestCase):
     @async_case
     async def test_on_level(self):
         """Test the ON command."""
+        await self.async_setup()
         cmd1 = 0x11
         cmd2 = 0xAA
         self._on_level_1 = None
@@ -79,6 +80,7 @@ class TestOnLevel(unittest.TestCase):
     @async_case
     async def test_on_level_group(self):
         """Test the ON command."""
+        await self.async_setup()
         cmd1 = 0x11
         cmd2 = 0xAA
         self._on_level_1 = None
@@ -113,6 +115,7 @@ class TestOnLevel(unittest.TestCase):
     @async_case
     async def test_on_level_nak(self):
         """Test the ON command."""
+        await self.async_setup()
         cmd1 = 0x11
         cmd2 = 0xAA
 

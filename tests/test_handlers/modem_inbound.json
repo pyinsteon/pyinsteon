@@ -1,0 +1,111 @@
+{
+    "all_link_cleanup_failure_report": {
+        "command": {
+            "class": ".all_link_cleanup_failure_report.AllLinkCleanupFailureReport",
+            "inbound_message": {
+                "data": "5601072b3c4d",
+                "group": 7,
+                "target": "2B.3C.4D"
+            }
+        },
+        "assert_tests": {
+            "success": false,
+            "group": 7,
+            "target": "2B.3C.4D"
+        }
+    },
+    "all_link_cleanup_status_report_ack": {
+        "command": {
+            "class": ".all_link_cleanup_status_report.AllLinkCleanupStatusReport",
+            "inbound_message": {
+                "data": "5806"
+            }
+        },
+        "assert_tests": {
+            "success": true
+        }
+    },
+    "all_link_cleanup_status_report_nak": {
+        "command": {
+            "class": ".all_link_cleanup_status_report.AllLinkCleanupStatusReport",
+            "inbound_message": {
+                "data": "5815"
+            }
+        },
+        "assert_tests": {
+            "success": false
+        }
+    },
+    "all_link_completed": {
+        "command": {
+            "class": ".all_link_completed.AllLinkCompletedHandler",
+            "inbound_message": {
+                "data": "5303043a4b5c020304",
+                "link_mode": 3,
+                "group": 4,
+                "target": "3A.4B.5C",
+                "cat": 2,
+                "subcat": 3,
+                "firmware": 4
+            }
+        },
+        "assert_tests": {
+            "link_mode": 3,
+            "group": 4,
+            "target": "3A.4B.5C",
+            "cat": 2,
+            "subcat": 3,
+            "firmware": 4
+        }
+    },
+    "all_link_record_response": {
+        "command": {
+            "class": ".all_link_record_response.AllLinkRecordResponseHandler",
+            "inbound_message": {
+                "data": "57c2094f5e6d010203",
+                "flags": "0xc2",
+                "group": 9,
+                "target": "4F.5E.6D",
+                "data1": 1,
+                "data2": 2,
+                "data3": 3
+            }
+        },
+        "assert_tests": {
+            "in_use": true,
+            "high_water_mark": false,
+            "controller": true,
+            "group": 9,
+            "target": "4F.5E.6D",
+            "data1": 1,
+            "data2": 2,
+            "data3": 3
+        }
+    },
+    "read_eeprom_response": {
+        "command": {
+            "class": ".read_eeprom_response.ReadEepromResponseHandler",
+            "inbound_message": {
+                "data": "590fffc0071c2d3e050607",
+                "mem_addr": "4096 or 0x0fff",
+                "flags": "0xc0",
+                "group": 7,
+                "target": "1C.2D.3E",
+                "data1": 5,
+                "data2": 6,
+                "data3": 7
+            }
+        },
+        "assert_tests": {
+            "mem_addr": 4096,
+            "in_use": true,
+            "high_water_mark": true,
+            "controller": true,
+            "group": 7,
+            "target": "1C.2D.3E",
+            "data1": 5,
+            "data2": 6,
+            "data3": 7
+        }
+    }
+}

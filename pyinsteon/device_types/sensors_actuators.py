@@ -292,8 +292,8 @@ class SensorsActuators_IOLink(Device):
         off_cmd = self._handlers[RELAY_GROUP][OFF_COMMAND]
         switch_status_cmd = self._handlers[RELAY_GROUP][STATUS_REQUEST]
 
-        on_cmd.subscribe(self._switch_changed)
-        off_cmd.subscribe(self._switch_changed)
+        on_cmd.subscribe(self._async_switch_changed)
+        off_cmd.subscribe(self._async_switch_changed)
         on_cmd.subscribe(switch_on_event.trigger)
         off_cmd.subscribe(switch_off_event.trigger)
         switch_status_cmd.subscribe(self._handle_switch_status)
@@ -301,7 +301,7 @@ class SensorsActuators_IOLink(Device):
         manager = self._managers[ON_LEVEL_MANAGER]
         sensor_status_cmd = self._handlers[SENSOR_GROUP][STATUS_REQUEST]
 
-        manager.subscribe(self._on_off_received)
+        manager.subscribe(self._async_on_off_received)
         sensor_status_cmd.subscribe(self._handle_sensor_status)
 
     def _register_default_links(self):
@@ -317,11 +317,11 @@ class SensorsActuators_IOLink(Device):
         )
         self._default_links.append(link)
 
-    def _switch_changed(self, on_level):
+    async def _async_switch_changed(self, on_level):
         """Catch on/off signal and fire appropriate response."""
         self._groups[RELAY_GROUP].value = on_level
         if on_level and self._operating_flags[MOMENTARY_MODE_ON].value:
-            asyncio.ensure_future(self._delay_wait())
+            await self._delay_wait()
 
     def _calc_delay(self):
         """Calculate the momentary delay based on properties and flags."""
@@ -345,10 +345,6 @@ class SensorsActuators_IOLink(Device):
     def _handle_sensor_status(self, db_version, status):
         """Handle status response."""
         self._groups[SENSOR_GROUP].set_value(status)
-
-    def _on_off_received(self, on_level):
-        """Receive an on or off broadcast command."""
-        asyncio.ensure_future(self._async_on_off_received(on_level))
 
     async def _async_on_off_received(self, on_level):
         """Process an on or off broadcast command."""

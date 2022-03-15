@@ -1,0 +1,592 @@
+{
+    "assign_to_all_link_group": {
+        "command": ".assign_to_all_link_group.AssignToAllLinkGroupCommand",
+        "params": {
+            "address": ""
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x01",
+            "cmd2": 4,
+            "target": "010203",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "cat": 1,
+            "subcat": 2,
+            "firmware": 3,
+            "group": 4
+        }
+    },
+    "delete_from_all_link_group": {
+        "command": ".delete_from_all_link_group.DeleteFromAllLinkGroupCommand",
+        "params": {
+            "address": ""
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x02",
+            "cmd2": 5,
+            "target": "020304",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "cat": 2,
+            "subcat": 3,
+            "firmware": 4,
+            "group": 5
+        }
+    },
+    "ext_get_response": {
+        "command": ".ext_get_response.ExtendedGetResponseHandler",
+        "params": {
+            "address": ""
+        },
+        "message": {
+            "flags": "0x10",
+            "cmd1": "0x2E",
+            "cmd2": 0,
+            "target": "000000",
+            "user_data": {
+                "d1": 5,
+                "d2": 1,
+                "d3": 3,
+                "d4": 4,
+                "d5": 5,
+                "d6": 6,
+                "d7": 7,
+                "d8": 8,
+                "d9": 9,
+                "d10": 10,
+                "d11": 11,
+                "d12": 12,
+                "d13": 13,
+                "d14": 14,
+                "d15": 15
+            }
+        },
+        "assert_tests": {
+            "group": 5,
+            "data": {
+                "data3": 3,
+                "data4": 4,
+                "data5": 5,
+                "data6": 6,
+                "data7": 7,
+                "data8": 8,
+                "data9": 9,
+                "data10": 10,
+                "data11": 11,
+                "data12": 12,
+                "data13": 13,
+                "data14": 14
+            }
+        }
+    },
+    "manual_change": {
+        "command": ".manual_change.ManualChangeInbound",
+        "params": {
+            "address": "",
+            "group": 1
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x18",
+            "cmd2": 2,
+            "target": "000001",
+            "user_data": {}
+        },
+        "assert_tests": {}
+    },
+    "manual_change_group_ne_1": {
+        "command": ".manual_change.ManualChangeInbound",
+        "params": {
+            "address": "",
+            "group": 5
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x18",
+            "cmd2": 2,
+            "target": "000005",
+            "user_data": {}
+        },
+        "assert_tests": {}
+    },
+    "off": {
+        "command": ".off.OffInbound",
+        "params": {
+            "address": "",
+            "group": 1
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x13",
+            "cmd2": 4,
+            "target": "000001",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "on_level": 0
+        }
+    },
+    "off_group_ne_1": {
+        "command": ".off.OffInbound",
+        "params": {
+            "address": "",
+            "group": 7
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x13",
+            "cmd2": 4,
+            "target": "000007",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "on_level": 0
+        }
+    },
+    "off_all_link_cleanup": {
+        "command": ".off_all_link_cleanup.OffAllLinkCleanupInbound",
+        "params": {
+            "address": "",
+            "group": 1
+        },
+        "message": {
+            "flags": "0x40",
+            "cmd1": "0x13",
+            "cmd2": 1,
+            "target": "000000",
+            "user_data": {}
+        },
+        "assert_tests": {}
+    },
+    "off_all_link_cleanup_group_ne_1": {
+        "command": ".off_all_link_cleanup.OffAllLinkCleanupInbound",
+        "params": {
+            "address": "",
+            "group": 7
+        },
+        "message": {
+            "flags": "0x40",
+            "cmd1": "0x13",
+            "cmd2": 7,
+            "target": "000000",
+            "user_data": {}
+        },
+        "assert_tests": {}
+    },
+    "off_fast": {
+        "command": ".off_fast.OffFastInbound",
+        "params": {
+            "address": "",
+            "group": 1
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x14",
+            "cmd2": 22,
+            "target": "000001",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "on_level": 0
+        }
+    },
+    "off_fast_group_ne_1": {
+        "command": ".off_fast.OffFastInbound",
+        "params": {
+            "address": "",
+            "group": 7
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x14",
+            "cmd2": 22,
+            "target": "000007",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "on_level": 0
+        }
+    },
+    "off_fast_all_link_cleanup": {
+        "command": ".off_fast_all_link_cleanup.OffFastAllLinkCleanupInbound",
+        "params": {
+            "address": "",
+            "group": 1
+        },
+        "message": {
+            "flags": "0x40",
+            "cmd1": "0x14",
+            "cmd2": 1,
+            "target": "000000",
+            "user_data": {}
+        },
+        "assert_tests": {}
+    },
+    "off_fast_all_link_cleanup_group_ne_1": {
+        "command": ".off_fast_all_link_cleanup.OffFastAllLinkCleanupInbound",
+        "params": {
+            "address": "",
+            "group": 5
+        },
+        "message": {
+            "flags": "0x40",
+            "cmd1": "0x14",
+            "cmd2": 5,
+            "target": "000005",
+            "user_data": {}
+        },
+        "assert_tests": {}
+    },
+    "on_fast_with_on_level": {
+        "command": ".on_fast.OnFastInbound",
+        "params": {
+            "address": "",
+            "group": 1
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x12",
+            "cmd2": 88,
+            "target": "000001",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "on_level": 88
+        }
+    },
+    "on_fast_without_on_level": {
+        "command": ".on_fast.OnFastInbound",
+        "params": {
+            "address": "",
+            "group": 1
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x12",
+            "cmd2": 0,
+            "target": "000001",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "on_level": 255
+        }
+    },
+    "on_fast_with_on_level_group_ne_1": {
+        "command": ".on_fast.OnFastInbound",
+        "params": {
+            "address": "",
+            "group": 9
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x12",
+            "cmd2": 76,
+            "target": "000009",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "on_level": 76
+        }
+    },
+    "on_fast_all_link_cleanup": {
+        "command": ".on_fast_all_link_cleanup.OnFastAllLinkCleanupInbound",
+        "params": {
+            "address": "",
+            "group": 1
+        },
+        "message": {
+            "flags": "0x40",
+            "cmd1": "0x12",
+            "cmd2": 1,
+            "target": "000000",
+            "user_data": {}
+        },
+        "assert_tests": {}
+    },
+    "on_fast_all_link_cleanup_group_ne_1": {
+        "command": ".on_fast_all_link_cleanup.OnFastAllLinkCleanupInbound",
+        "params": {
+            "address": "",
+            "group": 4
+        },
+        "message": {
+            "flags": "0x40",
+            "cmd1": "0x12",
+            "cmd2": 4,
+            "target": "000000",
+            "user_data": {}
+        },
+        "assert_tests": {}
+    },
+    "on_level": {
+        "command": ".on_level.OnLevelInbound",
+        "params": {
+            "address": "",
+            "group": 1
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x11",
+            "cmd2": 82,
+            "target": "000001",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "on_level": 82
+        }
+    },
+    "on_level_group_ne_1": {
+        "command": ".on_level.OnLevelInbound",
+        "params": {
+            "address": "",
+            "group": 3
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x11",
+            "cmd2": 52,
+            "target": "000003",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "on_level": 52
+        }
+    },
+    "on_level_all_link_cleanup": {
+        "command": ".on_level_all_link_cleanup.OnAllLinkCleanupInbound",
+        "params": {
+            "address": "",
+            "group": 1
+        },
+        "message": {
+            "flags": "0x40",
+            "cmd1": "0x11",
+            "cmd2": 1,
+            "target": "000000",
+            "user_data": {}
+        },
+        "assert_tests": {}
+    },
+    "on_level_all_link_cleanup_group_ne_1": {
+        "command": ".on_level_all_link_cleanup.OnAllLinkCleanupInbound",
+        "params": {
+            "address": "",
+            "group": 2
+        },
+        "message": {
+            "flags": "0x40",
+            "cmd1": "0x11",
+            "cmd2": 2,
+            "target": "000000",
+            "user_data": {}
+        },
+        "assert_tests": {}
+    },
+    "receive_aldb_record": {
+        "command": ".receive_aldb_record.ReceiveALDBRecordHandler",
+        "params": {
+            "address": ""
+        },
+        "message": {
+            "flags": "0x10",
+            "cmd1": "0x2f",
+            "cmd2": 0,
+            "target": "000000",
+            "user_data": {
+                "d1": 0,
+                "d2": 1,
+                "d3": 15,
+                "d4": 255,
+                "d5": 3,
+                "d6": 255,
+                "d7": 5,
+                "d8": 6,
+                "d9": 7,
+                "d10": 8,
+                "d11": 9,
+                "d12": 10,
+                "d13": 11,
+                "d14": 0,
+                "d15": 0
+            }
+        },
+        "assert_tests": {
+            "memory": 4095,
+            "controller": true,
+            "group": 5,
+            "target": "060708",
+            "data1": 9,
+            "data2": 10,
+            "data3": 11,
+            "in_use": true,
+            "high_water_mark": false,
+            "bit5": true,
+            "bit4": true
+        }
+    },
+    "thermostat_cool_set_point": {
+        "command": ".thermostat_cool_set_point.ThermostatCoolSetPointHandler",
+        "params": {
+            "address": ""
+        },
+        "message": {
+            "flags": "0x00",
+            "cmd1": "0x71",
+            "cmd2": 124,
+            "target": "000000",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "degrees": 124
+        }
+    },
+    "thermostat_heat_set_point": {
+        "command": ".thermostat_heat_set_point.ThermostatHeatSetPointHandler",
+        "params": {
+            "address": ""
+        },
+        "message": {
+            "flags": "0x00",
+            "cmd1": "0x72",
+            "cmd2": 224,
+            "target": "000000",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "degrees": 224
+        }
+    },
+    "thermostat_humidity": {
+        "command": ".thermostat_humidity.ThermostatHumidityHandler",
+        "params": {
+            "address": ""
+        },
+        "message": {
+            "flags": "0x00",
+            "cmd1": "0x6F",
+            "cmd2": 98,
+            "target": "000000",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "humidity": 98
+        }
+    },
+    "thermostat_mode": {
+        "command": ".thermostat_mode.ThermostatModeHandler",
+        "params": {
+            "address": ""
+        },
+        "message": {
+            "flags": "0x00",
+            "cmd1": "0x70",
+            "cmd2": "0x21",
+            "target": "000000",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "system_mode": 1,
+            "fan_mode": 8
+        }
+    },
+    "thermostat_set_point_response": {
+        "command": ".thermostat_set_point_response.ThermostatSetPointResponseHandler",
+        "params": {
+            "address": ""
+        },
+        "message": {
+            "flags": "0x00",
+            "cmd1": "0x2e",
+            "cmd2": 0,
+            "target": "000000",
+            "user_data": {
+                "d1": 0,
+                "d2": 1,
+                "d3": 1,
+                "d4": "0x46",
+                "d5": "0x31",
+                "d6": "0x10",
+                "d7": "0x1b",
+                "d8": "0x10",
+                "d9": "0x01",
+                "d10": "0x00",
+                "d11": "0x0a",
+                "d12": "0x01",
+                "d13": "0x00",
+                "d14": "0xc6"
+            }
+        },
+        "assert_tests": {
+            "stage_1_on_minutes": 1,
+            "humidity_high": 70,
+            "humidity_low": 49,
+            "firmwire": 16,
+            "cool_set_point": 27,
+            "heat_set_point": 16,
+            "rf_offset": 1
+        }
+    },
+    "thermostat_status_response": {
+        "command": ".thermostat_status_response.ThermostatStatusResponseHandler",
+        "params": {
+            "address": ""
+        },
+        "message": {
+            "flags": "0x00",
+            "cmd1": "0x2e",
+            "cmd2": 2,
+            "target": "000000",
+            "user_data": {
+                "d1": "0x01",
+                "d2": "0x05",
+                "d3": "0x03",
+                "d4": "0x35",
+                "d5": "0x36",
+                "d6": "0x00",
+                "d7": "0x1b",
+                "d8": "0x2f",
+                "d9": "0x00",
+                "d10": "0x84",
+                "d11": "0xc8",
+                "d12": "0x10",
+                "d13": "0x64",
+                "d14": "0x29"
+            }
+        },
+        "assert_tests": {
+            "day": 5,
+            "hour": 3,
+            "minute": 53,
+            "second": 54,
+            "system_mode": 0,
+            "fan_mode": 4,
+            "cool_set_point": 27,
+            "humidity": 47,
+            "temperature": 13.2,
+            "cooling": false,
+            "heating": false,
+            "celsius": true,
+            "heat_set_point": 16
+        }
+    },
+    "thermostat_temperature": {
+        "command": ".thermostat_temperature.ThermostatTemperatureHandler",
+        "params": {
+            "address": ""
+        },
+        "message": {
+            "flags": "0x00",
+            "cmd1": "0x6e",
+            "cmd2": 72,
+            "target": "000000",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "degrees": 36
+        }
+    }
+}

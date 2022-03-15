@@ -16,22 +16,6 @@ class SetImConfigurationHandler(OutboundHandlerBase):
         super().__init__(topic=SET_IM_CONFIGURATION)
 
     # pylint: disable=arguments-differ
-    def send(
-        self,
-        disable_auto_linking: bool,
-        monitor_mode: bool,
-        auto_led: bool,
-        deadman: bool,
-    ):
-        """Send the Set IM Configuration command."""
-        super().send(
-            disable_auto_linking=disable_auto_linking,
-            monitor_mode=monitor_mode,
-            auto_led=auto_led,
-            deadman=deadman,
-        )
-
-    # pylint: disable=arguments-differ
     async def async_send(
         self,
         disable_auto_linking: bool,
@@ -49,9 +33,11 @@ class SetImConfigurationHandler(OutboundHandlerBase):
 
     # pylint: disable=arguments-differ
     @ack_handler
-    def handle_ack(self, disable_auto_linking, monitor_mode, auto_led, deadman):
+    async def async_handle_ack(
+        self, disable_auto_linking, monitor_mode, auto_led, deadman
+    ):
         """Receive the ACK message and return True."""
-        super().handle_ack()
+        await super().async_handle_ack()
         self._call_subscribers(
             disable_auto_linking=disable_auto_linking,
             monitor_mode=monitor_mode,

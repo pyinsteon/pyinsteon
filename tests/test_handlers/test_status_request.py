@@ -17,8 +17,6 @@ class TestStatusRequest(unittest.TestCase):
         self._status = None
         self._db_version_1 = None
         self._status_1 = None
-        self.status_command = StatusRequestCommand(self._address, status_type=0)
-        self.status_command.subscribe(self.set_status)
         self.ack_topic = "ack.{}.status_request.direct".format(self._address.id)
         self.direct_ack_topic = "{}.any_topic.direct_ack".format(self._address.id)
         set_log_levels(
@@ -41,6 +39,8 @@ class TestStatusRequest(unittest.TestCase):
     @async_case
     async def test_status_command(self):
         """Test Status Request command."""
+        self.status_command = StatusRequestCommand(self._address, status_type=0)
+        self.status_command.subscribe(self.set_status)
         cmd1 = 0x19
         cmd2 = 0x00
         db_version = 0x22
@@ -73,6 +73,8 @@ class TestStatusRequest(unittest.TestCase):
 
         This starts with an ACK message rather than a send() command.
         """
+        self.status_command = StatusRequestCommand(self._address, status_type=0)
+        self.status_command.subscribe(self.set_status)
         cmd1 = 0x19
         cmd2 = 0x00
         db_version = 0x44
@@ -101,6 +103,8 @@ class TestStatusRequest(unittest.TestCase):
     @async_case
     async def test_other_status(self):
         """Test other status command and confirm first handler does not handle."""
+        self.status_command = StatusRequestCommand(self._address, status_type=0)
+        self.status_command.subscribe(self.set_status)
         status_type = 1
         status_1_command = StatusRequestCommand(self._address, status_type=status_type)
         status_1_command.subscribe(self.set_status_1)

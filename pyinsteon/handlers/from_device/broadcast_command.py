@@ -2,6 +2,7 @@
 from datetime import datetime
 
 from ...constants import MessageFlagType
+from .. import broadcast_handler
 from ..inbound_base import InboundHandlerBase
 
 
@@ -20,7 +21,17 @@ class BroadcastCommandHandlerBase(InboundHandlerBase):
         self._last_command = datetime(1, 1, 1)
         self._last_hops_left = None
 
-    def is_first_message(self, target, hops_left):
+    @broadcast_handler
+    def receive_message(self, cmd1, cmd2, target, user_data, hops_left):
+        """Receive the inbound message."""
+        if not self._is_first_message(target, hops_left):
+            return
+        self._handle_message_received(cmd1, cmd2, target, user_data, hops_left)
+
+    def _handle_message_received(self, cmd1, cmd2, target, user_data, hops_left):
+        """Handle the received message."""
+
+    def _is_first_message(self, target, hops_left):
         """Test if the message is a duplicate."""
         curr_time = datetime.now()
         tdelta = curr_time - self._last_command

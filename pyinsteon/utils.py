@@ -1,8 +1,10 @@
 """Utility methods."""
+import asyncio
 import logging
 import traceback
 from enum import Enum, IntEnum
-from functools import partial
+from functools import partial, wraps
+from inspect import isawaitable, iscoroutinefunction
 from typing import Iterable
 
 from . import pub
@@ -268,7 +270,7 @@ def to_fahrenheit(celsius):
 
 def calc_thermostat_temp(high_byte, low_byte):
     """Calculate the temperature."""
-    return (low_byte | (high_byte << 8)) * 0.1
+    return round((low_byte | (high_byte << 8)) * 0.1, 1)
 
 
 def calc_thermostat_mode(thermostat_mode_byte, sys_mode_map=None, sys_low=True):
@@ -317,8 +319,40 @@ def publish_topic(topic, logger=None, **kwargs):
             logger.error("Topic listener: %s", listner)
 
 
+async_listeners = {}
+
+
+def add_async_listener(listener, async_listener):
+    """Add an listener to the async_listeners list."""
+    async_listeners[listener] = async_listener
+
+
+def get_async_listener(listener):
+    """Get the async version of a listener."""
+
+    def setup_async_listener(listener):
+        @wraps(listener)
+        def _wrapper(*args, **kwargs):
+            return asyncio.create_task(listener(*args, **kwargs))
+
+        return _wrapper
+
+    async_listener = async_listeners.get(listener)
+    if async_listener:
+        return async_listener
+    async_listener = setup_async_listener(listener)
+    add_async_listener(listener, async_listener)
+    return async_listener
+
+
+def remove_async_listener(listener):
+    """Remove an async listener."""
+    async_listeners.pop(listener)
+
+
 def subscribe_topic(listener, topic_name, logger=None):
     """Subscribe a listener to a topic and log errors."""
+
     topic_mgr = pub.getDefaultTopicMgr()
     topic = topic_mgr.getOrCreateTopic(topic_name)
     if pub.isSubscribed(listener, topicName=topic.name):
@@ -326,7 +360,11 @@ def subscribe_topic(listener, topic_name, logger=None):
     if logger is None:
         logger = logging.getLogger(__name__)
     try:
-        pub.subscribe(listener, topic.name)
+        if iscoroutinefunction(listener) or isawaitable(listener):
+            async_listener = get_async_listener(listener)
+            pub.subscribe(async_listener, topic.name)
+        else:
+            pub.subscribe(listener, topic.name)
     except pub.ListenerMismatchError as exc:
         logger.error("ListenerMismatchError")
         logger.error("args: %s", exc.args)
@@ -339,6 +377,8 @@ def subscribe_topic(listener, topic_name, logger=None):
 
 def unsubscribe_topic(listener, topic_name):
     """Unsubscribe a listener to a topic and log errors."""
+    if listener in async_listeners:
+        remove_async_listener(listener)
     topic_mgr = pub.getDefaultTopicMgr()
     topic = topic_mgr.getOrCreateTopic(topic_name)
     if pub.isSubscribed(listener, topicName=topic.name):

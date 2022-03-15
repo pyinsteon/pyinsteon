@@ -19,9 +19,9 @@ class GetImInfoHandler(OutboundHandlerBase):
 
     # pylint: disable=arguments-differ
     @ack_handler
-    def handle_ack(self, address, cat, subcat, firmware):
+    async def async_handle_ack(self, address, cat, subcat, firmware):
         """Receive the ACK message and return True."""
-        self._message_response.put_nowait(ResponseStatus.SUCCESS)
+        await self._message_response.put(ResponseStatus.SUCCESS)
         self._call_subscribers(
             address=address, cat=cat, subcat=subcat, firmware=firmware
         )

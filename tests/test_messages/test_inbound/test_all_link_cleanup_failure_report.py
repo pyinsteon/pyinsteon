@@ -4,6 +4,12 @@ from binascii import unhexlify
 
 from pyinsteon.address import Address
 from pyinsteon.constants import MessageId
+
+# pylint: disable=unused-import
+# flake8: noqa: F401
+from pyinsteon.handlers.all_link_cleanup_failure_report import (
+    AllLinkCleanupFailureReport,
+)
 from tests import set_log_levels
 from tests.utils import hex_to_inbound_message
 

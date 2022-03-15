@@ -124,8 +124,6 @@ from ..topics import (
     THERMOSTAT_SET_ZONE_HEAT_SETPOINT,
     THERMOSTAT_TEMPERATURE_DOWN,
     THERMOSTAT_TEMPERATURE_UP,
-    THERMOSTAT_ZONE_TEMPERATURE_DOWN,
-    THERMOSTAT_ZONE_TEMPERATURE_UP,
     WINDOW_COVERING_CLOSE,
     WINDOW_COVERING_OPEN,
     WINDOW_COVERING_POSITION,
@@ -579,8 +577,21 @@ def extended_read_write_aldb(
 
 
 @topic_to_command_handler(register_list=topic_register, topic=EXTENDED_TRIGGER_ALL_LINK)
-def extended_trigger_all_link(address: Address, user_data, topic=pub.AUTO_TOPIC):
+def extended_trigger_all_link(
+    address: Address, group: int, on_level: int, fast: bool, topic=pub.AUTO_TOPIC
+):
     """Create a EXTENDED_TRIGGER_ALL_LINK command."""
+    use_on_level = on_level not in [0x00, 0xFF]
+    user_data = UserData(
+        {
+            "d1": group,
+            "d2": 1 if use_on_level else 0,
+            "d3": on_level if use_on_level else 0,
+            "d4": 0x13 if on_level == 0 else 0x11,
+            "d5": 0,
+            "d6": 1 if fast else 0,
+        }
+    )
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
@@ -1173,39 +1184,35 @@ def window_covering_position(address: Address, position: int, topic=pub.AUTO_TOP
 
 
 @topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_TEMPERATURE_UP)
-def thermostat_temperature_up(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_TEMPERATURE_UP command."""
-    cmd2 = int(round(degrees * 2, 0))
-    _create_direct_message(topic=topic, address=address, cmd2=cmd2)
-
-
-@topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_ZONE_TEMPERATURE_UP
-)
-def thermostat_zone_temperature_up(
-    address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
+def thermostat_temperature_up(
+    address: Address, degrees: int, zone: int, topic=pub.AUTO_TOPIC
 ):
-    """Create a THERMOSTAT_ZONE_TEMPERATURE_UP command."""
-    _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=user_data)
+    """Create a THERMOSTAT_TEMPERATURE_UP command."""
+    degrees_value = int(round(degrees * 2, 0))
+    if zone is not None:
+        cmd2 = zone
+        user_data = UserData({"d1": degrees_value})
+    else:
+        cmd2 = degrees_value
+        user_data = None
+    _create_direct_message(topic=topic, address=address, cmd2=cmd2, user_data=user_data)
 
 
 @topic_to_command_handler(
     register_list=topic_register, topic=THERMOSTAT_TEMPERATURE_DOWN
 )
-def thermostat_temperature_down(address: Address, degrees: int, topic=pub.AUTO_TOPIC):
-    """Create a THERMOSTAT_TEMPERATURE_DOWN command."""
-    cmd2 = int(round(degrees * 2, 0))
-    _create_direct_message(topic=topic, address=address, cmd2=cmd2)
-
-
-@topic_to_command_handler(
-    register_list=topic_register, topic=THERMOSTAT_ZONE_TEMPERATURE_DOWN
-)
-def thermostat_zone_temperature_down(
-    address: Address, zone: int, user_data, topic=pub.AUTO_TOPIC
+def thermostat_temperature_down(
+    address: Address, degrees: int, zone: int, topic=pub.AUTO_TOPIC
 ):
-    """Create a THERMOSTAT_ZONE_TEMPERATURE_DOWN command."""
-    _create_direct_message(topic=topic, address=address, cmd2=zone, user_data=user_data)
+    """Create a THERMOSTAT_TEMPERATURE_DOWN command."""
+    degrees_value = int(round(degrees * 2, 0))
+    if zone is not None:
+        cmd2 = zone
+        user_data = UserData({"d1": degrees_value})
+    else:
+        cmd2 = degrees_value
+        user_data = None
+    _create_direct_message(topic=topic, address=address, cmd2=cmd2, user_data=user_data)
 
 
 @topic_to_command_handler(
@@ -1233,10 +1240,7 @@ def thermostat_get_zone_information(
 @topic_to_command_handler(register_list=topic_register, topic=THERMOSTAT_CONTROL)
 def thermostat_control(address: Address, thermostat_mode: int, topic=pub.AUTO_TOPIC):
     """Create a THERMOSTAT_CONTROL command."""
-    user_data = UserData()
-    _create_direct_message(
-        topic=topic, address=address, cmd2=int(thermostat_mode), user_data=user_data
-    )
+    _create_direct_message(topic=topic, address=address, cmd2=int(thermostat_mode))
 
 
 @topic_to_command_handler(

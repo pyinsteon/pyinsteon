@@ -13,7 +13,7 @@ from ..config import (
 from ..config.modem_config import ModemConfiguration
 from ..constants import ResponseStatus
 from ..handlers.all_link_cleanup_failure_report import AllLinkCleanupFailureReport
-from ..handlers.all_link_cleanup_report import AllLinkCleanupStatusReport
+from ..handlers.all_link_cleanup_status_report import AllLinkCleanupStatusReport
 from ..handlers.get_im_configuration import GetImConfigurationHandler
 from ..handlers.set_im_configuration import SetImConfigurationHandler
 from ..protocol.protocol import Protocol

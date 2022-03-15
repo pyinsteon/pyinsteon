@@ -87,11 +87,13 @@ class DimmableLightingControl(VariableResponderBase):
         super()._subscribe_to_handelers_and_managers()
         for group, group_prop in self._groups.items():
             if isinstance(group_prop, OnLevel):
-                self._handlers[group]["manual_change"].subscribe(self._on_manual_change)
+                self._handlers[group]["manual_change"].subscribe(
+                    self._async_on_manual_change
+                )
 
-    def _on_manual_change(self):
+    async def _async_on_manual_change(self):
         """Respond to a manual change of the device."""
-        self.status()
+        await self.async_status()
 
 
 class DimmableLightingControl_LampLinc(DimmableLightingControl):
@@ -318,10 +320,6 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         if ResponseStatus.UNCLEAR in (light_status, fan_status):
             return ResponseStatus.UNCLEAR
         return ResponseStatus.FAILURE
-
-    def light_status(self):
-        """Request the status of the light."""
-        super().status()
 
     async def async_light_status(self):
         """Request the status of the light."""

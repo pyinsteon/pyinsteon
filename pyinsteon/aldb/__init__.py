@@ -3,7 +3,6 @@
 The All-Link database contains database records that represent links to other
 Insteon devices that either respond to or control the current device.
 """
-import asyncio
 import logging
 
 from ..constants import ALDBStatus, ALDBVersion
@@ -25,11 +24,6 @@ class ALDB(ALDBBase):
         """Init the ALDB class."""
         super().__init__(address=address, version=version, mem_addr=mem_addr)
         self._read_manager = ALDBReadManager(self)
-
-    def load(self, refresh=False):
-        """Load the ALDB."""
-        self._read_manager = ALDBReadManager(self)
-        asyncio.ensure_future(self.async_load(refresh))
 
     # pylint: disable=arguments-differ
     async def async_load(

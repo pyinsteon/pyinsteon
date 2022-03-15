@@ -1,9 +1,8 @@
 """Base device object."""
-import asyncio
+
 import logging
 from abc import ABC
 from datetime import datetime
-from inspect import getfullargspec
 
 from ..address import Address
 from ..aldb import ALDB
@@ -183,14 +182,6 @@ class Device(ABC):
         if version in [EngineVersion.I2, EngineVersion.I2CS]:
             self._op_flags_manager.extended_write = True
         self._engine_version = version
-
-    def status(self, group=None):
-        """Get the status of the device."""
-        args = getfullargspec(self.async_status)
-        if "group" in args[0]:
-            asyncio.ensure_future(self.async_status(group=group))
-        else:
-            asyncio.ensure_future(self.async_status())
 
     async def async_status(self, group=None):
         """Get the status of the device."""

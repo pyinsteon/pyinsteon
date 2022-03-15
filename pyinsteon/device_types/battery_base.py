@@ -42,10 +42,6 @@ class BatteryDeviceBase:
         self._keep_awake_cmd = ExtendedSetCommand(self._address, data1=0, data2=0x04)
         subscribe_topic(self._device_awake, self._address.id)
         self._ping_task = None
-        # This may or may not make sense.
-        # It it helps to set default links when the device first connect,
-        # then this probably makes sense.
-        asyncio.ensure_future(self.async_keep_awake())
 
     def _run_on_wake(self, command, retries=3, **kwargs):
         cmd = partial(command, **kwargs)

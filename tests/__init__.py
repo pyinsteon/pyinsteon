@@ -12,11 +12,15 @@ _LOGGER_TOPICS = logging.getLogger("topics")
 PATH = os.path.join(os.getcwd())
 
 
-async def async_connect_mock(read_queue, write_queue, protocol, random_nak=True):
+async def async_connect_mock(
+    read_queue, write_queue, protocol, random_nak=True, auto_ack=True
+):
     """Mock connection for testing."""
     from .mock_transport import MockTransport
 
-    transport = MockTransport(protocol, read_queue, write_queue, random_nak=random_nak)
+    transport = MockTransport(
+        protocol, read_queue, write_queue, random_nak=random_nak, auto_ack=auto_ack
+    )
     protocol.connection_made(transport)
     return transport
 
@@ -25,6 +29,11 @@ def set_log_levels(
     logger="info", logger_pyinsteon="info", logger_messages="info", logger_topics=False
 ):
     """Set the log levels of the three logs."""
+    try:
+        assert os.environ["ALLOW_LOGGING"].lower() == "y"
+    except (AssertionError, KeyError):
+        return
+
     _setup_logger(_LOGGER, logger)
     _setup_logger(_LOGGER_PYINSTEON, logger_pyinsteon)
     _setup_logger(_LOGGER_MESSAGES, logger_messages)

@@ -17,7 +17,7 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         """Run when the state is updated."""
         self.state_value = value
 
-    def setUp(self):
+    async def async_setup(self):
         """Set up the test."""
         self.state_value = None
         self.address = Address("1a2b3c")
@@ -29,12 +29,13 @@ class TestDimmableLIghtingControl(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=False,
+            logger_topics=True,
         )
 
     @async_case
     async def test_on_command(self):
         """Test an ON message."""
+        await self.async_setup()
         self.device.groups[1].value = 0
         cmd1 = 0x22
         cmd2 = 0x23
@@ -55,6 +56,7 @@ class TestDimmableLIghtingControl(unittest.TestCase):
     @async_case
     async def test_on_fast_command(self):
         """Test an ON message."""
+        await self.async_setup()
         self.device.groups[1].value = 0
         cmd1 = 0x22
         cmd2 = 0x23
@@ -75,6 +77,7 @@ class TestDimmableLIghtingControl(unittest.TestCase):
     @async_case
     async def test_off_fast_command(self):
         """Test an ON message."""
+        await self.async_setup()
         self.device.groups[1].value = 255
         cmd1 = 0x22
         cmd2 = 0x23
@@ -95,6 +98,7 @@ class TestDimmableLIghtingControl(unittest.TestCase):
     @async_case
     async def test_off_command(self):
         """Test an ON message."""
+        await self.async_setup()
         self.device.groups[1].value = 255
         cmd1 = 0x22
         cmd2 = 0x23

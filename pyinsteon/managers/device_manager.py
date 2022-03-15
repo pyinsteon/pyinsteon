@@ -38,7 +38,7 @@ class DeviceManager(SubscriberBase):
         self._devices = {}
         self._modem = None
         self._id_manager = DeviceIdManager()
-        self._id_manager.subscribe(self._device_identified)
+        self._id_manager.subscribe(self._async_device_identified)
         self._loading_saved_lock = asyncio.Lock()
         self._link_manager = DeviceLinkManager(self)
 
@@ -330,7 +330,9 @@ class DeviceManager(SubscriberBase):
         await device.async_read_ext_properties()
         await device.async_add_default_links()
 
-    def _device_identified(self, device_id: DeviceId, link_mode: AllLinkMode):
+    async def _async_device_identified(
+        self, device_id: DeviceId, link_mode: AllLinkMode
+    ):
         """Device identified by device ID manager."""
         if self._loading_saved_lock.locked():
             return
@@ -365,7 +367,7 @@ class DeviceManager(SubscriberBase):
                 if self._delay_device_inspection:
                     self._to_be_inspected.append(device)
                 else:
-                    asyncio.ensure_future(self.async_setup_device(device))
+                    await self.async_setup_device(device)
             _LOGGER.debug("Device %s added", str(device.address))
 
     async def _async_remove_all_device_links(self, address: Address):

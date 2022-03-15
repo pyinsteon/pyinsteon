@@ -7,6 +7,7 @@ from binascii import unhexlify
 import aiofiles
 
 from pyinsteon import pub
+from pyinsteon.utils import subscribe_topic, unsubscribe_topic
 from tests import set_log_levels
 from tests.utils import (
     DataItem,
@@ -61,7 +62,7 @@ class TestDirectMsgToTopic(unittest.TestCase):
 
     def setUp(self):
         """Set up the tests."""
-        self._test_lock = asyncio.Lock()
+        # self._test_lock = asyncio.Lock()
         self._topic = None
         set_log_levels(
             logger="info",
@@ -75,13 +76,11 @@ class TestDirectMsgToTopic(unittest.TestCase):
         pub.unsubAll("send")
         pub.unsubAll("send_message")
 
-    def capture_topic(
+    async def capture_topic(
         self, cmd1, cmd2, target, user_data, hops_left, topic=pub.AUTO_TOPIC
     ):
         """Save the last topic."""
         self._topic = topic
-        if self._test_lock.locked():
-            self._test_lock.release()
 
     @async_case
     async def test_message_to_topic(self):
@@ -98,11 +97,10 @@ class TestDirectMsgToTopic(unittest.TestCase):
                     curr_test["address"] = address
                 msgs = [create_message(curr_test)]
                 curr_topic = curr_test["topic"].format(address)
-                pub.subscribe(self.capture_topic, curr_topic)
+                subscribe_topic(self.capture_topic, curr_topic)
                 send_data(msgs, protocol.read_queue)
-                await self._test_lock.acquire()
                 try:
-                    await asyncio.wait_for(self._test_lock.acquire(), 2)
+                    await asyncio.sleep(0.1)
                     assert self._topic.name == curr_topic
 
                 except asyncio.TimeoutError:
@@ -118,6 +116,4 @@ class TestDirectMsgToTopic(unittest.TestCase):
                         )
                     )
                 finally:
-                    pub.unsubscribe(self.capture_topic, curr_topic)
-                    if self._test_lock.locked():
-                        self._test_lock.release()
+                    unsubscribe_topic(self.capture_topic, curr_topic)
