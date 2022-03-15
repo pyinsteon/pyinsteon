@@ -78,7 +78,6 @@ FLD_ALL_LINK_RECORD_RESP = [
 ]
 
 # All-Link Cleanup Status Report 0x58
-FLD_ALL_LINK_CLEANUP_REPORT = []
 FLD_ALL_LINK_CLEANUP_REPORT_ACK = [MessageField("ack", 1, AckNak)]
 
 # Read from EEPROM Response 0x59
@@ -341,9 +340,6 @@ INBOUND_MSG_DEF[MessageId.WRITE_EEPROM] = MessageDefinition(
 )
 
 OUTBOUND_MSG_DEF = {}
-OUTBOUND_MSG_DEF[MessageId.ALL_LINK_CLEANUP_STATUS_REPORT] = MessageDefinition(
-    MessageId.ALL_LINK_CLEANUP_STATUS_REPORT, FLD_ALL_LINK_CLEANUP_REPORT
-)
 OUTBOUND_MSG_DEF[MessageId.GET_IM_INFO] = MessageDefinition(
     MessageId.GET_IM_INFO, FLD_GET_IM_INFO_SEND
 )

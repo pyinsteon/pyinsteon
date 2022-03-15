@@ -58,7 +58,7 @@ class WriteEepromHandler(OutboundHandlerBase):
 
     # pylint: disable=arguments-differ
     @ack_handler
-    def handle_ack(
+    async def async_handle_ack(
         self,
         mem_addr: int,
         flags: AllLinkRecordFlags,
@@ -69,10 +69,10 @@ class WriteEepromHandler(OutboundHandlerBase):
         data3: int,
     ):
         """Send the Read from EEPROM message."""
-        super().handle_ack()
+        await super().async_handle_ack()
 
     @nak_handler
-    def handle_nak(
+    async def async_handle_nak(
         self,
         mem_addr: int,
         flags: int,
@@ -83,4 +83,4 @@ class WriteEepromHandler(OutboundHandlerBase):
         data3: int,
     ):
         """Receive the NAK message and return False."""
-        self._message_response.put_nowait(ResponseStatus.FAILURE)
+        await self._message_response.put(ResponseStatus.FAILURE)

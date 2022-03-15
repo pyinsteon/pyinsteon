@@ -84,7 +84,7 @@ class TestBroadcastMessageDedup(unittest.TestCase):
     @async_case
     async def test_dup_on_same_hops_lt_1_sec(self):
         """Test two messages same hops within 1 seconds => 1 call."""
-        topics = [self.create_topic(3, 2, 0.1), self.create_topic(3, 2, 0.9)]
+        topics = [self.create_topic(3, 2, 0.1), self.create_topic(3, 2, 0.6)]
 
         on_handler = OnLevelInbound(self.address, 3)
         on_handler.subscribe(self.handle_on_topic)

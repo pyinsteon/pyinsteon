@@ -411,9 +411,9 @@ class ClimateControl_Thermostat(Device):
         """Receive temperature status update and convert to celsius if needed."""
         self._groups[GRP_TEMP].value = degrees
 
-    def _temp_format_changed(self, name, value):
+    async def _async_temp_format_changed(self, name, value):
         """Recieve notification that the thermostat has changed to/from C/F."""
-        self.status()
+        await self.async_status()
 
     def _temp_format_first_set(self, name, value):
         """Set up the trigger for a temperature format change.
@@ -423,7 +423,7 @@ class ClimateControl_Thermostat(Device):
         measurements from F to C or vise versa.
         """
         self._properties[CELSIUS].unsubscribe(self._temp_format_first_set)
-        self._properties[CELSIUS].unsubscribe(self._temp_format_changed)
+        self._properties[CELSIUS].unsubscribe(self._async_temp_format_changed)
 
 
 class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermostat):

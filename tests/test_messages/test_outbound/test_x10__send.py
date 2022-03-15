@@ -2,9 +2,11 @@
 import unittest
 from binascii import unhexlify
 
+from pyinsteon import pub
 from pyinsteon.constants import MessageId
 from tests import set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
+from tests.utils import async_case
 
 
 class TestX10Send(unittest.TestCase, OutboundBase):
@@ -28,12 +30,16 @@ class TestX10Send(unittest.TestCase, OutboundBase):
             logger_topics=False,
         )
 
-    def test_raw_x10(self):
+    @async_case
+    async def test_raw_x10(self):
         """Test the raw x10 byte."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.raw_x10 == self.raw_x10
 
-    def test_x10_flag(self):
+    @async_case
+    async def test_x10_flag(self):
         """Test the x10 flag byte."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.x10_flag == self.x10_flag
 
 

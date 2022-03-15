@@ -1,5 +1,5 @@
 """Base class for the All-Link Database."""
-import asyncio
+
 import logging
 from abc import ABC, abstractmethod
 from typing import List, Tuple
@@ -278,10 +278,6 @@ class ALDBBase(ABC):
             bit4=bit4,
         )
         self._dirty_records[mem_addr] = new_rec
-
-    def write(self, force=False):
-        """Write modified records to the device."""
-        asyncio.ensure_future(self.async_write(force=force))
 
     async def async_write(self, force=False) -> Tuple[int, int]:
         """Write the dirty records to the device."""

@@ -27,11 +27,11 @@ class ReadEepromHandler(OutboundHandlerBase):
 
     # pylint: disable=arguments-differ
     @ack_handler
-    def handle_ack(self, mem_hi: int, mem_low: int):
+    async def async_handle_ack(self, mem_hi: int, mem_low: int):
         """Send the Read from EEPROM message."""
-        super().handle_ack()
+        await super().async_handle_ack(mem_hi=mem_hi, mem_low=mem_low)
 
     @nak_handler
-    def handle_nak(self, mem_hi: int, mem_low: int):
+    async def async_handle_nak(self, mem_hi: int, mem_low: int):
         """Receive the NAK message and return False."""
-        self._message_response.put_nowait(ResponseStatus.FAILURE)
+        await self._message_response.put(ResponseStatus.FAILURE)

@@ -19,9 +19,11 @@ class GetImConfigurationHandler(OutboundHandlerBase):
 
     # pylint: disable=arguments-differ
     @ack_handler
-    def handle_ack(self, disable_auto_linking, monitor_mode, auto_led, deadman):
+    async def async_handle_ack(
+        self, disable_auto_linking, monitor_mode, auto_led, deadman
+    ):
         """Receive the ACK message and return True."""
-        self._message_response.put_nowait(ResponseStatus.SUCCESS)
+        await self._message_response.put(ResponseStatus.SUCCESS)
         self._call_subscribers(
             disable_auto_linking=disable_auto_linking,
             monitor_mode=monitor_mode,

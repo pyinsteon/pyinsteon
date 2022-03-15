@@ -43,7 +43,7 @@ class TestOnLevelManager(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=False,
+            logger_topics=True,
         )
 
     def handle_on_off(self, on_level):

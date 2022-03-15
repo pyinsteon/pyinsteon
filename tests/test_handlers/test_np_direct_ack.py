@@ -15,12 +15,6 @@ class TestNoDirectAck(unittest.TestCase):
 
     def setUp(self):
         """Set up the test."""
-        self._address = Address("234567")
-        self.handler = OnLevelCommand(self._address, group=1)
-        self.handler.subscribe(self.set_on_level)
-        self._on_level = None
-        self._group = None
-        self.ack_topic = "ack.{}.{}.on.direct".format(self._address.id, 1)
         set_log_levels(
             logger="info",
             logger_pyinsteon="info",
@@ -36,6 +30,12 @@ class TestNoDirectAck(unittest.TestCase):
     @async_case
     async def test_no_direct_ack(self):
         """Test no direct ACK received."""
+        self._address = Address("234567")
+        self.handler = OnLevelCommand(self._address, group=1)
+        self.handler.subscribe(self.set_on_level)
+        self._on_level = None
+        self._group = None
+        self.ack_topic = "ack.{}.{}.on.direct".format(self._address.id, 1)
         orig_timeout = pyinsteon.handlers.TIMEOUT
         pyinsteon.handlers.TIMEOUT = 0.1
         cmd1 = 0x99
@@ -46,7 +46,10 @@ class TestNoDirectAck(unittest.TestCase):
             )
         ]
         send_topics(topics)
-        assert await self.handler.async_send(on_level=cmd2) == ResponseStatus.FAILURE
+        assert (
+            await self.handler.async_send(on_level=cmd2)
+            == ResponseStatus.DEVICE_UNRESPONSIVE
+        )
         assert self._on_level is None
         pyinsteon.handlers.TIMEOUT = orig_timeout
 

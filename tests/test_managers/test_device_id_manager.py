@@ -13,7 +13,6 @@ class TestDeviceIdManager(unittest.TestCase):
 
     def setUp(self):
         """Set up the test."""
-        self._id_mgr = DeviceIdManager()
         self._test_response = None
         self._modem_address = Address("4d5e6f")
         self._cat = 0x01
@@ -34,6 +33,7 @@ class TestDeviceIdManager(unittest.TestCase):
     @async_case
     async def test_id_awake_device(self):
         """Test an awake device is recognized."""
+        self._id_mgr = DeviceIdManager()
         address = Address("010101")
         off, ack, dir_ack, response = self._set_topics(address)
         topic_item_1 = TopicItem(
@@ -57,15 +57,19 @@ class TestDeviceIdManager(unittest.TestCase):
         self._id_mgr.close()
         await asyncio.sleep(0.1)
 
-    def test_append(self):
+    @async_case
+    async def test_append(self):
         """Test appending an address to the list of devices to ID."""
+        self._id_mgr = DeviceIdManager()
         address = Address("020202")
         self._id_mgr.append(address)
         assert self._id_mgr[address] is not None
         assert self._id_mgr[address].cat is None
 
-    def test_set_device_id(self):
+    @async_case
+    async def test_set_device_id(self):
         """Test setting the device ID."""
+        self._id_mgr = DeviceIdManager()
         address = Address("030303")
         self._id_mgr.set_device_id(address, self._cat, self._subcat, self._firmware)
         assert self._id_mgr[address].cat == self._cat
@@ -75,6 +79,7 @@ class TestDeviceIdManager(unittest.TestCase):
     @async_case
     async def test_id_device(self):
         """Test device identification."""
+        self._id_mgr = DeviceIdManager()
         address = Address("040404")
         _, ack, dir_ack, response = self._set_topics(address)
         topic_item_1 = TopicItem(ack, cmd_kwargs(0x10, 0x00, None, None), 1)

@@ -16,7 +16,7 @@ HB_CHECK_BUFFER = 0
 class TestHeartbeatManager(unittest.TestCase):
     """Test the heartbeat manager."""
 
-    def setUp(self):
+    async def async_setup(self):
         """Set up the test."""
         set_log_levels(
             logger="info",
@@ -57,6 +57,7 @@ class TestHeartbeatManager(unittest.TestCase):
     @async_case
     async def test_hb_on(self):
         """Test the heartbeat on message."""
+        await self.async_setup()
         on = TopicItem(
             self._on_topic,
             {
@@ -77,6 +78,7 @@ class TestHeartbeatManager(unittest.TestCase):
     @async_case
     async def test_hb_off(self):
         """Test the heartbeat on message."""
+        await self.async_setup()
         off = TopicItem(
             self._off_topic,
             {
@@ -97,6 +99,7 @@ class TestHeartbeatManager(unittest.TestCase):
     @async_case
     async def test_no_hb(self):
         """Test no heartbeat received."""
+        await self.async_setup()
         pyinsteon.managers.heartbeat_manager.HB_CHECK_BUFFER = 1
         self._hb_mgr = pyinsteon.managers.heartbeat_manager.HeartbeatManager(
             self._address, self._group, 0

@@ -44,10 +44,6 @@ class OutboundHandlerBase(InboundHandlerBase):
         """Message response queue to manage message status."""
         return self._message_response
 
-    def send(self, **kwargs):
-        """Sent the message."""
-        asyncio.ensure_future(self.async_send(**kwargs))
-
     async def async_send(self, **kwargs):
         """Send the message and wait for a status."""
 
@@ -67,11 +63,10 @@ class OutboundHandlerBase(InboundHandlerBase):
             return ResponseStatus.FAILURE
 
     @ack_handler
-    def handle_ack(self, **kwargs):
+    async def async_handle_ack(self, **kwargs):
         """Handle the ACK processing."""
-        user_data = kwargs.get("user_data")
-        if self._group is not None and user_data is not None:
-            curr_group = user_data.get("d1", 1)
-            if self._group != curr_group:
-                return
-        self._message_response.put_nowait(ResponseStatus.SUCCESS)
+        await self._message_response.put(ResponseStatus.SUCCESS)
+        self._call_subscribers_on_ack(**kwargs)
+
+    def _call_subscribers_on_ack(self, **kwargs):
+        """Update subscribers on ACK received."""

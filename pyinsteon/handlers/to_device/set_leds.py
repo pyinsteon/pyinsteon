@@ -26,30 +26,6 @@ class SetLedsCommandHandler(ExtendedSetCommand):
         )
 
     # pylint: disable=arguments-differ
-    def send(
-        self,
-        group1: bool,
-        group2: bool,
-        group3: bool,
-        group4: bool,
-        group5: bool,
-        group6: bool,
-        group7: bool,
-        group8: bool,
-    ):
-        """Set the LED values of the KPL."""
-        super().send(
-            group1=group1,
-            group2=group2,
-            group3=group3,
-            group4=group4,
-            group5=group5,
-            group6=group6,
-            group7=group7,
-            group8=group8,
-        )
-
-    # pylint: disable=arguments-differ
     async def async_send(
         self,
         group1: bool,

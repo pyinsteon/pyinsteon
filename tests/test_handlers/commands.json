@@ -10,15 +10,15 @@
                     "on_level": 255
                 }
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 17,
                     "cmd2": 255,
                     "target": "445566"
                 }
-            },
+            ],
             "response": 1,
             "assert_tests": {
                 "on_level": 255
@@ -35,15 +35,14 @@
                     "on_level": 100
                 }
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [ {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 18,
                     "cmd2": 100,
                     "target": "445566"
                 }
-            },
+            ],
             "response": 1,
             "assert_tests": {
                 "on_level": 100
@@ -58,15 +57,14 @@
                 },
                 "send_params": {}
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [{
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 19,
                     "cmd2": 0,
                     "target": "445566"
                 }
-            },
+            ],
             "response": 1,
             "assert_tests": {
                 "on_level": 0
@@ -81,15 +79,14 @@
                 },
                 "send_params": {}
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [{
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 20,
                     "cmd2": 0,
                     "target": "445566"
                 }
-            },
+            ],
             "response": 1,
             "assert_tests": {
                 "on_level": 0
@@ -105,15 +102,14 @@
                     "group": 3
                 }
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [ {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 9,
                     "cmd2": 3,
                     "target": "445566"
                 }
-            },
+            ],
             "response": 1,
             "assert_tests": {}
         },
@@ -127,15 +123,14 @@
                     "group": 3
                 }
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [{
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 10,
                     "cmd2": 3,
                     "target": "445566"
                 }
-            },
+            ],
             "response": 1,
             "assert_tests": {}
         },
@@ -149,20 +144,17 @@
                     "group": 3
                 }
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [{
                     "address": "112233",
-                    "flags": 48,
+                    "flags": 38,
                     "cmd1": 46,
                     "cmd2": 0,
-                    "user_data": {"d1": 3, "d2": 1, "d3": 3, "d4": 4, "d5": 5, "d6": 6, "d7": 7, "d8": 8, "d9": 9, "d10": 10, "d11": 11, "d12": 12, "d13": 13, "d14": 14},
+                    "user_data": {},
                     "target": "445566"
                 }
-            },
+            ],
             "response": 1,
-            "assert_tests": {
-                "data": {"data1": 3, "data2": 1, "data3": 3, "data4": 4, "data5": 5, "data6": 6, "data7": 7, "data8": 8, "data9": 9, "data10": 10, "data11": 11, "data12": 12, "data13": 13, "data14": 14}
-            }
+            "assert_tests": {}
         },
         "extended_set": {
             "command": {
@@ -187,15 +179,48 @@
                     "data14": 14
                 }
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [{
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 46,
                     "cmd2": 0,
                     "target": "445566"
                 }
+            ],
+            "response": 1,
+            "assert_tests": {}
+        },
+        "extended_set_2": {
+            "command": {
+                "class": ".extended_set_2.ExtendedSet2Command",
+                "params": {
+                    "address": "112233",
+                    "data1": 3,
+                    "data2": 4
+                },
+                "send_params": {
+                    "data3": 3,
+                    "data4": 4,
+                    "data5": 5,
+                    "data6": 6,
+                    "data7": 7,
+                    "data8": 8,
+                    "data9": 9,
+                    "data10": 10,
+                    "data11": 11,
+                    "data12": 12,
+                    "data13": 13,
+                    "data14": 14
+                }
             },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 46,
+                    "cmd2": 2,
+                    "target": "445566"
+                }
+            ],
             "response": 1,
             "assert_tests": {}
         },
@@ -209,15 +234,14 @@
                     "flags_requested": 1
                 }
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [{
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 31,
                     "cmd2": 170,
                     "target": "445566"
                 }
-            },
+            ],
             "response": 1,
             "assert_tests": {
                 "flags": 170
@@ -231,27 +255,14 @@
                 },
                 "send_params": {}
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [{
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 16,
                     "cmd2": 0,
                     "target": "445566"
                 }
-            },
-            "response": 1,
-            "assert_tests": {}
-        },
-        "off_all_link_broadcast": {
-            "command": {
-                "class": ".off_all_link_broadcast.OffAllLinkBroadcastCommand",
-                "params": {
-                    "group": 10
-                },
-                "send_params": {}
-            },
-            "messages": {},
+            ],
             "response": 1,
             "assert_tests": {}
         },
@@ -264,27 +275,14 @@
                 },
                 "send_params": {}
             },
-            "messages": {
-                "cleanup_ack": {
+            "messages": [{
                     "address": "112233",
                     "flags": 96,
                     "cmd1": 19,
                     "cmd2": 1,
                     "target": "445566"
                 }
-            },
-            "response": 1,
-            "assert_tests": {}
-        },
-        "on_level_all_link_broadcast": {
-            "command": {
-                "class": ".on_level_all_link_broadcast.OnLevelAllLinkBroadcastCommand",
-                "params": {
-                    "group": 10
-                },
-                "send_params": {}
-            },
-            "messages": {},
+            ],
             "response": 1,
             "assert_tests": {}
         },
@@ -297,15 +295,14 @@
                 },
                 "send_params": {}
             },
-            "messages": {
-                "cleanup_ack": {
+            "messages": [{
                     "address": "112233",
                     "flags": 96,
                     "cmd1": 17,
                     "cmd2": 1,
                     "target": "445566"
                 }
-            },
+            ],
             "response": 1,
             "assert_tests": {}
         },
@@ -317,8 +314,7 @@
                 },
                 "send_params": {}
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [{
                     "address": "112233",
                     "flags": 48,
                     "cmd1": 3,
@@ -326,13 +322,33 @@
                     "user_data": {"d1": 0, "d2": 2, "d3": 3, "d4": 4, "d5": 5, "d6": 6, "d7": 7, "d8": 8, "d9": 0, "d10": 0, "d11": 0, "d12": 0, "d13": 0, "d14": 0},
                     "target": "445566"
                 }
-            },
+            ],
             "response": 1,
             "assert_tests": {
                 "product_id": 131844,
                 "cat": 5,
                 "subcat": 6
             }
+        },
+        "product_data_request_no_user_data": {
+            "command": {
+                "class": ".product_data_request.ProductDataRequestCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {}
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 48,
+                    "cmd1": 3,
+                    "cmd2": 0,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {}
         },
         "read_aldb": {
             "command": {
@@ -342,21 +358,40 @@
                 },
                 "send_params": {}
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [{
                     "address": "112233",
-                    "flags": 48,
+                    "flags": 38,
                     "cmd1": 47,
                     "cmd2": 0,
                     "user_data": {},
                     "target": "445566"
                 }
-            },
+            ],
             "response": 1,
             "assert_tests": {
-                "product_id": 131844,
-                "cat": 5,
-                "subcat": 6
+                "ack_response": 0
+            }
+        },
+        "read_aldb_direct_nak": {
+            "command": {
+                "class": ".read_aldb.ReadALDBCommandHandler",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {}
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 160,
+                    "cmd1": 47,
+                    "cmd2": 254,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 0,
+            "assert_tests": {
+                "ack_response": 254
             }
         },
         "set_operating_flags": {
@@ -366,11 +401,10 @@
                     "address": "112233"
                 },
                 "send_params": {
-                    "cmd": 5
+                    "cmd": 4
                 }
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [{
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 32,
@@ -378,9 +412,73 @@
                     "user_data": {},
                     "target": "445566"
                 }
-            },
+            ],
             "response": 1,
             "assert_tests": {}
+        },
+        "set_operating_flags_direct_nak_direct_ack": {
+            "command": {
+                "class": ".set_operating_flags.SetOperatingFlagsCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "cmd": 5
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 160,
+                    "cmd1": 32,
+                    "cmd2": 254,
+                    "user_data": {},
+                    "target": "445566"
+                },
+                {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 32,
+                    "cmd2": 5,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+            }
+        },
+        "set_operating_flags_direct_nak_direct_nak": {
+            "command": {
+                "class": ".set_operating_flags.SetOperatingFlagsCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "cmd": 6
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 160,
+                    "cmd1": 32,
+                    "cmd2": 254,
+                    "user_data": {},
+                    "target": "445566"
+                },
+                {
+                    "address": "112233",
+                    "flags": 160,
+                    "cmd1": 32,
+                    "cmd2": 254,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 2,
+            "call_count": 2,
+            "assert_tests": {
+                "response": 254
+            }
         },
         "status_request": {
             "command": {
@@ -391,8 +489,7 @@
                 },
                 "send_params": {}
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [{
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 33,
@@ -400,11 +497,32 @@
                     "user_data": {},
                     "target": "445566"
                 }
-            },
+            ],
             "response": 1,
             "assert_tests": {
                 "status": 22
             }
+        },
+        "status_request_non_direct_message": {
+            "command": {
+                "class": ".status_request.StatusRequestCommand",
+                "params": {
+                    "address": "112233",
+                    "status_type": 5
+                },
+                "send_params": {}
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 162,
+                    "cmd1": 33,
+                    "cmd2": 22,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 4,
+            "assert_tests": {}
         },
         "write_aldb": {
             "command": {
@@ -426,8 +544,7 @@
                     "bit4": 1
                 }
             },
-            "messages": {
-                "direct_ack": {
+            "messages": [{
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 47,
@@ -435,8 +552,403 @@
                     "user_data": {},
                     "target": "445566"
                 }
-            },
+            ],
             "response": 1,
             "assert_tests": {}
+        },
+        "engine_version_request": {
+            "command": {
+                "class": ".engine_version_request.EngineVersionRequest",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {}
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 13,
+                    "cmd2": 2,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "engine_version": 2
+            }
+        },
+        "engine_version_request_unknown": {
+            "command": {
+                "class": ".engine_version_request.EngineVersionRequest",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {}
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 13,
+                    "cmd2": 15,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "engine_version": 3
+            }
+        },
+        "ping": {
+            "command": {
+                "class": ".ping.PingCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {}
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 15,
+                    "cmd2": 0,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {}
+        },
+        "set_leds": {
+            "command": {
+                "class": ".set_leds.SetLedsCommandHandler",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "group1": true,
+                    "group2": false,
+                    "group3": true,
+                    "group4": false,
+                    "group5": true,
+                    "group6": false,
+                    "group7": true,
+                    "group8": false
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 46,
+                    "cmd2": 0,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {}
+        },
+        "temperature_down_no_zone_no_degrees": {
+            "command": {
+                "class": ".temperature_down.TemperatureDownCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {}
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 105,
+                    "cmd2": 2,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "degrees": 1
+            }
+        },
+        "temperature_down_no_zone_with_degrees": {
+            "command": {
+                "class": ".temperature_down.TemperatureDownCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "degrees": 3.5
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 105,
+                    "cmd2": 7,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+            }
+        },
+        "temperature_down_with_zone_with_degrees": {
+            "command": {
+                "class": ".temperature_down.TemperatureDownCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "degrees": 8,
+                    "zone": 2
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 105,
+                    "cmd2": 2,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "degrees": 8,
+                "zone": 2
+            }
+        },
+        "temperature_up_no_zone_no_degrees": {
+            "command": {
+                "class": ".temperature_up.TemperatureUpCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {}
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 104,
+                    "cmd2": 2,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "degrees": 1
+            }
+        },
+        "temperature_up_no_zone_with_degrees": {
+            "command": {
+                "class": ".temperature_up.TemperatureUpCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "degrees": 3.5
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 104,
+                    "cmd2": 7,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+            }
+        },
+        "temperature_up_with_zone_with_degrees": {
+            "command": {
+                "class": ".temperature_up.TemperatureUpCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "degrees": 8,
+                    "zone": 2
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 104,
+                    "cmd2": 2,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "degrees": 8,
+                "zone": 2
+            }
+        },
+        "thermostat_cool_set_point": {
+            "command": {
+                "class": ".thermostat_cool_set_point.ThermostatCoolSetPointCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "degrees": 62
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 108,
+                    "cmd2": 124,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "degrees": 62
+            }
+        },
+        "thermostat_heat_set_point": {
+            "command": {
+                "class": ".thermostat_heat_set_point.ThermostatHeatSetPointCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "degrees": 82
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 109,
+                    "cmd2": 164,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "degrees": 82
+            }
+        },
+        "thermostat_get_set_point": {
+            "command": {
+                "class": ".thermostat_get_set_point.ThermostatGetSetPointCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {}
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 46,
+                    "cmd2": 0,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {}
+        },
+        "thermostat_mode": {
+            "command": {
+                "class": ".thermostat_mode.ThermostatModeCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "thermostat_mode": 1
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 107,
+                    "cmd2": 4,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "thermostat_mode": 1
+            }
+        },
+        "thermostat_mode_invalid_mode_response": {
+            "command": {
+                "class": ".thermostat_mode.ThermostatModeCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "thermostat_mode": 1
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 107,
+                    "cmd2": 1,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 0,
+            "assert_tests": {}
+        },
+        "trigger_scene_off": {
+            "command": {
+                "class": ".trigger_scene_off.TriggerSceneOffCommandHandler",
+                "params": {
+                    "address": "112233",
+                    "group": 4
+                },
+                "send_params": {}
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 48,
+                    "cmd2": 0,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "on_level": 0
+            }
+        },
+        "trigger_scene_on": {
+            "command": {
+                "class": ".trigger_scene_on.TriggerSceneOnCommandHandler",
+                "params": {
+                    "address": "112233",
+                    "group": 6
+                },
+                "send_params": {}
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 48,
+                    "cmd2": 0,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "on_level": 255
+            }
         }
     }
