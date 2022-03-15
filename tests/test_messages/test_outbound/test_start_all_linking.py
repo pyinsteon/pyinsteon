@@ -2,12 +2,14 @@
 import unittest
 from binascii import unhexlify
 
+from pyinsteon import pub
 from pyinsteon.constants import AllLinkMode, MessageId
 
 # pylint: disable=unused-import
 from pyinsteon.protocol.messages.outbound import start_all_linking  # noqa: F401
 from tests import set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
+from tests.utils import async_case
 
 
 class TestStartAllLinking(unittest.TestCase, OutboundBase):
@@ -32,12 +34,16 @@ class TestStartAllLinking(unittest.TestCase, OutboundBase):
             logger_topics=False,
         )
 
-    def test_mode(self):
+    @async_case
+    async def test_mode(self):
         """Test link_mode."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.link_mode == self.link_mode
 
-    def test_group(self):
+    @async_case
+    async def test_group(self):
         """Test group."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.group == self.group
 
 

@@ -17,11 +17,6 @@ class SetOperatingFlagsCommand(DirectCommandHandlerBase):
         super().__init__(topic=SET_OPERATING_FLAGS, address=address)
 
     # pylint: disable=arguments-differ
-    def send(self, cmd: int, extended=False):
-        """Send Get Operating Flags message."""
-        super().send(cmd=cmd, extended=extended)
-
-    # pylint: disable=arguments-differ
     async def async_send(self, cmd: int, extended=False):
         """Send Get Operating Flags message asyncronously."""
         cmd_response = await super().async_send(cmd=cmd, extended=extended)

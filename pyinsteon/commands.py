@@ -32,6 +32,7 @@ from .topics import (
     EXTENDED_GET_SET,
     EXTENDED_GET_SET_2,
     EXTENDED_READ_WRITE_ALDB,
+    EXTENDED_READ_WRITE_ALDB_DIRECT_NAK,
     EXTENDED_RECEIVED,
     EXTENDED_TRIGGER_ALL_LINK,
     FX_USERNAME,
@@ -143,8 +144,6 @@ from .topics import (
     THERMOSTAT_TEMPERATURE_DOWN,
     THERMOSTAT_TEMPERATURE_STATUS,
     THERMOSTAT_TEMPERATURE_UP,
-    THERMOSTAT_ZONE_TEMPERATURE_DOWN,
-    THERMOSTAT_ZONE_TEMPERATURE_UP,
     WINDOW_COVERING_CLOSE,
     WINDOW_COVERING_OPEN,
     WINDOW_COVERING_POSITION,
@@ -282,9 +281,10 @@ commands.add(ON_AT_RAMP_RATE, 0x2E, None, False, True)
 # direct is ed and direct_ack is sd
 commands.add(EXTENDED_GET_SET, 0x2E, 0x00, None)
 commands.add(EXTENDED_GET_RESPONSE, 0x2E, 0x00, {"d2": 0x01})
-commands.add(
-    THERMOSTAT_SET_POINT_RESPONSE, 0x2E, 0x00, {"d1": 0x00, "d2": 0x01, "d3": 0x01}
-)
+
+# This is not consistant with the 2441TH dev guide
+# It is consistand with 2441ZTH dev guide howerver
+commands.add(THERMOSTAT_SET_POINT_RESPONSE, 0x2E, 0x00, {"d2": 0x01, "d3": 0x01})
 commands.add(EXTENDED_GET_SET_2, 0x2E, 0x02, None)
 commands.add(THERMOSTAT_STATUS_RESPONSE, 0x2E, 0x02, {"d1": 0x01})
 
@@ -292,9 +292,11 @@ commands.add(THERMOSTAT_STATUS_RESPONSE, 0x2E, 0x02, {"d1": 0x01})
 commands.add(OFF_AT_RAMP_RATE, 0x2F, None, False, True)
 # direct is ed and direct_ack is sd
 commands.add(EXTENDED_READ_WRITE_ALDB, 0x2F, 0x00, None)
+# Conflicts with OFF_AT_RAMP_RATE but only used when an ALDB read ack has already been received
+commands.add(EXTENDED_READ_WRITE_ALDB_DIRECT_NAK, 0x2F, None, False, False)
 commands.add(EXTENDED_TRIGGER_ALL_LINK, 0x30, None, None)
 
-commands.add(BEEP, 0x30, None, None)
+commands.add(BEEP, 0x30, None, False)
 commands.add(SET_SPRINKLER_PROGRAM, 0x40, None, True)
 commands.add(SPRINKLER_VALVE_ON, 0x40, None, False)
 commands.add(SPRINKLER_GET_PROGRAM_RESPONSE, 0x41, None, True)
@@ -373,12 +375,10 @@ commands.add(WINDOW_COVERING_CLOSE, 0x60, 0x02, False)
 commands.add(WINDOW_COVERING_STOP, 0x60, 0x03, False)
 commands.add(WINDOW_COVERING_PROGRAM, 0x60, 0x04, False)
 commands.add(WINDOW_COVERING_POSITION, 0x61, None, False)
-commands.add(THERMOSTAT_TEMPERATURE_UP, 0x68, None, False)
-commands.add(THERMOSTAT_ZONE_TEMPERATURE_UP, 0x68, None, {})
-commands.add(THERMOSTAT_TEMPERATURE_DOWN, 0x69, None, False)
-commands.add(THERMOSTAT_ZONE_TEMPERATURE_DOWN, 0x69, None, {})
+commands.add(THERMOSTAT_TEMPERATURE_UP, 0x68, None, None, False)
+commands.add(THERMOSTAT_TEMPERATURE_DOWN, 0x69, None, None, False)
 commands.add(THERMOSTAT_GET_ZONE_INFORMATION, 0x6A, None, False)
-commands.add(THERMOSTAT_CONTROL, 0x6B, None, None, False)
+commands.add(THERMOSTAT_CONTROL, 0x6B, None, False, False)
 commands.add(THERMOSTAT_SET_COOL_SETPOINT, 0x6C, None, None, False)
 commands.add(THERMOSTAT_SET_ZONE_COOL_SETPOINT, 0x6C, None, {})
 commands.add(THERMOSTAT_SET_HEAT_SETPOINT, 0x6D, None, None, False)

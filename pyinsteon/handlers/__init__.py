@@ -1,6 +1,8 @@
 """Insteon message and command handlers."""
+import asyncio
 import logging
 from functools import partial, wraps
+from inspect import isawaitable, iscoroutinefunction
 
 from ..address import Address
 from ..constants import MessageFlagType
@@ -42,6 +44,8 @@ def _setup_handler(reg_func, func):
     @wraps(func)
     def _wrapper(self, *args, **kwargs):
         """Wrap a function."""
+        if iscoroutinefunction(func) or isawaitable(func):
+            return asyncio.create_task(func(self, *args, **kwargs))
         return func(self, *args, **kwargs)
 
     _wrapper.register_handler = reg_func

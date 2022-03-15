@@ -13,7 +13,6 @@ class StatusRequestCommand(DirectCommandHandlerBase):
     def __init__(self, address, status_type: int = 0):
         """Init the OnLevelCommand class."""
         super().__init__(topic=STATUS_REQUEST, address=address)
-        self._status_active = False
         self._status_type = status_type
         if status_type:
             self._subscriber_topic = f"{self._subscriber_topic}_{status_type}"
@@ -26,30 +25,16 @@ class StatusRequestCommand(DirectCommandHandlerBase):
         except AttributeError:
             return 0
 
-    @property
-    def status_active(self):
-        """Return if the status command is active."""
-        try:
-            return self._status_active
-        except AttributeError:
-            return False
-
-    @status_active.setter
-    def status_active(self, value: bool):
-        """Set if the status command is active."""
-        self._status_active = bool(value)
-
     # pylint: disable=arguments-differ, useless-super-delegation
     async def async_send(self):
         """Send the ON command async."""
         return await super().async_send(status_type=self._status_type)
 
     @ack_handler
-    def handle_ack(self, cmd1, cmd2, user_data):
+    async def async_handle_ack(self, cmd1, cmd2, user_data):
         """Handle the message ACK."""
         if cmd2 == self.status_type:
-            self.status_active = True
-            super().handle_ack(cmd1, cmd2, user_data)
+            await super().async_handle_ack(cmd1, cmd2, user_data)
 
     @status_handler
     def handle_direct_ack(self, topic=pub.AUTO_TOPIC, **kwargs):
@@ -58,17 +43,15 @@ class StatusRequestCommand(DirectCommandHandlerBase):
         This handler listens to all topics for a device therefore we need to
         confirm the message is a status response.
         """
-        if not self.status_active:
+        if not self._response_lock.locked():
             return
 
         msg_type = topic.name.split(".")[-1]
         if msg_type != str(MessageFlagType.DIRECT_ACK):
             return
 
-        self._status_active = False
-        self._message_response.put_nowait(ResponseStatus.SUCCESS)
+        self._direct_response.put_nowait(ResponseStatus.SUCCESS)
 
         cmd1 = kwargs.get("cmd1")
         cmd2 = kwargs.get("cmd2")
-        if cmd2 is not None:
-            self._call_subscribers(db_version=cmd1, status=cmd2)
+        self._call_subscribers(db_version=cmd1, status=cmd2)

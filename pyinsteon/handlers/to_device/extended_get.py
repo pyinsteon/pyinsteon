@@ -19,12 +19,6 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
         self._data2 = 0x00
 
     # pylint: disable=arguments-differ
-    def send(self, group=0):
-        """Send Get Operating Flags message."""
-        self._data1 = group
-        super().send(data1=self._data1, data2=self._data2)
-
-    # pylint: disable=arguments-differ
     async def async_send(self, group=0):
         """Send Get Operating Flags message asyncronously."""
         self._data1 = group
@@ -33,7 +27,7 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
         return response
 
     @ack_handler
-    def handle_ack(self, cmd1, cmd2, user_data):
+    async def async_handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK response.
 
         Required to ensure only GET requests are triggered.
@@ -44,4 +38,4 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
             or not user_data["d2"] == self._data2
         ):
             return
-        super().handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
+        await super().async_handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)

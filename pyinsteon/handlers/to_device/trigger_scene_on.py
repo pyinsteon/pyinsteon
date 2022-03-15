@@ -10,36 +10,25 @@ class TriggerSceneOnCommandHandler(DirectCommandHandlerBase):
     def __init__(self, address, group):
         """Init the SetLedCommandHandler class."""
         super().__init__(topic=EXTENDED_TRIGGER_ALL_LINK, address=address, group=group)
-        self._on_level = 0
+        self._on_level = None
 
     # pylint: disable=arguments-differ
-    async def async_send(self, on_level: int = 0xFF, fast: bool = False):
+    async def async_send(self, on_level=0xFF, fast: bool = False):
         """Set the LED values of the KPL."""
         self._on_level = on_level
-        action = 0 if on_level == 0xFF else 1
-        cmd2 = self._on_level
-        ramp_rate = 1 if fast else 0
-        kwargs = {
-            "data1": self._group,
-            "data2": action,
-            "data3": self._on_level,
-            "data4": 0x11,
-            "data5": cmd2,
-            "data6": ramp_rate,
-        }
-
-        return await super().async_send(**kwargs)
+        return await super().async_send(group=self._group, on_level=on_level, fast=fast)
 
     @ack_handler
-    def handle_ack(self, cmd1, cmd2, user_data):
+    async def async_handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK response.
 
         Required since the BEEP command uses the same cmd1, cmd2 values.
         """
         if not user_data and not user_data["d1"] == self._group:
             return
-        return super().handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
+        return await super().async_handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
 
-    def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Update subscribers."""
         self._call_subscribers(on_level=self._on_level)
+        self._on_level = None

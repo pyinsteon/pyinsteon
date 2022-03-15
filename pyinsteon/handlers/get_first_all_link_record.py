@@ -2,6 +2,7 @@
 # pylint: disable=no-self-use
 import logging
 
+from ..constants import ResponseStatus
 from ..topics import GET_FIRST_ALL_LINK_RECORD
 from . import nak_handler
 from .outbound_base import OutboundHandlerBase
@@ -18,5 +19,6 @@ class GetFirstAllLinkRecordHandler(OutboundHandlerBase):
         _LOGGER.debug("Setup GetFirstAllLinkRecordHandler")
 
     @nak_handler
-    def handle_nak(self, **kwargs):
+    async def async_handle_nak(self, **kwargs):
         """Receive the NAK message and return False."""
+        await self._message_response.put(ResponseStatus.FAILURE)

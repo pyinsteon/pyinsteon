@@ -45,8 +45,9 @@ def async_case(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         future = func(*args, **kwargs)
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(future)
+        asyncio.run(future)
+        # loop = asyncio.get_event_loop()
+        # loop.run_until_complete(future)
 
     return wrapper
 
@@ -164,29 +165,39 @@ MAX_LOCK = 60
 
 
 @asynccontextmanager
-async def async_protocol_manager():
+async def async_protocol_manager(
+    read_queue=None, write_queue=None, random_nak=False, auto_ack=True
+):
     """Manage the protocol to ensure a single instance."""
     async with PROTOCOL_LOCK:
-        protocol = await async_create_protocol()
+        protocol = await async_create_protocol(
+            read_queue=read_queue,
+            write_queue=write_queue,
+            random_nak=random_nak,
+            auto_ack=auto_ack,
+        )
         try:
             yield protocol
         finally:
             await async_release_protocol(protocol)
 
 
-async def async_create_protocol():
+async def async_create_protocol(
+    read_queue=None, write_queue=None, random_nak=False, auto_ack=True
+):
     """Create a protocol using a mock transport.
 
     Need to ensure only one protocol is available at a time.
     """
     pyinsteon.protocol.protocol.WRITE_WAIT = 0.01
-    read_queue = asyncio.Queue()
-    write_queue = asyncio.Queue()
+    read_queue = asyncio.Queue() if read_queue is None else read_queue
+    write_queue = asyncio.Queue() if write_queue is None else write_queue
     connect_method = partial(
         async_connect_mock,
         read_queue=read_queue,
         write_queue=write_queue,
-        random_nak=False,
+        random_nak=random_nak,
+        auto_ack=auto_ack,
     )
     protocol = pyinsteon.protocol.protocol.Protocol(connect_method=connect_method)
     await protocol.async_connect()

@@ -4,13 +4,14 @@ import unittest
 
 from pyinsteon.device_types.ipdb import IPDB
 from tests import _LOGGER
-from tests.utils import random_address
+from tests.utils import async_case, random_address
 
 
 class TestCreateDevices(unittest.TestCase):
     """Test creation of all devices."""
 
-    def test_create_devices(self):
+    @async_case
+    async def test_create_devices(self):
         """Test device creation."""
 
         ipdb = IPDB()

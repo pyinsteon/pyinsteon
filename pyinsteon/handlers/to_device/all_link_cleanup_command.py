@@ -27,9 +27,9 @@ class AllLinkCleanupCommandHandlerBase(OutboundHandlerBase):
 
     # pylint: disable=arguments-differ
     @ack_handler
-    def handle_ack(self, cmd1, cmd2, user_data):
+    async def async_handle_ack(self, cmd1, cmd2, user_data):
         """Handle the message ACK."""
-        super().handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
+        await super().async_handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
 
     @all_link_cleanup_ack_handler
     def handle_all_link_ack(self, target, cmd1, cmd2, user_data, hops_left):

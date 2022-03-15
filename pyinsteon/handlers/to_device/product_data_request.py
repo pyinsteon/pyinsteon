@@ -15,7 +15,7 @@ class ProductDataRequestCommand(DirectCommandHandlerBase):
         """Send the OFF command async."""
         return await super().async_send()
 
-    def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Update subscribers."""
         if user_data is None:
             return

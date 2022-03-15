@@ -2,8 +2,6 @@
 import asyncio
 import unittest
 
-import async_timeout
-
 from pyinsteon import pub
 from pyinsteon.address import Address
 from pyinsteon.topics import ON
@@ -100,30 +98,3 @@ class TestProtocol(unittest.TestCase):
                 assert expected_topic is None
             if topic_lock.locked():
                 topic_lock.release()
-
-    @async_case
-    async def test_send_on_all_link_broadcast_topic(self):
-        """Test sending the broadcast ON command."""
-        from pyinsteon.handlers.to_device.on_level_all_link_broadcast import (
-            OnLevelAllLinkBroadcastCommand,
-        )
-
-        topic_queue = asyncio.Queue()
-        async with async_protocol_manager():
-
-            def topic_received(cmd1, cmd2, user_data, topic=pub.AUTO_TOPIC):
-                """Receive the OFF topic for a device."""
-                topic_queue.put_nowait(topic.name)
-
-            group = 3
-            target = Address(bytearray([0x00, 0x00, group]))
-            ack_topic = "ack.{}.on.all_link_broadcast".format(target.id)
-            pub.subscribe(topic_received, ack_topic)
-            cmd = OnLevelAllLinkBroadcastCommand(group=group)
-            await cmd.async_send()  # Mock transport auto sends ACK/NAK
-            try:
-                async with async_timeout.timeout(2):
-                    last_topic = await topic_queue.get()
-                assert last_topic == ack_topic
-            except asyncio.TimeoutError:
-                assert ack_topic is None
