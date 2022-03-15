@@ -63,6 +63,11 @@ class HttpTransport(asyncio.Transport):
         self._last_msg = None
         self._reader_task = None
 
+    @property
+    def write_wait(self):
+        """Return the time to wait between writes."""
+        return 0.5
+
     def abort(self):
         """Alternative to closing the transport."""
         self.close()
