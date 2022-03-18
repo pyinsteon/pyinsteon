@@ -81,7 +81,7 @@ class GetSetExtendedPropertyManager(SubscriberBase):
         while not self._response_queue.empty():
             self._response_queue.get_nowait()
 
-        async with await self._get_cmd_lock:
+        async with self._get_cmd_lock:
             if group is None:
                 results = []
                 for curr_group in self._prop_groups:
