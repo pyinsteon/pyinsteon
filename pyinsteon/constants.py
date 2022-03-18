@@ -437,3 +437,4 @@ class DeviceAction(Enum):
 
     ADDED = 0
     REMOVED = 1
+    COMPLETED = 2

@@ -207,6 +207,7 @@ class DeviceManager(SubscriberBase):
                     yield linked_address
         finally:
             await async_cancel_linking_mode()
+            self._call_subscribers(address=None, action=DeviceAction.COMPLETED)
             if self._delay_device_inspection:
                 self._delay_device_inspection = False
                 asyncio.ensure_future(self.async_inspect_devices())
