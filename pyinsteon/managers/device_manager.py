@@ -205,6 +205,8 @@ class DeviceManager(SubscriberBase):
                     linked_address = await self._linked_device.get()
                     link_next = multiple and linked_address
                     yield linked_address
+        except asyncio.TimeoutError:
+            pass
         finally:
             await async_cancel_linking_mode()
             self._call_subscribers(address=None, action=DeviceAction.COMPLETED)
