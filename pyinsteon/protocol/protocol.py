@@ -212,5 +212,5 @@ class Protocol(asyncio.Protocol):
                     self._last_message.get()
                 self._last_message.put(msg)
                 await self._transport.async_write(msg)
-                await asyncio.sleep(self._transport.wait_write)
+                await asyncio.sleep(self._transport.write_wait)
         _LOGGER.debug("Modem writer stopped.")
