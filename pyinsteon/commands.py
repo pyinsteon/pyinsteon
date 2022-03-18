@@ -274,12 +274,13 @@ commands.add(POKE_ONE_BYTE, 0x29, None, False)
 commands.add(PEEK_ONE_BYTE, 0x2B, None, False)
 commands.add(PEEK_ONE_BYTE_INTERNAL, 0x2C, None, False)
 commands.add(POKE_ONE_BYTE_INTERNAL, 0x2D, None, False)
-
-# cmd2 ne 0x00 => no confict w/ EXTENDED_GET_SET
-# Conflict w/ THERMOSTAT_EXTENDED_STATUS but thermostat has no ramp rate so OK
 commands.add(ON_AT_RAMP_RATE, 0x2E, None, False, True)
-# direct is ed and direct_ack is sd
 commands.add(EXTENDED_GET_SET, 0x2E, 0x00, None)
+commands.add(EXTENDED_GET_SET, 0x2E, 0xFF, None)
+commands.add(EXTENDED_GET_SET, 0x2E, 0xFE, None)
+commands.add(EXTENDED_GET_SET, 0x2E, 0xFD, None)
+commands.add(EXTENDED_GET_SET, 0x2E, 0xFC, None)
+commands.add(EXTENDED_GET_SET, 0x2E, 0xFB, None)
 commands.add(EXTENDED_GET_RESPONSE, 0x2E, 0x00, {"d2": 0x01})
 
 # This is not consistant with the 2441TH dev guide
