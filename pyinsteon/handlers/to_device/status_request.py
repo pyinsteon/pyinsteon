@@ -26,7 +26,7 @@ class StatusRequestCommand(DirectCommandHandlerBase):
             await super().async_handle_ack(cmd1, cmd2, user_data)
 
     @status_handler
-    def handle_direct_ack(self, topic=pub.AUTO_TOPIC, **kwargs):
+    async def async_handle_direct_ack(self, topic=pub.AUTO_TOPIC, **kwargs):
         """Handle the Status Request response direct ACK.
 
         This handler listens to all topics for a device therefore we need to
