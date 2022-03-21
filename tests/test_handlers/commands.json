@@ -369,7 +369,7 @@
             ],
             "response": 1,
             "assert_tests": {
-                "ack_response": 0
+                "response": 0
             }
         },
         "read_aldb_direct_nak": {
@@ -391,7 +391,7 @@
             ],
             "response": 0,
             "assert_tests": {
-                "ack_response": 254
+                "response": 254
             }
         },
         "set_operating_flags": {

@@ -25,6 +25,7 @@ class MockTransport(SubscriberBase, asyncio.Transport):
         self._auto_ack = auto_ack
         self._closing = False
         asyncio.ensure_future(self._process_read_queue())
+        self.write_wait = 0.01
 
     async def _process_read_queue(self):
         """Read the data queue."""

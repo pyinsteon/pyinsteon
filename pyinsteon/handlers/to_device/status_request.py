@@ -12,28 +12,17 @@ class StatusRequestCommand(DirectCommandHandlerBase):
 
     def __init__(self, address, status_type: int = 0):
         """Init the OnLevelCommand class."""
-        super().__init__(topic=STATUS_REQUEST, address=address)
-        self._status_type = status_type
-        if status_type:
-            self._subscriber_topic = f"{self._subscriber_topic}_{status_type}"
-
-    @property
-    def status_type(self):
-        """Return the type of status message."""
-        try:
-            return self._status_type
-        except AttributeError:
-            return 0
+        super().__init__(topic=STATUS_REQUEST, address=address, group=status_type)
 
     # pylint: disable=arguments-differ, useless-super-delegation
     async def async_send(self):
         """Send the ON command async."""
-        return await super().async_send(status_type=self._status_type)
+        return await super().async_send(status_type=self._group)
 
     @ack_handler
     async def async_handle_ack(self, cmd1, cmd2, user_data):
         """Handle the message ACK."""
-        if cmd2 == self.status_type:
+        if cmd2 == self._group:
             await super().async_handle_ack(cmd1, cmd2, user_data)
 
     @status_handler
