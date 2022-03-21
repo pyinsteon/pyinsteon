@@ -377,6 +377,9 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
+        self._handlers[STATUS_COMMAND] = StatusRequestCommand(
+            self._address, status_type=2
+        )
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
         self._handlers[GET_LEDS_COMMAND] = StatusRequestCommand(
             self._address, status_type=1

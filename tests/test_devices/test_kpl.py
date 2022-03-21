@@ -290,17 +290,17 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
         cmd2_on = random.randint(0, 255)
         target = device.address
         user_data = None
-        ack_status_0 = "ack.{}.0.{}.direct".format(device.address.id, STATUS_REQUEST)
+        ack_status_0 = "ack.{}.2.{}.direct".format(device.address.id, STATUS_REQUEST)
         ack_status_1 = "ack.{}.1.{}.direct".format(device.address.id, STATUS_REQUEST)
         direct_ack_status = "{}.{}.direct_ack".format(device.address.id, STATUS_REQUEST)
         ack_on = "ack.{}.1.{}.direct".format(device.address.id, ON)
         direct_ack_on = "{}.{}.direct_ack".format(device.address.id, ON)
         status_1_handler_topic = f"handler.{device.address.id}.1.status_request.direct"
-        status_handler_topic = f"handler.{device.address.id}.0.status_request.direct"
+        status_handler_topic = f"handler.{device.address.id}.2.status_request.direct"
         pub.subscribe(receive_status, status_handler_topic)
         pub.subscribe(receive_status_1, status_1_handler_topic)
         responses = [
-            TopicItem(ack_status_0, cmd_kwargs(0x19, 0x00, user_data), 0.5),
+            TopicItem(ack_status_0, cmd_kwargs(0x19, 0x02, user_data), 0.5),
             TopicItem(
                 direct_ack_status,
                 cmd_kwargs(cmd1_status, cmd2_status, user_data, target),

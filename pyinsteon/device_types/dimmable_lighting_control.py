@@ -64,6 +64,7 @@ from .device_commands import (
     ON_COMMAND,
     ON_FAST_COMMAND,
     SET_LEDS_COMMAND,
+    STATUS_COMMAND,
     STATUS_COMMAND_FAN,
 )
 from .variable_controller_base import ON_LEVEL_MANAGER
@@ -76,6 +77,9 @@ class DimmableLightingControl(VariableResponderBase):
     def _register_handlers_and_managers(self):
         """Register command handlers and managers."""
         super()._register_handlers_and_managers()
+        self._handlers[STATUS_COMMAND] = StatusRequestCommand(
+            self._address, status_type=2
+        )
         for group, group_prop in self._groups.items():
             if isinstance(group_prop, OnLevel):
                 self._handlers[group]["manual_change"] = ManualChangeInbound(
@@ -608,7 +612,7 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[GET_LEDS_COMMAND].subscribe(self._led_status)
         for group in self._buttons:
-            if self._groups.get(group) is not None:
+            if group != 1:
                 led_method = partial(self._led_follow_check, group=group)
                 self._managers[group][ON_LEVEL_MANAGER].subscribe(led_method)
 
