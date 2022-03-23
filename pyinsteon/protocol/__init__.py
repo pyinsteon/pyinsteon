@@ -52,7 +52,7 @@ async def async_modem_connect(
 
     transport = None
     if not device and not host:
-        return ValueError("Must specify either a device or a host")
+        raise ValueError("Must specify either a device or a host")
 
     if device:
         connect_method = partial(async_connect_serial, **{"device": device})

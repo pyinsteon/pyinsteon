@@ -1,7 +1,7 @@
 """Collection of topics mapped to commands (cmd1, cmd2)."""
 import logging
 from collections import namedtuple
-from typing import Iterable
+from typing import Iterable, Tuple
 
 from .topics import (
     ALL_LINK_CLEANUP_STATUS_REPORT,
@@ -205,7 +205,7 @@ class Commands:
         """Get the command elements of teh topic."""
         return self._topics.get(topic)
 
-    def get_command(self, topic: str) -> (int, int, bool):
+    def get_command(self, topic: str) -> Tuple[int, int, bool]:
         """Get cmd1 and cmd2 from a topic.
 
         Returns (cmd1, cmd2, extended)
