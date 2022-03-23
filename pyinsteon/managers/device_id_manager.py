@@ -126,15 +126,6 @@ class DeviceIdManager(SubscriberBase):
             self._ping_tasks[address].cancel()
 
         device_id = DeviceId(address, cat, subcat, firmware)
-        curr_id = self._device_ids.get(address)
-        if (
-            curr_id
-            and curr_id.cat == device_id.cat
-            and curr_id.subcat == device_id.subcat
-            and curr_id.firmware == device_id.firmware
-        ):
-            return
-
         self._device_ids[address] = device_id
         self._call_subscribers(device_id=device_id, link_mode=link_mode)
 

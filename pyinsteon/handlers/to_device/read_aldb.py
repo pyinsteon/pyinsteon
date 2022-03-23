@@ -53,8 +53,8 @@ class ReadALDBCommandHandler(DirectCommandHandlerBase):
 
     def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Update subscribers."""
-        self._call_subscribers(ack_response=cmd2)
+        self._call_subscribers(response=0)
 
     def _update_subscribers_on_nak(self, cmd1, cmd2, target, user_data, hops_left):
-        """Update subscribers on NAK received."""
-        self._call_subscribers(ack_response=cmd2)
+        """Update subscribers on DIIRECT NAK received."""
+        self._call_subscribers(response=cmd2)

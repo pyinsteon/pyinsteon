@@ -28,7 +28,9 @@ class GetSetOperatingFlagsManager:
         self._get_command.subscribe(self._update_flags)
         self._send_lock = asyncio.Lock()
         self._extended_write = False
+        self._extended_read = False
         self._set_command.subscribe(self._check_write_response)
+        self._get_command.subscribe(self._check_read_response)
 
     @property
     def extended_write(self):
@@ -87,7 +89,10 @@ class GetSetOperatingFlagsManager:
         retries = 0
         result = ResponseStatus.UNSENT
         while retries < MAX_RETRIES and result != ResponseStatus.SUCCESS:
-            result = await self._get_command.async_send(group)
+            result = await self._get_command.async_send(
+                group, extended=self._extended_read
+            )
+            await asyncio.sleep(0.01)
             retries += 1
         return result
 
@@ -113,6 +118,7 @@ class GetSetOperatingFlagsManager:
                 result = await self._set_command.async_send(
                     cmd=cmd, extended=self._extended_write
                 )
+                await asyncio.sleep(0.01)
                 retries += 1
 
             if result == ResponseStatus.SUCCESS:
@@ -129,11 +135,24 @@ class GetSetOperatingFlagsManager:
         is returned in response.
         """
         _LOGGER.debug("Received set command response: %s", response)
-        if response == 0xFD:
+        if (response | 0xF0) == 0xFD:
             self._extended_write = True
 
-    def _update_flags(self, group, flags):
+    def _check_read_response(self, group, flags, response):
+        """Confirm if the write command requires Standard or Extended messages.
+
+        This is called when the command is responded to with a Direct NAK. The code in cmd2
+        is returned in response.
+        """
+        _LOGGER.debug("Received set command response: %s", response)
+        if (response | 0xF0) == 0xFD:
+            self._extended_read = True
+
+    def _update_flags(self, group, flags, response):
         """Update each flag."""
+        if response:  # response should be 0
+            return
+
         if not self._groups.get(group):
             return
 

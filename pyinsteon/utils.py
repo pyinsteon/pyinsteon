@@ -22,6 +22,7 @@ from .constants import (
     ThermostatMode,
     X10Commands,
 )
+from .topics import STATUS_REQUEST
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")
@@ -163,23 +164,32 @@ def _include_address(prefix, topic, address, message_type):
     if prefix == "send" and message_type == MessageFlagType.DIRECT:
         return False
 
+    if prefix == "handler" and message_type == MessageFlagType.DIRECT:
+        return True
+
     if commands.get(topic) is None:
         return False
 
     return True
 
 
-def _include_group(topic, group, message_type):
+def _msg_group(topic, group, message_type):
+    if topic == STATUS_REQUEST and group is not None:
+        return group
+
+    if commands.use_group(topic) and group is not None:
+        return group if group else 1
+
     if group is None:
-        return False
+        return None
 
     if not commands.use_group(topic):
-        return False
+        return None
 
     if message_type in [MessageFlagType.ALL_LINK_CLEANUP]:
-        return False
+        return None
 
-    return True
+    return 1
 
 
 def build_topic(topic, prefix=None, address=None, group=None, message_type=None):
@@ -192,8 +202,8 @@ def build_topic(topic, prefix=None, address=None, group=None, message_type=None)
     if _include_address(prefix, topic, address, message_type):
         addr = address.id if isinstance(address, Address) else address
         full_topic = f"{full_topic}{addr}."
-        if commands.use_group(topic) and group is not None:
-            group = group if group else 1
+        group = _msg_group(topic, group, message_type)
+        if group is not None:
             full_topic = f"{full_topic}{group}."
 
     full_topic = f"{full_topic}{topic}"
@@ -217,7 +227,7 @@ def multiple_status(*args):
 
 def ramp_rate_to_seconds(ramp_rate: int):
     """Return the seconds associated with a ramp rate."""
-    if int(ramp_rate) not in range(0, 31):
+    if int(ramp_rate) not in range(0, 32):
         raise ValueError("Ramp rate must be between 0x00 and 0x1f (31)")
 
     return RAMP_RATES[int(ramp_rate)]

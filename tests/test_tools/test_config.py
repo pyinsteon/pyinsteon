@@ -10,6 +10,7 @@ except ImportError:
     from .asyncmock_patch import AsyncMock
 
 import pyinsteon
+from pyinsteon.config import LED_OFF, ON_LEVEL
 from pyinsteon.constants import RelayMode, ResponseStatus, ToggleMode
 from pyinsteon.device_types import (
     ClimateControl_Thermostat,
@@ -19,8 +20,6 @@ from pyinsteon.device_types import (
     SwitchedLightingControl,
     SwitchedLightingControl_SwitchLinc,
 )
-from pyinsteon.extended_property import ON_LEVEL
-from pyinsteon.operating_flag import LED_OFF
 from pyinsteon.tools.config import ToolsConfig
 from tests.utils import async_case, random_address
 

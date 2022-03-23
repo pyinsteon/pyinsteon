@@ -15,7 +15,6 @@ from .msg_to_topic import convert_to_topic
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_MSG = logging.getLogger("pyinsteon.messages")
-WRITE_WAIT = 0.5  # Time to wait between writes to transport
 
 
 def _is_nak(msg):
@@ -213,5 +212,5 @@ class Protocol(asyncio.Protocol):
                     self._last_message.get()
                 self._last_message.put(msg)
                 await self._transport.async_write(msg)
-                await asyncio.sleep(WRITE_WAIT)
+                await asyncio.sleep(self._transport.write_wait)
         _LOGGER.debug("Modem writer stopped.")

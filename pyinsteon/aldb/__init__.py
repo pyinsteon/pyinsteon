@@ -36,7 +36,7 @@ class ALDB(ALDBBase):
             self.clear()
         else:
             # Pop any unused records to make sure we query them
-            unused = self.find(in_use=False)
+            unused = list(self.find(in_use=False))
             for rec in unused:
                 self._records.pop(rec.mem_addr)
             self._hwm_record = None
