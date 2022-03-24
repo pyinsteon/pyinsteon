@@ -1,9 +1,10 @@
 """Test operating flags and extended flags features."""
-
+import random
 import unittest
 
-from pyinsteon.extended_property import ExtendedProperty
-from pyinsteon.operating_flag import OperatingFlag
+from pyinsteon.config.extended_property import ExtendedProperty
+from pyinsteon.config.operating_flag import OperatingFlag
+from pyinsteon.constants import PropertyType
 from tests.utils import randint, random_address
 
 
@@ -147,3 +148,53 @@ class TestFlags(unittest.TestCase):
             assert flag.value == orig
             assert flag.new_value is None
             assert not flag.is_dirty
+
+    def test_class_properties(self):
+        """Test the ExtendedProperty class properties."""
+        address = random_address()
+        name = "prpp_name"
+        value_type = int
+        is_reversed = bool(random.randint(0, 1))
+        is_read_only = bool(random.randint(0, 1))
+        prop_type = PropertyType(random.randint(0, 2))
+        prop = ExtendedProperty(
+            address, name, value_type, is_reversed, is_read_only, prop_type
+        )
+
+        assert prop.topic == f"{address.id}.property.{name}"
+        assert prop.name == name
+        assert prop.value_type == value_type
+        assert prop.is_reversed == is_reversed
+        assert prop.is_read_only == is_read_only
+        assert prop.property_type == prop_type
+
+        prop2 = ExtendedProperty(
+            address, name, value_type, not is_reversed, not is_read_only, prop_type
+        )
+
+        assert prop2.is_reversed != is_reversed
+        assert prop2.is_read_only != is_read_only
+
+    def test_load_method(self):
+        """Test the load method."""
+        prop = ExtendedProperty(random_address(), "prop_name", int, False, False)
+
+        value = random.randint(0, 255)
+        assert not prop.is_loaded
+        prop.load(value)
+        assert prop.is_loaded
+        assert prop.value == value
+        assert not prop.is_dirty
+        assert prop.new_value is None
+
+        new_value = random.randint(0, 255)
+        prop.new_value = new_value
+        assert prop.new_value == new_value
+        assert prop.is_dirty
+
+        value2 = random.randint(0, 255)
+        prop.load(value2)
+        assert prop.is_loaded
+        assert prop.value == value2
+        assert not prop.is_dirty
+        assert prop.new_value is None

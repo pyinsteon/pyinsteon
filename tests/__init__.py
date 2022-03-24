@@ -29,6 +29,11 @@ def set_log_levels(
     logger="info", logger_pyinsteon="info", logger_messages="info", logger_topics=False
 ):
     """Set the log levels of the three logs."""
+    try:
+        assert os.environ["ALLOW_LOGGING"].lower() == "y"
+    except (AssertionError, KeyError):
+        return
+
     _setup_logger(_LOGGER, logger)
     _setup_logger(_LOGGER_PYINSTEON, logger_pyinsteon)
     _setup_logger(_LOGGER_MESSAGES, logger_messages)

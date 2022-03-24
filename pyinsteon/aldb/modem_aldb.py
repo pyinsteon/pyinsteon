@@ -53,6 +53,7 @@ class ModemALDB(ALDBBase):
         if self._read_manager is None:
             return
 
+        self._update_status(ALDBStatus.LOADING)
         # See if we can use EEPROM reads
         if self._read_write_mode == ReadWriteMode.UNKNOWN:
             top_of_mem = await self._read_manager.async_confirm_eeprom_read()

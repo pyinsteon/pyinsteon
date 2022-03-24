@@ -207,7 +207,7 @@
         "cmd2": "16",
         "user_data": "",
         "ack": "",
-        "topic": "{}.status_request.direct"
+        "topic": "{}.22.status_request.direct"
     },
     "GET_OPERATING_FLAGS-DIRECT": {
         "address": "010203",
@@ -459,16 +459,6 @@
         "ack": "",
         "topic": "{}.21.stop_manual_change.all_link_cleanup"
     },
-    "STATUS_REQUEST-ALL_LINK_CLEANUP": {
-        "address": "010203",
-        "target": "040506",
-        "flags": "40",
-        "cmd1": "19",
-        "cmd2": "16",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.status_request.all_link_cleanup"
-    },
     "GET_OPERATING_FLAGS-ALL_LINK_CLEANUP": {
         "address": "010203",
         "target": "040506",
@@ -718,16 +708,6 @@
         "user_data": "",
         "ack": "",
         "topic": "{}.32.stop_manual_change.broadcast"
-    },
-    "STATUS_REQUEST-BROADCAST": {
-        "address": "010203",
-        "target": "000021",
-        "flags": "80",
-        "cmd1": "19",
-        "cmd2": "16",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.status_request.broadcast"
     },
     "GET_OPERATING_FLAGS-BROADCAST": {
         "address": "010203",

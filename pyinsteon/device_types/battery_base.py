@@ -102,7 +102,7 @@ class BatteryDeviceBase:
             self.aldb.async_load = aldb_load_save
         return result
 
-    async def async_read_config(self):
+    async def async_read_config(self, read_aldb: bool = True):
         """Get all configuration settings.
 
         This includes:
@@ -110,7 +110,9 @@ class BatteryDeviceBase:
         - Extended properties
         - All-Link Database records.
         """
-        return self._run_on_wake(super(BatteryDeviceBase, self).async_add_default_links)
+        return self._run_on_wake(
+            super(BatteryDeviceBase, self).async_read_config, read_aldb=read_aldb
+        )
 
     async def async_read_product_id(self):
         """Get the product ID."""

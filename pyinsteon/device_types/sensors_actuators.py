@@ -1,10 +1,27 @@
 """Sensor/Actuator devices."""
 import asyncio
 
-from ..constants import RelayMode, ResponseStatus
+from ..config import (
+    DELAY,
+    LED_BLINK_ON_TX_ON,
+    MOMENTARY_DELAY,
+    MOMENTARY_FOLLOW_SENSE,
+    MOMENTARY_MODE_ON,
+    MOMENTARY_ON_OFF_TRIGGER,
+    PRESCALER,
+    PROGRAM_LOCK_ON,
+    RELAY_MODE,
+    RELAY_ON_SENSE_ON,
+    SENSE_SENDS_OFF,
+    X10_HOUSE,
+    X10_OFF,
+    X10_UNIT,
+)
+from ..config.momentary_delay import MomentaryDelayProperty
+from ..config.relay_mode import RelayModeProperty
+from ..constants import PropertyType, RelayMode, ResponseStatus
 from ..default_link import DefaultLink
 from ..events import CLOSE_EVENT, OFF_EVENT, ON_EVENT, OPEN_EVENT, Event
-from ..extended_property import DELAY, PRESCALER, X10_HOUSE, X10_UNIT
 from ..groups import OPEN_CLOSE_SENSOR, RELAY
 from ..groups.on_off import OnOff
 from ..groups.open_close import NormallyOpen
@@ -12,16 +29,6 @@ from ..handlers.to_device.off import OffCommand
 from ..handlers.to_device.on_level import OnLevelCommand
 from ..handlers.to_device.status_request import STATUS_REQUEST, StatusRequestCommand
 from ..managers.on_level_manager import OnLevelManager
-from ..operating_flag import (
-    LED_BLINK_ON_TX_ON,
-    MOMENTARY_FOLLOW_SENSE,
-    MOMENTARY_MODE_ON,
-    MOMENTARY_ON_OFF_TRIGGER,
-    PROGRAM_LOCK_ON,
-    RELAY_ON_SENSE_ON,
-    SENSE_SENDS_OFF,
-    X10_OFF,
-)
 from ..utils import multiple_status
 from .device_base import Device
 from .device_commands import OFF_COMMAND, ON_COMMAND
@@ -74,19 +81,30 @@ class SensorsActuators_IOLink(Device):
 
     async def async_set_relay_mode(self, relay_mode: RelayMode):
         """Set the relay mode and write to device."""
+
+        def set_relay_mode(momentary_mode_on, momentary_follow_sense, momentary_on_off):
+            """Set the values of the underlying properties."""
+            self._operating_flags[MOMENTARY_MODE_ON].new_value = momentary_mode_on
+            self._operating_flags[
+                MOMENTARY_FOLLOW_SENSE
+            ].new_value = momentary_follow_sense
+            self._operating_flags[MOMENTARY_ON_OFF_TRIGGER].new_value = momentary_on_off
+
+        if relay_mode is None:
+            set_relay_mode(None, None, None)
+            return
+
         relay_mode = RelayMode(int(relay_mode))
-        self._operating_flags[MOMENTARY_MODE_ON].new_value = not (
-            relay_mode == RelayMode.LATCHING
-        )
-        if relay_mode == RelayMode.MOMENTARY_A:
-            self._operating_flags[MOMENTARY_FOLLOW_SENSE].new_value = False
-            self._operating_flags[MOMENTARY_ON_OFF_TRIGGER].new_value = False
-        if relay_mode == RelayMode.MOMENTARY_B:
-            self._operating_flags[MOMENTARY_FOLLOW_SENSE].new_value = False
-            self._operating_flags[MOMENTARY_ON_OFF_TRIGGER].new_value = True
-        if relay_mode == RelayMode.MOMENTARY_C:
-            self._operating_flags[MOMENTARY_FOLLOW_SENSE].new_value = True
-            self._operating_flags[MOMENTARY_ON_OFF_TRIGGER].new_value = False
+
+        if relay_mode == RelayMode.LATCHING:
+            set_relay_mode(False, False, False)
+        elif relay_mode == RelayMode.MOMENTARY_A:
+            set_relay_mode(True, False, False)
+        elif relay_mode == RelayMode.MOMENTARY_B:
+            set_relay_mode(True, False, True)
+        elif relay_mode == RelayMode.MOMENTARY_C:
+            set_relay_mode(True, True, False)
+
         await self.async_write_op_flags()
 
     async def async_set_momentary_delay(self, seconds):
@@ -163,22 +181,45 @@ class SensorsActuators_IOLink(Device):
             retries -= 1
         return response
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(RELAY_ON_SENSE_ON, 0, 2, 4, 5)  # Sensor triggers relay
-        self._add_operating_flag(MOMENTARY_MODE_ON, 0, 3, 6, 7)
-        self._add_operating_flag(MOMENTARY_ON_OFF_TRIGGER, 0, 4, 0x12, 0x13)
+        self._add_operating_flag(
+            RELAY_ON_SENSE_ON, 0, 2, 4, 5, prop_type=PropertyType.ADVANCED
+        )  # Sensor triggers relay
+        self._add_operating_flag(
+            MOMENTARY_MODE_ON, 0, 3, 6, 7, prop_type=PropertyType.ADVANCED
+        )
+        self._add_operating_flag(
+            MOMENTARY_ON_OFF_TRIGGER, 0, 4, 0x12, 0x13, prop_type=PropertyType.ADVANCED
+        )
         self._add_operating_flag(X10_OFF, 0, 5, 0x0C, 0x0D)
         self._add_operating_flag(SENSE_SENDS_OFF, 0, 6, 0x0E, 0x0F)
         self._add_operating_flag(
-            MOMENTARY_FOLLOW_SENSE, 0, 7, 0x14, 0x15
+            MOMENTARY_FOLLOW_SENSE, 0, 7, 0x14, 0x15, prop_type=PropertyType.ADVANCED
         )  # Check sensor before triggering?
 
-        self._add_property(PRESCALER, 3, 7)
-        self._add_property(DELAY, 4, 6)
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
+        self._add_property(PRESCALER, 3, 7, prop_type=PropertyType.ADVANCED)
+        self._add_property(DELAY, 4, 6, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[MOMENTARY_DELAY] = MomentaryDelayProperty(
+            self._address,
+            MOMENTARY_DELAY,
+            self._properties[DELAY],
+            self._properties[PRESCALER],
+        )
+        self._config[RELAY_MODE] = RelayModeProperty(
+            self._address,
+            RELAY_MODE,
+            self._operating_flags[MOMENTARY_MODE_ON],
+            self._operating_flags[MOMENTARY_FOLLOW_SENSE],
+            self._operating_flags[MOMENTARY_ON_OFF_TRIGGER],
+        )
 
     def _register_handlers_and_managers(self):
         """Register handlers and managers.

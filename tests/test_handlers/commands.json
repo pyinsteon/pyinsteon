@@ -369,7 +369,7 @@
             ],
             "response": 1,
             "assert_tests": {
-                "ack_response": 0
+                "response": 0
             }
         },
         "read_aldb_direct_nak": {
@@ -391,7 +391,7 @@
             ],
             "response": 0,
             "assert_tests": {
-                "ack_response": 254
+                "response": 254
             }
         },
         "set_operating_flags": {
@@ -445,39 +445,6 @@
             ],
             "response": 1,
             "assert_tests": {
-            }
-        },
-        "set_operating_flags_direct_nak_direct_nak": {
-            "command": {
-                "class": ".set_operating_flags.SetOperatingFlagsCommand",
-                "params": {
-                    "address": "112233"
-                },
-                "send_params": {
-                    "cmd": 6
-                }
-            },
-            "messages": [{
-                    "address": "112233",
-                    "flags": 160,
-                    "cmd1": 32,
-                    "cmd2": 254,
-                    "user_data": {},
-                    "target": "445566"
-                },
-                {
-                    "address": "112233",
-                    "flags": 160,
-                    "cmd1": 32,
-                    "cmd2": 254,
-                    "user_data": {},
-                    "target": "445566"
-                }
-            ],
-            "response": 2,
-            "call_count": 2,
-            "assert_tests": {
-                "response": 254
             }
         },
         "status_request": {

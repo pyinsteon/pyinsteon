@@ -1,4 +1,36 @@
 """Security, Heath and Safety device types."""
+from ..config import (
+    AMBIENT_LIGHT_INTENSITY,
+    BATTERY_LEVEL,
+    BATTERY_LOW_LEVEL,
+    CLEANUP_REPORT_ON,
+    DATABASE_DELTA,
+    HARDWARE_LED_OFF,
+    HARDWARE_LIGHT_SENSITIVITY,
+    HARDWARE_NIGHT_MODE,
+    HARDWARE_SEND_ON_ONLY,
+    HARDWARE_TIMEOUT,
+    HEARBEAT_INTERVAL,
+    HEART_BEAT_ON,
+    IGNORE_JUMPER_ON,
+    LED_BLINK_ON_TX_ON,
+    LED_BRIGHTNESS,
+    LED_OFF,
+    LED_ON,
+    LIGHT_SENSITIVITY,
+    LINK_TO_FF_GROUP,
+    MOTION_TIMEOUT,
+    MULTI_SEND_ON,
+    NIGHT_MODE_ONLY,
+    PROGRAM_LOCK_ON,
+    REPEAT_CLOSED_ON,
+    REPEAT_OPEN_ON,
+    SEND_ON_ONLY,
+    SENSOR_STATUS,
+    SOFTWARE_SUPPORT_ON,
+    STAY_AWAKE_ON,
+    TWO_GROUPS_ON,
+)
 from ..default_link import DefaultLink
 from ..events import (
     ALL_CLEAR_EVENT,
@@ -22,18 +54,6 @@ from ..events import (
     LowBatteryEvent,
     WetDryEvent,
 )
-from ..extended_property import (
-    AMBIENT_LIGHT_INTENSITY,
-    BATTERY_LEVEL,
-    BATTERY_LOW_LEVEL,
-    HARDWARE_LIGHT_SENSITIVITY,
-    HARDWARE_TIMEOUT,
-    HEARBEAT_INTERVAL,
-    LED_BRIGHTNESS,
-    LIGHT_SENSITIVITY,
-    MOTION_TIMEOUT,
-    SENSOR_STATUS,
-)
 from ..groups import (
     CO_SENSOR,
     DOOR_SENSOR,
@@ -55,28 +75,6 @@ from ..managers.heartbeat_manager import HeartbeatManager
 from ..managers.low_batter_manager import LowBatteryManager
 from ..managers.on_level_manager import OnLevelManager
 from ..managers.wet_dry_manager import WetDryManager
-from ..operating_flag import (
-    CLEANUP_REPORT_ON,
-    DATABASE_DELTA,
-    HARDWARE_LED_OFF,
-    HARDWARE_NIGHT_MODE,
-    HARDWARE_SEND_ON_ONLY,
-    HEART_BEAT_ON,
-    IGNORE_JUMPER_ON,
-    LED_BLINK_ON_TX_ON,
-    LED_OFF,
-    LED_ON,
-    LINK_TO_FF_GROUP,
-    MULTI_SEND_ON,
-    NIGHT_MODE_ONLY,
-    PROGRAM_LOCK_ON,
-    REPEAT_CLOSED_ON,
-    REPEAT_OPEN_ON,
-    SEND_ON_ONLY,
-    SOFTWARE_SUPPORT_ON,
-    STAY_AWAKE_ON,
-    TWO_GROUPS_ON,
-)
 from .battery_base import BatteryDeviceBase
 from .device_base import Device
 from .on_off_controller_base import OnOffControllerBase
@@ -154,9 +152,9 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
         )
         self._heartbeat_manger.subscribe(self._events[HEARTBEAT_EVENT].trigger)
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
         """Register operating flags for Door Sensor."""
-        super()._register_operating_flags()
+        super()._register_op_flags_and_props()
 
         self._add_operating_flag(CLEANUP_REPORT_ON, 0, 1, 16, 17)
         self._add_operating_flag(TWO_GROUPS_ON, 0, 1, 4, 5)
@@ -206,8 +204,8 @@ class SecurityHealthSafety_OpenCloseSensor(
 ):
     """Normally Open sensor."""
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_property(name=LED_BRIGHTNESS, data_field=3, set_cmd=0x02)
         self._add_property(name=CLEANUP_REPORT_ON, data_field=6, set_cmd=0x05, bit=0)
         self._add_property(name=IGNORE_JUMPER_ON, data_field=6, set_cmd=0x05, bit=1)
@@ -286,8 +284,8 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
             self._events[self.LOW_BATTERY_GROUP][LOW_BATTERY_EVENT].trigger
         )
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_property(name=LED_BRIGHTNESS, data_field=3, set_cmd=0x02)
         self._add_property(name=MOTION_TIMEOUT, data_field=4, set_cmd=0x03)
         self._add_property(name=LIGHT_SENSITIVITY, data_field=5, set_cmd=0x04)
@@ -416,7 +414,7 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
         self._groups[self.WET_GROUP].value = True
         self._events[LEAK_WET_EVENT].trigger(on_level)
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
         # bit 0 = Cleanup Report
         # bit 1 = Don’t Read the Jumper
         # bit 2 = 2 Groups
@@ -619,8 +617,8 @@ class SecurityHealthSafety_Smokebridge(Device):
         if self._groups[self.SENSOR_MALFUNCTION_GROUP].value:
             self._groups[self.SENSOR_MALFUNCTION_GROUP].set_value(0)
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(
             name=PROGRAM_LOCK_ON, group=0, bit=0, set_cmd=0, unset_cmd=1
         )

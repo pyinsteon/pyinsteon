@@ -260,8 +260,8 @@ commands.add(DIM_ONE_STEP, 0x16, None, False, True)
 commands.add(START_MANUAL_CHANGE_DOWN, 0x17, 0x00, False, True)
 commands.add(START_MANUAL_CHANGE_UP, 0x17, 0x01, False, True)
 commands.add(STOP_MANUAL_CHANGE, 0x18, None, False, True)
-commands.add(STATUS_REQUEST, 0x19, None, None)
-commands.add(GET_OPERATING_FLAGS, 0x1F, None, False)
+commands.add(STATUS_REQUEST, 0x19, None, None, True)
+commands.add(GET_OPERATING_FLAGS, 0x1F, None, None)
 commands.add(SET_OPERATING_FLAGS, 0x20, None, None)
 commands.add(INSTANT_CHANGE, 0x21, None, False, True)
 commands.add(MANUALLY_TURNED_OFF, 0x22, None, False, True)
@@ -274,12 +274,8 @@ commands.add(POKE_ONE_BYTE, 0x29, None, False)
 commands.add(PEEK_ONE_BYTE, 0x2B, None, False)
 commands.add(PEEK_ONE_BYTE_INTERNAL, 0x2C, None, False)
 commands.add(POKE_ONE_BYTE_INTERNAL, 0x2D, None, False)
-
-# cmd2 ne 0x00 => no confict w/ EXTENDED_GET_SET
-# Conflict w/ THERMOSTAT_EXTENDED_STATUS but thermostat has no ramp rate so OK
 commands.add(ON_AT_RAMP_RATE, 0x2E, None, False, True)
-# direct is ed and direct_ack is sd
-commands.add(EXTENDED_GET_SET, 0x2E, 0x00, None)
+commands.add(EXTENDED_GET_SET, 0x2E, None, None)
 commands.add(EXTENDED_GET_RESPONSE, 0x2E, 0x00, {"d2": 0x01})
 
 # This is not consistant with the 2441TH dev guide

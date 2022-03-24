@@ -22,9 +22,13 @@ class SetOperatingFlagsCommand(DirectCommandHandlerBase):
         cmd_response = await super().async_send(cmd=cmd, extended=extended)
         if cmd_response == ResponseStatus.UNCLEAR and not extended:
             _LOGGER.debug("Attempting resend with extended message")
-            cmd_response = await super().async_send(cmd=cmd, extended=True)
+            return await super().async_send(cmd=cmd, extended=True)
         return cmd_response
 
+    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+        """Update subscribers on DIIRECT ack received."""
+        self._call_subscribers(response=0)
+
     def _update_subscribers_on_nak(self, cmd1, cmd2, target, user_data, hops_left):
-        """Update subscribers on NAK received."""
+        """Update subscribers on DIIRECT NAK received."""
         self._call_subscribers(response=cmd2)

@@ -159,8 +159,8 @@ def _create_direct_message(
     command = commands.get_command(main_topic)
     extended = user_data is not None
     cmd2 = command.cmd2 if command.cmd2 is not None else cmd2
-    flag_type = topic_to_message_type(topic)
-    flags = create_flags(flag_type, extended)
+    msg_type = topic_to_message_type(topic)
+    flags = create_flags(msg_type, extended)
     if extended:
         if crc:
             user_data.set_crc(command.cmd1, cmd2)
@@ -338,10 +338,17 @@ def status_request(address: Address, status_type: int = 0, topic=pub.AUTO_TOPIC)
 
 
 @topic_to_command_handler(register_list=topic_register, topic=GET_OPERATING_FLAGS)
-def get_operating_flags(address: Address, flags_requested: int, topic=pub.AUTO_TOPIC):
+def get_operating_flags(
+    address: Address, flags_requested: int, extended: bool, topic=pub.AUTO_TOPIC
+):
     """Create a GET_OPERATING_FLAGS command."""
+    user_data = UserData() if extended else None
     _create_direct_message(
-        topic=topic, address=address, cmd2=flags_requested, priority=7
+        topic=topic,
+        address=address,
+        cmd2=flags_requested,
+        priority=7,
+        user_data=user_data,
     )
 
 

@@ -54,6 +54,11 @@ class SerialTransport(SerialTransportBase):
         """Return True if the transport is connected to the serial device."""
         return not self._closing
 
+    @property
+    def write_wait(self):
+        """Return the time to wait between writes."""
+        return 0.8
+
     def write(self, data):
         """Override SerialTransport write method."""
         msg_bytes = bytes(data)

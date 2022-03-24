@@ -1,5 +1,13 @@
 """General controller devices (cat: 0x00)."""
 from ..aldb.no_aldb import NoALDB
+from ..config import (
+    GROUPED_ON,
+    KEY_BEEP_ON,
+    LED_ON,
+    PROGRAM_LOCK_ON,
+    SEND_ON_ONLY,
+    STAY_AWAKE_ON,
+)
 from ..constants import ResponseStatus
 from ..groups import (
     ON_OFF_SWITCH_A,
@@ -10,14 +18,6 @@ from ..groups import (
     ON_OFF_SWITCH_F,
     ON_OFF_SWITCH_G,
     ON_OFF_SWITCH_H,
-)
-from ..operating_flag import (
-    GROUPED_ON,
-    KEY_BEEP_ON,
-    LED_ON,
-    PROGRAM_LOCK_ON,
-    SEND_ON_ONLY,
-    STAY_AWAKE_ON,
 )
 from .battery_base import BatteryDeviceBase
 from .device_base import Device
@@ -69,8 +69,8 @@ class GeneralController_RemoteLinc(BatteryDeviceBase, VariableControllerBase):
             address, cat, subcat, firmware, description, model, buttons=buttons
         )
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(STAY_AWAKE_ON, 0, 3, 6, 7)
 
 
@@ -97,8 +97,8 @@ class GeneralController_MiniRemoteBase(BatteryDeviceBase, VariableControllerBase
         """Return success always."""
         return ResponseStatus.SUCCESS
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_ON, 0, 1, 2, 3)
         self._add_operating_flag(KEY_BEEP_ON, 0, 2, 4, 5)

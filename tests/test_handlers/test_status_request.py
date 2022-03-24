@@ -17,7 +17,9 @@ class TestStatusRequest(unittest.TestCase):
         self._status = None
         self._db_version_1 = None
         self._status_1 = None
-        self.ack_topic = "ack.{}.status_request.direct".format(self._address.id)
+        self.ack_topic = "ack.{}.{}.status_request.direct".format(
+            self._address.id, "{}"
+        )
         self.direct_ack_topic = "{}.any_topic.direct_ack".format(self._address.id)
         set_log_levels(
             logger="debug",
@@ -47,7 +49,9 @@ class TestStatusRequest(unittest.TestCase):
         status = 0x33
         topics = [
             TopicItem(
-                self.ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}, 0.5
+                self.ack_topic.format(cmd2),
+                {"cmd1": cmd1, "cmd2": cmd2, "user_data": None},
+                0.5,
             ),
             TopicItem(
                 self.direct_ack_topic,
@@ -81,7 +85,9 @@ class TestStatusRequest(unittest.TestCase):
         status = 0x55
         topics = [
             TopicItem(
-                self.ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}, 0.1
+                self.ack_topic.format(cmd2),
+                {"cmd1": cmd1, "cmd2": cmd2, "user_data": None},
+                0.1,
             ),
             TopicItem(
                 self.direct_ack_topic,
@@ -114,7 +120,9 @@ class TestStatusRequest(unittest.TestCase):
         status = 0x77
         topics = [
             TopicItem(
-                self.ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}, 0.1
+                self.ack_topic.format(cmd2),
+                {"cmd1": cmd1, "cmd2": cmd2, "user_data": None},
+                0.1,
             ),
             TopicItem(
                 self.direct_ack_topic,

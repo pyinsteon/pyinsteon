@@ -2,7 +2,7 @@
 import asyncio
 
 from pyinsteon import async_close, async_connect, devices
-from pyinsteon.operating_flag import MOMENTARY_ON_OFF_TRIGGER
+from pyinsteon.config import MOMENTARY_ON_OFF_TRIGGER
 from samples import _LOGGER, PATH, get_hub_config, set_log_levels
 
 # DEVICE = '/dev/ttyS5'

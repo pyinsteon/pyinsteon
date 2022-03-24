@@ -150,7 +150,7 @@ class ToolsConfig(ToolsBase):
             prop = device.properties[name]
 
         try:
-            if prop.prop_type is bool:
+            if prop.value_type is bool:
                 value = await self._ensure_bool(
                     value, "Property value", not background, log_stdout
                 )

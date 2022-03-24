@@ -205,8 +205,11 @@ class DeviceManager(SubscriberBase):
                     linked_address = await self._linked_device.get()
                     link_next = multiple and linked_address
                     yield linked_address
+        except asyncio.TimeoutError:
+            pass
         finally:
             await async_cancel_linking_mode()
+            self._call_subscribers(address=None, action=DeviceAction.COMPLETED)
             if self._delay_device_inspection:
                 self._delay_device_inspection = False
                 asyncio.ensure_future(self.async_inspect_devices())
@@ -335,6 +338,15 @@ class DeviceManager(SubscriberBase):
     ):
         """Device identified by device ID manager."""
         if self._loading_saved_lock.locked():
+            return
+
+        device = self._devices.get(device_id.address)
+        if (
+            device
+            and device.cat == device_id.cat
+            and device.subcat == device_id.subcat
+            and device.firmware == device_id.firmware
+        ):
             return
 
         self._linked_device.put_nowait(device_id.address)

@@ -41,7 +41,7 @@ class ALDBReadManager:
         self._last_mem_addr = 0x0000
         self._read_handler = ReadALDBCommandHandler(self._aldb.address)
         self._record_handler = ReceiveALDBRecordHandler(self._aldb.address)
-        self._read_handler.subscribe(self._receive_direct_ack)
+        self._read_handler.subscribe(self._receive_direct_ack_nak)
         self._record_handler.subscribe(self._receive_record)
         self._timer_lock = asyncio.Lock()
 
@@ -126,19 +126,19 @@ class ALDBReadManager:
             if next_record == last_record:
                 return
 
-    def _receive_direct_ack(self, ack_response):
-        """Receive the response from the direct ACK.
+    def _receive_direct_ack_nak(self, response):
+        """Receive the response from the direct NAK.
 
         The device has ackknowledged the request to read the ALDB.
         If the response is a negative response, stop the process.
         """
-        if ack_response in [
+        if (response | 0xF0) in [
             IM_NOT_IN_DEVICE_ALDB,
             CHECKSUM_ERROR,
             ILLEGAL_VALUE_IN_COMMAND,
         ]:
             _LOGGER.error(
-                "%s: ALDB Load error: 0x%02x", str(self._aldb.address), ack_response
+                "%s: ALDB Load error: 0x%02x", str(self._aldb.address), response
             )
             self._record_queue.put_nowait(None)
 

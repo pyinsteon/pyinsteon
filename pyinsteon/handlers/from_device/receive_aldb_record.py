@@ -4,7 +4,7 @@ import logging
 from ...address import Address
 from ...constants import AllLinkMode
 from ...protocol.messages.all_link_record_flags import AllLinkRecordFlags
-from ...topics import EXTENDED_READ_WRITE_ALDB
+from ...topics import ALDB_RECORD_RECEIVED, EXTENDED_READ_WRITE_ALDB
 from ...utils import build_topic
 from .. import inbound_handler
 from ..inbound_base import InboundHandlerBase
@@ -19,8 +19,9 @@ class ReceiveALDBRecordHandler(InboundHandlerBase):
         """Init the ReceiveALDBRecordHandler class."""
         super().__init__(topic=EXTENDED_READ_WRITE_ALDB, address=address)
         self._subscriber_topic = build_topic(
-            prefix=f"handler.{self._address.id}",
-            topic="aldb_record_received",
+            prefix="handler",
+            address=self._address,
+            topic=ALDB_RECORD_RECEIVED,
             message_type="direct",
         )
 
