@@ -7,7 +7,7 @@ from pyinsteon.device_types.dimmable_lighting_control import (
     DimmableLightingControl_KeypadLinc_8,
 )
 
-from ..utils import random_address
+from ..utils import async_case, random_address
 
 group1 = {2: 0x04, 3: 0x02}
 group2 = {4: 0x10, 5: 0x08}
@@ -27,7 +27,8 @@ def reset_properties(device, value=0):
 class TestRadioButtonGroupsProperty(TestCase):
     """Test the momentary delay flag."""
 
-    def test_new_value(self):
+    @async_case
+    async def test_new_value(self):
         """Test the momentary delay value."""
         address = random_address()
         device = DimmableLightingControl_KeypadLinc_8(address, 0x01, 0x02)
@@ -120,7 +121,8 @@ class TestRadioButtonGroupsProperty(TestCase):
         except ValueError:
             assert True
 
-    def test_is_dirty(self):
+    @async_case
+    async def test_is_dirty(self):
         """Test the is_dirty property."""
         address = random_address()
         device = DimmableLightingControl_KeypadLinc_8(address, 0x01, 0x02)
@@ -146,7 +148,8 @@ class TestRadioButtonGroupsProperty(TestCase):
         device.properties[off_mask_name(2)].new_value = None
         assert not test_prop.is_dirty
 
-    def test_is_loaded(self):
+    @async_case
+    async def test_is_loaded(self):
         """Test the is_dirty property."""
         address = random_address()
         device = DimmableLightingControl_KeypadLinc_8(address, 0x01, 0x02)
