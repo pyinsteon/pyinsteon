@@ -1,12 +1,14 @@
 """Test the sending and receiving of messages using the MockPLM and receive topics."""
 import asyncio
 import json
+from random import randint
 import unittest
 from binascii import unhexlify
 
 import aiofiles
 
 from pyinsteon import pub
+from pyinsteon.protocol.messages.user_data import UserData
 from pyinsteon.utils import subscribe_topic, unsubscribe_topic
 from tests import set_log_levels
 from tests.utils import (
@@ -38,11 +40,15 @@ def create_message(msg_dict):
     address = msg_dict.get("address")
     flags = int.from_bytes(unhexlify(msg_dict.get("flags")), "big")
     cmd1 = int.from_bytes(unhexlify(msg_dict.get("cmd1")), "big")
-    cmd2 = int.from_bytes(unhexlify(msg_dict.get("cmd2")), "big")
+    cmd2 = int.from_bytes(unhexlify(msg_dict.get("cmd2", "00")), "big")
     if msg_dict.get("user_data") == "":
         user_data = None
     else:
-        user_data = int.from_bytes(unhexlify(msg_dict.get("user_data")), "big")
+        user_data_in = msg_dict.get("user_data")
+        user_data = UserData()
+        for k, v in user_data_in.items():
+            val = int.from_bytes(unhexlify(v), "big")
+            user_data[k] = val
     if msg_dict.get("ack") == "":
         ack = None
     else:
@@ -93,7 +99,7 @@ class TestDirectMsgToTopic(unittest.TestCase):
                 self._topic = None
                 address = repr(random_address())
                 curr_test = tests[test_info]
-                if curr_test.get("address"):
+                if curr_test.get("address") is not None:
                     curr_test["address"] = address
                 msgs = [create_message(curr_test)]
                 curr_topic = curr_test["topic"].format(address)

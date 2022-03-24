@@ -1,4 +1,5 @@
 """Manage outbound ON command to a device."""
+import asyncio
 from pyinsteon.constants import MessageFlagType, ResponseStatus
 
 from ... import pub
@@ -32,6 +33,8 @@ class StatusRequestCommand(DirectCommandHandlerBase):
         This handler listens to all topics for a device therefore we need to
         confirm the message is a status response.
         """
+        # Need to make sure the ACK has time to aquire the lock
+        await asyncio.sleep(0.05)
         if not self._response_lock.locked():
             return
 
