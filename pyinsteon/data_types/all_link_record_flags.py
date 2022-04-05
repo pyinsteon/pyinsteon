@@ -2,31 +2,8 @@
 
 from binascii import hexlify
 
-from ...constants import AllLinkMode
-from ...utils import bit_is_set, set_bit, test_values_eq
-
-
-def create(
-    in_use: bool,
-    controller: bool,
-    hwm: bool,
-    bit5: bool = False,
-    bit4: bool = False,
-    bit3: bool = False,
-    bit2: bool = False,
-    bit0: bool = False,
-):
-    """Create an AllLinkRecordFlags entity."""
-    flags = 0x00
-    flags = set_bit(flags, 7, in_use)
-    flags = set_bit(flags, 6, controller)
-    flags = set_bit(flags, 5, bit5)
-    flags = set_bit(flags, 4, bit4)
-    flags = set_bit(flags, 3, bit3)
-    flags = set_bit(flags, 2, bit2)
-    flags = set_bit(flags, 1, not hwm)
-    flags = set_bit(flags, 0, bit0)
-    return AllLinkRecordFlags(flags)
+from ..constants import AllLinkMode
+from ..utils import bit_is_set, set_bit, test_values_eq
 
 
 def _normalize(data):
@@ -148,3 +125,27 @@ class AllLinkRecordFlags:
     def is_bit_0_set(self):
         """Return if bit 0 is set."""
         return self._bit0
+
+    @classmethod
+    def create(
+        cls,
+        in_use: bool,
+        controller: bool,
+        hwm: bool,
+        bit5: bool = False,
+        bit4: bool = False,
+        bit3: bool = False,
+        bit2: bool = False,
+        bit0: bool = False,
+    ):
+        """Create an AllLinkRecordFlags entity."""
+        flags = 0x00
+        flags = set_bit(flags, 7, in_use)
+        flags = set_bit(flags, 6, controller)
+        flags = set_bit(flags, 5, bit5)
+        flags = set_bit(flags, 4, bit4)
+        flags = set_bit(flags, 3, bit3)
+        flags = set_bit(flags, 2, bit2)
+        flags = set_bit(flags, 1, not hwm)
+        flags = set_bit(flags, 0, bit0)
+        return cls(flags)

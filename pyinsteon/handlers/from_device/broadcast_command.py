@@ -5,7 +5,7 @@ from ...constants import MessageFlagType
 from .. import broadcast_handler
 from ..inbound_base import InboundHandlerBase
 
-MIN_DUP = .7
+MIN_DUP = 0.7
 MAX_DUP = 2
 
 
@@ -41,13 +41,9 @@ class BroadcastCommandHandlerBase(InboundHandlerBase):
         if tdelta.days > 0:
             delta = 9999
         else:
-            delta = tdelta.seconds + tdelta.microseconds/1000000
+            delta = tdelta.seconds + tdelta.microseconds / 1000000
         self._last_command = curr_time
-        if (
-            target.middle != 0
-            and hops_left == self._last_hops_left
-            and delta < MIN_DUP
-        ):
+        if target.middle != 0 and hops_left == self._last_hops_left and delta < MIN_DUP:
             return False
         if (
             self._last_hops_left is None

@@ -17,10 +17,8 @@ class TestStatusRequest(unittest.TestCase):
         self._status = None
         self._db_version_1 = None
         self._status_1 = None
-        self.ack_topic = "ack.{}.{}.status_request.direct".format(
-            self._address.id, "{}"
-        )
-        self.direct_ack_topic = "{}.any_topic.direct_ack".format(self._address.id)
+        self.ack_topic = f"ack.{self._address.id}.status_request.direct"
+        self.direct_ack_topic = f"{self._address.id}.any_topic.direct_ack"
         set_log_levels(
             logger="debug",
             logger_pyinsteon="info",
@@ -49,7 +47,7 @@ class TestStatusRequest(unittest.TestCase):
         status = 0x33
         topics = [
             TopicItem(
-                self.ack_topic.format(cmd2),
+                self.ack_topic,
                 {"cmd1": cmd1, "cmd2": cmd2, "user_data": None},
                 0.5,
             ),
@@ -85,7 +83,7 @@ class TestStatusRequest(unittest.TestCase):
         status = 0x55
         topics = [
             TopicItem(
-                self.ack_topic.format(cmd2),
+                self.ack_topic,
                 {"cmd1": cmd1, "cmd2": cmd2, "user_data": None},
                 0.1,
             ),
@@ -120,7 +118,7 @@ class TestStatusRequest(unittest.TestCase):
         status = 0x77
         topics = [
             TopicItem(
-                self.ack_topic.format(cmd2),
+                self.ack_topic,
                 {"cmd1": cmd1, "cmd2": cmd2, "user_data": None},
                 0.1,
             ),

@@ -1,31 +1,18 @@
 """Collection of topics mapped to commands (cmd1, cmd2)."""
 import logging
 from collections import namedtuple
-from typing import Iterable, Tuple, Union
+from typing import Tuple
 
 from .topics import (
     ALL_LINK_CLEANUP_STATUS_REPORT,
     ASSIGN_TO_ALL_LINK_GROUP,
-    ASSIGN_TO_COMPANION_GROUP,
     BEEP,
     BRIGHTEN_ONE_STEP,
     DELETE_FROM_ALL_LINK_GROUP,
     DEVICE_TEXT_STRING_REQUEST,
     DIM_ONE_STEP,
-    DOOR_MOVE_CLOSE_DOOR,
-    DOOR_MOVE_LOWER_DOOR,
-    DOOR_MOVE_OPEN_DOOR,
-    DOOR_MOVE_RAISE_DOOR,
-    DOOR_MOVE_SINGLE_DOOR_CLOSE,
-    DOOR_MOVE_SINGLE_DOOR_OPEN,
-    DOOR_MOVE_STOP_DOOR,
-    DOOR_STATUS_REPORT_CLOSE_DOOR,
-    DOOR_STATUS_REPORT_LOWER_DOOR,
-    DOOR_STATUS_REPORT_OPEN_DOOR,
-    DOOR_STATUS_REPORT_RAISE_DOOR,
-    DOOR_STATUS_REPORT_SINGLE_DOOR_CLOSE,
-    DOOR_STATUS_REPORT_SINGLE_DOOR_OPEN,
-    DOOR_STATUS_REPORT_STOP_DOOR,
+    DOOR_CONTROL,
+    DOOR_STATUS_REPORT,
     ENTER_LINKING_MODE,
     ENTER_UNLINKING_MODE,
     EXTENDED_GET_RESPONSE,
@@ -44,18 +31,7 @@ from .topics import (
     IO_ALARM_DATA_RESPONSE,
     IO_GET_SENSOR_ALARM_DELTA,
     IO_GET_SENSOR_VALUE,
-    IO_MODULE_DIAGNOSTICS_OFF,
-    IO_MODULE_DIAGNOSTICS_ON,
-    IO_MODULE_DISABLE_STATUS_CHANGE_MESSAGE,
-    IO_MODULE_ENABLE_STATUS_CHANGE_MESSAGE,
-    IO_MODULE_LOAD_EEPROM_FROM_RAM,
-    IO_MODULE_LOAD_INITIALIZATION_VALUES,
-    IO_MODULE_LOAD_RAM_FROM_EEPROM,
-    IO_MODULE_READ_ANALOG_ALWAYS,
-    IO_MODULE_READ_ANALOG_ONCE,
-    IO_MODULE_SENSOR_OFF,
-    IO_MODULE_SENSOR_ON,
-    IO_MODULE_STATUS_REQUEST,
+    IO_MODULE_CONTROL,
     IO_OUTPUT_OFF,
     IO_OUTPUT_ON,
     IO_READ_CONFIGURATION_PORT,
@@ -78,14 +54,9 @@ from .topics import (
     PING,
     POKE_ONE_BYTE,
     POKE_ONE_BYTE_INTERNAL,
+    POOL_CONTROL,
     POOL_DEVICE_OFF,
     POOL_DEVICE_ON,
-    POOL_GET_AMBIENT_TEMPERATURE,
-    POOL_GET_PH,
-    POOL_GET_POOL_MODE,
-    POOL_GET_WATER_TEMPERATURE,
-    POOL_LOAD_EEPROM_FROM_RAM,
-    POOL_LOAD_INITIALIZATION_VALUES,
     POOL_SET_DEVICE_HYSTERESIS,
     POOL_SET_DEVICE_TEMPERATURE,
     POOL_TEMPERATURE_DOWN,
@@ -102,26 +73,11 @@ from .topics import (
     SET_OPERATING_FLAGS,
     SET_SPRINKLER_PROGRAM,
     SET_STATUS,
-    SPRINKLER_BROADCAST_OFF,
-    SPRINKLER_BROADCAST_ON,
-    SPRINKLER_DIAGNOSTICS_OFF,
-    SPRINKLER_DIAGNOSTICS_ON,
-    SPRINKLER_DISABLE_PUMP_ON_V8,
-    SPRINKLER_ENABLE_PUMP_ON_V8,
+    SPRINKLER_CONTROL,
     SPRINKLER_GET_PROGRAM_REQUEST,
     SPRINKLER_GET_PROGRAM_RESPONSE,
-    SPRINKLER_GET_VALVE_STATUS,
-    SPRINKLER_INHIBIT_COMMAND_ACCEPTANCE,
-    SPRINKLER_LOAD_EEPROM_FROM_RAM,
-    SPRINKLER_LOAD_INITIALIZATION_VALUES,
-    SPRINKLER_LOAD_RAM_FROM_EEPROM,
     SPRINKLER_PROGRAM_OFF,
     SPRINKLER_PROGRAM_ON,
-    SPRINKLER_RESUME_COMMAND_ACCEPTANCE,
-    SPRINKLER_SENSOR_OFF,
-    SPRINKLER_SENSOR_ON,
-    SPRINKLER_SKIP_BACK,
-    SPRINKLER_SKIP_FORWARD,
     SPRINKLER_VALVE_OFF,
     SPRINKLER_VALVE_ON,
     STANDARD_RECEIVED,
@@ -138,17 +94,12 @@ from .topics import (
     THERMOSTAT_SET_COOL_SETPOINT,
     THERMOSTAT_SET_HEAT_SETPOINT,
     THERMOSTAT_SET_POINT_RESPONSE,
-    THERMOSTAT_SET_ZONE_COOL_SETPOINT,
-    THERMOSTAT_SET_ZONE_HEAT_SETPOINT,
     THERMOSTAT_STATUS_RESPONSE,
     THERMOSTAT_TEMPERATURE_DOWN,
     THERMOSTAT_TEMPERATURE_STATUS,
     THERMOSTAT_TEMPERATURE_UP,
-    WINDOW_COVERING_CLOSE,
-    WINDOW_COVERING_OPEN,
+    WINDOW_COVERING_CONTROL,
     WINDOW_COVERING_POSITION,
-    WINDOW_COVERING_PROGRAM,
-    WINDOW_COVERING_STOP,
 )
 
 Command = namedtuple("Command", "cmd1 cmd2 ud_allowed ud_required userdata")
@@ -214,7 +165,8 @@ class Commands:
             - If True, the message is allowed to have user data
             - If False, the messager cannot have user data
           ud_required: (Optional, default False)  Is user data required
-          userdata: (Optional)  Dictionary of required values
+            - NOTE: A DIRECT ACK command does not reply with userdata therefore most commands do not require userdata
+          userdata: (Optional)  Dictionary of required values in userdata
             - Example: {"d1": 0x00}  Data 1 must be 0x00
         """
         if userdata is not None:
@@ -264,7 +216,7 @@ class Commands:
 commands = Commands()
 
 commands.add(
-    STANDARD_RECEIVED,
+    topic=STANDARD_RECEIVED,
     cmd1=-1,
     cmd2=None,
     ud_allowed=False,
@@ -273,7 +225,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    EXTENDED_RECEIVED,
+    topic=EXTENDED_RECEIVED,
     cmd1=-1,
     cmd2=None,
     ud_allowed=True,
@@ -282,7 +234,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    SEND_STANDARD,
+    topic=SEND_STANDARD,
     cmd1=-2,
     cmd2=None,
     ud_allowed=False,
@@ -291,7 +243,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    SEND_EXTENDED,
+    topic=SEND_EXTENDED,
     cmd1=-2,
     cmd2=None,
     ud_allowed=True,
@@ -300,7 +252,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    ASSIGN_TO_ALL_LINK_GROUP,
+    topic=ASSIGN_TO_ALL_LINK_GROUP,
     cmd1=0x01,
     cmd2=None,
     ud_allowed=False,
@@ -309,7 +261,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    DELETE_FROM_ALL_LINK_GROUP,
+    topic=DELETE_FROM_ALL_LINK_GROUP,
     cmd1=0x02,
     cmd2=None,
     ud_allowed=False,
@@ -318,7 +270,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    PRODUCT_DATA_REQUEST,
+    topic=PRODUCT_DATA_REQUEST,
     cmd1=0x03,
     cmd2=0x00,
     ud_allowed=True,
@@ -327,52 +279,52 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    FX_USERNAME,
+    topic=FX_USERNAME,
     cmd1=0x03,
     cmd2=0x01,
-    ud_allowed=False,
+    ud_allowed=True,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    DEVICE_TEXT_STRING_REQUEST,
+    topic=DEVICE_TEXT_STRING_REQUEST,
     cmd1=0x03,
     cmd2=0x02,
-    ud_allowed=False,
+    ud_allowed=True,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    SET_DEVICE_TEXT_STRING,
+    topic=SET_DEVICE_TEXT_STRING,
     cmd1=0x03,
     cmd2=0x03,
     ud_allowed=True,
-    ud_required=True,
+    ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    SET_ALL_LINK_COMMAND_ALIAS,
+    topic=SET_ALL_LINK_COMMAND_ALIAS,
     cmd1=0x03,
     cmd2=0x04,
     ud_allowed=True,
-    ud_required=True,
+    ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    SET_ALL_LINK,
+    topic=SET_ALL_LINK,
     cmd1=0x03,
-    cmd2=0x04,
+    cmd2=0x05,
     ud_allowed=True,
-    ud_required=True,
+    ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    ALL_LINK_CLEANUP_STATUS_REPORT,
+    topic=ALL_LINK_CLEANUP_STATUS_REPORT,
     cmd1=0x06,
     cmd2=None,
     ud_allowed=True,
@@ -381,7 +333,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    ENTER_LINKING_MODE,
+    topic=ENTER_LINKING_MODE,
     cmd1=0x09,
     cmd2=None,
     ud_allowed=True,
@@ -390,43 +342,43 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    ENTER_UNLINKING_MODE,
+    topic=ENTER_UNLINKING_MODE,
     cmd1=0x0A,
     cmd2=None,
-    ud_allowed=False,
+    ud_allowed=True,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    GET_INSTEON_ENGINE_VERSION,
+    topic=GET_INSTEON_ENGINE_VERSION,
     cmd1=0x0D,
-    cmd2=None,
+    cmd2=0x00,
     ud_allowed=False,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    PING,
+    topic=PING,
     cmd1=0x0F,
-    cmd2=None,
+    cmd2=0x00,
     ud_allowed=False,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    ID_REQUEST,
+    topic=ID_REQUEST,
     cmd1=0x10,
-    cmd2=None,
+    cmd2=0x00,
     ud_allowed=False,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    ON,
+    topic=ON,
     cmd1=0x11,
     cmd2=None,
     ud_allowed=True,
@@ -435,7 +387,7 @@ commands.add(
     use_group=True,
 )
 commands.add(
-    ON_FAST,
+    topic=ON_FAST,
     cmd1=0x12,
     cmd2=None,
     ud_allowed=True,
@@ -444,7 +396,7 @@ commands.add(
     use_group=True,
 )
 commands.add(
-    OFF,
+    topic=OFF,
     cmd1=0x13,
     cmd2=None,
     ud_allowed=True,
@@ -453,7 +405,7 @@ commands.add(
     use_group=True,
 )
 commands.add(
-    OFF_FAST,
+    topic=OFF_FAST,
     cmd1=0x14,
     cmd2=None,
     ud_allowed=True,
@@ -462,7 +414,7 @@ commands.add(
     use_group=True,
 )
 commands.add(
-    BRIGHTEN_ONE_STEP,
+    topic=BRIGHTEN_ONE_STEP,
     cmd1=0x15,
     cmd2=None,
     ud_allowed=False,
@@ -471,7 +423,7 @@ commands.add(
     use_group=True,
 )
 commands.add(
-    DIM_ONE_STEP,
+    topic=DIM_ONE_STEP,
     cmd1=0x16,
     cmd2=None,
     ud_allowed=False,
@@ -480,7 +432,7 @@ commands.add(
     use_group=True,
 )
 commands.add(
-    START_MANUAL_CHANGE_DOWN,
+    topic=START_MANUAL_CHANGE_DOWN,
     cmd1=0x17,
     cmd2=0x00,
     ud_allowed=False,
@@ -489,7 +441,7 @@ commands.add(
     use_group=True,
 )
 commands.add(
-    START_MANUAL_CHANGE_UP,
+    topic=START_MANUAL_CHANGE_UP,
     cmd1=0x17,
     cmd2=0x01,
     ud_allowed=False,
@@ -498,7 +450,7 @@ commands.add(
     use_group=True,
 )
 commands.add(
-    STOP_MANUAL_CHANGE,
+    topic=STOP_MANUAL_CHANGE,
     cmd1=0x18,
     cmd2=None,
     ud_allowed=False,
@@ -507,16 +459,16 @@ commands.add(
     use_group=True,
 )
 commands.add(
-    STATUS_REQUEST,
+    topic=STATUS_REQUEST,
     cmd1=0x19,
     cmd2=None,
-    ud_allowed=True,
+    ud_allowed=False,
     ud_required=False,
     userdata=None,
-    use_group=True,
+    use_group=False,
 )
 commands.add(
-    GET_OPERATING_FLAGS,
+    topic=GET_OPERATING_FLAGS,
     cmd1=0x1F,
     cmd2=None,
     ud_allowed=True,
@@ -525,7 +477,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    SET_OPERATING_FLAGS,
+    topic=SET_OPERATING_FLAGS,
     cmd1=0x20,
     cmd2=None,
     ud_allowed=True,
@@ -534,7 +486,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    INSTANT_CHANGE,
+    topic=INSTANT_CHANGE,
     cmd1=0x21,
     cmd2=None,
     ud_allowed=False,
@@ -543,7 +495,7 @@ commands.add(
     use_group=True,
 )
 commands.add(
-    MANUALLY_TURNED_OFF,
+    topic=MANUALLY_TURNED_OFF,
     cmd1=0x22,
     cmd2=None,
     ud_allowed=False,
@@ -552,7 +504,7 @@ commands.add(
     use_group=True,
 )
 commands.add(
-    MANUALLY_TURNED_ON,
+    topic=MANUALLY_TURNED_ON,
     cmd1=0x23,
     cmd2=None,
     ud_allowed=False,
@@ -561,7 +513,7 @@ commands.add(
     use_group=True,
 )
 commands.add(
-    REMOTE_SET_BUTTON_TAP1_TAP,
+    topic=REMOTE_SET_BUTTON_TAP1_TAP,
     cmd1=0x25,
     cmd2=0x01,
     ud_allowed=False,
@@ -570,7 +522,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    REMOTE_SET_BUTTON_TAP2_TAP,
+    topic=REMOTE_SET_BUTTON_TAP2_TAP,
     cmd1=0x25,
     cmd2=0x02,
     ud_allowed=False,
@@ -579,7 +531,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    SET_STATUS,
+    topic=SET_STATUS,
     cmd1=0x27,
     cmd2=None,
     ud_allowed=False,
@@ -588,7 +540,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    SET_ADDRESS_MSB,
+    topic=SET_ADDRESS_MSB,
     cmd1=0x28,
     cmd2=None,
     ud_allowed=False,
@@ -597,7 +549,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    POKE_ONE_BYTE,
+    topic=POKE_ONE_BYTE,
     cmd1=0x29,
     cmd2=None,
     ud_allowed=False,
@@ -606,7 +558,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    PEEK_ONE_BYTE,
+    topic=PEEK_ONE_BYTE,
     cmd1=0x2B,
     cmd2=None,
     ud_allowed=False,
@@ -615,7 +567,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    PEEK_ONE_BYTE_INTERNAL,
+    topic=PEEK_ONE_BYTE_INTERNAL,
     cmd1=0x2C,
     cmd2=None,
     ud_allowed=False,
@@ -624,7 +576,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    POKE_ONE_BYTE_INTERNAL,
+    topic=POKE_ONE_BYTE_INTERNAL,
     cmd1=0x2D,
     cmd2=None,
     ud_allowed=False,
@@ -633,25 +585,25 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    ON_AT_RAMP_RATE,
+    topic=ON_AT_RAMP_RATE,
     cmd1=0x2E,
     cmd2=None,
     ud_allowed=False,
     ud_required=False,
     userdata=None,
-    use_group=True,
+    use_group=False,
 )
 commands.add(
-    EXTENDED_GET_SET,
+    topic=EXTENDED_GET_SET,
     cmd1=0x2E,
-    cmd2=None,
+    cmd2=0x00,
     ud_allowed=True,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    EXTENDED_GET_RESPONSE,
+    topic=EXTENDED_GET_RESPONSE,
     cmd1=0x2E,
     cmd2=0x00,
     ud_allowed=True,
@@ -662,7 +614,7 @@ commands.add(
 # This is not consistant with the 2441TH dev guide
 # It is consistand with 2441ZTH dev guide howerver
 commands.add(
-    THERMOSTAT_SET_POINT_RESPONSE,
+    topic=THERMOSTAT_SET_POINT_RESPONSE,
     cmd1=0x2E,
     cmd2=0x00,
     ud_allowed=True,
@@ -671,7 +623,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    EXTENDED_GET_SET_2,
+    topic=EXTENDED_GET_SET_2,
     cmd1=0x2E,
     cmd2=0x02,
     ud_allowed=True,
@@ -680,7 +632,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    THERMOSTAT_STATUS_RESPONSE,
+    topic=THERMOSTAT_STATUS_RESPONSE,
     cmd1=0x2E,
     cmd2=0x02,
     ud_allowed=True,
@@ -690,17 +642,17 @@ commands.add(
 )
 # cmd2 ne 0x00 => no confict w/ read aldb
 commands.add(
-    OFF_AT_RAMP_RATE,
+    topic=OFF_AT_RAMP_RATE,
     cmd1=0x2F,
     cmd2=None,
     ud_allowed=False,
     ud_required=False,
     userdata=None,
-    use_group=True,
+    use_group=False,
 )
 # direct is ed and direct_ack is sd
 commands.add(
-    EXTENDED_READ_WRITE_ALDB,
+    topic=EXTENDED_READ_WRITE_ALDB,
     cmd1=0x2F,
     cmd2=0x00,
     ud_allowed=True,
@@ -710,7 +662,7 @@ commands.add(
 )
 # Conflicts with OFF_AT_RAMP_RATE but only used when an ALDB read ack has already been received
 commands.add(
-    EXTENDED_READ_WRITE_ALDB_DIRECT_NAK,
+    topic=EXTENDED_READ_WRITE_ALDB_DIRECT_NAK,
     cmd1=0x2F,
     cmd2=None,
     ud_allowed=False,
@@ -719,16 +671,16 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    EXTENDED_TRIGGER_ALL_LINK,
+    topic=EXTENDED_TRIGGER_ALL_LINK,
     cmd1=0x30,
-    cmd2=None,
+    cmd2=0x00,
     ud_allowed=True,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    BEEP,
+    topic=BEEP,
     cmd1=0x30,
     cmd2=None,
     ud_allowed=False,
@@ -737,16 +689,16 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    SET_SPRINKLER_PROGRAM,
+    topic=SET_SPRINKLER_PROGRAM,
     cmd1=0x40,
     cmd2=None,
     ud_allowed=True,
-    ud_required=True,
+    ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    SPRINKLER_VALVE_ON,
+    topic=SPRINKLER_VALVE_ON,
     cmd1=0x40,
     cmd2=None,
     ud_allowed=False,
@@ -755,7 +707,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    SPRINKLER_GET_PROGRAM_RESPONSE,
+    topic=SPRINKLER_GET_PROGRAM_RESPONSE,
     cmd1=0x41,
     cmd2=None,
     ud_allowed=True,
@@ -764,7 +716,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    SPRINKLER_VALVE_OFF,
+    topic=SPRINKLER_VALVE_OFF,
     cmd1=0x41,
     cmd2=None,
     ud_allowed=False,
@@ -773,169 +725,34 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    SPRINKLER_PROGRAM_ON,
+    topic=SPRINKLER_PROGRAM_ON,
     cmd1=0x42,
     cmd2=None,
-    ud_allowed=True,
+    ud_allowed=False,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    SPRINKLER_PROGRAM_OFF,
+    topic=SPRINKLER_PROGRAM_OFF,
     cmd1=0x43,
     cmd2=None,
-    ud_allowed=True,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_LOAD_INITIALIZATION_VALUES,
-    cmd1=0x44,
-    cmd2=0x00,
     ud_allowed=False,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    SPRINKLER_LOAD_EEPROM_FROM_RAM,
+    topic=SPRINKLER_CONTROL,
     cmd1=0x44,
-    cmd2=0x01,
+    cmd2=None,
     ud_allowed=False,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    SPRINKLER_GET_VALVE_STATUS,
-    cmd1=0x44,
-    cmd2=0x02,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_INHIBIT_COMMAND_ACCEPTANCE,
-    cmd1=0x44,
-    cmd2=0x03,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_RESUME_COMMAND_ACCEPTANCE,
-    cmd1=0x44,
-    cmd2=0x04,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_SKIP_FORWARD,
-    cmd1=0x44,
-    cmd2=0x05,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_SKIP_BACK,
-    cmd1=0x44,
-    cmd2=0x06,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_ENABLE_PUMP_ON_V8,
-    cmd1=0x44,
-    cmd2=0x07,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_DISABLE_PUMP_ON_V8,
-    cmd1=0x44,
-    cmd2=0x08,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_BROADCAST_ON,
-    cmd1=0x44,
-    cmd2=0x09,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_BROADCAST_OFF,
-    cmd1=0x44,
-    cmd2=0x0A,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_LOAD_RAM_FROM_EEPROM,
-    cmd1=0x44,
-    cmd2=0x0B,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_SENSOR_ON,
-    cmd1=0x44,
-    cmd2=0x0C,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_SENSOR_OFF,
-    cmd1=0x44,
-    cmd2=0x0D,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_DIAGNOSTICS_ON,
-    cmd1=0x44,
-    cmd2=0x0E,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_DIAGNOSTICS_OFF,
-    cmd1=0x44,
-    cmd2=0x0F,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    SPRINKLER_GET_PROGRAM_REQUEST,
+    topic=SPRINKLER_GET_PROGRAM_REQUEST,
     cmd1=0x45,
     cmd2=None,
     ud_allowed=False,
@@ -944,7 +761,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    IO_OUTPUT_ON,
+    topic=IO_OUTPUT_ON,
     cmd1=0x45,
     cmd2=None,
     ud_allowed=False,
@@ -953,7 +770,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    IO_OUTPUT_OFF,
+    topic=IO_OUTPUT_OFF,
     cmd1=0x46,
     cmd2=None,
     ud_allowed=False,
@@ -962,7 +779,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    IO_ALARM_DATA_REQUEST,
+    topic=IO_ALARM_DATA_REQUEST,
     cmd1=0x47,
     cmd2=0x00,
     ud_allowed=False,
@@ -971,7 +788,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    IO_WRITE_OUTPUT_PORT,
+    topic=IO_WRITE_OUTPUT_PORT,
     cmd1=0x48,
     cmd2=None,
     ud_allowed=False,
@@ -980,7 +797,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    IO_READ_INPUT_PORT,
+    topic=IO_READ_INPUT_PORT,
     cmd1=0x49,
     cmd2=0x00,
     ud_allowed=False,
@@ -989,7 +806,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    IO_GET_SENSOR_VALUE,
+    topic=IO_GET_SENSOR_VALUE,
     cmd1=0x4A,
     cmd2=None,
     ud_allowed=False,
@@ -998,7 +815,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    IO_SET_SENSOR_1_NOMINAL_VALUE,
+    topic=IO_SET_SENSOR_1_NOMINAL_VALUE,
     cmd1=0x4B,
     cmd2=None,
     ud_allowed=False,
@@ -1007,16 +824,16 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    IO_SET_SENSOR_NOMINAL_VALUE,
+    topic=IO_SET_SENSOR_NOMINAL_VALUE,
     cmd1=0x4B,
     cmd2=None,
     ud_allowed=True,
-    ud_required=True,
+    ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    IO_GET_SENSOR_ALARM_DELTA,
+    topic=IO_GET_SENSOR_ALARM_DELTA,
     cmd1=0x4C,
     cmd2=None,
     ud_allowed=False,
@@ -1025,7 +842,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    IO_ALARM_DATA_RESPONSE,
+    topic=IO_ALARM_DATA_RESPONSE,
     cmd1=0x4C,
     cmd2=0x00,
     ud_allowed=True,
@@ -1034,7 +851,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    IO_WRITE_CONFIGURATION_PORT,
+    topic=IO_WRITE_CONFIGURATION_PORT,
     cmd1=0x4D,
     cmd2=None,
     ud_allowed=False,
@@ -1043,7 +860,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    IO_READ_CONFIGURATION_PORT,
+    topic=IO_READ_CONFIGURATION_PORT,
     cmd1=0x4E,
     cmd2=0x00,
     ud_allowed=False,
@@ -1052,133 +869,43 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    IO_MODULE_LOAD_INITIALIZATION_VALUES,
+    topic=IO_MODULE_CONTROL,
     cmd1=0x4F,
+    cmd2=None,
+    ud_allowed=False,
+    ud_required=False,
+    userdata=None,
+    use_group=False,
+)
+commands.add(
+    topic=POOL_DEVICE_ON,
+    cmd1=0x50,
+    cmd2=None,
+    ud_allowed=False,
+    ud_required=False,
+    userdata=None,
+    use_group=False,
+)
+commands.add(
+    topic=POOL_SET_DEVICE_TEMPERATURE,
+    cmd1=0x50,
     cmd2=0x00,
-    ud_allowed=False,
+    ud_allowed=True,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    IO_MODULE_LOAD_EEPROM_FROM_RAM,
-    cmd1=0x4F,
+    topic=POOL_SET_DEVICE_HYSTERESIS,
+    cmd1=0x50,
     cmd2=0x01,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    IO_MODULE_STATUS_REQUEST,
-    cmd1=0x4F,
-    cmd2=0x02,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    IO_MODULE_READ_ANALOG_ONCE,
-    cmd1=0x4F,
-    cmd2=0x03,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    IO_MODULE_READ_ANALOG_ALWAYS,
-    cmd1=0x4F,
-    cmd2=0x04,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    IO_MODULE_ENABLE_STATUS_CHANGE_MESSAGE,
-    cmd1=0x4F,
-    cmd2=0x09,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    IO_MODULE_DISABLE_STATUS_CHANGE_MESSAGE,
-    cmd1=0x4F,
-    cmd2=0x0A,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    IO_MODULE_LOAD_RAM_FROM_EEPROM,
-    cmd1=0x4F,
-    cmd2=0x0B,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    IO_MODULE_SENSOR_ON,
-    cmd1=0x4F,
-    cmd2=0x0C,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    IO_MODULE_SENSOR_OFF,
-    cmd1=0x4F,
-    cmd2=0x0D,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    IO_MODULE_DIAGNOSTICS_ON,
-    cmd1=0x4F,
-    cmd2=0x0E,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    IO_MODULE_DIAGNOSTICS_OFF,
-    cmd1=0x4F,
-    cmd2=0x0F,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    POOL_DEVICE_ON,
-    cmd1=0x50,
-    cmd2=None,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    POOL_SET_DEVICE_TEMPERATURE,
-    cmd1=0x50,
-    cmd2=None,
     ud_allowed=True,
-    ud_required=True,
+    ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    POOL_DEVICE_OFF,
+    topic=POOL_DEVICE_OFF,
     cmd1=0x51,
     cmd2=None,
     ud_allowed=False,
@@ -1187,16 +914,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    POOL_SET_DEVICE_HYSTERESIS,
-    cmd1=0x51,
-    cmd2=None,
-    ud_allowed=True,
-    ud_required=True,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    POOL_TEMPERATURE_UP,
+    topic=POOL_TEMPERATURE_UP,
     cmd1=0x52,
     cmd2=None,
     ud_allowed=False,
@@ -1205,7 +923,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    POOL_TEMPERATURE_DOWN,
+    topic=POOL_TEMPERATURE_DOWN,
     cmd1=0x53,
     cmd2=None,
     ud_allowed=False,
@@ -1214,223 +932,43 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    POOL_LOAD_INITIALIZATION_VALUES,
+    topic=POOL_CONTROL,
     cmd1=0x54,
-    cmd2=0x00,
+    cmd2=None,
     ud_allowed=False,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    POOL_LOAD_EEPROM_FROM_RAM,
-    cmd1=0x54,
-    cmd2=0x01,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    POOL_GET_POOL_MODE,
-    cmd1=0x54,
-    cmd2=0x02,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    POOL_GET_AMBIENT_TEMPERATURE,
-    cmd1=0x54,
-    cmd2=0x03,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    POOL_GET_WATER_TEMPERATURE,
-    cmd1=0x54,
-    cmd2=0x04,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    POOL_GET_PH,
-    cmd1=0x54,
-    cmd2=0x05,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    DOOR_MOVE_RAISE_DOOR,
+    topic=DOOR_CONTROL,
     cmd1=0x58,
-    cmd2=0x00,
+    cmd2=None,
     ud_allowed=False,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    DOOR_MOVE_LOWER_DOOR,
-    cmd1=0x58,
-    cmd2=0x01,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    DOOR_MOVE_OPEN_DOOR,
-    cmd1=0x58,
-    cmd2=0x02,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    DOOR_MOVE_CLOSE_DOOR,
-    cmd1=0x58,
-    cmd2=0x03,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    DOOR_MOVE_STOP_DOOR,
-    cmd1=0x58,
-    cmd2=0x04,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    DOOR_MOVE_SINGLE_DOOR_OPEN,
-    cmd1=0x58,
-    cmd2=0x05,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    DOOR_MOVE_SINGLE_DOOR_CLOSE,
-    cmd1=0x58,
-    cmd2=0x06,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    DOOR_STATUS_REPORT_RAISE_DOOR,
+    topic=DOOR_STATUS_REPORT,
     cmd1=0x59,
-    cmd2=0x00,
+    cmd2=None,
     ud_allowed=False,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    DOOR_STATUS_REPORT_LOWER_DOOR,
-    cmd1=0x59,
-    cmd2=0x01,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    DOOR_STATUS_REPORT_OPEN_DOOR,
-    cmd1=0x59,
-    cmd2=0x02,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    DOOR_STATUS_REPORT_CLOSE_DOOR,
-    cmd1=0x59,
-    cmd2=0x03,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    DOOR_STATUS_REPORT_STOP_DOOR,
-    cmd1=0x59,
-    cmd2=0x04,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    DOOR_STATUS_REPORT_SINGLE_DOOR_OPEN,
-    cmd1=0x59,
-    cmd2=0x05,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    DOOR_STATUS_REPORT_SINGLE_DOOR_CLOSE,
-    cmd1=0x59,
-    cmd2=0x06,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    WINDOW_COVERING_OPEN,
+    topic=WINDOW_COVERING_CONTROL,
     cmd1=0x60,
-    cmd2=0x01,
+    cmd2=None,
     ud_allowed=False,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    WINDOW_COVERING_CLOSE,
-    cmd1=0x60,
-    cmd2=0x02,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    WINDOW_COVERING_STOP,
-    cmd1=0x60,
-    cmd2=0x03,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    WINDOW_COVERING_PROGRAM,
-    cmd1=0x60,
-    cmd2=0x04,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    WINDOW_COVERING_POSITION,
+    topic=WINDOW_COVERING_POSITION,
     cmd1=0x61,
     cmd2=None,
     ud_allowed=False,
@@ -1439,7 +977,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    THERMOSTAT_TEMPERATURE_UP,
+    topic=THERMOSTAT_TEMPERATURE_UP,
     cmd1=0x68,
     cmd2=None,
     ud_allowed=True,
@@ -1448,7 +986,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    THERMOSTAT_TEMPERATURE_DOWN,
+    topic=THERMOSTAT_TEMPERATURE_DOWN,
     cmd1=0x69,
     cmd2=None,
     ud_allowed=True,
@@ -1457,7 +995,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    THERMOSTAT_GET_ZONE_INFORMATION,
+    topic=THERMOSTAT_GET_ZONE_INFORMATION,
     cmd1=0x6A,
     cmd2=None,
     ud_allowed=False,
@@ -1466,7 +1004,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    THERMOSTAT_CONTROL,
+    topic=THERMOSTAT_CONTROL,
     cmd1=0x6B,
     cmd2=None,
     ud_allowed=False,
@@ -1475,7 +1013,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    THERMOSTAT_SET_COOL_SETPOINT,
+    topic=THERMOSTAT_SET_COOL_SETPOINT,
     cmd1=0x6C,
     cmd2=None,
     ud_allowed=True,
@@ -1484,16 +1022,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    THERMOSTAT_SET_ZONE_COOL_SETPOINT,
-    cmd1=0x6C,
-    cmd2=None,
-    ud_allowed=True,
-    ud_required=True,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    THERMOSTAT_SET_HEAT_SETPOINT,
+    topic=THERMOSTAT_SET_HEAT_SETPOINT,
     cmd1=0x6D,
     cmd2=None,
     ud_allowed=True,
@@ -1502,16 +1031,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    THERMOSTAT_SET_ZONE_HEAT_SETPOINT,
-    cmd1=0x6D,
-    cmd2=None,
-    ud_allowed=True,
-    ud_required=True,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    THERMOSTAT_TEMPERATURE_STATUS,
+    topic=THERMOSTAT_TEMPERATURE_STATUS,
     cmd1=0x6E,
     cmd2=None,
     ud_allowed=False,
@@ -1520,7 +1040,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    THERMOSTAT_HUMIDITY_STATUS,
+    topic=THERMOSTAT_HUMIDITY_STATUS,
     cmd1=0x6F,
     cmd2=None,
     ud_allowed=False,
@@ -1529,7 +1049,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    THERMOSTAT_MODE_STATUS,
+    topic=LEAK_DETECTOR_ANNOUNCE,
     cmd1=0x70,
     cmd2=None,
     ud_allowed=False,
@@ -1538,7 +1058,16 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    THERMOSTAT_COOL_SET_POINT_STATUS,
+    topic=THERMOSTAT_MODE_STATUS,
+    cmd1=0x70,
+    cmd2=None,
+    ud_allowed=False,
+    ud_required=False,
+    userdata=None,
+    use_group=False,
+)
+commands.add(
+    topic=THERMOSTAT_COOL_SET_POINT_STATUS,
     cmd1=0x71,
     cmd2=None,
     ud_allowed=False,
@@ -1547,27 +1076,9 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    THERMOSTAT_HEAT_SET_POINT_STATUS,
+    topic=THERMOSTAT_HEAT_SET_POINT_STATUS,
     cmd1=0x72,
     cmd2=None,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    LEAK_DETECTOR_ANNOUNCE,
-    cmd1=0x70,
-    cmd2=None,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
-commands.add(
-    ASSIGN_TO_COMPANION_GROUP,
-    cmd1=0x81,
-    cmd2=0x00,
     ud_allowed=False,
     ud_required=False,
     userdata=None,

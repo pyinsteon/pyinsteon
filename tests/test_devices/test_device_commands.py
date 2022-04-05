@@ -67,13 +67,12 @@ class TestDeviceCommands(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=False,
+            logger_topics=True,
         )
 
     def tearDown(self):
         """Tear down the test."""
         pyinsteon.pub.unsubAll("send")
-        pyinsteon.pub.unsubAll("send_message")
 
     @async_case
     async def test_device_commands(self):

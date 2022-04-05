@@ -6,7 +6,7 @@ from binascii import unhexlify
 from pyinsteon import pub
 from pyinsteon.address import Address
 from pyinsteon.constants import MessageId
-from pyinsteon.protocol.messages.message_flags import MessageFlags
+from pyinsteon.data_types.message_flags import MessageFlags
 
 # pylint: disable=unused-import
 from pyinsteon.protocol.messages.outbound import send_standard  # noqa: F401

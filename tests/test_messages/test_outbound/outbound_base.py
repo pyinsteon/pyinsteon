@@ -1,7 +1,10 @@
 """Base class for testing outbound messages."""
 
 from pyinsteon import pub
-from pyinsteon.protocol.messages.outbound import register_outbound_handlers
+from pyinsteon.protocol.messages.outbound import (
+    outbound_write_manager,
+    register_outbound_handlers,
+)
 from tests import set_log_levels
 from tests.utils import async_case
 
@@ -22,7 +25,7 @@ class OutboundBase:
         self.msg = None
         self.message_id = message_id
         self.bytes_data = bytes_data
-        pub.subscribe(self.receive_message, "send_message")
+        outbound_write_manager.protocol_write = self.write_message
         self.topic = self.message_id.name.lower()
         if (
             self.topic == "send_standard"
@@ -32,7 +35,7 @@ class OutboundBase:
             self.topic = "send_extended"
         self.kwargs = kwargs
 
-    def receive_message(self, msg, priority=5):
+    def write_message(self, msg, priority=5):
         """Set the message from the outbound publisher."""
         self.msg = msg
 

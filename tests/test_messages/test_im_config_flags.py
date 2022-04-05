@@ -1,7 +1,7 @@
 """Test the modem config flags."""
 import unittest
 
-from pyinsteon.protocol.messages.im_config_flags import IMConfigurationFlags, create
+from pyinsteon.data_types.im_config_flags import IMConfigurationFlags, create
 from tests import set_log_levels
 
 

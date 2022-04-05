@@ -1,4 +1,4 @@
-"""Serial protocol to perform async I/O with the Powerline Modem (PLM)."""
+"""Serial protocol to perform async I/O with the Insteon Modem."""
 
 import asyncio
 import logging
@@ -7,10 +7,10 @@ from queue import SimpleQueue
 
 from .. import pub
 from ..constants import AckNak
-from ..utils import log_error, publish_topic, subscribe_topic
+from ..utils import log_error, publish_topic
 from .command_to_msg import register_command_handlers
 from .messages.inbound import create
-from .messages.outbound import register_outbound_handlers
+from .messages.outbound import outbound_write_manager, register_outbound_handlers
 from .msg_to_topic import convert_to_topic
 
 _LOGGER = logging.getLogger(__name__)
@@ -63,9 +63,9 @@ class Protocol(asyncio.Protocol):
         self._should_reconnect = True
         self._connect_method = connect_method
         self._streaming = False
+        outbound_write_manager.protocol_write = self.write
         register_outbound_handlers()
         register_command_handlers()
-        subscribe_topic(self._write, "send_message")
 
     @property
     def connected(self) -> bool:
@@ -150,7 +150,6 @@ class Protocol(asyncio.Protocol):
 
     def close(self):
         """Close the serial transport."""
-        self._unsubscribe()
         self._should_reconnect = False
         self._stop_writer()
         if self._transport:
@@ -161,6 +160,7 @@ class Protocol(asyncio.Protocol):
 
     # pylint: disable=broad-except
     async def _publish_message(self, msg):
+        """Convert an inbound message to a topic and publish to listeners."""
         _LOGGER_MSG.debug("RX: %s", repr(msg))
         topic = None
         kwargs = {}
@@ -176,7 +176,7 @@ class Protocol(asyncio.Protocol):
         except Exception as ex:
             log_error(msg, ex, topic=topic, kwargs=kwargs)
 
-    def _write(self, msg, priority=5):
+    def write(self, msg, priority=5):
         """Prepare data for writing to the transport.
 
         Data is actually writen by _write_message to ensure a pause beteen writes.
@@ -191,11 +191,7 @@ class Protocol(asyncio.Protocol):
 
         TODO: Avoid resending the same message 10 times.
         """
-        self._write(bytes(msg)[:-1])
-
-    def _unsubscribe(self):
-        """Unsubscribe to topics."""
-        pub.unsubscribe(self._write, "send_message")
+        self.write(bytes(msg)[:-1])
 
     def _start_writer(self):
         """Start the message writer."""

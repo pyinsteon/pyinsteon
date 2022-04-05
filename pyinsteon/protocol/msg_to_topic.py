@@ -30,7 +30,6 @@ from ..topics import (
     SET_IM_CONFIGURATION,
     SET_NAK_MESSAGE_BYTE,
     START_ALL_LINKING,
-    STATUS_REQUEST,
     USER_RESET_DETECTED,
     WRITE_EEPROM,
     X10_RECEIVED,
@@ -49,7 +48,7 @@ def convert_to_topic(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
     return converter(msg)
 
 
-def _msg_group(topic, message_type, target, cmd2, user_data):
+def _get_group_from_msg(topic, message_type, target, cmd2, user_data):
     """Derive the group number of the message from the message type.
 
     message_flag_type: MessageFlagType 0 to 7:
@@ -62,9 +61,6 @@ def _msg_group(topic, message_type, target, cmd2, user_data):
         ALL_LINK_BROADCAST = 6: Not applicable
         ALL_LINK_CLEANUP_NAK = 7: Not applicable
     """
-    if topic == STATUS_REQUEST and message_type == MessageFlagType.DIRECT:
-        return cmd2
-
     if message_type == MessageFlagType.DIRECT:
         if user_data:
             return user_data["d1"]
@@ -80,7 +76,7 @@ def _msg_group(topic, message_type, target, cmd2, user_data):
 
 def _create_rcv_std_ext_msg(topic, address, flags, cmd1, cmd2, target, user_data):
     if commands.use_group(topic):
-        group = _msg_group(topic, flags.message_type, target, cmd2, user_data)
+        group = _get_group_from_msg(topic, flags.message_type, target, cmd2, user_data)
     else:
         group = None
     topic = build_topic(
@@ -218,7 +214,7 @@ def send_all_link_command(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
 
 def _create_send_std_ext(topic, address, flags, cmd1, cmd2, user_data, ack):
     if commands.use_group(topic):
-        group = _msg_group(topic, flags.message_type, None, cmd2, user_data)
+        group = _get_group_from_msg(topic, flags.message_type, None, cmd2, user_data)
     else:
         group = None
 

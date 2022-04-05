@@ -3,7 +3,7 @@ import unittest
 from binascii import unhexlify
 
 from pyinsteon.address import Address
-from pyinsteon.protocol.messages.message_flags import MessageFlags
+from pyinsteon.data_types.message_flags import MessageFlags
 from tests import set_log_levels
 from tests.utils import hex_to_inbound_message
 

@@ -290,8 +290,8 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
         cmd2_on = random.randint(0, 255)
         target = device.address
         user_data = None
-        ack_status_0 = "ack.{}.2.{}.direct".format(device.address.id, STATUS_REQUEST)
-        ack_status_1 = "ack.{}.1.{}.direct".format(device.address.id, STATUS_REQUEST)
+        ack_status_0 = "ack.{}.{}.direct".format(device.address.id, STATUS_REQUEST)
+        ack_status_1 = "ack.{}.{}.direct".format(device.address.id, STATUS_REQUEST)
         direct_ack_status = "{}.{}.direct_ack".format(device.address.id, STATUS_REQUEST)
         ack_on = "ack.{}.1.{}.direct".format(device.address.id, ON)
         direct_ack_on = "{}.{}.direct_ack".format(device.address.id, ON)

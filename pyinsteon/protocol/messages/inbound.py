@@ -4,10 +4,10 @@ from binascii import hexlify
 from typing import Tuple
 
 from ...constants import MessageId
+from ...data_types.message_flags import MessageFlags
 from . import MessageBase
 from .message_definition import MessageDefinition
 from .message_definitions import FLD_EXT_SEND_ACK, INBOUND_MSG_DEF
-from .message_flags import MessageFlags
 
 _LOGGER = logging.getLogger(__name__)
 

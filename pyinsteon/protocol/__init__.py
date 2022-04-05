@@ -79,6 +79,7 @@ async def async_modem_connect(
     retries = 5
     result = None
     while retries and result != ResponseStatus.SUCCESS:
+        await asyncio.sleep(1)
         result = await get_im_info.async_send()
         retries -= 1
 

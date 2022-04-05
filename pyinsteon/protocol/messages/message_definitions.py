@@ -12,11 +12,11 @@ from ...constants import (
     MessageId,
     X10CommandType,
 )
-from .all_link_record_flags import AllLinkRecordFlags
-from .im_config_flags import IMConfigurationFlags
+from ...data_types.all_link_record_flags import AllLinkRecordFlags
+from ...data_types.im_config_flags import IMConfigurationFlags
+from ...data_types.message_flags import MessageFlags
+from ...data_types.user_data import UserData
 from .message_definition import MessageDefinition
-from .message_flags import MessageFlags
-from .user_data import UserData
 
 MessageField = namedtuple("MessageField", "name length type")
 

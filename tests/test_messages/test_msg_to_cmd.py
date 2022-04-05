@@ -1,14 +1,13 @@
 """Test the sending and receiving of messages using the MockPLM and receive topics."""
 import asyncio
 import json
-from random import randint
 import unittest
 from binascii import unhexlify
 
 import aiofiles
 
 from pyinsteon import pub
-from pyinsteon.protocol.messages.user_data import UserData
+from pyinsteon.data_types.user_data import UserData
 from pyinsteon.utils import subscribe_topic, unsubscribe_topic
 from tests import set_log_levels
 from tests.utils import (
@@ -80,7 +79,6 @@ class TestDirectMsgToTopic(unittest.TestCase):
     def tearDown(self):
         """Tear down the test."""
         pub.unsubAll("send")
-        pub.unsubAll("send_message")
 
     async def capture_topic(
         self, cmd1, cmd2, target, user_data, hops_left, topic=pub.AUTO_TOPIC

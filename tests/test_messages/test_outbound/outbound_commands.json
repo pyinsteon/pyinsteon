@@ -1,0 +1,416 @@
+{
+    "ASSIGN_TO_ALL_LINK_GROUP": {
+        "args": {
+            "group": 1
+        },
+        "result": "0262aaaaaa000101"
+    },
+    "DELETE_FROM_ALL_LINK_GROUP": {
+        "args": {
+            "group": 3
+        },
+        "result": "0262aaaaaa000203"
+    },
+    "PRODUCT_DATA_REQUEST": {
+        "args": {},
+        "result": "0262aaaaaa000300"
+    },
+    "FX_USERNAME": {
+        "args": {},
+        "result": "0262aaaaaa000301"
+    },
+    "DEVICE_TEXT_STRING_REQUEST": {
+        "args": {},
+        "result": "0262aaaaaa000302"
+    },
+    "SET_DEVICE_TEXT_STRING": {
+        "args": {
+            "value": "Hello"
+        },
+        "result": "0262aaaaaa10030348656c6c6f0000"
+    },
+    "SET_ALL_LINK_COMMAND_ALIAS": {
+        "args": {
+            "cmd": "0x15",
+            "alias": "0x3344",
+            "extended": false
+        },
+        "result": "0262aaaaaa100304153344000000"
+    },
+    "SET_ALL_LINK": {
+        "args": {},
+        "result": "0262aaaaaa100305000000"
+    },
+    "ENTER_LINKING_MODE": {
+        "args": {
+            "group": 4,
+            "extended": false
+        },
+        "result": "0262aaaaaa000904"
+    },
+    "ENTER_UNLINKING_MODE": {
+        "args": {
+            "group": 5,
+            "extended": false
+        },
+        "result": "0262aaaaaa000A05"
+    },
+    "GET_INSTEON_ENGINE_VERSION": {
+        "args": {},
+        "result": "0262aaaaaa000D"
+    },
+    "PING": {
+        "args": {},
+        "result": "0262aaaaaa000F"
+    },
+    "ID_REQUEST": {
+        "args": {},
+        "result": "0262aaaaaa0010"
+    },
+    "ON": {
+        "args": {
+            "on_level": "0xab",
+            "group": 0
+        },
+        "result": "0262aaaaaa0011ab"
+    },
+    "ON_FAST": {
+        "args": {
+            "on_level": "0xac",
+            "group": 0
+        },
+        "result": "0262aaaaaa0012ac"
+    },
+    "OFF": {
+        "args": {
+            "group": 0
+        },
+        "result": "0262aaaaaa001300"
+    },
+    "OFF_FAST": {
+        "args": {
+            "group": 0
+        },
+        "result": "0262aaaaaa001400"
+    },
+    "BRIGHTEN_ONE_STEP": {
+        "args": {},
+        "result": "0262aaaaaa0015"
+    },
+    "DIM_ONE_STEP": {
+        "args": {},
+        "result": "0262aaaaaa0016"
+    },
+    "STATUS_REQUEST": {
+        "args": {
+            "status_type": 3
+        },
+        "result": "0262aaaaaa001903"
+    },
+    "GET_OPERATING_FLAGS": {
+        "args": {
+            "flags_requested": 1,
+            "extended": true
+        },
+        "result": "0262aaaaaa101F000000"
+    },
+    "SET_OPERATING_FLAGS": {
+        "args": {
+            "cmd": "0x04",
+            "extended": true
+        },
+        "result": "0262aaaaaa102004000000"
+    },
+    "INSTANT_CHANGE": {
+        "args": {
+            "on_level": "0xad"
+        },
+        "result": "0262aaaaaa0021ad"
+    },
+    "SET_STATUS": {
+        "args": {
+            "on_level": "0xae"
+        },
+        "result": "0262aaaaaa0027ae"
+    },
+    "SET_ADDRESS_MSB": {
+        "args": {
+            "high_byte": "0xba"
+        },
+        "result": "0262aaaaaa0028ba"
+    },
+    "POKE_ONE_BYTE": {
+        "args": {
+            "byte_to_write": "0xbb"
+        },
+        "result": "0262aaaaaa0029bb"
+    },
+    "PEEK_ONE_BYTE": {
+        "args": {
+            "lsb": "0xbc"
+        },
+        "result": "0262aaaaaa002Bbc"
+    },
+    "PEEK_ONE_BYTE_INTERNAL": {
+        "args": {
+            "lsb": "0xbd"
+        },
+        "result": "0262aaaaaa002Cbd"
+    },
+    "POKE_ONE_BYTE_INTERNAL": {
+        "args": {
+            "byte_to_write": "0xbe"
+        },
+        "result": "0262aaaaaa002Dbe"
+    },
+    "ON_AT_RAMP_RATE": {
+        "args": {
+            "on_level": "0x04",
+            "ramp_rate": "0x05"
+        },
+        "result": "0262aaaaaa002E4a"
+    },
+    "EXTENDED_GET_SET": {
+        "args": {
+            "data1": "0x01"
+        },
+        "result": "0262aaaaaa102E00010000"
+    },
+    "EXTENDED_GET_SET_2": {
+        "args": {
+            "data1": "0x02"
+        },
+        "result": "0262aaaaaa102E02020000"
+    },
+    "OFF_AT_RAMP_RATE": {
+        "args": {
+            "ramp_rate": "0x05"
+        },
+        "result": "0262aaaaaa002F04"
+    },
+    "EXTENDED_TRIGGER_ALL_LINK": {
+        "args": {
+            "group": 3,
+            "on_level": "0xca",
+            "fast": true
+        },
+        "result": "0262aaaaaa1030000302ca110100"
+    },
+    "BEEP": {
+        "args": {},
+        "result": "0262aaaaaa0030"
+    },
+    "SET_SPRINKLER_PROGRAM": {
+        "args": {
+            "program": 1,
+            "timers": [
+                1,
+                2
+            ]
+        },
+        "result": "0262aaaaaa104001010200"
+    },
+    "SPRINKLER_VALVE_ON": {
+        "args": {
+            "valve": 2
+        },
+        "result": "0262aaaaaa004002"
+    },
+    "SPRINKLER_PROGRAM_ON": {
+        "args": {
+            "valve": 3
+        },
+        "result": "0262aaaaaa004203"
+    },
+    "SPRINKLER_PROGRAM_OFF": {
+        "args": {
+            "program": 4
+        },
+        "result": "0262aaaaaa004304"
+    },
+    "SPRINKLER_CONTROL": {
+        "args": {
+            "command": 5
+        },
+        "result": "0262aaaaaa004405"
+    },
+    "SPRINKLER_GET_PROGRAM_REQUEST": {
+        "args": {
+            "program": 6
+        },
+        "result": "0262aaaaaa004506"
+    },
+    "IO_OUTPUT_ON": {
+        "args": {
+            "output": 7
+        },
+        "result": "0262aaaaaa004507"
+    },
+    "IO_OUTPUT_OFF": {
+        "args": {
+            "output": 8
+        },
+        "result": "0262aaaaaa004608"
+    },
+    "IO_ALARM_DATA_REQUEST": {
+        "args": {},
+        "result": "0262aaaaaa004700"
+    },
+    "IO_WRITE_OUTPUT_PORT": {
+        "args": {
+            "value": 9
+        },
+        "result": "0262aaaaaa004809"
+    },
+    "IO_READ_INPUT_PORT": {
+        "args": {},
+        "result": "0262aaaaaa004900"
+    },
+    "IO_GET_SENSOR_VALUE": {
+        "args": {
+            "sensor": 1
+        },
+        "result": "0262aaaaaa004A01"
+    },
+    "IO_SET_SENSOR_1_NOMINAL_VALUE": {
+        "args": {
+            "value": 2
+        },
+        "result": "0262aaaaaa004B02"
+    },
+    "IO_SET_SENSOR_NOMINAL_VALUE": {
+        "args": {
+            "sensor": 3,
+            "value": 5
+        },
+        "result": "0262aaaaaa104B03050000"
+    },
+    "IO_GET_SENSOR_ALARM_DELTA": {
+        "args": {
+            "sensor": 4,
+            "delta": -3
+        },
+        "result": "0262aaaaaa004Cc4"
+    },
+    "IO_WRITE_CONFIGURATION_PORT": {
+        "args": {
+            "port_flags": "0xab"
+        },
+        "result": "0262aaaaaa004Dab"
+    },
+    "IO_READ_CONFIGURATION_PORT": {
+        "args": {},
+        "result": "0262aaaaaa004E00"
+    },
+    "IO_MODULE_CONTROL": {
+        "args": {
+            "command": 0
+        },
+        "result": "0262aaaaaa004F00"
+    },
+    "POOL_DEVICE_ON": {
+        "args": {
+            "device_num": 1
+        },
+        "result": "0262aaaaaa005001"
+    },
+    "POOL_SET_DEVICE_TEMPERATURE": {
+        "args": {
+            "device_num": 2,
+            "degrees": "0x0a"
+        },
+        "result": "0262aaaaaa105000020a"
+    },
+    "POOL_DEVICE_OFF": {
+        "args": {
+            "device_num": 3
+        },
+        "result": "0262aaaaaa005103"
+    },
+    "POOL_SET_DEVICE_HYSTERESIS": {
+        "args": {
+            "device_num": 4,
+            "hysteresis": "0x0b"
+        },
+        "result": "0262aaaaaa105001020b"
+    },
+    "POOL_TEMPERATURE_UP": {
+        "args": {
+            "degrees": 5
+        },
+        "result": "0262aaaaaa00520a"
+    },
+    "POOL_TEMPERATURE_DOWN": {
+        "args": {
+            "degrees": 6
+        },
+        "result": "0262aaaaaa00530c"
+    },
+    "POOL_CONTROL": {
+        "args": {
+            "command": 1
+        },
+        "result": "0262aaaaaa005401"
+    },
+    "DOOR_CONTROL": {
+        "args": {
+            "command": 2
+        },
+        "result": "0262aaaaaa005802"
+    },
+    "DOOR_STATUS_REPORT": {
+        "args": {
+            "command": 3
+        },
+        "result": "0262aaaaaa005903"
+    },
+    "WINDOW_COVERING_CONTROL": {
+        "args": {
+            "command": 4
+        },
+        "result": "0262aaaaaa006004"
+    },
+    "WINDOW_COVERING_POSITION": {
+        "args": {
+            "position": 5
+        },
+        "result": "0262aaaaaa006105"
+    },
+    "THERMOSTAT_TEMPERATURE_UP": {
+        "args": {
+            "degrees": 5
+        },
+        "result": "0262aaaaaa00680a"
+    },
+    "THERMOSTAT_TEMPERATURE_DOWN": {
+        "args": {
+            "degrees": 7
+        },
+        "result": "0262aaaaaa00690e"
+    },
+    "THERMOSTAT_GET_ZONE_INFORMATION": {
+        "args": {
+            "zone": 1,
+            "info": 4
+        },
+        "result": "0262aaaaaa006A41"
+    },
+    "THERMOSTAT_CONTROL": {
+        "args": {
+            "thermostat_mode": 3
+        },
+        "result": "0262aaaaaa006B03"
+    },
+    "THERMOSTAT_SET_COOL_SETPOINT": {
+        "args": {
+            "degrees": 5
+        },
+        "result": "0262aaaaaa006C0a"
+    },
+    "THERMOSTAT_SET_HEAT_SETPOINT": {
+        "args": {
+            "degrees": 6
+        },
+        "result": "0262aaaaaa006D0c"
+    }
+}

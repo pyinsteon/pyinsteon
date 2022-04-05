@@ -2,7 +2,7 @@
 import binascii
 import logging
 
-from ...utils import vars_to_string
+from ..utils import vars_to_string
 
 _LOGGER = logging.getLogger(__name__)
 

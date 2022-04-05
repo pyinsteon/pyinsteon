@@ -4,8 +4,8 @@ from binascii import unhexlify
 
 from pyinsteon.address import Address
 from pyinsteon.constants import MESSAGE_ACK, MessageId
-from pyinsteon.protocol.messages.message_flags import MessageFlags
-from pyinsteon.protocol.messages.user_data import UserData
+from pyinsteon.data_types.message_flags import MessageFlags
+from pyinsteon.data_types.user_data import UserData
 from tests import set_log_levels
 from tests.utils import hex_to_inbound_message
 

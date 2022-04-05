@@ -35,7 +35,7 @@
         "flags": "00",
         "cmd1": "03",
         "cmd2": "01",
-        "user_data": "",
+        "user_data": {},
         "ack": "",
         "topic": "{}.fx_username.direct"
     },
@@ -45,9 +45,39 @@
         "flags": "00",
         "cmd1": "03",
         "cmd2": "02",
-        "user_data": "",
+        "user_data": {},
         "ack": "",
         "topic": "{}.device_text_string_request.direct"
+    },
+    "SET_DEVICE_TEXT_STRING-DIRECT": {
+        "address": {},
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "03",
+        "cmd2": "03",
+        "user_data": {},
+        "ack": "",
+        "topic": "{}.set_device_text_string.direct"
+    },
+    "SET_ALL_LINK_COMMAND_ALIAS-DIRECT": {
+        "address": {},
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "03",
+        "cmd2": "04",
+        "user_data": {},
+        "ack": "",
+        "topic": "{}.set_all_link_command_alias.direct"
+    },
+    "SET_ALL_LINK-DIRECT": {
+        "address": {},
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "03",
+        "cmd2": "05",
+        "user_data": {},
+        "ack": "",
+        "topic": "{}.set_all_link.direct"
     },
     "ALL_LINK_CLEANUP_STATUS_REPORT-DIRECT": {
         "address": {},
@@ -207,7 +237,7 @@
         "cmd2": "02",
         "user_data": "",
         "ack": "",
-        "topic": "{}.2.status_request.direct"
+        "topic": "{}.status_request.direct"
     },
     "GET_OPERATING_FLAGS-DIRECT": {
         "address": {},
@@ -404,7 +434,7 @@
         "cmd2": "",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.on_at_ramp_rate.direct"
+        "topic": "{}.on_at_ramp_rate.direct"
     },
     "EXTENDED_READ_WRITE_ALDB-DIRECT": {
         "address": {},
@@ -424,7 +454,7 @@
         "cmd2": "",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.off_at_ramp_rate.direct"
+        "topic": "{}.off_at_ramp_rate.direct"
     },
     "EXTENDED_READ_WRITE_ALDB_DIRECT_NAK-DIRECT": {
         "address": {},
@@ -464,7 +494,7 @@
         "cmd2": "02",
         "user_data": {},
         "ack": "",
-        "topic": "{}.2.set_sprinkler_program.direct"
+        "topic": "{}.set_sprinkler_program.direct"
     },
     "SPRINKLER_VALVE_ON-DIRECT": {
         "address": {},
@@ -484,7 +514,7 @@
         "cmd2": "03",
         "user_data": {},
         "ack": "",
-        "topic": "{}.3.sprinkler_get_program_response.direct"
+        "topic": "{}.sprinkler_get_program_response.direct"
     },
     "SPRINKLER_VALVE_OFF-DIRECT": {
         "address": {},
@@ -516,7 +546,7 @@
         "ack": "",
         "topic": "{}.sprinkler_program_off.direct"
     },
-    "SPRINKLER_LOAD_INITIALIZATION_VALUES-DIRECT": {
+    "SPRINKLER_CONTROL-DIRECT": {
         "address": {},
         "target": "040506",
         "flags": "00",
@@ -524,157 +554,7 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "{}.sprinkler_load_initialization_values.direct"
-    },
-    "SPRINKLER_LOAD_EEPROM_FROM_RAM-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "01",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_load_eeprom_from_ram.direct"
-    },
-    "SPRINKLER_GET_VALVE_STATUS-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "02",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_get_valve_status.direct"
-    },
-    "SPRINKLER_INHIBIT_COMMAND_ACCEPTANCE-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "03",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_inhibit_command_acceptance.direct"
-    },
-    "SPRINKLER_RESUME_COMMAND_ACCEPTANCE-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "04",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_resume_command_acceptance.direct"
-    },
-    "SPRINKLER_SKIP_FORWARD-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "05",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_skip_forward.direct"
-    },
-    "SPRINKLER_SKIP_BACK-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "06",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_skip_back.direct"
-    },
-    "SPRINKLER_ENABLE_PUMP_ON_V8-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "07",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_enable_pump_on_v8.direct"
-    },
-    "SPRINKLER_DISABLE_PUMP_ON_V8-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "08",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_disable_pump_on_v8.direct"
-    },
-    "SPRINKLER_BROADCAST_ON-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "09",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_broadcast_on.direct"
-    },
-    "SPRINKLER_BROADCAST_OFF-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "0A",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_broadcast_off.direct"
-    },
-    "SPRINKLER_LOAD_RAM_FROM_EEPROM-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "0B",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_load_ram_from_eeprom.direct"
-    },
-    "SPRINKLER_SENSOR_ON-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "0C",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_sensor_on.direct"
-    },
-    "SPRINKLER_SENSOR_OFF-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "0D",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_sensor_off.direct"
-    },
-    "SPRINKLER_DIAGNOSTICS_ON-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "0E",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_diagnostics_on.direct"
-    },
-    "SPRINKLER_DIAGNOSTICS_OFF-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "44",
-        "cmd2": "0F",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.sprinkler_diagnostics_off.direct"
+        "topic": "{}.sprinkler_control.direct"
     },
     "SPRINKLER_GET_PROGRAM_REQUEST-DIRECT": {
         "address": {},
@@ -754,7 +634,7 @@
         "cmd2": "",
         "user_data": "",
         "ack": "",
-        "topic": "{}.1.io_set_sensor_1_nominal_value.direct"
+        "topic": "{}.io_set_sensor_1_nominal_value.direct"
     },
     "IO_SET_SENSOR_NOMINAL_VALUE-DIRECT": {
         "address": {},
@@ -762,7 +642,7 @@
         "flags": "00",
         "cmd1": "4B",
         "cmd2": "",
-        "user_data": "",
+        "user_data": {},
         "ack": "",
         "topic": "{}.io_set_sensor_nominal_value.direct"
     },
@@ -806,7 +686,7 @@
         "ack": "",
         "topic": "{}.io_read_configuration_port.direct"
     },
-    "IO_MODULE_LOAD_INITIALIZATION_VALUES-DIRECT": {
+    "IO_MODULE_CONTROL-DIRECT": {
         "address": {},
         "target": "040506",
         "flags": "00",
@@ -814,117 +694,7 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "{}.io_module_load_initialization_values.direct"
-    },
-    "IO_MODULE_LOAD_EEPROM_FROM_RAM-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "4F",
-        "cmd2": "01",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.io_module_load_eeprom_from_ram.direct"
-    },
-    "IO_MODULE_STATUS_REQUEST-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "4F",
-        "cmd2": "02",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.io_module_status_request.direct"
-    },
-    "IO_MODULE_READ_ANALOG_ONCE-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "4F",
-        "cmd2": "03",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.io_module_read_analog_once.direct"
-    },
-    "IO_MODULE_READ_ANALOG_ALWAYS-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "4F",
-        "cmd2": "04",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.io_module_read_analog_always.direct"
-    },
-    "IO_MODULE_ENABLE_STATUS_CHANGE_MESSAGE-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "4F",
-        "cmd2": "09",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.io_module_enable_status_change_message.direct"
-    },
-    "IO_MODULE_DISABLE_STATUS_CHANGE_MESSAGE-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "4F",
-        "cmd2": "0A",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.io_module_disable_status_change_message.direct"
-    },
-    "IO_MODULE_LOAD_RAM_FROM_EEPROM-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "4F",
-        "cmd2": "0B",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.io_module_load_ram_from_eeprom.direct"
-    },
-    "IO_MODULE_SENSOR_ON-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "4F",
-        "cmd2": "0C",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.io_module_sensor_on.direct"
-    },
-    "IO_MODULE_SENSOR_OFF-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "4F",
-        "cmd2": "0D",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.io_module_sensor_off.direct"
-    },
-    "IO_MODULE_DIAGNOSTICS_ON-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "4F",
-        "cmd2": "0E",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.io_module_diagnostics_on.direct"
-    },
-    "IO_MODULE_DIAGNOSTICS_OFF-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "4F",
-        "cmd2": "0F",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.io_module_diagnostics_off.direct"
+        "topic": "{}.io_module_control.direct"
     },
     "POOL_DEVICE_ON-DIRECT": {
         "address": {},
@@ -946,6 +716,16 @@
         "ack": "",
         "topic": "{}.pool_set_device_temperature.direct"
     },
+    "POOL_SET_DEVICE_HYSTERESIS-DIRECT": {
+        "address": {},
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "50",
+        "cmd2": "01",
+        "user_data": {},
+        "ack": "",
+        "topic": "{}.pool_set_device_hysteresis.direct"
+    },
     "POOL_DEVICE_OFF-DIRECT": {
         "address": {},
         "target": "040506",
@@ -955,16 +735,6 @@
         "user_data": "",
         "ack": "",
         "topic": "{}.pool_device_off.direct"
-    },
-    "POOL_SET_DEVICE_HYSTERESIS-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "51",
-        "cmd2": "",
-        "user_data": {},
-        "ack": "",
-        "topic": "{}.pool_set_device_hysteresis.direct"
     },
     "POOL_TEMPERATURE_UP-DIRECT": {
         "address": {},
@@ -986,7 +756,7 @@
         "ack": "",
         "topic": "{}.pool_temperature_down.direct"
     },
-    "POOL_LOAD_INITIALIZATION_VALUES-DIRECT": {
+    "POOL_CONTROL-DIRECT": {
         "address": {},
         "target": "040506",
         "flags": "00",
@@ -994,59 +764,9 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "{}.pool_load_initialization_values.direct"
+        "topic": "{}.pool_control.direct"
     },
-    "POOL_LOAD_EEPROM_FROM_RAM-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "54",
-        "cmd2": "01",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.pool_load_eeprom_from_ram.direct"
-    },
-    "POOL_GET_POOL_MODE-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "54",
-        "cmd2": "02",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.pool_get_pool_mode.direct"
-    },
-    "POOL_GET_AMBIENT_TEMPERATURE-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "54",
-        "cmd2": "03",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.pool_get_ambient_temperature.direct"
-    },
-    "POOL_GET_WATER_TEMPERATURE-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "54",
-        "cmd2": "04",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.pool_get_water_temperature.direct"
-    },
-    "POOL_GET_PH-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "54",
-        "cmd2": "05",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.pool_get_ph.direct"
-    },
-    "DOOR_MOVE_RAISE_DOOR-DIRECT": {
+    "DOOR_CONTROL-DIRECT": {
         "address": {},
         "target": "040506",
         "flags": "00",
@@ -1054,69 +774,9 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "{}.door_move_raise_door.direct"
+        "topic": "{}.door_control.direct"
     },
-    "DOOR_MOVE_LOWER_DOOR-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "58",
-        "cmd2": "01",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.door_move_lower_door.direct"
-    },
-    "DOOR_MOVE_OPEN_DOOR-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "58",
-        "cmd2": "02",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.door_move_open_door.direct"
-    },
-    "DOOR_MOVE_CLOSE_DOOR-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "58",
-        "cmd2": "03",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.door_move_close_door.direct"
-    },
-    "DOOR_MOVE_STOP_DOOR-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "58",
-        "cmd2": "04",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.door_move_stop_door.direct"
-    },
-    "DOOR_MOVE_SINGLE_DOOR_OPEN-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "58",
-        "cmd2": "05",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.door_move_single_door_open.direct"
-    },
-    "DOOR_MOVE_SINGLE_DOOR_CLOSE-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "58",
-        "cmd2": "06",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.door_move_single_door_close.direct"
-    },
-    "DOOR_STATUS_REPORT_RAISE_DOOR-DIRECT": {
+    "DOOR_STATUS_REPORT-DIRECT": {
         "address": {},
         "target": "040506",
         "flags": "00",
@@ -1124,69 +784,9 @@
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "{}.door_status_report_raise_door.direct"
+        "topic": "{}.door_status_report.direct"
     },
-    "DOOR_STATUS_REPORT_LOWER_DOOR-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "59",
-        "cmd2": "01",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.door_status_report_lower_door.direct"
-    },
-    "DOOR_STATUS_REPORT_OPEN_DOOR-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "59",
-        "cmd2": "02",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.door_status_report_open_door.direct"
-    },
-    "DOOR_STATUS_REPORT_CLOSE_DOOR-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "59",
-        "cmd2": "03",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.door_status_report_close_door.direct"
-    },
-    "DOOR_STATUS_REPORT_STOP_DOOR-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "59",
-        "cmd2": "04",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.door_status_report_stop_door.direct"
-    },
-    "DOOR_STATUS_REPORT_SINGLE_DOOR_OPEN-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "59",
-        "cmd2": "05",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.door_status_report_single_door_open.direct"
-    },
-    "DOOR_STATUS_REPORT_SINGLE_DOOR_CLOSE-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "59",
-        "cmd2": "06",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.door_status_report_single_door_close.direct"
-    },
-    "WINDOW_COVERING_OPEN-DIRECT": {
+    "WINDOW_COVERING_CONTROL-DIRECT": {
         "address": {},
         "target": "040506",
         "flags": "00",
@@ -1194,37 +794,7 @@
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "{}.window_covering_open.direct"
-    },
-    "WINDOW_COVERING_CLOSE-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "60",
-        "cmd2": "02",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.window_covering_close.direct"
-    },
-    "WINDOW_COVERING_STOP-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "60",
-        "cmd2": "03",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.window_covering_stop.direct"
-    },
-    "WINDOW_COVERING_PROGRAM-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "60",
-        "cmd2": "04",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.window_covering_program.direct"
+        "topic": "{}.window_covering_control.direct"
     },
     "WINDOW_COVERING_POSITION-DIRECT": {
         "address": {},
@@ -1286,16 +856,6 @@
         "ack": "",
         "topic": "{}.thermostat_set_cool_setpoint.direct"
     },
-    "THERMOSTAT_SET_ZONE_COOL_SETPOINT-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "6C",
-        "cmd2": "",
-        "user_data": {},
-        "ack": "",
-        "topic": "{}.thermostat_set_zone_cool_setpoint.direct"
-    },
     "THERMOSTAT_SET_HEAT_SETPOINT-DIRECT": {
         "address": {},
         "target": "040506",
@@ -1305,16 +865,6 @@
         "user_data": "",
         "ack": "",
         "topic": "{}.thermostat_set_heat_setpoint.direct"
-    },
-    "THERMOSTAT_SET_ZONE_HEAT_SETPOINT-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "6D",
-        "cmd2": "",
-        "user_data": {},
-        "ack": "",
-        "topic": "{}.thermostat_set_zone_heat_setpoint.direct"
     },
     "THERMOSTAT_TEMPERATURE_STATUS-DIRECT": {
         "address": {},
@@ -1375,16 +925,6 @@
         "user_data": "",
         "ack": "",
         "topic": "{}.thermostat_heat_set_point_status.direct"
-    },
-    "ASSIGN_TO_COMPANION_GROUP-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "81",
-        "cmd2": "00",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.assign_to_companion_group.direct"
     },
     "ASSIGN_TO_ALL_LINK_GROUP-ALL_LINK_CLEANUP": {
         "address": {},
@@ -1648,7 +1188,7 @@
     },
     "ASSIGN_TO_ALL_LINK_GROUP-BROADCAST": {
         "address": {},
-        "target": "0000115",
+        "target": "000004",
         "flags": "80",
         "cmd1": "01",
         "cmd2": "01",
@@ -1658,7 +1198,7 @@
     },
     "DELETE_FROM_ALL_LINK_GROUP-BROADCAST": {
         "address": {},
-        "target": "0000116",
+        "target": "000005",
         "flags": "80",
         "cmd1": "02",
         "cmd2": "02",
@@ -1668,7 +1208,7 @@
     },
     "PRODUCT_DATA_REQUEST-BROADCAST": {
         "address": {},
-        "target": "0000117",
+        "target": "000006",
         "flags": "80",
         "cmd1": "03",
         "cmd2": "00",
@@ -1678,7 +1218,7 @@
     },
     "FX_USERNAME-BROADCAST": {
         "address": {},
-        "target": "0000118",
+        "target": "000007",
         "flags": "80",
         "cmd1": "03",
         "cmd2": "01",
@@ -1688,7 +1228,7 @@
     },
     "DEVICE_TEXT_STRING_REQUEST-BROADCAST": {
         "address": {},
-        "target": "0000119",
+        "target": "000008",
         "flags": "80",
         "cmd1": "03",
         "cmd2": "02",
@@ -1698,7 +1238,7 @@
     },
     "ALL_LINK_CLEANUP_STATUS_REPORT-BROADCAST": {
         "address": {},
-        "target": "0000120",
+        "target": "000009",
         "flags": "80",
         "cmd1": "06",
         "cmd2": "03",
@@ -1708,7 +1248,7 @@
     },
     "ENTER_LINKING_MODE-BROADCAST": {
         "address": {},
-        "target": "0000121",
+        "target": "000010",
         "flags": "80",
         "cmd1": "09",
         "cmd2": "04",
@@ -1718,7 +1258,7 @@
     },
     "ENTER_UNLINKING_MODE-BROADCAST": {
         "address": {},
-        "target": "0000122",
+        "target": "000011",
         "flags": "80",
         "cmd1": "0a",
         "cmd2": "05",
@@ -1728,7 +1268,7 @@
     },
     "GET_INSTEON_ENGINE_VERSION-BROADCAST": {
         "address": {},
-        "target": "0000123",
+        "target": "000012",
         "flags": "80",
         "cmd1": "0d",
         "cmd2": "06",
@@ -1738,7 +1278,7 @@
     },
     "PING-BROADCAST": {
         "address": {},
-        "target": "0000124",
+        "target": "000013",
         "flags": "80",
         "cmd1": "0f",
         "cmd2": "07",
@@ -1748,7 +1288,7 @@
     },
     "ID_REQUEST-BROADCAST": {
         "address": {},
-        "target": "0000125",
+        "target": "000014",
         "flags": "80",
         "cmd1": "10",
         "cmd2": "08",
@@ -1758,97 +1298,97 @@
     },
     "ON-BROADCAST": {
         "address": {},
-        "target": "0000126",
+        "target": "000015",
         "flags": "80",
         "cmd1": "11",
         "cmd2": "09",
         "user_data": "",
         "ack": "",
-        "topic": "{}.38.on.broadcast"
+        "topic": "{}.21.on.broadcast"
     },
     "ON_FAST-BROADCAST": {
         "address": {},
-        "target": "0000127",
+        "target": "000016",
         "flags": "80",
         "cmd1": "12",
         "cmd2": "10",
         "user_data": "",
         "ack": "",
-        "topic": "{}.39.on_fast.broadcast"
+        "topic": "{}.22.on_fast.broadcast"
     },
     "OFF-BROADCAST": {
         "address": {},
-        "target": "0000128",
+        "target": "000017",
         "flags": "80",
         "cmd1": "13",
         "cmd2": "11",
         "user_data": "",
         "ack": "",
-        "topic": "{}.40.off.broadcast"
+        "topic": "{}.23.off.broadcast"
     },
     "OFF_FAST-BROADCAST": {
         "address": {},
-        "target": "0000129",
+        "target": "000018",
         "flags": "80",
         "cmd1": "14",
         "cmd2": "12",
         "user_data": "",
         "ack": "",
-        "topic": "{}.41.off_fast.broadcast"
+        "topic": "{}.24.off_fast.broadcast"
     },
     "BRIGHTEN_ONE_STEP-BROADCAST": {
         "address": {},
-        "target": "0000130",
+        "target": "000019",
         "flags": "80",
         "cmd1": "15",
         "cmd2": "13",
         "user_data": "",
         "ack": "",
-        "topic": "{}.48.brighten_one_step.broadcast"
+        "topic": "{}.25.brighten_one_step.broadcast"
     },
     "DIM_ONE_STEP-BROADCAST": {
         "address": {},
-        "target": "0000131",
+        "target": "000020",
         "flags": "80",
         "cmd1": "16",
         "cmd2": "14",
         "user_data": "",
         "ack": "",
-        "topic": "{}.49.dim_one_step.broadcast"
+        "topic": "{}.32.dim_one_step.broadcast"
     },
     "START_MANUAL_CHANGE_DOWN-BROADCAST": {
         "address": {},
-        "target": "0000132",
+        "target": "000021",
         "flags": "80",
         "cmd1": "17",
         "cmd2": "00",
         "user_data": "",
         "ack": "",
-        "topic": "{}.50.start_manual_change_down.broadcast"
+        "topic": "{}.33.start_manual_change_down.broadcast"
     },
     "START_MANUAL_CHANGE_UP-BROADCAST": {
         "address": {},
-        "target": "0000133",
+        "target": "000022",
         "flags": "80",
         "cmd1": "17",
         "cmd2": "01",
         "user_data": "",
         "ack": "",
-        "topic": "{}.51.start_manual_change_up.broadcast"
+        "topic": "{}.34.start_manual_change_up.broadcast"
     },
     "STOP_MANUAL_CHANGE-BROADCAST": {
         "address": {},
-        "target": "0000134",
+        "target": "000023",
         "flags": "80",
         "cmd1": "18",
         "cmd2": "15",
         "user_data": "",
         "ack": "",
-        "topic": "{}.52.stop_manual_change.broadcast"
+        "topic": "{}.35.stop_manual_change.broadcast"
     },
     "STATUS_REQUEST-BROADCAST": {
         "address": {},
-        "target": "0000135",
+        "target": "000024",
         "flags": "80",
         "cmd1": "19",
         "cmd2": "16",
@@ -1858,7 +1398,7 @@
     },
     "GET_OPERATING_FLAGS-BROADCAST": {
         "address": {},
-        "target": "0000136",
+        "target": "000025",
         "flags": "80",
         "cmd1": "1f",
         "cmd2": "17",
@@ -1868,7 +1408,7 @@
     },
     "SET_OPERATING_FLAGS-BROADCAST": {
         "address": {},
-        "target": "0000137",
+        "target": "000026",
         "flags": "80",
         "cmd1": "20",
         "cmd2": "18",
@@ -1878,33 +1418,33 @@
     },
     "INSTANT_CHANGE-BROADCAST": {
         "address": {},
-        "target": "0000138",
+        "target": "000027",
         "flags": "80",
         "cmd1": "21",
         "cmd2": "19",
         "user_data": "",
         "ack": "",
-        "topic": "{}.56.instant_change.broadcast"
+        "topic": "{}.39.instant_change.broadcast"
     },
     "MANUALLY_TURNED_OFF-BROADCAST": {
         "address": {},
-        "target": "0000139",
+        "target": "000028",
         "flags": "80",
         "cmd1": "22",
         "cmd2": "20",
         "user_data": "",
         "ack": "",
-        "topic": "{}.57.manually_turned_off.broadcast"
+        "topic": "{}.40.manually_turned_off.broadcast"
     },
     "MANUALLY_TURNED_ON-BROADCAST": {
         "address": {},
-        "target": "0000140",
+        "target": "000029",
         "flags": "80",
         "cmd1": "23",
         "cmd2": "21",
         "user_data": "",
         "ack": "",
-        "topic": "{}.64.manually_turned_on.broadcast"
+        "topic": "{}.41.manually_turned_on.broadcast"
     },
     "ASSIGN_TO_ALL_LINK_GROUP-DIRECT_ACK": {
         "address": {},

@@ -84,7 +84,7 @@ def send_data(data_items, queue):
 
 def create_std_ext_msg(address, flags, cmd1, cmd2, user_data=None, target=None, ack=0):
     """Create a standard or extended message."""
-    from pyinsteon.protocol.messages.user_data import UserData
+    from pyinsteon.data_types.user_data import UserData
 
     address = Address(address)
     data = bytearray()
@@ -211,4 +211,3 @@ async def async_release_protocol(protocol):
     protocol.close()
     await asyncio.sleep(0.1)
     pub.unsubAll("send")
-    pub.unsubAll("send_message")

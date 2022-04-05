@@ -3,7 +3,7 @@ import logging
 
 from ...address import Address
 from ...constants import AllLinkMode
-from ...protocol.messages.all_link_record_flags import AllLinkRecordFlags
+from ...data_types.all_link_record_flags import AllLinkRecordFlags
 from ...topics import ALDB_RECORD_RECEIVED, EXTENDED_READ_WRITE_ALDB
 from ...utils import build_topic
 from .. import inbound_handler

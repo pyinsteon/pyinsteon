@@ -37,7 +37,7 @@ def send_nak_response():
 
 def fill_rec(flags, group, target, data1, data2, data3):
     """Fill an All-Link Record."""
-    from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
+    from pyinsteon.data_types.all_link_record_flags import AllLinkRecordFlags
 
     kwargs = {
         "flags": AllLinkRecordFlags(flags),
@@ -52,7 +52,7 @@ def fill_rec(flags, group, target, data1, data2, data3):
 
 def fill_eeprom_rec(mem_addr, flags, group, target, data1=0, data2=0, data3=0):
     """Fill an All-Link Record."""
-    from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
+    from pyinsteon.data_types.all_link_record_flags import AllLinkRecordFlags
 
     flags = AllLinkRecordFlags(flags)
     kwargs = {
