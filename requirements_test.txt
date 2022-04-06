@@ -8,7 +8,7 @@ flake8-noqa==1.2.1
 pyflakes==2.4.0
 pycodestyle==2.8.0
 pydocstyle==6.1.1
-pylint==2.12.2
+pylint==2.13.5
 isort==5.10.1
 async_generator
 black==22.1.0
