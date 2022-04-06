@@ -201,7 +201,7 @@ class Commands:
     def get_topics(self, cmd1, cmd2, userdata=None, send=False) -> str:
         """Generate a topic from a cmd1, cmd2 and extended flag."""
         found = False
-        for topic in self._commands_topic_map.get(cmd1):
+        for topic in self._commands_topic_map.get(cmd1, {}):
             command = self._topics[topic]
             if _check_match(command, cmd1, cmd2, userdata):
                 found = True
@@ -353,7 +353,7 @@ commands.add(
 commands.add(
     topic=GET_INSTEON_ENGINE_VERSION,
     cmd1=0x0D,
-    cmd2=0x00,
+    cmd2=None,
     ud_allowed=False,
     ud_required=False,
     userdata=None,

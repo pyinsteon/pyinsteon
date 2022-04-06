@@ -15,7 +15,6 @@ from ...data_types.im_config_flags import IMConfigurationFlags
 from ...data_types.message_flags import MessageFlags
 from ...data_types.user_data import UserData
 from ...topics import (
-    ALL_LINK_CLEANUP_STATUS_REPORT,
     CANCEL_ALL_LINKING,
     GET_ALL_LINK_RECORD_FOR_SENDER,
     GET_FIRST_ALL_LINK_RECORD,
@@ -33,7 +32,7 @@ from ...topics import (
     SEND_STANDARD,
     SET_ACK_MESSAGE_BYTE,
     SET_ACK_MESSAGE_TWO_BYTES,
-    SET_HOST_DEV_CAT,
+    SET_HOST_DEVICE_CATEGORY,
     SET_IM_CONFIGURATION,
     SET_NAK_MESSAGE_BYTE,
     START_ALL_LINKING,
@@ -125,14 +124,6 @@ def _create_outbound_message(topic, priority=5, **kwargs) -> Outbound:
     outbound_write_manager.write(msg=msg, priority=priority)
 
 
-@topic_to_message_handler(
-    register_list=MESSAGE_REGISTER, topic=ALL_LINK_CLEANUP_STATUS_REPORT
-)
-def all_link_cleanup_status_report(topic=pub.AUTO_TOPIC) -> Outbound:
-    """Create a ALL_LINK_CLEANUP_STATUS_REPORT outbound message."""
-    _create_outbound_message(topic=topic, priority=1)
-
-
 @topic_to_message_handler(register_list=MESSAGE_REGISTER, topic=GET_IM_INFO)
 def get_im_info(topic=pub.AUTO_TOPIC) -> Outbound:
     """Create a GET_IM_INFO outbound message."""
@@ -213,11 +204,13 @@ def cancel_all_linking(topic=pub.AUTO_TOPIC) -> Outbound:
     _create_outbound_message(topic=topic, priority=7)
 
 
-@topic_to_message_handler(register_list=MESSAGE_REGISTER, topic=SET_HOST_DEV_CAT)
-def set_host_dev_cat(
+@topic_to_message_handler(
+    register_list=MESSAGE_REGISTER, topic=SET_HOST_DEVICE_CATEGORY
+)
+def set_host_device_category(
     cat: DeviceCategory, subcat: int, firmware: int, topic=pub.AUTO_TOPIC
 ) -> Outbound:
-    """Create a SET_HOST_DEV_CAT outbound message."""
+    """Create a SET_HOST_DEVICE_CATEGORY outbound message."""
     _create_outbound_message(
         cat=cat, subcat=subcat, firmware=firmware, topic=topic, priority=7
     )

@@ -31,6 +31,10 @@ class IOPortConfigFlags:
 
     def __bytes__(self):
         """Return the byte representation of the flags."""
+        return bytes(bytearray([int(self)]))
+
+    def __int__(self):
+        """Return the integer representation of the flags."""
         flags = self._analog_input_mode
         flags = set_bit(flags, 2, self._send_on_sensor_alarm)
         flags = set_bit(flags, 3, self._send_on_input_port_change)
@@ -38,6 +42,7 @@ class IOPortConfigFlags:
         flags = set_bit(flags, 5, self._enable_all_link_aliasing)
         flags = set_bit(flags, 6, self._send_on_output_port_change)
         flags = set_bit(flags, 7, self._enable_output_timers)
+        return flags
 
     @property
     def analog_input_used(self):

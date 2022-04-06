@@ -21,6 +21,7 @@ from ..data_types.message_flags import MessageFlags
 from ..data_types.user_data import UserData
 from ..topics import (
     ASSIGN_TO_ALL_LINK_GROUP,
+    BEEP,
     BRIGHTEN_ONE_STEP,
     DELETE_FROM_ALL_LINK_GROUP,
     DEVICE_TEXT_STRING_REQUEST,
@@ -39,7 +40,6 @@ from ..topics import (
     ID_REQUEST,
     INSTANT_CHANGE,
     IO_ALARM_DATA_REQUEST,
-    IO_ALARM_DATA_RESPONSE,
     IO_GET_SENSOR_ALARM_DELTA,
     IO_GET_SENSOR_VALUE,
     IO_MODULE_CONTROL,
@@ -393,7 +393,7 @@ def on_at_ramp_rate(
     address: Address, on_level: int, ramp_rate: RampRate, topic=pub.AUTO_TOPIC
 ):
     """Create a ON_AT_RAMP_RATE command."""
-    on_level = min(0x10, on_level & 0xF0)
+    on_level = max(0x10, on_level & 0xF0)
     ramp_rate = ceil(int(ramp_rate) / 2) + 1 & 0x0F
     cmd2 = on_level + ramp_rate
     _create_direct_message(topic=topic, address=address, cmd2=cmd2, priority=3)
@@ -577,6 +577,12 @@ def extended_trigger_all_link(
     _create_direct_message(topic=topic, address=address, cmd2=0, user_data=user_data)
 
 
+@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=BEEP)
+def beep(address: Address, topic=pub.AUTO_TOPIC):
+    """Create a BEEP command."""
+    _create_direct_message(topic=topic, address=address)
+
+
 @topic_to_command_handler(register_list=COMMAND_REGISTER, topic=SET_SPRINKLER_PROGRAM)
 def set_sprinkler_program(
     address: Address, program: int, timers: iter, topic=pub.AUTO_TOPIC
@@ -698,16 +704,10 @@ def io_get_sensor_alarm_delta(
     """Create a IO_GET_SENSOR_ALARM_DELTA command."""
     negative = delta < 0
     sensor = sensor & 0x0F
-    delta = (abs(delta) << 4) & 0x07
+    delta = (abs(delta) << 4) & 0x70
     direction = 0x80 if negative else 0
     cmd2 = sensor + delta + direction
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
-
-
-@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=IO_ALARM_DATA_RESPONSE)
-def io_alarm_data_response(address: Address, user_data, topic=pub.AUTO_TOPIC):
-    """Create a IO_ALARM_DATA_RESPONSE command."""
-    _create_direct_message(topic=topic, address=address, user_data=user_data)
 
 
 @topic_to_command_handler(
@@ -719,7 +719,7 @@ def io_write_configuration_port(
     topic=pub.AUTO_TOPIC,
 ):
     """Create a IO_WRITE_CONFIGURATION_PORT command."""
-    cmd2 = bytes(port_flags)
+    cmd2 = int(port_flags)
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
@@ -829,12 +829,12 @@ def thermostat_temperature_up(
 ):
     """Create a THERMOSTAT_TEMPERATURE_UP command."""
     degrees_value = int(round(degrees * 2, 0))
-    if zone is not None:
-        cmd2 = zone
-        user_data = UserData({"d1": degrees_value})
-    else:
+    if not zone:
         cmd2 = degrees_value
         user_data = None
+    else:
+        cmd2 = zone
+        user_data = UserData({"d1": degrees_value})
     _create_direct_message(topic=topic, address=address, cmd2=cmd2, user_data=user_data)
 
 
@@ -846,12 +846,12 @@ def thermostat_temperature_down(
 ):
     """Create a THERMOSTAT_TEMPERATURE_DOWN command."""
     degrees_value = int(round(degrees * 2, 0))
-    if zone is not None:
-        cmd2 = zone
-        user_data = UserData({"d1": degrees_value})
-    else:
+    if not zone:
         cmd2 = degrees_value
         user_data = None
+    else:
+        cmd2 = zone
+        user_data = UserData({"d1": degrees_value})
     _create_direct_message(topic=topic, address=address, cmd2=cmd2, user_data=user_data)
 
 
@@ -871,9 +871,9 @@ def thermostat_get_zone_information(
         2 = Deadband
         3 = Humidity
     """
-    zone = zone & 0x0F
-    info = info & 0x03 << 5
-    cmd2 = info + zone
+    zone = zone & 0x1F
+    info_bits = (info << 5) & 0x60
+    cmd2 = info_bits + zone
     _create_direct_message(topic=topic, address=address, cmd2=cmd2)
 
 
@@ -892,7 +892,7 @@ def thermostat_set_cool_setpoint(
     address: Address, degrees: int, zone: int, deadband: int, topic=pub.AUTO_TOPIC
 ):
     """Create a THERMOSTAT_SET_COOL_SETPOINT command."""
-    if zone is None:
+    if not zone:
         cmd2 = int(degrees * 2)
         user_data = None
     else:
@@ -908,7 +908,7 @@ def thermostat_set_heat_setpoint(
     address: Address, degrees: int, zone: int, deadband: int, topic=pub.AUTO_TOPIC
 ):
     """Create a THERMOSTAT_SET_HEAT_SETPOINT command."""
-    if zone is None:
+    if not zone:
         cmd2 = int(degrees * 2)
         user_data = None
     else:

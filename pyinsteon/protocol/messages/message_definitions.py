@@ -142,13 +142,13 @@ FLD_CANCEL_ALL_LINKING = []
 FLD_CANCEL_ALL_LINKING_ACK = [MessageField("ack", 1, AckNak)]
 
 # Set Host Device Category 0x66
-FLD_SET_HOST_DEV_CAT = [
+FLD_SET_HOST_DEVICE_CATEGORY = [
     MessageField("cat", 1, DeviceCategory),
     MessageField("subcat", 1, int),
     MessageField("firmware", 1, int),
 ]
-FLD_SET_HOST_DEV_CAT_ACK = FLD_SET_HOST_DEV_CAT.copy()
-FLD_SET_HOST_DEV_CAT_ACK.append(MessageField("ack", 1, AckNak))
+FLD_SET_HOST_DEVICE_CATEGORY_ACK = FLD_SET_HOST_DEVICE_CATEGORY.copy()
+FLD_SET_HOST_DEVICE_CATEGORY_ACK.append(MessageField("ack", 1, AckNak))
 
 # Reset the IM 0x67
 FLD_RESET_IM = []
@@ -290,8 +290,8 @@ INBOUND_MSG_DEF[MessageId.START_ALL_LINKING] = MessageDefinition(
 INBOUND_MSG_DEF[MessageId.CANCEL_ALL_LINKING] = MessageDefinition(
     MessageId.CANCEL_ALL_LINKING, FLD_CANCEL_ALL_LINKING_ACK
 )
-INBOUND_MSG_DEF[MessageId.SET_HOST_DEV_CAT] = MessageDefinition(
-    MessageId.SET_HOST_DEV_CAT, FLD_SET_HOST_DEV_CAT_ACK
+INBOUND_MSG_DEF[MessageId.SET_HOST_DEVICE_CATEGORY] = MessageDefinition(
+    MessageId.SET_HOST_DEVICE_CATEGORY, FLD_SET_HOST_DEVICE_CATEGORY_ACK
 )
 INBOUND_MSG_DEF[MessageId.RESET_IM] = MessageDefinition(
     MessageId.RESET_IM, FLD_RESET_IM_ACK
@@ -358,8 +358,8 @@ OUTBOUND_MSG_DEF[MessageId.START_ALL_LINKING] = MessageDefinition(
 OUTBOUND_MSG_DEF[MessageId.CANCEL_ALL_LINKING] = MessageDefinition(
     MessageId.CANCEL_ALL_LINKING, FLD_CANCEL_ALL_LINKING
 )
-OUTBOUND_MSG_DEF[MessageId.SET_HOST_DEV_CAT] = MessageDefinition(
-    MessageId.SET_HOST_DEV_CAT, FLD_SET_HOST_DEV_CAT
+OUTBOUND_MSG_DEF[MessageId.SET_HOST_DEVICE_CATEGORY] = MessageDefinition(
+    MessageId.SET_HOST_DEVICE_CATEGORY, FLD_SET_HOST_DEVICE_CATEGORY
 )
 OUTBOUND_MSG_DEF[MessageId.RESET_IM] = MessageDefinition(
     MessageId.RESET_IM, FLD_RESET_IM

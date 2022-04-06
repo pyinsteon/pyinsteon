@@ -19,7 +19,7 @@ class OutboundBase:
             logger="info",
             logger_pyinsteon="debug",
             logger_messages="debug",
-            logger_topics=False,
+            logger_topics=True,
         )
         register_outbound_handlers()
         self.msg = None

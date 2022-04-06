@@ -58,7 +58,8 @@ class TestOuboundCommands(TestCase):
             address = random_address()
             self.call_count = 0
             self.msg = None
-            topic = f"send.{test_case.lower()}.direct"
+            main_topic = test_cases[test_case]["topic"]
+            topic = f"send.{main_topic}.direct"
             args = test_cases[test_case]["args"]
             for k, v in args.items():
                 if str(v).startswith("0x"):

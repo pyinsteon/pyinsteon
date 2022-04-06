@@ -64,7 +64,7 @@ class MessageId(HexIntEnum):
     X10_SEND = 0x63
     START_ALL_LINKING = 0x64
     CANCEL_ALL_LINKING = 0x65
-    SET_HOST_DEV_CAT = 0x66
+    SET_HOST_DEVICE_CATEGORY = 0x66
     RESET_IM = 0x67
     SET_ACK_MESSAGE_BYTE = 0x68
     GET_FIRST_ALL_LINK_RECORD = 0x69
@@ -82,6 +82,7 @@ class MessageId(HexIntEnum):
     READ_EEPROM = 0x75
     WRITE_EEPROM = 0x76
     BEEP = 0x77
+    UNKNOWN = 0x99  # Only used to test for bad message types
 
 
 class MessageFlagType(HexIntEnum):
