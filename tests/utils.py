@@ -211,3 +211,49 @@ async def async_release_protocol(protocol):
     protocol.close()
     await asyncio.sleep(0.1)
     pub.unsubAll("send")
+
+
+class MockHttpResponse:
+    status = 200
+    buffer = None
+
+    @classmethod
+    async def text(cls):
+        """Return the HTML text."""
+        return cls.buffer
+
+
+class MockHttpClientSession:
+    """Mock the ClientSession class."""
+
+    def __init__(self, *arg, **kwargs):
+        """Init the MockHttpClientSession class."""
+        self.exception_to_throw = None
+        self.buffer = None
+        self.response = MockHttpResponse()
+
+    @asynccontextmanager
+    async def get(self, url):
+        """Mock the get function"""
+        if self.exception_to_throw is not None:
+            raise self.exception_to_throw
+        yield self.response
+
+    @asynccontextmanager
+    async def post(self, url):
+        """Mock the post function"""
+        if self.exception_to_throw is not None:
+            raise self.exception_to_throw
+        yield self.response
+
+    async def close(self):
+        """Close the mock connection."""
+
+
+@asynccontextmanager
+async def create_mock_http_client(*args, status=200, exception_error=None, buffer=None, **kwargs):
+    mock_client = MockHttpClientSession()
+    mock_client.response.status = status
+    mock_client.exception_to_throw = exception_error
+    mock_client.response.buffer = buffer
+    yield mock_client

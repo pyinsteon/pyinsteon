@@ -12,12 +12,12 @@ from tests.utils import async_case, hex_to_inbound_message
 FILE = "msg_to_topic.json"
 
 
-async def import_commands():
+async def import_commands(file_name):
     """Import and parse the commands to test."""
     from os import path
 
     curr_path = path.dirname(path.abspath(__file__))
-    command_file = path.join(curr_path, FILE)
+    command_file = path.join(curr_path, file_name)
     async with aiofiles.open(command_file, "r") as afp:
         json_file = ""
         json_file = await afp.read()
@@ -40,7 +40,7 @@ class TestMsgToTopic(TestCase):
     async def test_message_to_topic(self):
         """Test converting a message to a topic."""
 
-        tests = await import_commands()
+        tests = await import_commands(FILE)
 
         for test_info in tests:
             self._topic = None
