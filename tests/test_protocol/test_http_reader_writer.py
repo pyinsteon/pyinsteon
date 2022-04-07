@@ -1,18 +1,20 @@
 """Test the HTTP Reader/Writer class."""
 import asyncio
-import aiofiles
 import json
-from aiohttp.client_exceptions import ClientError
+from functools import partial
 from unittest import TestCase
 from unittest.mock import patch
-from contextlib import asynccontextmanager
-from functools import partial
+
+import aiofiles
+from aiohttp.client_exceptions import ClientError
 
 import pyinsteon
-from pyinsteon.protocol.http_reader_writer import HttpReaderWriter, HubConnectionException
+from pyinsteon.protocol.http_reader_writer import (
+    HttpReaderWriter,
+    HubConnectionException,
+)
 
-from ..utils import async_case, MockHttpResponse, create_mock_http_client
-
+from ..utils import MockHttpResponse, async_case, create_mock_http_client
 
 FILE = "http_buffer.json"
 
@@ -37,7 +39,9 @@ class TestHttpReaderWriter(TestCase):
         """Test the test connection method success."""
 
         with patch.object(
-            pyinsteon.protocol.http_reader_writer, "ClientSession", create_mock_http_client
+            pyinsteon.protocol.http_reader_writer,
+            "ClientSession",
+            create_mock_http_client,
         ):
             http_reader_writer = HttpReaderWriter(None)
             result = await http_reader_writer.async_test_connection("some_url")
@@ -84,9 +88,10 @@ class TestHttpReaderWriter(TestCase):
     async def test_reader(self):
         """Test the HTTP reader method."""
         test_cases = await import_commands(FILE)
-        buffer_manager = MockHttpResponse()
         with patch.object(
-            pyinsteon.protocol.http_reader_writer, "ClientSession", create_mock_http_client
+            pyinsteon.protocol.http_reader_writer,
+            "ClientSession",
+            create_mock_http_client,
         ):
             http_reader_writer = HttpReaderWriter(None)
             for test_case in test_cases:
@@ -110,7 +115,7 @@ class TestHttpReaderWriter(TestCase):
             ):
                 http_reader_writer = HttpReaderWriter(None)
                 try:
-                    result = await http_reader_writer.async_read("some_url")
+                    await http_reader_writer.async_read("some_url")
                     assert False
                 except HubConnectionException:
                     assert True
@@ -125,7 +130,7 @@ class TestHttpReaderWriter(TestCase):
         ):
             http_reader_writer = HttpReaderWriter(None)
             try:
-                result = await http_reader_writer.async_read("some_url")
+                await http_reader_writer.async_read("some_url")
                 assert False
             except HubConnectionException:
                 assert True
@@ -140,11 +145,11 @@ class TestHttpReaderWriter(TestCase):
         ):
             http_reader_writer = HttpReaderWriter(None)
             try:
-                result = await http_reader_writer.async_read("some_url")
+                await http_reader_writer.async_read("some_url")
                 assert False
             except HubConnectionException:
                 assert True
-                
+
     @async_case
     async def test_reader_cancel_error(self):
         """Test the test connection method with a client error."""
@@ -155,7 +160,7 @@ class TestHttpReaderWriter(TestCase):
         ):
             http_reader_writer = HttpReaderWriter(None)
             try:
-                result = await http_reader_writer.async_read("some_url")
+                await http_reader_writer.async_read("some_url")
                 assert False
             except asyncio.CancelledError:
                 assert True
@@ -170,7 +175,7 @@ class TestHttpReaderWriter(TestCase):
         ):
             http_reader_writer = HttpReaderWriter(None)
             try:
-                result = await http_reader_writer.async_read("some_url")
+                await http_reader_writer.async_read("some_url")
                 assert False
             except GeneratorExit:
                 assert True
@@ -180,7 +185,9 @@ class TestHttpReaderWriter(TestCase):
         """Test the test connection method success."""
 
         with patch.object(
-            pyinsteon.protocol.http_reader_writer, "ClientSession", create_mock_http_client
+            pyinsteon.protocol.http_reader_writer,
+            "ClientSession",
+            create_mock_http_client,
         ):
             http_reader_writer = HttpReaderWriter(None)
             result = await http_reader_writer.async_write("some_url")
@@ -198,6 +205,7 @@ class TestHttpReaderWriter(TestCase):
                 http_reader_writer = HttpReaderWriter(None)
                 result = await http_reader_writer.async_write("some_url")
                 assert result == error
+
     @async_case
     async def test_writer_timeout(self):
         """Test the test connection method with timeout error."""
