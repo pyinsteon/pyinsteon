@@ -1,6 +1,8 @@
 """Test the protocol class."""
 import asyncio
 import unittest
+from binascii import unhexlify
+from unittest.mock import patch
 
 from pyinsteon import pub
 from pyinsteon.address import Address
@@ -23,6 +25,7 @@ class TestProtocol(unittest.TestCase):
 
     def setUp(self):
         """Set up the tests."""
+        self.topic = None
         self._last_topic = ""
         set_log_levels(
             logger="info",
@@ -98,3 +101,116 @@ class TestProtocol(unittest.TestCase):
                 assert expected_topic is None
             if topic_lock.locked():
                 topic_lock.release()
+
+    @async_case
+    async def test_connected(self):
+        """Test the connected property."""
+        with patch(
+            "pyinsteon.protocol.protocol.publish_topic", self.mock_publish_topic
+        ):
+            async with async_protocol_manager() as protocol:
+                assert self.topic == "connection.made"
+                assert protocol.connected
+                protocol.close()
+                assert not protocol.connected
+                assert protocol.message_queue
+
+    @async_case
+    async def test_connection_failed(self):
+        """Test the connected property."""
+        with patch(
+            "pyinsteon.protocol.protocol.publish_topic", self.mock_publish_topic
+        ):
+            try:
+                async with async_protocol_manager(connect=False, retry=False):
+                    await asyncio.sleep(0.1)
+                    assert False
+            except ConnectionError:
+                await asyncio.sleep(0.1)
+                assert self.topic == "connection.failed"
+
+    @async_case
+    async def test_connection_retry(self):
+        """Test the connected property."""
+        with patch(
+            "pyinsteon.protocol.protocol.publish_topic", self.mock_publish_topic
+        ):
+            try:
+                async with async_protocol_manager(
+                    connect=False, retry=True, retries=[1, 1]
+                ) as protocol:
+                    await asyncio.sleep(0.1)
+                    assert protocol.connected
+                    assert self.topic == "connection.made"
+            except ConnectionError:
+                await asyncio.sleep(0.1)
+                assert False
+
+    def mock_publish_topic(self, topic, **kwargs):
+        """Mock the publish topic method."""
+        self.topic = topic
+
+    @async_case
+    async def test_data_received(self):
+        """Test the data_received method."""
+
+        def dummy_nak_listener(*args, **kwargs):
+            """Listen for NAK.
+
+            This ensures we send the NAK rather than resend the message.
+            """
+
+        data = [
+            {"data": "025003040506070809110b", "topic": "030405.1.on.direct"},
+            {"data": "02500304050607", "topic": None},
+            {"data": "0809130b", "topic": "030405.1.off.direct"},
+        ]
+
+        with patch(
+            "pyinsteon.protocol.protocol.publish_topic", self.mock_publish_topic
+        ):
+            async with async_protocol_manager(auto_ack=False) as protocol:
+                for test in data:
+                    self.topic = None
+                    protocol.data_received(unhexlify(test["data"]))
+                    await asyncio.sleep(0.1)
+                    try:
+                        assert self.topic == test["topic"]
+                    except AssertionError:
+                        raise AssertionError(
+                            f"Failed with data {test['data']}: Topic: {self.topic}  Expected: {test['topic']}"
+                        )
+
+                # Test when the modem only responds with a NAK rather than the original message.
+                nak_topic = "nak.0a0b0c.1.on.direct"
+                pub.subscribe(dummy_nak_listener, nak_topic)
+                protocol.write(unhexlify("02620a0b0c09110b"))
+                await asyncio.sleep(0.1)
+                self.topic = None
+                protocol.data_received(unhexlify("15"))
+                await asyncio.sleep(0.1)
+                assert self.topic == nak_topic
+
+                # Test that a NAK is resent rather than published as a topic.
+                self.topic = None
+                protocol.data_received(unhexlify("02620d0e0f09110b15"))
+                await asyncio.sleep(0.1)
+                assert self.topic is None
+
+    @async_case
+    async def test_pause_resume_writer(self):
+        """Test the pause_writer and resume_writer methods."""
+        async with async_protocol_manager(auto_ack=False) as protocol:
+            protocol.write(unhexlify("02620a0b0c09110b"))
+            await asyncio.sleep(0.1)
+            assert protocol.message_queue.empty()
+
+            protocol.pause_writing()
+            await asyncio.sleep(0.1)
+            protocol.write(unhexlify("026201020309110b"))
+            await asyncio.sleep(0.1)
+            assert not protocol.message_queue.empty()
+
+            protocol.resume_writing()
+            await asyncio.sleep(0.1)
+            assert protocol.message_queue.empty()

@@ -1,6 +1,5 @@
 """Test the connect method."""
 import asyncio
-from io import StringIO
 from unittest import TestCase
 from unittest.mock import AsyncMock, Mock, patch
 
@@ -10,7 +9,7 @@ import pyinsteon.protocol.serial_transport
 from pyinsteon.constants import ResponseStatus
 from pyinsteon.protocol import async_modem_connect
 from pyinsteon.subscriber_base import SubscriberBase
-from tests.utils import async_case, random_address
+from tests.utils import MockSerial, async_case, random_address
 
 
 class MockGetImInfoSuccess(SubscriberBase):
@@ -62,26 +61,12 @@ class MockGetImInfoDelayed(SubscriberBase):
         return ResponseStatus.FAILURE
 
 
-class MockSerial:
-    """Mock serial connection."""
-
-    def __init__(self):
-        """Init the MockSerial class."""
-        self.serial_for_url_call_info = Mock()
-        self.iostream = StringIO()
-
-    def serial_for_url(self, *args, **kwargs):
-        """Mock the serial_for_url method."""
-        self.serial_for_url_call_info(*args, **kwargs)
-        return self
-
-    def fileno(self):
-        """Return a fileno."""
-        return 1
-
-
 class MockHttp(Mock):
     """Mock the HTTP connection."""
+
+    def is_closing(self):
+        """Mock the is_closing method."""
+        return False
 
     async def async_test_connection(self):
         """Mock the http test connection."""

@@ -2,6 +2,8 @@
 import asyncio
 from binascii import unhexlify
 from collections import namedtuple
+from io import StringIO
+from unittest.mock import Mock
 
 try:
     from contextlib import asynccontextmanager
@@ -166,7 +168,13 @@ MAX_LOCK = 60
 
 @asynccontextmanager
 async def async_protocol_manager(
-    read_queue=None, write_queue=None, random_nak=False, auto_ack=True
+    read_queue=None,
+    write_queue=None,
+    random_nak=False,
+    auto_ack=True,
+    connect=True,
+    retry=True,
+    retries=None,
 ):
     """Manage the protocol to ensure a single instance."""
     async with PROTOCOL_LOCK:
@@ -175,6 +183,9 @@ async def async_protocol_manager(
             write_queue=write_queue,
             random_nak=random_nak,
             auto_ack=auto_ack,
+            connect=connect,
+            retry=retry,
+            retries=retries,
         )
         try:
             yield protocol
@@ -183,7 +194,13 @@ async def async_protocol_manager(
 
 
 async def async_create_protocol(
-    read_queue=None, write_queue=None, random_nak=False, auto_ack=True
+    read_queue=None,
+    write_queue=None,
+    random_nak=False,
+    auto_ack=True,
+    connect=True,
+    retry=True,
+    retries=None,
 ):
     """Create a protocol using a mock transport.
 
@@ -192,15 +209,19 @@ async def async_create_protocol(
     pyinsteon.protocol.protocol.WRITE_WAIT = 0.01
     read_queue = asyncio.Queue() if read_queue is None else read_queue
     write_queue = asyncio.Queue() if write_queue is None else write_queue
+    if not retry:
+        retries = [1]
     connect_method = partial(
         async_connect_mock,
         read_queue=read_queue,
         write_queue=write_queue,
         random_nak=random_nak,
         auto_ack=auto_ack,
+        connect=connect,
+        retries=retries,
     )
     protocol = pyinsteon.protocol.protocol.Protocol(connect_method=connect_method)
-    await protocol.async_connect()
+    await protocol.async_connect(retry=retry)
     protocol.read_queue = read_queue
     protocol.write_queue = write_queue
     return protocol
@@ -214,6 +235,8 @@ async def async_release_protocol(protocol):
 
 
 class MockHttpResponse:
+    """Mock HTTP response class."""
+
     status = 200
     buffer = None
 
@@ -234,14 +257,14 @@ class MockHttpClientSession:
 
     @asynccontextmanager
     async def get(self, url):
-        """Mock the get function"""
+        """Mock the get function."""
         if self.exception_to_throw is not None:
             raise self.exception_to_throw
         yield self.response
 
     @asynccontextmanager
     async def post(self, url):
-        """Mock the post function"""
+        """Mock the post function."""
         if self.exception_to_throw is not None:
             raise self.exception_to_throw
         yield self.response
@@ -251,9 +274,47 @@ class MockHttpClientSession:
 
 
 @asynccontextmanager
-async def create_mock_http_client(*args, status=200, exception_error=None, buffer=None, **kwargs):
+async def create_mock_http_client(
+    *args, status=200, exception_error=None, buffer=None, **kwargs
+):
+    """Create a mock HTTP client."""
     mock_client = MockHttpClientSession()
     mock_client.response.status = status
     mock_client.exception_to_throw = exception_error
     mock_client.response.buffer = buffer
     yield mock_client
+
+
+class MockSerial:
+    """Mock serial connection."""
+
+    def __init__(self):
+        """Init the MockSerial class."""
+        self.serial_for_url_call_info = Mock()
+        self.iostream = StringIO()
+        self.serial_for_url_exception = None
+        self.write_exception = None
+        self.msg = None
+
+    def serial_for_url(self, *args, **kwargs):
+        """Mock the serial_for_url method."""
+        self.serial_for_url_call_info(*args, **kwargs)
+        if self.serial_for_url_exception:
+            raise self.serial_for_url_exception
+        return self
+
+    def write(self, data):
+        """Mock the write method."""
+        if self.write_exception:
+            raise self.write_exception
+        self.msg = data
+
+    def close(self, *args, **kwargs):
+        """Mock the close method."""
+
+    def flush(self, *args, **kwargs):
+        """Mock the flush method."""
+
+    def fileno(self):
+        """Return a fileno."""
+        return 1
