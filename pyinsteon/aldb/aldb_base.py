@@ -19,6 +19,9 @@ from ..utils import publish_topic, subscribe_topic
 from .aldb_record import ALDBRecord, new_aldb_record_from_existing
 
 _LOGGER = logging.getLogger(__name__)
+HWM_RECORD = ALDBRecord(
+    0x0000, controller=False, group=0, target="000000", data1=0, data2=0, data3=0
+)
 
 
 class ALDBBase(ABC):
@@ -145,9 +148,9 @@ class ALDBBase(ABC):
             if rec.is_controller and rec.group == group:
                 yield rec.target
 
-    def update_version(self, version):
+    def update_version(self, version: ALDBVersion):
         """Update the ALDB version number."""
-        self._version = version
+        self._version = ALDBVersion(version)
 
     def subscribe_status_changed(self, listener):
         """Subscribe to notification of ALDB load status changes."""
@@ -163,13 +166,6 @@ class ALDBBase(ABC):
         )
         subscribe_topic(listener, f"{DEVICE_LINK_RESPONDER_CREATED}.{self._address.id}")
         subscribe_topic(listener, f"{DEVICE_LINK_RESPONDER_REMOVED}.{self._address.id}")
-
-    def _update_status(self, status):
-        """Update the status of the ALDB and notify listeners."""
-        new_status = ALDBStatus(int(status))
-        if new_status != self._status:
-            self._status = new_status
-            publish_topic(f"{self._address.id}.{ALDB_STATUS_CHANGED}")
 
     @abstractmethod
     async def async_load(self, *args, **kwargs):
@@ -310,6 +306,9 @@ class ALDBBase(ABC):
                 if curr_rec.is_high_water_mark:
                     curr_rec.mem_addr -= 8
                     self._records[curr_rec.mem_addr] = curr_rec
+                    new_hwm_rec = new_aldb_record_from_existing(HWM_RECORD)
+                    new_hwm_rec.mem_addr = curr_rec.mem_addr - 8
+                    self._records[new_hwm_rec.mem_addr] = new_hwm_rec
                 self._records[rec_to_write.mem_addr] = rec_to_write
                 success += 1
             else:
@@ -357,6 +356,13 @@ class ALDBBase(ABC):
             self._update_status(ALDBStatus.PARTIAL)
         else:
             self._update_status(ALDBStatus.EMPTY)
+
+    def _update_status(self, status):
+        """Update the status of the ALDB and notify listeners."""
+        new_status = ALDBStatus(int(status))
+        if new_status != self._status:
+            self._status = new_status
+            publish_topic(f"{self._address.id}.{ALDB_STATUS_CHANGED}")
 
     def _notify_change(self, record, force_delete=False):
         target = record.target
