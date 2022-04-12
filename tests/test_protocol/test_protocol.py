@@ -122,7 +122,7 @@ class TestProtocol(unittest.TestCase):
             "pyinsteon.protocol.protocol.publish_topic", self.mock_publish_topic
         ):
             try:
-                async with async_protocol_manager(connect=False, retry=False):
+                async with async_protocol_manager(connect=False, retry=False) as protocol:
                     await asyncio.sleep(0.1)
                     assert False
             except ConnectionError:
@@ -143,7 +143,6 @@ class TestProtocol(unittest.TestCase):
                     assert protocol.connected
                     assert self.topic == "connection.made"
             except ConnectionError:
-                await asyncio.sleep(0.1)
                 assert False
 
     def mock_publish_topic(self, topic, **kwargs):

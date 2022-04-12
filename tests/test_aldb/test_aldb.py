@@ -64,7 +64,8 @@ class TestAldb(TestCase):
         """Set up an ALDB with records."""
         aldb.load_saved_records(status=status, records=records)
 
-    def test_basic_properties(self):
+    @async_case
+    async def test_basic_properties(self):
         """Test the basic properties."""
         address = random_address()
         aldb = ALDB(address, version=ALDBVersion.V2CS, mem_addr=0x0AAA)
@@ -76,7 +77,8 @@ class TestAldb(TestCase):
         assert not aldb.is_loaded
         assert aldb.pending_changes == {}
 
-    def test_update_version(self):
+    @async_case
+    async def test_update_version(self):
         """Test updating the ALDB version."""
         address = random_address()
         aldb = ALDB(address, version=ALDBVersion.V2CS)
@@ -86,7 +88,8 @@ class TestAldb(TestCase):
         publish_topic(f"{repr(address)}.{ALDB_VERSION}", version=1)
         assert aldb.version == ALDBVersion.V1
 
-    def test_clear_pending(self):
+    @async_case
+    async def test_clear_pending(self):
         """Test the clear_pending method."""
         address = random_address()
         aldb = ALDB(address)
@@ -95,7 +98,8 @@ class TestAldb(TestCase):
         aldb.clear_pending()
         assert not aldb.pending_changes
 
-    def test_load_saved_records(self):
+    @async_case
+    async def test_load_saved_records(self):
         """Test the load_saved_records method."""
         address = random_address()
         aldb = ALDB(address)
@@ -103,7 +107,8 @@ class TestAldb(TestCase):
         assert aldb.status == ALDBStatus.LOADED
         assert len(aldb) == 3
 
-    def test_set_load_status(self):
+    @async_case
+    async def test_set_load_status(self):
         """Test the load_saved_records method."""
         address = random_address()
         aldb = ALDB(address)
@@ -142,7 +147,8 @@ class TestAldb(TestCase):
         aldb.set_load_status()
         assert aldb.status == ALDBStatus.LOADED
 
-    def test_remove(self):
+    @async_case
+    async def test_remove(self):
         """Test the load_saved_records method."""
         address = random_address()
         aldb = ALDB(address)
@@ -153,7 +159,8 @@ class TestAldb(TestCase):
         assert rec.mem_addr == 0x0FF7
         assert not rec.is_in_use
 
-    def test_modify(self):
+    @async_case
+    async def test_modify(self):
         """Test the load_saved_records method."""
         address = random_address()
         aldb = ALDB(address)
@@ -258,8 +265,3 @@ class TestAldb(TestCase):
         success, failure = await aldb.async_write()
         assert success == 0
         assert failure == 1
-
-        aldb.add(group=2, target=random_address())
-        success, failure = await aldb.async_write(force=True)
-        assert success == 1
-        assert failure == 0

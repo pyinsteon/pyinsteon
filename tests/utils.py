@@ -48,8 +48,6 @@ def async_case(func):
     def wrapper(*args, **kwargs):
         future = func(*args, **kwargs)
         asyncio.run(future)
-        # loop = asyncio.get_event_loop()
-        # loop.run_until_complete(future)
 
     return wrapper
 
@@ -168,6 +166,7 @@ MAX_LOCK = 60
 
 @asynccontextmanager
 async def async_protocol_manager(
+    connect_method=None,
     read_queue=None,
     write_queue=None,
     random_nak=False,
@@ -175,10 +174,12 @@ async def async_protocol_manager(
     connect=True,
     retry=True,
     retries=None,
+    **kwargs,
 ):
     """Manage the protocol to ensure a single instance."""
     async with PROTOCOL_LOCK:
         protocol = await async_create_protocol(
+            connect_method=connect_method,
             read_queue=read_queue,
             write_queue=write_queue,
             random_nak=random_nak,
@@ -186,6 +187,7 @@ async def async_protocol_manager(
             connect=connect,
             retry=retry,
             retries=retries,
+            **kwargs,
         )
         try:
             yield protocol
@@ -194,6 +196,7 @@ async def async_protocol_manager(
 
 
 async def async_create_protocol(
+    connect_method=None,
     read_queue=None,
     write_queue=None,
     random_nak=False,
@@ -201,27 +204,38 @@ async def async_create_protocol(
     connect=True,
     retry=True,
     retries=None,
+    **kwargs,
 ):
     """Create a protocol using a mock transport.
 
     Need to ensure only one protocol is available at a time.
     """
     pyinsteon.protocol.protocol.WRITE_WAIT = 0.01
+    mock_connect = connect_method is None
+    connect_method = async_connect_mock if connect_method is None else connect_method
     read_queue = asyncio.Queue() if read_queue is None else read_queue
     write_queue = asyncio.Queue() if write_queue is None else write_queue
     if not retry:
         retries = [1]
-    connect_method = partial(
-        async_connect_mock,
-        read_queue=read_queue,
-        write_queue=write_queue,
-        random_nak=random_nak,
-        auto_ack=auto_ack,
-        connect=connect,
-        retries=retries,
-    )
-    protocol = pyinsteon.protocol.protocol.Protocol(connect_method=connect_method)
-    await protocol.async_connect(retry=retry)
+    if mock_connect:
+        partial_connect_method = partial(
+            connect_method,
+            read_queue=read_queue,
+            write_queue=write_queue,
+            random_nak=random_nak,
+            auto_ack=auto_ack,
+            connect=connect,
+            retries=retries,
+        )
+    else:
+        partial_connect_method = partial(connect_method, **kwargs)
+    protocol = pyinsteon.protocol.protocol.Protocol(connect_method=partial_connect_method)
+    try:
+        await protocol.async_connect(retry=retry)
+    except ConnectionError as ex:
+        await async_release_protocol(protocol)
+        await asyncio.sleep(0.01)
+        raise ex
     protocol.read_queue = read_queue
     protocol.write_queue = write_queue
     return protocol
@@ -302,6 +316,10 @@ class MockSerial:
         if self.serial_for_url_exception:
             raise self.serial_for_url_exception
         return self
+
+    def read(self, *args, **kwargs):
+        """Mock the read method."""
+        return 0
 
     def write(self, data):
         """Mock the write method."""

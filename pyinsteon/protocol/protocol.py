@@ -79,6 +79,11 @@ class Protocol(asyncio.Protocol):
         """Return the queue of messages to write to the transport."""
         return self._message_queue
 
+    @property
+    def transport(self):
+        """Return the transport."""
+        return self._transport
+    
     def connection_made(self, transport):
         """Run when a connection to the transport has been made."""
         self._transport = transport
@@ -145,7 +150,7 @@ class Protocol(asyncio.Protocol):
         if self._transport:
             self._transport.close()
 
-    def _start_writer(self):
+    def _start_writer(self, *args, **kwargs):
         """Start the message writer."""
         if not self._transport.is_closing():
             self._writer_task = asyncio.ensure_future(self._write_messages())
