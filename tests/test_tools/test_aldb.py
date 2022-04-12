@@ -46,7 +46,7 @@ class TestToolsAldbMenu(ToolsTestBase):
     @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_add_default_links(self):
-        """Test the help command of the tools function."""
+        """Test the add_default_links command of the tools function."""
         good_device.async_add_default_links = AsyncMock()
         async with self.test_lock:
             with patch.object(pyinsteon.tools.aldb, "devices", devices), patch.object(
@@ -104,7 +104,7 @@ class TestToolsAldbMenu(ToolsTestBase):
     @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_add_device_to_scene(self):
-        """Test the help command of the tools function."""
+        """Test the add_device_to_scene command of the tools function."""
         device_01 = create_device(DimmableLightingControl, random_address(), 0x01, 0x01)
         device_02 = create_device(SwitchedLightingControl, random_address(), 0x02, 0x02)
         device_05 = create_device(
@@ -142,8 +142,6 @@ class TestToolsAldbMenu(ToolsTestBase):
                     )
                     mock_add_device_to_scene.call_count = 0
                     await cmd_mgr.async_cmdloop("")
-                    buffer = clean_buffer(stdout.buffer)
-                    print(buffer)
                     assert mock_add_device_to_scene.call_count == 1
                     if device.cat == DeviceCategory.DIMMABLE_LIGHTING_CONTROL:
                         mock_add_device_to_scene.assert_called_with(
@@ -167,8 +165,6 @@ class TestToolsAldbMenu(ToolsTestBase):
                         )
                         mock_add_device_to_scene.call_count = 0
                         await cmd_mgr.async_cmdloop("")
-                        buffer = clean_buffer(stdout.buffer)
-                        print(buffer)
                         assert mock_add_device_to_scene.call_count == 1
                         if device.cat == DeviceCategory.DIMMABLE_LIGHTING_CONTROL:
                             mock_add_device_to_scene.assert_called_with(
@@ -206,8 +202,6 @@ class TestToolsAldbMenu(ToolsTestBase):
                     )
                     mock_add_device_to_scene.call_count = 0
                     await cmd_mgr.async_cmdloop("")
-                    buffer = clean_buffer(stdout.buffer)
-                    print(buffer)
                     assert mock_add_device_to_scene.call_count == 1
                     if device.cat == DeviceCategory.DIMMABLE_LIGHTING_CONTROL:
                         mock_add_device_to_scene.assert_called_with(
@@ -241,8 +235,6 @@ class TestToolsAldbMenu(ToolsTestBase):
                         )
                         mock_add_device_to_scene.call_count = 0
                         await cmd_mgr.async_cmdloop("")
-                        buffer = clean_buffer(stdout.buffer)
-                        print(buffer)
                         assert mock_add_device_to_scene.call_count == 1
                         if device.cat == DeviceCategory.DIMMABLE_LIGHTING_CONTROL:
                             mock_add_device_to_scene.assert_called_with(
@@ -272,8 +264,6 @@ class TestToolsAldbMenu(ToolsTestBase):
                         )
                         mock_add_device_to_scene.call_count = 0
                         await cmd_mgr.async_cmdloop("")
-                        buffer = clean_buffer(stdout.buffer)
-                        print(buffer)
                         assert mock_add_device_to_scene.call_count == 0
 
                 # Add device to scene with no address
@@ -328,7 +318,7 @@ class TestToolsAldbMenu(ToolsTestBase):
     @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_print_aldb(self):
-        """Test the help command of the tools function."""
+        """Test the print_aldb command of the tools function."""
         curr_dir = get_curr_dir(__file__)
         async with self.test_lock:
             with patch.object(pyinsteon.tools.aldb, "devices", devices), patch.object(
@@ -377,7 +367,7 @@ class TestToolsAldbMenu(ToolsTestBase):
     @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_load_aldb(self):
-        """Test the help command of the tools function."""
+        """Test the load_aldb command of the tools function."""
 
         class MockDevice:
             """Mock device with mock ALDB."""
@@ -525,7 +515,7 @@ class TestToolsAldbMenu(ToolsTestBase):
     @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_print_aldb_load_status(self):
-        """Test the help command of the tools function."""
+        """Test the print_aldb_load_status command of the tools function."""
         async with self.test_lock:
             with patch.object(pyinsteon.tools.aldb, "devices", devices), patch.object(
                 pyinsteon.tools.tools_base, "devices", devices

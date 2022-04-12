@@ -2,7 +2,6 @@
 
 import asyncio
 import logging
-from contextlib import suppress
 from enum import Enum
 from queue import SimpleQueue
 
@@ -83,7 +82,7 @@ class Protocol(asyncio.Protocol):
     def transport(self):
         """Return the transport."""
         return self._transport
-    
+
     def connection_made(self, transport):
         """Run when a connection to the transport has been made."""
         self._transport = transport
@@ -119,7 +118,7 @@ class Protocol(asyncio.Protocol):
         """Notify listeners that the serial connection is lost."""
         _LOGGER.debug("Connection lost called")
         _LOGGER.debug("Should reconnect: %s", self._should_reconnect)
-        asyncio.ensure_future(self._async_stop_writer())
+        asyncio.ensure_future(self._stop_writer())
         if self._should_reconnect:
             asyncio.ensure_future(self.async_connect())
 
@@ -137,7 +136,7 @@ class Protocol(asyncio.Protocol):
 
     def pause_writing(self):
         """Pause writing to the transport."""
-        asyncio.ensure_future(self._async_stop_writer())
+        asyncio.ensure_future(self._stop_writer())
 
     def resume_writing(self):
         """Resume writing to the transport."""
@@ -146,25 +145,21 @@ class Protocol(asyncio.Protocol):
     def close(self):
         """Close the serial transport."""
         self._should_reconnect = False
-        asyncio.ensure_future(self._async_stop_writer())
+        asyncio.ensure_future(self._stop_writer())
         if self._transport:
             self._transport.close()
 
     def _start_writer(self, *args, **kwargs):
         """Start the message writer."""
-        if not self._transport.is_closing():
+        if self._transport and not self._transport.is_closing():
             self._writer_task = asyncio.ensure_future(self._write_messages())
             self._writer_task.add_done_callback(self._start_writer)
 
-    async def _async_stop_writer(self):
+    async def _stop_writer(self):
         """Stop the writer task."""
         if self._writer_task:
             self._writer_task.remove_done_callback(self._start_writer)
-            self._writer_task.cancel()
-            with suppress(asyncio.CancelledError):
-                await self._writer_task
-            await asyncio.sleep(0.01)
-            self._writer_task = None
+        await self._message_queue.put((-1, None))
 
     # pylint: disable=broad-except
     async def _publish_message(self, msg):
@@ -204,12 +199,17 @@ class Protocol(asyncio.Protocol):
     async def _write_messages(self):
         """Write data to the transport."""
         _LOGGER.debug("Modem writer started.")
-        while not self._transport.is_closing():
-            _, msg = await self._message_queue.get()
-            _LOGGER_MSG.debug("TX: %s", repr(msg))
-            while not self._last_message.empty():
-                self._last_message.get()
-            self._last_message.put(msg)
-            await self._transport.async_write(msg)
-            await asyncio.sleep(self._transport.write_wait)
+        try:
+            while self._transport and not self._transport.is_closing():
+                _, msg = await self._message_queue.get()
+                if msg is None:
+                    return
+                _LOGGER_MSG.debug("TX: %s", repr(msg))
+                while not self._last_message.empty():
+                    self._last_message.get()
+                self._last_message.put(msg)
+                await self._transport.async_write(msg)
+                await asyncio.sleep(self._transport.write_wait)
+        except RuntimeError as error:
+            _LOGGER.debug("Modem writer stopped due to a runtime error: %s", str(error))
         _LOGGER.debug("Modem writer stopped.")

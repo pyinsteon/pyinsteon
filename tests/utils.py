@@ -193,6 +193,7 @@ async def async_protocol_manager(
             yield protocol
         finally:
             await async_release_protocol(protocol)
+            await asyncio.sleep(0.1)
 
 
 async def async_create_protocol(
@@ -229,7 +230,9 @@ async def async_create_protocol(
         )
     else:
         partial_connect_method = partial(connect_method, **kwargs)
-    protocol = pyinsteon.protocol.protocol.Protocol(connect_method=partial_connect_method)
+    protocol = pyinsteon.protocol.protocol.Protocol(
+        connect_method=partial_connect_method
+    )
     try:
         await protocol.async_connect(retry=retry)
     except ConnectionError as ex:
@@ -244,7 +247,7 @@ async def async_create_protocol(
 async def async_release_protocol(protocol):
     """Close the protocol and release subscriptions."""
     protocol.close()
-    await asyncio.sleep(0.1)
+    await asyncio.sleep(0.3)
     pub.unsubAll("send")
 
 

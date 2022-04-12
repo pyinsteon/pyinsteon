@@ -494,11 +494,6 @@ class TestToolsMainMenu(ToolsTestBase):
                 good_device.groups[1].value = None
                 await cmd_mgr.async_cmdloop()
                 buffer = clean_buffer(stdout.buffer)
-                print(
-                    "Here is the buffer \n --------------------------",
-                    buffer,
-                    "\n--------------------------------",
-                )
                 assert buffer[0] == "Address  Group State Name      Value\n"
                 assert good_device.async_status.call_count == 2
 

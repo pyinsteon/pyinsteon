@@ -1,14 +1,13 @@
 """Test the serial Transport."""
 
 import asyncio
+from functools import partial
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
-from functools import partial
 
 import serial
 
 import pyinsteon
-from pyinsteon import protocol
 from pyinsteon.protocol.protocol import Protocol
 from pyinsteon.protocol.serial_transport import (
     async_connect_serial,
@@ -90,7 +89,7 @@ class TestSerialTransport(TestCase):
             self._call_connection_lost,
         ), patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial):
             if port is not None:
-                connect_method= partial(method, host=device, port=port)
+                connect_method = partial(method, host=device, port=port)
             else:
                 connect_method = partial(method, device=device)
         protocol = Protocol(connect_method)
@@ -105,7 +104,9 @@ class TestSerialTransport(TestCase):
             "serial_asyncio.SerialTransport._call_connection_lost",
             self._call_connection_lost,
         ), patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial):
-            async with async_protocol_manager(connect_method=async_connect_serial, device="some_device") as protocol:
+            async with async_protocol_manager(
+                connect_method=async_connect_serial, device="some_device"
+            ) as protocol:
                 assert protocol.transport.connected
                 assert protocol.transport.write_wait == 0.8
 
@@ -117,7 +118,9 @@ class TestSerialTransport(TestCase):
             "serial_asyncio.SerialTransport._call_connection_lost",
             self._call_connection_lost,
         ), patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial):
-            async with async_protocol_manager(connect_method=async_connect_socket, host="some_device", port=9000) as protocol:
+            async with async_protocol_manager(
+                connect_method=async_connect_socket, host="some_device", port=9000
+            ) as protocol:
                 assert protocol.transport.connected
                 assert protocol.transport.write_wait == 0.8
 
@@ -131,7 +134,11 @@ class TestSerialTransport(TestCase):
             self._call_connection_lost,
         ), patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial):
             try:
-                async with async_protocol_manager(connect_method=async_connect_serial, device="some_device", retry=False):
+                async with async_protocol_manager(
+                    connect_method=async_connect_serial,
+                    device="some_device",
+                    retry=False,
+                ):
                     assert False
             except ConnectionError:
                 assert True
@@ -146,11 +153,16 @@ class TestSerialTransport(TestCase):
             self._call_connection_lost,
         ), patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial):
             try:
-                async with async_protocol_manager(connect_method=async_connect_socket, host="some_device", port=9000, retry=False):
+                async with async_protocol_manager(
+                    connect_method=async_connect_socket,
+                    host="some_device",
+                    port=9000,
+                    retry=False,
+                ):
                     assert False
             except ConnectionError:
                 assert True
-                
+
     @async_case
     async def test_write(self):
         """Test writing to the serial device."""
@@ -159,7 +171,9 @@ class TestSerialTransport(TestCase):
             "serial_asyncio.SerialTransport._call_connection_lost",
             self._call_connection_lost,
         ), patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial):
-            async with async_protocol_manager(connect_method=async_connect_serial, device="some_device") as protocol:
+            async with async_protocol_manager(
+                connect_method=async_connect_serial, device="some_device"
+            ) as protocol:
                 data = b"abc123"
                 protocol.transport.write(data)
                 await asyncio.sleep(0.05)
@@ -173,7 +187,9 @@ class TestSerialTransport(TestCase):
             "serial_asyncio.SerialTransport._call_connection_lost",
             self._call_connection_lost,
         ), patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial):
-            async with async_protocol_manager(connect_method=async_connect_serial, device="some_device") as protocol:
+            async with async_protocol_manager(
+                connect_method=async_connect_serial, device="some_device"
+            ) as protocol:
                 data = b"abc123"
                 mock_serial.write_exception = serial.SerialException
                 protocol.connection_lost = MagicMock()

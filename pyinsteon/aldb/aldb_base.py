@@ -292,7 +292,10 @@ class ALDBBase(ABC):
             rec_to_write = rec.copy()
             if rec.mem_addr == 0x000:
                 rec_to_write.mem_addr = self._next_record_mem_addr(
-                    target=rec.target, group=rec.group, is_controller=rec.is_controller
+                    target=rec.target,
+                    group=rec.group,
+                    is_controller=rec.is_controller,
+                    force=force,
                 )
             result = False
             try:
@@ -390,7 +393,9 @@ class ALDBBase(ABC):
             return -1
         return min(min(self._dirty_records), 0) - 1
 
-    def _next_record_mem_addr(self, target: Address, group: int, is_controller: bool):
+    def _next_record_mem_addr(
+        self, target: Address, group: int, is_controller: bool, force: bool = False
+    ):
         """Assign a memory address to a record.
 
         Looks for an existing memory address with the same:
@@ -405,7 +410,7 @@ class ALDBBase(ABC):
 
         If the ALDB is not loaded it returns an ALDBWriteException
         """
-        if not self.is_loaded:
+        if not self.is_loaded and not force:
             raise ALDBWriteException("Cannot calculate the next record to write to.")
 
         for existing_record in self.find(
