@@ -137,7 +137,7 @@ class ALDBBase(ABC):
         return self._records.get(mem_addr, default)
 
     def get_responders(self, group):
-        """Return all iterable of responders to this device for a group.
+        """Return an iterable of responders to this device for a group.
 
         Note this only returns the responders known to this device.
         There may be other responders since a device may have
@@ -306,7 +306,7 @@ class ALDBBase(ABC):
             if result == ResponseStatus.SUCCESS:
                 curr_rec = self._records.get(rec_to_write.mem_addr)
                 # If we wrote to the high water mark, append a new HWM record
-                if curr_rec.is_high_water_mark:
+                if curr_rec and curr_rec.is_high_water_mark:
                     curr_rec.mem_addr -= 8
                     self._records[curr_rec.mem_addr] = curr_rec
                     new_hwm_rec = new_aldb_record_from_existing(HWM_RECORD)
@@ -418,13 +418,19 @@ class ALDBBase(ABC):
         ):
             return existing_record.mem_addr
 
+        next_mem_addr = self._mem_addr
         for mem_addr, rec in self._records.items():
             if not rec.is_in_use or rec.is_high_water_mark:
                 # This should always be the return if the ALDB is loaded
                 return mem_addr
-        raise Exception(
-            "An unknown error in finding the next ALDB record memory address."
-        )
+            if mem_addr != next_mem_addr:
+                return next_mem_addr
+            next_mem_addr = mem_addr - 8
+        if not force:
+            raise Exception(
+                "An unknown error in finding the next ALDB record memory address."
+            )
+        return next_mem_addr
 
     def _calc_load_status(self):
         """Test if the ALDB is fully loaded."""

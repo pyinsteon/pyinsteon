@@ -1,4 +1,5 @@
 """Test the device ALDB class."""
+import asyncio
 from unittest import TestCase
 
 from pyinsteon.aldb import ALDB
@@ -8,39 +9,43 @@ from pyinsteon.managers.aldb_write_manager import ALDBWriteException
 from pyinsteon.topics import ALDB_VERSION
 from pyinsteon.utils import publish_topic
 
+from .. import set_log_levels
 from ..utils import async_case, random_address
 
 modem_address = random_address()
+rec_0fff = ALDBRecord(
+    0x0FFF,
+    controller=True,
+    group=0,
+    target=random_address(),
+    data1=1,
+    data2=2,
+    data3=3,
+)
+rec_0ff7 = ALDBRecord(
+    0x0FF7,
+    controller=False,
+    group=1,
+    target=modem_address,
+    data1=4,
+    data2=5,
+    data3=6,
+)
+rec_hwm = ALDBRecord(
+    0x0FEF,
+    controller=False,
+    group=0,
+    target="000000",
+    data1=0,
+    data2=0,
+    data3=0,
+    in_use=False,
+    high_water_mark=True,
+)
 records = {
-    0x0FFF: ALDBRecord(
-        0x0FFF,
-        controller=True,
-        group=0,
-        target=modem_address,
-        data1=1,
-        data2=2,
-        data3=3,
-    ),
-    0x0FF7: ALDBRecord(
-        0x0FF7,
-        controller=False,
-        group=1,
-        target=modem_address,
-        data1=4,
-        data2=5,
-        data3=6,
-    ),
-    0x0FEF: ALDBRecord(
-        0x0FEF,
-        controller=False,
-        group=0,
-        target="000000",
-        data1=0,
-        data2=0,
-        data3=0,
-        in_use=False,
-        high_water_mark=True,
-    ),
+    0x0FFF: rec_0fff,
+    0x0FF7: rec_0ff7,
+    0x0FEF: rec_hwm,
 }
 
 
@@ -76,6 +81,34 @@ class TestAldb(TestCase):
         assert aldb.high_water_mark_mem_addr is None
         assert not aldb.is_loaded
         assert aldb.pending_changes == {}
+
+        try:
+            aldb[0x0F00] = "Not a record"
+            assert False
+        except ValueError:
+            assert True
+
+        aldb[0] = rec_0fff
+        rec = aldb.pending_changes[-1]
+        assert rec
+        assert rec.mem_addr == 0
+
+        aldb[0x0FEF] = rec_0fff
+        rec = aldb.pending_changes[0x0FEF]
+        assert rec
+        assert rec.mem_addr == 0x0FEF
+        aldb_repr = repr(aldb)
+        assert aldb_repr.find("_records") != -1
+
+        rec_0fff.mem_addr = 0x0FFF
+        self.setup_aldb(aldb, records)
+        for mem_addr in aldb:
+            assert mem_addr in records.keys()
+        assert aldb.high_water_mark_mem_addr == 0x0FEF
+
+        rec = aldb.get(0x0FFF)
+        assert rec
+        assert rec.mem_addr == 0x0FFF
 
     @async_case
     async def test_update_version(self):
@@ -146,6 +179,9 @@ class TestAldb(TestCase):
         self.setup_aldb(aldb, {0x0FFF: hwm_rec}, ALDBStatus.LOADED)
         aldb.set_load_status()
         assert aldb.status == ALDBStatus.LOADED
+
+        self.setup_aldb(aldb, records, ALDBStatus.LOADING)
+        assert aldb.is_loaded
 
     @async_case
     async def test_remove(self):
@@ -265,3 +301,76 @@ class TestAldb(TestCase):
         success, failure = await aldb.async_write()
         assert success == 0
         assert failure == 1
+
+    @async_case
+    async def test_write_force(self):
+        """Test the write method with force option."""
+        mock_writer = MockALDBWriteManager()
+        address = random_address()
+        aldb = ALDB(address)
+        aldb._write_manager = mock_writer
+        self.setup_aldb(aldb, records, ALDBStatus.LOADED)
+
+        aldb.add(group=1, target=random_address())
+        success, failure = await aldb.async_write(force=True)
+        assert success == 1
+        assert failure == 0
+
+        rec_0fef = ALDBRecord(
+            0x0FEF,
+            controller=False,
+            group=1,
+            target=modem_address,
+            data1=4,
+            data2=5,
+            data3=6,
+        )
+        rec_hwm_0fe7 = ALDBRecord(
+            0x0FE7,
+            controller=False,
+            group=0,
+            target="000000",
+            data1=0,
+            data2=0,
+            data3=0,
+            in_use=False,
+            high_water_mark=True,
+        )
+        recs_missing_0ff7 = {0x0FFF: rec_0fff, 0x0FEF: rec_0fef, 0x0FE7: rec_hwm_0fe7}
+
+        self.setup_aldb(aldb, recs_missing_0ff7, ALDBStatus.PARTIAL)
+        aldb.add(group=2, target=random_address())
+        success, failure = await aldb.async_write(force=True)
+        assert success == 1
+        assert failure == 0
+        rec = aldb[0x0FF7]
+        assert rec
+        assert rec.group == 2
+
+    @async_case
+    async def test_get_responders(self):
+        """Test the get_responders method."""
+        aldb = ALDB(random_address())
+        self.setup_aldb(aldb, records)
+        found = False
+        for target in aldb.get_responders(rec_0fff.group):
+            found = True
+            assert target == rec_0fff.target
+        assert found
+
+    @async_case
+    async def test_subscribe_status_changed(self):
+        """Test subscribing to status change."""
+        status_changed = False
+
+        def handle_status_changed():
+            """Handle status changed."""
+            nonlocal status_changed
+            status_changed = True
+
+        set_log_levels(logger_topics=True)
+        aldb = ALDB(random_address())
+        aldb.subscribe_status_changed(handle_status_changed)
+        self.setup_aldb(aldb, records)
+        await asyncio.sleep(0.1)
+        assert status_changed
