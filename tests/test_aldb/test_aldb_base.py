@@ -1,12 +1,21 @@
-"""Test the device ALDB class."""
+"""Test the device ALDB base class."""
 import asyncio
+from random import randint
 from unittest import TestCase
 
+from pyinsteon import pub
 from pyinsteon.aldb import ALDB
+from pyinsteon.aldb.aldb_base import HWM_RECORD
 from pyinsteon.aldb.aldb_record import ALDBRecord
 from pyinsteon.constants import ALDBStatus, ALDBVersion, ResponseStatus
 from pyinsteon.managers.aldb_write_manager import ALDBWriteException
-from pyinsteon.topics import ALDB_VERSION
+from pyinsteon.topics import (
+    ALDB_VERSION,
+    DEVICE_LINK_RESPONDER_CREATED,
+    DEVICE_LINK_CONTROLLER_REMOVED,
+    DEVICE_LINK_RESPONDER_REMOVED,
+    DEVICE_LINK_CONTROLLER_CREATED,
+)
 from pyinsteon.utils import publish_topic
 
 from .. import set_log_levels
@@ -62,12 +71,16 @@ class MockALDBWriteManager:
         return self.response_status
 
 
-class TestAldb(TestCase):
-    """Test the device ALDB class."""
+class TestAldbBase(TestCase):
+    """Test the device ALDB base class."""
 
-    def setup_aldb(self, aldb: ALDB, records: list, status=ALDBStatus.LOADED):
+    def setup_aldb(
+        self, aldb: ALDB, records: list, status=ALDBStatus.LOADED, first_mem_addr=None
+    ):
         """Set up an ALDB with records."""
-        aldb.load_saved_records(status=status, records=records)
+        aldb.load_saved_records(
+            status=status, records=records, first_mem_addr=first_mem_addr
+        )
 
     @async_case
     async def test_basic_properties(self):
@@ -140,6 +153,9 @@ class TestAldb(TestCase):
         assert aldb.status == ALDBStatus.LOADED
         assert len(aldb) == 3
 
+        self.setup_aldb(aldb, records, ALDBStatus.LOADED, first_mem_addr=0x0aaa)
+        assert aldb.first_mem_addr == 0x0aaa
+
     @async_case
     async def test_set_load_status(self):
         """Test the load_saved_records method."""
@@ -184,6 +200,64 @@ class TestAldb(TestCase):
         assert aldb.is_loaded
 
     @async_case
+    async def test_add(self):
+        """Test the add method."""
+        address = random_address()
+        aldb = ALDB(address)
+        self.setup_aldb(aldb, records, ALDBStatus.LOADED)
+        # Test minimal add
+        group = randint(0, 255)
+        target = random_address()
+        aldb.add(group=group, target=target)
+        rec = aldb.pending_changes[-1]
+        assert rec
+        assert rec.mem_addr == 0x000
+        assert rec.target == target
+        assert rec.group == group
+        assert not rec.is_controller
+        assert rec.is_in_use
+        assert rec.data1 == 0
+        assert rec.data2 == 0
+        assert rec.data3 == 0
+        assert rec.is_bit5_set
+        assert not rec.is_bit4_set
+        
+        # Test full add
+        group = randint(0, 255)
+        controller = True
+        data1 = randint(0, 255)
+        data2 = randint(0, 255)
+        data3 = randint(0, 255)
+        bit5 = False
+        bit4 = True
+        aldb.add(group=group, target=target, controller=controller, data1=data1, data2=data2, data3=data3, bit5=bit5, bit4=bit4)
+        rec = aldb.pending_changes[-2]
+        assert rec
+        assert rec.mem_addr == 0x000
+        assert rec.target == target
+        assert rec.group == group
+        assert rec.is_controller == controller
+        assert rec.is_in_use
+        assert rec.data1 == data1
+        assert rec.data2 == data2
+        assert rec.data3 == data3
+        assert not rec.is_bit5_set
+        assert rec.is_bit4_set
+        
+        # Test "add" with same group, target and mode
+        rec = aldb[0x0ff7]
+        data1 = randint(100, 255)
+        data2 = randint(100, 255)
+        data3 = randint(100, 255)
+        aldb.add(group=rec.group, target=rec.target, controller=rec.is_controller, data1=data1, data2=data2, data3=data3)
+        new_rec = aldb.pending_changes[rec.mem_addr]
+        assert new_rec
+        assert new_rec.mem_addr == rec.mem_addr
+        assert new_rec.data1 == data1
+        assert new_rec.data2 == data2
+        assert new_rec.data3 == data3   
+
+    @async_case
     async def test_remove(self):
         """Test the load_saved_records method."""
         address = random_address()
@@ -194,6 +268,12 @@ class TestAldb(TestCase):
         assert rec
         assert rec.mem_addr == 0x0FF7
         assert not rec.is_in_use
+        
+        try:
+            aldb.remove(0xffff)
+            assert False
+        except IndexError:
+            assert True
 
     @async_case
     async def test_modify(self):
@@ -250,6 +330,29 @@ class TestAldb(TestCase):
         assert new_rec.is_high_water_mark == orig_rec.is_high_water_mark
         assert new_rec.data1 == orig_rec.data1
         assert new_rec.data3 == orig_rec.data3
+        
+        try:
+            aldb.modify(
+            mem_addr=0xFFFF,  # Does not exist
+            group=group,
+            )
+            assert False
+        except IndexError:
+            assert True
+
+    @async_case
+    async def test_find(self):
+        """Test the find method."""
+        aldb = ALDB(random_address())
+        self.setup_aldb(aldb, records)
+        for rec in aldb.find(target=rec_0ff7.target):
+            assert rec.target == rec_0ff7.target
+            
+        try:
+            for rec in aldb.find():
+                assert False       
+        except ValueError:
+            assert True
 
     @async_case
     async def test_async_write(self):
@@ -347,6 +450,21 @@ class TestAldb(TestCase):
         assert rec
         assert rec.group == 2
 
+        # Test when missing HWM record
+        recs_missing_hwm = {0x0FFF: rec_0fff, 0x0ff7: rec_0ff7}
+
+        self.setup_aldb(aldb, recs_missing_hwm, ALDBStatus.PARTIAL)
+        group = randint(0, 255)
+        target = random_address()
+        aldb.add(group=group, target=target)
+        success, failure = await aldb.async_write(force=True)
+        assert success == 1
+        assert failure == 0
+        rec = aldb[0x0Fef]
+        assert rec
+        assert rec.group == group
+        assert rec.target == target
+
     @async_case
     async def test_get_responders(self):
         """Test the get_responders method."""
@@ -368,9 +486,77 @@ class TestAldb(TestCase):
             nonlocal status_changed
             status_changed = True
 
-        set_log_levels(logger_topics=True)
         aldb = ALDB(random_address())
         aldb.subscribe_status_changed(handle_status_changed)
         self.setup_aldb(aldb, records)
         await asyncio.sleep(0.1)
         assert status_changed
+
+    @async_case
+    async def test_subscribe_record_change(self):
+        """Test the subscribe_record_changed method."""
+        expected_topic = None
+        expected_group = None
+        expected_responder = None
+        expected_controller = None
+        call_count = 0
+
+        def handle_record_changed(controller, responder, group, topic=pub.AUTO_TOPIC):
+            """Handle the adding and removing of records."""
+            nonlocal call_count
+            call_count += 1
+            assert topic.name.split(".")[0] == expected_topic
+            assert group == expected_group
+            assert controller == expected_controller
+            assert responder == expected_responder
+
+        mock_writer = MockALDBWriteManager()
+        set_log_levels(logger_topics=True)
+        aldb = ALDB(random_address())
+        aldb._write_manager = mock_writer
+        self.setup_aldb(aldb, records)
+        aldb.subscribe_record_changed(handle_record_changed)
+        target = random_address()
+
+        # Create controller
+        expected_group = 12
+        expected_topic = DEVICE_LINK_CONTROLLER_CREATED
+        expected_controller = aldb.address
+        expected_responder = target
+        aldb.add(group=expected_group, target=target, controller=True)
+        await aldb.async_write()
+        await asyncio.sleep(0.1)
+        assert call_count == 1
+
+        # Remove controller
+        rec = aldb[0x0FEF]
+        assert rec.target == target  # Make sure we have the right record
+        assert rec.is_controller
+        aldb.remove(mem_addr=rec.mem_addr)
+        call_count = 0
+        expected_topic = DEVICE_LINK_CONTROLLER_REMOVED
+        await aldb.async_write()
+        await asyncio.sleep(0.1)
+        assert call_count == 1
+
+        # Create responder
+        call_count = 0
+        expected_controller = target
+        expected_responder = aldb.address
+        expected_group = 22
+        expected_topic = DEVICE_LINK_RESPONDER_CREATED
+        aldb.add(group=expected_group, target=target, controller=False)
+        await aldb.async_write()
+        await asyncio.sleep(0.1)
+        assert call_count == 1
+
+        # Remove responder
+        rec = aldb[0x0FEF]
+        assert rec.target == target  # Make sure we have the right record
+        assert not rec.is_controller
+        aldb.remove(mem_addr=rec.mem_addr)
+        call_count = 0
+        expected_topic = DEVICE_LINK_RESPONDER_REMOVED
+        await aldb.async_write()
+        await asyncio.sleep(0.1)
+        assert call_count == 1

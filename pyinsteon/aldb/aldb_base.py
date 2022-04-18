@@ -20,7 +20,17 @@ from .aldb_record import ALDBRecord, new_aldb_record_from_existing
 
 _LOGGER = logging.getLogger(__name__)
 HWM_RECORD = ALDBRecord(
-    0x0000, controller=False, group=0, target="000000", data1=0, data2=0, data3=0
+    0x0000,
+    controller=False,
+    group=0,
+    target="000000",
+    data1=0,
+    data2=0,
+    data3=0,
+    in_use=False,
+    high_water_mark=True,
+    bit4=False,
+    bit5=False,
 )
 
 
@@ -307,13 +317,13 @@ class ALDBBase(ABC):
                 curr_rec = self._records.get(rec_to_write.mem_addr)
                 # If we wrote to the high water mark, append a new HWM record
                 if curr_rec and curr_rec.is_high_water_mark:
-                    curr_rec.mem_addr -= 8
-                    self._records[curr_rec.mem_addr] = curr_rec
-                    new_hwm_rec = new_aldb_record_from_existing(HWM_RECORD)
-                    new_hwm_rec.mem_addr = curr_rec.mem_addr - 8
+                    new_hwm_rec = new_aldb_record_from_existing(
+                        HWM_RECORD, mem_addr=curr_rec.mem_addr - 8
+                    )
                     self._records[new_hwm_rec.mem_addr] = new_hwm_rec
                 self._records[rec_to_write.mem_addr] = rec_to_write
                 success += 1
+                self._notify_change(rec_to_write)
             else:
                 if rec.mem_addr == 0x0000:
                     next_new_dirty -= 1
@@ -373,14 +383,22 @@ class ALDBBase(ABC):
         is_in_use = True if force_delete else record.is_in_use
         if record.is_controller and is_in_use:
             topic = f"{DEVICE_LINK_CONTROLLER_CREATED}.{self._address.id}"
+            controller = self._address
+            responder = target
         elif record.is_controller and not is_in_use:
             topic = f"{DEVICE_LINK_CONTROLLER_REMOVED}.{self._address.id}"
+            controller = self._address
+            responder = target
         elif not record.is_controller and is_in_use:
             topic = f"{DEVICE_LINK_RESPONDER_CREATED}.{self._address.id}"
+            controller = target
+            responder = self._address
         else:
             topic = f"{DEVICE_LINK_RESPONDER_REMOVED}.{self._address.id}"
+            controller = target
+            responder = self._address
 
-        publish_topic(topic, controller=self._address, responder=target, group=group)
+        publish_topic(topic, controller=controller, responder=responder, group=group)
 
     def _next_new_mem_addr(self):
         """Return the next temporary memory address to use for a new record.
@@ -427,7 +445,7 @@ class ALDBBase(ABC):
                 return next_mem_addr
             next_mem_addr = mem_addr - 8
         if not force:
-            raise Exception(
+            raise ALDBWriteException(
                 "An unknown error in finding the next ALDB record memory address."
             )
         return next_mem_addr
