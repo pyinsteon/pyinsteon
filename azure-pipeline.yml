@@ -35,9 +35,9 @@ stages:
     - script: |
         flake8 pyinsteon
       displayName: 'flake8'
-#     - script: |
-#         black pyinsteon
-#       displayName: 'black'
+    - script: |
+        black pyinsteon
+      displayName: 'black'
 
 - stage: 'Tests'
   jobs:
