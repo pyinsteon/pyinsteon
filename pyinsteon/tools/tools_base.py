@@ -308,6 +308,7 @@ class ToolsBase(Cmd):
                         return
                 except AttributeError:
                     pass
+                # pylint: disable=consider-using-f-string
                 self.stdout.write("%s\n" % str(self.nohelp % (arg,)))
                 return
             func()

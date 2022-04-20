@@ -211,7 +211,9 @@ def new_aldb_record_from_existing(rec: ALDBRecord, **kwargs):
     mem_addr = int(get_element_or_default("mem_addr", rec.mem_addr, **kwargs))
     in_use = bool(get_element_or_default("in_use", rec.is_in_use, **kwargs))
     controller = bool(get_element_or_default("controller", rec.is_controller, **kwargs))
-    hwm = bool(get_element_or_default("high_water_mark", rec.is_high_water_mark, **kwargs))
+    hwm = bool(
+        get_element_or_default("high_water_mark", rec.is_high_water_mark, **kwargs)
+    )
     target = Address(get_element_or_default("target", rec.target, **kwargs))
     group = int(get_element_or_default("group", rec.group, **kwargs))
     data1 = int(get_element_or_default("data1", rec.data1, **kwargs))
