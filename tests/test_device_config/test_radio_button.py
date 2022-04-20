@@ -7,7 +7,7 @@ from pyinsteon.device_types.dimmable_lighting_control import (
     DimmableLightingControl_KeypadLinc_8,
 )
 
-from ..utils import random_address, async_case
+from ..utils import async_case, random_address
 
 group1 = {2: 0x04, 3: 0x02}
 group2 = {4: 0x10, 5: 0x08}
@@ -26,7 +26,7 @@ def reset_properties(device, value=0):
 
 class TestRadioButtonGroupsProperty(TestCase):
     """Test the momentary delay flag."""
-    
+
     @async_case
     async def test_new_value(self):
         """Test the momentary delay value."""

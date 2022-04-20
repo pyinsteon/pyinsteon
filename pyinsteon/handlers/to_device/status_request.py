@@ -1,9 +1,8 @@
 """Manage outbound ON command to a device."""
 import asyncio
 
-from pyinsteon.constants import MessageFlagType, ResponseStatus
-
 from ... import pub
+from ...constants import MessageFlagType, ResponseStatus
 from ...topics import STATUS_REQUEST
 from .. import ack_handler, status_handler
 from .direct_command import DirectCommandHandlerBase
@@ -21,7 +20,7 @@ class StatusRequestCommand(DirectCommandHandlerBase):
     # pylint: disable=arguments-differ, useless-super-delegation
     async def async_send(self):
         """Send the ON command async."""
-        return await super().async_send(status_type=self._status_type)
+        return await super().async_send(status_type=self._group)
 
     @ack_handler
     async def async_handle_ack(self, cmd1, cmd2, user_data):

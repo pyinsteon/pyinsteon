@@ -30,6 +30,7 @@ from ..topics import (
     SET_IM_CONFIGURATION,
     SET_NAK_MESSAGE_BYTE,
     START_ALL_LINKING,
+    STATUS_REQUEST,
     USER_RESET_DETECTED,
     WRITE_EEPROM,
     X10_RECEIVED,
@@ -61,6 +62,9 @@ def _get_group_from_msg(topic, message_type, target, cmd2, user_data):
         ALL_LINK_BROADCAST = 6: Not applicable
         ALL_LINK_CLEANUP_NAK = 7: Not applicable
     """
+    if topic == STATUS_REQUEST and message_type == MessageFlagType.DIRECT:
+        return cmd2
+
     if message_type == MessageFlagType.DIRECT:
         if user_data:
             return user_data["d1"]

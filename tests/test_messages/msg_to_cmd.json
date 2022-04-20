@@ -237,7 +237,7 @@
         "cmd2": "",
         "user_data": "",
         "ack": "",
-        "topic": "{}.status_request.direct"
+        "topic": "{}.22.status_request.direct"
     },
     "GET_OPERATING_FLAGS-DIRECT": {
         "address": {},
