@@ -3,7 +3,6 @@ import asyncio
 from binascii import unhexlify
 from collections import namedtuple
 from io import StringIO
-from unittest.mock import Mock
 
 try:
     from contextlib import asynccontextmanager
@@ -307,7 +306,8 @@ class MockSerial:
 
     def __init__(self):
         """Init the MockSerial class."""
-        self.serial_for_url_call_info = Mock()
+        self.kwargs = None
+        self.call_count = 0
         self.iostream = StringIO()
         self.serial_for_url_exception = None
         self.write_exception = None
@@ -315,7 +315,8 @@ class MockSerial:
 
     def serial_for_url(self, *args, **kwargs):
         """Mock the serial_for_url method."""
-        self.serial_for_url_call_info(*args, **kwargs)
+        self.call_count += 1
+        self.kwargs = kwargs
         if self.serial_for_url_exception:
             raise self.serial_for_url_exception
         return self
