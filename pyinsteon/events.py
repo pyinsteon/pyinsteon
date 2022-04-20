@@ -90,7 +90,7 @@ class Event(SubscriberBase):
 class LowBatteryEvent(Event):
     """Low battery event."""
 
-    # pylint: disable=arguments-renamed
+    # pylint: disable=arguments-differ
     def trigger(self, low_battery):
         """Trigger the event."""
         self._call_subscribers(
@@ -101,7 +101,7 @@ class LowBatteryEvent(Event):
 class HeartbeatEvent(Event):
     """Heartbeat event."""
 
-    # pylint: disable=arguments-renamed
+    # pylint: disable=arguments-differ
     def trigger(self, heartbeat):
         """Trigger the event."""
         self._call_subscribers(
@@ -112,7 +112,7 @@ class HeartbeatEvent(Event):
 class WetDryEvent(Event):
     """We or Dry event."""
 
-    # pylint: disable=arguments-renamed
+    # pylint: disable=arguments-differ
     def trigger(self, dry):
         """Trigger the event."""
         self._call_subscribers(

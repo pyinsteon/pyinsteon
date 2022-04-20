@@ -3,7 +3,7 @@ from ..utils import bit_is_set, set_bit
 
 
 class IOPortConfigFlags:
-    """I/O Sensor port configutation flags."""
+    """I/O Sensor port configuration flags."""
 
     def __init__(
         self,
@@ -45,9 +45,9 @@ class IOPortConfigFlags:
         return flags
 
     @property
-    def analog_input_used(self):
-        """Return the analog_input_used flag."""
-        return self._analog_input_used
+    def analog_input_mode(self):
+        """Return the analog_input_mode flag."""
+        return self._analog_input_mode
 
     @property
     def send_on_sensor_alarm(self):
