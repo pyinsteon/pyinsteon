@@ -20,7 +20,7 @@ class StatusRequestCommand(DirectCommandHandlerBase):
     # pylint: disable=arguments-differ, useless-super-delegation
     async def async_send(self):
         """Send the ON command async."""
-        return await super().async_send(status_type=self._group)
+        return await super().async_send(status_type=self._status_type)
 
     @ack_handler
     async def async_handle_ack(self, cmd1, cmd2, user_data):

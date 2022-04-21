@@ -118,7 +118,7 @@ def _create_direct_message(
     main_topic = topic.name.split(".")[1]
     command = commands.get_command(main_topic)
     extended = user_data is not None
-    cmd2 = command.cmd2 if command.cmd2 is not None else cmd2
+    cmd2 = command.cmd2 if command.cmd2 is not None else cmd2 if cmd2 is not None else 0
     msg_type = topic_to_message_type(topic)
     flags = MessageFlags.create(msg_type, extended)
     if extended:
