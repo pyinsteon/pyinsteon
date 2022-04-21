@@ -2,12 +2,14 @@
 import unittest
 from binascii import unhexlify
 
+from pyinsteon import pub
 from pyinsteon.constants import AllLinkMode, MessageId
 
 # pylint: disable=unused-import
 from pyinsteon.protocol.messages.outbound import send_all_link_command  # noqa: F401
 from tests import set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
+from tests.utils import async_case
 
 
 class TestSendAllLinkCommand(unittest.TestCase, OutboundBase):
@@ -31,16 +33,22 @@ class TestSendAllLinkCommand(unittest.TestCase, OutboundBase):
             logger_topics=False,
         )
 
-    def test_group(self):
+    @async_case
+    async def test_group(self):
         """Test group."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.group == self.group
 
-    def test_cmd1(self):
+    @async_case
+    async def test_cmd1(self):
         """Test cmd1."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.cmd1 == 0x11
 
-    def test_cmd2(self):
+    @async_case
+    async def test_cmd2(self):
         """Test cmd2."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.cmd2 == 0x00
 
 

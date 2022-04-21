@@ -20,33 +20,9 @@ class SetLedsCommandHandler(ExtendedSetCommand):
         """Init the SetLedsCommandHandler class."""
         super().__init__(address=address, data1=0x01, data2=0x09)
         self._subscriber_topic = build_topic(
-            prefix="handler.{}".format(self._address.id),  # Force address
+            prefix=f"handler.{self._address.id}",  # Force address
             topic="set_leds",
             message_type=MessageFlagType.DIRECT,
-        )
-
-    # pylint: disable=arguments-differ
-    def send(
-        self,
-        group1: bool,
-        group2: bool,
-        group3: bool,
-        group4: bool,
-        group5: bool,
-        group6: bool,
-        group7: bool,
-        group8: bool,
-    ):
-        """Set the LED values of the KPL."""
-        super().send(
-            group1=group1,
-            group2=group2,
-            group3=group3,
-            group4=group4,
-            group5=group5,
-            group6=group6,
-            group7=group7,
-            group8=group8,
         )
 
     # pylint: disable=arguments-differ

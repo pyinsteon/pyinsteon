@@ -1,21 +1,20 @@
 """Base device object."""
-import asyncio
+
 import logging
 from abc import ABC
 from datetime import datetime
-from inspect import getfullargspec
 
 from ..address import Address
 from ..aldb import ALDB
-from ..constants import DeviceCategory, EngineVersion
+from ..config.operating_flag import OperatingFlag
+from ..constants import DeviceCategory, EngineVersion, PropertyType, ResponseStatus
 from ..default_link import DefaultLink
-from ..handlers.to_device.product_data_request import ProductDataRequestCommand
 from ..handlers.to_device.engine_version_request import EngineVersionRequest
 from ..handlers.to_device.ping import PingCommand
+from ..handlers.to_device.product_data_request import ProductDataRequestCommand
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
 from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
 from ..managers.link_manager.default_links import async_add_default_links
-from ..operating_flag import OperatingFlag
 from ..utils import multiple_status
 
 _LOGGER = logging.getLogger(__name__)
@@ -58,17 +57,20 @@ class Device(ABC):
         self._default_links = []
         self._operating_flags = {}
         self._properties = {}
+        self._config = {}
+
         self._op_flags_manager = GetSetOperatingFlagsManager(
             self._address, self._operating_flags
         )
         self._ext_property_manager = GetSetExtendedPropertyManager(self._address)
 
-        self._register_operating_flags()
+        self._register_op_flags_and_props()
         self._register_groups()
         self._register_events()
         self._register_handlers_and_managers()
         self._subscribe_to_handelers_and_managers()
         self._register_default_links()
+        self._register_config()
 
     @property
     def address(self):
@@ -151,6 +153,11 @@ class Device(ABC):
         return self._properties
 
     @property
+    def configuration(self):
+        """Return the configuration properties."""
+        return self._config
+
+    @property
     def default_links(self):
         """Return the list of default links."""
         return self._default_links
@@ -176,18 +183,10 @@ class Device(ABC):
             self._op_flags_manager.extended_write = True
         self._engine_version = version
 
-    def status(self, group=None):
-        """Get the status of the device."""
-        args = getfullargspec(self.async_status)
-        if "group" in args[0]:
-            asyncio.ensure_future(self.async_status(group=group))
-        else:
-            asyncio.ensure_future(self.async_status())
-
     async def async_status(self, group=None):
         """Get the status of the device."""
 
-    async def async_read_config(self):
+    async def async_read_config(self, read_aldb: bool = True):
         """Get all configuration settings.
 
         This includes:
@@ -197,8 +196,17 @@ class Device(ABC):
         """
         result_op_flags = await self.async_read_op_flags()
         result_ext_prop = await self.async_read_ext_properties()
-        result_aldb = await self._aldb.async_load()
+        if read_aldb:
+            result_aldb = await self._aldb.async_load()
+        else:
+            result_aldb = ResponseStatus.SUCCESS
         return multiple_status(result_ext_prop, result_op_flags), result_aldb
+
+    async def async_write_config(self):
+        """Write the device configuration to the physical device."""
+        result1 = await self.async_write_op_flags()
+        result2 = await self.async_write_ext_properties()
+        return multiple_status(result1, result2)
 
     async def async_read_op_flags(self, group=None):
         """Read the device operating flags."""
@@ -263,24 +271,48 @@ class Device(ABC):
     def _register_events(self):
         """Add events that are triggered when events are fired from the device."""
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
         """Add operating flags to the device."""
 
+    def _register_config(self):
+        """Set up the configuration properties."""
+        for name, prop in self._operating_flags.items():
+            if prop.property_type == PropertyType.STANDARD:
+                self._config[name] = prop
+
+        for name, prop in self._properties.items():
+            if prop.property_type == PropertyType.STANDARD:
+                self._config[name] = prop
+
     def _add_operating_flag(
-        self, name, group, bit, set_cmd, unset_cmd, is_reversed=False
+        self,
+        name,
+        group,
+        bit,
+        set_cmd,
+        unset_cmd,
+        is_reversed=False,
+        prop_type=PropertyType.STANDARD,
     ):
         read_only = set_cmd is None or unset_cmd is None
-        flag_type = bool if bit is not None else int
+        value_type = bool if bit is not None else int
         self._operating_flags[name] = OperatingFlag(
-            self._address, name, flag_type, is_reversed, read_only
+            self._address, name, value_type, is_reversed, read_only, prop_type
         )
         self._op_flags_manager.subscribe(name, group, bit, set_cmd, unset_cmd)
 
     def _add_property(
-        self, name, data_field, set_cmd, group=1, bit=None, is_reversed=False
+        self,
+        name,
+        data_field,
+        set_cmd,
+        group=1,
+        bit=None,
+        is_reversed=False,
+        prop_type=PropertyType.STANDARD,
     ):
         self._properties[name] = self._ext_property_manager.create(
-            name, group, data_field, bit, set_cmd, is_reversed
+            name, group, data_field, bit, set_cmd, is_reversed, prop_type
         )
 
     def _remove_operating_flag(self, name, group=None):

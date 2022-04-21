@@ -1,7 +1,8 @@
 """Manage outbound ON command to a device."""
-from pyinsteon.constants import MessageFlagType, ResponseStatus
+import asyncio
 
 from ... import pub
+from ...constants import MessageFlagType, ResponseStatus
 from ...topics import STATUS_REQUEST
 from .. import ack_handler, status_handler
 from .direct_command import DirectCommandHandlerBase
@@ -12,66 +13,39 @@ class StatusRequestCommand(DirectCommandHandlerBase):
 
     def __init__(self, address, status_type: int = 0):
         """Init the OnLevelCommand class."""
-        super().__init__(topic=STATUS_REQUEST, address=address)
-        self._status_active = False
+        super().__init__(topic=STATUS_REQUEST, address=address, group=None)
         self._status_type = status_type
-        if status_type:
-            self._subscriber_topic = f"{self._subscriber_topic}_{status_type}"
-
-    @property
-    def status_type(self):
-        """Return the type of status message."""
-        try:
-            return self._status_type
-        except AttributeError:
-            return 0
-
-    @property
-    def status_active(self):
-        """Return if the status command is active."""
-        try:
-            return self._status_active
-        except AttributeError:
-            return False
-
-    @status_active.setter
-    def status_active(self, value: bool):
-        """Set if the status command is active."""
-        self._status_active = bool(value)
+        self._subscriber_topic = f"handler.{self._address.id}.{self._status_type}.{STATUS_REQUEST}.{str(MessageFlagType.DIRECT).lower()}"
 
     # pylint: disable=arguments-differ, useless-super-delegation
     async def async_send(self):
         """Send the ON command async."""
-        response = await super().async_send(status_type=self._status_type)
-        # return response
-        self._status_active = False
-        return response
+        return await super().async_send(status_type=self._status_type)
 
     @ack_handler
-    def handle_ack(self, cmd1, cmd2, user_data):
+    async def async_handle_ack(self, cmd1, cmd2, user_data):
         """Handle the message ACK."""
-        if cmd2 == self.status_type:
-            self.status_active = True
-            super().handle_ack(cmd1, cmd2, user_data)
-        # super().handle_ack(cmd1, cmd2, user_data)
+        if cmd2 == self._status_type:
+            await super().async_handle_ack(cmd1, cmd2, user_data)
 
     @status_handler
-    def handle_direct_ack(self, topic=pub.AUTO_TOPIC, **kwargs):
+    async def async_handle_direct_ack(self, topic=pub.AUTO_TOPIC, **kwargs):
         """Handle the Status Request response direct ACK.
 
         This handler listens to all topics for a device therefore we need to
         confirm the message is a status response.
         """
-        if not self.status_active:
+        # Need to make sure the ACK has time to aquire the lock
+        await asyncio.sleep(0.05)
+        if not self._response_lock.locked():
             return
 
         msg_type = topic.name.split(".")[-1]
         if msg_type != str(MessageFlagType.DIRECT_ACK):
             return
 
-        self._message_response.put_nowait(ResponseStatus.SUCCESS)
+        self._direct_response.put_nowait(ResponseStatus.SUCCESS)
 
         cmd1 = kwargs.get("cmd1")
         cmd2 = kwargs.get("cmd2")
-        if cmd2 is not None:
-            self._call_subscribers(db_version=cmd1, status=cmd2)
+        self._call_subscribers(db_version=cmd1, status=cmd2)

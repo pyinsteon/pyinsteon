@@ -5,6 +5,7 @@ from ..constants import ResponseStatus
 from ..x10_address import create
 
 
+# pylint: disable=no-self-use
 class X10DeviceBase:
     """X10 device base class."""
 
@@ -104,7 +105,7 @@ class X10DeviceBase:
         """Get the status of the device."""
         return ResponseStatus.SUCCESS
 
-    async def async_read_config(self):
+    async def async_read_config(self, read_aldb: bool = True):
         """Get all configuration settings.
 
         This command does nothing for X10 devices.

@@ -1,7 +1,4 @@
 """All-Link Database for devices with no All-Link Database."""
-import inspect
-from typing import Callable
-
 from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion
 
@@ -32,7 +29,7 @@ class NoALDB:
     def __repr__(self):
         """Human representation of a device from the ALDB."""
         attrs = vars(self)
-        return ", ".join("%s: %r" % item for item in attrs.items())
+        return ", ".join(f"{k}: {repr(v)}" for k, v in attrs.items())
 
     @property
     def is_loaded(self) -> bool:
@@ -44,22 +41,17 @@ class NoALDB:
         """Return loaded status."""
         return ALDBStatus.LOADED
 
-    # pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ, no-self-use
     async def async_load(
         self,
         mem_addr: int = 0x00,
         num_recs: int = 0x00,
         refresh: bool = False,
-        callback: Callable = None,
     ):
         """Load the All-Link Database."""
-        if callback:
-            if inspect.iscoroutinefunction(callback) or inspect.isawaitable(callback):
-                await callback()
-            else:
-                callback()
         return ALDBStatus.LOADED
 
+    # pylint: disable=no-self-use
     async def async_write(self):
         """Write modified records to the device."""
         return 0, 0
@@ -111,5 +103,9 @@ class NoALDB:
     def update_version(self, version):
         """Update the ALDB version number."""
 
-    def load_saved_records(self, status, records):
+    def load_saved_records(self, status, records, first_mem_addr):
         """Load All-Link records from a dictionary of saved records."""
+
+    def find(self, *args, **kwargs):
+        """Return no records."""
+        return []

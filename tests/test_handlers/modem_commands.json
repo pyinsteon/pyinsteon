@@ -1,0 +1,315 @@
+{
+    "cancel_all_linking": {
+        "command": {
+            "class": ".cancel_all_linking.CancelAllLinkingCommandHandler",
+            "params": {},
+            "send_params": {},
+            "ack_response": {
+                "data": "65"
+            }
+        },
+        "messages": {},
+        "response": 1,
+        "assert_tests": {}
+    },
+    "get_first_all_link_record": {
+        "command": {
+            "class": ".get_first_all_link_record.GetFirstAllLinkRecordHandler",
+            "params": {},
+            "send_params": {},
+            "ack_response": {
+                "data": "69"
+            }
+        },
+        "messages": {},
+        "response": 1,
+        "assert_tests": {}
+    },
+    "get_im_configuration": {
+        "command": {
+            "class": ".get_im_configuration.GetImConfigurationHandler",
+            "params": {},
+            "send_params": {},
+            "ack_response": {
+                "data": "73af0000",
+                "flags": "0xaf",
+                "spare1": "0x00",
+                "spare2": "0x00"
+            }
+        },
+        "response": 1,
+        "assert_tests": {
+            "disable_auto_linking": true,
+            "monitor_mode": false,
+            "auto_led": true,
+            "deadman": false
+        }
+    },
+    "get_im_info": {
+        "command": {
+            "class": ".get_im_info.GetImInfoHandler",
+            "params": {},
+            "send_params": {},
+            "ack_response": {
+                "data": "60abcdef030201",
+                "address": "AB.CD.EF",
+                "cat": "0x03",
+                "subcat": "0x02",
+                "firmware": "0x01"
+            }
+        },
+        "response": 1,
+        "assert_tests": {
+            "address": "AB.CD.EF",
+            "cat": 3,
+            "subcat": 2,
+            "firmware": 1
+        }
+    },
+    "get_next_all_link_record": {
+        "command": {
+            "class": ".get_next_all_link_record.GetNextAllLinkRecordHandler",
+            "params": {},
+            "send_params": {},
+            "ack_response": {
+                "data": "6a"
+            }
+        },
+        "response": 1,
+        "assert_tests": {}
+    },
+    "manage_all_link_record_ack": {
+        "command": {
+            "class": ".manage_all_link_record.ManageAllLinkRecordCommand",
+            "params": {},
+            "send_params": {
+                "action": "0x20",
+                "controller": true,
+                "group": 5,
+                "target": "0ab0c",
+                "data1": 1,
+                "data2": 2,
+                "data3": 3
+            },
+            "ack_response": {
+                "data": "6f20c2050a0b0c010203",
+                "action": " 0x20",
+                "flags": "0xc2",
+                "group": "0x05",
+                "target": "0a0b0c",
+                "data1": "0x01",
+                "data2": "0x02",
+                "data3": "0x03"
+            }
+        },
+        "response": 1,
+        "assert_tests": {}
+    },
+    "manage_all_link_record_nak": {
+        "command": {
+            "class": ".manage_all_link_record.ManageAllLinkRecordCommand",
+            "params": {},
+            "send_params": {
+                "action": "0x20",
+                "controller": true,
+                "group": 5,
+                "target": "0ab0c",
+                "data1": 1,
+                "data2": 2,
+                "data3": 3
+            },
+            "nak_response": {
+                "data": "6f20c2050a0b0c010203",
+                "action": " 0x20",
+                "flags": "0xc2",
+                "group": "0x05",
+                "target": "0a0b0c",
+                "data1": "0x01",
+                "data2": "0x02",
+                "data3": "0x03"
+            }
+        },
+        "response": 0,
+        "assert_tests": {}
+    },
+    "read_eeprom": {
+        "command": {
+            "class": ".read_eeprom.ReadEepromHandler",
+            "params": {},
+            "send_params": {
+                "mem_addr": 4095
+            },
+            "ack_response": {
+                "data": "750fff",
+                "mem_addr": 4095
+            }
+        },
+        "response": 1,
+        "assert_tests": {}
+    },
+    "read_eeprom_nak": {
+        "command": {
+            "class": ".read_eeprom.ReadEepromHandler",
+            "params": {},
+            "send_params": {
+                "mem_addr": 4095
+            },
+            "nak_response": {
+                "data": "750fff",
+                "mem_addr": 4095
+            }
+        },
+        "response": 0,
+        "assert_tests": {}
+    },
+    "send_all_link_off": {
+        "command": {
+            "class": ".send_all_link_off.SendAllLinkOffCommandHandler",
+            "params": {},
+            "send_params": {
+                "group": 7
+            },
+            "ack_response": {
+                "data": "61070000",
+                "group": "0x07",
+                "cmd1": "0x00",
+                "cmd2": "0x00"
+            }
+        },
+        "response": 1,
+        "assert_tests": {}
+    },
+    "send_all_link_on": {
+        "command": {
+            "class": ".send_all_link_on.SendAllLinkOnCommandHandler",
+            "params": {},
+            "send_params": {
+                "group": 8
+            },
+            "ack_response": {
+                "data": "6108ff00",
+                "group": "0x08",
+                "cmd1": "0xff",
+                "cmd2": "0x00"
+            }
+        },
+        "response": 1,
+        "assert_tests": {}
+    },
+    "send_all_link_command": {
+        "command": {
+            "class": ".send_all_link.SendAllLinkCommandHandler",
+            "params": {},
+            "send_params": {
+                "group": 9,
+                "cmd1": "0x01",
+                "cmd2": "0x02"
+            },
+            "ack_response": {
+                "data": "61090102",
+                "group": "0x09",
+                "cmd1": "0x01",
+                "cmd2": "0x02"
+            }
+        },
+        "response": 1,
+        "assert_tests": {}
+    },
+    "set_im_configuration": {
+        "command": {
+            "class": ".set_im_configuration.SetImConfigurationHandler",
+            "params": {},
+            "send_params": {
+                "disable_auto_linking": true,
+                "monitor_mode": false,
+                "auto_led": true,
+                "deadman": false
+            },
+            "ack_response": {
+                "data": "6ba0",
+                "flag": "0xa0"
+            }
+        },
+        "response": 1,
+        "assert_tests": {}
+    },
+    "start_all_linking": {
+        "command": {
+            "class": ".start_all_linking.StartAllLinkingCommandHandler",
+            "params": {},
+            "send_params": {
+                "link_mode": 1,
+                "group": 2
+            },
+            "ack_response": {
+                "data": "640101",
+                "link_mode": "0x01",
+                "group": "0x02"
+            }
+        },
+        "response": 1,
+        "assert_tests": {}
+    },
+    "write_eeprom_ack": {
+        "command": {
+            "class": ".write_eeprom.WriteEepromHandler",
+            "params": {},
+            "send_params": {
+                "mem_addr": 4095,
+                "in_use": true,
+                "high_water_mark": false,
+                "controller": true,
+                "group": 9,
+                "target": "1a2b3c",
+                "data1": 1,
+                "data2": 2,
+                "data3": 3,
+                "bit5": true,
+                "bit4": false
+            },
+            "ack_response": {
+                "data": "760fffe2091a2b3c010203",
+                "mem_addr": "0x0fff",
+                "flags": "0xe2",
+                "group": "0x09",
+                "target": "1a2b3c",
+                "data1": "0x01",
+                "data2": "0x02",
+                "data3": "0x03"
+            }
+        },
+        "response": 1,
+        "assert_tests": {}
+    },
+    "write_eeprom_nak": {
+        "command": {
+            "class": ".write_eeprom.WriteEepromHandler",
+            "params": {},
+            "send_params": {
+                "mem_addr": 4095,
+                "in_use": true,
+                "high_water_mark": false,
+                "controller": true,
+                "group": 9,
+                "target": "1a2b3c",
+                "data1": 1,
+                "data2": 2,
+                "data3": 3,
+                "bit5": true,
+                "bit4": false
+            },
+            "nak_response": {
+                "data": "760fffe2091a2b3c010203",
+                "mem_addr": "0x0fff",
+                "flags": "0xe2",
+                "group": "0x09",
+                "target": "1a2b3c",
+                "data1": "0x01",
+                "data2": "0x02",
+                "data3": "0x03"
+            }
+        },
+        "response": 0,
+        "assert_tests": {}
+    }
+}

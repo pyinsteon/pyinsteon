@@ -63,6 +63,11 @@ class HttpTransport(asyncio.Transport):
         self._last_msg = None
         self._reader_task = None
 
+    @property
+    def write_wait(self):
+        """Return the time to wait between writes."""
+        return 0.5
+
     def abort(self):
         """Alternative to closing the transport."""
         self.close()
@@ -94,7 +99,7 @@ class HttpTransport(asyncio.Transport):
 
     def resume_reading(self):
         """Resume the reader."""
-        self._start_reader()
+        self.start_reader()
 
     def set_write_buffer_limits(self, high=None, low=None):
         """Not implemented."""
@@ -111,7 +116,8 @@ class HttpTransport(asyncio.Transport):
 
     def start_reader(self):
         """Start the reader."""
-        if self._reader_task is None:
+        if self._reader_task is None or self._reader_task.cancelled():
+            self._closing = False
             self._start_reader()
 
     async def _async_write_url(self, url, msg=None):
@@ -121,8 +127,6 @@ class HttpTransport(asyncio.Transport):
             retry = 0
             while response_status != 200 and retry < 5:
                 if self.is_closing():
-                    if self._read_write_lock.locked():
-                        self._read_write_lock.release()
                     return
                 response_status = await self._reader_writer.async_write(url)
                 if response_status != 200:
@@ -134,7 +138,7 @@ class HttpTransport(asyncio.Transport):
 
     async def async_test_connection(self):
         """Test the connection to the hub."""
-        url = "http://{:s}:{:d}/buffstatus.xml".format(self._host, self._port)
+        url = f"http://{self._host}:{self._port}/buffstatus.xml"
         response = await self._reader_writer.async_test_connection(url)
         if not response:
             self.close()
@@ -150,7 +154,7 @@ class HttpTransport(asyncio.Transport):
 
     async def _clear_buffer(self):
         _LOGGER.debug("..................Clearing the buffer..............")
-        url = "http://{:s}:{:d}/1?XB=M=1".format(self._host, self._port)
+        url = f"http://{self._host}:{self._port}/1?XB=M=1"
         await self._async_write_url(url)
 
     # pylint: disable=broad-except
@@ -158,7 +162,7 @@ class HttpTransport(asyncio.Transport):
         _LOGGER.info("Insteon Hub reader started")
         await self._clear_buffer()
         await self._reader_writer.reset_reader()
-        url = "http://{:s}:{:d}/buffstatus.xml".format(self._host, self._port)
+        url = f"http://{self._host}:{self._port}/buffstatus.xml"
         retry = 0
         while not self._closing:
             buffer = None
@@ -191,7 +195,7 @@ class HttpTransport(asyncio.Transport):
         _LOGGER.info("Insteon Hub reader stopped")
 
     def _check_strong_nak(self, buffer):
-        """Check if a NAK message is received with multiple NAKs.
+        """Check if a NAK message is received with multiple `NAKs`.
 
         There appears to be a bug in the Hub that produces a series
         of NAK codes rather than returning the original message
@@ -218,4 +222,5 @@ class HttpTransport(asyncio.Transport):
             self._reader_task.cancel()
             with suppress(asyncio.CancelledError):
                 await self._reader_task
-                await asyncio.sleep(0)
+            await asyncio.sleep(0.01)
+            self._reader_task = None

@@ -11,6 +11,7 @@ from pyinsteon.managers.x10_manager import (
 )
 from pyinsteon.x10_address import create
 from tests import set_log_levels
+from tests.utils import async_case
 
 
 class TestX10AllLightsOnOffManager(unittest.TestCase):
@@ -40,7 +41,8 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
         """Handle Off event."""
         self._off_event = True
 
-    def test_on(self):
+    @async_case
+    async def test_on(self):
         """Test on command."""
         address = create("F", 1)
         topic = "x10_received"
@@ -58,7 +60,8 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
         assert self._on_event
         assert not self._off_event
 
-    def test_off(self):
+    @async_case
+    async def test_off(self):
         """Test off command."""
         address = create("F", 1)
         topic = "x10_received"
@@ -76,7 +79,8 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
         assert not self._on_event
         assert self._off_event
 
-    def test_all_lights_on(self):
+    @async_case
+    async def test_all_lights_on(self):
         """Test all lights on."""
         address = create("C", 5)
         topic = "x10{}.{}".format(
@@ -91,7 +95,8 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
         assert self._on_event
         assert not self._off_event
 
-    def test_all_lights_off(self):
+    @async_case
+    async def test_all_lights_off(self):
         """Test all lights off."""
         # Housecode B unitcode 3
         address = create("B", 3)
@@ -107,7 +112,8 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
         assert not self._on_event
         assert self._off_event
 
-    def test_all_units_off(self):
+    @async_case
+    async def test_all_units_off(self):
         """Test all units off."""
         # Housecode B unitcode 3
         address = create("A", 7)
@@ -119,7 +125,8 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
         pub.sendMessage(topic)
         assert self._last_value == 0x00
 
-    def test_dim(self):
+    @async_case
+    async def test_dim(self):
         """Test dimming."""
         address = create("D", 9)
         topic = f"{address.id}.{str(X10Commands.DIM)}"
@@ -128,7 +135,8 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
         pub.sendMessage(topic)
         assert self._last_value == -1
 
-    def test_brighten(self):
+    @async_case
+    async def test_brighten(self):
         """Test brighten."""
         address = create("D", 9)
         topic = f"{address.id}.{str(X10Commands.BRIGHT)}"

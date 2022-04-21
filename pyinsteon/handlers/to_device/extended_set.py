@@ -1,8 +1,6 @@
 """Handle sending a read request for ALDB records."""
 import logging
 
-from pyinsteon.constants import ResponseStatus
-
 from ...address import Address
 from ...topics import EXTENDED_GET_SET
 from .. import ack_handler
@@ -44,16 +42,11 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
         kwargs = {"data1": self._data1, "data2": self._data2}
         loc = locals()
         for item in range(3, 15):
-            try:
-                data = int(loc["data{}".format(item)])
-            except ValueError:
-                _LOGGER.error("Property value must be an integer: %s", str(item))
-            else:
-                kwargs["data{}".format(item)] = data
+            kwargs[f"data{item}"] = int(loc[f"data{item}"])
         return await super().async_send(priority=5, **kwargs)
 
     @ack_handler
-    def handle_ack(self, cmd1, cmd2, user_data):
+    async def async_handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK."""
         if user_data["d1"] == self._data1 and user_data["d2"] == self._data2:
-            self._message_response.put_nowait(ResponseStatus.SUCCESS)
+            await super().async_handle_ack(cmd1, cmd2, user_data)

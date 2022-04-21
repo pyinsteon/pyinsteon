@@ -2,34 +2,49 @@
 import asyncio
 import logging
 
+import async_timeout
+
+from pyinsteon.constants import AllLinkMode
+
 from ..address import Address
+from ..constants import DeviceAction
 from ..device_types.device_base import Device
 from ..device_types.modem_base import ModemBase
 from ..device_types.x10_base import X10DeviceBase
 from ..managers.saved_devices_manager import SavedDeviceManager
 from ..subscriber_base import SubscriberBase
+from ..topics import DEVICE_LIST_CHANGED
 from ..x10_address import X10Address
 from .device_id_manager import DeviceId, DeviceIdManager
 from .device_link_manager import DeviceLinkManager
+from .link_manager import (
+    async_cancel_linking_mode,
+    async_enter_linking_mode,
+    async_enter_unlinking_mode,
+    async_unlink_devices,
+)
 from .utils import create_device, create_x10_device
 
 DEVICE_INFO_FILE = "insteon_devices.json"
 _LOGGER = logging.getLogger(__name__)
 
 
-# TODO remove devices
 class DeviceManager(SubscriberBase):
     """Manages the list of active devices."""
 
     def __init__(self):
         """Init the DeviceManager class."""
-        super().__init__(subscriber_topic="device_added")
+        super().__init__(subscriber_topic=DEVICE_LIST_CHANGED)
         self._devices = {}
         self._modem = None
         self._id_manager = DeviceIdManager()
-        self._id_manager.subscribe(self._device_identified)
+        self._id_manager.subscribe(self._async_device_identified)
         self._loading_saved_lock = asyncio.Lock()
         self._link_manager = DeviceLinkManager(self)
+
+        self._delay_device_inspection = False
+        self._to_be_inspected = []
+        self._linked_device = asyncio.Queue()
 
     def __getitem__(self, address) -> Device:
         """Return a a device from the device address."""
@@ -46,6 +61,13 @@ class DeviceManager(SubscriberBase):
 
     def __setitem__(self, address, device):
         """Add a device to the device list."""
+        if device is None:
+            _LOGGER.info("Removing device from INSTEON devices list: %s", address.id)
+            if address in self._devices:
+                self._devices.pop(address)
+                self._call_subscribers(address=address.id, action=DeviceAction.REMOVED)
+            return
+
         _LOGGER.info("Adding device to INSTEON devices list: %s", address.id)
         if not isinstance(device, (Device, DeviceId, X10DeviceBase)):
             raise ValueError("Device must be a DeviceId or a Device type.")
@@ -58,7 +80,7 @@ class DeviceManager(SubscriberBase):
             self._id_manager.set_device_id(
                 device.address, device.cat, device.subcat, device.firmware
             )
-        self._call_subscribers(address=device.address.id)
+        self._call_subscribers(address=device.address.id, action=DeviceAction.ADDED)
 
     def __len__(self):
         """Return the number of devices."""
@@ -98,6 +120,34 @@ class DeviceManager(SubscriberBase):
         """Return the ID manager instance."""
         return self._id_manager
 
+    @property
+    def delay_inspection(self):
+        """Return the status of device inspection after identification.
+
+        When a new device is identified the Device Manager will inspect the device
+        for its operating flags, extended properties and All-Link Database automatically
+        by default. Setting this property to `False` will delay device inspection until
+        `inspect_devices` is called.
+
+        """
+        return self._delay_device_inspection
+
+    @delay_inspection.setter
+    def delay_inspection(self, value):
+        """Set the delay inspection property."""
+        self._delay_device_inspection = bool(value)
+
+    @property
+    def unknown_devices(self):
+        """Return a list of addresses where the device type is unknown."""
+        return self._id_manager.unknown_devices
+
+    async def async_inspect_devices(self):
+        """Inspect the properties of the devices who's inspection was delayed ealier."""
+        while self._to_be_inspected:
+            device = self._to_be_inspected.pop()
+            await self.async_setup_device(device)
+
     def set_id(self, address: Address, cat: int, subcat: int, firmware: int):
         """Add a device override to identify the device information.
 
@@ -123,6 +173,78 @@ class DeviceManager(SubscriberBase):
         """
         self._devices.pop(Address(address))
         await self._id_manager.async_id_device(address=address, refresh=True)
+
+    async def async_add_device(self, address: Address = None, multiple: bool = False):
+        """Add one or more devices.
+
+        This command will place the modem in linking mode.
+
+        If an address is entered, it will attempt to place that device in linking mode.
+
+        If multiple is True, the command will continue to place the modem in linking mode until
+        the `async_cancel_add_device` command is executed.
+
+        This command can be canceled at any time with the `async_cancel_add_device` command.
+        """
+
+        if address is not None:
+            address = Address(address)
+
+        self._delay_device_inspection = multiple
+        link_next = True
+        while not self._linked_device.empty():
+            self._linked_device.get_nowait()
+        try:
+            while link_next:
+                await async_enter_linking_mode(
+                    is_controller=True, group=0, address=address
+                )
+                # Make sure we don't try to put the same address in linking mode again if multiple is True
+                address = None
+                async with async_timeout.timeout(3 * 60):
+                    linked_address = await self._linked_device.get()
+                    link_next = multiple and linked_address
+                    yield linked_address
+        except asyncio.TimeoutError:
+            pass
+        finally:
+            await async_cancel_linking_mode()
+            self._call_subscribers(address=None, action=DeviceAction.COMPLETED)
+            if self._delay_device_inspection:
+                self._delay_device_inspection = False
+                asyncio.ensure_future(self.async_inspect_devices())
+
+    async def async_remove_device(self, address: Address = None, force: bool = False):
+        """Remove one or more devices.
+
+        This method will remove all links in the modem were the device is the target and
+        all links in the device where the modem is the target.
+
+        If `force` is `True` this method will not attempt to place the device in unlinking mode.
+        Therefore the device database will not be changed. All modem links to the device will be removed.
+        """
+        if address is not None:
+            address = Address(address)
+
+        while not self._linked_device.empty():
+            self._linked_device.get_nowait()
+        try:
+            await async_enter_unlinking_mode(group=0, address=address)
+            async with async_timeout.timeout(3 * 60):
+                unlinked_address = await self._linked_device.get()
+                if unlinked_address:
+                    await async_unlink_devices(self.modem, unlinked_address)
+                    return unlinked_address
+                return None
+        finally:
+            await async_cancel_linking_mode()
+
+    async def async_cancel_all_linking(self):
+        """Cancel the All-Link process.
+
+        This command takes the modem out of linking mode.
+        """
+        self._linked_device.put_nowait(False)
 
     def add_x10_device(
         self,
@@ -194,29 +316,72 @@ class DeviceManager(SubscriberBase):
         saved_devices_manager = SavedDeviceManager(workdir, self.modem)
         await saved_devices_manager.async_save(self._devices)
 
-    def _device_identified(self, device_id: DeviceId):
-        """Device identified by device ID manager."""
-        if self._loading_saved_lock.locked():
-            return
-        if device_id.cat is not None:
-            device = create_device(device_id)
-            if self[device_id.address]:
-                # If the device is already in the devices list and the cat and subcat
-                # are the same, do not add the device again
-                if (
-                    device_id.cat == self[device_id.address].cat
-                    and device_id.subcat == self._devices[device_id.address].subcat
-                ):
-                    return
-            self[device_id.address] = device
-            if device_id.cat != 0x03:
-                asyncio.ensure_future(device.async_get_engine_version())
-                asyncio.ensure_future(self.async_setup_device(device))
-            _LOGGER.debug("Device %s added", device.address)
+    # Move this to a Device method rather than a device_manager method
+    # pylint: disable=no-self-use
+    async def async_setup_device(self, device: Device):
+        """Set up device.
 
-    async def async_setup_device(self, device):
-        """Set up device."""
+        This includes:
+            Loading the All-Link Database
+            Reading the Operatig Flags
+            Reading the Extended Properties
+            Setting up the default links
+        """
+        await device.async_get_engine_version()
         await device.aldb.async_load(refresh=True)
         await device.async_read_op_flags()
         await device.async_read_ext_properties()
         await device.async_add_default_links()
+
+    async def _async_device_identified(
+        self, device_id: DeviceId, link_mode: AllLinkMode
+    ):
+        """Device identified by device ID manager."""
+        if self._loading_saved_lock.locked():
+            return
+
+        device = self._devices.get(device_id.address)
+        if (
+            device
+            and device.cat == device_id.cat
+            and device.subcat == device_id.subcat
+            and device.firmware == device_id.firmware
+        ):
+            return
+
+        self._linked_device.put_nowait(device_id.address)
+
+        if link_mode == AllLinkMode.DELETE:
+            _LOGGER.debug("Device %s removed", str(device_id.address))
+            self[device_id.address] = None
+            return
+
+        if device_id.cat is not None:  # How could this be None?
+            if (
+                self[device_id.address]
+                and device_id.cat == self[device_id.address].cat
+                and device_id.subcat == self._devices[device_id.address].subcat
+            ):
+                return
+
+            device = create_device(device_id)
+            self[device_id.address] = device
+            if device_id.cat != 0x03:
+                if self._delay_device_inspection:
+                    self._to_be_inspected.append(device)
+                else:
+                    await self.async_setup_device(device)
+            _LOGGER.debug("Device %s added", str(device.address))
+
+    async def _async_remove_all_device_links(self, address: Address):
+        """Remove all ALDB records from the device to the modem.
+
+        This does not remove the modem as a controller to group 0.
+        That is removed via All-Linking.
+        """
+        if self._devices.get(address) is None:
+            return
+        for rec in self[address].aldb.find(target=self.modem.address, in_use=True):
+            if rec.group != 0 or rec.is_controller:  # do not process group 0 responder
+                self[address].aldb.modify(mem_addr=rec.mem_addr, in_use=False)
+        await self[address].aldb.async_write()

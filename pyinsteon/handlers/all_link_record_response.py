@@ -4,7 +4,7 @@ import logging
 
 from ..address import Address
 from ..constants import AllLinkMode
-from ..protocol.messages.all_link_record_flags import AllLinkRecordFlags
+from ..data_types.all_link_record_flags import AllLinkRecordFlags
 from ..topics import ALL_LINK_RECORD_RESPONSE
 from . import inbound_handler
 from .inbound_base import InboundHandlerBase
@@ -42,7 +42,7 @@ class AllLinkRecordResponseHandler(InboundHandlerBase):
         data3: int,
     ):
         """Recieve an all link record."""
-        controller = flags.mode == AllLinkMode.CONTROLLER
+        controller = flags.link_mode == AllLinkMode.CONTROLLER
         self._call_subscribers(
             in_use=flags.is_in_use,
             high_water_mark=flags.is_hwm,

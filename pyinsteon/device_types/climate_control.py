@@ -4,9 +4,21 @@ from datetime import datetime
 
 from ..aldb import ALDB
 from ..aldb.aldb_battery import ALDBBattery
+from ..config import (
+    BACKLIGHT,
+    BUTTON_LOCK_ON,
+    CELSIUS,
+    CHANGE_DELAY,
+    HUMIDITY_OFFSET,
+    KEY_BEEP_ON,
+    LED_ON,
+    PROGRAM_LOCK_ON,
+    TEMP_OFFSET,
+    TIME_24_HOUR_FORMAT,
+    get_usable_value,
+)
 from ..constants import ResponseStatus
 from ..default_link import DefaultLink
-from ..extended_property import BACKLIGHT, CHANGE_DELAY, HUMIDITY_OFFSET, TEMP_OFFSET
 from ..groups import (
     COOL_SET_POINT,
     COOLING,
@@ -43,16 +55,9 @@ from ..handlers.to_device.extended_set_2 import ExtendedSet2Command
 from ..handlers.to_device.thermostat_cool_set_point import ThermostatCoolSetPointCommand
 from ..handlers.to_device.thermostat_heat_set_point import ThermostatHeatSetPointCommand
 from ..handlers.to_device.thermostat_mode import ThermostatModeCommand
+from ..managers.link_manager.default_links import async_add_default_links
 from ..managers.on_level_manager import OnLevelManager
 from ..managers.thermostat_status_manager import GetThermostatStatus
-from ..operating_flag import (
-    BUTTON_LOCK_ON,
-    CELSIUS,
-    KEY_BEEP_ON,
-    LED_ON,
-    PROGRAM_LOCK_ON,
-    TIME_24_HOUR_FORMAT,
-)
 from ..utils import multiple_status, set_bit, to_fahrenheit
 from .battery_base import BatteryDeviceBase
 from .device_base import Device
@@ -124,9 +129,9 @@ class ClimateControl_Thermostat(Device):
             self._groups[GRP_HUMID_LO_SP].value = humidity
         return cmd_status
 
-    async def async_set_mode(self, mode):
+    async def async_set_mode(self, thermostat_mode):
         """Set the thermastat mode."""
-        return await self._handlers["mode_command"].async_send(mode)
+        return await self._handlers["mode_command"].async_send(thermostat_mode)
 
     async def async_set_master(self, master):
         """Set the thermastat master mode."""
@@ -154,23 +159,21 @@ class ClimateControl_Thermostat(Device):
     async def async_write_op_flags(self):
         """Write the operating flags to the device."""
         flags = 0x00
-        for flag_name in self._ext_property_manager.flag_info:
-            flag_info = self._ext_property_manager.flag_info[flag_name]
+        for flag_name, flag_info in self._ext_property_manager.flag_info:
             if flag_info.data_field == OP_FLAG_POS:
                 flag = self.properties[flag_name]
-                value = flag.new_value if flag.is_dirty else flag.value
+                value = get_usable_value(flag)
                 flags = set_bit(flags, flag_info.bit, bool(value))
         result = await self._handlers["op_flag_write"].async_send(data4=flags)
         if result == ResponseStatus.SUCCESS:
-            for flag_name in self._ext_property_manager.flag_info:
-                flag_info = self._ext_property_manager.flag_info[flag_name]
+            for flag_name, flag_info in self._ext_property_manager.flag_info.items():
                 if flag_info.data_field == OP_FLAG_POS:
                     flag = self.properties[flag_name]
                     if flag.is_dirty:
                         flag.load(flag.new_value)
         return result
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
         """Register thermostat operating flags."""
         self._add_property(PROGRAM_LOCK_ON, OP_FLAG_POS, None, 0, 0)
         self._add_property(KEY_BEEP_ON, OP_FLAG_POS, None, 0, 1)
@@ -412,9 +415,9 @@ class ClimateControl_Thermostat(Device):
         """Receive temperature status update and convert to celsius if needed."""
         self._groups[GRP_TEMP].value = degrees
 
-    def _temp_format_changed(self, name, value):
+    async def _async_temp_format_changed(self, name, value):
         """Recieve notification that the thermostat has changed to/from C/F."""
-        self.status()
+        await self.async_status()
 
     def _temp_format_first_set(self, name, value):
         """Set up the trigger for a temperature format change.
@@ -424,7 +427,7 @@ class ClimateControl_Thermostat(Device):
         measurements from F to C or vise versa.
         """
         self._properties[CELSIUS].unsubscribe(self._temp_format_first_set)
-        self._properties[CELSIUS].unsubscribe(self._temp_format_changed)
+        self._properties[CELSIUS].unsubscribe(self._async_temp_format_changed)
 
 
 class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermostat):
@@ -465,10 +468,11 @@ class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermo
             super(BatteryDeviceBase, self).async_set_master, master=master
         )
 
-    async def async_set_mode(self, mode):
+    async def async_set_mode(self, thermostat_mode):
         """Set the thermastat mode."""
         return self._run_on_wake(
-            super(BatteryDeviceBase, self).async_set_mode, mode=mode
+            super(BatteryDeviceBase, self).async_set_mode,
+            thermostat_mode=thermostat_mode,
         )
 
     async def async_set_notify_changes(self):
@@ -494,3 +498,26 @@ class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermo
             super(BatteryDeviceBase, self).async_set_heat_set_point,
             temperature=temperature,
         )
+
+    async def async_add_default_links(self):
+        """Add default links to the device."""
+        self._run_on_wake(self.async_add_default_links_on_wake)
+
+    async def async_add_default_links_on_wake(self):
+        """Add default links to the device when the device wakes up."""
+        aldb_write_save = self.aldb.async_write
+        aldb_load_save = self.aldb.async_load
+        self.aldb.async_write = self.aldb.async_write_on_wake
+        self.aldb.async_load = self.aldb.async_load_on_wake
+
+        result_links = ResponseStatus.FAILURE
+        result_notify = ResponseStatus.FAILURE
+
+        try:
+            result_links = await async_add_default_links(self)
+            result_notify = await super().async_set_notify_changes()
+        finally:
+            self.aldb.async_write = aldb_write_save
+            self.aldb.async_load = aldb_load_save
+
+        return multiple_status(result_links, result_notify)

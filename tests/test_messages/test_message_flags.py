@@ -2,7 +2,7 @@
 import unittest
 
 from pyinsteon.constants import MessageFlagType
-from pyinsteon.protocol.messages.message_flags import MessageFlags, create
+from pyinsteon.data_types.message_flags import MessageFlags
 from tests import set_log_levels
 
 
@@ -34,7 +34,7 @@ class TestMessageFlags(unittest.TestCase):
         self.assigned_hops.hops_left = 2
         self.assigned_hops.max_hops = 3
 
-        self.create = create(MessageFlagType.ALL_LINK_CLEANUP, True, 3, 2)
+        self.create = MessageFlags.create(MessageFlagType.ALL_LINK_CLEANUP, True, 3, 2)
         set_log_levels(
             logger="info",
             logger_pyinsteon="info",

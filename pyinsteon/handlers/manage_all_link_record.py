@@ -1,9 +1,10 @@
 """Command handler for message ID 0x6f Manage All-Link Record."""
+
 from ..address import Address
-from ..constants import ManageAllLinkRecordAction
-from ..protocol.messages.all_link_record_flags import create
+from ..constants import ManageAllLinkRecordAction, ResponseStatus
+from ..data_types.all_link_record_flags import AllLinkRecordFlags
 from ..topics import MANAGE_ALL_LINK_RECORD
-from . import nak_handler
+from . import ack_handler, nak_handler
 from .outbound_base import OutboundHandlerBase
 
 
@@ -30,7 +31,7 @@ class ManageAllLinkRecordCommand(OutboundHandlerBase):
         bit4: bool = False,
     ):
         """Send Manage All-Link Record command."""
-        flags = create(
+        flags = AllLinkRecordFlags.create(
             in_use=in_use,
             controller=controller,
             hwm=high_water_mark,
@@ -47,6 +48,12 @@ class ManageAllLinkRecordCommand(OutboundHandlerBase):
             data3=data3,
         )
 
+    @ack_handler
+    async def async_handle_ack(self, action, flags, group, target, data1, data2, data3):
+        """Handle ACK response."""
+        await super().async_handle_ack()
+
     @nak_handler
-    def handle_nak(self, action, flags, group, target, data1, data2, data3):
+    async def async_handle_nak(self, action, flags, group, target, data1, data2, data3):
         """Handle NAK response."""
+        await self._message_response.put(ResponseStatus.FAILURE)

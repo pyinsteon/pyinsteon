@@ -2,12 +2,15 @@
 import unittest
 from binascii import unhexlify
 
+from pyinsteon import pub
 from pyinsteon.constants import MessageId
-from pyinsteon.protocol.messages.im_config_flags import IMConfigurationFlags
+from pyinsteon.data_types.im_config_flags import IMConfigurationFlags
+
 # pylint: disable=unused-import
-from pyinsteon.protocol.messages.outbound import set_im_configuration
+from pyinsteon.protocol.messages.outbound import set_im_configuration  # noqa: F401
 from tests import set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
+from tests.utils import async_case
 
 
 class TestSetImConfiguration(unittest.TestCase, OutboundBase):
@@ -37,8 +40,10 @@ class TestSetImConfiguration(unittest.TestCase, OutboundBase):
             logger_topics=False,
         )
 
-    def test_flags(self):
+    @async_case
+    async def test_flags(self):
         """Test flags."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.flags == self.flags
 
 

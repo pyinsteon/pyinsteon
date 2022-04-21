@@ -16,7 +16,7 @@ class GroupBase(SubscriberBase):
     ):
         """Init the StateBase class."""
         self._address = address
-        topic = "state_{}_{}_{}".format(self._address.id, name, group)
+        topic = f"state_{self._address.id}_{name}_{group}"
         super().__init__(subscriber_topic=topic)
         self._name = name
         self._group = group
@@ -48,8 +48,8 @@ class GroupBase(SubscriberBase):
             self._value = value
         except TypeError:
             raise TypeError(
-                "Error setting value of State {}: "
-                "Must be of type {}".format(self._name, self._type.__name__)
+                f"Error setting value of State {self._name}: "
+                f"Must be of type {self._type.__name__}"
             )
         else:
             self._call_subscribers(
@@ -62,3 +62,4 @@ class GroupBase(SubscriberBase):
     @abstractmethod
     def set_value(self, **kwargs):
         """Set the value of the state from a Handler."""
+        raise NotImplementedError

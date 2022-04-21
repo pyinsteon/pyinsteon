@@ -4,10 +4,10 @@ import unittest
 
 from pyinsteon.address import Address
 from pyinsteon.commands import EXTENDED_GET_RESPONSE, EXTENDED_GET_SET
+from pyinsteon.data_types.user_data import UserData
 from pyinsteon.managers.get_set_ext_property_manager import (
     GetSetExtendedPropertyManager,
 )
-from pyinsteon.protocol.messages.user_data import UserData
 from pyinsteon.utils import build_topic
 from tests import set_log_levels
 from tests.utils import TopicItem, async_case, cmd_kwargs, send_topics
@@ -37,7 +37,6 @@ class TestExtendedPropertyManager(unittest.TestCase):
         """Set up the test."""
         self._address = Address("010203")
         self._properties = {}
-        self._epm = GetSetExtendedPropertyManager(self._address)
         set_log_levels(
             logger="info",
             logger_pyinsteon="info",
@@ -49,6 +48,7 @@ class TestExtendedPropertyManager(unittest.TestCase):
     async def test_data_update(self):
         """Test data updates."""
 
+        self._epm = GetSetExtendedPropertyManager(self._address)
         self._properties["prop3"] = self._epm.create("prop3", 1, 3, None, None)
         self._properties["prop4"] = self._epm.create("prop4", 1, 4, None, None)
         self._properties["prop5"] = self._epm.create("prop5", 1, 5, None, None)

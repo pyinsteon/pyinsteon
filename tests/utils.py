@@ -2,6 +2,7 @@
 import asyncio
 from binascii import unhexlify
 from collections import namedtuple
+from io import StringIO
 
 try:
     from contextlib import asynccontextmanager
@@ -45,8 +46,7 @@ def async_case(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         future = func(*args, **kwargs)
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(future)
+        asyncio.run(future)
 
     return wrapper
 
@@ -83,7 +83,7 @@ def send_data(data_items, queue):
 
 def create_std_ext_msg(address, flags, cmd1, cmd2, user_data=None, target=None, ack=0):
     """Create a standard or extended message."""
-    from pyinsteon.protocol.messages.user_data import UserData
+    from pyinsteon.data_types.user_data import UserData
 
     address = Address(address)
     data = bytearray()
@@ -164,32 +164,80 @@ MAX_LOCK = 60
 
 
 @asynccontextmanager
-async def async_protocol_manager():
+async def async_protocol_manager(
+    connect_method=None,
+    read_queue=None,
+    write_queue=None,
+    random_nak=False,
+    auto_ack=True,
+    connect=True,
+    retry=True,
+    retries=None,
+    **kwargs,
+):
     """Manage the protocol to ensure a single instance."""
     async with PROTOCOL_LOCK:
-        protocol = await async_create_protocol()
+        protocol = await async_create_protocol(
+            connect_method=connect_method,
+            read_queue=read_queue,
+            write_queue=write_queue,
+            random_nak=random_nak,
+            auto_ack=auto_ack,
+            connect=connect,
+            retry=retry,
+            retries=retries,
+            **kwargs,
+        )
         try:
             yield protocol
         finally:
             await async_release_protocol(protocol)
+            await asyncio.sleep(0.1)
 
 
-async def async_create_protocol():
+async def async_create_protocol(
+    connect_method=None,
+    read_queue=None,
+    write_queue=None,
+    random_nak=False,
+    auto_ack=True,
+    connect=True,
+    retry=True,
+    retries=None,
+    **kwargs,
+):
     """Create a protocol using a mock transport.
 
     Need to ensure only one protocol is available at a time.
     """
     pyinsteon.protocol.protocol.WRITE_WAIT = 0.01
-    read_queue = asyncio.Queue()
-    write_queue = asyncio.Queue()
-    connect_method = partial(
-        async_connect_mock,
-        read_queue=read_queue,
-        write_queue=write_queue,
-        random_nak=False,
+    mock_connect = connect_method is None
+    connect_method = async_connect_mock if connect_method is None else connect_method
+    read_queue = asyncio.Queue() if read_queue is None else read_queue
+    write_queue = asyncio.Queue() if write_queue is None else write_queue
+    if not retry:
+        retries = [1]
+    if mock_connect:
+        partial_connect_method = partial(
+            connect_method,
+            read_queue=read_queue,
+            write_queue=write_queue,
+            random_nak=random_nak,
+            auto_ack=auto_ack,
+            connect=connect,
+            retries=retries,
+        )
+    else:
+        partial_connect_method = partial(connect_method, **kwargs)
+    protocol = pyinsteon.protocol.protocol.Protocol(
+        connect_method=partial_connect_method
     )
-    protocol = pyinsteon.protocol.protocol.Protocol(connect_method=connect_method)
-    await protocol.async_connect()
+    try:
+        await protocol.async_connect(retry=retry)
+    except ConnectionError as ex:
+        await async_release_protocol(protocol)
+        await asyncio.sleep(0.01)
+        raise ex
     protocol.read_queue = read_queue
     protocol.write_queue = write_queue
     return protocol
@@ -198,6 +246,97 @@ async def async_create_protocol():
 async def async_release_protocol(protocol):
     """Close the protocol and release subscriptions."""
     protocol.close()
-    await asyncio.sleep(0.1)
+    await asyncio.sleep(0.3)
     pub.unsubAll("send")
-    pub.unsubAll("send_message")
+
+
+class MockHttpResponse:
+    """Mock HTTP response class."""
+
+    status = 200
+    buffer = None
+
+    @classmethod
+    async def text(cls):
+        """Return the HTML text."""
+        return cls.buffer
+
+
+class MockHttpClientSession:
+    """Mock the ClientSession class."""
+
+    def __init__(self, *arg, **kwargs):
+        """Init the MockHttpClientSession class."""
+        self.exception_to_throw = None
+        self.buffer = None
+        self.response = MockHttpResponse()
+
+    @asynccontextmanager
+    async def get(self, url):
+        """Mock the get function."""
+        if self.exception_to_throw is not None:
+            raise self.exception_to_throw
+        yield self.response
+
+    @asynccontextmanager
+    async def post(self, url):
+        """Mock the post function."""
+        if self.exception_to_throw is not None:
+            raise self.exception_to_throw
+        yield self.response
+
+    async def close(self):
+        """Close the mock connection."""
+
+
+@asynccontextmanager
+async def create_mock_http_client(
+    *args, status=200, exception_error=None, buffer=None, **kwargs
+):
+    """Create a mock HTTP client."""
+    mock_client = MockHttpClientSession()
+    mock_client.response.status = status
+    mock_client.exception_to_throw = exception_error
+    mock_client.response.buffer = buffer
+    yield mock_client
+
+
+class MockSerial:
+    """Mock serial connection."""
+
+    def __init__(self):
+        """Init the MockSerial class."""
+        self.kwargs = None
+        self.call_count = 0
+        self.iostream = StringIO()
+        self.serial_for_url_exception = None
+        self.write_exception = None
+        self.msg = None
+
+    def serial_for_url(self, *args, **kwargs):
+        """Mock the serial_for_url method."""
+        self.call_count += 1
+        self.kwargs = kwargs
+        if self.serial_for_url_exception:
+            raise self.serial_for_url_exception
+        return self
+
+    def read(self, *args, **kwargs):
+        """Mock the read method."""
+        return 0
+
+    def write(self, data):
+        """Mock the write method."""
+        if self.write_exception:
+            raise self.write_exception
+        self.msg = data
+
+    def close(self, *args, **kwargs):
+        """Mock the close method."""
+
+    def flush(self, *args, **kwargs):
+        """Mock the flush method."""
+
+    def fileno(self):
+        """Return a fileno."""
+        return 1

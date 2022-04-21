@@ -12,11 +12,11 @@ from ...constants import (
     MessageId,
     X10CommandType,
 )
-from .all_link_record_flags import AllLinkRecordFlags
-from .im_config_flags import IMConfigurationFlags
+from ...data_types.all_link_record_flags import AllLinkRecordFlags
+from ...data_types.im_config_flags import IMConfigurationFlags
+from ...data_types.message_flags import MessageFlags
+from ...data_types.user_data import UserData
 from .message_definition import MessageDefinition
-from .message_flags import MessageFlags
-from .user_data import UserData
 
 MessageField = namedtuple("MessageField", "name length type")
 
@@ -46,7 +46,7 @@ FLD_X10_SEND_REC_ACK.append(MessageField("ack", 1, AckNak))
 
 # ALL-Linking Completed 0x53
 FLD_ALL_LINK_COMPLETE = [
-    MessageField("mode", 1, AllLinkMode),
+    MessageField("link_mode", 1, AllLinkMode),
     MessageField("group", 1, int),
     MessageField("target", 3, Address),
     MessageField("cat", 1, DeviceCategory),
@@ -78,8 +78,19 @@ FLD_ALL_LINK_RECORD_RESP = [
 ]
 
 # All-Link Cleanup Status Report 0x58
-FLD_ALL_LINK_CLEANUP_REPORT = []
 FLD_ALL_LINK_CLEANUP_REPORT_ACK = [MessageField("ack", 1, AckNak)]
+
+# Read from EEPROM Response 0x59
+FLD_READ_EEPROM_RESPONSE = [
+    MessageField("mem_hi", 1, int),
+    MessageField("mem_low", 1, int),
+    MessageField("flags", 1, AllLinkRecordFlags),
+    MessageField("group", 1, int),
+    MessageField("target", 3, Address),
+    MessageField("data1", 1, int),
+    MessageField("data2", 1, int),
+    MessageField("data3", 1, int),
+]
 
 # Get IM Info 0x60
 FLD_GET_IM_INFO_SEND = []
@@ -120,7 +131,7 @@ FLD_EXT_SEND_ACK.append(MessageField("ack", 1, AckNak))
 
 # Start All-Linking 0x64
 FLD_START_ALL_LINKING = [
-    MessageField("mode", 1, AllLinkMode),
+    MessageField("link_mode", 1, AllLinkMode),
     MessageField("group", 1, int),
 ]
 FLD_START_ALL_LINKING_ACK = FLD_START_ALL_LINKING.copy()
@@ -131,13 +142,13 @@ FLD_CANCEL_ALL_LINKING = []
 FLD_CANCEL_ALL_LINKING_ACK = [MessageField("ack", 1, AckNak)]
 
 # Set Host Device Category 0x66
-FLD_SET_HOST_DEV_CAT = [
+FLD_SET_HOST_DEVICE_CATEGORY = [
     MessageField("cat", 1, DeviceCategory),
     MessageField("subcat", 1, int),
     MessageField("firmware", 1, int),
 ]
-FLD_SET_HOST_DEV_CAT_ACK = FLD_SET_HOST_DEV_CAT.copy()
-FLD_SET_HOST_DEV_CAT_ACK.append(MessageField("ack", 1, AckNak))
+FLD_SET_HOST_DEVICE_CATEGORY_ACK = FLD_SET_HOST_DEVICE_CATEGORY.copy()
+FLD_SET_HOST_DEVICE_CATEGORY_ACK.append(MessageField("ack", 1, AckNak))
 
 # Reset the IM 0x67
 FLD_RESET_IM = []
@@ -201,6 +212,35 @@ FLD_GET_IM_CONFIG_ACK = [
     MessageField("ack", 1, AckNak),
 ]
 
+FLD_GET_IM_CONFIG_ACK = [
+    MessageField("flags", 1, IMConfigurationFlags),
+    MessageField("spare1", 1, int),
+    MessageField("spare2", 1, int),
+    MessageField("ack", 1, AckNak),
+]
+
+# Get IM Configuration 0x75
+FLD_READ_EEPROM = [
+    MessageField("mem_hi", 1, int),
+    MessageField("mem_low", 1, int),
+]
+FLD_READ_EEPROM_ACK = FLD_READ_EEPROM.copy()
+FLD_READ_EEPROM_ACK.append(MessageField("ack", 1, AckNak))
+
+# Write to EEPROM 0x76
+FLD_WRITE_EEPROM = [
+    MessageField("mem_hi", 1, int),
+    MessageField("mem_low", 1, int),
+    MessageField("flags", 1, AllLinkRecordFlags),
+    MessageField("group", 1, int),
+    MessageField("target", 3, Address),
+    MessageField("data1", 1, int),
+    MessageField("data2", 1, int),
+    MessageField("data3", 1, int),
+]
+FLD_WRITE_EEPROM_ACK = FLD_WRITE_EEPROM.copy()
+FLD_WRITE_EEPROM_ACK.append(MessageField("ack", 1, AckNak))
+
 INBOUND_MSG_DEF = {}
 INBOUND_MSG_DEF[MessageId.STANDARD_RECEIVED] = MessageDefinition(
     MessageId.STANDARD_RECEIVED, FLD_STD_REC
@@ -229,6 +269,9 @@ INBOUND_MSG_DEF[MessageId.ALL_LINK_RECORD_RESPONSE] = MessageDefinition(
 INBOUND_MSG_DEF[MessageId.ALL_LINK_CLEANUP_STATUS_REPORT] = MessageDefinition(
     MessageId.ALL_LINK_CLEANUP_STATUS_REPORT, FLD_ALL_LINK_CLEANUP_REPORT_ACK
 )
+INBOUND_MSG_DEF[MessageId.READ_EEPROM_RESPONSE] = MessageDefinition(
+    MessageId.READ_EEPROM_RESPONSE, FLD_READ_EEPROM_RESPONSE
+)
 INBOUND_MSG_DEF[MessageId.GET_IM_INFO] = MessageDefinition(
     MessageId.GET_IM_INFO, FLD_GET_IM_INFO_REC
 )
@@ -247,8 +290,8 @@ INBOUND_MSG_DEF[MessageId.START_ALL_LINKING] = MessageDefinition(
 INBOUND_MSG_DEF[MessageId.CANCEL_ALL_LINKING] = MessageDefinition(
     MessageId.CANCEL_ALL_LINKING, FLD_CANCEL_ALL_LINKING_ACK
 )
-INBOUND_MSG_DEF[MessageId.SET_HOST_DEV_CAT] = MessageDefinition(
-    MessageId.SET_HOST_DEV_CAT, FLD_SET_HOST_DEV_CAT_ACK
+INBOUND_MSG_DEF[MessageId.SET_HOST_DEVICE_CATEGORY] = MessageDefinition(
+    MessageId.SET_HOST_DEVICE_CATEGORY, FLD_SET_HOST_DEVICE_CATEGORY_ACK
 )
 INBOUND_MSG_DEF[MessageId.RESET_IM] = MessageDefinition(
     MessageId.RESET_IM, FLD_RESET_IM_ACK
@@ -289,11 +332,14 @@ INBOUND_MSG_DEF[MessageId.RF_SLEEP] = MessageDefinition(
 INBOUND_MSG_DEF[MessageId.GET_IM_CONFIGURATION] = MessageDefinition(
     MessageId.GET_IM_CONFIGURATION, FLD_GET_IM_CONFIG_ACK
 )
+INBOUND_MSG_DEF[MessageId.READ_EEPROM] = MessageDefinition(
+    MessageId.READ_EEPROM, FLD_READ_EEPROM_ACK
+)
+INBOUND_MSG_DEF[MessageId.WRITE_EEPROM] = MessageDefinition(
+    MessageId.WRITE_EEPROM, FLD_WRITE_EEPROM_ACK
+)
 
 OUTBOUND_MSG_DEF = {}
-OUTBOUND_MSG_DEF[MessageId.ALL_LINK_CLEANUP_STATUS_REPORT] = MessageDefinition(
-    MessageId.ALL_LINK_CLEANUP_STATUS_REPORT, FLD_ALL_LINK_CLEANUP_REPORT
-)
 OUTBOUND_MSG_DEF[MessageId.GET_IM_INFO] = MessageDefinition(
     MessageId.GET_IM_INFO, FLD_GET_IM_INFO_SEND
 )
@@ -312,8 +358,8 @@ OUTBOUND_MSG_DEF[MessageId.START_ALL_LINKING] = MessageDefinition(
 OUTBOUND_MSG_DEF[MessageId.CANCEL_ALL_LINKING] = MessageDefinition(
     MessageId.CANCEL_ALL_LINKING, FLD_CANCEL_ALL_LINKING
 )
-OUTBOUND_MSG_DEF[MessageId.SET_HOST_DEV_CAT] = MessageDefinition(
-    MessageId.SET_HOST_DEV_CAT, FLD_SET_HOST_DEV_CAT
+OUTBOUND_MSG_DEF[MessageId.SET_HOST_DEVICE_CATEGORY] = MessageDefinition(
+    MessageId.SET_HOST_DEVICE_CATEGORY, FLD_SET_HOST_DEVICE_CATEGORY
 )
 OUTBOUND_MSG_DEF[MessageId.RESET_IM] = MessageDefinition(
     MessageId.RESET_IM, FLD_RESET_IM
@@ -351,4 +397,12 @@ OUTBOUND_MSG_DEF[MessageId.RF_SLEEP] = MessageDefinition(
 )
 OUTBOUND_MSG_DEF[MessageId.GET_IM_CONFIGURATION] = MessageDefinition(
     MessageId.GET_IM_CONFIGURATION, FLD_GET_IM_CONFIG
+)
+
+OUTBOUND_MSG_DEF[MessageId.READ_EEPROM] = MessageDefinition(
+    MessageId.READ_EEPROM, FLD_READ_EEPROM
+)
+
+OUTBOUND_MSG_DEF[MessageId.WRITE_EEPROM] = MessageDefinition(
+    MessageId.WRITE_EEPROM, FLD_WRITE_EEPROM
 )

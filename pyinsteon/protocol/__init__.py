@@ -3,6 +3,8 @@ import asyncio
 import logging
 from functools import partial
 
+from pyinsteon.constants import ResponseStatus
+
 from ..handlers.get_im_info import GetImInfoHandler
 from ..managers.device_id_manager import DeviceId
 from ..managers.utils import create_device
@@ -40,9 +42,9 @@ async def async_modem_connect(
     async def async_test_device_id():
         """Test if the device ID is set."""
         nonlocal device_id
-        retries = 120
+        retries = 10
         while device_id is None and retries:
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(0.1)
             if device_id is not None:
                 return True
             retries -= 1
@@ -50,7 +52,7 @@ async def async_modem_connect(
 
     transport = None
     if not device and not host:
-        return ValueError("Must specify either a device or a host")
+        raise ValueError("Must specify either a device or a host")
 
     if device:
         connect_method = partial(async_connect_serial, **{"device": device})
@@ -74,10 +76,17 @@ async def async_modem_connect(
 
     get_im_info = GetImInfoHandler()
     get_im_info.subscribe(set_im_info)
-    await get_im_info.async_send()
+    retries = 5
+    result = None
+    while retries and result != ResponseStatus.SUCCESS:
+        await asyncio.sleep(1)
+        result = await get_im_info.async_send()
+        retries -= 1
+
     # Wait for a max of 60 seconds for the modem to respond
     if device_id is None and not await async_test_device_id():
         raise ConnectionError("Modem did not respond to ID request")
+
     modem = create_device(device_id)
     modem.protocol = protocol
     modem.transport = transport

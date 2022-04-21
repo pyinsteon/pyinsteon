@@ -2,18 +2,35 @@
 from functools import partial
 from typing import Iterable
 
-from ..constants import ResponseStatus
-from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
-from ..extended_property import (
+from ..config import (
+    DUAL_LINE_ON,
+    KEY_BEEP_ON,
+    LED_BLINK_ON_ERROR_OFF,
+    LED_BLINK_ON_ERROR_ON,
+    LED_BLINK_ON_TX_ON,
     LED_DIMMING,
+    LED_OFF,
+    MOMENTARY_LINE_ON,
     NON_TOGGLE_MASK,
     NON_TOGGLE_ON_OFF_MASK,
     OFF_MASK,
     ON_MASK,
+    POWERLINE_DISABLE_ON,
+    PROGRAM_LOCK_ON,
+    RADIO_BUTTON_GROUPS,
+    RESUME_DIM_ON,
+    REVERSED_ON,
+    RF_DISABLE_ON,
+    THREE_WAY_ON,
+    TOGGLE_BUTTON,
     TRIGGER_GROUP_MASK,
     X10_HOUSE,
     X10_UNIT,
 )
+from ..config.radio_button import RadioButtonGroupsProperty
+from ..config.toggle_button import ToggleButtonProperty
+from ..constants import PropertyType, ResponseStatus, ToggleMode
+from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..groups import (
     ON_OFF_OUTLET_BOTTOM,
     ON_OFF_OUTLET_TOP,
@@ -31,21 +48,6 @@ from ..groups import (
 from ..groups.on_off import OnOff
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
-from ..operating_flag import (
-    DUAL_LINE_ON,
-    KEY_BEEP_ON,
-    LED_BLINK_ON_ERROR_OFF,
-    LED_BLINK_ON_ERROR_ON,
-    LED_BLINK_ON_TX_ON,
-    LED_OFF,
-    MOMENTARY_LINE_ON,
-    POWERLINE_DISABLE_ON,
-    PROGRAM_LOCK_ON,
-    RESUME_DIM_ON,
-    REVERSED_ON,
-    RF_DISABLE_ON,
-    THREE_WAY_ON,
-)
 from ..utils import bit_is_set, multiple_status, set_bit
 from .device_commands import GET_LEDS_COMMAND, SET_LEDS_COMMAND, STATUS_COMMAND
 from .on_off_controller_base import ON_LEVEL_MANAGER
@@ -90,8 +92,8 @@ class SwitchedLightingControl(OnOffResponderBase):
 class SwitchedLightingControl_ApplianceLinc(SwitchedLightingControl):
     """ApplianceLinc based dimmable lights."""
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
@@ -100,8 +102,8 @@ class SwitchedLightingControl_ApplianceLinc(SwitchedLightingControl):
 class SwitchedLightingControl_SwitchLinc(SwitchedLightingControl):
     """SwichLinc based dimmable lights."""
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
@@ -110,23 +112,23 @@ class SwitchedLightingControl_SwitchLinc(SwitchedLightingControl):
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
 
         self._add_property(LED_DIMMING, 3, 3)
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
 
 
 class SwitchedLightingControl_ToggleLinc(SwitchedLightingControl):
     """ToggleLinc based on/off lights."""
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
 
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
 
 
 class SwitchedLightingControl_InLineLinc(SwitchedLightingControl_SwitchLinc):
@@ -136,21 +138,21 @@ class SwitchedLightingControl_InLineLinc(SwitchedLightingControl_SwitchLinc):
 class SwitchedLightingControl_OutletLinc(SwitchedLightingControl):
     """OutletLinc based dimmable lights."""
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
 
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
 
 
 class SwitchedLightingControl_Micro(SwitchedLightingControl):
     """Micro switch based dimmable lights."""
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
@@ -167,16 +169,16 @@ class SwitchedLightingControl_Micro(SwitchedLightingControl):
 class SwitchedLightingControl_DinRail(SwitchedLightingControl):
     """DINRail based dimmable lights."""
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
 
         self._add_property(LED_DIMMING, 3, 3)
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
 
 
 class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
@@ -281,7 +283,9 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
               link to the other button.
 
         """
-        other_buttons = [button for button in range(1, 9) if button not in buttons]
+        other_buttons = [
+            button for button in self._buttons if button not in buttons and button != 1
+        ]
         addl_buttons = []
         for other_button in other_buttons:
             button_str = f"_{other_button}" if other_button != 1 else ""
@@ -325,20 +329,25 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
                 else:
                     off_mask.new_value = set_bit(off_mask.value, button - 1, False)
 
-    def set_toggle_mode(self, button: int, mode: int):
+    def set_toggle_mode(self, button: int, toggle_mode: ToggleMode):
         """Set the toggle mode of a button.
 
         Usage:
             button: Integer of the button number
-            mode: Integer of the mode
+            toggle_mode: Integer of the toggle mode
                 0: Toggle
                 1: Non-Toggle ON only
                 2: Non-Toggle OFF only
         """
         if button not in self._buttons.keys():
             raise ValueError(f"Button {button} not in button list.")
-        if mode not in [0, 1, 2]:
-            raise ValueError(f"Mode {mode} invalid. Valid mode are [0, 1, 2]")
+
+        try:
+            toggle_mode = ToggleMode(toggle_mode)
+        except ValueError as err:
+            raise ValueError(
+                f"Toggle mode {toggle_mode} invalid. Valid modes are [0, 1, 2]"
+            ) from err
 
         toggle_mask = self.properties[NON_TOGGLE_MASK]
         on_off_mask = self.properties[NON_TOGGLE_ON_OFF_MASK]
@@ -356,10 +365,10 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         else:
             on_off_mask_test = on_off_mask.new_value
 
-        if mode == 0:
+        if toggle_mode == ToggleMode.TOGGLE:
             toggle_mask.new_value = set_bit(toggle_mask_test, button - 1, False)
             on_off_mask.new_value = set_bit(on_off_mask_test, button - 1, False)
-        elif mode == 1:
+        elif toggle_mode == ToggleMode.ON_ONLY:
             toggle_mask.new_value = set_bit(toggle_mask_test, button - 1, True)
             on_off_mask.new_value = set_bit(on_off_mask_test, button - 1, True)
         else:
@@ -368,6 +377,9 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
+        self._handlers[STATUS_COMMAND] = StatusRequestCommand(
+            self._address, status_type=2
+        )
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
         self._handlers[GET_LEDS_COMMAND] = StatusRequestCommand(
             self._address, status_type=1
@@ -406,7 +418,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
     def _change_led_status(self, led, is_on):
         leds = {}
         for curr_led in range(1, 9):
-            var = "group{}".format(curr_led)
+            var = f"group{curr_led}"
             curr_group = self._groups.get(curr_led)
             curr_val = bool(curr_group.value) if curr_group else False
             leds[var] = is_on if curr_led == led else curr_val
@@ -433,9 +445,9 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
             if state:
                 state.value = bit_is_set(status, bit - 1)
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
         """Register operating flags."""
-        super()._register_operating_flags()
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
@@ -446,15 +458,54 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         self._add_operating_flag(LED_BLINK_ON_ERROR_OFF, 5, 2, 0x14, 0x15)
 
         self._add_property(LED_DIMMING, 9, 7, 1)
-        self._add_property(NON_TOGGLE_MASK, 0x0A, 0x08)
-        self._add_property(NON_TOGGLE_ON_OFF_MASK, 0x0D, 0x0B)
-        self._add_property(TRIGGER_GROUP_MASK, 0x0E, 0x0C)
+        self._add_property(NON_TOGGLE_MASK, 0x0A, 0x08, prop_type=PropertyType.ADVANCED)
+        self._add_property(
+            NON_TOGGLE_ON_OFF_MASK, 0x0D, 0x0B, prop_type=PropertyType.ADVANCED
+        )
+        self._add_property(
+            TRIGGER_GROUP_MASK, 0x0E, 0x0C, prop_type=PropertyType.ADVANCED
+        )
         for button in self._buttons:
             button_str = f"_{button}" if button != 1 else ""
-            self._add_property(f"{ON_MASK}{button_str}", 3, 2, button)
-            self._add_property(f"{OFF_MASK}{button_str}", 4, 3, button)
-            self._add_property(f"{X10_HOUSE}{button_str}", 5, None, button)
-            self._add_property(f"{X10_UNIT}{button_str}", 6, None, button)
+            self._add_property(
+                f"{ON_MASK}{button_str}", 3, 2, button, prop_type=PropertyType.ADVANCED
+            )
+            self._add_property(
+                f"{OFF_MASK}{button_str}", 4, 3, button, prop_type=PropertyType.ADVANCED
+            )
+            self._add_property(
+                f"{X10_HOUSE}{button_str}",
+                5,
+                None,
+                button,
+                prop_type=PropertyType.ADVANCED,
+            )
+            self._add_property(
+                f"{X10_UNIT}{button_str}",
+                6,
+                None,
+                button,
+                prop_type=PropertyType.ADVANCED,
+            )
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RADIO_BUTTON_GROUPS] = RadioButtonGroupsProperty(
+            self, RADIO_BUTTON_GROUPS
+        )
+        for group in self._groups:
+            if group == 1:
+                continue
+            button = self._buttons[group]
+            name = f"{TOGGLE_BUTTON}_{button[-1]}"
+            self._config[name] = ToggleButtonProperty(
+                self._address,
+                name,
+                group,
+                self.properties[NON_TOGGLE_MASK],
+                self.properties[NON_TOGGLE_ON_OFF_MASK],
+            )
 
 
 class SwitchedLightingControl_KeypadLinc_6(SwitchedLightingControl_KeypadLinc):

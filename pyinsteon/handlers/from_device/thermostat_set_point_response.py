@@ -3,7 +3,6 @@ import logging
 
 from ...constants import MessageFlagType
 from ...topics import THERMOSTAT_SET_POINT_RESPONSE
-from ...utils import build_topic
 from .. import inbound_handler
 from ..inbound_base import InboundHandlerBase
 
@@ -18,11 +17,6 @@ class ThermostatSetPointResponseHandler(InboundHandlerBase):
         super().__init__(
             topic=THERMOSTAT_SET_POINT_RESPONSE,
             address=address,
-            message_type=MessageFlagType.DIRECT,
-        )
-        self._subscriber_topic = build_topic(
-            prefix="handler.{}".format(self._address.id),  # Force address
-            topic=THERMOSTAT_SET_POINT_RESPONSE,
             message_type=MessageFlagType.DIRECT,
         )
 

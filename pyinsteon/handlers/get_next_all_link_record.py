@@ -1,6 +1,7 @@
 """Modem command to get next ALDB record."""
 import logging
 
+from ..constants import ResponseStatus
 from ..topics import GET_NEXT_ALL_LINK_RECORD
 from . import nak_handler
 from .outbound_base import OutboundHandlerBase
@@ -16,5 +17,6 @@ class GetNextAllLinkRecordHandler(OutboundHandlerBase):
         super().__init__(topic=GET_NEXT_ALL_LINK_RECORD)
 
     @nak_handler
-    def handle_nak(self):
+    async def async_handle_nak(self):
         """Receive the NAK message and return False."""
+        await self._message_response.put(ResponseStatus.FAILURE)

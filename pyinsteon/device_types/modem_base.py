@@ -3,13 +3,23 @@ import asyncio
 from abc import ABCMeta
 from asyncio import Transport
 
+from ..config import (
+    AUTO_LED,
+    DEADMAN,
+    DISABLE_AUTO_LINKING,
+    MONITOR_MODE,
+    get_usable_value,
+)
+from ..config.modem_config import ModemConfiguration
+from ..constants import ResponseStatus
 from ..handlers.all_link_cleanup_failure_report import AllLinkCleanupFailureReport
-from ..handlers.all_link_cleanup_report import AllLinkCleanupStatusReport
+from ..handlers.all_link_cleanup_status_report import AllLinkCleanupStatusReport
 from ..handlers.get_im_configuration import GetImConfigurationHandler
 from ..handlers.set_im_configuration import SetImConfigurationHandler
 from ..protocol.protocol import Protocol
+from ..utils import multiple_status
 from .device_base import Device
-from .device_commands import GET_IM_CONFIG_COMMAND
+from .device_commands import GET_IM_CONFIG_COMMAND, SET_IM_CONFIG_COMMAND
 
 
 class ModemBase(Device, metaclass=ABCMeta):
@@ -32,10 +42,7 @@ class ModemBase(Device, metaclass=ABCMeta):
         self._subscribe_topics()
         self._protocol = None
         self._transport = None
-        self._disable_auto_linking = False
-        self._monitor_mode = False
-        self._auto_led = False
-        self._deadman = False
+        self._io_manager = None
 
     @property
     def connected(self) -> bool:
@@ -52,22 +59,22 @@ class ModemBase(Device, metaclass=ABCMeta):
     @property
     def disable_auto_linking(self):
         """Return the Disable Auto Linking flag value."""
-        self._disable_auto_linking = False
+        return self._config[DISABLE_AUTO_LINKING].value
 
     @property
     def monitor_mode(self):
         """Return the Monitor Mode flag value."""
-        self._monitor_mode = False
+        return self._config[MONITOR_MODE].value
 
     @property
     def auto_led(self):
         """Return the Auto LED flag value."""
-        self._auto_led = False
+        return self._config[AUTO_LED].value
 
     @property
     def deadman(self):
         """Return the Deadman flag value."""
-        self._deadman = False
+        return self._config[DEADMAN].value
 
     @protocol.setter
     def protocol(self, value):
@@ -103,6 +110,80 @@ class ModemBase(Device, metaclass=ABCMeta):
         """Get the modem flags."""
         return await self._handlers[GET_IM_CONFIG_COMMAND].async_send()
 
+    async def async_set_configuration(
+        self,
+        disable_auto_linking: bool = None,
+        monitor_mode: bool = None,
+        auto_led: bool = None,
+        deadman: bool = None,
+    ):
+        """Set the modem flags."""
+        self._config[DISABLE_AUTO_LINKING].new_value = disable_auto_linking
+        self._config[MONITOR_MODE].new_value = monitor_mode
+        self._config[AUTO_LED].new_value = auto_led
+        self._config[DEADMAN].new_value = deadman
+
+        disable_auto_linking = get_usable_value(self._config[DISABLE_AUTO_LINKING])
+        monitor_mode = get_usable_value(self._config[MONITOR_MODE])
+        auto_led = get_usable_value(self._config[AUTO_LED])
+        deadman = get_usable_value(self._config[DEADMAN])
+
+        return await self._handlers[SET_IM_CONFIG_COMMAND].async_send(
+            disable_auto_linking=disable_auto_linking,
+            monitor_mode=monitor_mode,
+            auto_led=auto_led,
+            deadman=deadman,
+        )
+
+    async def async_read_config(self, read_aldb: bool = True):
+        """Read the modem configuration."""
+        result_config = await self.async_get_configuration()
+        if read_aldb:
+            result_aldb = await self.aldb.async_load()
+        else:
+            result_aldb = ResponseStatus.SUCCESS
+        return multiple_status(result_config, result_aldb)
+
+    async def async_write_config(self):
+        """Write the configuration changes to the modem."""
+        if (
+            self._config[DISABLE_AUTO_LINKING].is_dirty
+            or self._config[MONITOR_MODE].is_dirty
+            or self._config[AUTO_LED].is_dirty
+            or self._config[DEADMAN].is_dirty
+        ):
+            disable_auto_linking = get_usable_value(self._config[DISABLE_AUTO_LINKING])
+            monitor_mode = get_usable_value(self._config[MONITOR_MODE])
+            auto_led = get_usable_value(self._config[AUTO_LED])
+            deadman = get_usable_value(self._config[DEADMAN])
+
+            return await self._handlers[SET_IM_CONFIG_COMMAND].async_send(
+                disable_auto_linking=disable_auto_linking,
+                monitor_mode=monitor_mode,
+                auto_led=auto_led,
+                deadman=deadman,
+            )
+        return ResponseStatus.SUCCESS
+
+    async def async_get_operating_flags(self, group=None):
+        """Read the device operating flags."""
+        return await self.async_get_configuration()
+
+    async def async_set_operating_flags(self, group=None, force=False):
+        """Write the operating flags to the device."""
+        return await self.async_set_configuration(
+            self._config[DISABLE_AUTO_LINKING].new_value,
+            self._config[MONITOR_MODE].new_value,
+            self._config[AUTO_LED].new_value,
+            self._config[DEADMAN].new_value,
+        )
+
+    async def async_get_extended_properties(self, group=None):
+        """Get the device extended properties."""
+
+    def _subscribe_topics(self):
+        """Subscribe to modem specific topics."""
+
     def _update_flags(
         self,
         disable_auto_linking: bool,
@@ -110,37 +191,10 @@ class ModemBase(Device, metaclass=ABCMeta):
         auto_led: bool,
         deadman: bool,
     ):
-        self._disable_auto_linking = disable_auto_linking
-        self._monitor_mode = monitor_mode
-        self._auto_led = auto_led
-        self._deadman = deadman
-
-    async def async_set_configuration(
-        self,
-        disable_auto_linking: bool,
-        monitor_mode: bool,
-        auto_led: bool,
-        deadman: bool,
-    ):
-        """Set the modem flags."""
-        return await SetImConfigurationHandler().async_send(
-            disable_auto_linking=disable_auto_linking,
-            monitor_mode=monitor_mode,
-            auto_led=auto_led,
-            deadman=deadman,
-        )
-
-    async def async_get_operating_flags(self, group=None):
-        """Read the device operating flags."""
-
-    async def async_set_operating_flags(self, group=None, force=False):
-        """Write the operating flags to the device."""
-
-    async def async_get_extended_properties(self, group=None):
-        """Get the device extended properties."""
-
-    def _subscribe_topics(self):
-        """Subscribe to modem specific topics."""
+        self._config[DISABLE_AUTO_LINKING].load(disable_auto_linking)
+        self._config[MONITOR_MODE].load(monitor_mode)
+        self._config[AUTO_LED].load(auto_led)
+        self._config[DEADMAN].load(deadman)
 
     def _register_groups(self):
         """No groups to register for modems."""
@@ -156,8 +210,21 @@ class ModemBase(Device, metaclass=ABCMeta):
         self._handlers[GET_IM_CONFIG_COMMAND] = GetImConfigurationHandler()
         self._handlers[GET_IM_CONFIG_COMMAND].subscribe(self._update_flags)
 
+        self._handlers[SET_IM_CONFIG_COMMAND] = SetImConfigurationHandler()
+        self._handlers[SET_IM_CONFIG_COMMAND].subscribe(self._update_flags)
+
     def _register_events(self):
         """Register events for modems."""
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
         """Register operating flags for modem."""
+
+    def _register_config(self):
+        """Register the configuration items of a modem."""
+        super()._register_config()
+        self._config[DISABLE_AUTO_LINKING] = ModemConfiguration(
+            self._address, DISABLE_AUTO_LINKING
+        )
+        self._config[MONITOR_MODE] = ModemConfiguration(self._address, MONITOR_MODE)
+        self._config[AUTO_LED] = ModemConfiguration(self._address, AUTO_LED)
+        self._config[DEADMAN] = ModemConfiguration(self._address, DEADMAN)

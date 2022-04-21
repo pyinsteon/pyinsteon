@@ -4,8 +4,7 @@ from binascii import unhexlify
 
 from pyinsteon.address import Address
 from pyinsteon.constants import AckNak, ManageAllLinkRecordAction, MessageId
-from pyinsteon.protocol.messages.all_link_record_flags import \
-    AllLinkRecordFlags
+from pyinsteon.data_types.all_link_record_flags import AllLinkRecordFlags
 from tests import set_log_levels
 from tests.utils import hex_to_inbound_message
 

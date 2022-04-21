@@ -16,11 +16,10 @@ class EngineVersionRequest(DirectCommandHandlerBase):
         """Send the OFF command async."""
         return await super().async_send()
 
-    def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the OFF response direct ACK."""
         try:
             version = EngineVersion(cmd2)
         except ValueError:
             version = EngineVersion.UNKNOWN
         self._call_subscribers(engine_version=version)
-        super().handle_direct_ack(cmd1, cmd2, target, user_data, hops_left)

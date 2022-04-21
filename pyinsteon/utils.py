@@ -1,8 +1,10 @@
 """Utility methods."""
+import asyncio
 import logging
 import traceback
 from enum import Enum, IntEnum
-from functools import partial
+from functools import partial, wraps
+from inspect import isawaitable, iscoroutinefunction
 from typing import Iterable
 
 from . import pub
@@ -20,6 +22,7 @@ from .constants import (
     ThermostatMode,
     X10Commands,
 )
+from .topics import STATUS_REQUEST
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")
@@ -114,12 +117,12 @@ def vars_to_string(vals: Iterable) -> str:
         elif isinstance(val, (Enum, IntEnum)):
             valstr = str(val)
         elif isinstance(val, int):
-            valstr = "0x{0:02x}".format(val)
+            valstr = f"0x{val:02x}"
         elif isinstance(val, bytes):
-            valstr = "0x{:s}".format(val.hex())
+            valstr = f"0x{val.hex():s}"
         else:
             valstr = str(val)
-        output.append("{}: {}".format(fld, valstr))
+        output.append(f"{fld}: {valstr}")
     return ", ".join(output)
 
 
@@ -132,12 +135,12 @@ def vars_to_repr(vals: Iterable) -> str:
         elif isinstance(val, (Enum, IntEnum)):
             valstr = repr(val)
         elif isinstance(val, int):
-            valstr = "0x{0:02x}".format(val)
+            valstr = f"0x{val:02x}"
         elif isinstance(val, bytes):
-            valstr = "0x{:s}".format(val.hex())
+            valstr = f"0x{val.hex():s}"
         else:
             valstr = repr(val)
-        output.append("{}: {}".format(fld, valstr))
+        output.append(f"{fld}: {valstr}")
     return ", ".join(output)
 
 
@@ -161,23 +164,32 @@ def _include_address(prefix, topic, address, message_type):
     if prefix == "send" and message_type == MessageFlagType.DIRECT:
         return False
 
+    if prefix == "handler" and message_type == MessageFlagType.DIRECT:
+        return True
+
     if commands.get(topic) is None:
         return False
 
     return True
 
 
-def _include_group(topic, group, message_type):
+def _msg_group(topic, group, message_type):
+    if topic == STATUS_REQUEST and group is not None:
+        return group
+
+    if commands.use_group(topic) and group is not None:
+        return group if group else 1
+
     if group is None:
-        return False
+        return None
 
     if not commands.use_group(topic):
-        return False
+        return None
 
     if message_type in [MessageFlagType.ALL_LINK_CLEANUP]:
-        return False
+        return None
 
-    return True
+    return 1
 
 
 def build_topic(topic, prefix=None, address=None, group=None, message_type=None):
@@ -185,18 +197,18 @@ def build_topic(topic, prefix=None, address=None, group=None, message_type=None)
     full_topic = ""
     if prefix is not None:
         # Adding the . separator since there must be something after a prefix
-        full_topic = "{}.".format(str(prefix))
+        full_topic = f"{str(prefix).lower()}."
 
     if _include_address(prefix, topic, address, message_type):
         addr = address.id if isinstance(address, Address) else address
-        full_topic = "{}{}.".format(full_topic, addr)
-        if commands.use_group(topic) and group is not None:
-            group = group if group else 1
-            full_topic = "{}{}.".format(full_topic, group)
+        full_topic = f"{full_topic}{addr}."
+        group = _msg_group(topic, group, message_type)
+        if group is not None:
+            full_topic = f"{full_topic}{group}."
 
-    full_topic = "{}{}".format(full_topic, topic)
+    full_topic = f"{full_topic}{topic}"
     if message_type is not None:
-        full_topic = "{}.{}".format(full_topic, str(message_type))
+        full_topic = f"{full_topic}.{str(message_type).lower()}"
     return full_topic
 
 
@@ -215,7 +227,7 @@ def multiple_status(*args):
 
 def ramp_rate_to_seconds(ramp_rate: int):
     """Return the seconds associated with a ramp rate."""
-    if int(ramp_rate) not in range(0, 31):
+    if int(ramp_rate) not in range(0, 32):
         raise ValueError("Ramp rate must be between 0x00 and 0x1f (31)")
 
     return RAMP_RATES[int(ramp_rate)]
@@ -268,10 +280,10 @@ def to_fahrenheit(celsius):
 
 def calc_thermostat_temp(high_byte, low_byte):
     """Calculate the temperature."""
-    return (low_byte | (high_byte << 8)) * 0.1
+    return round((low_byte | (high_byte << 8)) * 0.1, 1)
 
 
-def calc_thermostat_mode(mode_byte, sys_mode_map=None, sys_low=True):
+def calc_thermostat_mode(thermostat_mode_byte, sys_mode_map=None, sys_low=True):
     """Calculate the system and fan mode."""
     if sys_mode_map is None:
         sys_mode_map = {
@@ -281,8 +293,8 @@ def calc_thermostat_mode(mode_byte, sys_mode_map=None, sys_low=True):
             int(ThermostatMode.COOL): ThermostatMode.COOL,
         }
 
-    mode1 = mode_byte & 0x0F
-    mode2 = mode_byte >> 4
+    mode1 = thermostat_mode_byte & 0x0F
+    mode2 = thermostat_mode_byte >> 4
     system_mode, fan_mode = (mode1, mode2) if sys_low else (mode2, mode1)
     if fan_mode in (0, 4):
         fan_mode = ThermostatMode.FAN_AUTO
@@ -317,8 +329,40 @@ def publish_topic(topic, logger=None, **kwargs):
             logger.error("Topic listener: %s", listner)
 
 
+async_listeners = {}
+
+
+def add_async_listener(listener, async_listener):
+    """Add an listener to the async_listeners list."""
+    async_listeners[listener] = async_listener
+
+
+def get_async_listener(listener):
+    """Get the async version of a listener."""
+
+    def setup_async_listener(listener):
+        @wraps(listener)
+        def _wrapper(*args, **kwargs):
+            return asyncio.create_task(listener(*args, **kwargs))
+
+        return _wrapper
+
+    async_listener = async_listeners.get(listener)
+    if async_listener:
+        return async_listener
+    async_listener = setup_async_listener(listener)
+    add_async_listener(listener, async_listener)
+    return async_listener
+
+
+def remove_async_listener(listener):
+    """Remove an async listener."""
+    async_listeners.pop(listener)
+
+
 def subscribe_topic(listener, topic_name, logger=None):
     """Subscribe a listener to a topic and log errors."""
+
     topic_mgr = pub.getDefaultTopicMgr()
     topic = topic_mgr.getOrCreateTopic(topic_name)
     if pub.isSubscribed(listener, topicName=topic.name):
@@ -326,7 +370,11 @@ def subscribe_topic(listener, topic_name, logger=None):
     if logger is None:
         logger = logging.getLogger(__name__)
     try:
-        pub.subscribe(listener, topic.name)
+        if iscoroutinefunction(listener) or isawaitable(listener):
+            async_listener = get_async_listener(listener)
+            pub.subscribe(async_listener, topic.name)
+        else:
+            pub.subscribe(listener, topic.name)
     except pub.ListenerMismatchError as exc:
         logger.error("ListenerMismatchError")
         logger.error("args: %s", exc.args)
@@ -339,10 +387,12 @@ def subscribe_topic(listener, topic_name, logger=None):
 
 def unsubscribe_topic(listener, topic_name):
     """Unsubscribe a listener to a topic and log errors."""
+    if listener in async_listeners:
+        remove_async_listener(listener)
     topic_mgr = pub.getDefaultTopicMgr()
     topic = topic_mgr.getOrCreateTopic(topic_name)
     if pub.isSubscribed(listener, topicName=topic.name):
-        pub.unsubscribe(listener, topic.name)
+        pub.unsubscribe(listener, topic_name)
 
 
 def set_fan_speed(on_level):

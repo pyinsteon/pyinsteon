@@ -41,16 +41,15 @@ class ExtendedSet2Command(DirectCommandHandlerBase):
         kwargs = {"data1": self._data1, "data2": self._data2}
         loc = locals()
         for item in range(3, 15):
-            try:
-                data = int(loc["data{}".format(item)])
-            except ValueError:
-                _LOGGER.error("Property value must be an integer")
-            else:
-                kwargs["data{}".format(item)] = data
+            kwargs[f"data{item}"] = int(loc[f"data{item}"])
         return await super().async_send(**kwargs)
 
     @ack_handler
-    def handle_ack(self, cmd1, cmd2, user_data):
+    async def async_handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK."""
-        if user_data["d1"] == self._data1 and user_data["d2"] == self._data2:
-            super().handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
+        if (
+            user_data
+            and user_data["d1"] == self._data1
+            and user_data["d2"] == self._data2
+        ):
+            await super().async_handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)

@@ -34,8 +34,7 @@ class Temperature(GroupBase):
             self._value = self._type(value) if value is not None else None
         except TypeError:
             raise TypeError(
-                "Error setting value of State {}: "
-                "Must be of type {}".format(self._name, self._type.__name__)
+                f"Error setting value of State {self._name}: Must be of type {self._type.__name__}"
             )
         else:
             self._call_subscribers(
@@ -90,9 +89,9 @@ class SystemMode(GroupBase):
         super().__init__(name, address, group, default, value_type=ThermostatMode)
 
     # pylint: disable=arguments-differ
-    def set_value(self, mode: ThermostatMode):
+    def set_value(self, thermostat_mode: ThermostatMode):
         """Set the system mode value."""
-        self.value = mode
+        self.value = thermostat_mode
 
     @property
     def value(self):
@@ -108,8 +107,7 @@ class SystemMode(GroupBase):
             self._value = self._type(value) if value is not None else None
         except TypeError:
             raise TypeError(
-                "Error setting value of State {}: "
-                "Must be of type {}".format(self._name, self._type.__name__)
+                f"Error setting value of State {self._name}: Must be of type {self._type.__name__}"
             )
         else:
             self._call_subscribers(
@@ -134,9 +132,9 @@ class FanMode(GroupBase):
         super().__init__(name, address, group, default, value_type=ThermostatMode)
 
     # pylint: disable=arguments-differ
-    def set_value(self, mode: ThermostatMode):
+    def set_value(self, thermostat_mode: ThermostatMode):
         """Set the system mode value."""
-        self.value = mode
+        self.value = thermostat_mode
 
     @property
     def value(self):
@@ -152,8 +150,7 @@ class FanMode(GroupBase):
             self._value = self._type(value) if value is not None else None
         except TypeError:
             raise TypeError(
-                "Error setting value of State {}: "
-                "Must be of type {}".format(self._name, self._type.__name__)
+                f"Error setting value of State {self._name}: Must be of type {self._type.__name__}"
             )
         else:
             self._call_subscribers(

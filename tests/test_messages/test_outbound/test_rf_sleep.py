@@ -3,8 +3,9 @@ import unittest
 from binascii import unhexlify
 
 from pyinsteon.constants import MessageId
+
 # pylint: disable=unused-import
-from pyinsteon.protocol.messages.outbound import rf_sleep
+from pyinsteon.protocol.messages.outbound import rf_sleep  # noqa: F401
 from tests import set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
 

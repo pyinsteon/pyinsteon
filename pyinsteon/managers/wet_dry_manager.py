@@ -21,15 +21,15 @@ class WetDryManager(SubscriberBase):
         self._address = Address(address)
         self._wet_group = wet_group
         self._dry_group = dry_group
-        subscriber_topic = "subscriber_{}_wet_dry".format(self._address.id)
+        subscriber_topic = f"subscriber_{self._address.id}_wet_dry"
         super().__init__(subscriber_topic)
 
         self._dry_handler = OnLevelInbound(self._address, self._dry_group)
-        self._dry_events = self.WetDryEvent("{}_dry".format(subscriber_topic))
+        self._dry_events = self.WetDryEvent(f"{subscriber_topic}_dry")
         self._dry_handler.subscribe(self._dry)
 
         self._wet_handler = OnLevelInbound(self._address, self._wet_group)
-        self._wet_events = self.WetDryEvent("{}_wet".format(subscriber_topic))
+        self._wet_events = self.WetDryEvent(f"{subscriber_topic}_wet")
         self._wet_handler.subscribe(self._wet)
 
     def subscribe(self, callback: Callable, force_strong_ref=False):

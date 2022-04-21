@@ -1,15 +1,17 @@
-import sys
+"""Test the All-Link Record Flags."""
 import unittest
-from binascii import hexlify, unhexlify
+from binascii import unhexlify
 
 from pyinsteon.constants import AllLinkMode
-from pyinsteon.protocol.messages.all_link_record_flags import \
-    AllLinkRecordFlags
-from tests import _LOGGER, set_log_levels
+from pyinsteon.data_types.all_link_record_flags import AllLinkRecordFlags
+from tests import set_log_levels
 
 
 class TestAllLinkRecordFlags(unittest.TestCase):
+    """Test the All-Link Record Flags."""
+
     def setUp(self):
+        """Set up the TestAllLinkRecordFlags."""
         self.hex_data_00 = "00"  # Not in use, responder, HWM
         self.hex_data_80 = "80"  # In use, responder, HWM
         self.hex_data_40 = "40"  # Not in use, controller, not HWM
@@ -33,6 +35,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         )
 
     def test_flags_00(self):
+        """Test 0x00 flag."""
         self._check_flags(
             self.flags_00,
             False,
@@ -47,6 +50,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         )
 
     def test_flags_80(self):
+        """Test 0x80 flag."""
         self._check_flags(
             self.flags_80,
             True,
@@ -61,6 +65,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         )
 
     def test_flags_40(self):
+        """Test 0x40 flag."""
         self._check_flags(
             self.flags_40,
             False,
@@ -75,6 +80,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         )
 
     def test_flags_02(self):
+        """Test 0x02 flag."""
         self._check_flags(
             self.flags_02,
             False,
@@ -89,6 +95,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         )
 
     def test_flags_3D(self):
+        """Test 0x3D flag."""
         self._check_flags(
             self.flags_3D,
             False,
@@ -103,6 +110,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         )
 
     def test_flags_C2(self):
+        """Test 0xC2 flag."""
         self._check_flags(
             self.flags_C2,
             True,
@@ -117,6 +125,7 @@ class TestAllLinkRecordFlags(unittest.TestCase):
         )
 
     def test_flags_FF(self):
+        """Test 0xFF flag."""
         self._check_flags(
             self.flags_FF,
             True,
@@ -130,9 +139,11 @@ class TestAllLinkRecordFlags(unittest.TestCase):
             "FF",
         )
 
-    def _check_flags(self, flags, in_use, mode, bit5, bit4, bit3, bit2, hwm, bit0, hex):
+    def _check_flags(
+        self, flags, in_use, link_mode, bit5, bit4, bit3, bit2, hwm, bit0, hex
+    ):
         self._check_flags_in_use(flags, in_use)
-        self._check_flags_mode(flags, mode)
+        self._check_flags_mode(flags, link_mode)
         self._check_flags_bit_5(flags, bit5)
         self._check_flags_bit_3(flags, bit3)
         self._check_flags_bit_2(flags, bit2)
@@ -143,8 +154,8 @@ class TestAllLinkRecordFlags(unittest.TestCase):
     def _check_flags_in_use(self, flags, in_use):
         assert flags.is_in_use == in_use
 
-    def _check_flags_mode(self, flags, mode):
-        assert flags.mode == mode
+    def _check_flags_mode(self, flags, link_mode):
+        assert flags.link_mode == link_mode
 
     def _check_flags_hwm(self, flags, is_hwm):
         assert flags.is_hwm == is_hwm

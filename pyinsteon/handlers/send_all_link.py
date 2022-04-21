@@ -17,6 +17,6 @@ class SendAllLinkCommandHandler(OutboundHandlerBase):
         return await super().async_send(group=group, cmd1=cmd1, cmd2=cmd2)
 
     @ack_handler
-    def handle_ack(self, group, cmd1, cmd2):
-        """Handle the message ACK returning True to the async_send method."""
-        super().handle_ack(group=group, cmd1=cmd1, cmd2=cmd2)
+    async def async_handle_ack(self, group, cmd1, cmd2):
+        """Handle the ACK response."""
+        await super().async_handle_ack()

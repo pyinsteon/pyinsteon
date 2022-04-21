@@ -3,7 +3,7 @@ import logging
 
 from ...constants import MessageFlagType, ThermostatMode
 from ...topics import THERMOSTAT_STATUS_RESPONSE
-from ...utils import bit_is_set, build_topic, calc_thermostat_mode, calc_thermostat_temp
+from ...utils import bit_is_set, calc_thermostat_mode, calc_thermostat_temp
 from .. import inbound_handler
 from ..inbound_base import InboundHandlerBase
 
@@ -35,11 +35,6 @@ class ThermostatStatusResponseHandler(InboundHandlerBase):
         super().__init__(
             topic=THERMOSTAT_STATUS_RESPONSE,
             address=address,
-            message_type=MessageFlagType.DIRECT,
-        )
-        self._subscriber_topic = build_topic(
-            prefix="handler.{}".format(self._address.id),  # Force address
-            topic=THERMOSTAT_STATUS_RESPONSE,
             message_type=MessageFlagType.DIRECT,
         )
 

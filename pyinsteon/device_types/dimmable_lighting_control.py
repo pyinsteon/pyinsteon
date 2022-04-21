@@ -2,20 +2,41 @@
 from functools import partial
 from typing import Iterable
 
-from ..constants import FanSpeed, ResponseStatus
-from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
-from ..extended_property import (
+from ..config import (
+    CLEANUP_REPORT_ON,
+    CRC_ERROR_COUNT,
+    DATABASE_DELTA,
+    KEY_BEEP_ON,
+    LED_BLINK_ON_ERROR_OFF,
+    LED_BLINK_ON_ERROR_ON,
+    LED_BLINK_ON_TX_ON,
     LED_DIMMING,
+    LED_OFF,
+    LOAD_SENSE_ON,
     NON_TOGGLE_MASK,
     NON_TOGGLE_ON_OFF_MASK,
     OFF_MASK,
     ON_LEVEL,
     ON_MASK,
+    POWERLINE_DISABLE_ON,
+    PROGRAM_LOCK_ON,
+    RADIO_BUTTON_GROUPS,
     RAMP_RATE,
+    RAMP_RATE_IN_SEC,
+    RESUME_DIM_ON,
+    RF_DISABLE_ON,
+    SIGNAL_TO_NOISE_FAILURE_COUNT,
+    TOGGLE_BUTTON,
     TRIGGER_GROUP_MASK,
     X10_HOUSE,
+    X10_OFF,
     X10_UNIT,
 )
+from ..config.radio_button import RadioButtonGroupsProperty
+from ..config.ramp_rate import RampRateProperty
+from ..config.toggle_button import ToggleButtonProperty
+from ..constants import FanSpeed, PropertyType, ResponseStatus, ToggleMode
+from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..groups import (
     DIMMABLE_FAN,
     DIMMABLE_LIGHT,
@@ -35,23 +56,6 @@ from ..groups.on_off import OnOff
 from ..handlers.from_device.manual_change import ManualChangeInbound
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
-from ..operating_flag import (
-    CLEANUP_REPORT_ON,
-    CRC_ERROR_COUNT,
-    DATABASE_DELTA,
-    KEY_BEEP_ON,
-    LED_BLINK_ON_ERROR_OFF,
-    LED_BLINK_ON_ERROR_ON,
-    LED_BLINK_ON_TX_ON,
-    LED_OFF,
-    LOAD_SENSE_ON,
-    POWERLINE_DISABLE_ON,
-    PROGRAM_LOCK_ON,
-    RESUME_DIM_ON,
-    RF_DISABLE_ON,
-    SIGNAL_TO_NOISE_FAILURE_COUNT,
-    X10_OFF,
-)
 from ..utils import bit_is_set, multiple_status, set_bit, set_fan_speed
 from .device_commands import (
     GET_LEDS_COMMAND,
@@ -60,6 +64,7 @@ from .device_commands import (
     ON_COMMAND,
     ON_FAST_COMMAND,
     SET_LEDS_COMMAND,
+    STATUS_COMMAND,
     STATUS_COMMAND_FAN,
 )
 from .variable_controller_base import ON_LEVEL_MANAGER
@@ -72,8 +77,11 @@ class DimmableLightingControl(VariableResponderBase):
     def _register_handlers_and_managers(self):
         """Register command handlers and managers."""
         super()._register_handlers_and_managers()
-        for group in self._groups:
-            if isinstance(self._groups[group], OnLevel):
+        self._handlers[STATUS_COMMAND] = StatusRequestCommand(
+            self._address, status_type=2
+        )
+        for group, group_prop in self._groups.items():
+            if isinstance(group_prop, OnLevel):
                 self._handlers[group]["manual_change"] = ManualChangeInbound(
                     self._address, group
                 )
@@ -81,20 +89,22 @@ class DimmableLightingControl(VariableResponderBase):
     def _subscribe_to_handelers_and_managers(self):
         """Subscribe methods to handlers and managers."""
         super()._subscribe_to_handelers_and_managers()
-        for group in self._groups:
-            if isinstance(self._groups[group], OnLevel):
-                self._handlers[group]["manual_change"].subscribe(self._on_manual_change)
+        for group, group_prop in self._groups.items():
+            if isinstance(group_prop, OnLevel):
+                self._handlers[group]["manual_change"].subscribe(
+                    self._async_on_manual_change
+                )
 
-    def _on_manual_change(self):
+    async def _async_on_manual_change(self):
         """Respond to a manual change of the device."""
-        self.status()
+        await self.async_status()
 
 
 class DimmableLightingControl_LampLinc(DimmableLightingControl):
     """LampLinc based dimmable lights."""
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
@@ -102,18 +112,25 @@ class DimmableLightingControl_LampLinc(DimmableLightingControl):
         self._add_operating_flag(LOAD_SENSE_ON, 0, 5, 0x0A, 0x0B)
 
         self._add_property(LED_DIMMING, 3, 3)
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
-        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
+        )
 
 
 class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
     """SwichLinc based dimmable lights."""
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
 
-        super()._register_operating_flags()
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
@@ -122,18 +139,25 @@ class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
 
         self._add_property(LED_DIMMING, 3, 3)
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
-        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
+        )
 
 
 class DimmableLightingControl_ToggleLinc(DimmableLightingControl):
     """SwichLinc based dimmable lights."""
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
 
-        super()._register_operating_flags()
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
@@ -142,10 +166,17 @@ class DimmableLightingControl_ToggleLinc(DimmableLightingControl):
 
         if self._firmware >= 0x3A:
             self._add_property(LED_DIMMING, 2, 3)
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
-        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
+        )
 
 
 class DimmableLightingControl_InLineLinc(DimmableLightingControl_SwitchLinc):
@@ -168,31 +199,38 @@ class DimmableLightingControl_OutletLinc(DimmableLightingControl):
             buttons=buttons,
         )
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
 
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
 
 
 class DimmableLightingControl_DinRail(DimmableLightingControl):
     """DINRail based dimmable lights."""
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
 
         self._add_property(LED_DIMMING, 3, 3)
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
-        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
+        )
 
 
 class DimmableLightingControl_FanLinc(DimmableLightingControl):
@@ -283,16 +321,9 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         fan_status = await self.async_fan_status()
         if light_status == fan_status == ResponseStatus.SUCCESS:
             return ResponseStatus.SUCCESS
-        if (
-            light_status == ResponseStatus.UNCLEAR
-            or fan_status == ResponseStatus.UNCLEAR
-        ):
+        if ResponseStatus.UNCLEAR in (light_status, fan_status):
             return ResponseStatus.UNCLEAR
         return ResponseStatus.FAILURE
-
-    def light_status(self):
-        """Request the status of the light."""
-        super().status()
 
     async def async_light_status(self):
         """Request the status of the light."""
@@ -321,8 +352,8 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[STATUS_COMMAND_FAN].subscribe(self._handle_fan_status)
 
-    def _register_operating_flags(self):
-        super()._register_operating_flags()
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
 
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
@@ -340,10 +371,17 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
         self._add_operating_flag(CLEANUP_REPORT_ON, 5, 3, 0x16, 0x17)
 
-        self._add_property(X10_HOUSE, 5, None)
-        self._add_property(X10_UNIT, 6, None)
-        self._add_property(RAMP_RATE, 7, 5)
+        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
+        )
 
     def _handle_fan_status(self, db_version, status):
         self._groups[2].set_value(status)
@@ -455,7 +493,9 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
               link to the other button.
 
         """
-        other_buttons = [button for button in range(1, 9) if button not in buttons]
+        other_buttons = [
+            button for button in self._buttons if button not in buttons and button != 1
+        ]
         addl_buttons = []
         for other_button in other_buttons:
             button_str = f"_{other_button}" if other_button != 1 else ""
@@ -499,20 +539,24 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
                 else:
                     off_mask.new_value = set_bit(off_mask.value, button - 1, False)
 
-    def set_toggle_mode(self, button: int, mode: int):
+    def set_toggle_mode(self, button: int, toggle_mode: ToggleMode):
         """Set the toggle mode of a button.
 
         Usage:
             button: Integer of the button number
-            mode: Integer of the mode
+            toggle_mode: Integer of the toggle mode
                 0: Toggle
                 1: Non-Toggle ON only
                 2: Non-Toggle OFF only
         """
         if button not in self._buttons.keys():
             raise ValueError(f"Button {button} not in button list.")
-        if mode not in [0, 1, 2]:
-            raise ValueError(f"Mode {mode} invalid. Valid mode are [0, 1, 2]")
+        try:
+            toggle_mode = ToggleMode(toggle_mode)
+        except ValueError as err:
+            raise ValueError(
+                f"Toggle mode {toggle_mode} invalid. Valid modes are [0, 1, 2]"
+            ) from err
 
         toggle_mask = self.properties[NON_TOGGLE_MASK]
         on_off_mask = self.properties[NON_TOGGLE_ON_OFF_MASK]
@@ -530,10 +574,10 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         else:
             on_off_mask_test = on_off_mask.new_value
 
-        if mode == 0:
+        if toggle_mode == ToggleMode.TOGGLE:
             toggle_mask.new_value = set_bit(toggle_mask_test, button - 1, False)
             on_off_mask.new_value = set_bit(on_off_mask_test, button - 1, False)
-        elif mode == 1:
+        elif toggle_mode == ToggleMode.ON_ONLY:
             toggle_mask.new_value = set_bit(toggle_mask_test, button - 1, True)
             on_off_mask.new_value = set_bit(on_off_mask_test, button - 1, True)
         else:
@@ -546,8 +590,8 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         self._handlers[GET_LEDS_COMMAND] = StatusRequestCommand(
             self._address, status_type=1
         )
-        for group in self._groups:
-            if isinstance(self._groups[group], OnLevel):
+        for group, group_prop in self._groups.items():
+            if isinstance(group_prop, OnLevel):
                 self._handlers[group]["manual_change"] = ManualChangeInbound(
                     self._address, group
                 )
@@ -568,7 +612,7 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[GET_LEDS_COMMAND].subscribe(self._led_status)
         for group in self._buttons:
-            if self._groups.get(group) is not None:
+            if group != 1:
                 led_method = partial(self._led_follow_check, group=group)
                 self._managers[group][ON_LEVEL_MANAGER].subscribe(led_method)
 
@@ -591,7 +635,7 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
     def _change_led_status(self, led, is_on):
         leds = {}
         for curr_led in range(1, 9):
-            var = "group{}".format(curr_led)
+            var = f"group{curr_led}"
             curr_group = self._groups.get(curr_led)
             curr_val = bool(curr_group.value) if curr_group else False
             leds[var] = is_on if curr_led == led else curr_val
@@ -618,9 +662,9 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
             if state:
                 state.value = bit_is_set(status, bit - 1)
 
-    def _register_operating_flags(self):
+    def _register_op_flags_and_props(self):
         """Register operating flags."""
-        super()._register_operating_flags()
+        super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
         self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
@@ -631,17 +675,67 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         self._add_operating_flag(LED_BLINK_ON_ERROR_OFF, 5, 2, 0x14, 0x15)
 
         self._add_property(LED_DIMMING, 9, 7, 1)
-        self._add_property(NON_TOGGLE_MASK, 0x0A, 0x08)
-        self._add_property(NON_TOGGLE_ON_OFF_MASK, 0x0D, 0x0B)
-        self._add_property(TRIGGER_GROUP_MASK, 0x0E, 0x0C)
+        self._add_property(NON_TOGGLE_MASK, 0x0A, 0x08, prop_type=PropertyType.ADVANCED)
+        self._add_property(
+            NON_TOGGLE_ON_OFF_MASK, 0x0D, 0x0B, prop_type=PropertyType.ADVANCED
+        )
+        self._add_property(
+            TRIGGER_GROUP_MASK, 0x0E, 0x0C, prop_type=PropertyType.ADVANCED
+        )
         for button in self._buttons:
             button_str = f"_{button}" if button != 1 else ""
-            self._add_property(f"{ON_MASK}{button_str}", 3, 2, button)
-            self._add_property(f"{OFF_MASK}{button_str}", 4, 3, button)
-            self._add_property(f"{X10_HOUSE}{button_str}", 5, None, button)
-            self._add_property(f"{X10_UNIT}{button_str}", 6, None, button)
-            self._add_property(f"{RAMP_RATE}{button_str}", 7, 5, button)
-            self._add_property(f"{ON_LEVEL}{button_str}", 8, 6, button)
+            self._add_property(
+                f"{ON_MASK}{button_str}", 3, 2, button, prop_type=PropertyType.ADVANCED
+            )
+            self._add_property(
+                f"{OFF_MASK}{button_str}", 4, 3, button, prop_type=PropertyType.ADVANCED
+            )
+            self._add_property(
+                f"{X10_HOUSE}{button_str}",
+                5,
+                None,
+                button,
+                prop_type=PropertyType.ADVANCED,
+            )
+            self._add_property(
+                f"{X10_UNIT}{button_str}",
+                6,
+                None,
+                button,
+                prop_type=PropertyType.ADVANCED,
+            )
+            self._add_property(
+                f"{RAMP_RATE}{button_str}",
+                7,
+                5,
+                button,
+                prop_type=PropertyType.ADVANCED,
+            )
+            self._add_property(
+                f"{ON_LEVEL}{button_str}", 8, 6, button, prop_type=PropertyType.ADVANCED
+            )
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
+        )
+        self._config[RADIO_BUTTON_GROUPS] = RadioButtonGroupsProperty(
+            self, RADIO_BUTTON_GROUPS
+        )
+        for group in self._groups:
+            if group == 1:
+                continue
+            button = self._buttons[group]
+            name = f"{TOGGLE_BUTTON}_{button[-1]}"
+            self._config[name] = ToggleButtonProperty(
+                self._address,
+                name,
+                group,
+                self.properties[NON_TOGGLE_MASK],
+                self.properties[NON_TOGGLE_ON_OFF_MASK],
+            )
 
 
 class DimmableLightingControl_KeypadLinc_6(DimmableLightingControl_KeypadLinc):

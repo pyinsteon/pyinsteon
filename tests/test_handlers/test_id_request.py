@@ -16,7 +16,7 @@ from tests.utils import TopicItem, async_case, send_topics
 class TestIdRequest(unittest.TestCase):
     """Test the id_request command handler."""
 
-    def setUp(self):
+    async def async_setup(self):
         """Set up the test."""
         self._address = Address("1a2b3c")
         self.id_handler = IdRequestCommand(self._address)
@@ -35,10 +35,10 @@ class TestIdRequest(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=False,
+            logger_topics=True,
         )
 
-    def set_id(self, address, cat, subcat, firmware, group, mode):
+    def set_id(self, address, cat, subcat, firmware, group, link_mode):
         """Handle callback to on_level direct_ack."""
         self._cat = cat
         self._subcat = subcat
@@ -47,6 +47,7 @@ class TestIdRequest(unittest.TestCase):
     @async_case
     async def test_id_request(self):
         """Test ID Request command."""
+        await self.async_setup()
         cmd1 = 0x99
         cmd2 = 0xAA
         topics = [
@@ -86,6 +87,7 @@ class TestIdRequest(unittest.TestCase):
     @async_case
     async def test_id_request_nak(self):
         """Test the ON command."""
+        await self.async_setup()
         cmd1 = 0x99
         cmd2 = 0xAA
         topics = [

@@ -2,11 +2,14 @@
 import unittest
 from binascii import unhexlify
 
+from pyinsteon import pub
 from pyinsteon.constants import DeviceCategory, MessageId
+
 # pylint: disable=unused-import
-from pyinsteon.protocol.messages.outbound import set_host_dev_cat
+from pyinsteon.protocol.messages.outbound import set_host_device_category  # noqa: F401
 from tests import set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
+from tests.utils import async_case
 
 
 class TestSetHostDeviceCategory(unittest.TestCase, OutboundBase):
@@ -16,7 +19,7 @@ class TestSetHostDeviceCategory(unittest.TestCase, OutboundBase):
         """Test set up."""
         self.hex = "0266030405"
         self.bytes_data = unhexlify(self.hex)
-        self.message_id = MessageId.SET_HOST_DEV_CAT
+        self.message_id = MessageId.SET_HOST_DEVICE_CATEGORY
         self.cat = DeviceCategory(0x03)
         self.subcat = int(0x04)
         self.firmware = int(0x05)
@@ -33,16 +36,22 @@ class TestSetHostDeviceCategory(unittest.TestCase, OutboundBase):
             logger_topics=False,
         )
 
-    def test_cat(self):
+    @async_case
+    async def test_cat(self):
         """Test cat."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.cat == self.cat
 
-    def test_subcat(self):
+    @async_case
+    async def test_subcat(self):
         """Test subcat."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.subcat == self.subcat
 
-    def test_firmware(self):
+    @async_case
+    async def test_firmware(self):
         """Test firmware."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.firmware == self.firmware
 
 

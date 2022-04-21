@@ -25,7 +25,7 @@ class LowBatteryManager(SubscriberBase):
         """Init the LowBatteryManager class."""
         self._address = Address(address)
         self._group = group
-        subscriber_topic = "subscriber_{}_low_battery".format(self._address.id)
+        subscriber_topic = f"subscriber_{self._address.id}_low_battery"
         super().__init__(subscriber_topic)
 
         self._on_low_battery = OnLevelInbound(self._address, self._group)
@@ -34,11 +34,9 @@ class LowBatteryManager(SubscriberBase):
         self._off_low_battery.subscribe(self._low_battery)
         self._low_battery_recd = False
         self._low_battery_state = False
-        self._low_battery_event = self.LowBatterySubscriber(
-            "{}.true".format(subscriber_topic)
-        )
+        self._low_battery_event = self.LowBatterySubscriber(f"{subscriber_topic}.true")
         self._low_battery_clear_event = self.LowBatterySubscriber(
-            "{}.false".format(subscriber_topic)
+            f"{subscriber_topic}.false"
         )
         subscribe_topic(self._all_device_messages, self._address.id)
 

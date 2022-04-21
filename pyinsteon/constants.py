@@ -56,6 +56,7 @@ class MessageId(HexIntEnum):
     ALL_LINK_CLEANUP_FAILURE_REPORT = 0x56
     ALL_LINK_RECORD_RESPONSE = 0x57
     ALL_LINK_CLEANUP_STATUS_REPORT = 0x58
+    READ_EEPROM_RESPONSE = 0x59
     GET_IM_INFO = 0x60
     SEND_ALL_LINK_COMMAND = 0x61
     SEND_STANDARD = 0x62
@@ -63,7 +64,7 @@ class MessageId(HexIntEnum):
     X10_SEND = 0x63
     START_ALL_LINKING = 0x64
     CANCEL_ALL_LINKING = 0x65
-    SET_HOST_DEV_CAT = 0x66
+    SET_HOST_DEVICE_CATEGORY = 0x66
     RESET_IM = 0x67
     SET_ACK_MESSAGE_BYTE = 0x68
     GET_FIRST_ALL_LINK_RECORD = 0x69
@@ -77,6 +78,11 @@ class MessageId(HexIntEnum):
     SET_ACK_MESSAGE_TWO_BYTES = 0x71
     RF_SLEEP = 0x72
     GET_IM_CONFIGURATION = 0x73
+    CANCEL_CLEANUP = 0x74
+    READ_EEPROM = 0x75
+    WRITE_EEPROM = 0x76
+    BEEP = 0x77
+    UNKNOWN = 0x99  # Only used to test for bad message types
 
 
 class MessageFlagType(HexIntEnum):
@@ -107,6 +113,7 @@ class ALDBStatus(HexIntEnum):
     LOADING = 2
     FAILED = 3
     PARTIAL = 4
+    DIRTY = 5
 
 
 class ALDBVersion(Enum):
@@ -116,6 +123,14 @@ class ALDBVersion(Enum):
     V1 = 1
     V2 = 2
     V2CS = 20
+
+
+class ReadWriteMode(HexIntEnum):
+    """Modem read mode."""
+
+    UNKNOWN = 0x00
+    STANDARD = 0x01
+    EEPROM = 0x02
 
 
 class EngineVersion(HexIntEnum):
@@ -132,6 +147,14 @@ class X10CommandType(HexIntEnum):
 
     UNITCODE = 0x00
     COMMAND = 0x80
+
+
+class PropertyType(HexIntEnum):
+    """Describes the device property class type."""
+
+    STANDARD = 0x00
+    ADVANCED = 0x01
+    DERIVED = 0x02
 
 
 class ThermostatMode(HexIntEnum):
@@ -170,6 +193,14 @@ class RelayMode(HexIntEnum):
     MOMENTARY_A = 1
     MOMENTARY_B = 2
     MOMENTARY_C = 3
+
+
+class ToggleMode(HexIntEnum):
+    """Toggle mode used by KeypadLinc device class 0x01 and 0x02."""
+
+    TOGGLE = 0
+    ON_ONLY = 1
+    OFF_ONLY = 2
 
 
 class X10Commands(HexIntEnum):
@@ -400,3 +431,119 @@ RAMP_RATES_SEC = {
     0.2: 0x1E,
     0.1: 0x1F,
 }
+
+
+class DeviceAction(Enum):
+    """Device list actions."""
+
+    ADDED = 0
+    REMOVED = 1
+    COMPLETED = 2
+
+
+class SprinklerControlCommand(HexIntEnum):
+    """Sprinkler control options."""
+
+    LOAD_INITIALIZATION_VALUES = 0x00
+    LOAD_EEPROM_FROM_RAM = 0x01
+    GET_VALVE_STATUS = 0x02
+    INHIBIT_COMMAND_ACCEPTANCE = 0x03
+    RESUME_COMMAND_ACCEPTANCE = 0x04
+    SKIP_FORWARD = 0x05
+    SKIP_BACK = 0x06
+    ENABLE_PUMP_ON_V8 = 0x07
+    DISABLE_PUMP_ON_V8 = 0x08
+    BROADCAST_ON = 0x09
+    BROADCAST_OFF = 0x0A
+    LOAD_RAM_FROM_EEPROM = 0x0B
+    SENSOR_ON = 0x0C
+    SENSOR_OFF = 0x0D
+    DIAGNOSTICS_ON = 0x0E
+    DIAGNOSTICS_OFF = 0x0F
+
+
+class IOModuleControlCommand(HexIntEnum):
+    """IO Module control options."""
+
+    LOAD_INITIALIZATION_VALUES = 0x00
+    LOAD_EEPROM_FROM_RAM = 0x01
+    STATUS_REQUEST = 0x02
+    READ_ANALOG_ONCE = 0x03
+    READ_ANALOG_ALWAYS = 0x04
+    ENABLE_STATUS_CHANGE_MESSAGE = 0x09
+    DISABLE_STATUS_CHANGE_MESSAGE = 0x0A
+    LOAD_RAM_FROM_EEPROM = 0x0B
+    SENSOR_ON = 0x0C
+    SENSOR_OFF = 0x0D
+    DIAGNOSTICS_ON = 0x0E
+    DIAGNOSTICS_OFF = 0x0F
+
+
+class PoolControlCommand(HexIntEnum):
+    """Pool Module control options."""
+
+    LOAD_INITIALIZATION_VALUES = 0x00
+    LOAD_EEPROM_FROM_RAM = 0x01
+    GET_MODE = 0x02
+    GET_AMBIENT_TEMPERATURE = 0x03
+    GET_WATER_TEMPERATURE = 0x04
+    GET_PH = 0x05
+
+
+class DoorCommand(HexIntEnum):
+    """Door Module command options."""
+
+    RAISE_DOOR = 0x00
+    LOWER_DOOR = 0x01
+    OPEN_DOOR = 0x02
+    CLOSE_DOOR = 0x03
+    STOP_DOOR = 0x04
+    SINGLE_DOOR_OPEN = 0x05
+    SINGLE_DOOR_CLOSE = 0x06
+
+
+class WindowCoveringCommand(HexIntEnum):
+    """Window Covering command options."""
+
+    OPEN = 0x01
+    CLOSE = 0x02
+    STOP = 0x03
+    PROGRAM = 0x04
+
+
+class ThermostatCommand(HexIntEnum):
+    """Thermostat command options."""
+
+    LOAD_INITIALIZATION_VALUES = 0x00
+    LOAD_EEPROM_FROM_RAM = 0x01
+    GET_THERMOSTAT_MODE = 0x02
+    GET_AMBIENT_TEMPERATURE = 0x03
+    ON_HEAT = 0x04
+    ON_COOL = 0x05
+    ON_AUTO = 0x06
+    ON_FAN = 0x07
+    OFF_FAN = 0x08
+    OFF_ALL = 0x09
+    PROGRAM_HEAT = 0x0A
+    PROGRAM_COOL = 0x0B
+    PROGRAM_AUTO = 0x0C
+    GET_EQUIPMENT_STATE = 0x0D
+    SET_EQUIPMENT_STATE = 0x0E
+    GET_TEMPERATURE_UNITS = 0x0F
+    SET_FAHRENHEIT = 0x10
+    SET_CELSIUS = 0x11
+    GET_FAN_ON_SPEED = 0x12
+    SET_FAN_ON_SPEED_LOW = 0x13
+    SET_FAN_ON_SPEED_MEDIUM = 0x14
+    SET_FAN_ON_SPEED_HIGH = 0x15
+    ENABLE_STATUS_CHANGE_MESSAGE = 0x16
+    DISABLE_STATUS_CHANGE_MESSAGE = 0x17
+
+
+class ThermostatZoneInfo(HexIntEnum):
+    """Thermostat zone information options."""
+
+    TEMPERATURE = 0x00
+    SETPOINT = 0x01
+    DEADBAND = 0x10
+    HUMIDITY = 0x11

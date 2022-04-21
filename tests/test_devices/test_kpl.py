@@ -4,26 +4,15 @@ import random
 import unittest
 
 from pyinsteon import pub
-from pyinsteon.commands import ON, OFF, STATUS_REQUEST
+from pyinsteon.commands import OFF, ON, STATUS_REQUEST
+from pyinsteon.config import NON_TOGGLE_MASK, NON_TOGGLE_ON_OFF_MASK, OFF_MASK, ON_MASK
 from pyinsteon.constants import ResponseStatus
 from pyinsteon.device_types.dimmable_lighting_control import (
     DimmableLightingControl_KeypadLinc_8,
 )
-from pyinsteon.extended_property import (
-    NON_TOGGLE_MASK,
-    NON_TOGGLE_ON_OFF_MASK,
-    OFF_MASK,
-    ON_MASK,
-)
 from pyinsteon.utils import bit_is_set
 from tests import set_log_levels
-from tests.utils import (
-    random_address,
-    async_case,
-    cmd_kwargs,
-    TopicItem,
-    send_topics,
-)
+from tests.utils import TopicItem, async_case, cmd_kwargs, random_address, send_topics
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,7 +29,8 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
             logger_topics=True,
         )
 
-    def test_set_radio_buttons(self):
+    @async_case
+    async def test_set_radio_buttons(self):
         """Test the `set_radio_buttons` feature."""
 
         address = random_address()
@@ -67,7 +57,8 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
             assert on_mask.new_value == masks[button]
             assert off_mask.new_value == masks[button]
 
-    def test_clear_radio_buttons(self):
+    @async_case
+    async def test_clear_radio_buttons(self):
         """Test the `set_radio_buttons` feature."""
 
         address = random_address()
@@ -103,7 +94,8 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
             assert on_mask.new_value == masks[button]
             assert off_mask.new_value == masks[button]
 
-    def test_clear_radio_buttons_when_preset(self):
+    @async_case
+    async def test_clear_radio_buttons_when_preset(self):
         """Test clearing an existing radio button group."""
         address = random_address()
         device = DimmableLightingControl_KeypadLinc_8(
@@ -148,7 +140,8 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
             assert on_mask.new_value == masks[button]
             assert off_mask.new_value == masks[button]
 
-    def test_set_toggle_mode(self):
+    @async_case
+    async def test_set_toggle_mode(self):
         """Test setting toggle modes."""
         address = random_address()
         device = DimmableLightingControl_KeypadLinc_8(
@@ -297,22 +290,23 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
         cmd2_on = random.randint(0, 255)
         target = device.address
         user_data = None
-        ack_status = "ack.{}.{}.direct".format(device.address.id, STATUS_REQUEST)
+        ack_status_0 = "ack.{}.{}.direct".format(device.address.id, STATUS_REQUEST)
+        ack_status_1 = "ack.{}.{}.direct".format(device.address.id, STATUS_REQUEST)
         direct_ack_status = "{}.{}.direct_ack".format(device.address.id, STATUS_REQUEST)
         ack_on = "ack.{}.1.{}.direct".format(device.address.id, ON)
         direct_ack_on = "{}.{}.direct_ack".format(device.address.id, ON)
-        status_1_handler_topic = f"handler.{device.address.id}.status_request.direct_1"
-        status_handler_topic = f"handler.{device.address.id}.status_request.direct"
+        status_1_handler_topic = f"handler.{device.address.id}.1.status_request.direct"
+        status_handler_topic = f"handler.{device.address.id}.2.status_request.direct"
         pub.subscribe(receive_status, status_handler_topic)
         pub.subscribe(receive_status_1, status_1_handler_topic)
         responses = [
-            TopicItem(ack_status, cmd_kwargs(0x19, 0x00, user_data), 0.25),
+            TopicItem(ack_status_0, cmd_kwargs(0x19, 0x02, user_data), 0.5),
             TopicItem(
                 direct_ack_status,
                 cmd_kwargs(cmd1_status, cmd2_status, user_data, target),
                 0.25,
             ),
-            TopicItem(ack_status, cmd_kwargs(0x19, 0x01, user_data), 0.25),
+            TopicItem(ack_status_1, cmd_kwargs(0x19, 0x01, user_data), 0.25),
             TopicItem(
                 direct_ack_status,
                 cmd_kwargs(cmd1_status_1, cmd2_status_1, user_data, target),

@@ -1,14 +1,17 @@
 """Test UserData data type."""
-import sys
+
 import unittest
 from binascii import unhexlify
 
-from pyinsteon.protocol.messages.user_data import UserData, create_empty
-from tests import _LOGGER, set_log_levels
+from pyinsteon.data_types.user_data import UserData, create_empty
+from tests import set_log_levels
 
 
 class TestUserData(unittest.TestCase):
+    """Test UserData data type."""
+
     def setUp(self):
+        """Set up the test."""
         self.hex_user_data = "0102030405060708090a0b0c0d0e"
         self.bytes_user_data = unhexlify(self.hex_user_data)
         self.user_data = UserData(unhexlify(self.hex_user_data))
@@ -62,7 +65,7 @@ class TestUserData(unittest.TestCase):
         """Test creating an empty Userdata element set to None."""
         for itm in range(1, 15):
             key = "d{}".format(itm)
-            assert self.emtpy_none_user_data[key] == None
+            assert self.emtpy_none_user_data[key] is None
 
     def test_set_value(self):
         """Test setting UserData values."""

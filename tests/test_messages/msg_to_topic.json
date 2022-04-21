@@ -1,0 +1,114 @@
+{
+	"STANDARD_MESSAGE_RECEIVED": {
+		"message": "025003040506070809990b",
+		"topic": "standard_message_received"
+	},
+	"EXTENDED_MESSAGE_RECEIVED": {
+		"message": "025103040506070809990ba1a2a3a4a5a6a7a8a9aaabacadae",
+		"topic": "extended_message_received"
+	},
+	"X10_RECEIVED": {
+		"message": "02520380",
+		"topic": "x10_received"
+	},
+	"ALL_LINKING_COMPLETED": {
+		"message": "0253030405060708090a",
+		"topic": "all_linking_completed"
+	},
+	"BUTTON_EVENT_REPORT": {
+		"message": "025403",
+		"topic": "button_event_report"
+	},
+	"USER_RESET_DETECTED": {
+		"message": "0255",
+		"topic": "user_reset_detected"
+	},
+	"ALL_LINK_CLEANUP_FAILURE_REPORT": {
+		"message": "02560304050607",
+		"topic": "all_link_cleanup_failure_report"
+	},
+	"ALL_LINK_RECORD_RESPONSE": {
+		"message": "0257030405060708090a",
+		"topic": "all_link_record_response"
+	},
+	"ALL_LINK_CLEANUP_STATUS_REPORT": {
+		"message": "025806",
+		"topic": "all_link_cleanup_status_report"
+	},
+	"GET_IM_INFO": {
+		"message": "026003040506070806",
+		"topic": "get_im_info"
+	},
+	"SEND_ALL_LINK_COMMAND": {
+		"message": "026103040006",
+		"topic": "send_all_link_command"
+	},
+	"X10_SEND": {
+		"message": "0263010006",
+		"topic": "x10_send"
+	},
+	"START_ALL_LINKING": {
+		"message": "0264030406",
+		"topic": "start_all_linking"
+	},
+	"CANCEL_ALL_LINKING": {
+		"message": "026506",
+		"topic": "cancel_all_linking"
+	},
+	"SET_HOST_DEVICE_CATEGORY": {
+		"message": "02660304050606",
+		"topic": "set_host_device_category"
+	},
+	"RESET_IM": {
+		"message": "026706",
+		"topic": "reset_im"
+	},
+	"SET_ACK_MESSAGE_BYTE": {
+		"message": "02680306",
+		"topic": "set_ack_message_byte"
+	},
+	"GET_FIRST_ALL_LINK_RECORD": {
+		"message": "026906",
+		"topic": "get_first_all_link_record"
+	},
+	"GET_NEXT_ALL_LINK_RECORD": {
+		"message": "026A06",
+		"topic": "get_next_all_link_record"
+	},
+	"SET_IM_CONFIGURATION": {
+		"message": "026B0306",
+		"topic": "set_im_configuration"
+	},
+	"GET_ALL_LINK_RECORD_FOR_SENDER": {
+		"message": "026C06",
+		"topic": "get_all_link_record_for_sender"
+	},
+	"LED_ON": {
+		"message": "026D06",
+		"topic": "led_on"
+	},
+	"LED_OFF": {
+		"message": "026E06",
+		"topic": "led_off"
+	},
+	"MANAGE_ALL_LINK_RECORD": {
+		"message": "026F010405060708090a0b06",
+		"topic": "manage_all_link_record"
+	},
+	"SET_NAK_MESSAGE_BYTE": {
+		"message": "02700306",
+		"topic": "set_nak_message_byte"
+	},
+	"SET_ACK_MESSAGE_TWO_BYTES": {
+		"message": "0271030406",
+		"topic": "set_ack_message_two_bytes"
+	},
+	"RF_SLEEP": {
+		"message": "027206",
+		"topic": "rf_sleep"
+	},
+	"GET_IM_CONFIGURATION": {
+		"message": "02730304050606",
+		"topic": "get_im_configuration"
+	}
+}

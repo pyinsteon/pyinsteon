@@ -1,8 +1,12 @@
 """Base class for testing outbound messages."""
 
 from pyinsteon import pub
-from pyinsteon.protocol.messages.outbound import register_outbound_handlers
+from pyinsteon.protocol.messages.outbound import (
+    outbound_write_manager,
+    register_outbound_handlers,
+)
 from tests import set_log_levels
+from tests.utils import async_case
 
 
 class OutboundBase:
@@ -15,30 +19,34 @@ class OutboundBase:
             logger="info",
             logger_pyinsteon="debug",
             logger_messages="debug",
-            logger_topics=False,
+            logger_topics=True,
         )
         register_outbound_handlers()
         self.msg = None
         self.message_id = message_id
         self.bytes_data = bytes_data
-        pub.subscribe(self.receive_message, "send_message")
-        topic = self.message_id.name.lower()
+        outbound_write_manager.protocol_write = self.write_message
+        self.topic = self.message_id.name.lower()
         if (
-            topic == "send_standard"
+            self.topic == "send_standard"
             and kwargs.get("flags")
             and kwargs.get("flags").is_extended
         ):
-            topic = "send_extended"
-        pub.sendMessage("send.{}".format(topic), **kwargs)
+            self.topic = "send_extended"
+        self.kwargs = kwargs
 
-    def receive_message(self, msg, priority=5):
+    def write_message(self, msg, priority=5):
         """Set the message from the outbound publisher."""
         self.msg = msg
 
-    def test_id(self):
+    @async_case
+    async def test_id(self):
         """Test the message ID matches the expected message."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.message_id == self.message_id
 
-    def test_bytes(self):
+    @async_case
+    async def test_bytes(self):
         """Test the byte representation matches the expected value."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert bytes(self.msg) == self.bytes_data

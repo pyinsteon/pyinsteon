@@ -1,10 +1,8 @@
 """Manage inbound ON command from device."""
 import logging
-from collections import OrderedDict
 
 from ...constants import MessageFlagType
 from ...topics import EXTENDED_GET_RESPONSE
-from ...utils import build_topic
 from .. import inbound_handler
 from ..inbound_base import InboundHandlerBase
 
@@ -21,16 +19,11 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
             address=address,
             message_type=MessageFlagType.DIRECT,
         )
-        self._subscriber_topic = build_topic(
-            prefix="handler.{}".format(self._address.id),  # Force address
-            topic=EXTENDED_GET_RESPONSE,
-            message_type=MessageFlagType.DIRECT,
-        )
 
     @inbound_handler
     def handle_response(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the Extended Get response from a device."""
-        data = OrderedDict()
+        data = {}
         for item in range(3, 15):
-            data["data{}".format(item)] = user_data["d{}".format(item)]
+            data[f"data{item}"] = user_data[f"d{item}"]
         self._call_subscribers(group=user_data["d1"], data=data)

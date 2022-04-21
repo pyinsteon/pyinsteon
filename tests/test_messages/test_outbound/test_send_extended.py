@@ -2,14 +2,17 @@
 import unittest
 from binascii import unhexlify
 
+from pyinsteon import pub
 from pyinsteon.address import Address
 from pyinsteon.constants import MessageId
-from pyinsteon.protocol.messages.message_flags import MessageFlags
+from pyinsteon.data_types.message_flags import MessageFlags
+from pyinsteon.data_types.user_data import UserData
+
 # pylint: disable=unused-import
-from pyinsteon.protocol.messages.outbound import send_extended
-from pyinsteon.protocol.messages.user_data import UserData
+from pyinsteon.protocol.messages.outbound import send_extended  # noqa: F401
 from tests import set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
+from tests.utils import async_case
 
 
 class TestSendExtended(unittest.TestCase, OutboundBase):
@@ -43,24 +46,34 @@ class TestSendExtended(unittest.TestCase, OutboundBase):
             logger_topics=False,
         )
 
-    def test_address(self):
+    @async_case
+    async def test_address(self):
         """Test address."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.address == self.address
 
-    def test_flags(self):
+    @async_case
+    async def test_flags(self):
         """Test flags."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.flags == self.flags
 
-    def test_cmd1(self):
+    @async_case
+    async def test_cmd1(self):
         """Test cmd1."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.cmd1 == self.cmd1
 
-    def test_cmd2(self):
+    @async_case
+    async def test_cmd2(self):
         """Test cmd2."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.cmd2 == self.cmd2
 
-    def test_user_data(self):
+    @async_case
+    async def test_user_data(self):
         """Test user_data."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.user_data == self.user_data
 
 

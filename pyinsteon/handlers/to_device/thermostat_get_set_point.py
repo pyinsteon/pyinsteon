@@ -1,12 +1,9 @@
 """Handle sending a read request for ALDB records."""
-import logging
 
 from ...address import Address
 from ...topics import EXTENDED_GET_SET
 from .. import ack_handler
 from .direct_command import DirectCommandHandlerBase
-
-_LOGGER = logging.getLogger(__name__)
 
 
 class ThermostatGetSetPointCommand(DirectCommandHandlerBase):
@@ -19,11 +16,13 @@ class ThermostatGetSetPointCommand(DirectCommandHandlerBase):
     # pylint: disable=arguments-differ
     async def async_send(self):
         """Send Get Operating Flags message asyncronously."""
+        # This is not consistant with the 2441TH dev guide
+        # It is consistand with 2441ZTH dev guide howerver
         response = await super().async_send(data3=0x01)
         return response
 
     @ack_handler
-    def handle_ack(self, cmd1, cmd2, user_data):
+    async def async_handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK response.
 
         Required to ensure only GET requests are triggered.
@@ -35,9 +34,9 @@ class ThermostatGetSetPointCommand(DirectCommandHandlerBase):
             or not user_data["d3"] == 0x01
         ):
             return
-        super().handle_ack(cmd1, cmd2, user_data)
+        await super().async_handle_ack(cmd1, cmd2, user_data)
 
-    def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Update subscribers.
 
         Just need to notify listeners that the Set Point Response

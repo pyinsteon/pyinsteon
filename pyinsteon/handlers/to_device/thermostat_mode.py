@@ -3,6 +3,24 @@ from ...constants import ThermostatMode
 from ...topics import THERMOSTAT_CONTROL
 from .direct_command import DirectCommandHandlerBase
 
+MODE_MAP = {
+    ThermostatMode.HEAT: 0x04,
+    ThermostatMode.COOL: 0x05,
+    ThermostatMode.AUTO: 0x06,
+    ThermostatMode.FAN_ALWAYS_ON: 0x07,
+    ThermostatMode.FAN_AUTO: 0x08,
+    ThermostatMode.OFF: 0x09,
+}
+
+THERMOSTAT_MODE_MAP = {
+    0x04: ThermostatMode.HEAT,
+    0x05: ThermostatMode.COOL,
+    0x06: ThermostatMode.AUTO,
+    0x07: ThermostatMode.FAN_ALWAYS_ON,
+    0x08: ThermostatMode.FAN_AUTO,
+    0x09: ThermostatMode.OFF,
+}
+
 
 class ThermostatModeCommand(DirectCommandHandlerBase):
     """Manage an outbound THERMOSTAT_TEMPERATURE_DOWN command to a device."""
@@ -12,40 +30,17 @@ class ThermostatModeCommand(DirectCommandHandlerBase):
         super().__init__(topic=THERMOSTAT_CONTROL, address=address)
 
     # pylint: disable=arguments-differ
-    def send(self, mode):
-        """Send the OFF command."""
-        super().send(mode=mode)
-
-    # pylint: disable=arguments-differ
-    async def async_send(self, mode):
+    async def async_send(self, thermostat_mode):
         """Send the OFF command async."""
-        if mode == ThermostatMode.HEAT:
-            send_mode = 0x04
-        elif mode == ThermostatMode.COOL:
-            send_mode = 0x05
-        elif mode == ThermostatMode.AUTO:
-            send_mode = 0x06
-        elif mode == ThermostatMode.FAN_ALWAYS_ON:
-            send_mode = 0x07
-        elif mode == ThermostatMode.FAN_AUTO:
-            send_mode = 0x08
-        elif mode == ThermostatMode.OFF:
-            send_mode = 0x09
-        return await super().async_send(mode=send_mode)
+        thermostat_mode = ThermostatMode(thermostat_mode)
+        send_mode = MODE_MAP.get(thermostat_mode)
+        if send_mode is None:
+            raise ValueError("Invalid thermostat mode")
+        return await super().async_send(thermostat_mode=send_mode)
 
-    def _update_subscribers(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Update subscribers."""
-        if cmd2 == 0x04:
-            mode = ThermostatMode.HEAT
-        elif cmd2 == 0x05:
-            mode = ThermostatMode.COOL
-        elif cmd2 == 0x06:
-            mode = ThermostatMode.AUTO
-        elif cmd2 == 0x07:
-            mode = ThermostatMode.FAN_ALWAYS_ON
-        elif cmd2 == 0x08:
-            mode = ThermostatMode.FAN_AUTO
-        elif cmd2 == 0x09:
-            mode = ThermostatMode.OFF
-
-        self._call_subscribers(mode=mode)
+        thermostat_mode = THERMOSTAT_MODE_MAP.get(cmd2)
+        if thermostat_mode is None:
+            return
+        self._call_subscribers(thermostat_mode=thermostat_mode)

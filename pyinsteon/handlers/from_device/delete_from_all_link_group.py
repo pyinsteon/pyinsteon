@@ -1,7 +1,6 @@
 """Assign a device to an all link group."""
 from ...address import Address
 from ...topics import DELETE_FROM_ALL_LINK_GROUP
-from .. import broadcast_handler
 from .broadcast_command import BroadcastCommandHandlerBase
 
 
@@ -12,11 +11,8 @@ class DeleteFromAllLinkGroupCommand(BroadcastCommandHandlerBase):
         """Init the DeleteFromAllLinkGroupCommand class."""
         super().__init__(topic=DELETE_FROM_ALL_LINK_GROUP, address=address)
 
-    @broadcast_handler
-    def receive_id(self, cmd1, cmd2, target, user_data, hops_left):
+    def _handle_message_received(self, cmd1, cmd2, target, user_data, hops_left):
         """Receive the device ID information."""
-        if not self.is_first_message(target, hops_left):
-            return
         cat = target.high
         subcat = target.middle
         firmware = target.low
@@ -26,5 +22,5 @@ class DeleteFromAllLinkGroupCommand(BroadcastCommandHandlerBase):
             subcat=subcat,
             firmware=firmware,
             group=cmd2,
-            mode=None,
+            link_mode=None,
         )

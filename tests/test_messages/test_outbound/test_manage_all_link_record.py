@@ -2,14 +2,16 @@
 import unittest
 from binascii import unhexlify
 
+from pyinsteon import pub
 from pyinsteon.address import Address
 from pyinsteon.constants import ManageAllLinkRecordAction, MessageId
-from pyinsteon.protocol.messages.all_link_record_flags import \
-    AllLinkRecordFlags
+from pyinsteon.data_types.all_link_record_flags import AllLinkRecordFlags
+
 # pylint: disable=unused-import
-from pyinsteon.protocol.messages.outbound import manage_all_link_record
+from pyinsteon.protocol.messages.outbound import manage_all_link_record  # noqa: F401
 from tests import set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
+from tests.utils import async_case
 
 
 class TestManageAllLinkRecord(unittest.TestCase, OutboundBase):
@@ -46,32 +48,46 @@ class TestManageAllLinkRecord(unittest.TestCase, OutboundBase):
             logger_topics=False,
         )
 
-    def test_action(self):
+    @async_case
+    async def test_action(self):
         """Test action."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.action == self.action
 
-    def test_flags(self):
+    @async_case
+    async def test_flags(self):
         """Test flags."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.flags == self.flags
 
-    def test_group(self):
+    @async_case
+    async def test_group(self):
         """Test group."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.group == self.group
 
-    def test_target(self):
+    @async_case
+    async def test_target(self):
         """Test target."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.target == self.target
 
-    def test_data1(self):
+    @async_case
+    async def test_data1(self):
         """Test data1."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.data1 == self.data1
 
-    def test_data2(self):
+    @async_case
+    async def test_data2(self):
         """Test data2."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.data2 == self.data2
 
-    def test_data3(self):
+    @async_case
+    async def test_data3(self):
         """Test data3."""
+        pub.sendMessage("send.{}".format(self.topic), **self.kwargs)
         assert self.msg.data3 == self.data3
 
 
