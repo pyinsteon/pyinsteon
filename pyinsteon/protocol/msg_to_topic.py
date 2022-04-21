@@ -26,7 +26,7 @@ from ..topics import (
     SEND_ALL_LINK_COMMAND,
     SET_ACK_MESSAGE_BYTE,
     SET_ACK_MESSAGE_TWO_BYTES,
-    SET_HOST_DEV_CAT,
+    SET_HOST_DEVICE_CATEGORY,
     SET_IM_CONFIGURATION,
     SET_NAK_MESSAGE_BYTE,
     START_ALL_LINKING,
@@ -49,7 +49,7 @@ def convert_to_topic(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
     return converter(msg)
 
 
-def _msg_group(topic, message_type, target, cmd2, user_data):
+def _get_group_from_msg(topic, message_type, target, cmd2, user_data):
     """Derive the group number of the message from the message type.
 
     message_flag_type: MessageFlagType 0 to 7:
@@ -80,7 +80,7 @@ def _msg_group(topic, message_type, target, cmd2, user_data):
 
 def _create_rcv_std_ext_msg(topic, address, flags, cmd1, cmd2, target, user_data):
     if commands.use_group(topic):
-        group = _msg_group(topic, flags.message_type, target, cmd2, user_data)
+        group = _get_group_from_msg(topic, flags.message_type, target, cmd2, user_data)
     else:
         group = None
     topic = build_topic(
@@ -218,7 +218,7 @@ def send_all_link_command(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
 
 def _create_send_std_ext(topic, address, flags, cmd1, cmd2, user_data, ack):
     if commands.use_group(topic):
-        group = _msg_group(topic, flags.message_type, None, cmd2, user_data)
+        group = _get_group_from_msg(topic, flags.message_type, None, cmd2, user_data)
     else:
         group = None
 
@@ -272,9 +272,9 @@ def cancel_all_linking(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
     yield (topic, kwargs)
 
 
-def set_host_dev_cat(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
-    """Create a topic from an set_host_dev_cat message."""
-    topic = build_topic(prefix=msg.ack, topic=SET_HOST_DEV_CAT)
+def set_host_device_category(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
+    """Create a topic from an set_host_device_category message."""
+    topic = build_topic(prefix=msg.ack, topic=SET_HOST_DEVICE_CATEGORY)
     kwargs = {"cat": msg.cat, "subcat": msg.subcat, "firmware": msg.firmware}
     yield (topic, kwargs)
 
@@ -428,7 +428,7 @@ MSG_CONVERTER[0x62] = send_standard_or_extended_message
 MSG_CONVERTER[0x63] = x10_send
 MSG_CONVERTER[0x64] = start_all_linking
 MSG_CONVERTER[0x65] = cancel_all_linking
-MSG_CONVERTER[0x66] = set_host_dev_cat
+MSG_CONVERTER[0x66] = set_host_device_category
 MSG_CONVERTER[0x67] = reset_im
 MSG_CONVERTER[0x68] = set_ack_message_byte
 MSG_CONVERTER[0x69] = get_first_all_link_record

@@ -461,7 +461,6 @@
                     "flags": 32,
                     "cmd1": 33,
                     "cmd2": 22,
-                    "user_data": {},
                     "target": "445566"
                 }
             ],
@@ -804,6 +803,62 @@
             "response": 1,
             "assert_tests": {
                 "degrees": 82
+            }
+        },
+        "thermostat_cool_set_point_with_zone": {
+            "command": {
+                "class": ".thermostat_cool_set_point.ThermostatCoolSetPointCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "degrees": 64,
+                    "zone": 1,
+                    "deadband": 2
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 108,
+                    "cmd2": 124,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "degrees": 64,
+                "zone": 1,
+                "deadband": 2
+            }
+        },
+        "thermostat_heat_set_point_with_zone": {
+            "command": {
+                "class": ".thermostat_heat_set_point.ThermostatHeatSetPointCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "degrees": 84,
+                    "zone": 2,
+                    "deadband": 3
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 109,
+                    "cmd2": 2,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "degrees": 84,
+                "zone": 2,
+                "deadband": 3
             }
         },
         "thermostat_get_set_point": {

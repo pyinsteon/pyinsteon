@@ -99,7 +99,7 @@ class HttpTransport(asyncio.Transport):
 
     def resume_reading(self):
         """Resume the reader."""
-        self._start_reader()
+        self.start_reader()
 
     def set_write_buffer_limits(self, high=None, low=None):
         """Not implemented."""
@@ -116,7 +116,8 @@ class HttpTransport(asyncio.Transport):
 
     def start_reader(self):
         """Start the reader."""
-        if self._reader_task is None:
+        if self._reader_task is None or self._reader_task.cancelled():
+            self._closing = False
             self._start_reader()
 
     async def _async_write_url(self, url, msg=None):
@@ -126,8 +127,6 @@ class HttpTransport(asyncio.Transport):
             retry = 0
             while response_status != 200 and retry < 5:
                 if self.is_closing():
-                    if self._read_write_lock.locked():
-                        self._read_write_lock.release()
                     return
                 response_status = await self._reader_writer.async_write(url)
                 if response_status != 200:
@@ -223,4 +222,5 @@ class HttpTransport(asyncio.Transport):
             self._reader_task.cancel()
             with suppress(asyncio.CancelledError):
                 await self._reader_task
-                await asyncio.sleep(0)
+            await asyncio.sleep(0.01)
+            self._reader_task = None

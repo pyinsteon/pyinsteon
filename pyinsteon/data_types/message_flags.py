@@ -3,40 +3,11 @@
 import binascii
 import logging
 
-from ...constants import MessageFlagType
-from ...utils import test_values_eq
+from ..constants import MessageFlagType
+from ..utils import test_values_eq
 
 _LOGGER = logging.getLogger(__name__)
 _EXTENDED_MESSAGE = 0x10
-
-
-def create(
-    message_flag_type: MessageFlagType,
-    extended: bool = False,
-    hops_left: int = 0,
-    max_hops: int = 0,
-):
-    """Create message flags.
-
-    message_flag_type: MessageFlagType 0 to 7:
-        DIRECT = 0
-        DIRECT_ACK = 1
-        ALL_LINK_CLEANUP = 2
-        ALL_LINK_CLEANUP_ACK = 3
-        BROADCAST = 4
-        DIRECT_NAK = 5
-        ALL_LINK_BROADCAST = 6
-        ALL_LINK_CLEANUP_NAK = 7
-    extended: True for extended, False for standard
-    hops_left: int  0 - 3
-    max_hops:  int  0 - 3
-    """
-    flags = MessageFlags(0x00)
-    flags.message_type = message_flag_type
-    flags.extended = extended
-    flags.hops_left = hops_left
-    flags.max_hops = max_hops
-    return flags
 
 
 class MessageFlags:
@@ -251,3 +222,33 @@ class MessageFlags:
             self._extended = None
             self._hops_left = None
             self._max_hops = None
+
+    @classmethod
+    def create(
+        cls,
+        message_flag_type: MessageFlagType,
+        extended: bool = False,
+        hops_left: int = 0,
+        max_hops: int = 0,
+    ):
+        """Create message flags.
+
+        message_flag_type: MessageFlagType 0 to 7:
+            DIRECT = 0
+            DIRECT_ACK = 1
+            ALL_LINK_CLEANUP = 2
+            ALL_LINK_CLEANUP_ACK = 3
+            BROADCAST = 4
+            DIRECT_NAK = 5
+            ALL_LINK_BROADCAST = 6
+            ALL_LINK_CLEANUP_NAK = 7
+        extended: True for extended, False for standard
+        hops_left: int  0 - 3
+        max_hops:  int  0 - 3
+        """
+        flags = cls(0x00)
+        flags.message_type = message_flag_type
+        flags.extended = extended
+        flags.hops_left = hops_left
+        flags.max_hops = max_hops
+        return flags

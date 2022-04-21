@@ -3,7 +3,7 @@ import unittest
 from binascii import unhexlify
 
 from pyinsteon.constants import AllLinkMode
-from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
+from pyinsteon.data_types.all_link_record_flags import AllLinkRecordFlags
 from tests import set_log_levels
 
 

@@ -5,11 +5,11 @@ from binascii import unhexlify
 from pyinsteon import pub
 from pyinsteon.address import Address
 from pyinsteon.constants import MessageId
-from pyinsteon.protocol.messages.message_flags import MessageFlags
+from pyinsteon.data_types.message_flags import MessageFlags
+from pyinsteon.data_types.user_data import UserData
 
 # pylint: disable=unused-import
 from pyinsteon.protocol.messages.outbound import send_extended  # noqa: F401
-from pyinsteon.protocol.messages.user_data import UserData
 from tests import set_log_levels
 from tests.test_messages.test_outbound.outbound_base import OutboundBase
 from tests.utils import async_case

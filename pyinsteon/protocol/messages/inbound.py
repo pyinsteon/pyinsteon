@@ -4,10 +4,10 @@ from binascii import hexlify
 from typing import Tuple
 
 from ...constants import MessageId
+from ...data_types.message_flags import MessageFlags
 from . import MessageBase
 from .message_definition import MessageDefinition
 from .message_definitions import FLD_EXT_SEND_ACK, INBOUND_MSG_DEF
-from .message_flags import MessageFlags
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,27 +57,17 @@ def create(raw_data: bytearray) -> Tuple[Inbound, bytearray]:
         return data_bytes
 
     def _create_message(msg_def, data_bytes):
-        if len(data_bytes) < len(msg_def):
-            _LOGGER.debug("Full message not received")
-            return None, data_bytes
-        msg_len = 2
-        for field in msg_def.fields:
-            msg_len += field.length
-        if len(data_bytes) >= msg_len:
-            msg = Inbound(msg_def, data_bytes)
-            return msg, _remaining_data(msg, data_bytes)
-        _LOGGER.debug("Message too short")
-        return None, data_bytes
+        msg = Inbound(msg_def, data_bytes)
+        return msg, _remaining_data(msg, data_bytes)
 
     def _standard_message(data_bytes):
         flag_byte = 5
         flags = MessageFlags(data_bytes[flag_byte])
         if flags.is_extended:
             msg_def = MessageDefinition(MessageId.SEND_EXTENDED, FLD_EXT_SEND_ACK)
-            msg, remaining_data = _create_message(msg_def, data_bytes)
         else:
             msg_def = INBOUND_MSG_DEF.get(MessageId.SEND_STANDARD)
-            msg, remaining_data = _create_message(msg_def, data_bytes)
+        msg, remaining_data = _create_message(msg_def, data_bytes)
         return msg, remaining_data
 
     _LOGGER.debug("IN CREATE: %s", raw_data.hex())
@@ -88,26 +78,23 @@ def create(raw_data: bytearray) -> Tuple[Inbound, bytearray]:
         return None, bytearray(data_bytes)
     try:
         msg_id = MessageId(data_bytes[1])
-        msg_def = INBOUND_MSG_DEF.get(msg_id)
-        if msg_def is not None:
-            if len(data_bytes) < len(msg_def):
-                _LOGGER.debug("Full message not received")
-                _LOGGER.debug("Returning: %s", data_bytes.hex())
-                return None, bytearray(data_bytes)
-
-            if msg_id == MessageId.SEND_STANDARD:
-                msg, remaining_data = _standard_message(data_bytes)
-            else:
-                msg, remaining_data = _create_message(msg_def, data_bytes)
-            _LOGGER.debug("Returning: %s", remaining_data.hex())
-            return msg, bytearray(remaining_data)
-
-    # pylint: disable=broad-except
-    except Exception as err:
+    except ValueError as err:
         _LOGGER.debug("Error: %s", err)
         truncate = 1 if data_bytes[1] == 0x02 else 2
         data_bytes = trim_data(bytearray(data_bytes[truncate:]))
         _LOGGER.debug("Returning: %s", data_bytes.hex())
         return None, bytearray(data_bytes)
+    msg_def = INBOUND_MSG_DEF.get(msg_id)
+    if msg_def is not None:
+        if len(data_bytes) < len(msg_def):
+            _LOGGER.debug("Full message not received")
+            _LOGGER.debug("Returning: %s", data_bytes.hex())
+            return None, bytearray(data_bytes)
 
-    return None, raw_data
+        if msg_id == MessageId.SEND_STANDARD:
+            msg, remaining_data = _standard_message(data_bytes)
+        else:
+            msg, remaining_data = _create_message(msg_def, data_bytes)
+        _LOGGER.debug("Returning: %s", remaining_data.hex())
+        return msg, bytearray(remaining_data)
+    return None, trim_data(data_bytes[1:])

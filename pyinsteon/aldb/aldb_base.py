@@ -19,6 +19,19 @@ from ..utils import publish_topic, subscribe_topic
 from .aldb_record import ALDBRecord, new_aldb_record_from_existing
 
 _LOGGER = logging.getLogger(__name__)
+HWM_RECORD = ALDBRecord(
+    0x0000,
+    controller=False,
+    group=0,
+    target="000000",
+    data1=0,
+    data2=0,
+    data3=0,
+    in_use=False,
+    high_water_mark=True,
+    bit4=False,
+    bit5=False,
+)
 
 
 class ALDBBase(ABC):
@@ -134,7 +147,7 @@ class ALDBBase(ABC):
         return self._records.get(mem_addr, default)
 
     def get_responders(self, group):
-        """Return all iterable of responders to this device for a group.
+        """Return an iterable of responders to this device for a group.
 
         Note this only returns the responders known to this device.
         There may be other responders since a device may have
@@ -145,9 +158,9 @@ class ALDBBase(ABC):
             if rec.is_controller and rec.group == group:
                 yield rec.target
 
-    def update_version(self, version):
+    def update_version(self, version: ALDBVersion):
         """Update the ALDB version number."""
-        self._version = version
+        self._version = ALDBVersion(version)
 
     def subscribe_status_changed(self, listener):
         """Subscribe to notification of ALDB load status changes."""
@@ -163,13 +176,6 @@ class ALDBBase(ABC):
         )
         subscribe_topic(listener, f"{DEVICE_LINK_RESPONDER_CREATED}.{self._address.id}")
         subscribe_topic(listener, f"{DEVICE_LINK_RESPONDER_REMOVED}.{self._address.id}")
-
-    def _update_status(self, status):
-        """Update the status of the ALDB and notify listeners."""
-        new_status = ALDBStatus(int(status))
-        if new_status != self._status:
-            self._status = new_status
-            publish_topic(f"{self._address.id}.{ALDB_STATUS_CHANGED}")
 
     @abstractmethod
     async def async_load(self, *args, **kwargs):
@@ -296,7 +302,10 @@ class ALDBBase(ABC):
             rec_to_write = rec.copy()
             if rec.mem_addr == 0x000:
                 rec_to_write.mem_addr = self._next_record_mem_addr(
-                    target=rec.target, group=rec.group, is_controller=rec.is_controller
+                    target=rec.target,
+                    group=rec.group,
+                    is_controller=rec.is_controller,
+                    force=force,
                 )
             result = False
             try:
@@ -307,11 +316,14 @@ class ALDBBase(ABC):
             if result == ResponseStatus.SUCCESS:
                 curr_rec = self._records.get(rec_to_write.mem_addr)
                 # If we wrote to the high water mark, append a new HWM record
-                if curr_rec.is_high_water_mark:
-                    curr_rec.mem_addr -= 8
-                    self._records[curr_rec.mem_addr] = curr_rec
+                if curr_rec and curr_rec.is_high_water_mark:
+                    new_hwm_rec = new_aldb_record_from_existing(
+                        HWM_RECORD, mem_addr=curr_rec.mem_addr - 8
+                    )
+                    self._records[new_hwm_rec.mem_addr] = new_hwm_rec
                 self._records[rec_to_write.mem_addr] = rec_to_write
                 success += 1
+                self._notify_change(rec_to_write)
             else:
                 if rec.mem_addr == 0x0000:
                     next_new_dirty -= 1
@@ -358,20 +370,35 @@ class ALDBBase(ABC):
         else:
             self._update_status(ALDBStatus.EMPTY)
 
+    def _update_status(self, status):
+        """Update the status of the ALDB and notify listeners."""
+        new_status = ALDBStatus(int(status))
+        if new_status != self._status:
+            self._status = new_status
+            publish_topic(f"{self._address.id}.{ALDB_STATUS_CHANGED}")
+
     def _notify_change(self, record, force_delete=False):
         target = record.target
         group = record.group
         is_in_use = True if force_delete else record.is_in_use
         if record.is_controller and is_in_use:
             topic = f"{DEVICE_LINK_CONTROLLER_CREATED}.{self._address.id}"
+            controller = self._address
+            responder = target
         elif record.is_controller and not is_in_use:
             topic = f"{DEVICE_LINK_CONTROLLER_REMOVED}.{self._address.id}"
+            controller = self._address
+            responder = target
         elif not record.is_controller and is_in_use:
             topic = f"{DEVICE_LINK_RESPONDER_CREATED}.{self._address.id}"
+            controller = target
+            responder = self._address
         else:
             topic = f"{DEVICE_LINK_RESPONDER_REMOVED}.{self._address.id}"
+            controller = target
+            responder = self._address
 
-        publish_topic(topic, controller=self._address, responder=target, group=group)
+        publish_topic(topic, controller=controller, responder=responder, group=group)
 
     def _next_new_mem_addr(self):
         """Return the next temporary memory address to use for a new record.
@@ -384,7 +411,9 @@ class ALDBBase(ABC):
             return -1
         return min(min(self._dirty_records), 0) - 1
 
-    def _next_record_mem_addr(self, target: Address, group: int, is_controller: bool):
+    def _next_record_mem_addr(
+        self, target: Address, group: int, is_controller: bool, force: bool = False
+    ):
         """Assign a memory address to a record.
 
         Looks for an existing memory address with the same:
@@ -399,7 +428,7 @@ class ALDBBase(ABC):
 
         If the ALDB is not loaded it returns an ALDBWriteException
         """
-        if not self.is_loaded:
+        if not self.is_loaded and not force:
             raise ALDBWriteException("Cannot calculate the next record to write to.")
 
         for existing_record in self.find(
@@ -407,13 +436,19 @@ class ALDBBase(ABC):
         ):
             return existing_record.mem_addr
 
+        next_mem_addr = self._mem_addr
         for mem_addr, rec in self._records.items():
             if not rec.is_in_use or rec.is_high_water_mark:
                 # This should always be the return if the ALDB is loaded
                 return mem_addr
-        raise Exception(
-            "An unknown error in finding the next ALDB record memory address."
-        )
+            if mem_addr != next_mem_addr:
+                return next_mem_addr
+            next_mem_addr = mem_addr - 8
+        if not force:
+            raise ALDBWriteException(
+                "An unknown error in finding the next ALDB record memory address."
+            )
+        return next_mem_addr
 
     def _calc_load_status(self):
         """Test if the ALDB is fully loaded."""

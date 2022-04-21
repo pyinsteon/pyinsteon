@@ -55,6 +55,7 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
     @direct_nak_handler
     async def async_handle_direct_nak(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the message ACK."""
+        await asyncio.sleep(0.05)
         if self._response_lock.locked():
             await self._direct_response.put(ResponseStatus.UNCLEAR)
             self._update_subscribers_on_nak(cmd1, cmd2, target, user_data, hops_left)
@@ -62,6 +63,8 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
     @direct_ack_handler
     async def async_handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the direct ACK."""
+        # Need to make sure the ACK has time to aquire the lock
+        await asyncio.sleep(0.05)
         if self._response_lock.locked():
             await self._direct_response.put(ResponseStatus.SUCCESS)
             self._update_subscribers_on_ack(cmd1, cmd2, target, user_data, hops_left)

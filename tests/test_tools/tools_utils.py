@@ -55,7 +55,6 @@ class StdOutStream:
 
     async def drain(self):
         """Drain method used to make StdOutStream look like a stream."""
-        print(self.buffer)
 
 
 STDOUT = StdOutStream()
@@ -236,7 +235,6 @@ class MockDevices:
             await asyncio.sleep(0.1)
             if not self.devices_to_add:
                 break
-        print("Finished")
 
 
 class MockAldb:

@@ -211,19 +211,23 @@ def new_aldb_record_from_existing(rec: ALDBRecord, **kwargs):
     mem_addr = int(get_element_or_default("mem_addr", rec.mem_addr, **kwargs))
     in_use = bool(get_element_or_default("in_use", rec.is_in_use, **kwargs))
     controller = bool(get_element_or_default("controller", rec.is_controller, **kwargs))
+    hwm = bool(
+        get_element_or_default("high_water_mark", rec.is_high_water_mark, **kwargs)
+    )
     target = Address(get_element_or_default("target", rec.target, **kwargs))
     group = int(get_element_or_default("group", rec.group, **kwargs))
     data1 = int(get_element_or_default("data1", rec.data1, **kwargs))
     data2 = int(get_element_or_default("data2", rec.data2, **kwargs))
     data3 = int(get_element_or_default("data3", rec.data3, **kwargs))
-    bit5_set = bool(get_element_or_default("bit5_set", rec.data3, **kwargs))
-    bit4_set = bool(get_element_or_default("data3", rec.data3, **kwargs))
+    bit5_set = bool(get_element_or_default("bit5", rec.is_bit5_set, **kwargs))
+    bit4_set = bool(get_element_or_default("bit4", rec.is_bit4_set, **kwargs))
 
     return ALDBRecord(
         memory=mem_addr,
         controller=controller,
         group=group,
         target=target,
+        high_water_mark=hwm,
         data1=data1,
         data2=data2,
         data3=data3,

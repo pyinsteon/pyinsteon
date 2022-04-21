@@ -5,7 +5,7 @@ import logging
 from pyinsteon.address import Address
 
 from ..constants import ResponseStatus
-from ..protocol.messages.all_link_record_flags import AllLinkRecordFlags, create
+from ..data_types.all_link_record_flags import AllLinkRecordFlags
 from ..topics import WRITE_EEPROM
 from . import ack_handler, nak_handler
 from .outbound_base import OutboundHandlerBase
@@ -38,7 +38,7 @@ class WriteEepromHandler(OutboundHandlerBase):
     ):
         """Send the Write to EEPROM message."""
         mem_array = mem_addr.to_bytes(2, "big")
-        flags = create(
+        flags = AllLinkRecordFlags.create(
             in_use=in_use,
             controller=controller,
             hwm=high_water_mark,

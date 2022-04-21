@@ -7,7 +7,7 @@ from ...address import Address
 from ...constants import MessageFlagType, ResponseStatus
 from ...topics import EXTENDED_READ_WRITE_ALDB, EXTENDED_READ_WRITE_ALDB_DIRECT_NAK
 from ...utils import build_topic, subscribe_topic
-from .. import direct_ack_handler
+from .. import direct_ack_handler, direct_nak_handler
 from .direct_command import DirectCommandHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,6 +38,8 @@ class ReadALDBCommandHandler(DirectCommandHandlerBase):
         self, cmd1, cmd2, target, user_data, hops_left, topic=pub.AUTO_TOPIC
     ):
         """Handle the direct ACK."""
+        # Need to make sure the ACK has time to aquire the lock
+        await asyncio.sleep(0.05)
         if topic.name.endswith("direct_nak.direct_ack"):
             return
         if self._response_lock.locked():
@@ -45,8 +47,11 @@ class ReadALDBCommandHandler(DirectCommandHandlerBase):
             self._update_subscribers_on_ack(cmd1, cmd2, target, user_data, hops_left)
             await asyncio.sleep(0.05)
 
+    @direct_nak_handler
     async def async_handle_direct_nak(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the message ACK."""
+        # Need to make sure the ACK has time to aquire the lock
+        await asyncio.sleep(0.05)
         if self._response_lock.locked():
             await self._direct_response.put(ResponseStatus.FAILURE)
             self._update_subscribers_on_nak(cmd1, cmd2, target, user_data, hops_left)

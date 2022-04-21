@@ -2,7 +2,7 @@
 
 from ..address import Address
 from ..constants import ManageAllLinkRecordAction, ResponseStatus
-from ..protocol.messages.all_link_record_flags import create
+from ..data_types.all_link_record_flags import AllLinkRecordFlags
 from ..topics import MANAGE_ALL_LINK_RECORD
 from . import ack_handler, nak_handler
 from .outbound_base import OutboundHandlerBase
@@ -31,7 +31,7 @@ class ManageAllLinkRecordCommand(OutboundHandlerBase):
         bit4: bool = False,
     ):
         """Send Manage All-Link Record command."""
-        flags = create(
+        flags = AllLinkRecordFlags.create(
             in_use=in_use,
             controller=controller,
             hwm=high_water_mark,

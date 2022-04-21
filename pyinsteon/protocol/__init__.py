@@ -52,7 +52,7 @@ async def async_modem_connect(
 
     transport = None
     if not device and not host:
-        return ValueError("Must specify either a device or a host")
+        raise ValueError("Must specify either a device or a host")
 
     if device:
         connect_method = partial(async_connect_serial, **{"device": device})
@@ -79,6 +79,7 @@ async def async_modem_connect(
     retries = 5
     result = None
     while retries and result != ResponseStatus.SUCCESS:
+        await asyncio.sleep(1)
         result = await get_im_info.async_send()
         retries -= 1
 

@@ -5,7 +5,7 @@ from binascii import unhexlify
 from pyinsteon import pub
 from pyinsteon.address import Address
 from pyinsteon.constants import ManageAllLinkRecordAction, MessageId
-from pyinsteon.protocol.messages.all_link_record_flags import AllLinkRecordFlags
+from pyinsteon.data_types.all_link_record_flags import AllLinkRecordFlags
 
 # pylint: disable=unused-import
 from pyinsteon.protocol.messages.outbound import manage_all_link_record  # noqa: F401

@@ -2,7 +2,7 @@
 
 from binascii import hexlify
 
-from ...utils import bit_is_set, set_bit
+from ..utils import bit_is_set, set_bit
 
 
 def create(auto_link: bool, monitor_mode: bool, auto_led: bool, disable_deadman: bool):

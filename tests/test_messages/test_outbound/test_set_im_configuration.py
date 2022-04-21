@@ -4,7 +4,7 @@ from binascii import unhexlify
 
 from pyinsteon import pub
 from pyinsteon.constants import MessageId
-from pyinsteon.protocol.messages.im_config_flags import IMConfigurationFlags
+from pyinsteon.data_types.im_config_flags import IMConfigurationFlags
 
 # pylint: disable=unused-import
 from pyinsteon.protocol.messages.outbound import set_im_configuration  # noqa: F401

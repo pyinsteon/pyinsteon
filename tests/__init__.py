@@ -13,7 +13,13 @@ PATH = os.path.join(os.getcwd())
 
 
 async def async_connect_mock(
-    read_queue, write_queue, protocol, random_nak=True, auto_ack=True
+    read_queue,
+    write_queue,
+    protocol,
+    random_nak=True,
+    auto_ack=True,
+    connect=True,
+    retries=None,
 ):
     """Mock connection for testing."""
     from .mock_transport import MockTransport
@@ -21,8 +27,12 @@ async def async_connect_mock(
     transport = MockTransport(
         protocol, read_queue, write_queue, random_nak=random_nak, auto_ack=auto_ack
     )
-    protocol.connection_made(transport)
-    return transport
+    if connect or not retries:
+        protocol.connection_made(transport)
+        return transport
+    if retries:
+        retries.pop(0)
+    return None
 
 
 def set_log_levels(

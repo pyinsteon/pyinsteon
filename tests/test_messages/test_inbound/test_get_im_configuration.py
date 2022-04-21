@@ -3,7 +3,7 @@ import unittest
 from binascii import unhexlify
 
 from pyinsteon.constants import AckNak, MessageId
-from pyinsteon.protocol.messages.im_config_flags import IMConfigurationFlags
+from pyinsteon.data_types.im_config_flags import IMConfigurationFlags
 from tests import set_log_levels
 from tests.utils import hex_to_inbound_message
 
