@@ -68,7 +68,7 @@ class HttpReaderWriter:
                 ) as session:
                     async with session.get(url) as response:
                         if response.status == 200:
-                            html = await response.text()
+                            html = await response.text(encoding="utf-8")
                         else:
                             _log_error(response.status)
                             raise HubConnectionException(
