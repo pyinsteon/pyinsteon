@@ -197,7 +197,7 @@ class DeviceManager(SubscriberBase):
         try:
             while link_next:
                 await async_enter_linking_mode(
-                    is_controller=True, group=0, address=address
+                    link_mode=AllLinkMode.EITHER, group=0, address=address
                 )
                 # Make sure we don't try to put the same address in linking mode again if multiple is True
                 address = None
@@ -244,7 +244,7 @@ class DeviceManager(SubscriberBase):
 
         This command takes the modem out of linking mode.
         """
-        self._linked_device.put_nowait(False)
+        await self._linked_device.put(False)
 
     def add_x10_device(
         self,
@@ -340,6 +340,7 @@ class DeviceManager(SubscriberBase):
         if self._loading_saved_lock.locked():
             return
 
+        await self._linked_device.put(device_id.address)
         device = self._devices.get(device_id.address)
         if (
             device
@@ -348,8 +349,6 @@ class DeviceManager(SubscriberBase):
             and device.firmware == device_id.firmware
         ):
             return
-
-        self._linked_device.put_nowait(device_id.address)
 
         if link_mode == AllLinkMode.DELETE:
             _LOGGER.debug("Device %s removed", str(device_id.address))
