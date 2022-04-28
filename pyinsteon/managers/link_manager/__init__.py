@@ -16,11 +16,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_enter_linking_mode(
-    is_controller: bool, group: int, address: Address = None
+    link_mode: AllLinkMode, group: int, address: Address = None
 ):
     """Put the Insteon Modem into linking mode."""
     link_cmd = StartAllLinkingCommandHandler()
-    link_mode = AllLinkMode.CONTROLLER if is_controller else AllLinkMode.RESPONDER
     response = await link_cmd.async_send(link_mode=link_mode, group=group)
     _LOGGER.debug("Enter linking mode response: %s", str(response))
 

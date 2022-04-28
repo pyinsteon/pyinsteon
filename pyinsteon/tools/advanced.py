@@ -6,7 +6,7 @@ import aiofiles
 
 from .. import devices
 from ..aldb.aldb_record import ALDBRecord
-from ..constants import ALDBStatus, LinkStatus
+from ..constants import ALDBStatus, AllLinkMode, LinkStatus
 from ..managers.link_manager import (
     async_cancel_linking_mode,
     async_enter_linking_mode,
@@ -14,6 +14,12 @@ from ..managers.link_manager import (
 )
 from ..managers.saved_devices_manager import aldb_rec_to_dict, dict_to_aldb_record
 from .aldb import ToolsAldb
+
+LINK_MODE_MAP = {
+    "c": AllLinkMode.CONTROLLER,
+    "r": AllLinkMode.RESPONDER,
+    "e": AllLinkMode.EITHER,
+}
 
 
 class AdvancedTools(ToolsAldb):
@@ -536,19 +542,18 @@ class AdvancedTools(ToolsAldb):
         Useage:
             enter_linking_mode [--background | -b] link_mode group
 
-        link_mode: c | r  (c = Modem is controller, r = Modem is responder)
+        link_mode: c | r | e  (c = Modem is controller, r = Modem is responder, e = Either)
         group: 0 - 255
         """
         try:
-            is_controller = await self._ensure_bool(
+            link_mode = await self._ensure_string(
                 value=link_mode,
+                values=["c", "r", "e"],
                 name="Link mode",
                 ask_value=not background,
-                true_val="c",
-                values=["c", "r"],
                 log_stdout=log_stdout,
             )
-            if is_controller is None:
+            if link_mode is None:
                 log_stdout("Linking mode is required")
                 return
         except ValueError:
@@ -565,7 +570,7 @@ class AdvancedTools(ToolsAldb):
             return
 
         await async_enter_linking_mode(
-            is_controller=is_controller, group=group, address=None
+            link_mode=LINK_MODE_MAP[link_mode], group=group, address=None
         )
 
     async def do_cancel_linking_mode(self):
