@@ -298,7 +298,10 @@ class ALDBBase(ABC):
         dirty_addrs = sorted(self._dirty_records, reverse=True)
         next_new_dirty = 0
         for dirty_addr in dirty_addrs:
-            rec = self._dirty_records.pop(dirty_addr)
+            try:
+                rec = self._dirty_records.pop(dirty_addr)
+            except KeyError:
+                pass
             rec_to_write = rec.copy()
             if rec.mem_addr == 0x000:
                 rec_to_write.mem_addr = self._next_record_mem_addr(
