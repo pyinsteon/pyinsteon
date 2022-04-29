@@ -15,7 +15,7 @@ except ImportError:
 import pyinsteon
 from pyinsteon.address import Address
 from pyinsteon.aldb.aldb_record import ALDBRecord
-from pyinsteon.constants import ALDBStatus
+from pyinsteon.constants import ALDBStatus, AllLinkMode
 from pyinsteon.device_types import ClimateControl_WirelessThermostat
 from pyinsteon.tools.advanced import AdvancedTools
 from tests.utils import async_case, random_address
@@ -108,7 +108,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
     async def test_enter_linking_mode(self):
         """Test the enter_linking_mode command of the tools function."""
         mock_enter_linking_mode = AsyncMock()
-        linking_modes = ["r", "c"]
+        linking_modes = ["r", "c", "e"]
         async with self.test_lock:
             with patch.object(
                 pyinsteon.tools.advanced, "devices", devices
@@ -121,11 +121,17 @@ class TestToolsAdvancedMenu(ToolsTestBase):
             ):
                 for mode in ["input", "inline", "background"]:
                     # Happy path
-                    linking_mode = linking_modes[random.randint(0, 1)]
-                    is_controller = linking_mode == "c"
+                    link_mode_in = linking_modes[random.randint(0, 2)]
+                    if link_mode_in == "r":
+                        link_mode = AllLinkMode.RESPONDER
+                    elif link_mode_in == "c":
+                        link_mode = AllLinkMode.CONTROLLER
+                    else:
+                        link_mode = AllLinkMode.EITHER
+
                     group = random.randint(0, 255)
                     inputs = create_tools_commands(
-                        mode, "enter_linking_mode", linking_mode, str(group)
+                        mode, "enter_linking_mode", link_mode_in, str(group)
                     )
                     cmd_mgr, _, _ = self.setup_cmd_tool(
                         AdvancedTools,
@@ -136,7 +142,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     await cmd_mgr.async_cmdloop("")
                     assert mock_enter_linking_mode.call_count == 1
                     mock_enter_linking_mode.assert_called_with(
-                        is_controller=is_controller, group=group, address=None
+                        link_mode=link_mode, group=group, address=None
                     )
 
                     # Add link with no linking mode
@@ -166,7 +172,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
 
                     # Add default links with no group
                     inputs = create_tools_commands(
-                        mode, "enter_linking_mode", linking_mode, "", curr_dir=curr_dir
+                        mode, "enter_linking_mode", link_mode_in, "", curr_dir=curr_dir
                     )
                     cmd_mgr, _, stdout = self.setup_cmd_tool(
                         AdvancedTools, inputs, allow_logging=True
@@ -220,7 +226,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     inputs = create_tools_commands(
                         mode,
                         "enter_linking_mode",
-                        linking_mode,
+                        link_mode_in,
                         "x",
                         "",
                         curr_dir=curr_dir,

@@ -64,6 +64,7 @@ class Protocol(asyncio.Protocol):
         self._should_reconnect = True
         self._connect_method = connect_method
         self._writer_task = None
+        self._writer_lock = asyncio.Lock()
         outbound_write_manager.protocol_write = self.write
         register_outbound_handlers()
         register_command_handlers()
@@ -86,7 +87,6 @@ class Protocol(asyncio.Protocol):
     def connection_made(self, transport):
         """Run when a connection to the transport has been made."""
         self._transport = transport
-        self._start_writer()
         publish_topic("connection.made")
 
     def data_received(self, data):
@@ -118,14 +118,15 @@ class Protocol(asyncio.Protocol):
         """Notify listeners that the serial connection is lost."""
         _LOGGER.debug("Connection lost called")
         _LOGGER.debug("Should reconnect: %s", self._should_reconnect)
-        asyncio.ensure_future(self._stop_writer())
+        asyncio.create_task(self._stop_writer())
         if self._should_reconnect:
-            asyncio.ensure_future(self.async_connect())
+            asyncio.create_task(self.async_connect())
 
     async def async_connect(self, retry=True):
-        """Connect to the transport asyncrously."""
+        """Connect to the transport asynchronously."""
         wait_time = 0.1
         while not self.connected:
+            _LOGGER.debug("Attempting to connect to modem")
             self._transport = await self._connect_method(protocol=self)
             if self._transport is None and not retry:
                 publish_topic("connection.failed")
@@ -133,6 +134,9 @@ class Protocol(asyncio.Protocol):
             if not self.connected and retry:
                 await asyncio.sleep(wait_time)
                 wait_time = min(MAX_RECONNECT_WAIT_TIME, 1.5 * wait_time)
+        self._start_writer()
+
+        _LOGGER.debug("Connected to modem in async_connect")
 
     def pause_writing(self):
         """Pause writing to the transport."""
@@ -151,15 +155,25 @@ class Protocol(asyncio.Protocol):
 
     def _start_writer(self, *args, **kwargs):
         """Start the message writer."""
+        if self._writer_lock.locked():
+            return
+
+        while not self._message_queue.empty():
+            self._message_queue.get_nowait()
+
         if self._transport and not self._transport.is_closing():
-            self._writer_task = asyncio.ensure_future(self._write_messages())
+            if self._writer_task and (
+                self._writer_task.cancelled() or not self._writer_task.done()
+            ):
+                _LOGGER.debug("Writer still running.")
+            self._writer_task = asyncio.create_task(self._write_messages())
             self._writer_task.add_done_callback(self._start_writer)
 
     async def _stop_writer(self):
         """Stop the writer task."""
         if self._writer_task:
             self._writer_task.remove_done_callback(self._start_writer)
-        await self._message_queue.put((-1, None))
+        await self._message_queue.put((0, None))
 
     # pylint: disable=broad-except
     async def _publish_message(self, msg):
@@ -182,7 +196,7 @@ class Protocol(asyncio.Protocol):
     def write(self, msg, priority=5):
         """Prepare data for writing to the transport.
 
-        Data is actually writen by _write_message to ensure a pause beteen writes.
+        Data is actually written by _write_message to ensure a pause between writes.
         This approach minimizes NAK messages. This also allows for some messages
         to be lower priority such as 'Load ALDB' versus higher priority such as
         'Set Light Level'.
@@ -199,17 +213,20 @@ class Protocol(asyncio.Protocol):
     async def _write_messages(self):
         """Write data to the transport."""
         _LOGGER.debug("Modem writer started.")
-        try:
-            while self._transport and not self._transport.is_closing():
-                _, msg = await self._message_queue.get()
-                if msg is None:
-                    return
-                _LOGGER_MSG.debug("TX: %s", repr(msg))
-                while not self._last_message.empty():
-                    self._last_message.get()
-                self._last_message.put(msg)
-                await self._transport.async_write(msg)
-                await asyncio.sleep(self._transport.write_wait)
-        except RuntimeError as error:
-            _LOGGER.debug("Modem writer stopped due to a runtime error: %s", str(error))
+        async with self._writer_lock:
+            try:
+                while self._transport and not self._transport.is_closing():
+                    _, msg = await self._message_queue.get()
+                    if msg is None:
+                        return
+                    _LOGGER_MSG.debug("TX: %s", repr(msg))
+                    while not self._last_message.empty():
+                        self._last_message.get()
+                    self._last_message.put(msg)
+                    await self._transport.async_write(msg)
+                    await asyncio.sleep(self._transport.write_wait)
+            except RuntimeError as error:
+                _LOGGER.error(
+                    "Modem writer stopped due to a runtime error: %s", str(error)
+                )
         _LOGGER.debug("Modem writer stopped.")
