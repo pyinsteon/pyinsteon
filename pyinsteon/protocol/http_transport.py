@@ -201,10 +201,10 @@ class HttpTransport(asyncio.Transport):
                     await asyncio.sleep(READ_WAIT)
         _LOGGER.info("Insteon Hub reader stopped")
 
-    def _reader_closed_callback(self, exec):
+    def _reader_closed_callback(self, exc):
         """Call when the reader closes."""
         self._closing = True
-        self._protocol.connection_lost(exec)
+        self._protocol.connection_lost(exc)
 
     def _check_strong_nak(self, buffer):
         """Check if a NAK message is received with multiple `NAKs`.
