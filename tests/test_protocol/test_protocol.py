@@ -122,7 +122,7 @@ class TestProtocol(unittest.TestCase):
             "pyinsteon.protocol.protocol.publish_topic", self.mock_publish_topic
         ):
             try:
-                async with async_protocol_manager(connect=False, retry=False) as protocol:
+                async with async_protocol_manager(connect=False, retry=False):
                     await asyncio.sleep(0.1)
                     assert False
             except ConnectionError:
@@ -200,6 +200,7 @@ class TestProtocol(unittest.TestCase):
     async def test_pause_resume_writer(self):
         """Test the pause_writer and resume_writer methods."""
         async with async_protocol_manager(auto_ack=False) as protocol:
+            await asyncio.sleep(0.1)
             protocol.write(unhexlify("02620a0b0c09110b"))
             await asyncio.sleep(0.1)
             assert protocol.message_queue.empty()
