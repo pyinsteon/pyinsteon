@@ -30,6 +30,8 @@ class StdoutFilter(Filter):
 
     def filter(self, record):
         """Filter out commands."""
+        if record.msg.find("Encoding detection") != -1:
+            return False
         if record.msg[0 : len(self.prefix)] == self.prefix:
             record.msg = self.strip_prefix(record.msg)
             return True
@@ -50,6 +52,8 @@ class StripPrefixFilter(Filter):
 
     def filter(self, record):
         """Filter out commands."""
+        if record.msg.find("Encoding detection") != -1:
+            return False
         if record.msg[0 : len(self.prefix)] == self.prefix:
             record.msg = self.strip_prefix(record.msg)
         return True

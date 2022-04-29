@@ -122,6 +122,9 @@ class HttpReaderWriter:
         raw_text = html.replace("<response><BS>", "")
         raw_text = raw_text.replace("</BS></response>", "")
         raw_text = raw_text.strip()
+        odd_length = len(raw_text) % 2
+        if odd_length:
+            return None
         if raw_text[:200] == "0" * 200:
             # Likely the buffer was cleared
             await self.reset_reader()
