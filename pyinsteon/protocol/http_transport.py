@@ -23,6 +23,7 @@ async def async_connect_http(host, username, password, protocol, port=None):
         protocol=protocol, host=host, port=port, username=username, password=password
     )
     if await transport.async_test_connection():
+        _LOGGER.debug("Connection made async_connect_http")
         transport.start_reader()
         protocol.connection_made(transport)
         return transport

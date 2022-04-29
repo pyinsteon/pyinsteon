@@ -36,9 +36,9 @@ class DeviceLinkManager:
 
     def _controller_link_created(self, controller, responder, group):
         controller_group = _controller_group_topic(controller, group)
-        subscribe_topic(self._check_responders, controller_group)
+        subscribe_topic(self._async_check_responders, controller_group)
 
-    def _check_responders(self, topic=pub.AUTO_TOPIC, **kwargs):
+    async def _async_check_responders(self, topic=pub.AUTO_TOPIC, **kwargs):
         controller, group, msg_type = _topic_to_addr_group(topic)
         if msg_type != MessageFlagType.ALL_LINK_BROADCAST:
             return
@@ -82,4 +82,4 @@ class DeviceLinkManager:
         for addr in responders:
             device = self._devices[addr]
             if device:
-                device.status()
+                await device.async_status()

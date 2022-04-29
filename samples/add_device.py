@@ -3,6 +3,7 @@
 import asyncio
 
 from pyinsteon import async_close, async_connect
+from pyinsteon.constants import AllLinkMode
 from pyinsteon.managers.link_manager import async_enter_linking_mode
 from samples import _LOGGER, PATH, get_hub_config, set_log_levels
 
@@ -43,7 +44,7 @@ async def do_run():
     devices = await async_connect(host=HOST, username=USERNAME, password=PASSWORD)
     await devices.async_load(workdir=PATH, id_devices=0)
     devices.subscribe(device_added)
-    await async_enter_linking_mode(is_controller=True, group=0)
+    await async_enter_linking_mode(link_mode=AllLinkMode.EITHER, group=0)
     _LOGGER.info("Press device SET button")
     await done.get()
     await async_close()
