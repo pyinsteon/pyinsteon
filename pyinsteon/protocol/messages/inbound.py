@@ -65,6 +65,10 @@ def create(raw_data: bytearray) -> Tuple[Inbound, bytearray]:
         flags = MessageFlags(data_bytes[flag_byte])
         if flags.is_extended:
             msg_def = MessageDefinition(MessageId.SEND_EXTENDED, FLD_EXT_SEND_ACK)
+            if len(data_bytes) < len(msg_def):
+                _LOGGER.debug("Full extended message not received")
+                _LOGGER.debug("Returning: %s", data_bytes.hex())
+                return None, bytearray(data_bytes)
         else:
             msg_def = INBOUND_MSG_DEF.get(MessageId.SEND_STANDARD)
         msg, remaining_data = _create_message(msg_def, data_bytes)
