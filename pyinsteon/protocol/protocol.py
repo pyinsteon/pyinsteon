@@ -124,7 +124,7 @@ class Protocol(asyncio.Protocol):
         """Notify listeners that the serial connection is lost."""
         _LOGGER.debug("Connection lost called")
         _LOGGER.debug("Should reconnect: %s", self._should_reconnect)
-        if exc.exception():
+        if exc and exc.exception():
             _LOGGER.error("pyinsteon transport exception: %s", str(exc.exception()))
         if self._should_reconnect:
             asyncio.create_task(self.async_connect())
