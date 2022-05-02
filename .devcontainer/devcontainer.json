@@ -41,6 +41,6 @@
 		"esbenp.prettier-vscode",
 		"GitHub.vscode-pull-request-github"
 	],
-	"postCreateCommand": "script/bootstrap",
+	"postCreateCommand": "./scripts/bootstrap",
 	"remoteUser": "vscode"
 }
