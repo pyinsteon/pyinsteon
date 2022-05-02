@@ -97,8 +97,8 @@ class Protocol(asyncio.Protocol):
             try:
                 msg, self._buffer = create(self._buffer)
             except (ValueError, IndexError) as ex:
-                _LOGGER.error("Invalid message data: %s", self._buffer.hex())
-                _LOGGER.error("%s: %s", type(ex), str(ex))
+                _LOGGER.debug("Invalid message data: %s", self._buffer.hex())
+                _LOGGER.debug("%s: %s", type(ex), str(ex))
                 self._buffer = self._buffer[1:]
                 msg = None
 
@@ -125,7 +125,7 @@ class Protocol(asyncio.Protocol):
         _LOGGER.debug("Connection lost called")
         _LOGGER.debug("Should reconnect: %s", self._should_reconnect)
         if exc and exc.exception():
-            _LOGGER.error("pyinsteon transport exception: %s", str(exc.exception()))
+            _LOGGER.warning("pyinsteon transport exception: %s", str(exc.exception()))
         if self._should_reconnect:
             asyncio.create_task(self.async_connect())
         else:
@@ -238,7 +238,7 @@ class Protocol(asyncio.Protocol):
                     await self._transport.async_write(msg)
                     await asyncio.sleep(self._transport.write_wait)
             except RuntimeError as error:
-                _LOGGER.error(
+                _LOGGER.warn(
                     "Modem writer stopped due to a runtime error: %s", str(error)
                 )
         _LOGGER.debug("Modem writer stopped.")

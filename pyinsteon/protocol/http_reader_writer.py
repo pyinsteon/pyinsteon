@@ -53,7 +53,7 @@ class HttpReaderWriter:
                                 return True
                             _log_error(response.status)
         except asyncio.TimeoutError:
-            _LOGGER.error("An aiohttp timeout error occured during test connection.")
+            _LOGGER.error("An aiohttp timeout error occurred during test connection.")
         except ClientError as exc:
             _LOGGER.error("An client error occurred: %s", str(exc))
         return False
@@ -104,7 +104,7 @@ class HttpReaderWriter:
                         else:
                             _log_error(response.status)
         except ClientError:
-            _LOGGER.error("Hub write failure (ClienError)")
+            _LOGGER.error("Hub write failure (ClientError)")
         except asyncio.TimeoutError:
             _LOGGER.error("Hub write failure (TimeoutError)")
 
