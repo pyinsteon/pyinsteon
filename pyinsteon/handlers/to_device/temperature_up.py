@@ -21,7 +21,7 @@ class TemperatureUpCommand(DirectCommandHandlerBase):
     @ack_handler
     async def async_handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK response."""
-        if user_data:
+        if user_data["d1"]:
             self._zone = cmd2
             self._degrees = user_data["d1"] * 0.5
         else:

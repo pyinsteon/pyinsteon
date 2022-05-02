@@ -238,7 +238,7 @@ class Protocol(asyncio.Protocol):
                     await self._transport.async_write(msg)
                     await asyncio.sleep(self._transport.write_wait)
             except RuntimeError as error:
-                _LOGGER.warn(
+                _LOGGER.warning(
                     "Modem writer stopped due to a runtime error: %s", str(error)
                 )
         _LOGGER.debug("Modem writer stopped.")
