@@ -56,7 +56,7 @@ class GetThermostatStatus:
                 )
                 return response_status
             except asyncio.TimeoutError:
-                _LOGGER.error("Exception _status timed out, retries: %d", retries)
+                _LOGGER.debug("Exception _status timed out, retries: %d", retries)
             retries -= 1
         return response_status
 

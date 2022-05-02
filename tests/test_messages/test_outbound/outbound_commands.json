@@ -453,7 +453,7 @@
             "degrees": 5,
             "zone": 0
         },
-        "result": "0262aaaaaa00680a"
+        "result": "0262aaaaaa10680a"
     },
     "THERMOSTAT_TEMPERATURE_DOWN": {
         "topic": "thermostat_temperature_down",
@@ -476,7 +476,7 @@
         "args": {
             "thermostat_mode": 3
         },
-        "result": "0262aaaaaa006B03"
+        "result": "0262aaaaaa106B03"
     },
     "THERMOSTAT_SET_COOL_SETPOINT": {
         "topic": "thermostat_set_cool_setpoint",
@@ -485,7 +485,7 @@
             "zone": 0,
             "deadband": 0
         },
-        "result": "0262aaaaaa006C0a"
+        "result": "0262aaaaaa106C0a"
     },
     "THERMOSTAT_SET_HEAT_SETPOINT": {
         "topic": "thermostat_set_heat_setpoint",

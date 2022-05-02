@@ -223,8 +223,8 @@ class ToolsBase(Cmd):
             try:
                 func = getattr(self, "menu_" + cmd)
             except AttributeError:
+                self._log_stdout(f"Invalid command: {cmd}")
                 return
-
         args, kwargs, args_valid = self._parse_args(func, all_args)
 
         if not args_valid:

@@ -831,7 +831,7 @@ def thermostat_temperature_up(
     degrees_value = int(round(degrees * 2, 0))
     if not zone:
         cmd2 = degrees_value
-        user_data = None
+        user_data = UserData()
     else:
         cmd2 = zone
         user_data = UserData({"d1": degrees_value})
@@ -848,7 +848,7 @@ def thermostat_temperature_down(
     degrees_value = int(round(degrees * 2, 0))
     if not zone:
         cmd2 = degrees_value
-        user_data = None
+        user_data = UserData()
     else:
         cmd2 = zone
         user_data = UserData({"d1": degrees_value})
@@ -882,7 +882,8 @@ def thermostat_control(
     address: Address, thermostat_mode: ThermostatCommand, topic=pub.AUTO_TOPIC
 ):
     """Create a THERMOSTAT_CONTROL command."""
-    _create_direct_message(topic=topic, address=address, cmd2=int(thermostat_mode))
+    user_data = UserData()
+    _create_direct_message(topic=topic, address=address, cmd2=int(thermostat_mode), user_data=user_data)
 
 
 @topic_to_command_handler(
@@ -894,7 +895,7 @@ def thermostat_set_cool_setpoint(
     """Create a THERMOSTAT_SET_COOL_SETPOINT command."""
     if not zone:
         cmd2 = int(degrees * 2)
-        user_data = None
+        user_data = UserData()
     else:
         cmd2 = zone
         user_data = UserData({"d1": degrees * 2, "d2": deadband * 2})
@@ -910,7 +911,7 @@ def thermostat_set_heat_setpoint(
     """Create a THERMOSTAT_SET_HEAT_SETPOINT command."""
     if not zone:
         cmd2 = int(degrees * 2)
-        user_data = None
+        user_data = UserData()
     else:
         cmd2 = zone
         user_data = UserData({"d1": degrees * 2, "d2": deadband * 2})
