@@ -982,7 +982,7 @@ commands.add(
     cmd2=None,
     ud_allowed=True,
     ud_required=False,
-    userdata=None,
+    userdata=True,
     use_group=False,
 )
 commands.add(
@@ -991,7 +991,7 @@ commands.add(
     cmd2=None,
     ud_allowed=True,
     ud_required=False,
-    userdata=None,
+    userdata=True,
     use_group=False,
 )
 commands.add(
@@ -1009,7 +1009,7 @@ commands.add(
     cmd2=None,
     ud_allowed=False,
     ud_required=False,
-    userdata=None,
+    userdata=True,
     use_group=False,
 )
 commands.add(
@@ -1018,7 +1018,7 @@ commands.add(
     cmd2=None,
     ud_allowed=True,
     ud_required=False,
-    userdata=None,
+    userdata=True,
     use_group=False,
 )
 commands.add(
@@ -1027,7 +1027,7 @@ commands.add(
     cmd2=None,
     ud_allowed=True,
     ud_required=False,
-    userdata=None,
+    userdata=True,
     use_group=False,
 )
 commands.add(
