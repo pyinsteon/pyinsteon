@@ -883,7 +883,9 @@ def thermostat_control(
 ):
     """Create a THERMOSTAT_CONTROL command."""
     user_data = UserData()
-    _create_direct_message(topic=topic, address=address, cmd2=int(thermostat_mode), user_data=user_data)
+    _create_direct_message(
+        topic=topic, address=address, cmd2=int(thermostat_mode), user_data=user_data
+    )
 
 
 @topic_to_command_handler(
