@@ -16,6 +16,7 @@ from .dimmable_lighting_control import (
     DimmableLightingControl_SwitchLinc,
     DimmableLightingControl_ToggleLinc,
 )
+from .energy_management import EnergyManagement_LoadController
 from .general_controller import (
     GeneralController,
     GeneralController_ControlLinc,
