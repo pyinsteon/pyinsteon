@@ -198,7 +198,7 @@ class ToolsCommands(ToolsBase):
             result = func(**kwargs)
         self._log_stdout(f"Result: {str(result)}")
 
-    # pylint: disable=arguments-differ
+    # pylint: disable=arguments-renamed
     # pylint: disable=invalid-overridden-method
     async def do_help(self, cmd=None, address=None, method=None):
         """List available commands with "help" or detailed help with "help cmd".
