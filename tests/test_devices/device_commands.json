@@ -616,5 +616,35 @@
                 "value": "ff"
             }
         }
+    },
+    "EnergyManagement_LoadController": {
+        "async_off": {
+            "params": {},
+            "response": {
+                "topic": "<address>.off.direct_ack",
+                "cmd1": "13",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": 0
+            }
+        },
+        "async_on": {
+            "params": {},
+            "response": {
+                "topic": "<address>.on.direct_ack",
+                "cmd1": "11",
+                "cmd2": "aa",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 1,
+                "value": "ff"
+            }
+        }
     }
 }
