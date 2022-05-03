@@ -2,7 +2,7 @@
 import collections
 import logging
 
-from . import (PLM, ClimateControl_Thermostat,
+from . import (PLM, ClimateControl_Thermostat, AccessControl_Morningstar,
                ClimateControl_WirelessThermostat, DimmableLightingControl,
                DimmableLightingControl_DinRail,
                DimmableLightingControl_FanLinc,
@@ -1208,11 +1208,11 @@ class IPDB:
         ),
         Product(0x0F, 0x04, 0x0000000, "GarageHawk Garage Unit", "", UnknownDevice),
         Product(0x0F, 0x05, 0x0000000, "GarageHawk Remote Unit", "", UnknownDevice),
-        Product(0x0F, 0x06, 0x0000000, "MorningLinc", "2458A1", UnknownDevice),
+        Product(0x0F, 0x06, 0x0000000, "MorningLinc", "2458A1", AccessControl_Morningstar),
         Product(0x0F, 0x07, None, "Deadbolt", "2863-222", UnknownDevice),
         Product(0x0F, 0x08, None, "Deadbolt", "2863-422", UnknownDevice),
         Product(0x0F, 0x09, None, "Deadbolt", "2863-522", UnknownDevice),
-        Product(0x0F, 0x0A, 0x0000000, "Lock Controller", "2862-222", UnknownDevice),
+        Product(0x0F, 0x0A, 0x0000000, "Lock Controller", "2862-222", AccessControl_Morningstar),
         Product(
             0x10,
             None,
