@@ -1,5 +1,6 @@
 """Insteon device types."""
 
+from .access_control import AccessControl_Morningstar
 from .climate_control import (
     ClimateControl_Thermostat,
     ClimateControl_WirelessThermostat,
