@@ -200,7 +200,7 @@ class Device(ABC):
             result_aldb = await self._aldb.async_load()
         else:
             result_aldb = ResponseStatus.SUCCESS
-        return multiple_status(result_ext_prop, result_op_flags), result_aldb
+        return multiple_status(result_ext_prop, result_op_flags, result_aldb)
 
     async def async_write_config(self):
         """Write the device configuration to the physical device."""
