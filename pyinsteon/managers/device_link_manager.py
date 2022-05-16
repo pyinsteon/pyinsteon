@@ -1,4 +1,6 @@
 """Manages links between devices to identify device state of responders."""
+from collections import namedtuple
+
 from pubsub.core.topicobj import Topic
 
 from .. import pub
@@ -11,11 +13,13 @@ from ..topics import (
 )
 from ..utils import subscribe_topic
 
+DeviceLinkData = namedtuple("DeviceLinkData", "cat data1 data2 data3")
+
 
 def _controller_group_topic(controller, group) -> Topic:
     topic_str = f"{controller.id}.{group}"
     topic_mgr = pub.getDefaultTopicMgr()
-    topic = topic_mgr.getTopic(topic_str, okIfNone=True)
+    topic = topic_mgr.getOrCreateTopic(topic_str)
     return topic
 
 
@@ -45,81 +49,102 @@ class DeviceLinkManager:
         subscribe_topic(self._responder_link_created, DEVICE_LINK_RESPONDER_CREATED)
         subscribe_topic(self._responder_link_removed, DEVICE_LINK_RESPONDER_REMOVED)
         self._devices = devices
+        # Dict of {address: {group: [address]}}
         self._controller_responders = {}
 
-    def _responder_link_created(self, controller, responder, group):
+    @property
+    def scenes(self) -> dict[int, dict[Address, DeviceLinkData]]:
+        """Return a list of scenes."""
+        if not self._devices.modem:
+            return {}
+        return self._get_device_link_data(self._devices.modem.address)
+
+    @property
+    def links(self) -> dict[Address, dict[int, dict[Address, DeviceLinkData]]]:
+        """Return a list of device links."""
+        if not self._devices.modem:
+            return {
+                controller: self._get_device_link_data(controller)
+                for controller in self._controller_responders
+            }
+        return {
+            controller: self._get_device_link_data(controller)
+            for controller in self._controller_responders
+            if controller != self._devices.modem.address
+        }
+
+    def _get_device_link_data(
+        self, controller: Address, group: int | None = None
+    ) -> dict[Address, dict[Address, DeviceLinkData]]:
+        """Return the device data 1 - 3 for the given links."""
+
+        if group is None:
+            links = self._controller_responders[controller]
+        else:
+            links = {}
+            links[group] = self._controller_responders[controller][group]
+        links_data = {}
+        for group, addrs in links.items():
+            links_data[group] = {}
+            for addr in addrs:
+                link_info = DeviceLinkData(None, None, None, None)
+                device = self._devices[addr]
+                if device:
+                    for rec in device.aldb.find(
+                        target=controller,
+                        is_controller=False,
+                        group=group,
+                    ):
+                        link_info = DeviceLinkData(
+                            device.cat, rec.data1, rec.data2, rec.data3
+                        )
+                links_data[group][addr] = link_info
+        return links_data
+
+    def _responder_link_created(self, controller, responder, group) -> None:
+        controller = Address(controller)
+        responder = Address(responder)
+        if (
+            self._devices.modem and responder == self._devices.modem.address
+        ) or group == 0:
+            return
         topic = _controller_group_topic(controller, group)
-        if not topic.hasListener(self._async_check_responders):
-            subscribe_topic(self._async_check_responders, topic.name)
-        controller_responders = self._controller_responders.get(repr(controller), [])
-        if repr(responder) not in controller_responders:
-            controller_responders.append(repr(responder))
+        subscribe_topic(self._async_check_responders, topic.name)
+        controller_groups = self._controller_responders.get(controller, {})
+        controller_group = controller_groups.get(group, [])
+        if responder not in controller_group:
+            controller_group.append(responder)
+        controller_groups[group] = controller_group
+        self._controller_responders[controller] = controller_groups
 
-    def _responder_link_removed(self, controller, responder, group):
+    def _responder_link_removed(self, controller, responder, group) -> None:
         """Remove a responder from the controller/responder list."""
-        responder = self._devices[responder]
-        if not responder:
+        controller = Address(controller)
+        responder = Address(responder)
+        controller_groups = self._controller_responders.get(controller, {})
+        if not controller_groups:
             return
-        controller_responders = self._controller_responders.get(repr(controller))
-        if not controller_responders:
+        controller_group = controller_groups.get(group, [])
+        if not controller_group:
             return
-        recs = list(responder.aldb.find(target=controller, group=group))
-        if not recs and repr(responder) in controller_responders:
-            controller_responders.pop(repr(responder))
+        if responder in controller_group:
+            controller_group.remove(responder)
 
-    async def _async_check_responders(self, topic=pub.AUTO_TOPIC, **kwargs):
+    async def _async_check_responders(self, topic=pub.AUTO_TOPIC, **kwargs) -> None:
         controller, group, msg_type = _topic_to_addr_group(topic)
+
         if msg_type != MessageFlagType.ALL_LINK_BROADCAST:
             return
         if group == 0:
             return
+        responder_data = self._get_device_link_data(controller, group).get(group, {})
 
-        responders = self._controller_responders.get(controller)
-        for responder in responders:
-            device = self._devices[responder]
-            if device:
+        for addr, link_data in responder_data.items():
+            if link_data.cat is not None:
+                device = self._devices[addr]
                 # If the device is a category 1 or 2 device we can pre-load the device state with the
                 # ALDB record data1 field value. We will then check the actual status later.
-                if device.cat in [0x01, 0x02]:
-                    for rec in device.aldb.find(group=group):
-                        button = rec.data3 if rec.data3 else 1
-                        if button in device.groups:
-                            device.groups[button].value = rec.data1
+                if link_data.cat in [0x01, 0x02]:
+                    device.groups[link_data.data3].value = link_data.data1
                 if not device.is_battery:
                     await device.async_status()
-
-        responders = []
-        device_c = self._devices[controller]
-        if device_c:
-            for mem_addr in device_c.aldb:
-                rec = device_c.aldb[mem_addr]
-                if (
-                    rec.is_in_use
-                    and rec.is_controller
-                    and rec.group == group
-                    and rec.target not in responders
-                ):
-                    responders.append(rec.target)
-
-        for addr in self._devices:
-            if (
-                addr == self._devices.modem.address
-                or (device_c and addr == device_c.address)
-                or addr in responders
-            ):
-                continue
-            device_r = self._devices[addr]
-            for mem_addr in device_r.aldb:
-                rec = device_r.aldb[mem_addr]
-                if (
-                    rec.is_in_use
-                    and rec.is_responder
-                    and rec.target == controller
-                    and rec.group == group
-                ):
-                    responders.append(addr)
-
-        for addr in responders:
-            device = self._devices[addr]
-            if device:
-                await device.async_status()
