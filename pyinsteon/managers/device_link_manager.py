@@ -2,12 +2,16 @@
 from .. import pub
 from ..address import Address
 from ..constants import MessageFlagType
-from ..topics import DEVICE_LINK_CONTROLLER_CREATED, DEVICE_LINK_RESPONDER_CREATED
+from ..topics import (
+    DEVICE_LINK_CONTROLLER_CREATED,
+    DEVICE_LINK_RESPONDER_CREATED,
+    DEVICE_LINK_RESPONDER_REMOVED,
+)
 from ..utils import subscribe_topic
 
 
-def _controller_group_topic(responder, group):
-    return f"{responder.id}.{group}"
+def _controller_group_topic(controller, group):
+    return f"{controller.id}.{group}"
 
 
 def _topic_to_addr_group(topic):
@@ -32,54 +36,67 @@ class DeviceLinkManager:
         """Init the DeviceLinkManager class."""
         subscribe_topic(self._controller_link_created, DEVICE_LINK_CONTROLLER_CREATED)
         subscribe_topic(self._controller_link_created, DEVICE_LINK_RESPONDER_CREATED)
+        subscribe_topic(self._controller_link_created, DEVICE_LINK_RESPONDER_REMOVED)
         self._devices = devices
+        self._controller_responders = {}
 
     def _controller_link_created(self, controller, responder, group):
+        # If the modem is a responder we don't need to worry about tracking that
+        if responder == self._devices.modem.address:
+            return
         controller_group = _controller_group_topic(controller, group)
         subscribe_topic(self._async_check_responders, controller_group)
 
+        if not self._controller_responders.get(controller):
+            self._controller_responders[controller] = {}
+        if not self._controller_responders[controller].get(group):
+            self._controller_responders[controller][group] = []
+        if responder not in self._controller_responders[controller][group]:
+            self._controller_responders[controller][group].append(responder)
+
     async def _async_check_responders(self, topic=pub.AUTO_TOPIC, **kwargs):
         controller, group, msg_type = _topic_to_addr_group(topic)
+
         if msg_type != MessageFlagType.ALL_LINK_BROADCAST:
             return
         if group == 0:
             return
+        known_responders = self._controller_responders.get(controller, {}).get(
+            group, {}
+        )
 
-        responders = []
-        device_c = self._devices[controller]
-        for mem_addr in device_c.aldb:
-            rec = device_c.aldb[mem_addr]
-            if (
-                rec.is_in_use
-                and rec.is_controller
-                and rec.group == group
-                and rec.target not in responders
-            ):
-                responders.append(rec.target)
+        # Check known responers for current status
+        for responder in known_responders:
+            resp_device = self._devices[responder]
+            # If the device is a category 1 or 2 device we can pre-load the device state with the
+            # ALDB record data1 field value. We will then check the actual status later.
+            if resp_device and resp_device.cat in [0x01, 0x02]:
+                for rec in resp_device.aldb.find(
+                    target=controller, group=group, is_controller=False
+                ):
+                    resp_device.groups[group].value = rec.data1
+            await resp_device.async_status()
 
+        # See if the controller knows about other responders
+        if device_c := self._devices[controller]:
+            for rec in device_c.aldb.find(group=group, is_controller=True):
+                if (
+                    rec.target not in known_responders
+                    and rec.target != self._devices.modem.address
+                ):
+                    known_responders.append(rec.target)
+                    if device_r := self._devices[rec.target]:
+                        await device_r.async_status()
+
+        # Check the rest of the devices if they are a responder
         for addr in self._devices:
-            if (
-                addr == self._devices.modem.address
-                or addr == device_c.address
-                or addr in responders
-            ):
+            if addr == self._devices.modem.address:
+                continue
+            if addr in known_responders:
                 continue
             device_r = self._devices[addr]
-            for mem_addr in device_r.aldb:
-                rec = device_r.aldb[mem_addr]
-                if (
-                    rec.is_in_use
-                    and rec.is_responder
-                    and rec.target == controller
-                    and rec.group == group
-                ):
-                    responders.append(addr)
-                    # If the device is a category 1 or 2 device we can pre-load the device state with the
-                    # ALDB record data1 field value. We will then check the actual status later.
-                    if device_r.cat in [0x01, 0x02] and len(device_r.groups) == 1:
-                        device_r.groups[1].value = rec.data1
-
-        for addr in responders:
-            device = self._devices[addr]
-            if device:
-                await device.async_status()
+            for rec in resp_device.aldb.find(
+                target=controller, group=group, is_controller=False
+            ):
+                await device_r.async_status()
+                break
