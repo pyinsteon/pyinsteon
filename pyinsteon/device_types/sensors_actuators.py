@@ -24,7 +24,7 @@ from ..default_link import DefaultLink
 from ..events import CLOSE_EVENT, OFF_EVENT, ON_EVENT, OPEN_EVENT, Event
 from ..groups import OPEN_CLOSE_SENSOR, RELAY
 from ..groups.on_off import OnOff
-from ..groups.open_close import NormallyOpen
+from ..groups.open_close import NormallyClosed
 from ..handlers.to_device.off import OffCommand
 from ..handlers.to_device.on_level import OnLevelCommand
 from ..handlers.to_device.status_request import STATUS_REQUEST, StatusRequestCommand
@@ -257,7 +257,7 @@ class SensorsActuators_IOLink(Device):
         we can keep the status of the relay and the sensor separate.
         """
         self._groups[RELAY_GROUP] = OnOff(RELAY, self._address, RELAY_GROUP)
-        self._groups[SENSOR_GROUP] = NormallyOpen(
+        self._groups[SENSOR_GROUP] = NormallyClosed(
             OPEN_CLOSE_SENSOR, self._address, SENSOR_GROUP
         )
 
@@ -298,11 +298,10 @@ class SensorsActuators_IOLink(Device):
         off_cmd.subscribe(switch_off_event.trigger)
         switch_status_cmd.subscribe(self._handle_switch_status)
 
-        manager = self._managers[ON_LEVEL_MANAGER]
-        sensor_status_cmd = self._handlers[SENSOR_GROUP][STATUS_REQUEST]
-
-        manager.subscribe(self._async_on_off_received)
-        sensor_status_cmd.subscribe(self._handle_sensor_status)
+        self._managers[ON_LEVEL_MANAGER].subscribe(self._async_on_off_received)
+        self._handlers[SENSOR_GROUP][STATUS_REQUEST].subscribe(
+            self._handle_sensor_status
+        )
 
     def _register_default_links(self):
         link = DefaultLink(
@@ -355,28 +354,16 @@ class SensorsActuators_IOLink(Device):
         # or the sensor. Get the sensor first since that is the most likely change.
         await self.async_sensor_status()
         if self._groups[SENSOR_GROUP].value != orig_sensor:
-            if self._trigger_close(on_level):
-                self._events[SENSOR_GROUP][CLOSE_EVENT].trigger(on_level)
+            if self._groups[SENSOR_GROUP].value:
+                self._events[SENSOR_GROUP][OPEN_EVENT].trigger(on_level=255)
             else:
-                self._events[SENSOR_GROUP][OPEN_EVENT].trigger(on_level)
+                self._events[SENSOR_GROUP][CLOSE_EVENT].trigger(on_level=0)
 
         await self.async_relay_status()
         if self._groups[RELAY_GROUP].value != orig_relay:
-            if on_level:
-                self._events[RELAY_GROUP][ON_EVENT].trigger(on_level)
+            if self._groups[RELAY_GROUP].value:
+                self._events[RELAY_GROUP][ON_EVENT].trigger(on_level=255)
                 if self._operating_flags[MOMENTARY_MODE_ON].value:
                     await self._delay_wait()
             else:
-                self._events[RELAY_GROUP][OFF_EVENT].trigger(on_level)
-
-    def _trigger_close(self, on_level):
-        """Trigger a close event if on_level corresponds to SENSE_SENDS_OFF operating flag.
-
-        When SENSE_SENDS_OFF is False (Default) the sensor sends an ON message when it is closed.
-        When SENSE_SENDS_OFF is True the sensor sends an OFF message when it is closed.
-        """
-        if self.operating_flags[SENSE_SENDS_OFF].value is None:
-            sense_sends_off = False
-        else:
-            sense_sends_off = self.operating_flags[SENSE_SENDS_OFF].value
-        return sense_sends_off != bool(on_level)
+                self._events[RELAY_GROUP][OFF_EVENT].trigger(on_level=0)
