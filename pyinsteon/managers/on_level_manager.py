@@ -14,8 +14,7 @@ from ..handlers.from_device.on_level import OnLevelInbound
 from ..handlers.from_device.on_level_all_link_cleanup import OnAllLinkCleanupInbound
 from ..subscriber_base import SubscriberBase
 
-TIMEOUT = timedelta(seconds=0.7)
-TIMEOUT_CLEANUP = timedelta(seconds=3)
+TIMEOUT_CLEANUP = timedelta(seconds=25)
 
 
 class OnLevelManager:
