@@ -3,7 +3,13 @@
 import inspect
 from types import MethodType
 
-from .. import devices
+from .. import (
+    async_x10_all_lights_off,
+    async_x10_all_lights_on,
+    async_x10_all_units_off,
+    devices,
+)
+from ..constants import HC_LOOKUP
 from ..managers.scene_manager import async_trigger_scene_off, async_trigger_scene_on
 from .tools_base import ToolsBase
 
@@ -197,6 +203,57 @@ class ToolsCommands(ToolsBase):
         else:
             result = func(**kwargs)
         self._log_stdout(f"Result: {str(result)}")
+
+    async def do_x10_all_lights_on(
+        self, housecode: str, log_stdout=None, background=False
+    ):
+        """Run the X10 All Lights On command.
+
+        Usage:
+          x10_all_lights_on housecode
+        """
+        housecode = await self._ensure_string(
+            str(housecode).lower(),
+            list(HC_LOOKUP.keys()),
+            "Housecode",
+            True,
+            log_stdout,
+        )
+        await async_x10_all_lights_on(housecode=housecode)
+
+    async def do_x10_all_lights_off(
+        self, housecode: str, log_stdout=None, background=False
+    ):
+        """Run the X10 All Lights Off command.
+
+        Usage:
+          x10_all_lights_off housecode
+        """
+        housecode = await self._ensure_string(
+            str(housecode).lower(),
+            list(HC_LOOKUP.keys()),
+            "Housecode",
+            True,
+            log_stdout,
+        )
+        await async_x10_all_lights_off(housecode=housecode)
+
+    async def do_x10_all_units_off(
+        self, housecode: str, log_stdout=None, background=False
+    ):
+        """Run the X10 All Units Off command.
+
+        Usage:
+          x10_all_units_off housecode
+        """
+        housecode = await self._ensure_string(
+            str(housecode).lower(),
+            list(HC_LOOKUP.keys()),
+            "Housecode",
+            True,
+            log_stdout,
+        )
+        await async_x10_all_units_off(housecode=housecode)
 
     # pylint: disable=arguments-renamed
     # pylint: disable=invalid-overridden-method
