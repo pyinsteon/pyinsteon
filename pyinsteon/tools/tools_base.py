@@ -18,6 +18,7 @@ from typing import List
 from .. import devices
 from ..address import Address
 from ..constants import RelayMode, ThermostatMode, ToggleMode
+from ..x10_address import X10Address
 from .log_filter import NoStdoutFilter, StdoutFilter, StripPrefixFilter
 from .utils import patch_stdin_stdout, set_loop, stdio
 
@@ -66,7 +67,10 @@ def validate_address(address, allow_all, match_device, log_stdout) -> List[Addre
         raise ValueError("No address provided")
 
     if address != "all":
-        address = Address(address)
+        try:
+            address = Address(address)
+        except ValueError:
+            address = X10Address(address)
         if not match_device or address in devices:
             return [address]
         log_stdout(f"No device found with address {address}")
