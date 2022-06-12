@@ -124,12 +124,12 @@ class X10Dimmable(X10OnOff):
         """Return the number of steps from off to full on."""
         return self._steps
 
-    # pylint: disable=arguments-differ
+    # pylint: disable=arguments-renamed
     def on(self, on_level: int = 0xFF, group: int = 0):
         """Set the on level of the switch."""
         asyncio.ensure_future(self.async_on(on_level))
 
-    # pylint: disable=arguments-differ
+    # pylint: disable=arguments-renamed
     async def async_on(self, on_level: int = 0xFF, group: int = 0):
         """Set the on level of the switch."""
         if on_level == 0x00:

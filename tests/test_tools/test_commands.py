@@ -350,7 +350,7 @@ class TestToolsCommandsMenu(ToolsTestBase):
                     await cmd_mgr.async_cmdloop("")
                     buffer = clean_buffer(stdout.buffer)
                     assert buffer[1] == 'Documented commands (type help <topic>):\n'
-                    assert len(buffer) == 6
+                    assert len(buffer) == 8
 
                     # Test help on the cmd command
                     cmd_mgr, _, stdout = self.setup_cmd_tool(

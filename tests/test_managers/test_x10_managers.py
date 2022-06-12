@@ -1,4 +1,5 @@
 """Test X10 all lights on/off manager."""
+import asyncio
 import unittest
 
 from pyinsteon import pub
@@ -8,6 +9,9 @@ from pyinsteon.managers.x10_manager import (
     X10AllUnitsOffManager,
     X10DimBrightenManager,
     X10OnOffManager,
+    async_x10_all_lights_off,
+    async_x10_all_lights_on,
+    async_x10_all_units_off,
 )
 from pyinsteon.x10_address import create
 from tests import set_log_levels
@@ -26,7 +30,7 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
             logger="info",
             logger_pyinsteon="info",
             logger_messages="info",
-            logger_topics=False,
+            logger_topics=True,
         )
 
     def handle_on_off(self, on_level):
@@ -81,7 +85,64 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
 
     @async_case
     async def test_all_lights_on(self):
-        """Test all lights on."""
+        """Test the All Lights On command."""
+        call_received = False
+
+        def check_x10_call(raw_x10, x10_flag):
+            """Check the X10 call params."""
+            nonlocal call_received
+            call_received = True
+            assert raw_x10 == 0x61
+            assert x10_flag == 0x80
+
+        topic = "send.x10_send"
+        pub.subscribe(check_x10_call, topic)
+        await async_x10_all_lights_on(housecode="a")
+        await asyncio.sleep(0.05)
+        assert call_received
+        pub.unsubscribe(check_x10_call, topic)
+
+    @async_case
+    async def test_all_lights_off(self):
+        """Test the All Lights Off command."""
+        call_received = False
+
+        def check_x10_call(raw_x10, x10_flag):
+            """Check the X10 call params."""
+            nonlocal call_received
+            call_received = True
+            assert raw_x10 == 0x66
+            assert x10_flag == 0x80
+
+        topic = "send.x10_send"
+        pub.subscribe(check_x10_call, topic)
+        await async_x10_all_lights_off(housecode="a")
+        await asyncio.sleep(0.05)
+        assert call_received
+        pub.unsubscribe(check_x10_call, topic)
+
+    @async_case
+    async def test_all_units_off(self):
+        """Test the All Units Off command."""
+        call_received = False
+
+        def check_x10_call(raw_x10, x10_flag):
+            """Check the X10 call params."""
+            nonlocal call_received
+            call_received = True
+            assert raw_x10 == 0x60
+            assert x10_flag == 0x80
+
+        topic = "send.x10_send"
+        pub.subscribe(check_x10_call, topic)
+        await async_x10_all_units_off(housecode="a")
+        await asyncio.sleep(0.05)
+        assert call_received
+        pub.unsubscribe(check_x10_call, topic)
+
+    @async_case
+    async def test_all_lights_on_manager(self):
+        """Test all lights on manager."""
         address = create("C", 5)
         topic = "x10{}.{}".format(
             address.housecode.lower(), str(X10Commands.ALL_LIGHTS_ON)
@@ -96,7 +157,7 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
         assert not self._off_event
 
     @async_case
-    async def test_all_lights_off(self):
+    async def test_all_lights_off_manager(self):
         """Test all lights off."""
         # Housecode B unitcode 3
         address = create("B", 3)
@@ -113,7 +174,7 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
         assert self._off_event
 
     @async_case
-    async def test_all_units_off(self):
+    async def test_all_units_off_manager(self):
         """Test all units off."""
         # Housecode B unitcode 3
         address = create("A", 7)

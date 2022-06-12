@@ -53,8 +53,10 @@ def create(housecode: str, unitcode: int):
 
     # 20, 21 and 22 for All Units Off, All Lights On and All Lights Off
     # 'fake' units
-    if unitcode in range(1, 17) or unitcode in range(20, 23):
+    if unitcode in range(1, 17):
         byte_unitcode = unitcode_to_byte(unitcode)
+    elif unitcode == 0:
+        byte_unitcode = 0x00
     else:
         if isinstance(unitcode, int):
             str_error = f"X10 unit code error: {unitcode}"

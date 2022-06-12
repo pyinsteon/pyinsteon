@@ -83,8 +83,6 @@ target/
 # celery beat schedule file
 celerybeat-schedule
 
-# dotenv
-.env
 
 # virtualenv
 venv/
@@ -107,6 +105,4 @@ ENV/
 /.pytest_cache/v/cache
 /.pypirc
 /settings.json
-/.vscode
-/.vscode/settings.json
 /.idea

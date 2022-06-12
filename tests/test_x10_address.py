@@ -65,6 +65,11 @@ class TestX10Address(unittest.TestCase):
         addr = X10Address("X10.A.02")
         assert bytes(addr) == b"n"
 
+    def test_for_all_units_lights_on_off(self):
+        """Test creating an X10 address for use in the All Lights and All Units on off commands."""
+        addr = create("a", 0)
+        assert isinstance(addr, X10Address)
+
 
 if __name__ == "__main__":
     unittest.main()
