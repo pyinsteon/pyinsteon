@@ -1,4 +1,4 @@
-"""Termostat device types."""
+"""Thermostat device types."""
 import logging
 from datetime import datetime
 
@@ -12,12 +12,14 @@ from ..config import (
     HUMIDITY_OFFSET,
     KEY_BEEP_ON,
     LED_ON,
+    OPERATING_FLAGS,
     PROGRAM_LOCK_ON,
     TEMP_OFFSET,
     TIME_24_HOUR_FORMAT,
     get_usable_value,
 )
-from ..constants import ResponseStatus
+from ..config.op_flag_property import OpFlagProperty
+from ..constants import PropertyType, ResponseStatus, ThermostatMode
 from ..default_link import DefaultLink
 from ..groups import (
     COOL_SET_POINT,
@@ -114,7 +116,7 @@ class ClimateControl_Thermostat(Device):
         return await self._handlers["heat_set_point_command"].async_send(temperature)
 
     async def async_set_humidity_high_set_point(self, humidity):
-        """Set the humdity high set point."""
+        """Set the humidity high set point."""
         humidity = min(humidity, 99)
         cmd_status = await self._handlers["humidity_high_command"].async_send(humidity)
         if cmd_status == ResponseStatus.SUCCESS:
@@ -130,11 +132,11 @@ class ClimateControl_Thermostat(Device):
         return cmd_status
 
     async def async_set_mode(self, thermostat_mode):
-        """Set the thermastat mode."""
+        """Set the thermostat mode."""
         return await self._handlers["mode_command"].async_send(thermostat_mode)
 
     async def async_set_master(self, master):
-        """Set the thermastat master mode."""
+        """Set the thermostat master mode."""
         return await self._handlers["set_master"].async_send(master)
 
     async def async_set_notify_changes(self):
@@ -151,7 +153,7 @@ class ClimateControl_Thermostat(Device):
         )
 
     async def async_add_default_links(self):
-        """Add the default links betweent he modem and the device."""
+        """Add the default links between the modem and the device."""
         result_links = await super().async_add_default_links()
         result_notify = await self.async_set_notify_changes()
         return multiple_status(result_links, result_notify)
@@ -175,17 +177,32 @@ class ClimateControl_Thermostat(Device):
 
     def _register_op_flags_and_props(self):
         """Register thermostat operating flags."""
-        self._add_property(PROGRAM_LOCK_ON, OP_FLAG_POS, None, 0, 0)
-        self._add_property(KEY_BEEP_ON, OP_FLAG_POS, None, 0, 1)
-        self._add_property(BUTTON_LOCK_ON, OP_FLAG_POS, None, 0, 2)
-        self._add_property(CELSIUS, OP_FLAG_POS, None, 0, 3)
-        self._add_property(TIME_24_HOUR_FORMAT, OP_FLAG_POS, None, 0, 4)
-        self._add_property(LED_ON, OP_FLAG_POS, None, 0, 6)
+        self._add_property(TEMP_OFFSET, 6, 2, 0, 0, prop_type=PropertyType.ADVANCED)
+        self._add_property(HUMIDITY_OFFSET, 7, 3, 0, 0, prop_type=PropertyType.ADVANCED)
+        self._add_property(BACKLIGHT, 10, 5, 0, 0)
+        self._add_property(CHANGE_DELAY, 11, 6, 0, 0)
+        self._add_property(OPERATING_FLAGS, 13, 4, 0, prop_type=PropertyType.ADVANCED)
 
-        self._add_property(TEMP_OFFSET, 5, 2, 0)
-        self._add_property(HUMIDITY_OFFSET, 6, 3, 0)
-        self._add_property(BACKLIGHT, 9, 5, 0)
-        self._add_property(CHANGE_DELAY, 10, 6, 0)
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        op_flags = self._properties[OPERATING_FLAGS]
+        self._config[PROGRAM_LOCK_ON] = OpFlagProperty(
+            self._address, PROGRAM_LOCK_ON, op_flags, 0
+        )
+        self._config[KEY_BEEP_ON] = OpFlagProperty(
+            self._address, KEY_BEEP_ON, op_flags, 1
+        )
+        self._config[BUTTON_LOCK_ON] = OpFlagProperty(
+            self._address, BUTTON_LOCK_ON, op_flags, 2
+        )
+        self._config[CELSIUS] = OpFlagProperty(self._address, CELSIUS, op_flags, 3)
+        self._config[TIME_24_HOUR_FORMAT] = OpFlagProperty(
+            self._address, TIME_24_HOUR_FORMAT, op_flags, 4
+        )
+        self._config[LED_ON] = OpFlagProperty(self._address, LED_ON, op_flags, 6)
+
+        self._config[CELSIUS].subscribe(self._temp_format_first_set)
 
     def _register_groups(self):
         """Register the thermostat groups."""
@@ -301,7 +318,10 @@ class ClimateControl_Thermostat(Device):
         self._handlers["humidity_handler"].subscribe(self._groups[GRP_HUMID].set_value)
         self._handlers["temperature_handler"].subscribe(self._temp_received)
         self._handlers["mode_handler"].subscribe(self._mode_received)
-        self._properties[CELSIUS].subscribe(self._temp_format_first_set)
+
+        self._handlers["cool_set_point_command"].subscribe(self._cool_set_point_set)
+        self._handlers["heat_set_point_command"].subscribe(self._heat_set_point_set)
+        self._handlers["mode_command"].subscribe(self._mode_set)
 
     def _register_default_links(self):
         """Register default links."""
@@ -411,12 +431,19 @@ class ClimateControl_Thermostat(Device):
         self._groups[GRP_SYS_MODE].set_value(system_mode)
         self._groups[GRP_FAN_MODE].set_value(fan_mode)
 
+    def _mode_set(self, thermostat_mode: ThermostatMode):
+        """Update the thermostat mode from a set mode command."""
+        if thermostat_mode in [ThermostatMode.FAN_ALWAYS_ON, ThermostatMode.FAN_AUTO]:
+            self._groups[GRP_FAN_MODE].set_value(thermostat_mode)
+        else:
+            self._groups[GRP_SYS_MODE].set_value(thermostat_mode)
+
     def _temp_received(self, degrees):
         """Receive temperature status update and convert to celsius if needed."""
         self._groups[GRP_TEMP].value = degrees
 
     async def _async_temp_format_changed(self, name, value):
-        """Recieve notification that the thermostat has changed to/from C/F."""
+        """Receive notification that the thermostat has changed to/from C/F."""
         await self.async_status()
 
     def _temp_format_first_set(self, name, value):
@@ -428,6 +455,14 @@ class ClimateControl_Thermostat(Device):
         """
         self._properties[CELSIUS].unsubscribe(self._temp_format_first_set)
         self._properties[CELSIUS].unsubscribe(self._async_temp_format_changed)
+
+    def _cool_set_point_set(self, degrees, zone, deadband):
+        """Cool set point changed."""
+        self._groups[GRP_COOL_SP].set_value(degrees)
+
+    def _heat_set_point_set(self, degrees, zone, deadband):
+        """Cool set point changed."""
+        self._groups[GRP_HEAT_SP].set_value(degrees)
 
 
 class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermostat):
@@ -449,7 +484,7 @@ class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermo
         )
 
     async def async_set_humidity_high_set_point(self, humidity):
-        """Set the humdity high set point."""
+        """Set the humidity high set point."""
         return self._run_on_wake(
             super(BatteryDeviceBase, self).async_set_humidity_high_set_point,
             humidity=humidity,
@@ -463,13 +498,13 @@ class ClimateControl_WirelessThermostat(BatteryDeviceBase, ClimateControl_Thermo
         )
 
     async def async_set_master(self, master):
-        """Set the thermastat master mode."""
+        """Set the thermostat master mode."""
         return self._run_on_wake(
             super(BatteryDeviceBase, self).async_set_master, master=master
         )
 
     async def async_set_mode(self, thermostat_mode):
-        """Set the thermastat mode."""
+        """Set the thermostat mode."""
         return self._run_on_wake(
             super(BatteryDeviceBase, self).async_set_mode,
             thermostat_mode=thermostat_mode,
