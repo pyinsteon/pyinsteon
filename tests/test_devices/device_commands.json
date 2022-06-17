@@ -616,5 +616,87 @@
                 "value": "ff"
             }
         }
+    },
+    "ClimateControl_Thermostat": {
+        "async_set_mode": {
+            "params": {
+                "thermostat_mode": "08"
+            },
+            "response": {
+                "topic": "<address>.thermostat_control.direct_ack",
+                "cmd1": "6b",
+                "cmd2": "07",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 13,
+                "value": 8
+            }
+        },
+        "async_set_cool_set_point": {
+            "params": {
+                "temperature": 55
+            },
+            "response": {
+                "topic": "<address>.thermostat_set_cool_setpoint.direct_ack",
+                "cmd1": "6C",
+                "cmd2": "37",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 14,
+                "value": 55
+            }
+        },
+        "async_set_heat_set_point": {
+            "params": {
+                "temperature": 66
+            },
+            "response": {
+                "topic": "<address>.thermostat_set_heat_setpoint.direct_ack",
+                "cmd1": "6D",
+                "cmd2": "42",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 15,
+                "value": 66
+            }
+        },
+        "async_set_humidity_high_set_point": {
+            "params": {
+                "humidity": 33
+            },
+            "response": {
+                "topic": "<address>.extended_get_set.direct_ack",
+                "cmd1": "2e",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 16,
+                "value": 33
+            }
+        },
+        "async_set_humidity_low_set_point": {
+            "params": {
+                "humidity": 22
+            },
+            "response": {
+                "topic": "<address>.extended_get_set.direct_ack",
+                "cmd1": "2e",
+                "cmd2": "00",
+                "target": "00.00.00",
+                "userdata": null
+            },
+            "result": {
+                "group": 17,
+                "value": 22
+            }
+        }
     }
 }

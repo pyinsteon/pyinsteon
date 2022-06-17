@@ -92,6 +92,8 @@ class TestDeviceCommands(unittest.TestCase):
         address = random_address()
         params = config["params"]
         for param in params:
+            if isinstance(params[param], int):
+                continue
             params[param] = convert_to_int(params[param])
         if config.get("response"):
             topic_item = convert_response(config["response"], address)
