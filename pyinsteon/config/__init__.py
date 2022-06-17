@@ -102,6 +102,7 @@ HUMIDITY_LOW = "humidity_low"
 TEMP_OFFSET = "temp_offset"
 TEMP_OFFSET_EXTERNAL = "temp_offset_external"
 HUMIDITY_OFFSET = "humidity_offset"
+OPERATING_FLAGS = "operating_flags"
 
 # Derived Properties
 MOMENTARY_DELAY = "momentary_delay"
