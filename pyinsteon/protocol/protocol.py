@@ -18,6 +18,21 @@ _LOGGER_MSG = logging.getLogger("pyinsteon.messages")
 MAX_RECONNECT_WAIT_TIME = 300
 
 
+def _get_addresses_in_msg(msg):
+    """Return a list of addresses included in a message."""
+    addresses = []
+    addr_fields = ["address", "target"]
+    for fld in addr_fields:
+        try:
+            addr = getattr(msg, fld)
+        except AttributeError:
+            continue
+        else:
+            if addr not in addresses:
+                addresses.append(addr)
+    return addresses
+
+
 def _is_nak(msg):
     """Test if a message is a NAK from the modem."""
     if hasattr(msg, "ack") and msg.ack.value == 0x15:
@@ -186,6 +201,10 @@ class Protocol(asyncio.Protocol):
     async def _publish_message(self, msg):
         """Convert an inbound message to a topic and publish to listeners."""
         _LOGGER_MSG.debug("RX: %s", repr(msg))
+        if _LOGGER_MSG.level == 0 or _LOGGER_MSG.level > logging.DEBUG:
+            for addr in _get_addresses_in_msg(msg):
+                logger = logging.getLogger(f"pyinsteon.{addr.id}")
+                logger.debug("RX: %s", repr(msg))
         topic = None
         kwargs = {}
         try:
@@ -232,6 +251,10 @@ class Protocol(asyncio.Protocol):
                     if msg is None:
                         return
                     _LOGGER_MSG.debug("TX: %s", repr(msg))
+                    if _LOGGER_MSG.level == 0 or _LOGGER_MSG.level > logging.DEBUG:
+                        for addr in _get_addresses_in_msg(msg):
+                            logger = logging.getLogger(f"pyinsteon.{addr.id}")
+                            logger.debug("TX: %s", repr(msg))
                     while not self._last_message.empty():
                         self._last_message.get()
                     self._last_message.put(msg)
