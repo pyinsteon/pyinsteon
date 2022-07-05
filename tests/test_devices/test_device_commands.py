@@ -9,6 +9,7 @@ import aiofiles
 import pyinsteon
 import pyinsteon.device_types as device_types
 from pyinsteon.address import Address
+from pyinsteon.data_types.user_data import create_from_dict
 from tests import _LOGGER, set_log_levels
 from tests.utils import (
     TopicItem,
@@ -21,9 +22,11 @@ from tests.utils import (
 FILE = "device_commands.json"
 
 
-def convert_to_int(str_value):
+def convert_to_int(value):
     """Convert a string hex value to int."""
-    return int.from_bytes(unhexlify(str_value), byteorder="big")
+    if isinstance(value, int):
+        return value
+    return int.from_bytes(unhexlify(value), byteorder="big")
 
 
 def convert_response(response, address):
@@ -33,11 +36,16 @@ def convert_response(response, address):
     cmd1 = convert_to_int(response["cmd1"])
     cmd2 = convert_to_int(response["cmd2"])
     target = Address(response["target"])
+    userdata = response["userdata"]
+    if userdata:
+        userdata_dict = {k: convert_to_int(v) for k, v in userdata.items()}
+        userdata = create_from_dict(userdata_dict)
+
     kwargs = {
         "cmd1": cmd1,
         "cmd2": cmd2,
         "target": target,
-        "user_data": None,
+        "user_data": userdata,
         "hops_left": 3,
     }
     topic_item = TopicItem(topic, kwargs, 0.02)
@@ -54,6 +62,30 @@ async def import_commands():
         json_file = ""
         json_file = await afp.read()
     return json.loads(json_file)
+
+
+def test_results(device, results):
+    """Test the results of a command."""
+    for result in results:
+        group = result.get("group")
+        if group:
+            value = convert_to_int(result.get("value"))
+            assert device.groups[group].value == value
+        property = result.get("property")
+        if property:
+            value = convert_to_int(property.get("value"))
+            name = property.get("name")
+            assert device.properties[name].value == value
+        config = result.get("config")
+        if config:
+            value = convert_to_int(config.get("value"))
+            name = config.get("name")
+            assert device.configuration[name].value == value
+        op_flag = result.get("op_flag")
+        if op_flag:
+            value = convert_to_int(op_flag.get("value"))
+            name = op_flag.get("name")
+            assert device.operating_flags[name].value == value
 
 
 class TestDeviceCommands(unittest.TestCase):
@@ -92,11 +124,12 @@ class TestDeviceCommands(unittest.TestCase):
         address = random_address()
         params = config["params"]
         for param in params:
+            if isinstance(params[param], int):
+                continue
             params[param] = convert_to_int(params[param])
-        if config.get("response"):
-            topic_item = convert_response(config["response"], address)
-        else:
-            topic_item = None
+        topic_items = []
+        for response in config.get("response", []):
+            topic_items.append(convert_response(response, address))
 
         device_class = getattr(device_types, device_type)
 
@@ -105,10 +138,12 @@ class TestDeviceCommands(unittest.TestCase):
                 address=address, cat=0x01, subcat=0x02, description=device_type
             )
             method = getattr(device, command)
-            if topic_item:
+            for topic_item in topic_items:
                 send_topics([topic_item])
             result = await method(**params)
             assert int(result) == 1
+            test_results(device, config.get("result"))
+
         # pylint: disable=broad-except
         except Exception as ex:
             _LOGGER.error("Failed: device: %s  command: %s", device_type, command)
