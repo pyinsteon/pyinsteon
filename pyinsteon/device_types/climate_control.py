@@ -177,10 +177,10 @@ class ClimateControl_Thermostat(Device):
 
     def _register_op_flags_and_props(self):
         """Register thermostat operating flags."""
-        self._add_property(TEMP_OFFSET, 6, 2, 0, 0, prop_type=PropertyType.ADVANCED)
-        self._add_property(HUMIDITY_OFFSET, 7, 3, 0, 0, prop_type=PropertyType.ADVANCED)
-        self._add_property(BACKLIGHT, 10, 5, 0, 0)
-        self._add_property(CHANGE_DELAY, 11, 6, 0, 0)
+        self._add_property(TEMP_OFFSET, 6, 2, 0, prop_type=PropertyType.ADVANCED)
+        self._add_property(HUMIDITY_OFFSET, 7, 3, 0, prop_type=PropertyType.ADVANCED)
+        self._add_property(BACKLIGHT, 10, 5, 0)
+        self._add_property(CHANGE_DELAY, 11, 6, 0)
         self._add_property(OPERATING_FLAGS, 13, 4, 0, prop_type=PropertyType.ADVANCED)
 
     def _register_config(self):
@@ -405,7 +405,7 @@ class ClimateControl_Thermostat(Device):
         self._groups[GRP_FAN_MODE].set_value(fan_mode)
         self._groups[GRP_COOL_SP].set_value(cool_set_point)
         self._groups[GRP_HEAT_SP].set_value(heat_set_point)
-        if not self._properties[CELSIUS].value:
+        if not self._config[CELSIUS].value:
             temperature = to_fahrenheit(temperature)
         self._groups[GRP_TEMP].set_value(temperature)
         self._groups[GRP_HUMID].set_value(humidity)
@@ -453,8 +453,8 @@ class ClimateControl_Thermostat(Device):
         the format changes later, we need to get the status update to change the
         measurements from F to C or vise versa.
         """
-        self._properties[CELSIUS].unsubscribe(self._temp_format_first_set)
-        self._properties[CELSIUS].unsubscribe(self._async_temp_format_changed)
+        self._config[CELSIUS].unsubscribe(self._temp_format_first_set)
+        self._config[CELSIUS].subscribe(self._async_temp_format_changed)
 
     def _cool_set_point_set(self, degrees, zone, deadband):
         """Cool set point changed."""
