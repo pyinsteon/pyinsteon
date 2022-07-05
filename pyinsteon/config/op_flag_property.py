@@ -9,7 +9,7 @@ class OpFlagProperty(DerivedProperty):
 
     def __init__(self, address, name, property, prop_bit):
         """Init the RampRateProperty class."""
-        super().__init__(address, name, float, False, False)
+        super().__init__(address, name, bool, False, False)
 
         self._prop = property
         self._prop_bit = prop_bit
@@ -17,6 +17,8 @@ class OpFlagProperty(DerivedProperty):
     @property
     def value(self):
         """Return the ramp rate property value in seconds."""
+        if self._prop.value is None:
+            return None
         return bit_is_set(self._prop.value, self._prop_bit)
 
     @property
@@ -24,9 +26,8 @@ class OpFlagProperty(DerivedProperty):
         """Return the ramp rate property in seconds."""
         if self._prop.new_value is None:
             return None
-        curr_val = self.value
         new_val = bit_is_set(self._prop.new_value, self._prop_bit)
-        if new_val == curr_val:
+        if new_val == self.value:
             return None
         return new_val
 
@@ -53,4 +54,4 @@ class OpFlagProperty(DerivedProperty):
     @property
     def is_dirty(self):
         """Return if the Operating flag has been changed."""
-        return self.new_value is None
+        return self.new_value is not None
