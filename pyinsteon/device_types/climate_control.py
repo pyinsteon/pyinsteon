@@ -16,7 +16,6 @@ from ..config import (
     PROGRAM_LOCK_ON,
     TEMP_OFFSET,
     TIME_24_HOUR_FORMAT,
-    get_usable_value,
 )
 from ..config.op_flag_property import OpFlagProperty
 from ..constants import PropertyType, ResponseStatus, ThermostatMode
@@ -60,7 +59,7 @@ from ..handlers.to_device.thermostat_mode import ThermostatModeCommand
 from ..managers.link_manager.default_links import async_add_default_links
 from ..managers.on_level_manager import OnLevelManager
 from ..managers.thermostat_status_manager import GetThermostatStatus
-from ..utils import multiple_status, set_bit, to_fahrenheit
+from ..utils import multiple_status, to_fahrenheit
 from .battery_base import BatteryDeviceBase
 from .device_base import Device
 from .device_commands import STATUS_COMMAND
@@ -157,23 +156,6 @@ class ClimateControl_Thermostat(Device):
         result_links = await super().async_add_default_links()
         result_notify = await self.async_set_notify_changes()
         return multiple_status(result_links, result_notify)
-
-    async def async_write_op_flags(self):
-        """Write the operating flags to the device."""
-        flags = 0x00
-        for flag_name, flag_info in self._ext_property_manager.flag_info:
-            if flag_info.data_field == OP_FLAG_POS:
-                flag = self.properties[flag_name]
-                value = get_usable_value(flag)
-                flags = set_bit(flags, flag_info.bit, bool(value))
-        result = await self._handlers["op_flag_write"].async_send(data4=flags)
-        if result == ResponseStatus.SUCCESS:
-            for flag_name, flag_info in self._ext_property_manager.flag_info.items():
-                if flag_info.data_field == OP_FLAG_POS:
-                    flag = self.properties[flag_name]
-                    if flag.is_dirty:
-                        flag.load(flag.new_value)
-        return result
 
     def _register_op_flags_and_props(self):
         """Register thermostat operating flags."""
