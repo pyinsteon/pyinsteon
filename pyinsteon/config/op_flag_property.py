@@ -7,11 +7,11 @@ from .derived_property import DerivedProperty
 class OpFlagProperty(DerivedProperty):
     """Derived property to hold an operating flag in an device property."""
 
-    def __init__(self, address, name, property, prop_bit):
+    def __init__(self, address, name, prop, prop_bit):
         """Init the RampRateProperty class."""
         super().__init__(address, name, bool, False, False)
 
-        self._prop = property
+        self._prop = prop
         self._prop_bit = prop_bit
 
     @property
