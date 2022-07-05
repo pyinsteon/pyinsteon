@@ -36,7 +36,8 @@ def convert_response(response, address):
     cmd1 = convert_to_int(response["cmd1"])
     cmd2 = convert_to_int(response["cmd2"])
     target = Address(response["target"])
-    if userdata := response["userdata"]:
+    userdata = response["userdata"]
+    if userdata:
         userdata_dict = {k: convert_to_int(v) for k, v in userdata.items()}
         userdata = create_from_dict(userdata_dict)
 
