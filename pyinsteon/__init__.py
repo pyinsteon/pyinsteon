@@ -4,6 +4,7 @@ import logging
 
 from pubsub import pub
 
+from .address import Address
 from .handlers.from_device.x10_received import X10Received
 from .listener_exception_handler import ListenerExceptionHandler
 from .managers.device_manager import DeviceManager
@@ -79,9 +80,42 @@ def set_exception_handler():
     pub.setListenerExcHandler(ListenerExceptionHandler())
 
 
+def _get_device_in_topic(topic: pub.Topic, **kwargs):
+    """Return a list of devices referenced in a topic."""
+    addresses = []
+    prefix = ["ack", "nak", "handler"]
+    topic_tuple = topic.getNameTuple()
+    try:
+        if topic_tuple[0] == "send":
+            pass
+        elif topic_tuple[0] in prefix:
+            addresses.append(Address(topic_tuple[1]))
+        else:
+            addresses.append(Address(topic_tuple[0]))
+    except ValueError:
+        pass
+
+    for key, value in kwargs.items():
+        if key in ["address", "target"]:
+            try:
+                addr = Address(value)
+            except ValueError:
+                continue
+            else:
+                if addr not in addresses:
+                    addresses.append(addr)
+
+    return addresses
+
+
 def _log_all_topics(topic=pub.AUTO_TOPIC, **kwargs):
     """Log all topics from pyinsteon."""
     _LOGGER_TOPICS.debug("Topic: %s data: %s", topic.name, kwargs)
+    if _LOGGER_TOPICS.level == 0 or _LOGGER_TOPICS.level > logging.DEBUG:
+        addresses = _get_device_in_topic(topic, **kwargs)
+        for addr in addresses:
+            logger = logging.getLogger(f"pyinsteon.{addr.id}")
+            logger.debug("Topic: %s data: %s", topic.name, kwargs)
 
 
 pub.subscribe(_log_all_topics, pub.ALL_TOPICS)

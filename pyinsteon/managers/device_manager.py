@@ -27,6 +27,7 @@ from .utils import create_device, create_x10_device
 
 DEVICE_INFO_FILE = "insteon_devices.json"
 _LOGGER = logging.getLogger(__name__)
+_DEVICE_LOGGERS = []
 
 
 class DeviceManager(SubscriberBase):
@@ -371,6 +372,9 @@ class DeviceManager(SubscriberBase):
                 else:
                     await self.async_setup_device(device)
             _LOGGER.debug("Device %s added", str(device.address))
+            _DEVICE_LOGGERS.append(
+                logging.getLogger(f"pyinsteon.{device_id.address.id}")
+            )
 
     async def _async_remove_all_device_links(self, address: Address):
         """Remove all ALDB records from the device to the modem.

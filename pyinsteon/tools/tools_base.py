@@ -483,6 +483,42 @@ class ToolsBase(Cmd):
             topic_logger = logging.getLogger("pyinsteon.topics")
             topic_logger.setLevel(logging.DEBUG)
 
+    async def do_debug_device(self, address, logging_mode=True):
+        """Place a device into debug mode to log all topics for the device.
+
+        usage:
+            debug_device address [logging_mode]
+
+        logging_mode: y | n  (default is y)
+
+        """
+        try:
+            addresses = await self._ensure_address(
+                address=address,
+                name="Address",
+                ask_value=True,
+                log_stdout=self._log_stdout,
+                allow_all=False,
+                match_device=True,
+            )
+            if not addresses:
+                raise ValueError
+            address = addresses[0]
+        except ValueError:
+            self._log_stdout("Invalid device address or device not found")
+            return
+        try:
+            logging_mode = await self._ensure_bool(
+                logging_mode, "Log mode", True, self._log_stdout
+            )
+        except ValueError:
+            self._log_stdout("A valid value for log mode is required")
+            return
+
+        logger = logging.getLogger(f"pyinsteon.{address.id}")
+        log_level = logging.DEBUG if logging_mode else logging.INFO
+        logger.setLevel(log_level)
+
     async def do_status(self, address, reload, log_stdout=None, background=False):
         """Display the status of a device.
 
