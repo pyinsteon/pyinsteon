@@ -95,10 +95,10 @@ def _get_device_in_topic(topic: pub.Topic, **kwargs):
     except ValueError:
         pass
 
-    for k in kwargs:
-        if k in ["address", "target"]:
+    for key, value in kwargs:
+        if key in ["address", "target"]:
             try:
-                addr = Address(kwargs[k])
+                addr = Address(value)
             except ValueError:
                 continue
             else:
