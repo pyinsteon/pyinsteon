@@ -88,6 +88,7 @@ class ModemALDB(ALDBBase):
         async for rec in self._read_manager.async_load_standard():
             rec.mem_addr = next_mem_addr
             self._records[next_mem_addr] = rec
+            self._notify_change(rec)
             next_mem_addr -= 8
 
     async def _async_load_eeprom(self):
@@ -98,6 +99,7 @@ class ModemALDB(ALDBBase):
         record = await self._read_manager.async_read_record(next_mem_addr)
         while record:
             self._records[record.mem_addr] = record
+            self._notify_change(record)
             if record.is_high_water_mark:
                 return
             record = await self._read_manager.async_read_record(next_mem_addr)
