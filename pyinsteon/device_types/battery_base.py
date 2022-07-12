@@ -41,14 +41,19 @@ class BatteryDeviceBase:
         self._last_run = None
         self._keep_awake_cmd = ExtendedSetCommand(self._address, data1=0, data2=0x04)
         subscribe_topic(self._device_awake, self._address.id)
-        self._ping_task = None
+        self._ping_task: asyncio.Task = None
 
     def _run_on_wake(self, command, retries=3, **kwargs):
         cmd = partial(command, **kwargs)
         self._commands_queue.put_nowait((cmd, retries))
-        if not self._ping_task:
+        if not self._ping_task or self._ping_task.done() or self._ping_task.cancelled():
             self._ping_task = asyncio.ensure_future(self._ping_device())
+            self._ping_task.add_done_callback(self._clear_ping_task)
         return ResponseStatus.RUN_ON_WAKE
+
+    def _clear_ping_task(self, *args, **kwargs):
+        """Clear the ping task."""
+        self._ping_task = None
 
     def close(self):
         """Close the command listener."""
@@ -101,18 +106,6 @@ class BatteryDeviceBase:
             self.aldb.async_write = aldb_write_save
             self.aldb.async_load = aldb_load_save
         return result
-
-    async def async_read_config(self, read_aldb: bool = True):
-        """Get all configuration settings.
-
-        This includes:
-        - Operating flags
-        - Extended properties
-        - All-Link Database records.
-        """
-        return self._run_on_wake(
-            super(BatteryDeviceBase, self).async_read_config, read_aldb=read_aldb
-        )
 
     async def async_read_product_id(self):
         """Get the product ID."""
