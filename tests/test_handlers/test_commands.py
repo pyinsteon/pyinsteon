@@ -16,6 +16,8 @@ from pyinsteon.handlers.to_device.extended_get import ExtendedGetCommand
 from pyinsteon.handlers.to_device.extended_set import ExtendedSetCommand
 from pyinsteon.handlers.to_device.get_operating_flags import GetOperatingFlagsCommand
 from pyinsteon.handlers.to_device.id_request import IdRequestCommand
+from pyinsteon.handlers.to_device.io_output_off import IoOutputOffCommand
+from pyinsteon.handlers.to_device.io_output_on import IoOutputOnCommand
 from pyinsteon.handlers.to_device.off import OffCommand
 from pyinsteon.handlers.to_device.off_all_link_cleanup import OffAllLinkCleanupCommand
 from pyinsteon.handlers.to_device.off_fast import OffFastCommand

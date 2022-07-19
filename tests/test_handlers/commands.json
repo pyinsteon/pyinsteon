@@ -972,5 +972,30 @@
             "assert_tests": {
                 "on_level": 255
             }
+        },
+        "io_output_on": {
+            "command": {
+                "class": ".io_output_on.IoOutputOnCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "output": 3
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 69,
+                    "cmd2": 3,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "output": 3,
+                "on_level": 255
+            }
         }
     }

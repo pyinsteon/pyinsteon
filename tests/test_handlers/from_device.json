@@ -588,5 +588,22 @@
         "assert_tests": {
             "degrees": 36
         }
+    },
+    "io_output_on": {
+        "command": ".io_output_on.IoOutputOnInbound",
+        "params": {
+            "address": ""
+        },
+        "message": {
+            "flags": "0x00",
+            "cmd1": "0x45",
+            "cmd2": 12,
+            "target": "000000",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "output": 12,
+            "on_level": 255
+        }
     }
 }
