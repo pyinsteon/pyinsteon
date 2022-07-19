@@ -13,4 +13,4 @@ class IoOutputOnInbound(BroadcastCommandHandlerBase):
 
     def _handle_message_received(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the ON command from a device."""
-        self._call_subscribers(output=cmd2, on_level=0xff)
+        self._call_subscribers(output=cmd2, on_level=0xFF)

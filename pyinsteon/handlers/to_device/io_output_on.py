@@ -18,4 +18,4 @@ class IoOutputOnCommand(DirectCommandHandlerBase):
 
     def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Update subscribers."""
-        self._call_subscribers(output=cmd2, on_level=0xff)
+        self._call_subscribers(output=cmd2, on_level=0xFF)
