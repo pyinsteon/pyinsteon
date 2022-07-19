@@ -124,12 +124,8 @@ class TestDirectCommands(unittest.TestCase):
         async with async_protocol_manager() as protocol:
             msgs = []
 
-            def listen_for_ack():
-                send_data(msgs, protocol.read_queue)
-
             tests = await import_commands()
             subscribe_topic(self.validate_values, pub.ALL_TOPICS)
-            subscribe_topic(listen_for_ack, "ack")
 
             for test_info in tests:
                 address = random_address()
@@ -155,6 +151,7 @@ class TestDirectCommands(unittest.TestCase):
 
                 self._call_count = 0
                 try:
+                    send_data(msgs, protocol.read_queue)
                     response = await cmd.async_send(**send_params)
                 except Exception as ex:
                     raise Exception(
