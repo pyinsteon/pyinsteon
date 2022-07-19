@@ -789,5 +789,39 @@
                 "value": "ff"
             }]
         }
+    },
+    "SensorsActuators_Ezio_2x4": {
+        "async_off": {
+            "params": {
+                "output": 1
+            },
+            "response": [{
+                "topic": "<address>.io_output_off.direct_ack",
+                "cmd1": "46",
+                "cmd2": "01",
+                "target": "00.00.00",
+                "userdata": null
+            }],
+            "result": [{
+                "group": 17,
+                "value": 0
+            }]
+        },
+        "async_on": {
+            "params": {
+                "output": 2
+            },
+            "response": [{
+                "topic": "<address>.io_output_on.direct_ack",
+                "cmd1": "45",
+                "cmd2": "02",
+                "target": "00.00.00",
+                "userdata": null
+            }],
+            "result": [{
+                "group": 18,
+                "value": "ff"
+            }]
+        }
     }
 }

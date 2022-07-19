@@ -7,7 +7,7 @@ from ..address import Address
 from ..commands import commands
 from ..constants import (
     DoorCommand,
-    IOModuleControlCommand,
+    IOModuleControlCommandSet,
     PoolControlCommand,
     RampRate,
     SprinklerControlCommand,
@@ -733,7 +733,7 @@ def io_read_configuration_port(address: Address, topic=pub.AUTO_TOPIC):
 
 @topic_to_command_handler(register_list=COMMAND_REGISTER, topic=IO_MODULE_CONTROL)
 def io_module_control(
-    address: Address, command: IOModuleControlCommand, topic=pub.AUTO_TOPIC
+    address: Address, command: IOModuleControlCommandSet, topic=pub.AUTO_TOPIC
 ):
     """Create a IO_MODULE_CONTROL command."""
     _create_direct_message(topic=topic, address=address, cmd2=int(command))

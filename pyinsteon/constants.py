@@ -462,7 +462,7 @@ class SprinklerControlCommand(HexIntEnum):
     DIAGNOSTICS_OFF = 0x0F
 
 
-class IOModuleControlCommand(HexIntEnum):
+class IOModuleControlCommandSet(HexIntEnum):
     """IO Module control options."""
 
     LOAD_INITIALIZATION_VALUES = 0x00
