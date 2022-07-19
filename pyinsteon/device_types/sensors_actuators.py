@@ -25,6 +25,8 @@ from ..events import CLOSE_EVENT, OFF_EVENT, ON_EVENT, OPEN_EVENT, Event
 from ..groups import OPEN_CLOSE_SENSOR, RELAY
 from ..groups.on_off import OnOff
 from ..groups.open_close import NormallyClosed
+from ..handlers.to_device.io_output_off import IoOutputOffCommand
+from ..handlers.to_device.io_output_on import IoOutputOnCommand
 from ..handlers.to_device.off import OffCommand
 from ..handlers.to_device.on_level import OnLevelCommand
 from ..handlers.to_device.status_request import STATUS_REQUEST, StatusRequestCommand
@@ -37,6 +39,8 @@ from .on_off_responder_base import OnOffResponderBase
 ON_LEVEL_MANAGER = "on_level_manager"
 RELAY_GROUP = 1
 SENSOR_GROUP = 2
+IO_OUTPUT_ON_COMMAND = "io_output_on"
+IO_OUTPUT_OFF_COMMAND = "io_output_off"
 
 
 class SensorsActuators(OnOffResponderBase):
@@ -367,3 +371,67 @@ class SensorsActuators_IOLink(Device):
                     await self._delay_wait()
             else:
                 self._events[RELAY_GROUP][OFF_EVENT].trigger(on_level=0)
+
+
+class SensorsActuators_Ezio_Base(Device):
+    """Base device for EZ-IO devices."""
+
+    _sensors = 1
+    _relays = 1
+
+    def __init__(
+        self,
+        address,
+        cat,
+        subcat,
+        firmware=0x00,
+        description="",
+        model="",
+        buttons=None,
+    ):
+        """Init the SensorsActuators_Ezio_Base class."""
+        super().__init__(address, cat, subcat, firmware, description, model)
+        self._first_switch_group = self._sensors + 1
+
+    async def async_on(self, output):
+        """Turn on the output."""
+        return await self._handlers[IO_OUTPUT_ON_COMMAND].async_send(output=output)
+
+    async def async_off(self, output):
+        """Turn off the output."""
+        return await self._handlers[IO_OUTPUT_OFF_COMMAND].async_send(output=output)
+
+    def _register_groups(self):
+        """Add the groups to the device."""
+        super()._register_groups()
+        for sensor in range(1, self._sensors):
+            name = f"{OPEN_CLOSE_SENSOR}_{sensor}"
+            self._groups[sensor] = NormallyClosed(name, self._address, sensor, 0)
+        for relay in range(0x11, 0x10 + self._relays):
+            name = f"{RELAY}_{sensor}"
+            self._groups[relay] = OnOff(name, self._address, sensor, 0)
+
+    def _register_handlers_and_managers(self):
+        """Add the handlers and managers to the device."""
+        super()._register_handlers_and_managers()
+        for sensor in range(1, self._sensors):
+            self._managers[sensor] = OnLevelManager(self._address, sensor)
+            self._managers[sensor].subscribe(self._groups[sensor].set_value)
+
+        self._handlers[IO_OUTPUT_ON_COMMAND] = IoOutputOnCommand(self._address)
+        self._handlers[IO_OUTPUT_ON_COMMAND].subscribe(self._output_command_ack)
+
+        self._handlers[IO_OUTPUT_OFF_COMMAND] = IoOutputOffCommand(self._address)
+        self._handlers[IO_OUTPUT_OFF_COMMAND].subscribe(self._output_command_ack)
+
+    def _output_command_ack(self, output, on_level):
+        """Receive the output on/off command acknowledgement."""
+        group = output + 0x10
+        self._groups[group].set_value(on_level)
+
+
+class SensorsActuators_Ezio_2x4(SensorsActuators_Ezio_Base):
+    """EZIO 2x4 device type."""
+
+    _sensors = 2
+    _relays = 4

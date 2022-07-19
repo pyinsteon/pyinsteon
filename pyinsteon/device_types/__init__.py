@@ -36,7 +36,11 @@ from .security_health_safety import (
     SecurityHealthSafety_OpenCloseSensor,
     SecurityHealthSafety_Smokebridge,
 )
-from .sensors_actuators import SensorsActuators, SensorsActuators_IOLink
+from .sensors_actuators import (
+    SensorsActuators,
+    SensorsActuators_Ezio_2x4,
+    SensorsActuators_IOLink,
+)
 from .switched_lighting_control import (
     SwitchedLightingControl,
     SwitchedLightingControl_ApplianceLinc,
