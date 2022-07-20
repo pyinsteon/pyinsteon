@@ -761,7 +761,7 @@
         }
     },
     "AccessControl_Morningstar": {
-        "async_off": {
+        "async_unlock": {
             "params": {},
             "response": [{
                 "topic": "<address>.off.direct_ack",
@@ -775,7 +775,7 @@
                 "value": 0
             }]
         },
-        "async_on": {
+        "async_lock": {
             "params": {},
             "response": [{
                 "topic": "<address>.on.direct_ack",
