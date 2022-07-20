@@ -43,8 +43,7 @@ class AccessControl_Morningstar(OnOffResponderBase):
     async def async_lock(self):
         """Lock the device."""
         return await self.async_on()
-    
+
     async def async_unlock(self):
         """Unlock the device."""
         return await self.async_off()
-    
