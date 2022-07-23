@@ -365,9 +365,9 @@ def set_address_msb(address: Address, high_byte: int, topic=pub.AUTO_TOPIC):
 
 
 @topic_to_command_handler(register_list=COMMAND_REGISTER, topic=POKE_ONE_BYTE)
-def poke_one_byte(address: Address, byte_to_write: int, topic=pub.AUTO_TOPIC):
+def poke_one_byte(address: Address, value: int, topic=pub.AUTO_TOPIC):
     """Create a POKE_ONE_BYTE command."""
-    _create_direct_message(topic=topic, address=address, cmd2=byte_to_write)
+    _create_direct_message(topic=topic, address=address, cmd2=value)
 
 
 @topic_to_command_handler(register_list=COMMAND_REGISTER, topic=PEEK_ONE_BYTE)
@@ -383,9 +383,9 @@ def peek_one_byte_internal(address: Address, lsb: int, topic=pub.AUTO_TOPIC):
 
 
 @topic_to_command_handler(register_list=COMMAND_REGISTER, topic=POKE_ONE_BYTE_INTERNAL)
-def poke_one_byte_internal(address: Address, byte_to_write: int, topic=pub.AUTO_TOPIC):
+def poke_one_byte_internal(address: Address, value: int, topic=pub.AUTO_TOPIC):
     """Create a POKE_ONE_BYTE_INTERNAL command."""
-    _create_direct_message(topic=topic, address=address, cmd2=byte_to_write)
+    _create_direct_message(topic=topic, address=address, cmd2=value)
 
 
 @topic_to_command_handler(register_list=COMMAND_REGISTER, topic=ON_AT_RAMP_RATE)

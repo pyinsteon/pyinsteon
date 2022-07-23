@@ -35,7 +35,8 @@
                     "on_level": 100
                 }
             },
-            "messages": [ {
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 18,
@@ -57,7 +58,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 19,
@@ -79,7 +81,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 20,
@@ -102,7 +105,8 @@
                     "group": 3
                 }
             },
-            "messages": [ {
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 9,
@@ -123,7 +127,8 @@
                     "group": 3
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 10,
@@ -144,7 +149,8 @@
                     "group": 3
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 38,
                     "cmd1": 46,
@@ -179,7 +185,8 @@
                     "data14": 14
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 46,
@@ -213,7 +220,8 @@
                     "data14": 14
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 46,
@@ -234,7 +242,8 @@
                     "flags_requested": 1
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 31,
@@ -255,7 +264,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 16,
@@ -275,7 +285,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 96,
                     "cmd1": 19,
@@ -295,7 +306,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 96,
                     "cmd1": 17,
@@ -314,12 +326,28 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 48,
                     "cmd1": 3,
                     "cmd2": 0,
-                    "user_data": {"d1": 0, "d2": 2, "d3": 3, "d4": 4, "d5": 5, "d6": 6, "d7": 7, "d8": 8, "d9": 0, "d10": 0, "d11": 0, "d12": 0, "d13": 0, "d14": 0},
+                    "user_data": {
+                        "d1": 0,
+                        "d2": 2,
+                        "d3": 3,
+                        "d4": 4,
+                        "d5": 5,
+                        "d6": 6,
+                        "d7": 7,
+                        "d8": 8,
+                        "d9": 0,
+                        "d10": 0,
+                        "d11": 0,
+                        "d12": 0,
+                        "d13": 0,
+                        "d14": 0
+                    },
                     "target": "445566"
                 }
             ],
@@ -338,7 +366,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 48,
                     "cmd1": 3,
@@ -358,7 +387,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 38,
                     "cmd1": 47,
@@ -380,7 +410,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 160,
                     "cmd1": 47,
@@ -404,7 +435,8 @@
                     "cmd": 4
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 32,
@@ -426,7 +458,8 @@
                     "cmd": 5
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 160,
                     "cmd1": 32,
@@ -444,8 +477,7 @@
                 }
             ],
             "response": 1,
-            "assert_tests": {
-            }
+            "assert_tests": {}
         },
         "status_request": {
             "command": {
@@ -456,7 +488,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 33,
@@ -478,7 +511,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 162,
                     "cmd1": 33,
@@ -510,7 +544,8 @@
                     "bit4": 1
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 47,
@@ -530,7 +565,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 13,
@@ -552,7 +588,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 13,
@@ -574,7 +611,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 15,
@@ -603,7 +641,8 @@
                     "group8": false
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 46,
@@ -623,7 +662,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 105,
@@ -647,7 +687,8 @@
                     "degrees": 3.5
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 105,
@@ -657,8 +698,7 @@
                 }
             ],
             "response": 1,
-            "assert_tests": {
-            }
+            "assert_tests": {}
         },
         "temperature_down_with_zone_with_degrees": {
             "command": {
@@ -671,7 +711,8 @@
                     "zone": 2
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 105,
@@ -694,7 +735,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 104,
@@ -718,7 +760,8 @@
                     "degrees": 3.5
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 104,
@@ -728,8 +771,7 @@
                 }
             ],
             "response": 1,
-            "assert_tests": {
-            }
+            "assert_tests": {}
         },
         "temperature_up_with_zone_with_degrees": {
             "command": {
@@ -742,7 +784,8 @@
                     "zone": 2
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 104,
@@ -767,7 +810,8 @@
                     "degrees": 62
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 108,
@@ -791,7 +835,8 @@
                     "degrees": 82
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 109,
@@ -817,7 +862,8 @@
                     "deadband": 2
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 108,
@@ -845,7 +891,8 @@
                     "deadband": 3
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 109,
@@ -869,7 +916,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 46,
@@ -891,7 +939,8 @@
                     "thermostat_mode": 1
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 107,
@@ -915,7 +964,8 @@
                     "thermostat_mode": 1
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 107,
@@ -936,7 +986,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 48,
@@ -959,7 +1010,8 @@
                 },
                 "send_params": {}
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
                     "cmd1": 48,
@@ -983,10 +1035,11 @@
                     "lsb": 24
                 }
             },
-            "messages": [{
+            "messages": [
+                {
                     "address": "112233",
                     "flags": 32,
-                    "cmd1": 48,
+                    "cmd1": 43,
                     "cmd2": 18,
                     "user_data": {},
                     "target": "445566"
@@ -995,6 +1048,31 @@
             "response": 1,
             "assert_tests": {
                 "value": 18
+            }
+        },
+        "poke": {
+            "command": {
+                "class": ".poke.PokeCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "value": 55
+                }
+            },
+            "messages": [
+                {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 41,
+                    "cmd2": 55,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "value": 55
             }
         }
     }
