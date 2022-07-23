@@ -972,5 +972,29 @@
             "assert_tests": {
                 "on_level": 255
             }
+        },
+        "peek": {
+            "command": {
+                "class": ".peek.PeekCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {
+                    "lsb": 24
+                }
+            },
+            "messages": [{
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 48,
+                    "cmd2": 18,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "value": 18
+            }
         }
     }
