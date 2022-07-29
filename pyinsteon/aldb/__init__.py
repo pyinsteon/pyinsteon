@@ -5,7 +5,7 @@ Insteon devices that either respond to or control the current device.
 """
 import logging
 
-from ..constants import ALDBStatus, ALDBVersion
+from ..constants import ALDBStatus, ALDBVersion, ReadWriteMode
 from ..managers.aldb_read_manager import ALDBReadManager
 from .aldb_base import ALDBBase
 
@@ -66,5 +66,11 @@ class ALDB(ALDBBase):
                 break
 
         self.set_load_status()
+
+        if not self._records and self._read_write_mode == ReadWriteMode.STANDARD:
+            self._read_write_mode = ReadWriteMode.PEEK_POKE
+            return self.async_load(
+                mem_addr=mem_addr, num_recs=num_recs, refresh=refresh
+            )
 
         return self._status

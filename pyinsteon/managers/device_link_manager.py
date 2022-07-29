@@ -47,15 +47,16 @@ class DeviceLinkManager:
 
         responders = []
         device_c = self._devices[controller]
-        for mem_addr in device_c.aldb:
-            rec = device_c.aldb[mem_addr]
-            if (
-                rec.is_in_use
-                and rec.is_controller
-                and rec.group == group
-                and rec.target not in responders
-            ):
-                responders.append(rec.target)
+        if device_c:
+            for mem_addr in device_c.aldb:
+                rec = device_c.aldb[mem_addr]
+                if (
+                    rec.is_in_use
+                    and rec.is_controller
+                    and rec.group == group
+                    and rec.target not in responders
+                ):
+                    responders.append(rec.target)
 
         for addr in self._devices:
             if (

@@ -37,7 +37,10 @@ class BatteryDeviceBase:
         )
         self._is_battery = True
         self._commands_queue = asyncio.Queue()
-        self._aldb = ALDBBattery(address=address, run_command=self._run_on_wake)
+        self._aldb = ALDBBattery(
+            address=address,
+            run_command=self._run_on_wake,
+        )
         self._last_run = None
         self._keep_awake_cmd = ExtendedSetCommand(self._address, data1=0, data2=0x04)
         subscribe_topic(self._device_awake, self._address.id)

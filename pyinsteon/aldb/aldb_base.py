@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple
 
 from ..address import Address
-from ..constants import ALDBStatus, ALDBVersion, ResponseStatus
+from ..constants import ALDBStatus, ALDBVersion, ReadWriteMode, ResponseStatus
 from ..managers.aldb_write_manager import ALDBWriteException, ALDBWriteManager
 from ..topics import (
     ALDB_STATUS_CHANGED,
@@ -45,6 +45,7 @@ class ALDBBase(ABC):
         write_manager=ALDBWriteManager,
     ):
         """Instantiate the ALL-Link Database object."""
+        self._read_write_mode = ReadWriteMode.STANDARD
         self._records = {}
         self._status = ALDBStatus.EMPTY
         self._version = version
@@ -127,6 +128,16 @@ class ALDBBase(ABC):
     def pending_changes(self):
         """Return pending changes."""
         return self._dirty_records
+
+    @property
+    def read_write_mode(self) -> ReadWriteMode:
+        """Emit the modem read mode."""
+        return self._read_write_mode
+
+    @read_write_mode.setter
+    def read_write_mode(self, value: ReadWriteMode):
+        """Set the modem read mode."""
+        self._read_write_mode = ReadWriteMode(value)
 
     def clear(self):
         """Clear all records from the ALDB.

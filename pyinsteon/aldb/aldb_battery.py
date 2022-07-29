@@ -15,10 +15,18 @@ class ALDBBattery(ALDB):
     """ALDB for battery opperated devices."""
 
     def __init__(
-        self, address, version=ALDBVersion.V2, mem_addr=0x0FFF, run_command=None
+        self,
+        address,
+        version=ALDBVersion.V2,
+        mem_addr=0x0FFF,
+        run_command=None,
     ):
         """Init the ALDBBattery class."""
-        super().__init__(address=address, version=version, mem_addr=mem_addr)
+        super().__init__(
+            address=address,
+            version=version,
+            mem_addr=mem_addr,
+        )
         self._commands = []
         self._run_command = run_command
 

@@ -36,16 +36,6 @@ class ModemALDB(ALDBBase):
         if not topic:
             self._read_manager = ImReadManager(self)
 
-    @property
-    def read_write_mode(self) -> ReadWriteMode:
-        """Emit the modem read mode."""
-        return self._read_write_mode
-
-    @read_write_mode.setter
-    def read_write_mode(self, value: ReadWriteMode):
-        """Set the modem read mode."""
-        self._read_write_mode = ReadWriteMode(value)
-
     # pylint: disable=arguments-differ
     async def async_load(self, *args, **kwargs):
         """Load the All-Link Database."""
