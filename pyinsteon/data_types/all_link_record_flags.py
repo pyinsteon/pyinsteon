@@ -22,9 +22,7 @@ class AllLinkRecordFlags:
             data = int.from_bytes(data, byteorder="big")
         self._in_use = bit_is_set(data, 7)
         is_controller = bit_is_set(data, 6)
-        self._mode = AllLinkMode(0)
-        if is_controller:
-            self._mode = AllLinkMode(1)
+        self._mode = AllLinkMode.CONTROLLER if is_controller else AllLinkMode.RESPONDER
         self._bit5 = bit_is_set(data, 5)
         self._bit4 = bit_is_set(data, 4)
         self._bit3 = bit_is_set(data, 3)
@@ -95,6 +93,11 @@ class AllLinkRecordFlags:
     def link_mode(self):
         """Return if the record is a responder or controller."""
         return self._mode
+
+    @property
+    def is_controller(self):
+        """Return if the record is a controller."""
+        return self._mode == AllLinkMode.CONTROLLER
 
     @property
     def is_hwm(self):

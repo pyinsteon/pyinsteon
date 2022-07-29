@@ -131,6 +131,7 @@ class ReadWriteMode(HexIntEnum):
     UNKNOWN = 0x00
     STANDARD = 0x01
     EEPROM = 0x02
+    PEEK_POKE = 0x03
 
 
 class EngineVersion(HexIntEnum):
