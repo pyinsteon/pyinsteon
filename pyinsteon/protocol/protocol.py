@@ -135,12 +135,16 @@ class Protocol(asyncio.Protocol):
             if not self._buffer or last_buffer == self._buffer:
                 break
 
-    def connection_lost(self, exc: asyncio.Task):
+    def connection_lost(self, exc: asyncio.Task | Exception):
         """Notify listeners that the serial connection is lost."""
         _LOGGER.debug("Connection lost called")
         _LOGGER.debug("Should reconnect: %s", self._should_reconnect)
-        if exc and exc.exception():
-            _LOGGER.warning("pyinsteon transport exception: %s", str(exc.exception()))
+        if exc:
+            if hasattr(exc, "exception"):
+                log_msg = str(exc.exception())
+            else:
+                log_msg = str(exc)    
+            _LOGGER.warning("pyinsteon transport exception: %s", log_msg)
         if self._should_reconnect:
             asyncio.create_task(self.async_connect())
         else:
