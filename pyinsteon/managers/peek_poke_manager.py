@@ -1,11 +1,26 @@
 """Peek and poke command manager."""
 
+import asyncio
+
 from ..address import Address
 from ..constants import ResponseStatus
 from ..handlers.to_device.peek import PeekCommand
 from ..handlers.to_device.poke import PokeCommand
 from ..handlers.to_device.set_msb import SetMsbCommand
 from ..subscriber_base import SubscriberBase
+
+_instances = {}
+
+
+def get_peek_poke_manager(address: Address):
+    """Return a peek/poke manager for a device."""
+    address = Address(address)
+    instance = _instances.get(address)
+    if instance:
+        return instance
+    instance = PeekPokeManager(address)
+    _instances[address] = instance
+    return instance
 
 
 class PeekPokeManager(SubscriberBase):
@@ -18,29 +33,43 @@ class PeekPokeManager(SubscriberBase):
         self._peek_cmd = PeekCommand(self._address)
         self._poke_cmd = PokeCommand(self._address)
         self._set_msb_cmd = SetMsbCommand(self._address)
+        self._peek_value_queue = asyncio.Queue()
+        self._peek_cmd.subscribe(self._receive_peek_value)
 
     async def async_peek(self, mem_addr: int):
         """Peek a value at a memory address."""
-        mem_hi = mem_addr >> 8
-        mem_lo = mem_addr & 0xFF
-        result = await self._set_msb_cmd.async_send(high_byte=mem_hi)
+        result = await self._async_peek(mem_addr=mem_addr)
         if result == ResponseStatus.SUCCESS:
-            result = await self._peek_cmd.async_send(lsb=mem_lo)
+            value = await self._peek_value_queue.get()
+            self._call_subscribers(mem_addr=mem_addr, value=value)
         return result
 
     async def async_poke(self, mem_addr: int, value: int):
         """Poke a value at a memory address."""
-        if value > 255:
+        if 0 > value > 255:
             raise ValueError("Poke value can only be one byte.")
-        result = await self.async_peek(mem_addr)
+        result = await self._async_peek(mem_addr)
         if result == ResponseStatus.SUCCESS:
-            result = self._poke_cmd.async_send(value=value)
+            orig_value = await self._peek_value_queue.get()
+            if orig_value == value:
+                self._call_subscribers(mem_addr=mem_addr, value=value)
+                return ResponseStatus.SUCCESS
+            result = await self._poke_cmd.async_send(value=value)
+            if result == ResponseStatus.SUCCESS:
+                self._call_subscribers(mem_addr=mem_addr, value=value)
         return result
 
-    def subscribe_peek(self, callback, force_strong_ref: bool = False):
-        """Subscribe to the peek command."""
-        self._peek_cmd.subscribe(callback, force_strong_ref)
+    async def _async_peek(self, mem_addr: int):
+        """Execute the peek command."""
+        mem_hi = mem_addr >> 8
+        mem_lo = mem_addr & 0xFF
+        result = await self._set_msb_cmd.async_send(high_byte=mem_hi)
+        while not self._peek_value_queue.empty():
+            await self._peek_value_queue.get()
+        if result == ResponseStatus.SUCCESS:
+            result = await self._peek_cmd.async_send(lsb=mem_lo)
+        return result
 
-    def subscribe_poke(self, callback, force_strong_ref: bool = False):
-        """Subscribe to the poke command."""
-        self._poke_cmd.subscribe(callback, force_strong_ref)
+    async def _receive_peek_value(self, value):
+        """Place the last peek value in the queue."""
+        await self._peek_value_queue.put(value)
