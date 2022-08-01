@@ -87,6 +87,11 @@ class DeviceManager(SubscriberBase):
         """Return the number of devices."""
         return len(self._devices)
 
+    @property
+    def link_manager(self):
+        """Return the device link manager."""
+        return self._link_manager
+
     def get(self, address) -> Device:
         """Return a device from an address."""
         try:
