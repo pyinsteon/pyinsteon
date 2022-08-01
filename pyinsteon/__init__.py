@@ -19,6 +19,7 @@ _LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")
 X10_RECEIVED_HANDLER = X10Received()
 
 devices = DeviceManager()
+link_manager = devices.link_manager
 
 
 async def async_connect(

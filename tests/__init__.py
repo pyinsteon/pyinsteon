@@ -1,9 +1,10 @@
 """Utilities for tests."""
 import logging
 import os
+import shutil
 import sys
 
-from pyinsteon import pub
+from pyinsteon import devices, pub
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_PYINSTEON = logging.getLogger("pyinsteon")
@@ -53,6 +54,16 @@ def set_log_levels(
     else:
         _setup_logger(_LOGGER_TOPICS, "fatal")
         pub.unsubscribe(_log_all_topics, pub.ALL_TOPICS)
+
+
+async def load_devices():
+    """Load the device fixture into the devices list."""
+    test_dir_path = os.path.dirname(__file__)
+    fixture_file = os.path.join(test_dir_path, "devices_fixture.json")
+    output_file = os.path.join(test_dir_path, "insteon_devices.json")
+    shutil.copy(fixture_file, output_file)
+    await devices.async_load(test_dir_path, 0, 0)
+    os.remove(output_file)
 
 
 def _setup_logger(logger, level):
