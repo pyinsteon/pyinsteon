@@ -59,6 +59,10 @@ class DeviceLinkManager:
             return {}
         return self._get_device_link_data(self._devices.modem.address)
 
+    def get_scene(self, group):
+        """Return the device info for a given scene."""
+        return self._get_device_link_data(self._devices.modem.address, group)
+
     @property
     def links(self) -> dict[Address, dict[int, dict[Address, DeviceLinkData]]]:
         """Return a list of device links."""
