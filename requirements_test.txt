@@ -6,7 +6,7 @@ flake8==4.0.1
 flake8-comprehensions==3.8.0
 flake8-noqa==1.2.1
 pyflakes==2.4.0
-pycodestyle==2.8.0
+pycodestyle==2.9.1
 pydocstyle==6.1.1
 pylint==2.13.8
 isort==5.10.1
