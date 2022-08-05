@@ -1,5 +1,6 @@
 """Test the device_link_manager class."""
 import asyncio
+import os
 import unittest
 from random import randint
 from unittest.mock import AsyncMock
@@ -146,3 +147,31 @@ class TestDeviceLinkManager(unittest.TestCase):
         assert len(devices.link_manager.links) == 4
         assert len(devices.link_manager.links[controller]) == 1
         assert len(devices.link_manager.links[controller][group]) == 1
+
+    @async_case
+    async def test_save_load_scenes(self):
+        """Test saving and loading scenes."""
+
+        async def create_devices():
+            """Create devices."""
+            devices = DeviceManager()
+            await load_devices(devices)
+            assert len(devices) == 8
+            for addr in devices:
+                device = devices[addr]
+                device.async_status = AsyncMock()
+            return devices
+
+        devices = await create_devices()
+        link_manager = devices.link_manager
+        dir_path = os.path.dirname(__file__)
+        link_manager.set_scene_name(20, "My scene number 20")
+        await link_manager.async_save_scene_names(dir_path)
+        scene_file = os.path.join(dir_path, "insteon_scenes.json")
+        assert os.path.exists(scene_file)
+
+        devices = await create_devices()
+        link_manager = devices.link_manager
+        await link_manager.async_load_scene_names(dir_path)
+        scene_20 = link_manager.get_scene(20)
+        assert scene_20["name"] == "My scene number 20"

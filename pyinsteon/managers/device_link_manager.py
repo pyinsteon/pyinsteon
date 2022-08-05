@@ -1,6 +1,10 @@
 """Manages links between devices to identify device state of responders."""
+import json
+import logging
 from collections import namedtuple
+from os import path
 
+import aiofiles
 from pubsub.core.topicobj import Topic
 
 from .. import pub
@@ -13,7 +17,16 @@ from ..topics import (
 )
 from ..utils import subscribe_topic
 
+SCENE_FILE = "insteon_scenes.json"
+_LOGGER = logging.getLogger(__name__)
 DeviceLinkData = namedtuple("DeviceLinkData", "cat data1 data2 data3")
+
+
+def _jsonKeyToInt(x):
+    """Ensure the Json key is an int."""
+    if isinstance(x, dict):
+        return {int(k): v for k, v in x.items()}
+    return x
 
 
 def _controller_group_topic(controller, group) -> Topic:
@@ -41,27 +54,26 @@ class DeviceLinkManager:
     Once the responders are identified, the state of the responders is determined.
     """
 
-    # TODO: figure out how to remove responder records
-
-    def __init__(self, devices):
+    def __init__(self, devices, work_dir: str | None = None):
         """Init the DeviceLinkManager class."""
         subscribe_topic(self._responder_link_created, DEVICE_LINK_CONTROLLER_CREATED)
         subscribe_topic(self._responder_link_created, DEVICE_LINK_RESPONDER_CREATED)
         subscribe_topic(self._responder_link_removed, DEVICE_LINK_RESPONDER_REMOVED)
         self._devices = devices
         # Dict of {address: {group: [address]}}
-        self._controller_responders = {}
+        self._controller_responders: dict[Address, dict[int, list[Address]]] = {}
+        self._scene_names: dict[int, str] = {}
+        self._work_dir: str | None = work_dir
 
     @property
-    def scenes(self) -> dict[int, dict[Address, DeviceLinkData]]:
+    def scenes(self) -> dict[int, dict[str, dict[Address, DeviceLinkData] | str]]:
         """Return a list of scenes."""
         if not self._devices.modem:
             return {}
-        return self._get_device_link_data(self._devices.modem.address)
-
-    def get_scene(self, group):
-        """Return the device info for a given scene."""
-        return self._get_device_link_data(self._devices.modem.address, group)
+        if not self._scene_names:
+            self._load_scenes_from_file()
+        scenes = self._get_device_link_data(self._devices.modem.address)
+        return self._fill_scene_data(scenes)
 
     @property
     def links(self) -> dict[Address, dict[int, dict[Address, DeviceLinkData]]]:
@@ -77,9 +89,78 @@ class DeviceLinkManager:
             if controller != self._devices.modem.address
         }
 
+    def get_scene(self, group) -> dict[str, str | dict[Address, DeviceLinkData]]:
+        """Return the device info for a given scene."""
+        if not self._devices.modem:
+            return {}
+        if not self._scene_names:
+            self._load_scenes_from_file()
+        scene = self._get_device_link_data(self._devices.modem.address, group)
+        return self._fill_scene_data(scene).get(group)
+
+    def get_link(self, controller: Address, group: int):
+        """Return the links to a controller/group combination."""
+        return self._get_device_link_data(Address(controller), group).get(group)
+
+    def set_scene_name(self, scene: int, name: str):
+        """Set the friendly name of a scene."""
+        self._scene_names[scene] = name
+
+    async def async_load_scene_names(self, work_dir: str | None = None):
+        """Return the scene names."""
+        if work_dir is None and self._work_dir is None:
+            raise ValueError("No file path has been specified.")
+        if work_dir:
+            self._work_dir = work_dir
+        return await self._load_scenes_from_file()
+
+    async def async_save_scene_names(self, work_dir: str | None = None):
+        """Write the scenes to a file."""
+        if self._work_dir is None and work_dir is None:
+            raise ValueError("No file path has been specified.")
+        if work_dir:
+            self._work_dir = work_dir
+        out_json = json.dumps(self._scene_names, indent=2)
+        scene_file = path.join(self._work_dir, SCENE_FILE)
+        async with aiofiles.open(scene_file, "w") as afp:
+            await afp.write(out_json)
+            await afp.flush()
+
+    async def _load_scenes_from_file(self, work_dir: str | None = None):
+        """Convert a collection of scenes to json."""
+        if self._work_dir is None and work_dir is None:
+            raise ValueError("No file path has been specified.")
+        if work_dir:
+            self._work_dir = work_dir
+        json_file = {}
+        scene_file = path.join(self._work_dir, SCENE_FILE)
+        try:
+            async with aiofiles.open(scene_file, "r") as afp:
+                json_file = await afp.read()
+            try:
+                saved_devices = json.loads(json_file, object_hook=_jsonKeyToInt)
+                self._scene_names = saved_devices
+            except json.decoder.JSONDecodeError:
+                _LOGGER.debug("Loading saved device file failed")
+        except FileNotFoundError:
+            _LOGGER.debug("Saved device file not found")
+
+    def _fill_scene_data(self, scenes):
+        """Fill in the scene name and device info."""
+        if not self._scene_names and self._work_dir is not None:
+            self._load_scenes_from_file(self._work_dir)
+        scenes_data = {}
+        for scene_num, scene_info in scenes.items():
+            scenes_data[scene_num] = {}
+            scenes_data[scene_num]["name"] = self._scene_names.get(
+                scene_num, f"Insteon scene {scene_num}"
+            )
+            scenes_data[scene_num]["devices"] = scene_info
+        return scenes_data
+
     def _get_device_link_data(
         self, controller: Address, group: int | None = None
-    ) -> dict[Address, dict[Address, DeviceLinkData]]:
+    ) -> dict[int, dict[Address, DeviceLinkData]]:
         """Return the device data 1 - 3 for the given links."""
 
         if group is None:
