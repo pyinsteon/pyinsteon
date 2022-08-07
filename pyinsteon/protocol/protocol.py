@@ -4,6 +4,7 @@ import asyncio
 import logging
 from enum import Enum
 from queue import SimpleQueue
+from typing import Union
 
 from .. import pub
 from ..constants import AckNak
@@ -135,7 +136,7 @@ class Protocol(asyncio.Protocol):
             if not self._buffer or last_buffer == self._buffer:
                 break
 
-    def connection_lost(self, exc: asyncio.Task | Exception):
+    def connection_lost(self, exc: Union[asyncio.Task, Exception]):
         """Notify listeners that the serial connection is lost."""
         _LOGGER.debug("Connection lost called")
         _LOGGER.debug("Should reconnect: %s", self._should_reconnect)
@@ -143,7 +144,7 @@ class Protocol(asyncio.Protocol):
             if hasattr(exc, "exception"):
                 log_msg = str(exc.exception())
             else:
-                log_msg = str(exc)    
+                log_msg = str(exc)
             _LOGGER.warning("pyinsteon transport exception: %s", log_msg)
         if self._should_reconnect:
             asyncio.create_task(self.async_connect())
