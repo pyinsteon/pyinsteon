@@ -3,6 +3,7 @@ import json
 import logging
 from collections import namedtuple
 from os import path
+from typing import Union
 
 import aiofiles
 from pubsub.core.topicobj import Topic
@@ -54,7 +55,7 @@ class DeviceLinkManager:
     Once the responders are identified, the state of the responders is determined.
     """
 
-    def __init__(self, devices, work_dir: str | None = None):
+    def __init__(self, devices, work_dir: Union[str, None] = None):
         """Init the DeviceLinkManager class."""
         subscribe_topic(self._responder_link_created, DEVICE_LINK_CONTROLLER_CREATED)
         subscribe_topic(self._responder_link_created, DEVICE_LINK_RESPONDER_CREATED)
@@ -106,7 +107,7 @@ class DeviceLinkManager:
         """Set the friendly name of a scene."""
         self._scene_names[scene] = name
 
-    async def async_load_scene_names(self, work_dir: str | None = None):
+    async def async_load_scene_names(self, work_dir: Union[str, None] = None):
         """Return the scene names."""
         if work_dir is None and self._work_dir is None:
             raise ValueError("No file path has been specified.")
@@ -114,7 +115,7 @@ class DeviceLinkManager:
             self._work_dir = work_dir
         return await self._load_scenes_from_file()
 
-    async def async_save_scene_names(self, work_dir: str | None = None):
+    async def async_save_scene_names(self, work_dir: Union[str, None] = None):
         """Write the scenes to a file."""
         if self._work_dir is None and work_dir is None:
             raise ValueError("No file path has been specified.")
@@ -126,7 +127,7 @@ class DeviceLinkManager:
             await afp.write(out_json)
             await afp.flush()
 
-    async def _load_scenes_from_file(self, work_dir: str | None = None):
+    async def _load_scenes_from_file(self, work_dir: Union[str, None] = None):
         """Convert a collection of scenes to json."""
         if self._work_dir is None and work_dir is None:
             raise ValueError("No file path has been specified.")
