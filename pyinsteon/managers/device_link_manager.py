@@ -64,10 +64,10 @@ class DeviceLinkManager:
         # Dict of {address: {group: [address]}}
         self._controller_responders: dict[Address, dict[int, list[Address]]] = {}
         self._scene_names: dict[int, str] = {}
-        self._work_dir: str | None = work_dir
+        self._work_dir: Union[str, None] = work_dir
 
     @property
-    def scenes(self) -> dict[int, dict[str, dict[Address, DeviceLinkData] | str]]:
+    def scenes(self) -> dict[int, dict[str, Union[dict[Address, DeviceLinkData], str]]]:
         """Return a list of scenes."""
         if not self._devices.modem:
             return {}
@@ -90,7 +90,7 @@ class DeviceLinkManager:
             if controller != self._devices.modem.address
         }
 
-    def get_scene(self, group) -> dict[str, str | dict[Address, DeviceLinkData]]:
+    def get_scene(self, group) -> dict[str, Union[str, dict[Address, DeviceLinkData]]]:
         """Return the device info for a given scene."""
         if not self._devices.modem:
             return {}
@@ -160,7 +160,7 @@ class DeviceLinkManager:
         return scenes_data
 
     def _get_device_link_data(
-        self, controller: Address, group: int | None = None
+        self, controller: Address, group: Union[int, None] = None
     ) -> dict[int, dict[Address, DeviceLinkData]]:
         """Return the device data 1 - 3 for the given links."""
 
