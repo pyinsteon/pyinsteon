@@ -46,7 +46,7 @@ class TestDeviceLinkManager(unittest.TestCase):
 
         controller = devices["1a1a1a"].address
         responder = devices["3c3c3c"].address
-        link_data = devices.link_manager.links[controller][1][responder]
+        link_data = devices.link_manager.links[controller][1][responder][0]
         assert link_data.data1 == 255
         assert link_data.data3 == 1
 

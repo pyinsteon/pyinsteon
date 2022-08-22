@@ -67,7 +67,9 @@ class DeviceLinkManager:
         self._work_dir: Union[str, None] = work_dir
 
     @property
-    def scenes(self) -> dict[int, dict[str, Union[dict[Address, DeviceLinkData], str]]]:
+    def scenes(
+        self,
+    ) -> dict[int, dict[str, Union[dict[Address, list[DeviceLinkData]], str]]]:
         """Return a list of scenes."""
         if not self._devices.modem:
             return {}
@@ -77,7 +79,7 @@ class DeviceLinkManager:
         return self._fill_scene_data(scenes)
 
     @property
-    def links(self) -> dict[Address, dict[int, dict[Address, DeviceLinkData]]]:
+    def links(self) -> dict[Address, dict[int, dict[Address, list[DeviceLinkData]]]]:
         """Return a list of device links."""
         if not self._devices.modem:
             return {
@@ -90,7 +92,9 @@ class DeviceLinkManager:
             if controller != self._devices.modem.address
         }
 
-    def get_scene(self, group) -> dict[str, Union[str, dict[Address, DeviceLinkData]]]:
+    def get_scene(
+        self, group
+    ) -> dict[str, Union[str, dict[Address, list[DeviceLinkData]]]]:
         """Return the device info for a given scene."""
         if not self._devices.modem:
             return {}
@@ -161,7 +165,7 @@ class DeviceLinkManager:
 
     def _get_device_link_data(
         self, controller: Address, group: Union[int, None] = None
-    ) -> dict[int, dict[Address, DeviceLinkData]]:
+    ) -> dict[int, dict[Address, list[DeviceLinkData]]]:
         """Return the device data 1 - 3 for the given links."""
 
         if group is None:
@@ -173,8 +177,9 @@ class DeviceLinkManager:
         for group, addrs in links.items():
             links_data[group] = {}
             for addr in addrs:
-                link_info = DeviceLinkData(None, None, None, None)
                 device = self._devices[addr]
+                if not links_data[group].get(addr):
+                    links_data[group][addr] = []
                 if device:
                     for rec in device.aldb.find(
                         target=controller,
@@ -184,7 +189,10 @@ class DeviceLinkManager:
                         link_info = DeviceLinkData(
                             device.cat, rec.data1, rec.data2, rec.data3
                         )
-                links_data[group][addr] = link_info
+                        links_data[group][addr].append(link_info)
+                else:
+                    link_info = DeviceLinkData(None, None, None, None)
+                    links_data[group][addr].append(link_info)
         return links_data
 
     def _responder_link_created(self, controller, responder, group) -> None:
@@ -225,12 +233,13 @@ class DeviceLinkManager:
             return
         responder_data = self._get_device_link_data(controller, group).get(group, {})
 
-        for addr, link_data in responder_data.items():
-            if link_data.cat is not None:
-                device = self._devices[addr]
-                # If the device is a category 1 or 2 device we can pre-load the device state with the
-                # ALDB record data1 field value. We will then check the actual status later.
-                if link_data.cat in [0x01, 0x02]:
-                    device.groups[link_data.data3].value = link_data.data1
-                if not device.is_battery:
-                    await device.async_status()
+        for addr, links in responder_data.items():
+            for link_data in links:
+                if link_data.cat is not None:
+                    device = self._devices[addr]
+                    # If the device is a category 1 or 2 device we can pre-load the device state with the
+                    # ALDB record data1 field value. We will then check the actual status later.
+                    if link_data.cat in [0x01, 0x02]:
+                        device.groups[link_data.data3].value = link_data.data1
+                    if not device.is_battery:
+                        await device.async_status()
