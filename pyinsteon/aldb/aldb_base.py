@@ -227,13 +227,14 @@ class ALDBBase(ABC):
             bit4=bit4,
         )
 
-        for curr_rec in self.find(
-            target=new_rec.target,
-            is_controller=new_rec.is_controller,
-            group=new_rec.group,
-        ):
-            new_rec.mem_addr = curr_rec.mem_addr
-            break
+        if new_rec.is_controller:
+            for curr_rec in self.find(
+                target=new_rec.target,
+                is_controller=new_rec.is_controller,
+                group=new_rec.group,
+            ):
+                new_rec.mem_addr = curr_rec.mem_addr
+                break
 
         if new_rec.mem_addr == 0x0000:
             mem_addr = self._next_new_mem_addr()
