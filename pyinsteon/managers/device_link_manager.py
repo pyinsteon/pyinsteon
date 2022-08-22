@@ -23,11 +23,11 @@ _LOGGER = logging.getLogger(__name__)
 DeviceLinkData = namedtuple("DeviceLinkData", "cat data1 data2 data3")
 
 
-def _jsonKeyToInt(x):
+def _json_key_to_int(items):
     """Ensure the Json key is an int."""
-    if isinstance(x, dict):
-        return {int(k): v for k, v in x.items()}
-    return x
+    if isinstance(items, dict):
+        return {int(k): v for k, v in items.items()}
+    return items
 
 
 def _controller_group_topic(controller, group) -> Topic:
@@ -143,7 +143,7 @@ class DeviceLinkManager:
             async with aiofiles.open(scene_file, "r") as afp:
                 json_file = await afp.read()
             try:
-                saved_devices = json.loads(json_file, object_hook=_jsonKeyToInt)
+                saved_devices = json.loads(json_file, object_hook=_json_key_to_int)
                 self._scene_names = saved_devices
             except json.decoder.JSONDecodeError:
                 _LOGGER.debug("Loading saved device file failed")
