@@ -132,10 +132,7 @@ SPRINKLER_GET_PROGRAM_RESPONSE = "sprinkler_get_program_response"
 IO_SET_SENSOR_NOMINAL_VALUE = "io_set_sensor_nominal_value"
 IO_ALARM_DATA_RESPONSE = "io_alarm_data_response"
 
-DEVICE_LINK_CONTROLLER_CREATED = "device_link_controller_created"
-DEVICE_LINK_CONTROLLER_REMOVED = "device_link_controller_removed"
-DEVICE_LINK_RESPONDER_CREATED = "device_link_responder_created"
-DEVICE_LINK_RESPONDER_REMOVED = "device_link_responder_removed"
+ALDB_LINK_CHANGED = "aldb.link_changed"
 
 ALDB_VERSION = "aldb_version"
 ALDB_STATUS_CHANGED = "aldb_status_changed"
