@@ -7,13 +7,10 @@
 		"context": "..",
 		"args": {
 			// Update 'VARIANT' to pick a Python version: 3.7, 3.8, 3.9, 3.10
-			"VARIANT": "3.10",
-			// Options
-			//"INSTALL_NODE": "true",
-			//"NODE_VERSION": "lts/*"
+			"VARIANT": "3.10"
 		}
 	},
-
+	"runArgs": ["--device=/dev/insteon"],
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
 		"python.pythonPath": "/usr/local/bin/python",
