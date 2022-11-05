@@ -7,14 +7,7 @@ from typing import List, Tuple
 from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion, ResponseStatus
 from ..managers.aldb_write_manager import ALDBWriteException, ALDBWriteManager
-from ..topics import (
-    ALDB_STATUS_CHANGED,
-    ALDB_VERSION,
-    DEVICE_LINK_CONTROLLER_CREATED,
-    DEVICE_LINK_CONTROLLER_REMOVED,
-    DEVICE_LINK_RESPONDER_CREATED,
-    DEVICE_LINK_RESPONDER_REMOVED,
-)
+from ..topics import ALDB_LINK_CHANGED, ALDB_STATUS_CHANGED, ALDB_VERSION
 from ..utils import publish_topic, subscribe_topic
 from .aldb_record import ALDBRecord, new_aldb_record_from_existing
 
@@ -85,6 +78,11 @@ class ALDBBase(ABC):
         """Human representation of a device from the ALDB."""
         attrs = vars(self)
         return ", ".join(f"{k}: {repr(v)}" for k, v in attrs.items())
+
+    def items(self):
+        """Return the memory address an record key value pair."""
+        for mem_addr, rec in self._records.items():
+            yield mem_addr, rec
 
     @property
     def address(self) -> Address:
@@ -168,14 +166,7 @@ class ALDBBase(ABC):
 
     def subscribe_record_changed(self, listener):
         """Subscribe to notification of ALDB record changes."""
-        subscribe_topic(
-            listener, f"{DEVICE_LINK_CONTROLLER_CREATED}.{self._address.id}"
-        )
-        subscribe_topic(
-            listener, f"{DEVICE_LINK_CONTROLLER_REMOVED}.{self._address.id}"
-        )
-        subscribe_topic(listener, f"{DEVICE_LINK_RESPONDER_CREATED}.{self._address.id}")
-        subscribe_topic(listener, f"{DEVICE_LINK_RESPONDER_REMOVED}.{self._address.id}")
+        subscribe_topic(listener, f"{self._address.id}.{ALDB_LINK_CHANGED}")
 
     @abstractmethod
     async def async_load(self, *args, **kwargs):
@@ -231,6 +222,7 @@ class ALDBBase(ABC):
             target=new_rec.target,
             is_controller=new_rec.is_controller,
             group=new_rec.group,
+            data3=new_rec.data3,
         ):
             new_rec.mem_addr = curr_rec.mem_addr
             break
@@ -295,6 +287,7 @@ class ALDBBase(ABC):
             return 0, len(self._dirty_records)
         success = 0
         failed = {}
+        # make sure to update existing records before adding new ones
         dirty_addrs = sorted(self._dirty_records, reverse=True)
         next_new_dirty = 0
         for dirty_addr in dirty_addrs:
@@ -308,6 +301,7 @@ class ALDBBase(ABC):
                     target=rec.target,
                     group=rec.group,
                     is_controller=rec.is_controller,
+                    data3=rec.data3,
                     force=force,
                 )
             result = False
@@ -341,6 +335,7 @@ class ALDBBase(ABC):
         self,
         group: int = None,
         target: Address = None,
+        data3: int = None,
         is_controller: bool = None,
         in_use: bool = None,
     ) -> List[ALDBRecord]:
@@ -353,14 +348,19 @@ class ALDBBase(ABC):
         ):
             raise ValueError("Must have at least one criteria")
 
+        test_rec = ALDBRecord(
+            memory=None,
+            controller=is_controller,
+            group=group,
+            target=target,
+            data1=None,
+            data2=None,
+            data3=data3,
+            in_use=in_use,
+        )
         for _, rec in self._records.items():
-            group_match = group is None or rec.group == group
-            target_match = target is None or rec.target == target
-            is_controller_match = (
-                is_controller is None or rec.is_controller == is_controller
-            )
             in_use_match = in_use is None or rec.is_in_use == in_use
-            if group_match and target_match and is_controller_match and in_use_match:
+            if rec == test_rec and in_use_match:
                 yield rec
 
     def set_load_status(self):
@@ -381,27 +381,9 @@ class ALDBBase(ABC):
             publish_topic(f"{self._address.id}.{ALDB_STATUS_CHANGED}")
 
     def _notify_change(self, record, force_delete=False):
-        target = record.target
-        group = record.group
-        is_in_use = True if force_delete else record.is_in_use
-        if record.is_controller and is_in_use:
-            topic = f"{DEVICE_LINK_CONTROLLER_CREATED}.{self._address.id}"
-            controller = self._address
-            responder = target
-        elif record.is_controller and not is_in_use:
-            topic = f"{DEVICE_LINK_CONTROLLER_REMOVED}.{self._address.id}"
-            controller = self._address
-            responder = target
-        elif not record.is_controller and is_in_use:
-            topic = f"{DEVICE_LINK_RESPONDER_CREATED}.{self._address.id}"
-            controller = target
-            responder = self._address
-        else:
-            topic = f"{DEVICE_LINK_RESPONDER_REMOVED}.{self._address.id}"
-            controller = target
-            responder = self._address
-
-        publish_topic(topic, controller=controller, responder=responder, group=group)
+        deleted = True if force_delete else not record.is_in_use
+        topic = f"{self._address.id}.{ALDB_LINK_CHANGED}"
+        publish_topic(topic, record=record, sender=self.address, deleted=deleted)
 
     def _next_new_mem_addr(self):
         """Return the next temporary memory address to use for a new record.
@@ -415,7 +397,12 @@ class ALDBBase(ABC):
         return min(min(self._dirty_records), 0) - 1
 
     def _next_record_mem_addr(
-        self, target: Address, group: int, is_controller: bool, force: bool = False
+        self,
+        target: Address,
+        group: int,
+        is_controller: bool,
+        data3: int,
+        force: bool = False,
     ):
         """Assign a memory address to a record.
 
@@ -435,7 +422,10 @@ class ALDBBase(ABC):
             raise ALDBWriteException("Cannot calculate the next record to write to.")
 
         for existing_record in self.find(
-            target=target, group=group, is_controller=is_controller
+            target=target,
+            group=group,
+            is_controller=is_controller,
+            data3=data3,
         ):
             return existing_record.mem_addr
 
