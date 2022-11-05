@@ -12,6 +12,7 @@ from ..managers.link_manager import async_cancel_linking_mode, async_unlink_devi
 from .aldb import ToolsAldb
 from .commands import ToolsCommands
 from .config import ToolsConfig
+from .scenes import ToolsScenes
 from .tools_base import DEFAULT_HUB_PORT, ToolsBase
 
 DEFAULT_HUB_VERSION = 2
@@ -186,6 +187,10 @@ class InsteonCmd(ToolsBase):
     async def menu_commands(self):
         """Execute device commands."""
         await self._call_next_menu(ToolsCommands, "commands")
+
+    async def menu_scenes(self):
+        """Manage scenes."""
+        await self._call_next_menu(ToolsScenes, "scenes")
 
     async def do_add_device(self, address_or_multiple=None):
         """Link a device to the modem.
