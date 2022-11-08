@@ -7,7 +7,6 @@ from os import path
 from typing import Union
 
 import aiofiles
-from pubsub.core.topicobj import Topic
 
 from .. import pub
 from ..address import Address
@@ -45,32 +44,6 @@ def _json_key_to_int(key):
     if isinstance(key, dict):
         return {int(k): v for k, v in key.items()}
     return key
-
-
-def _update_link_data(
-    old_rec: DeviceLinkData,
-    cat=None,
-    data1=None,
-    data2=None,
-    data3=None,
-    has_ctlr=None,
-    has_resp=None,
-):
-    """Update a DeviceLinkData record with new data."""
-    cat = cat if cat is not None else old_rec.cat
-    data1 = data1 if data1 is not None else old_rec.data1
-    data2 = data2 if data2 is not None else old_rec.data2
-    data3 = data3 if data3 is not None else old_rec.data3
-    has_ctlr = has_ctlr if has_ctlr is not None else old_rec.has_controller
-    has_resp = has_resp if has_resp is not None else old_rec.has_responder
-    return DeviceLinkData(data1, data2, data3, has_ctlr, has_resp)
-
-
-def _controller_group_topic(controller, group) -> Topic:
-    topic_str = f"{controller.id}.{group}"
-    topic_mgr = pub.getDefaultTopicMgr()
-    topic = topic_mgr.getOrCreateTopic(topic_str)
-    return topic
 
 
 def _topic_to_addr_group(topic):
