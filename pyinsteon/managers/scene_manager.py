@@ -9,9 +9,10 @@ from ..handlers.send_all_link_on import SendAllLinkOnCommandHandler
 async def _get_scene_device_status(group: int):
     """Get the status of the devices in a scene."""
     scene = devices.link_manager.get_scene(group)
-    for addr in scene:
+    for addr in scene["devices"]:
         device = devices[addr]
-        await device.async_status()
+        if device:
+            await device.async_status()
 
 
 async def async_trigger_scene_on(group):
