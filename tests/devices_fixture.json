@@ -933,7 +933,7 @@
             "4079": {
                 "memory": 4079,
                 "in_use": true,
-                "controller": true,
+                "controller": false,
                 "high_water_mark": false,
                 "bit5": true,
                 "bit4": false,
