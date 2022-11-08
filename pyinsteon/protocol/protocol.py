@@ -112,6 +112,9 @@ class Protocol(asyncio.Protocol):
             last_buffer = self._buffer
             try:
                 msg, self._buffer = create(self._buffer)
+                if isinstance(self._buffer, bytes):
+                    _LOGGER.warning("Buffer became bytes: %s", data.hex())
+                    self._buffer = bytearray(self._buffer)
             except (ValueError, IndexError) as ex:
                 _LOGGER.debug("Invalid message data: %s", self._buffer.hex())
                 _LOGGER.debug("%s: %s", type(ex), str(ex))
