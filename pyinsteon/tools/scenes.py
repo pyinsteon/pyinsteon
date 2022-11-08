@@ -205,5 +205,5 @@ class ToolsScenes(ToolsBase):
             self._log_stdout("At least one device is required")
             return
         await devices.link_manager.async_add_or_update_scene(
-            scene=scene, name=name, device_info=scene_devices
+            scene=scene, device_info=scene_devices, name=name
         )
