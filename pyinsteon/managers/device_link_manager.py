@@ -1,7 +1,8 @@
 """Manages links between devices to identify device state of responders."""
+import asyncio
 import json
 import logging
-from collections import namedtuple
+import string
 from os import path
 from typing import Union
 
@@ -10,24 +11,59 @@ from pubsub.core.topicobj import Topic
 
 from .. import pub
 from ..address import Address
-from ..constants import MessageFlagType
-from ..topics import (
-    DEVICE_LINK_CONTROLLER_CREATED,
-    DEVICE_LINK_RESPONDER_CREATED,
-    DEVICE_LINK_RESPONDER_REMOVED,
-)
+from ..aldb.aldb_record import ALDBRecord
+from ..constants import DeviceAction, MessageFlagType
+from ..device_types.device_base import Device
+from ..device_types.modem_base import ModemBase
+from ..topics import ALDB_LINK_CHANGED
 from ..utils import subscribe_topic
 
 SCENE_FILE = "insteon_scenes.json"
 _LOGGER = logging.getLogger(__name__)
-DeviceLinkData = namedtuple("DeviceLinkData", "cat data1 data2 data3")
+Controller_Address = Address
+ResponderAddress = Address
+Group = int
 
 
-def _jsonKeyToInt(x):
+class DeviceLinkData:
+    """Device link data class."""
+
+    def __init__(self, data1, data2, data3, has_controller, has_responder):
+        """Init the DeviceLinkData class."""
+        self.data1 = data1
+        self.data2 = data2
+        self.data3 = data3
+        self.has_controller = has_controller
+        self.has_responder = has_responder
+
+
+EMPTY_ADDRESS = Address("000000")
+
+
+def _json_key_to_int(key):
     """Ensure the Json key is an int."""
-    if isinstance(x, dict):
-        return {int(k): v for k, v in x.items()}
-    return x
+    if isinstance(key, dict):
+        return {int(k): v for k, v in key.items()}
+    return key
+
+
+def _update_link_data(
+    old_rec: DeviceLinkData,
+    cat=None,
+    data1=None,
+    data2=None,
+    data3=None,
+    has_ctlr=None,
+    has_resp=None,
+):
+    """Update a DeviceLinkData record with new data."""
+    cat = cat if cat is not None else old_rec.cat
+    data1 = data1 if data1 is not None else old_rec.data1
+    data2 = data2 if data2 is not None else old_rec.data2
+    data3 = data3 if data3 is not None else old_rec.data3
+    has_ctlr = has_ctlr if has_ctlr is not None else old_rec.has_controller
+    has_resp = has_resp if has_resp is not None else old_rec.has_responder
+    return DeviceLinkData(data1, data2, data3, has_ctlr, has_resp)
 
 
 def _controller_group_topic(controller, group) -> Topic:
@@ -55,53 +91,54 @@ class DeviceLinkManager:
     Once the responders are identified, the state of the responders is determined.
     """
 
-    def __init__(self, devices, work_dir: Union[str, None] = None):
+    def __init__(self, devices):
         """Init the DeviceLinkManager class."""
-        subscribe_topic(self._responder_link_created, DEVICE_LINK_CONTROLLER_CREATED)
-        subscribe_topic(self._responder_link_created, DEVICE_LINK_RESPONDER_CREATED)
-        subscribe_topic(self._responder_link_removed, DEVICE_LINK_RESPONDER_REMOVED)
         self._devices = devices
-        # Dict of {address: {group: [address]}}
-        self._controller_responders: dict[Address, dict[int, list[Address]]] = {}
+        self._links: dict[
+            Controller_Address,
+            dict[Group, dict[ResponderAddress, list[DeviceLinkData]]],
+        ] = {}
+        self._scenes: dict[Group, dict[ResponderAddress, list[DeviceLinkData]]] = {}
         self._scene_names: dict[int, str] = {}
-        self._work_dir: Union[str, None] = work_dir
+        self._work_dir: Union[str, None] = None
+        self._devices.subscribe(self._device_added_or_removed)
 
     @property
-    def scenes(self) -> dict[int, dict[str, Union[dict[Address, DeviceLinkData], str]]]:
+    def scenes(
+        self,
+    ) -> dict[Group, dict[str, Union[dict[ResponderAddress, DeviceLinkData], str]]]:
         """Return a list of scenes."""
-        if not self._devices.modem:
-            return {}
-        if not self._scene_names:
-            self._load_scenes_from_file()
-        scenes = self._get_device_link_data(self._devices.modem.address)
-        return self._fill_scene_data(scenes)
-
-    @property
-    def links(self) -> dict[Address, dict[int, dict[Address, DeviceLinkData]]]:
-        """Return a list of device links."""
-        if not self._devices.modem:
-            return {
-                controller: self._get_device_link_data(controller)
-                for controller in self._controller_responders
-            }
         return {
-            controller: self._get_device_link_data(controller)
-            for controller in self._controller_responders
-            if controller != self._devices.modem.address
+            scene_num: self._fill_scene_data(scene=scene, scene_num=scene_num)
+            for scene_num, scene in self._scenes.items()
         }
 
-    def get_scene(self, group) -> dict[str, Union[str, dict[Address, DeviceLinkData]]]:
-        """Return the device info for a given scene."""
-        if not self._devices.modem:
-            return {}
-        if not self._scene_names:
-            self._load_scenes_from_file()
-        scene = self._get_device_link_data(self._devices.modem.address, group)
-        return self._fill_scene_data(scene).get(group)
+    @property
+    def links(
+        self,
+    ) -> dict[Controller_Address, dict[Group, dict[ResponderAddress, DeviceLinkData]]]:
+        """Return a list of device links."""
+        return self._links
 
-    def get_link(self, controller: Address, group: int):
-        """Return the links to a controller/group combination."""
-        return self._get_device_link_data(Address(controller), group).get(group)
+    def get_scene(
+        self, scene: int
+    ) -> dict[str, Union[str, dict[ResponderAddress, list[DeviceLinkData]]]]:
+        """Return the device info for a given scene.
+
+        Returns a dictionary:
+            name: <scene name>
+            devices: dict[ResponderAddress: [DeviceLinkData]]
+        """
+        scene_links = self._scenes.get(scene)
+        if not scene_links:
+            return None
+        return self._fill_scene_data(scene_links, scene)
+
+    def get_responders(
+        self, controller: Address, group: int
+    ) -> dict[ResponderAddress, DeviceLinkData]:
+        """Return the responders to a controller/group combination."""
+        return self._links.get(controller, {}).get(group, {})
 
     def set_scene_name(self, scene: int, name: str):
         """Set the friendly name of a scene."""
@@ -113,7 +150,18 @@ class DeviceLinkManager:
             raise ValueError("No file path has been specified.")
         if work_dir:
             self._work_dir = work_dir
-        return await self._load_scenes_from_file()
+        json_file = {}
+        scene_file = path.join(self._work_dir, SCENE_FILE)
+        try:
+            async with aiofiles.open(scene_file, "r") as afp:
+                json_file = await afp.read()
+            try:
+                saved_devices = json.loads(json_file, object_hook=_json_key_to_int)
+                self._scene_names = saved_devices
+            except json.decoder.JSONDecodeError:
+                _LOGGER.debug("Loading saved device file failed")
+        except FileNotFoundError:
+            _LOGGER.debug("Saved device file not found")
 
     async def async_save_scene_names(self, work_dir: Union[str, None] = None):
         """Write the scenes to a file."""
@@ -127,94 +175,378 @@ class DeviceLinkManager:
             await afp.write(out_json)
             await afp.flush()
 
-    async def _load_scenes_from_file(self, work_dir: Union[str, None] = None):
-        """Convert a collection of scenes to json."""
-        if self._work_dir is None and work_dir is None:
-            raise ValueError("No file path has been specified.")
-        if work_dir:
-            self._work_dir = work_dir
-        json_file = {}
-        scene_file = path.join(self._work_dir, SCENE_FILE)
-        try:
-            async with aiofiles.open(scene_file, "r") as afp:
-                json_file = await afp.read()
-            try:
-                saved_devices = json.loads(json_file, object_hook=_jsonKeyToInt)
-                self._scene_names = saved_devices
-            except json.decoder.JSONDecodeError:
-                _LOGGER.debug("Loading saved device file failed")
-        except FileNotFoundError:
-            _LOGGER.debug("Saved device file not found")
+    async def async_add_device_to_scene(
+        self,
+        address: Address,
+        scene: int,
+        data1: int = 255,
+        data2: int = 0,
+        data3: int = 1,
+        delay_write: bool = False,
+    ):
+        """Add a device to a scene."""
+        device = self._devices[address]
+        modem = self._devices.modem
+        device.aldb.add(
+            group=scene,
+            target=modem.address,
+            controller=False,
+            data1=data1,
+            data2=data2,
+            data3=data3,
+        )
+        modem.aldb.add(
+            group=scene,
+            target=device.address,
+            controller=True,
+            data1=int(device.cat),
+            data2=device.subcat,
+            data3=device.firmware if device.firmware is not None else 0,
+        )
+        if not delay_write:
+            await device.aldb.async_write()
+            await modem.aldb.async_write()
 
-    def _fill_scene_data(self, scenes):
-        """Fill in the scene name and device info."""
-        if not self._scene_names and self._work_dir is not None:
-            self._load_scenes_from_file(self._work_dir)
-        scenes_data = {}
-        for scene_num, scene_info in scenes.items():
-            scenes_data[scene_num] = {}
-            scenes_data[scene_num]["name"] = self._scene_names.get(
-                scene_num, f"Insteon scene {scene_num}"
-            )
-            scenes_data[scene_num]["devices"] = scene_info
-        return scenes_data
+    async def async_remove_device_from_scene(
+        self,
+        address: Address,
+        scene: int,
+        delay_write: bool = False,
+    ):
+        """Add a device to a scene."""
 
-    def _get_device_link_data(
-        self, controller: Address, group: Union[int, None] = None
-    ) -> dict[int, dict[Address, DeviceLinkData]]:
-        """Return the device data 1 - 3 for the given links."""
+        device: Device = self._devices[address]
+        modem: ModemBase = self._devices.modem
+        for rec in device.aldb.find(
+            group=scene, target=modem.address, is_controller=False, in_use=True
+        ):
+            device.aldb.remove(rec.mem_addr)
+        for rec in modem.aldb.find(
+            group=scene, target=device.address, is_controller=True, in_use=True
+        ):
+            modem.aldb.remove(rec.mem_addr)
 
-        if group is None:
-            links = self._controller_responders[controller]
-        else:
-            links = {}
-            links[group] = self._controller_responders[controller][group]
-        links_data = {}
-        for group, addrs in links.items():
-            links_data[group] = {}
-            for addr in addrs:
-                link_info = DeviceLinkData(None, None, None, None)
+        if not delay_write:
+            await device.aldb.async_write()
+            await modem.aldb.async_write()
+
+    async def async_add_or_update_scene(
+        self,
+        scene: int,
+        device_info: dict[ResponderAddress, DeviceLinkData],
+        name: str = None,
+    ):
+        """Create or update a scene with a list of devices and device link data."""
+        updated_devices = []
+        curr_scene = self.get_scene(scene)
+
+        if scene == 0:
+            scene = self._find_next_scene()
+
+        # Remove all records from the current scene
+        # Not a big deal since when we add them back they will not need to be writen again if they did not change
+        if curr_scene:
+            curr_device_info = curr_scene["devices"]
+            for addr, info_list in curr_device_info.items():
                 device = self._devices[addr]
-                if device:
+                for info in info_list:
                     for rec in device.aldb.find(
-                        target=controller,
                         is_controller=False,
-                        group=group,
+                        group=scene,
+                        target=self._devices.modem.address,
+                        data3=info.data3,
+                        in_use=True,
                     ):
-                        link_info = DeviceLinkData(
-                            device.cat, rec.data1, rec.data2, rec.data3
-                        )
-                links_data[group][addr] = link_info
-        return links_data
+                        device.aldb.remove(rec.mem_addr)
+                        if device not in updated_devices:
+                            updated_devices.append(device)
+                    for modem_rec in self._devices.modem.aldb.find(
+                        is_controller=True,
+                        target=device.address,
+                        group=scene,
+                        in_use=True,
+                    ):
+                        self._devices.modem.aldb.remove(modem_rec.mem_addr)
 
-    def _responder_link_created(self, controller, responder, group) -> None:
-        controller = Address(controller)
-        responder = Address(responder)
-        if (
-            self._devices.modem and responder == self._devices.modem.address
-        ) or group == 0:
+        # Add the devices from device_info param
+        for addr, info in device_info.items():
+            device = self._devices[addr]
+            device.aldb.add(
+                group=scene,
+                target=self._devices.modem.address,
+                controller=False,
+                data1=info.data1,
+                data2=info.data2,
+                data3=info.data3,
+            )
+            if device not in updated_devices:
+                updated_devices.append(device)
+                self._devices.modem.aldb.add(
+                    group=scene,
+                    target=device.address,
+                    controller=True,
+                    data1=int(device.cat),
+                    data2=device.subcat,
+                    data3=device.firmware if device.firmware is not None else 0,
+                )
+
+        for device in updated_devices:
+            await device.aldb.async_write()
+        await self._devices.modem.aldb.async_write()
+        if name:
+            self.set_scene_name(scene=scene, name=name)
+
+    def _link_changed(self, record: ALDBRecord, sender: Address, deleted: bool) -> None:
+        """Add a record to the controller/responder list."""
+        if record.is_controller:
+            controller = Address(sender)
+            responder = Address(record.target)
+            has_controller = True
+            has_responder = None
+        else:
+            controller = Address(record.target)
+            responder = Address(sender)
+            has_responder = True
+            has_controller = None
+
+        if deleted:
+            self._remove_link(
+                record=record,
+                controller=controller,
+                responder=responder,
+                rem_resp=has_responder,
+            )
+        else:
+            self._add_link(
+                record=record,
+                controller=controller,
+                responder=responder,
+                has_controller=has_controller,
+                has_responder=has_responder,
+            )
+
+    def _find_next_scene(self):
+        """Return the next available scene number."""
+        next_scene = 20
+        while next_scene in self.scenes:
+            next_scene += 1
+        return next_scene
+
+    def _fill_scene_data(
+        self, scene: dict[ResponderAddress, list[DeviceLinkData]], scene_num: int
+    ) -> dict[int : dict[string : dict[ResponderAddress, list[DeviceLinkData]]]]:
+        """Fill in the scene name and device info."""
+        scene_data = {}
+        scene_data["name"] = self._get_scene_name(scene_num)
+        scene_data["devices"] = scene
+        return scene_data
+
+    def _get_responder_records(
+        self, controller: Address, responder: Address, group: int
+    ) -> ALDBRecord:
+        """Return the responder's ALDBRecord for the given link."""
+        device = self._devices[responder]
+        if not device:
+            return None
+        for rec in device.aldb.find(
+            target=controller,
+            is_controller=False,
+            group=group,
+        ):
+            yield rec
+
+    def _get_scene_name(self, scene_num: int):
+        """Return the scene name."""
+        return self._scene_names.get(scene_num, f"Insteon scene {scene_num}")
+
+    def _add_link(self, record, controller, responder, has_controller, has_responder):
+        """Add a link to the controller/responder list."""
+        if self._is_standard_modem_link(controller, responder, record.group):
             return
-        topic = _controller_group_topic(controller, group)
-        subscribe_topic(self._async_check_responders, topic.name)
-        controller_groups = self._controller_responders.get(controller, {})
-        controller_group = controller_groups.get(group, [])
-        if responder not in controller_group:
-            controller_group.append(responder)
-        controller_groups[group] = controller_group
-        self._controller_responders[controller] = controller_groups
+        # Listen for the controller group topic and check known responders.
+        subscribe_topic(self._async_check_responders, f"{controller.id}.{record.group}")
 
-    def _responder_link_removed(self, controller, responder, group) -> None:
-        """Remove a responder from the controller/responder list."""
-        controller = Address(controller)
-        responder = Address(responder)
-        controller_groups = self._controller_responders.get(controller, {})
+        if self._is_scene_link(controller, responder, record.group):
+            self._add_scene(record, responder, has_controller, has_responder)
+            return
+
+        controller_groups = self._links.get(controller, {})
+        if not controller_groups:
+            self._links[controller] = controller_groups
+        controller_group = controller_groups.get(record.group, {})
+        if not controller_group:
+            controller_groups[record.group] = controller_group
+
+        self._add_link_to_controller_group(
+            controller_group,
+            record,
+            controller,
+            responder,
+            has_controller,
+            has_responder,
+        )
+
+    def _add_link_to_controller_group(
+        self,
+        controller_group,
+        record,
+        controller,
+        responder,
+        has_controller,
+        has_responder,
+    ):
+        """Add a link or a scene to a controller group."""
+        responder_data: list[DeviceLinkData] = controller_group.get(responder, [])
+        if not responder_data:
+            controller_group[responder] = responder_data
+        if not responder_data:
+            if has_controller:
+                # We got a controller record and there are no responder records yet
+                responder_data.append(
+                    DeviceLinkData(None, None, None, has_controller, None)
+                )
+                return
+
+        controller_already_existed = False
+        for data in responder_data:
+            if has_controller:
+                # Update every responder data record with has_controller
+                data.has_controller = True
+            else:
+                if data.data3 == record.data3:
+                    # Found a matching record
+                    data.has_responder = True
+                    return
+                elif data.data3 is None:
+                    # Found a generic record we can apply this to
+                    data.data1 = record.data1
+                    data.data2 = record.data2
+                    data.data3 = record.data3
+                    data.has_responder = True
+                    return
+                if data.has_controller:
+                    controller_already_existed = True
+        if has_responder:
+            # We did not find a matching record above so add a new responder record
+            responder_data.append(
+                DeviceLinkData(
+                    record.data1,
+                    record.data2,
+                    record.data3,
+                    controller_already_existed,
+                    has_responder,
+                )
+            )
+
+    def _add_scene(self, record, responder, has_controller, has_responder):
+        """Add a scene link."""
+        scene_num = record.group
+        scene = self._scenes.get(scene_num, {})
+        if not scene:
+            self._scenes[scene_num] = scene
+        self._add_link_to_controller_group(
+            scene,
+            record,
+            self._devices.modem.address,
+            responder,
+            has_controller,
+            has_responder,
+        )
+
+    def _remove_link(self, record, controller, responder, rem_resp):
+        """Remove a controller or responder link from the controller/responder list."""
+        group = record.group
+        if self._is_standard_modem_link(controller, responder, group):
+            return
+        controller_groups = self._links.get(controller, {})
         if not controller_groups:
             return
-        controller_group = controller_groups.get(group, [])
+        controller_group = controller_groups.get(group, {})
         if not controller_group:
             return
-        if responder in controller_group:
-            controller_group.remove(responder)
+        responder_data: list[DeviceLinkData] = controller_group.get(responder, [])
+        if not responder_data:
+            return
+        data_to_remove = []
+        if rem_resp:
+            for data in responder_data:
+                if data.data3 == record.data3:
+                    if not data.has_controller:
+                        data_to_remove.append(data)
+                    else:
+                        data.data1 = None
+                        data.data2 = None
+                        data.data3 = None
+                        data.has_responder = False
+        else:
+            for data in responder_data:
+                if not data.has_responder:
+                    data_to_remove.append(data)
+                else:
+                    data.has_controller = False
+
+        for data in data_to_remove:
+            self._remove_data_item(controller, group, responder, data)
+
+    def _remove_data_item(self, controller, group, responder, data):
+        """Remove a device link data item from the list of controller/responders."""
+        controller_group_responders = self._links[controller][group]
+        responder_data = controller_group_responders[responder]
+        responder_data.remove(data)
+        if not responder_data:
+            self._links[controller][group].pop(responder)
+            if not self._links[controller][group]:
+                self._links[controller].pop(group)
+                if not self._links[controller]:
+                    self._links.pop(controller)
+
+    async def _device_added_or_removed(self, address: Address, action: DeviceAction):
+        """Track device list changes."""
+        await asyncio.sleep(0.1)
+        if action == DeviceAction.REMOVED:
+            self._remove_device(address)
+
+        elif action == DeviceAction.ADDED:
+            device = self._devices[address]
+            if not device:
+                await asyncio.sleep(0.1)
+                device = self._devices[address]
+                if not device:
+                    subscribe_topic(
+                        self._link_changed, f"{address.id}.{ALDB_LINK_CHANGED}"
+                    )
+                    return
+            device.aldb.subscribe_record_changed(self._link_changed)
+            for _, record in device.aldb.items():
+                if record.is_in_use:
+                    self._link_changed(record=record, sender=address, deleted=False)
+
+    def _remove_device(self, address: Address):
+        """Remove a device from the controller/responder list."""
+
+        data_to_remove = []
+        for controller, controller_group in self._links.items():
+            for group, responders in controller_group.items():
+                for responder, data_list in responders.items():
+                    if not controller == address or not responder == address:
+                        continue
+                    for data in data_list:
+                        if controller == address:
+                            if not data.has_responder:
+                                data_to_remove.append(
+                                    [controller, responder, group, data]
+                                )
+                            else:
+                                data.has_controller = False
+                        else:
+                            if not data.has_controller:
+                                data_to_remove.append(
+                                    [controller, responder, group, data]
+                                )
+                            else:
+                                data.has_responder = False
+        for data in data_to_remove:
+            self._remove_data_item(*data)
 
     async def _async_check_responders(self, topic=pub.AUTO_TOPIC, **kwargs) -> None:
         controller, group, msg_type = _topic_to_addr_group(topic)
@@ -223,14 +555,37 @@ class DeviceLinkManager:
             return
         if group == 0:
             return
-        responder_data = self._get_device_link_data(controller, group).get(group, {})
-
-        for addr, link_data in responder_data.items():
-            if link_data.cat is not None:
-                device = self._devices[addr]
+        responder_data = self.get_responders(controller, group)
+        for addr, data_list in responder_data.items():
+            device = self._devices[addr]
+            if device:
                 # If the device is a category 1 or 2 device we can pre-load the device state with the
                 # ALDB record data1 field value. We will then check the actual status later.
-                if link_data.cat in [0x01, 0x02]:
-                    device.groups[link_data.data3].value = link_data.data1
+                for data in data_list:
+                    if device.cat in [0x01, 0x02] and data.data3 is not None:
+                        device.groups[data.data3].value = data.data1
                 if not device.is_battery:
                     await device.async_status()
+
+    def _is_standard_modem_link(self, controller, responder, group):
+        """Test if a link is a standard modem link."""
+        if self._devices.modem and responder == self._devices.modem.address:
+            return True
+        if self._devices.modem and controller == self._devices.modem.address:
+            device = self._devices[responder]
+            if device:
+                groups = list(device.groups)
+            groups.append(0)
+            if group in groups:
+                return True
+        return False
+
+    def _is_scene_link(self, controller, responder, group):
+        """Return if the controller is the modem and the group is not a standard link group."""
+        if self._is_standard_modem_link(controller, responder, group):
+            return False
+
+        if self._devices.modem and controller == self._devices.modem.address:
+            return True
+
+        return False
