@@ -76,6 +76,10 @@ class InsteonCmd(ToolsBase):
                 self.port = None
             if password is None:
                 password = await self._get_connection_params(password)
+        elif device_or_host == "mock":
+            self.host = "localhost"
+            self.port = 8080
+            self.mock = True
         else:
             self.device = device_or_host
 
@@ -91,6 +95,7 @@ class InsteonCmd(ToolsBase):
                 username=self.username,
                 password=password,
                 hub_version=self.hub_version,
+                mock=self.mock,
             )
             connected_to = self.device if self.device else self.host
             self._log_stdout(f"Connected to {connected_to}")

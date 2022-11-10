@@ -108,6 +108,7 @@ class ToolsBase(Cmd):
         self.username = None
         self.hub_version = 2
         self.port = 25105
+        self.mock = False
 
         self._set_command_line_values(args)
 
