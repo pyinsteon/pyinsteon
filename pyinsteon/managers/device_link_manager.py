@@ -311,6 +311,7 @@ class DeviceLinkManager:
         """Fill in the scene name and device info."""
         scene_data = {}
         scene_data["name"] = self._get_scene_name(scene_num)
+        scene_data["group"] = scene_num
         scene_data["devices"] = scene
         return scene_data
 
