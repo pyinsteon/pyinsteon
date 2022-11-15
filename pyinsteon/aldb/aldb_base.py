@@ -8,7 +8,7 @@ from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion, ResponseStatus
 from ..managers.aldb_write_manager import ALDBWriteException, ALDBWriteManager
 from ..topics import ALDB_LINK_CHANGED, ALDB_STATUS_CHANGED, ALDB_VERSION
-from ..utils import publish_topic, subscribe_topic
+from ..utils import publish_topic, subscribe_topic, unsubscribe_topic
 from .aldb_record import ALDBRecord, new_aldb_record_from_existing
 
 _LOGGER = logging.getLogger(__name__)
@@ -167,6 +167,14 @@ class ALDBBase(ABC):
     def subscribe_record_changed(self, listener):
         """Subscribe to notification of ALDB record changes."""
         subscribe_topic(listener, f"{self._address.id}.{ALDB_LINK_CHANGED}")
+
+    def unsubscribe_status_changed(self, listener):
+        """Unsubscribe to notification of ALDB load status changes."""
+        unsubscribe_topic(listener, f"{self._address.id}.{ALDB_STATUS_CHANGED}")
+
+    def unsubscribe_record_changed(self, listener):
+        """Unsubscribe to notification of ALDB record changes."""
+        unsubscribe_topic(listener, f"{self._address.id}.{ALDB_LINK_CHANGED}")
 
     @abstractmethod
     async def async_load(self, *args, **kwargs):
