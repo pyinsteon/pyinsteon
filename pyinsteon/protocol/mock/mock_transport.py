@@ -2,12 +2,11 @@
 import asyncio
 import logging
 from binascii import Error, Incomplete, unhexlify
-from http.server import HTTPServer
 
 from ...address import Address
 from ...constants import AckNak, MessageFlagType, MessageId
 from ...data_types.message_flags import MessageFlags
-from .mock_reader import MockReader, input_buffer
+from .mock_reader import MockReader
 
 _LOGGER = logging.getLogger(__name__)
 READ_WAIT = 0.5
@@ -15,7 +14,7 @@ SESSION_RETRIES = 30
 RECONNECT_WAIT = 7
 
 
-HOST = "localhost"
+HOST = "127.0.0.1"
 PORT = 8080
 MODEM_ADDRESS = Address("11.11.11")
 
@@ -38,7 +37,13 @@ async def async_connect_mock(protocol, host=None, port=None):
     """Connect to a mock transport."""
     host = HOST if not host else host
     port = PORT if not port else port
-    return MockTransport(protocol=protocol, host=host, port=port)
+    transport = MockTransport(protocol=protocol, host=host, port=port)
+    if await transport.async_test_connection():
+        _LOGGER.debug("Connection made async_connect_mock")
+        transport.start_reader()
+        protocol.connection_made(transport)
+        return transport
+    return None
 
 
 # This transport is designed for the Hub version 2.
@@ -60,13 +65,13 @@ class MockTransport(asyncio.Transport):
     calling you back when it succeeds.
     """
 
-    def __init__(self, protocol, host="localhost", port=8080):
+    def __init__(self, protocol, host="127.0.0.1", port=8080):
         """Init the HttpTransport class."""
         super().__init__()
         self._protocol = protocol
         self._host = host
         self._port = port
-        self._websever = HTTPServer((host, port), MockReader)
+        self._webserver = MockReader(host, port)
 
         self._closing = False
         self._reader_lock = asyncio.Lock()
@@ -100,6 +105,7 @@ class MockTransport(asyncio.Transport):
         """Close the transport."""
         _LOGGER.debug("Closing Hub session")
         self._closing = True
+        self._webserver.stop()
 
     def get_write_buffer_size(self):
         """Rreturn 0 (i.e. none) always."""
@@ -172,11 +178,12 @@ class MockTransport(asyncio.Transport):
     # pylint: disable=broad-except
     async def _ensure_reader(self):
         _LOGGER.info("Insteon mock reader started")
+        await self._webserver.async_start()
         async with self._reader_lock:
             while not self._closing:
                 buffer = None
                 async with self._read_write_lock:
-                    buffer = await input_buffer.get()
+                    buffer = await self._webserver.queue.get()
                     if buffer:
                         _LOGGER.debug("New buffer: %s", buffer)
                         buffer = self._check_strong_nak(buffer)

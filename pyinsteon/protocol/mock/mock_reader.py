@@ -1,43 +1,59 @@
 """Mock reader used by the MockTransport class."""
 import asyncio
-import logging
-from http.server import BaseHTTPRequestHandler
 
-_LOGGER = logging.getLogger(__name__)
+from aiohttp import web
+
 input_buffer = asyncio.Queue()
 
 
-class MockReader(BaseHTTPRequestHandler):
+class MockReader:
     """Web server to accept inbound commands."""
 
-    # pylint: disable=invalid-name
-    def do_GET(self):
+    def __init__(self, host="127.0.0.1", port=8080):
+        """Init the MockReader class."""
+        self._host = host
+        self._port = port
+        self._app = web.Application()
+        self._app.router.add_get("/", self.do_get)
+        self._app.router.add_post("/input", self.do_post)
+        self._site = None
+        self._queue = asyncio.Queue()
+
+    @property
+    def queue(self):
+        """Return the data queue."""
+        return self._queue
+
+    async def async_start(self):
+        """Start the web server."""
+        runner = web.AppRunner(self._app)
+        await runner.setup()
+        self._site = web.TCPSite(runner=runner, host=self._host, port=self._port)
+        await self._site.start()
+
+    def stop(self):
+        """Stop the listener."""
+        self._site.stop()
+
+    def do_get(self, request):
         """Respond to standard get requests."""
-        self._set_response()
-        self.wfile.write(
-            bytes("<html><head><title>https://pythonbasics.org</title></head>", "utf-8")
-        )
-        self.wfile.write(bytes(f"<p>Request: {self.path}</p>", "utf-8"))
-        self.wfile.write(bytes("<body>", "utf-8"))
-        self.wfile.write(bytes("<p>This is an example web server.</p>", "utf-8"))
-        self.wfile.write(bytes("</body></html>", "utf-8"))
+        response = "<html><head><title>https://pythonbasics.org</title></head>"
+        response = f"{response}<body>"
+        response = f"{response}<p>Web server is up and listening.  POST messages to `/input`.</p>"
+        response = f"{response}</body></html>"
+        web_response = web.Response(text=response)
+        web_response = self._set_response(web_response)
+        return web_response
 
-    def do_POST(self):
+    async def do_post(self, request: web.Request):
         """Handle a post request."""
-        content_length = int(self.headers["Content-Length"])
-        post_data = self.rfile.read(content_length)  # <--- Gets the data itself
-        _LOGGER.info(
-            "POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n",
-            str(self.path),
-            str(self.headers),
-            post_data.decode("utf-8"),
-        )
+        json_data = await request.json()
+        for _, value in json_data.items():
+            await self._queue.put(value)
+            await asyncio.sleep(0.5)
+        return web.Response(text=str(json_data))
 
-        self._set_response()
-        self.wfile.write(f"POST request for {self.path}".encode("utf-8"))
-        input_buffer.put_nowait(post_data.decode("utf-8"))
-
-    def _set_response(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
+    def _set_response(self, web_response: web.Response):
+        web_response.headers.add("Content-type", "text/html")
+        web_response.set_status(200)
+        return web_response
