@@ -77,7 +77,7 @@ class InsteonCmd(ToolsBase):
             if password is None:
                 password = await self._get_connection_params(password)
         elif device_or_host == "mock":
-            self.host = "localhost"
+            self.host = "127.0.0.1"
             self.port = 8080
             self.mock = True
         else:
