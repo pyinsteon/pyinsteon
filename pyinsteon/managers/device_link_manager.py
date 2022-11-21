@@ -7,6 +7,7 @@ from os import path
 from typing import Union
 
 import aiofiles
+import voluptuous as vol
 
 from .. import pub
 from ..address import Address
@@ -23,12 +24,23 @@ Controller_Address = Address
 ResponderAddress = Address
 Group = int
 
+DeviceLinkSchema = vol.Schema(
+    [
+        {
+            vol.Required("address"): str,
+            vol.Required("data1"): int,
+            vol.Required("data2"): int,
+            vol.Required("data3"): int,
+        }
+    ]
+)
 
-class DeviceLinkData:
+
+class LinkInfo:
     """Device link data class."""
 
     def __init__(self, data1, data2, data3, has_controller, has_responder):
-        """Init the DeviceLinkData class."""
+        """Init the LinkInfo class."""
         self.data1 = data1
         self.data2 = data2
         self.data3 = data3
@@ -69,9 +81,9 @@ class DeviceLinkManager:
         self._devices = devices
         self._links: dict[
             Controller_Address,
-            dict[Group, dict[ResponderAddress, list[DeviceLinkData]]],
+            dict[Group, dict[ResponderAddress, list[LinkInfo]]],
         ] = {}
-        self._scenes: dict[Group, dict[ResponderAddress, list[DeviceLinkData]]] = {}
+        self._scenes: dict[Group, dict[ResponderAddress, list[LinkInfo]]] = {}
         self._scene_names: dict[int, str] = {}
         self._work_dir: Union[str, None] = None
         self._devices.subscribe(self._device_added_or_removed)
@@ -79,7 +91,7 @@ class DeviceLinkManager:
     @property
     def scenes(
         self,
-    ) -> dict[Group, dict[str, Union[dict[ResponderAddress, DeviceLinkData], str]]]:
+    ) -> dict[Group, dict[str, Union[dict[ResponderAddress, LinkInfo], str]]]:
         """Return a list of scenes."""
         return {
             scene_num: self._fill_scene_data(scene=scene, scene_num=scene_num)
@@ -89,18 +101,18 @@ class DeviceLinkManager:
     @property
     def links(
         self,
-    ) -> dict[Controller_Address, dict[Group, dict[ResponderAddress, DeviceLinkData]]]:
+    ) -> dict[Controller_Address, dict[Group, dict[ResponderAddress, LinkInfo]]]:
         """Return a list of device links."""
         return self._links
 
     def get_scene(
         self, scene: int
-    ) -> dict[str, Union[str, dict[ResponderAddress, list[DeviceLinkData]]]]:
+    ) -> dict[str, Union[str, dict[ResponderAddress, list[LinkInfo]]]]:
         """Return the device info for a given scene.
 
         Returns a dictionary:
             name: <scene name>
-            devices: dict[ResponderAddress: [DeviceLinkData]]
+            devices: dict[ResponderAddress: [LinkInfo]]
         """
         scene_links = self._scenes.get(scene)
         if not scene_links:
@@ -109,7 +121,7 @@ class DeviceLinkManager:
 
     def get_responders(
         self, controller: Address, group: int
-    ) -> dict[ResponderAddress, DeviceLinkData]:
+    ) -> dict[ResponderAddress, LinkInfo]:
         """Return the responders to a controller/group combination."""
         return self._links.get(controller, {}).get(group, {})
 
@@ -206,7 +218,7 @@ class DeviceLinkManager:
     async def async_add_or_update_scene(
         self,
         scene: int,
-        device_info: dict[ResponderAddress, DeviceLinkData],
+        links: DeviceLinkSchema,
         name: str = None,
     ):
         """Create or update a scene with a list of devices and device link data."""
@@ -242,15 +254,15 @@ class DeviceLinkManager:
                         self._devices.modem.aldb.remove(modem_rec.mem_addr)
 
         # Add the devices from device_info param
-        for addr, info in device_info.items():
-            device = self._devices[addr]
+        for link in links:
+            device = self._devices[link["address"]]
             device.aldb.add(
                 group=scene,
                 target=self._devices.modem.address,
                 controller=False,
-                data1=info.data1,
-                data2=info.data2,
-                data3=info.data3,
+                data1=link["data1"],
+                data2=link["data2"],
+                data3=link["data3"],
             )
             if device not in updated_devices:
                 updated_devices.append(device)
@@ -306,8 +318,8 @@ class DeviceLinkManager:
         return next_scene
 
     def _fill_scene_data(
-        self, scene: dict[ResponderAddress, list[DeviceLinkData]], scene_num: int
-    ) -> dict[int : dict[string : dict[ResponderAddress, list[DeviceLinkData]]]]:
+        self, scene: dict[ResponderAddress, list[LinkInfo]], scene_num: int
+    ) -> dict[int : dict[string : dict[ResponderAddress, list[LinkInfo]]]]:
         """Fill in the scene name and device info."""
         scene_data = {}
         scene_data["name"] = self._get_scene_name(scene_num)
@@ -370,15 +382,13 @@ class DeviceLinkManager:
         has_responder,
     ):
         """Add a link or a scene to a controller group."""
-        responder_data: list[DeviceLinkData] = controller_group.get(responder, [])
+        responder_data: list[LinkInfo] = controller_group.get(responder, [])
         if not responder_data:
             controller_group[responder] = responder_data
         if not responder_data:
             if has_controller:
                 # We got a controller record and there are no responder records yet
-                responder_data.append(
-                    DeviceLinkData(None, None, None, has_controller, None)
-                )
+                responder_data.append(LinkInfo(None, None, None, has_controller, None))
                 return
 
         controller_already_existed = False
@@ -403,7 +413,7 @@ class DeviceLinkManager:
         if has_responder:
             # We did not find a matching record above so add a new responder record
             responder_data.append(
-                DeviceLinkData(
+                LinkInfo(
                     record.data1,
                     record.data2,
                     record.data3,
@@ -438,7 +448,7 @@ class DeviceLinkManager:
         controller_group = controller_groups.get(group, {})
         if not controller_group:
             return
-        responder_data: list[DeviceLinkData] = controller_group.get(responder, [])
+        responder_data: list[LinkInfo] = controller_group.get(responder, [])
         if not responder_data:
             return
         data_to_remove = []
