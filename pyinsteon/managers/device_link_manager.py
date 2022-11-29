@@ -106,7 +106,7 @@ class DeviceLinkManager:
         return self._links
 
     def get_scene(
-        self, scene: int
+        self, scene_num: int
     ) -> dict[str, Union[str, dict[ResponderAddress, list[LinkInfo]]]]:
         """Return the device info for a given scene.
 
@@ -114,10 +114,10 @@ class DeviceLinkManager:
             name: <scene name>
             devices: dict[ResponderAddress: [LinkInfo]]
         """
-        scene_links = self._scenes.get(scene)
+        scene_links = self._scenes.get(scene_num)
         if not scene_links:
             return None
-        return self._fill_scene_data(scene_links, scene)
+        return self._fill_scene_data(scene_links, scene_num)
 
     def get_responders(
         self, controller: Address, group: int
@@ -125,9 +125,9 @@ class DeviceLinkManager:
         """Return the responders to a controller/group combination."""
         return self._links.get(controller, {}).get(group, {})
 
-    def set_scene_name(self, scene: int, name: str):
+    def set_scene_name(self, scene_num: int, name: str):
         """Set the friendly name of a scene."""
-        self._scene_names[scene] = name
+        self._scene_names[scene_num] = name
 
     async def async_load_scene_names(self, work_dir: Union[str, None] = None):
         """Return the scene names."""
@@ -163,7 +163,7 @@ class DeviceLinkManager:
     async def async_add_device_to_scene(
         self,
         address: Address,
-        scene: int,
+        scene_num: int,
         data1: int = 255,
         data2: int = 0,
         data3: int = 1,
@@ -173,7 +173,7 @@ class DeviceLinkManager:
         device = self._devices[address]
         modem = self._devices.modem
         device.aldb.add(
-            group=scene,
+            group=scene_num,
             target=modem.address,
             controller=False,
             data1=data1,
@@ -181,7 +181,7 @@ class DeviceLinkManager:
             data3=data3,
         )
         modem.aldb.add(
-            group=scene,
+            group=scene_num,
             target=device.address,
             controller=True,
             data1=int(device.cat),
@@ -195,7 +195,7 @@ class DeviceLinkManager:
     async def async_remove_device_from_scene(
         self,
         address: Address,
-        scene: int,
+        scene_num: int,
         delay_write: bool = False,
     ):
         """Add a device to a scene."""
@@ -203,11 +203,11 @@ class DeviceLinkManager:
         device: Device = self._devices[address]
         modem: ModemBase = self._devices.modem
         for rec in device.aldb.find(
-            group=scene, target=modem.address, is_controller=False, in_use=True
+            group=scene_num, target=modem.address, is_controller=False, in_use=True
         ):
             device.aldb.remove(rec.mem_addr)
         for rec in modem.aldb.find(
-            group=scene, target=device.address, is_controller=True, in_use=True
+            group=scene_num, target=device.address, is_controller=True, in_use=True
         ):
             modem.aldb.remove(rec.mem_addr)
 
@@ -217,27 +217,73 @@ class DeviceLinkManager:
 
     async def async_add_or_update_scene(
         self,
-        scene: int,
+        scene_num: int,
         links: DeviceLinkSchema,
         name: str = None,
     ):
         """Create or update a scene with a list of devices and device link data."""
-        updated_devices = []
-        curr_scene = self.get_scene(scene)
+        try:
+            DeviceLinkSchema(links)
+        except vol.Error as exc:
+            _LOGGER.error("Invalid DeviceLinkSchema format for links parameter.")
+            raise exc
 
-        if scene == 0:
-            scene = self._find_next_scene()
+        updated_devices = []
+        curr_scene = self.get_scene(scene_num)
+
+        if scene_num <= 0:
+            scene_num = self._find_next_scene()
 
         # Remove all records from the current scene
         # Not a big deal since when we add them back they will not need to be writen again if they did not change
-        if curr_scene:
-            curr_device_info = curr_scene["devices"]
+        updated_devices = self._remove_scene_links(scene_num, curr_scene)
+
+        # Add the devices from device_info param
+        for link in links:
+            device = self._devices[link["address"]]
+            device.aldb.add(
+                group=scene_num,
+                target=self._devices.modem.address,
+                controller=False,
+                data1=link["data1"],
+                data2=link["data2"],
+                data3=link["data3"],
+            )
+            if device not in updated_devices:
+                updated_devices.append(device)
+                self._devices.modem.aldb.add(
+                    group=scene_num,
+                    target=device.address,
+                    controller=True,
+                    data1=int(device.cat),
+                    data2=device.subcat,
+                    data3=device.firmware if device.firmware is not None else 0,
+                )
+
+        await self._async_write_scene_link_changes(updated_devices)
+        if name:
+            self.set_scene_name(scene_num=scene_num, name=name)
+
+    async def async_delete_scene(self, scene_num: int):
+        """Delete a scene."""
+        curr_scene = self.get_scene(scene_num)
+        updated_devices = self._remove_scene_links(scene_num, curr_scene)
+        await self._async_write_scene_link_changes(updated_devices)
+
+    def _remove_scene_links(self, scene_num: int, scene_data):
+        """Mark all current scene links as unused.
+
+        Does not write to the database.
+        """
+        updated_devices = []
+        if scene_data:
+            curr_device_info = scene_data["devices"]
             for addr, info_list in curr_device_info.items():
                 device = self._devices[addr]
                 for info in info_list:
                     for rec in device.aldb.find(
                         is_controller=False,
-                        group=scene,
+                        group=scene_num,
                         target=self._devices.modem.address,
                         data3=info.data3,
                         in_use=True,
@@ -248,38 +294,17 @@ class DeviceLinkManager:
                     for modem_rec in self._devices.modem.aldb.find(
                         is_controller=True,
                         target=device.address,
-                        group=scene,
+                        group=scene_num,
                         in_use=True,
                     ):
                         self._devices.modem.aldb.remove(modem_rec.mem_addr)
+        return updated_devices
 
-        # Add the devices from device_info param
-        for link in links:
-            device = self._devices[link["address"]]
-            device.aldb.add(
-                group=scene,
-                target=self._devices.modem.address,
-                controller=False,
-                data1=link["data1"],
-                data2=link["data2"],
-                data3=link["data3"],
-            )
-            if device not in updated_devices:
-                updated_devices.append(device)
-                self._devices.modem.aldb.add(
-                    group=scene,
-                    target=device.address,
-                    controller=True,
-                    data1=int(device.cat),
-                    data2=device.subcat,
-                    data3=device.firmware if device.firmware is not None else 0,
-                )
-
-        for device in updated_devices:
+    async def _async_write_scene_link_changes(self, devices):
+        """Write the ALDB for the devices changed."""
+        for device in devices:
             await device.aldb.async_write()
         await self._devices.modem.aldb.async_write()
-        if name:
-            self.set_scene_name(scene=scene, name=name)
 
     def _link_changed(self, record: ALDBRecord, sender: Address, deleted: bool) -> None:
         """Add a record to the controller/responder list."""

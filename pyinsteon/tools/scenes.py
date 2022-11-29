@@ -2,7 +2,7 @@
 
 from .. import devices
 from ..constants import DeviceCategory
-from ..managers.device_link_manager import DeviceLinkData
+from ..managers.device_link_manager import DeviceLinkSchema
 from .tools_base import ToolsBase
 
 SHOW_ADVANCED = True
@@ -106,7 +106,7 @@ class ToolsScenes(ToolsBase):
         if not scene:
             return
 
-        devices.link_manager.set_scene_name(scene=scene, name=name)
+        devices.link_manager.set_scene_name(scene_num=scene, name=name)
 
     async def do_add_scene(self):
         """Add a new scene.
@@ -198,12 +198,17 @@ class ToolsScenes(ToolsBase):
                     log_stdout=self._log_stdout,
                     default=1,
                 )
-                data = DeviceLinkData(data1, data2, data3, True, True)
+                data = {
+                    "address": device.address.id,
+                    "data1": data1,
+                    "data2": data2,
+                    "data3": data3,
+                }
                 device_data.append(data)
-            scene_devices[device.address] = device_data
+            scene_devices = DeviceLinkSchema(device_data)
         if not scene_devices:
             self._log_stdout("At least one device is required")
             return
         await devices.link_manager.async_add_or_update_scene(
-            scene=scene, device_info=scene_devices, name=name
+            scene_num=scene, links=scene_devices, name=name
         )

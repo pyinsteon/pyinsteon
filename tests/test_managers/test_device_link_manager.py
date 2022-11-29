@@ -10,7 +10,7 @@ import pytest
 import pyinsteon
 from pyinsteon.aldb.aldb_record import ALDBRecord
 from pyinsteon.device_types.hub import Hub
-from pyinsteon.managers.device_link_manager import DeviceLinkData
+from pyinsteon.managers.device_link_manager import DeviceLinkSchema
 from pyinsteon.managers.device_manager import DeviceManager
 from pyinsteon.topics import ALDB_LINK_CHANGED
 from tests import load_devices, set_log_levels
@@ -281,32 +281,27 @@ class TestDeviceLinkManager(unittest.TestCase):
         responder_3 = devices["3c3c3c"].address
         _reset_devices([devices.modem.address, responder_1, responder_2, responder_3])
 
-        device_1_data = DeviceLinkData(
-            randint(0, 255),
-            randint(0, 255),
-            randint(0, 255),
-            False,
-            False,
-        )
-        device_2_data = DeviceLinkData(
-            randint(0, 255),
-            randint(0, 255),
-            randint(0, 255),
-            False,
-            False,
-        )
-        device_3_data = DeviceLinkData(
-            randint(0, 255),
-            randint(0, 255),
-            randint(0, 255),
-            False,
-            False,
-        )
-        devices_1_info[responder_1] = device_1_data
-        devices_1_info[responder_2] = device_2_data
-        devices_2_info[responder_3] = device_3_data
-        devices_1_mod_info[responder_1] = device_1_data
-        devices_1_mod_info[responder_3] = device_3_data
+        device_1_data = {
+            "address": responder_1.id,
+            "data1": randint(0, 255),
+            "data2": randint(0, 255),
+            "data3": randint(0, 255),
+        }
+        device_2_data = {
+            "address": responder_2.id,
+            "data1": randint(0, 255),
+            "data2": randint(0, 255),
+            "data3": randint(0, 255),
+        }
+        device_3_data = {
+            "address": responder_3.id,
+            "data1": randint(0, 255),
+            "data2": randint(0, 255),
+            "data3": randint(0, 255),
+        }
+        devices_1_info = DeviceLinkSchema([device_1_data, device_2_data])
+        devices_2_info = DeviceLinkSchema([device_3_data])
+        devices_1_mod_info = DeviceLinkSchema([device_1_data, device_3_data])
 
         c_1_rec = ALDBRecord(
             memory=0,
@@ -431,3 +426,113 @@ class TestDeviceLinkManager(unittest.TestCase):
         scene = link_manager.get_scene(scene_2)
         assert scene["name"] == scene_2_name
         assert len(scene["devices"]) == 1
+
+    @async_case
+    async def test_delete_scene(self):
+        """Test deleting a scene."""
+
+        link_manager = devices.link_manager
+        modem = Hub("111111", 0x03, 51, 165, "Instoen modem")
+        devices.modem = modem
+        await load_devices(devices)
+        await asyncio.sleep(1)
+
+        scene_num = randint(100, 255)
+        scene_name = "Scene number 1 name"
+        devices_info = {}
+
+        responder_1 = devices["6f6f6f"].address
+        responder_2 = devices["5e5e5e"].address
+        responder_3 = devices["3c3c3c"].address
+        _reset_devices([devices.modem.address, responder_1, responder_2, responder_3])
+
+        device_1_data = {
+            "address": responder_1.id,
+            "data1": randint(0, 255),
+            "data2": randint(0, 255),
+            "data3": randint(0, 255),
+        }
+        device_2_data = {
+            "address": responder_2.id,
+            "data1": randint(0, 255),
+            "data2": randint(0, 255),
+            "data3": randint(0, 255),
+        }
+        devices_info = DeviceLinkSchema([device_1_data, device_2_data])
+
+        c_1_rec = ALDBRecord(
+            memory=0,
+            controller=True,
+            group=scene_num,
+            target=responder_1,
+            data1=0,
+            data2=0,
+            data3=0,
+            in_use=True,
+        )
+        r_1_rec = ALDBRecord(
+            memory=0,
+            controller=False,
+            group=scene_num,
+            target=devices.modem.address,
+            data1=0,
+            data2=0,
+            data3=0,
+            in_use=True,
+        )
+
+        c_2_rec = ALDBRecord(
+            memory=0,
+            controller=True,
+            group=scene_num,
+            target=responder_2,
+            data1=0,
+            data2=0,
+            data3=0,
+            in_use=True,
+        )
+        r_2_rec = ALDBRecord(
+            memory=0,
+            controller=False,
+            group=scene_num,
+            target=devices.modem.address,
+            data1=0,
+            data2=0,
+            data3=0,
+            in_use=True,
+        )
+
+        # Add Scene
+        await link_manager.async_add_or_update_scene(
+            scene_num, devices_info, scene_name
+        )
+        assert len(devices.modem.aldb.pending_changes) == 2
+        assert devices.modem.aldb.async_write.call_count == 1
+
+        assert len(devices[responder_1].aldb.pending_changes) == 1
+        assert devices[responder_1].aldb.async_write.call_count == 1
+
+        assert len(devices[responder_2].aldb.pending_changes) == 1
+        assert devices[responder_2].aldb.async_write.call_count == 1
+
+        # Simulate the scene records being written
+        _reset_devices([devices.modem.address, responder_1, responder_2])
+        _add_rec_to_aldb(devices[responder_1], r_1_rec)
+        _add_rec_to_aldb(devices[responder_2], r_2_rec)
+        _add_rec_to_aldb(devices.modem, c_1_rec)
+        _add_rec_to_aldb(devices.modem, c_2_rec)
+        await asyncio.sleep(0.5)
+        scene = link_manager.get_scene(scene_num)
+        assert scene["name"] == scene_name
+        assert len(scene["devices"]) == 2
+
+        # Delete the scene
+        await link_manager.async_delete_scene(scene_num)
+        assert len(devices.modem.aldb.pending_changes) == 2
+        assert devices.modem.aldb.async_write.call_count == 1
+
+        assert len(devices[responder_1].aldb.pending_changes) == 1
+        assert devices[responder_1].aldb.async_write.call_count == 1
+
+        assert len(devices[responder_2].aldb.pending_changes) == 1
+        assert devices[responder_2].aldb.async_write.call_count == 1

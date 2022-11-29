@@ -150,6 +150,7 @@ class TestToolsMainMenu(ToolsTestBase):
                     username="myusername",
                     password="mypassword",
                     hub_version=1,
+                    mock=False,
                 )
 
                 # Hub connection using command line method with hub_version and port
@@ -172,6 +173,7 @@ class TestToolsMainMenu(ToolsTestBase):
                     username="myusername",
                     password="mypassword",
                     hub_version=1,
+                    mock=False,
                 )
 
                 # Hub connection using command line method with bad hub_version without port
@@ -196,6 +198,7 @@ class TestToolsMainMenu(ToolsTestBase):
                     username="myusername",
                     password="mypassword",
                     hub_version=1,
+                    mock=False,
                 )
 
                 # Hub connection using command line method with bad hub_version
@@ -219,6 +222,7 @@ class TestToolsMainMenu(ToolsTestBase):
                     username="myusername",
                     password="mypassword",
                     hub_version=1,
+                    mock=False,
                 )
 
             with patch.object(
