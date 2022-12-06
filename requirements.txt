@@ -4,3 +4,4 @@ aiohttp
 pypubsub
 aiofiles
 pyyaml
+voluptuous
