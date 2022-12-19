@@ -17,7 +17,7 @@ should be usable for other applications as well.
 Requirements
 ------------
 
--  Python 3.7, 3.8, 3.9 or 3.10
+-  Python 3.7, 3.8, 3.9, 3.10 or 3.11
 -  Posix or Windows based system
 -  Some form of Insteon PLM or Hub
 -  At least one Insteon device

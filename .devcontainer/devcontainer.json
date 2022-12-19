@@ -6,30 +6,33 @@
 		"dockerfile": "Dockerfile",
 		"context": "..",
 		"args": {
-			// Update 'VARIANT' to pick a Python version: 3.7, 3.8, 3.9, 3.10
+			// Update 'VARIANT' to pick a Python version: 3.7, 3.8, 3.9, 3.10, 3.11
 			"VARIANT": "3.10"
 		}
 	},
-	"runArgs": ["--device=/dev/insteon"],
+	"runArgs": [
+		"--device=/dev/insteon"
+	],
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
 		"python.pythonPath": "/usr/local/bin/python",
 		"python.linting.pylintEnabled": true,
 		"python.linting.enabled": true,
 		"python.formatting.provider": "black",
-		"python.testing.pytestArgs": ["--no-cov"],
+		"python.testing.pytestArgs": [
+			"--no-cov"
+		],
 		"editor.formatOnPaste": false,
 		"editor.formatOnSave": true,
 		"editor.formatOnType": true,
 		"files.trimTrailingWhitespace": true,
 		"terminal.integrated.profiles.linux": {
-		  "zsh": {
-			"path": "/usr/bin/zsh"
-		  }
+			"zsh": {
+				"path": "/usr/bin/zsh"
+			}
 		},
 		"terminal.integrated.defaultProfile.linux": "zsh",
 	},
-
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"ms-python.vscode-pylance",
