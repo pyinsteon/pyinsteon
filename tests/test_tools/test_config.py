@@ -1,13 +1,6 @@
 """Test the config commands."""
 import random
-import sys
-from unittest import skipIf
-
-try:
-    from unittest.mock import AsyncMock, patch
-except ImportError:
-    from unittest.mock import patch
-    from .asyncmock_patch import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pyinsteon
 from pyinsteon.config import LED_OFF, ON_LEVEL
@@ -21,7 +14,6 @@ from pyinsteon.device_types import (
     SwitchedLightingControl_SwitchLinc,
 )
 from pyinsteon.tools.config import ToolsConfig
-from tests.utils import async_case, random_address
 
 from .tools_utils import (
     MockDevices,
@@ -33,6 +25,8 @@ from .tools_utils import (
     log_file_lines,
     remove_log_file,
 )
+
+from tests.utils import async_case, random_address
 
 curr_dir = get_curr_dir(__file__)
 devices = MockDevices()
@@ -61,7 +55,6 @@ devices[device_07.address] = device_07
 class TestToolsConfigMenu(ToolsTestBase):
     """Test the tools config menu."""
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_set_config_value(self):
         """Test the set_config_value command of the tools function."""
@@ -237,7 +230,6 @@ class TestToolsConfigMenu(ToolsTestBase):
                 buffer = log_file_lines(curr_dir)
                 assert buffer[1] == f"Invalid value for {ON_LEVEL}\n"
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_set_iolinc_delay(self):
         """Test the set_iolinc_delay command of the tools function."""
@@ -342,7 +334,6 @@ class TestToolsConfigMenu(ToolsTestBase):
                 buffer = log_file_lines(curr_dir)
                 assert buffer[1] == "Invalid number for seconds\n"
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_get_engine_version(self):
         """Test the get_engine_version command of the tools function."""
@@ -417,7 +408,6 @@ class TestToolsConfigMenu(ToolsTestBase):
                     if addr != devices.modem.address:
                         assert devices[addr].async_get_engine_version.call_count == 1
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_print_config(self):
         """Test the print_config command of the tools function."""
@@ -503,7 +493,6 @@ class TestToolsConfigMenu(ToolsTestBase):
                 buffer = log_file_lines(curr_dir)
                 assert buffer[0] == "Invalid device address or device not found\n"
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_set_iolinc_mode(self):
         """Test the set_iolinc_mode command of the tools function."""
@@ -613,7 +602,6 @@ class TestToolsConfigMenu(ToolsTestBase):
                 buffer = log_file_lines(curr_dir)
                 assert buffer[1] == "Invalid value for latching mode\n"
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_write_config(self):
         """Test the write_config command of the tools function."""
@@ -724,7 +712,6 @@ class TestToolsConfigMenu(ToolsTestBase):
                         assert devices[addr].async_write_ext_properties.call_count == 1
                         assert devices[addr].async_write_op_flags.call_count == 1
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_read_config(self):
         """Test the read_config command of the tools function."""
@@ -829,7 +816,6 @@ class TestToolsConfigMenu(ToolsTestBase):
                         assert devices[addr].async_read_ext_properties.call_count == 1
                         assert devices[addr].async_read_op_flags.call_count == 1
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_set_kpl_radio_buttons(self):
         """Test the set_kpl_radio_buttons command of the tools function."""
@@ -982,7 +968,6 @@ class TestToolsConfigMenu(ToolsTestBase):
                 buffer = log_file_lines(curr_dir)
                 assert buffer[1] == "Invalid button number\n"
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_set_kpl_toggle_mode(self):
         """Test the kpl_toggle_mode command of the tools function."""

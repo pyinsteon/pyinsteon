@@ -1,13 +1,6 @@
 """Test the ALDB commands."""
 import random
-import sys
-from unittest import skipIf
-
-try:
-    from unittest.mock import AsyncMock, patch
-except ImportError:
-    from unittest.mock import patch
-    from .asyncmock_patch import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pyinsteon
 from pyinsteon.constants import ALDBStatus, DeviceCategory
@@ -19,7 +12,6 @@ from pyinsteon.device_types import (
 )
 from pyinsteon.tools.aldb import ToolsAldb
 from pyinsteon.utils import seconds_to_ramp_rate
-from tests.utils import async_case, random_address
 
 from .tools_utils import (
     MockAldb,
@@ -34,6 +26,8 @@ from .tools_utils import (
     remove_log_file,
 )
 
+from tests.utils import async_case, random_address
+
 devices = MockDevices()
 bad_address = get_bad_address(devices)
 good_address = get_good_address(devices)
@@ -43,7 +37,6 @@ good_device = devices[good_address]
 class TestToolsAldbMenu(ToolsTestBase):
     """Test the tools main menu."""
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_add_default_links(self):
         """Test the add_default_links command of the tools function."""
@@ -101,7 +94,6 @@ class TestToolsAldbMenu(ToolsTestBase):
                 await cmd_mgr.async_cmdloop("")
                 assert good_device.async_add_default_links.call_count == 3
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_add_device_to_scene(self):
         """Test the add_device_to_scene command of the tools function."""
@@ -325,7 +317,6 @@ class TestToolsAldbMenu(ToolsTestBase):
                 await cmd_mgr.async_cmdloop("")
                 assert mock_async_link_devices.call_count == 0
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_print_aldb(self):
         """Test the print_aldb command of the tools function."""
@@ -374,7 +365,6 @@ class TestToolsAldbMenu(ToolsTestBase):
                     buffer = log_file_lines(curr_dir)
                     assert buffer[0].startswith("No device found with address")
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_load_aldb(self):
         """Test the load_aldb command of the tools function."""
@@ -521,8 +511,6 @@ class TestToolsAldbMenu(ToolsTestBase):
                 assert devices.modem.aldb.async_load.call_count == 1
                 devices.modem.aldb.async_load.assert_called_with()
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_print_aldb_load_status(self):
         """Test the print_aldb_load_status command of the tools function."""
