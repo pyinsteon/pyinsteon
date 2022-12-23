@@ -1,8 +1,7 @@
 """Base class for the All-Link Database."""
 
-import logging
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+import logging
 
 from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion, ResponseStatus
@@ -182,7 +181,7 @@ class ALDBBase(ABC):
         raise NotImplementedError
 
     def load_saved_records(
-        self, status: ALDBStatus, records: List[ALDBRecord], first_mem_addr: int = None
+        self, status: ALDBStatus, records: list[ALDBRecord], first_mem_addr: int = None
     ):
         """Load All-Link records from a dictionary of saved records."""
         self._update_status(status)
@@ -225,22 +224,7 @@ class ALDBBase(ABC):
             bit5=bit5,
             bit4=bit4,
         )
-
-        for curr_rec in self.find(
-            target=new_rec.target,
-            is_controller=new_rec.is_controller,
-            group=new_rec.group,
-            data3=new_rec.data3,
-        ):
-            new_rec.mem_addr = curr_rec.mem_addr
-            break
-
-        if new_rec.mem_addr == 0x0000:
-            mem_addr = self._next_new_mem_addr()
-        else:
-            mem_addr = new_rec.mem_addr
-
-        self._dirty_records[mem_addr] = new_rec
+        self._add_dirty_record(new_rec)
 
     def remove(self, mem_addr: int):
         """Remove an All-Link record."""
@@ -249,7 +233,7 @@ class ALDBBase(ABC):
             raise IndexError("Memory location not found.")
 
         new_rec = new_aldb_record_from_existing(rec, in_use=False)
-        self._dirty_records[mem_addr] = new_rec
+        self._add_dirty_record(new_rec)
 
     def modify(
         self,
@@ -283,9 +267,9 @@ class ALDBBase(ABC):
             bit5=bit5,
             bit4=bit4,
         )
-        self._dirty_records[mem_addr] = new_rec
+        self._add_dirty_record(new_rec)
 
-    async def async_write(self, force=False) -> Tuple[int, int]:
+    async def async_write(self, force=False) -> tuple[int, int]:
         """Write the dirty records to the device."""
         if not self.is_loaded and not force:
             _LOGGER.warning(
@@ -346,7 +330,7 @@ class ALDBBase(ABC):
         data3: int = None,
         is_controller: bool = None,
         in_use: bool = None,
-    ) -> List[ALDBRecord]:
+    ) -> list[ALDBRecord]:
         """Find all records matching the criteria."""
         if (
             group is None
@@ -509,3 +493,64 @@ class ALDBBase(ABC):
             self._records.pop(mem_addr)
 
         return True
+
+    def _add_dirty_record(self, mod_rec: ALDBRecord):
+        """Add a record to dirty records.
+
+        If the record is FULLY equal to the existing record - Do nothing
+        If the record is equal to the existing record with mods - Add with same mem_addr
+        If the record is new - Add with new mem_addr
+        If the record has existing dirty record - Current record wins
+        """
+
+        # Two ways to have a matching record for both current and dirty records
+        # 1. mem_addr matches
+        # 2. records are equal with `==` condition
+        # Assume if mem_addr matches, the user knows what they are doing
+
+        dirty_rec: ALDBRecord = self._dirty_records.get(mod_rec.mem_addr)
+        if dirty_rec:
+            dirty_rec_mem_addr = dirty_rec.mem_addr
+        else:
+            dirty_rec_mem_addr = None
+            for mem_addr, rec in self._dirty_records.items():
+                if rec == mod_rec:
+                    dirty_rec = rec
+                    dirty_rec_mem_addr = mem_addr
+                    break
+
+        curr_rec: ALDBRecord = self._records.get(mod_rec.mem_addr)
+        if not curr_rec:
+            for mem_addr, rec in self._records.items():
+                if rec == mod_rec and rec.is_in_use:
+                    curr_rec = rec
+                    break
+
+        fully_eq = False
+        if (
+            curr_rec
+            and curr_rec == mod_rec
+            and curr_rec.is_in_use == mod_rec.is_in_use
+            and curr_rec.data1 == mod_rec.data1
+            and curr_rec.data2 == mod_rec.data2
+        ):
+            fully_eq = True
+
+        mem_addr = None
+        if dirty_rec_mem_addr:
+            self._dirty_records.pop(dirty_rec_mem_addr)
+
+        if fully_eq:
+            # No reason to do anything
+            return
+
+        if curr_rec:
+            mod_rec.mem_addr = curr_rec.mem_addr
+            mem_addr = curr_rec.mem_addr
+
+        else:
+            # This is a new record
+            mem_addr = self._next_new_mem_addr()
+            mod_rec.mem_addr = 0x0000
+
+        self._dirty_records[mem_addr] = mod_rec
