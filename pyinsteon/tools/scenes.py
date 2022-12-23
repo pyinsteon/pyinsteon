@@ -3,6 +3,13 @@
 from .. import devices
 from ..constants import DeviceCategory
 from ..managers.device_link_manager import DeviceLinkSchema
+from ..managers.scene_manager import (
+    async_add_or_update_scene,
+    async_get_scene,
+    async_get_scenes,
+    async_save_scene_names,
+    set_scene_name,
+)
 from .tools_base import ToolsBase
 
 SHOW_ADVANCED = True
@@ -11,17 +18,18 @@ SHOW_ADVANCED = True
 class ToolsScenes(ToolsBase):
     """Command class to test interactivity."""
 
-    def do_list_scenes(self):
+    async def do_list_scenes(self):
         """List all scene."""
         self._log_stdout("Number   Name")
         self._log_stdout(
             "------   -------------------------------------------------------"
         )
-        for scene, data in devices.link_manager.scenes.items():
+        scenes = await async_get_scenes()
+        for scene, data in scenes.items():
             self._log_stdout(f"{scene:5}    {data['name']}")
 
     async def do_print_scene(
-        self, scene: int = None, log_stdout=None, background=False
+        self, scene: int = None, workdir: str = None, log_stdout=None, background=False
     ):
         """Show the details of a scene.
 
@@ -30,8 +38,21 @@ class ToolsScenes(ToolsBase):
 
         scene: Scene number
         """
+        if workdir is None:
+            workdir = self.workdir if self.workdir else "."
 
-        scene_list = list(devices.link_manager.scenes)
+        self.workdir = workdir
+
+        if not self.workdir:
+            if background:
+                log_stdout("A value for the working directory is required.")
+                return
+            self.workdir = await self._get_workdir()
+
+        if not self.workdir:
+            return
+
+        scene_list = list(await async_get_scenes(work_dir=self.workdir))
 
         scene = await self._ensure_int(
             value=scene,
@@ -43,7 +64,7 @@ class ToolsScenes(ToolsBase):
         if not scene:
             return
 
-        scene_def = devices.link_manager.get_scene(scene)
+        scene_def = await async_get_scene(scene, work_dir=self.workdir)
         log_stdout(f"Scene {scene}: {scene_def['name']}")
         log_stdout("")
         log_stdout("Device     Data 1   Data 2   Data 3")
@@ -79,13 +100,13 @@ class ToolsScenes(ToolsBase):
         if not self.workdir:
             return
 
-        await devices.link_manager.async_save_scene_names(work_dir=self.workdir)
+        await async_save_scene_names(work_dir=self.workdir)
 
     async def do_set_scene_name(
         self, scene=None, name=None, work_dir=None, log_stdout=None, background=False
     ):
         """Set the scene name."""
-        scene_list = list(devices.link_manager.scenes)
+        scene_list = list(await async_get_scenes(work_dir=self.workdir))
 
         scene = await self._ensure_int(
             value=scene,
@@ -106,7 +127,7 @@ class ToolsScenes(ToolsBase):
         if not scene:
             return
 
-        devices.link_manager.set_scene_name(scene_num=scene, name=name)
+        set_scene_name(scene_num=scene, name=name)
 
     async def do_add_scene(self):
         """Add a new scene.
@@ -119,7 +140,7 @@ class ToolsScenes(ToolsBase):
 
         scene_info = {}
         scene = None
-        scene_list = list(devices.link_manager.scenes)
+        scene_list = list(async_get_scenes())
         while scene is None or scene in scene_list:
             scene = self._ensure_int(
                 value=scene,
@@ -206,9 +227,15 @@ class ToolsScenes(ToolsBase):
                 }
                 device_data.append(data)
             scene_devices = DeviceLinkSchema(device_data)
+        if not self.workdir:
+            self.workdir = await self._get_workdir()
+            if not self.workdir:
+                self._log_stdout(
+                    "A working directory is required to save the scene name."
+                )
         if not scene_devices:
             self._log_stdout("At least one device is required")
             return
-        await devices.link_manager.async_add_or_update_scene(
-            scene_num=scene, links=scene_devices, name=name
+        await async_add_or_update_scene(
+            scene_num=scene, links=scene_devices, name=name, work_dir=self.workdir
         )

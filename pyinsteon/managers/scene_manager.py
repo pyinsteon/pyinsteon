@@ -18,7 +18,7 @@ from .device_link_manager import LinkInfo
 
 SCENE_FILE = "insteon_scenes.json"
 _LOGGER = logging.getLogger(__name__)
-Controller_Address = Address
+ControllerAddress = Address
 ResponderAddress = Address
 Group = int
 _scene_names = {}
@@ -160,8 +160,6 @@ async def async_load_scene_names(work_dir: str):
 
 async def async_save_scene_names(work_dir: str):
     """Write the scenes to a file."""
-    scenes = await async_get_scenes(work_dir=work_dir)
-    _scene_names = {scene_num: scene["name"] for scene_num, scene in scenes.items()}
     out_json = json.dumps(_scene_names, indent=2)
     scene_file = path.join(work_dir, SCENE_FILE)
     async with aiofiles.open(scene_file, "w") as afp:
@@ -277,11 +275,19 @@ async def async_add_or_update_scene(
     return scene_num, result
 
 
-async def async_delete_scene(scene_num: int):
+async def async_delete_scene(scene_num: int, work_dir: Union[str, None]):
     """Delete a scene."""
     curr_scene = await async_get_scene(scene_num)
     updated_devices = _remove_scene_links(scene_num, curr_scene)
-    return await _async_write_scene_link_changes(updated_devices)
+    result = await _async_write_scene_link_changes(updated_devices)
+    if result == ResponseStatus.SUCCESS:
+        try:
+            _scene_names.pop(scene_num)
+        except KeyError:
+            pass
+        if work_dir:
+            await async_save_scene_names(work_dir=work_dir)
+    return result
 
 
 def _remove_scene_links(scene_num: int, scene_data):
@@ -321,6 +327,7 @@ async def _async_write_scene_link_changes(device_list):
     for device in device_list:
         _, failed = await device.aldb.async_write()
         result = ResponseStatus.FAILURE if failed else ResponseStatus.SUCCESS
+        results.append(result)
     _, failed = await devices.modem.aldb.async_write()
     result = ResponseStatus.FAILURE if failed else ResponseStatus.SUCCESS
     results.append(result)

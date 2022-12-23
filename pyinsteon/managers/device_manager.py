@@ -297,7 +297,6 @@ class DeviceManager(SubscriberBase):
                 devices = await saved_devices_manager.async_load()
                 for address in devices:
                     self[address] = devices[address]
-            await self._link_manager.async_load_scene_names(work_dir=workdir)
 
         if load_modem_aldb == 0:
             load_modem_aldb = False
@@ -322,7 +321,6 @@ class DeviceManager(SubscriberBase):
         """Save devices to a device information file."""
         saved_devices_manager = SavedDeviceManager(workdir, self.modem)
         await saved_devices_manager.async_save(self._devices)
-        await self._link_manager.async_save_scene_names(work_dir=workdir)
 
     # Move this to a Device method rather than a device_manager method
     # pylint: disable=no-self-use
