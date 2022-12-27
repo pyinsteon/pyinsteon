@@ -8,9 +8,9 @@ import voluptuous as vol
 from .. import pub
 from ..address import Address
 from ..aldb.aldb_record import ALDBRecord
-from ..constants import DeviceAction, MessageFlagType
+from ..constants import AllLinkMode, DeviceAction, MessageFlagType
 from ..topics import ALDB_LINK_CHANGED
-from ..utils import subscribe_topic
+from ..utils import subscribe_topic, unsubscribe_topic
 
 _LOGGER = logging.getLogger(__name__)
 ControllerAddress = Address
@@ -44,6 +44,44 @@ class LinkInfo:
 EMPTY_ADDRESS = Address("000000")
 
 
+def _add_controller_group_responder_tree(links, controller, group, responder):
+    """Add a controller, group, responder set."""
+    if not links.get(controller):
+        links[controller] = {}
+    if not links[controller].get(group):
+        links[controller][group] = {}
+    if not links[controller][group].get(responder):
+        links[controller][group][responder] = []
+    return links
+
+
+def _add_controller_link(links, controller, record):
+    """Add a controller link."""
+    return _add_controller_group_responder_tree(
+        links, controller, record.group, record.target
+    )
+
+
+def _add_responder_link(links, devices, responder, record):
+    """Add a responder link."""
+    links = _add_controller_group_responder_tree(
+        links, record.target, record.group, responder
+    )
+    responder_links = links[record.target][record.group][responder]
+    controller_device = devices[record.target]
+    has_controller = False
+    if controller_device:
+        for _ in controller_device.aldb.find(
+            target=responder,
+            is_controller=True,
+            group=record.group,
+        ):
+            has_controller = True
+    link = LinkInfo(record.data1, record.data2, record.data3, has_controller, True)
+    responder_links.append(link)
+    return links
+
+
 def _topic_to_addr_group(topic):
     elements = topic.name.split(".")
     try:
@@ -65,10 +103,6 @@ class DeviceLinkManager:
     def __init__(self, devices):
         """Init the DeviceLinkManager class."""
         self._devices = devices
-        self._links: dict[
-            ControllerAddress,
-            dict[Group, dict[ResponderAddress, list[LinkInfo]]],
-        ] = {}
         self._work_dir: Union[str, None] = None
         self._devices.subscribe(self._device_added_or_removed)
 
@@ -77,185 +111,81 @@ class DeviceLinkManager:
         self,
     ) -> dict[ControllerAddress, dict[Group, dict[ResponderAddress, LinkInfo]]]:
         """Return a list of device links."""
-        return self._links
+        return self._get_links()
 
     def get_responders(
         self, controller: Address, group: int
     ) -> dict[ResponderAddress, LinkInfo]:
         """Return the responders to a controller/group combination."""
-        return self._links.get(controller, {}).get(group, {})
+        responders = self._get_links(controller, group)
+        return responders.get(controller, {}).get(group, {})
+
+    def _get_links(self, controller=None, group=None):
+        """Return a list of links.
+
+        If controller is not None -> Only return responders for that controller
+        If group is not None -> Only return responders for that group
+        """
+        modem_address = self._devices.modem.address if self._devices.modem else None
+        links = {}
+        for addr in self._devices:
+            if addr == modem_address:
+                continue
+            device = self._devices[addr]
+            for mem_addr in device.aldb:
+                rec: ALDBRecord = device.aldb[mem_addr]
+                if (
+                    rec.target == modem_address
+                    or rec.target == EMPTY_ADDRESS
+                    or not rec.is_in_use
+                ):
+                    continue
+                if rec.mode == AllLinkMode.CONTROLLER:
+                    if not controller or device.address == controller:
+                        links = _add_controller_link(links, device.address, rec)
+                    continue
+                if (not controller or rec.target == controller) and (
+                    not group or rec.group != group
+                ):
+                    links = _add_responder_link(
+                        links, self._devices, device.address, rec
+                    )
+        return links
 
     def _link_changed(self, record: ALDBRecord, sender: Address, deleted: bool) -> None:
         """Add a record to the controller/responder list."""
         if record.is_controller:
             controller = Address(sender)
             responder = Address(record.target)
-            has_controller = True
-            has_responder = None
         else:
             controller = Address(record.target)
             responder = Address(sender)
-            has_responder = True
-            has_controller = None
 
         if deleted:
-            self._remove_link(
-                record=record,
-                controller=controller,
-                responder=responder,
-                rem_resp=has_responder,
-            )
+            self._remove_link(record=record, controller=controller)
         else:
-            self._add_link(
-                record=record,
-                controller=controller,
-                responder=responder,
-                has_controller=has_controller,
-                has_responder=has_responder,
-            )
+            self._add_link(record=record, controller=controller, responder=responder)
 
-    def _get_responder_records(
-        self, controller: Address, responder: Address, group: int
-    ) -> ALDBRecord:
-        """Return the responder's ALDBRecord for the given link."""
-        device = self._devices[responder]
-        if not device:
-            return None
-        for rec in device.aldb.find(
-            target=controller,
-            is_controller=False,
-            group=group,
-        ):
-            yield rec
-
-    def _add_link(self, record, controller, responder, has_controller, has_responder):
+    def _add_link(self, record, controller, responder):
         """Add a link to the controller/responder list."""
         if self._is_standard_modem_link(controller, responder, record.group):
             return
         # Listen for the controller group topic and check known responders.
         subscribe_topic(self._async_check_responders, f"{controller.id}.{record.group}")
 
-        if self._is_scene_link(controller, responder, record.group):
-            return
-
-        controller_groups = self._links.get(controller, {})
-        if not controller_groups:
-            self._links[controller] = controller_groups
-        controller_group = controller_groups.get(record.group, {})
-        if not controller_group:
-            controller_groups[record.group] = controller_group
-
-        self._add_link_to_controller_group(
-            controller_group,
-            record,
-            controller,
-            responder,
-            has_controller,
-            has_responder,
-        )
-
-    def _add_link_to_controller_group(
-        self,
-        controller_group,
-        record,
-        controller,
-        responder,
-        has_controller,
-        has_responder,
-    ):
-        """Add a link or a scene to a controller group."""
-        responder_data: list[LinkInfo] = controller_group.get(responder, [])
-        if not responder_data:
-            controller_group[responder] = responder_data
-        if not responder_data:
-            if has_controller:
-                # We got a controller record and there are no responder records yet
-                responder_data.append(LinkInfo(None, None, None, has_controller, None))
-                return
-
-        controller_already_existed = False
-        for data in responder_data:
-            if has_controller:
-                # Update every responder data record with has_controller
-                data.has_controller = True
-            else:
-                if data.data3 == record.data3:
-                    # Found a matching record
-                    data.has_responder = True
-                    return
-                elif data.data3 is None:
-                    # Found a generic record we can apply this to
-                    data.data1 = record.data1
-                    data.data2 = record.data2
-                    data.data3 = record.data3
-                    data.has_responder = True
-                    return
-                if data.has_controller:
-                    controller_already_existed = True
-        if has_responder:
-            # We did not find a matching record above so add a new responder record
-            responder_data.append(
-                LinkInfo(
-                    record.data1,
-                    record.data2,
-                    record.data3,
-                    controller_already_existed,
-                    has_responder,
-                )
-            )
-
-    def _remove_link(self, record, controller, responder, rem_resp):
+    def _remove_link(self, record, controller):
         """Remove a controller or responder link from the controller/responder list."""
-        group = record.group
-        if self._is_standard_modem_link(controller, responder, group):
-            return
-        controller_groups = self._links.get(controller, {})
-        if not controller_groups:
-            return
-        controller_group = controller_groups.get(group, {})
-        if not controller_group:
-            return
-        responder_data: list[LinkInfo] = controller_group.get(responder, [])
-        if not responder_data:
-            return
-        data_to_remove = []
-        if rem_resp:
-            for data in responder_data:
-                if data.data3 == record.data3:
-                    if not data.has_controller:
-                        data_to_remove.append(data)
-                    else:
-                        data.data1 = None
-                        data.data2 = None
-                        data.data3 = None
-                        data.has_responder = False
-        else:
-            for data in responder_data:
-                if not data.has_responder:
-                    data_to_remove.append(data)
-                else:
-                    data.has_controller = False
-
-        for data in data_to_remove:
-            self._remove_data_item(controller, group, responder, data)
-
-    def _remove_data_item(self, controller, group, responder, data):
-        """Remove a device link data item from the list of controller/responders."""
-        controller_group_responders = self._links[controller][group]
-        responder_data = controller_group_responders[responder]
-        responder_data.remove(data)
-        if not responder_data:
-            self._links[controller][group].pop(responder)
-            if not self._links[controller][group]:
-                self._links[controller].pop(group)
-                if not self._links[controller]:
-                    self._links.pop(controller)
+        responders = self.get_responders(controller, record.group)
+        if not responders:
+            unsubscribe_topic(
+                self._async_check_responders, f"{controller.id}.{record.group}"
+            )
 
     async def _device_added_or_removed(self, address: Address, action: DeviceAction):
         """Track device list changes."""
         await asyncio.sleep(0.1)
         if action == DeviceAction.REMOVED:
-            self._remove_device(address)
+            unsubscribe_topic(self._link_changed, f"{address.id}.{ALDB_LINK_CHANGED}")
 
         elif action == DeviceAction.ADDED:
             device = self._devices[address]
@@ -271,33 +201,6 @@ class DeviceLinkManager:
             for _, record in device.aldb.items():
                 if record.is_in_use:
                     self._link_changed(record=record, sender=address, deleted=False)
-
-    def _remove_device(self, address: Address):
-        """Remove a device from the controller/responder list."""
-
-        data_to_remove = []
-        for controller, controller_group in self._links.items():
-            for group, responders in controller_group.items():
-                for responder, data_list in responders.items():
-                    if not controller == address or not responder == address:
-                        continue
-                    for data in data_list:
-                        if controller == address:
-                            if not data.has_responder:
-                                data_to_remove.append(
-                                    [controller, responder, group, data]
-                                )
-                            else:
-                                data.has_controller = False
-                        else:
-                            if not data.has_controller:
-                                data_to_remove.append(
-                                    [controller, responder, group, data]
-                                )
-                            else:
-                                data.has_responder = False
-        for data in data_to_remove:
-            self._remove_data_item(*data)
 
     async def _async_check_responders(self, topic=pub.AUTO_TOPIC, **kwargs) -> None:
         controller, group, msg_type = _topic_to_addr_group(topic)
@@ -329,14 +232,4 @@ class DeviceLinkManager:
             groups.append(0)
             if group in groups:
                 return True
-        return False
-
-    def _is_scene_link(self, controller, responder, group):
-        """Return if the controller is the modem and the group is not a standard link group."""
-        if self._is_standard_modem_link(controller, responder, group):
-            return False
-
-        if self._devices.modem and controller == self._devices.modem.address:
-            return True
-
         return False

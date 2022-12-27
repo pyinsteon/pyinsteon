@@ -16,7 +16,6 @@ from ..subscriber_base import SubscriberBase
 from ..topics import DEVICE_LIST_CHANGED
 from ..x10_address import X10Address
 from .device_id_manager import DeviceId, DeviceIdManager
-from .device_link_manager import DeviceLinkManager
 from .link_manager import (
     async_cancel_linking_mode,
     async_enter_linking_mode,
@@ -41,7 +40,6 @@ class DeviceManager(SubscriberBase):
         self._id_manager = DeviceIdManager()
         self._id_manager.subscribe(self._async_device_identified)
         self._loading_saved_lock = asyncio.Lock()
-        self._link_manager = DeviceLinkManager(self)
 
         self._delay_device_inspection = False
         self._to_be_inspected = []
@@ -86,11 +84,6 @@ class DeviceManager(SubscriberBase):
     def __len__(self):
         """Return the number of devices."""
         return len(self._devices)
-
-    @property
-    def link_manager(self):
-        """Return the device link manager."""
-        return self._link_manager
 
     def get(self, address) -> Device:
         """Return a device from an address."""

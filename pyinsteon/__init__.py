@@ -7,6 +7,7 @@ from pubsub import pub
 from .address import Address
 from .handlers.from_device.x10_received import X10Received
 from .listener_exception_handler import ListenerExceptionHandler
+from .managers.device_link_manager import DeviceLinkManager
 from .managers.device_manager import DeviceManager
 
 # pylint: disable=unused-import
@@ -19,7 +20,7 @@ _LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")
 X10_RECEIVED_HANDLER = X10Received()
 
 devices = DeviceManager()
-link_manager = devices.link_manager
+link_manager = DeviceLinkManager(devices)
 
 
 async def async_connect(
