@@ -1,15 +1,17 @@
 """Test device commands outbound."""
-import json
-import unittest
 from asyncio import sleep
 from binascii import unhexlify
+import json
+from os import path
+import unittest
 
 import aiofiles
 
 import pyinsteon
-import pyinsteon.device_types as device_types
 from pyinsteon.address import Address
 from pyinsteon.data_types.user_data import create_from_dict
+import pyinsteon.device_types.ipdb as device_types
+
 from tests import _LOGGER, set_log_levels
 from tests.utils import (
     TopicItem,
@@ -54,7 +56,6 @@ def convert_response(response, address):
 
 async def import_commands():
     """Import and parse the commands to test."""
-    from os import path
 
     curr_path = path.dirname(path.abspath(__file__))
     command_file = path.join(curr_path, FILE)
