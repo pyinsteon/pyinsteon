@@ -3,7 +3,7 @@ import asyncio
 import json
 import logging
 from os import path
-from typing import Union
+from typing import Dict, Union
 
 import aiofiles
 import voluptuous as vol
@@ -67,7 +67,7 @@ async def async_trigger_scene_off(group):
 
 async def async_get_scenes(work_dir=None):
     """Return a list of scenes."""
-    scenes: dict[Group, dict[str, Union[dict[ResponderAddress, LinkInfo], str]]] = {}
+    scenes: Dict[Group, Dict[str, Union[Dict[ResponderAddress, LinkInfo], str]]] = {}
     if work_dir:
         await async_load_scene_names(work_dir=work_dir)
     for addr in devices:
@@ -103,7 +103,7 @@ async def async_get_scenes(work_dir=None):
 
 async def async_get_scene(scene_num: int, work_dir: str = None):
     """Return a scenes."""
-    scene: dict[str, Union[dict[ResponderAddress, LinkInfo], str]] = {}
+    scene: Dict[str, Union[Dict[ResponderAddress, LinkInfo], str]] = {}
     if work_dir:
         await async_load_scene_names(work_dir=work_dir)
     scene["name"] = _scene_names.get(scene_num, f"Insteon Scene {scene_num}")

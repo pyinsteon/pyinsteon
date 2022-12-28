@@ -1,7 +1,7 @@
 """Manages links between devices to identify device state of responders."""
 import asyncio
 import logging
-from typing import Union
+from typing import Dict, Union
 
 import voluptuous as vol
 
@@ -109,13 +109,13 @@ class DeviceLinkManager:
     @property
     def links(
         self,
-    ) -> dict[ControllerAddress, dict[Group, dict[ResponderAddress, LinkInfo]]]:
+    ) -> Dict[ControllerAddress, Dict[Group, Dict[ResponderAddress, LinkInfo]]]:
         """Return a list of device links."""
         return self._get_links()
 
     def get_responders(
         self, controller: Address, group: int
-    ) -> dict[ResponderAddress, LinkInfo]:
+    ) -> Dict[ResponderAddress, LinkInfo]:
         """Return the responders to a controller/group combination."""
         responders = self._get_links(controller, group)
         return responders.get(controller, {}).get(group, {})
