@@ -1,5 +1,6 @@
 """All-Link database for an Insteon Modem."""
 import logging
+from typing import List
 
 from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion, ReadWriteMode
@@ -76,7 +77,7 @@ class MockModemALDB(ALDBBase):
         return await self._read_manager.async_read_record(mem_addr=mem_addr)
 
     def load_saved_records(
-        self, status: ALDBStatus, records: list[ALDBRecord], first_mem_addr: int = None
+        self, status: ALDBStatus, records: List[ALDBRecord], first_mem_addr: int = None
     ):
         """Load All-Link records from a dictionary of saved records."""
         super().load_saved_records(status, records, first_mem_addr)

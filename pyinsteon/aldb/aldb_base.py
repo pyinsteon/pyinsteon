@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 import logging
+from typing import List
 
 from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion, ResponseStatus
@@ -181,7 +182,7 @@ class ALDBBase(ABC):
         raise NotImplementedError
 
     def load_saved_records(
-        self, status: ALDBStatus, records: list[ALDBRecord], first_mem_addr: int = None
+        self, status: ALDBStatus, records: List[ALDBRecord], first_mem_addr: int = None
     ):
         """Load All-Link records from a dictionary of saved records."""
         self._update_status(status)
@@ -330,7 +331,7 @@ class ALDBBase(ABC):
         data3: int = None,
         is_controller: bool = None,
         in_use: bool = None,
-    ) -> list[ALDBRecord]:
+    ) -> List[ALDBRecord]:
         """Find all records matching the criteria."""
         if (
             group is None
