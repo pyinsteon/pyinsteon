@@ -41,6 +41,7 @@ class MockReader:
         """Stop the listener."""
         self._site.stop()
 
+    # pylint: disable=no-self-use
     def do_get(self, request):
         """Respond to standard get requests."""
         response = "<html><head><title>https://pythonbasics.org</title></head>"

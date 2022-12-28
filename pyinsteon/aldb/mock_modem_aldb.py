@@ -1,10 +1,10 @@
 """All-Link database for an Insteon Modem."""
 import logging
 
-from . import ALDBBase
 from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion, ReadWriteMode
 from ..managers.aldb_im_write_manager import ImWriteManager
+from .aldb_base import ALDBBase
 from .aldb_record import ALDBRecord
 
 _LOGGER = logging.getLogger(__name__)
