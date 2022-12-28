@@ -1,15 +1,14 @@
 """Manage identifying unknown devices."""
 import asyncio
-import logging
 from binascii import unhexlify
 from collections import namedtuple
+import logging
 
 import async_timeout
 
-from pyinsteon.constants import DeviceAction, ResponseStatus
-
 from .. import pub
 from ..address import Address
+from ..constants import DeviceAction, ResponseStatus
 from ..handlers.all_link_completed import AllLinkCompletedHandler
 from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
 from ..handlers.from_device.delete_from_all_link_group import (

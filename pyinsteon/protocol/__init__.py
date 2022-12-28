@@ -1,10 +1,9 @@
 """Protocol classes to interface with serial, socket and http devices."""
 import asyncio
-import logging
 from functools import partial
+import logging
 
-from pyinsteon.constants import ResponseStatus
-
+from ..constants import ResponseStatus
 from ..handlers.get_im_info import GetImInfoHandler
 from ..managers.device_id_manager import DeviceId
 from ..managers.utils import create_device
@@ -80,8 +79,8 @@ async def async_modem_connect(
 
     try:
         await protocol.async_connect(retry=False)
-    except ConnectionError:
-        raise ConnectionError("Modem did not respond connection request")
+    except ConnectionError as ex:
+        raise ConnectionError("Modem did not respond connection request") from ex
 
     get_im_info = GetImInfoHandler()
     get_im_info.subscribe(set_im_info)

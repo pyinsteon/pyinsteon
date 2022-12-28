@@ -132,8 +132,8 @@ class ALDBRecord:
         """Set the memory address of the record."""
         try:
             mem = int(value)
-        except ValueError:
-            raise ValueError("Memory address must be an integer.")
+        except ValueError as ex:
+            raise ValueError("Memory address must be an integer.") from ex
         else:
             self._memory_location = mem
 

@@ -1,6 +1,6 @@
 """Insteon Modem Base Class."""
-import asyncio
 from abc import ABCMeta
+import asyncio
 from asyncio import Transport
 
 from ..config import (
@@ -16,7 +16,6 @@ from ..handlers.all_link_cleanup_failure_report import AllLinkCleanupFailureRepo
 from ..handlers.all_link_cleanup_status_report import AllLinkCleanupStatusReport
 from ..handlers.get_im_configuration import GetImConfigurationHandler
 from ..handlers.set_im_configuration import SetImConfigurationHandler
-from ..protocol.protocol import Protocol
 from ..utils import multiple_status
 from .device_base import Device
 from .device_commands import GET_IM_CONFIG_COMMAND, SET_IM_CONFIG_COMMAND
@@ -79,8 +78,7 @@ class ModemBase(Device, metaclass=ABCMeta):
     @protocol.setter
     def protocol(self, value):
         """Set the protocol."""
-        if isinstance(value, Protocol):
-            self._protocol = value
+        self._protocol = value
 
     @property
     def transport(self):

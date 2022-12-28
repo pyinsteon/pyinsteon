@@ -14,6 +14,7 @@ MSG_TIME = 4  # seconds to send each message in queue, used for timeout below
 
 def _calc_timeout():
     """Calculate the time to wait for a message to be sent."""
+    # pylint: disable=import-outside-toplevel
     from .. import devices
 
     if devices and devices.modem and devices.modem.protocol:

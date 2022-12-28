@@ -137,3 +137,8 @@ ALDB_LINK_CHANGED = "aldb.link_changed"
 ALDB_VERSION = "aldb_version"
 ALDB_STATUS_CHANGED = "aldb_status_changed"
 EXTENDED_PROPERTIES_CHANGED = "extended_properties_changed"
+
+
+GET_QUEUE_SIZE = "get_queue_size"
+SEND_QUEUE_SIZE = "send_queue_size"
+ADD_DEFAULT_LINKS = "add_default_links"

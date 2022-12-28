@@ -279,6 +279,7 @@ class ToolsAldb(ToolsBase):
 
     async def menu_advanced(self):
         """Enter advanced ALDB menu."""
+        # pylint: disable=import-outside-toplevel
         from .advanced import AdvancedTools
 
         if not isinstance(self, AdvancedTools):

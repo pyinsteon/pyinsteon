@@ -1,11 +1,11 @@
 """Utility methods."""
 import asyncio
-import logging
-import traceback
+from collections.abc import Iterable
 from enum import Enum, IntEnum
 from functools import partial, wraps
 from inspect import isawaitable, iscoroutinefunction
-from typing import Iterable
+import logging
+import traceback
 
 from . import pub
 from .address import Address
@@ -384,8 +384,7 @@ def subscribe_topic(listener, topic_name, logger=None):
 
 def unsubscribe_topic(listener, topic_name):
     """Unsubscribe a listener to a topic and log errors."""
-    if listener in async_listeners:
-        listener = async_listeners[listener]
+    listener = async_listeners.get(listener, listener)
     topic_mgr = pub.getDefaultTopicMgr()
     topic = topic_mgr.getOrCreateTopic(topic_name)
     if pub.isSubscribed(listener, topicName=topic.name):

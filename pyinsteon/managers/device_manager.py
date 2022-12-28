@@ -4,10 +4,8 @@ import logging
 
 import async_timeout
 
-from pyinsteon.constants import AllLinkMode
-
 from ..address import Address
-from ..constants import DeviceAction
+from ..constants import AllLinkMode, DeviceAction
 from ..device_types.device_base import Device
 from ..device_types.modem_base import ModemBase
 from ..device_types.x10_base import X10DeviceBase
