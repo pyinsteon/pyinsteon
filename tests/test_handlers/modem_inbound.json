@@ -86,8 +86,8 @@
         "command": {
             "class": ".read_eeprom_response.ReadEepromResponseHandler",
             "inbound_message": {
-                "data": "590fffc0071c2d3e050607",
-                "mem_addr": "4095 or 0x0fff",
+                "data": "590ff8c0071c2d3e050607",
+                "mem_addr": "4089 or 0x0ff8 - Shows the low end of the range, not the upper end of the range = record 0x0fff",
                 "flags": "0xc0",
                 "group": 7,
                 "target": "1C.2D.3E",

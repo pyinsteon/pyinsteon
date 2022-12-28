@@ -183,7 +183,7 @@ def all_link_cleanup_status_report(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
 def read_eeprom_response(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
     """Create a topic from an read_eeprom message."""
     topic = build_topic(topic=READ_EEPROM_RESPONSE)
-    mem_addr = (msg.mem_hi << 8) | msg.mem_low
+    mem_addr = (msg.mem_hi << 8) + msg.mem_low + 7
 
     kwargs = {
         "mem_addr": mem_addr,
@@ -399,7 +399,7 @@ def read_eeprom(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
 def write_eeprom(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
     """Create a topic from a write eeprom message."""
     topic = build_topic(prefix=msg.ack, topic=WRITE_EEPROM)
-    mem_addr = (msg.mem_hi << 8) + msg.mem_low
+    mem_addr = (msg.mem_hi << 8) + msg.mem_low + 7
     kwargs = {
         "mem_addr": mem_addr,
         "flags": msg.flags,
