@@ -12,6 +12,7 @@ import os
 import signal
 import sys
 import traceback
+from typing import List
 
 from .. import devices
 from ..address import Address
@@ -51,7 +52,7 @@ ARG_TYPES = {
 DEFAULT_HUB_PORT = {1: 9761, 2: 25105}
 
 
-def validate_address(address, allow_all, match_device, log_stdout) -> list[Address]:
+def validate_address(address, allow_all, match_device, log_stdout) -> List[Address]:
     """Check that an address value is valid.
 
     Returns `[address]` if `address` is a valid `Address` or if `address` eq `all`.
@@ -1118,7 +1119,7 @@ class ToolsBase(Cmd):
         log_stdout,
         allow_all=True,
         match_device=True,
-    ) -> list[Address]:
+    ) -> List[Address]:
         """Ensure a value is a proper device address.
 
         Returns `[]` if the value is `None` and `ask_value` is `False`
