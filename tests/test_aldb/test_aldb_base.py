@@ -3,7 +3,7 @@ import asyncio
 from random import randint
 from unittest import TestCase
 
-from pyinsteon.aldb import ALDB
+from pyinsteon.aldb.aldb import ALDB
 from pyinsteon.aldb.aldb_record import ALDBRecord
 from pyinsteon.constants import ALDBStatus, ALDBVersion, ResponseStatus
 from pyinsteon.managers.aldb_write_manager import ALDBWriteException

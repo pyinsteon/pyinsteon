@@ -4,12 +4,10 @@ from unittest.mock import AsyncMock, patch
 
 import pyinsteon
 from pyinsteon.constants import ALDBStatus, DeviceCategory
-from pyinsteon.device_types import (
-    ClimateControl_Thermostat,
-    DimmableLightingControl,
-    SensorsActuators_IOLink,
-    SwitchedLightingControl,
-)
+from pyinsteon.device_types.climate_control import ClimateControl_Thermostat
+from pyinsteon.device_types.dimmable_lighting_control import DimmableLightingControl
+from pyinsteon.device_types.sensors_actuators import SensorsActuators_IOLink
+from pyinsteon.device_types.switched_lighting_control import SwitchedLightingControl
 from pyinsteon.tools.aldb import ToolsAldb
 from pyinsteon.utils import seconds_to_ramp_rate
 

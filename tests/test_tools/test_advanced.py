@@ -9,7 +9,7 @@ import pyinsteon
 from pyinsteon.address import Address
 from pyinsteon.aldb.aldb_record import ALDBRecord
 from pyinsteon.constants import ALDBStatus, AllLinkMode
-from pyinsteon.device_types import ClimateControl_WirelessThermostat
+from pyinsteon.device_types.climate_control import ClimateControl_WirelessThermostat
 from pyinsteon.tools.advanced import AdvancedTools
 
 from .tools_utils import (

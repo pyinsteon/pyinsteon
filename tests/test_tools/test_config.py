@@ -5,11 +5,13 @@ from unittest.mock import AsyncMock, patch
 import pyinsteon
 from pyinsteon.config import LED_OFF, ON_LEVEL
 from pyinsteon.constants import RelayMode, ResponseStatus, ToggleMode
-from pyinsteon.device_types import (
-    ClimateControl_Thermostat,
+from pyinsteon.device_types.climate_control import ClimateControl_Thermostat
+from pyinsteon.device_types.dimmable_lighting_control import (
     DimmableLightingControl_KeypadLinc_6,
     DimmableLightingControl_LampLinc,
-    SensorsActuators_IOLink,
+)
+from pyinsteon.device_types.sensors_actuators import SensorsActuators_IOLink
+from pyinsteon.device_types.switched_lighting_control import (
     SwitchedLightingControl,
     SwitchedLightingControl_SwitchLinc,
 )

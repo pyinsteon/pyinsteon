@@ -1,14 +1,15 @@
 """Test the sending and receiving of direct commands using the MockPLM."""
-import json
-import unittest
 from asyncio import sleep
 from binascii import unhexlify
+import json
+from os import path
+import unittest
 
 import aiofiles
 
-import pyinsteon.handlers as commands
 from pyinsteon import pub
 from pyinsteon.address import Address
+import pyinsteon.handlers as commands
 
 # pylint: disable=unused-import
 # flake8: noqa: F401
@@ -27,14 +28,13 @@ from pyinsteon.handlers.start_all_linking import StartAllLinkingCommandHandler
 from pyinsteon.handlers.write_eeprom import WriteEepromHandler
 
 # pylint: enable=unused-import
-from tests import set_log_levels
+from tests import _LOGGER, set_log_levels
 from tests.utils import (
     DataItem,
     async_case,
     async_protocol_manager,
     create_std_ext_msg,
     get_class_or_method,
-    random_address,
     send_data,
 )
 
@@ -43,8 +43,6 @@ FILE = "modem_inbound.json"
 
 async def import_modem_commands():
     """Import and parse the commands to test."""
-    from os import path
-
     curr_path = path.dirname(path.abspath(__file__))
     command_file = path.join(curr_path, FILE)
     async with aiofiles.open(command_file, "r") as afp:
@@ -75,24 +73,33 @@ class TestModemInbound(unittest.TestCase):
         """Set up the tests."""
         self._assert_tests = []
         self._current_test = None
+        self._test_result = True
         set_log_levels(
             logger="info",
             logger_pyinsteon="info",
-            logger_messages="info",
+            logger_messages="debug",
             logger_topics=True,
         )
 
-    def validate_values(self, topic=pub.ALL_TOPICS, **kwargs):
+    def validate_values(self, topic=pub.AUTO_TOPIC, **kwargs):
         """Validate what should be returned from the handler."""
+        if str(topic).startswith("handler"):
+            return
         for assert_test in self._assert_tests:
             if kwargs.get(assert_test) is not None:
                 try:
+                    self._test_result = True
                     if assert_test == "address" or assert_test == "target":
                         self._assert_tests[assert_test] = Address(
                             self._assert_tests[assert_test]
                         )
-                    assert kwargs.get(assert_test) == self._assert_tests[assert_test]
-                except AssertionError:
+                    if isinstance(self._assert_tests[assert_test], int):
+                        kwargs_assert_test = int(kwargs.get(assert_test))
+                    else:
+                        kwargs_assert_test = kwargs.get(assert_test)
+                    assert kwargs_assert_test == self._assert_tests[assert_test]
+                except (AssertionError, TypeError) as ex:
+                    self._test_result = False
                     raise AssertionError(
                         "Failed test '{}' with argument '{}' value {} vs expected value {}".format(
                             self._current_test,
@@ -100,7 +107,7 @@ class TestModemInbound(unittest.TestCase):
                             kwargs.get(assert_test),
                             self._assert_tests[assert_test],
                         )
-                    )
+                    ) from ex
 
     @async_case
     async def test_modem_inbound(self):
@@ -112,6 +119,7 @@ class TestModemInbound(unittest.TestCase):
 
             for test_info in tests:
                 self._current_test = test_info
+                _LOGGER.info("Starting Test: %s", test_info)
                 test_command = tests[test_info]
                 command = test_command.get("command")
                 cmd_class = command.get("class")
@@ -122,7 +130,10 @@ class TestModemInbound(unittest.TestCase):
                 inbound_data = unhexlify(f"02{inbound_message}")
                 ack_response_item = DataItem(inbound_data, 0)
                 send_data([ack_response_item], protocol.read_queue)
-                await sleep(0.1)
+                await sleep(0.2)
+                assert self._test_result
+                _LOGGER.info("Completed Test: %s", test_info)
+                _LOGGER.info("")
 
 
 if __name__ == "__main__":

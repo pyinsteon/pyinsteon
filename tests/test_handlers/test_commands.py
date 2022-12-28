@@ -1,7 +1,9 @@
 """Test the sending and receiving of direct commands using the MockPLM."""
-import json
-import unittest
+
 from asyncio import sleep
+import json
+from os import path
+import unittest
 
 import aiofiles
 
@@ -30,16 +32,22 @@ from pyinsteon.handlers.to_device.set_operating_flags import SetOperatingFlagsCo
 from pyinsteon.handlers.to_device.status_request import StatusRequestCommand
 from pyinsteon.handlers.to_device.temperature_down import TemperatureDownCommand
 from pyinsteon.handlers.to_device.temperature_up import TemperatureUpCommand
-from pyinsteon.handlers.to_device.thermostat_cool_set_point import ThermostatCoolSetPointCommand
-from pyinsteon.handlers.to_device.thermostat_get_set_point import ThermostatGetSetPointCommand
-from pyinsteon.handlers.to_device.thermostat_heat_set_point import ThermostatHeatSetPointCommand
+from pyinsteon.handlers.to_device.thermostat_cool_set_point import (
+    ThermostatCoolSetPointCommand,
+)
+from pyinsteon.handlers.to_device.thermostat_get_set_point import (
+    ThermostatGetSetPointCommand,
+)
+from pyinsteon.handlers.to_device.thermostat_heat_set_point import (
+    ThermostatHeatSetPointCommand,
+)
 from pyinsteon.handlers.to_device.thermostat_mode import ThermostatMode
 from pyinsteon.handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
 from pyinsteon.handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
 from pyinsteon.handlers.to_device.write_aldb import WriteALDBCommandHandler
 
 # pylint: enable=unused-import
-from tests import set_log_levels
+from tests import set_log_levels, _LOGGER
 from tests.utils import (
     DataItem,
     async_case,
@@ -55,7 +63,6 @@ FILE = "commands.json"
 
 async def import_commands():
     """Import and parse the commands to test."""
-    from os import path
 
     curr_path = path.dirname(path.abspath(__file__))
     command_file = path.join(curr_path, FILE)
@@ -105,7 +112,7 @@ class TestDirectCommands(unittest.TestCase):
             try:
                 self._assert_result = True
                 assert kwargs.get(assert_test) == self._assert_tests[assert_test]
-            except AssertionError:
+            except AssertionError as ex:
                 self._assert_result = False
                 raise AssertionError(
                     "Failed test '{}' with argument '{}' value {} vs expected value {}".format(
@@ -114,7 +121,7 @@ class TestDirectCommands(unittest.TestCase):
                         kwargs.get(assert_test),
                         self._assert_tests[assert_test],
                     )
-                )
+                ) from ex
 
     @async_case
     async def test_command(self):
@@ -132,6 +139,7 @@ class TestDirectCommands(unittest.TestCase):
             for test_info in tests:
                 address = random_address()
                 self._current_test = test_info
+                _LOGGER.info("Starting test: %s", test_info)
                 test_command = tests[test_info]
                 command = test_command.get("command")
                 cmd_class = command.get("class")
@@ -146,7 +154,7 @@ class TestDirectCommands(unittest.TestCase):
                 messages = test_command.get("messages")
                 msgs = []
                 for msg_dict in messages:
-                    #msg_dict = messages[message]
+                    # msg_dict = messages[message]
                     msg_dict["address"] = address
                     msgs.append(create_message(msg_dict))
                 self._assert_tests = test_command.get("assert_tests")
@@ -159,21 +167,23 @@ class TestDirectCommands(unittest.TestCase):
                         "Failed test {} with error: {}".format(
                             self._current_test, str(ex)
                         )
-                    )
+                    ) from ex
                 try:
                     if test_response:
                         assert int(response) == test_response
                     if self._assert_tests:
                         call_count = test_command.get("call_count", 1)
                         assert self._call_count == call_count
-                except AssertionError:
+                except AssertionError as ex:
                     raise AssertionError(
                         "Failed test: {} command response: {}  call count {}".format(
                             self._current_test, response, self._call_count
                         )
-                    )
-                await sleep(0.1)
+                    ) from ex
+                await sleep(0.5)
                 assert self._assert_result
+                _LOGGER.info("Completed test: %s", test_info)
+                _LOGGER.info("")
 
 
 if __name__ == "__main__":

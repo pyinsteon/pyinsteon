@@ -40,7 +40,7 @@
         "command": {
             "class": ".all_link_completed.AllLinkCompletedHandler",
             "inbound_message": {
-                "data": "5303043a4b5c020304",
+                "data": "5300043a4b5c020304",
                 "link_mode": 3,
                 "group": 4,
                 "target": "3A.4B.5C",
@@ -50,7 +50,7 @@
             }
         },
         "assert_tests": {
-            "link_mode": 3,
+            "link_mode": 0,
             "group": 4,
             "target": "3A.4B.5C",
             "cat": 2,
@@ -87,7 +87,7 @@
             "class": ".read_eeprom_response.ReadEepromResponseHandler",
             "inbound_message": {
                 "data": "590fffc0071c2d3e050607",
-                "mem_addr": "4096 or 0x0fff",
+                "mem_addr": "4095 or 0x0fff",
                 "flags": "0xc0",
                 "group": 7,
                 "target": "1C.2D.3E",
@@ -97,7 +97,7 @@
             }
         },
         "assert_tests": {
-            "mem_addr": 4096,
+            "mem_addr": 4095,
             "in_use": true,
             "high_water_mark": true,
             "controller": true,
