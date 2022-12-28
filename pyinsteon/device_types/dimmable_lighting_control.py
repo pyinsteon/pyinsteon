@@ -1,6 +1,6 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
+from collections.abc import Iterable
 from functools import partial
-from typing import Iterable
 
 from ..config import (
     CLEANUP_REPORT_ON,
@@ -56,6 +56,8 @@ from ..groups.on_off import OnOff
 from ..handlers.from_device.manual_change import ManualChangeInbound
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
+from ..handlers.to_device.trigger_scene_off import TriggerSceneOffCommandHandler
+from ..handlers.to_device.trigger_scene_on import TriggerSceneOnCommandHandler
 from ..utils import bit_is_set, multiple_status, set_bit, set_fan_speed
 from .device_commands import (
     GET_LEDS_COMMAND,
@@ -387,8 +389,6 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         self._groups[2].set_value(status)
 
 
-# TODO setup operating flags for each KPL button
-# TODO trigger scenes
 class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
     """KeypadLinc base class."""
 
@@ -434,6 +434,18 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         elif result == ResponseStatus.UNCLEAR:
             await self.async_status()
         return result
+
+    async def async_trigger_scene_on(
+        self, group: int, on_level: int = 255, fast: bool = False
+    ):
+        """Trigger an All-Link group on."""
+        cmd = TriggerSceneOnCommandHandler(self._address, group)
+        return await cmd.async_send(on_level, fast)
+
+    async def async_trigger_scene_off(self, group: int, fast: bool = False):
+        """Trigger an All-Link group off."""
+        cmd = TriggerSceneOffCommandHandler(self._address, group)
+        return await cmd.async_send(fast)
 
     async def async_status(self):
         """Check the status of the device."""
