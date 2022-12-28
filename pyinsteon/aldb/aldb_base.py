@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 import logging
-from typing import List
+from typing import List, Tuple
 
 from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion, ResponseStatus
@@ -270,7 +270,7 @@ class ALDBBase(ABC):
         )
         self._add_dirty_record(new_rec)
 
-    async def async_write(self, force=False) -> tuple[int, int]:
+    async def async_write(self, force=False) -> Tuple[int, int]:
         """Write the dirty records to the device."""
         if not self.is_loaded and not force:
             _LOGGER.warning(
