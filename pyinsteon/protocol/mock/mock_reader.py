@@ -6,6 +6,12 @@ from aiohttp import web
 input_buffer = asyncio.Queue()
 
 
+def _set_response(web_response: web.Response):
+    web_response.headers.add("Content-type", "text/html")
+    web_response.set_status(200)
+    return web_response
+
+
 class MockReader:
     """Web server to accept inbound commands."""
 
@@ -42,7 +48,7 @@ class MockReader:
         response = f"{response}<p>Web server is up and listening.  POST messages to `/input`.</p>"
         response = f"{response}</body></html>"
         web_response = web.Response(text=response)
-        web_response = self._set_response(web_response)
+        web_response = _set_response(web_response)
         return web_response
 
     async def do_post(self, request: web.Request):
@@ -52,8 +58,3 @@ class MockReader:
             await self._queue.put(value)
             await asyncio.sleep(0.5)
         return web.Response(text=str(json_data))
-
-    def _set_response(self, web_response: web.Response):
-        web_response.headers.add("Content-type", "text/html")
-        web_response.set_status(200)
-        return web_response

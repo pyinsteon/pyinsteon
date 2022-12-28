@@ -29,7 +29,6 @@ from .general_controller import (
     GeneralController_RemoteLinc,
 )
 from .hub import Hub
-from .mock_modem import MockModem
 from .plm import PLM
 from .security_health_safety import (
     SecurityHealthSafety,

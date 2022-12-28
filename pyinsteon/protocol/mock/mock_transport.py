@@ -1,7 +1,7 @@
 """Mock transport for test purposes."""
 import asyncio
-import logging
 from binascii import Error, Incomplete, unhexlify
+import logging
 
 from ...address import Address
 from ...constants import AckNak, MessageFlagType, MessageId
@@ -163,6 +163,7 @@ class MockTransport(asyncio.Transport):
             self._closing = False
             self._start_reader()
 
+    # pylint: disable=no-self-use
     async def async_test_connection(self):
         """Test the connection to the hub."""
         return True
