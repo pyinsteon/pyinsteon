@@ -45,7 +45,7 @@ class ALDBReadManager:
         self._record_handler.subscribe(self._receive_record)
         self._timer_lock = asyncio.Lock()
 
-    async def async_read(self, mem_addr: int = 0x00, num_recs: int = 0):
+    async def async_read(self, mem_addr: int = 0x00, num_recs: int = 0, force=False):
         """Return an iterator of All-Link Database records."""
         _LOGGER.debug(
             "%s: Read memory %04x and %d records",
@@ -61,15 +61,15 @@ class ALDBReadManager:
                     async for record in self._read_all():
                         yield record
                 else:
-                    record = await self._read_one(mem_addr)
+                    record = await self._read_one(mem_addr, force)
                     if record is not None:
                         yield record
         except asyncio.TimeoutError:
             pass
 
-    async def _read_one(self, mem_addr):
+    async def _read_one(self, mem_addr, force):
         """Read one record."""
-        if self._aldb[mem_addr]:
+        if self._aldb[mem_addr] and not force:
             return None
 
         retries = RETRIES_ONE_MAX

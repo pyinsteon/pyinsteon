@@ -289,7 +289,7 @@ class ALDBBase(ABC):
             except KeyError:
                 pass
             rec_to_write = rec.copy()
-            if rec.mem_addr == 0x000:
+            if rec.mem_addr == 0x0000:
                 rec_to_write.mem_addr = self._next_record_mem_addr(
                     target=rec.target,
                     group=rec.group,
@@ -302,6 +302,19 @@ class ALDBBase(ABC):
                 result = await self._write_manager.async_write(rec_to_write, force)
             except ALDBWriteException:
                 result = ResponseStatus.FAILURE
+
+            if result == ResponseStatus.UNCLEAR and self._read_manager:
+                async for test_rec in self._read_manager.async_read(
+                    rec_to_write.mem_addr, 1, force=True
+                ):
+                    if (
+                        test_rec == rec_to_write
+                        and test_rec.data1 == rec_to_write.data1
+                        and test_rec.data2 == rec_to_write.data2
+                        and test_rec.data3 == rec_to_write.data3
+                        and test_rec.is_in_use == rec_to_write.is_in_use
+                    ):
+                        result = ResponseStatus.SUCCESS
 
             if result == ResponseStatus.SUCCESS:
                 curr_rec = self._records.get(rec_to_write.mem_addr)
