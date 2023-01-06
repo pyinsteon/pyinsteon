@@ -67,7 +67,7 @@ class ALDBReadManager:
         except asyncio.TimeoutError:
             pass
 
-    async def _read_one(self, mem_addr, force):
+    async def _read_one(self, mem_addr, force=False):
         """Read one record."""
         if self._aldb[mem_addr] and not force:
             return None
