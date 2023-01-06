@@ -63,7 +63,9 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
         if self._response_lock.locked():
             await self._direct_response.put(response)
             await asyncio.sleep(0.05)
-            self._update_subscribers_on_nak(cmd1, cmd2, target, user_data, hops_left)
+            self._update_subscribers_on_direct_nak(
+                cmd1, cmd2, target, user_data, hops_left
+            )
             await asyncio.sleep(0.05)
 
     @direct_ack_handler
@@ -73,7 +75,6 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
         await asyncio.sleep(0.05)
         if self._response_lock.locked():
             await self._direct_response.put(ResponseStatus.SUCCESS)
-            await asyncio.sleep(0.05)
             self._update_subscribers_on_ack(cmd1, cmd2, target, user_data, hops_left)
             await asyncio.sleep(0.05)
 
@@ -82,3 +83,8 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
 
     def _update_subscribers_on_nak(self, cmd1, cmd2, target, user_data, hops_left):
         """Update subscribers on NAK received."""
+
+    def _update_subscribers_on_direct_nak(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
+        """Update subscribers on DIRECT NAK received."""

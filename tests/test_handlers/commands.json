@@ -476,7 +476,7 @@
                     "target": "445566"
                 }
             ],
-            "response": 1,
+            "response": 0,
             "assert_tests": {}
         },
         "status_request": {
@@ -974,7 +974,7 @@
                     "target": "445566"
                 }
             ],
-            "response": 0,
+            "response": 1,
             "assert_tests": {}
         },
         "trigger_scene_off": {

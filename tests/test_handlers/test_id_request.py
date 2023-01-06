@@ -104,13 +104,16 @@ class TestIdRequest(unittest.TestCase):
         id_handler = IdRequestCommand(address)
         cmd1 = 0x99
         cmd2 = 0xAA
-        topics = [
+        cmd2_failure = 0xFF
+        cmd2_unclear = 0xFC
+
+        topics_fail = [
             TopicItem(ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}, 0.5),
             TopicItem(
                 direct_nak_topic,
                 {
                     "cmd1": cmd1,
-                    "cmd2": cmd2,
+                    "cmd2": cmd2_failure,
                     "target": modem_address,
                     "user_data": None,
                     "hops_left": 3,
@@ -118,7 +121,26 @@ class TestIdRequest(unittest.TestCase):
                 0.5,
             ),
         ]
-        send_topics(topics)
+        topics_unclear = [
+            TopicItem(ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": None}, 0.5),
+            TopicItem(
+                direct_nak_topic,
+                {
+                    "cmd1": cmd1,
+                    "cmd2": cmd2_unclear,
+                    "target": modem_address,
+                    "user_data": None,
+                    "hops_left": 3,
+                },
+                0.5,
+            ),
+        ]
+
+        send_topics(topics_fail)
+        result = await id_handler.async_send()
+        assert result == ResponseStatus.FAILURE
+
+        send_topics(topics_unclear)
         result = await id_handler.async_send()
         assert result == ResponseStatus.UNCLEAR
 

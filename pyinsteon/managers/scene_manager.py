@@ -258,14 +258,14 @@ async def async_add_or_update_scene(
         )
         if device not in updated_devices:
             updated_devices.append(device)
-            devices.modem.aldb.add(
-                group=scene_num,
-                target=device.address,
-                controller=True,
-                data1=int(device.cat),
-                data2=device.subcat,
-                data3=device.firmware if device.firmware is not None else 0,
-            )
+        devices.modem.aldb.add(
+            group=scene_num,
+            target=device.address,
+            controller=True,
+            data1=int(device.cat),
+            data2=device.subcat,
+            data3=device.firmware if device.firmware is not None else 0,
+        )
 
     result = await _async_write_scene_link_changes(updated_devices)
     if name:

@@ -168,8 +168,9 @@ class TestDirectCommands(unittest.TestCase):
                             self._current_test, str(ex)
                         )
                     ) from ex
+                await sleep(0.1)
                 try:
-                    if test_response:
+                    if test_response is not None:
                         assert int(response) == test_response
                     if self._assert_tests:
                         call_count = test_command.get("call_count", 1)
