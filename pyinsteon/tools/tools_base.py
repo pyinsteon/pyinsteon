@@ -1,6 +1,10 @@
 """Base object for all command line menues."""
 
+from argparse import ArgumentParser
 import asyncio
+from binascii import Error as BinasciiError, unhexlify
+from cmd import Cmd
+from collections import namedtuple
 import getpass
 import inspect
 import logging
@@ -8,11 +12,6 @@ import os
 import signal
 import sys
 import traceback
-from argparse import ArgumentParser
-from binascii import Error as BinasciiError
-from binascii import unhexlify
-from cmd import Cmd
-from collections import namedtuple
 from typing import List
 
 from .. import devices
@@ -108,6 +107,7 @@ class ToolsBase(Cmd):
         self.username = None
         self.hub_version = 2
         self.port = 25105
+        self.mock = False
 
         self._set_command_line_values(args)
 
@@ -978,10 +978,10 @@ class ToolsBase(Cmd):
             value = int(value) if value is not None else None
             if value not in range(0, 256):
                 raise ValueError
-        except ValueError:
+        except ValueError as ex:
             log_stdout(f"Invalid {name} value")
             if not ask_value:
-                raise ValueError
+                raise ValueError from ex
             value = None
         if value is None:
             value = await self._get_int(name, default=default, values=range(0, 256))
@@ -1333,10 +1333,10 @@ class ToolsBase(Cmd):
                                 ask_value=ask_value,
                                 log_stdout=log_stdout,
                             )
-                        except ValueError:
+                        except ValueError as ex:
                             log_stdout("Invalid button number")
                             if not ask_value:
-                                raise ValueError
+                                raise ValueError from ex
                         if button is None and len(buttons) < 2 and require_two:
                             log_stdout("At least two buttons are required")
                             if not ask_value:
@@ -1366,9 +1366,9 @@ class ToolsBase(Cmd):
                     value, options, arg, ask_value, log_stdout, default=default
                 )
 
-            except (TypeError, ValueError):
+            except (TypeError, ValueError) as ex:
                 log_stdout(f"Invalid value for {arg}")
-                raise ValueError
+                raise ValueError from ex
         return value
 
     async def _ensure_hex_byte(self, value, name, ask_value, log_stdout, values=None):

@@ -434,7 +434,7 @@ RAMP_RATES_SEC = {
 }
 
 
-class DeviceAction(Enum):
+class DeviceAction(IntEnum):
     """Device list actions."""
 
     ADDED = 0

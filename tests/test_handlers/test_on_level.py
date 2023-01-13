@@ -5,6 +5,7 @@ import unittest
 from pyinsteon.address import Address
 from pyinsteon.constants import ResponseStatus
 from pyinsteon.handlers.to_device.on_level import OnLevelCommand
+
 from tests import set_log_levels
 from tests.utils import TopicItem, async_case, send_topics
 
@@ -118,11 +119,13 @@ class TestOnLevel(unittest.TestCase):
         await self.async_setup()
         cmd1 = 0x11
         cmd2 = 0xAA
+        cmd2_failure = 0xFF
+        cmd2_unclear = 0xFC
 
         ack_topic = "ack.{}.{}.on.direct".format(self._address.id, 3)
         direct_nak_topic = "{}.on.direct_nak".format(self._address.id)
 
-        topics = [
+        topics_fail = [
             TopicItem(
                 ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": {"d1": 3}}, 0.5
             ),
@@ -130,7 +133,7 @@ class TestOnLevel(unittest.TestCase):
                 direct_nak_topic,
                 {
                     "cmd1": cmd1,
-                    "cmd2": cmd2,
+                    "cmd2": cmd2_failure,
                     "target": "4d5e6f",
                     "user_data": None,
                     "hops_left": 3,
@@ -138,7 +141,28 @@ class TestOnLevel(unittest.TestCase):
                 0.5,
             ),
         ]
-        send_topics(topics)
+        topics_unclear = [
+            TopicItem(
+                ack_topic, {"cmd1": cmd1, "cmd2": cmd2, "user_data": {"d1": 3}}, 0.5
+            ),
+            TopicItem(
+                direct_nak_topic,
+                {
+                    "cmd1": cmd1,
+                    "cmd2": cmd2_unclear,
+                    "target": "4d5e6f",
+                    "user_data": None,
+                    "hops_left": 3,
+                },
+                0.5,
+            ),
+        ]
+
+        send_topics(topics_fail)
+        response = await self.handler3.async_send(on_level=cmd2)
+        assert response == ResponseStatus.FAILURE
+
+        send_topics(topics_unclear)
         response = await self.handler3.async_send(on_level=cmd2)
         assert response == ResponseStatus.UNCLEAR
 

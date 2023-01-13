@@ -1,9 +1,9 @@
 """All-Link database for battery oppertated devices."""
-import logging
 from collections import namedtuple
+import logging
 
 from ..constants import ALDBVersion
-from . import ALDB
+from .aldb import ALDB
 
 LoadCommandParams = namedtuple("LoadCommandParams", "mem_addr num_recs refresh")
 Command = namedtuple("Command", "action params")

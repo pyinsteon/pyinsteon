@@ -1,6 +1,7 @@
-"""ALDB Records."""
+"""ALDB Records data class."""
 
 from ..address import Address
+from ..constants import AllLinkMode
 
 
 class ALDBRecord:
@@ -22,7 +23,7 @@ class ALDBRecord:
     ):
         """Initialze the ALDBRecord class."""
         self._memory_location = memory
-        self._target = Address(target)
+        self._target = Address(target) if target is not None else target
         self._group = group
         self._data1 = data1
         self._data2 = data2
@@ -87,6 +88,40 @@ class ALDBRecord:
             "d14": 0x00,
         }
 
+    def __eq__(self, other: object) -> bool:
+        """Test if two records are equal.
+
+        Two records are equal if the following match:
+            Mode (responder or controller)
+            Group
+            Target
+            Data 3 if the record is a responder
+        """
+        if not isinstance(other, ALDBRecord):
+            return False
+
+        return (
+            (
+                other.mode is None
+                or self.mode is None
+                or other.is_controller == self.is_controller
+            )
+            and (other.group is None or self.group is None or other.group == self.group)
+            and (
+                other.target is None
+                or self.target is None
+                or other.target == self.target
+            )
+            and (
+                self.mode == AllLinkMode.CONTROLLER
+                or (
+                    other.data3 is None
+                    or self.data3 is None
+                    or self.data3 == other.data3
+                )
+            )
+        )
+
     @property
     def mem_addr(self):
         """Return the memory address of the database record."""
@@ -97,8 +132,8 @@ class ALDBRecord:
         """Set the memory address of the record."""
         try:
             mem = int(value)
-        except ValueError:
-            raise ValueError("Memory address must be an integer.")
+        except ValueError as ex:
+            raise ValueError("Memory address must be an integer.") from ex
         else:
             self._memory_location = mem
 
@@ -121,6 +156,13 @@ class ALDBRecord:
     def group(self):
         """Return the group the record responds to."""
         return self._group
+
+    @property
+    def mode(self) -> AllLinkMode:
+        """Return the All-Link mode."""
+        if self._controller is None:
+            return None
+        return AllLinkMode.CONTROLLER if self._controller else AllLinkMode.RESPONDER
 
     @property
     def data1(self):

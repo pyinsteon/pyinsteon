@@ -6,6 +6,7 @@ from pyinsteon import pub
 from pyinsteon.address import Address
 from pyinsteon.aldb.modem_aldb import ModemALDB
 from pyinsteon.constants import ReadWriteMode
+from pyinsteon.data_types.all_link_record_flags import AllLinkRecordFlags
 from pyinsteon.topics import (
     ALL_LINK_RECORD_RESPONSE,
     GET_FIRST_ALL_LINK_RECORD,
@@ -13,6 +14,7 @@ from pyinsteon.topics import (
     READ_EEPROM,
     READ_EEPROM_RESPONSE,
 )
+
 from tests import _LOGGER, set_log_levels
 from tests.utils import TopicItem, async_case, random_address
 
@@ -37,7 +39,8 @@ def send_nak_response():
 
 def fill_rec(flags, group, target, data1, data2, data3):
     """Fill an All-Link Record."""
-    from pyinsteon.data_types.all_link_record_flags import AllLinkRecordFlags
+    # pylint: disable=import-outside-toplevel
+    # from pyinsteon.data_types.all_link_record_flags import AllLinkRecordFlags
 
     kwargs = {
         "flags": AllLinkRecordFlags(flags),
@@ -52,7 +55,7 @@ def fill_rec(flags, group, target, data1, data2, data3):
 
 def fill_eeprom_rec(mem_addr, flags, group, target, data1=0, data2=0, data3=0):
     """Fill an All-Link Record."""
-    from pyinsteon.data_types.all_link_record_flags import AllLinkRecordFlags
+    # pylint: disable=import-outside-toplevel
 
     flags = AllLinkRecordFlags(flags)
     kwargs = {

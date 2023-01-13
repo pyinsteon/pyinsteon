@@ -28,7 +28,7 @@ setup(
         "aiohttp",
         "pypubsub",
         "aiofiles",
-        "pyyaml",
+        "voluptuous",
     ],
     entry_points={"console_scripts": ["insteon_tools = pyinsteon.tools:tools"]},
 )

@@ -1,9 +1,10 @@
 """Serial protocol to perform async I/O with the Insteon Modem."""
 
 import asyncio
-import logging
 from enum import Enum
+import logging
 from queue import SimpleQueue
+from typing import Union
 
 from .. import pub
 from ..constants import AckNak
@@ -111,6 +112,9 @@ class Protocol(asyncio.Protocol):
             last_buffer = self._buffer
             try:
                 msg, self._buffer = create(self._buffer)
+                if isinstance(self._buffer, bytes):
+                    _LOGGER.warning("Buffer became bytes: %s", data.hex())
+                    self._buffer = bytearray(self._buffer)
             except (ValueError, IndexError) as ex:
                 _LOGGER.debug("Invalid message data: %s", self._buffer.hex())
                 _LOGGER.debug("%s: %s", type(ex), str(ex))
@@ -135,7 +139,7 @@ class Protocol(asyncio.Protocol):
             if not self._buffer or last_buffer == self._buffer:
                 break
 
-    def connection_lost(self, exc: asyncio.Task | Exception):
+    def connection_lost(self, exc: Union[asyncio.Task, Exception]):
         """Notify listeners that the serial connection is lost."""
         _LOGGER.debug("Connection lost called")
         _LOGGER.debug("Should reconnect: %s", self._should_reconnect)
@@ -143,7 +147,7 @@ class Protocol(asyncio.Protocol):
             if hasattr(exc, "exception"):
                 log_msg = str(exc.exception())
             else:
-                log_msg = str(exc)    
+                log_msg = str(exc)
             _LOGGER.warning("pyinsteon transport exception: %s", log_msg)
         if self._should_reconnect:
             asyncio.create_task(self.async_connect())
@@ -214,7 +218,7 @@ class Protocol(asyncio.Protocol):
         try:
             for (topic, kwargs) in convert_to_topic(msg):
                 if _is_nak(msg) and not _has_listeners(topic):
-                    self._resend(msg)
+                    await self._async_resend(msg)
                 else:
                     publish_topic(topic, **kwargs)
         except ValueError:
@@ -233,11 +237,12 @@ class Protocol(asyncio.Protocol):
         """
         self._message_queue.put_nowait((priority, msg))
 
-    def _resend(self, msg):
+    async def _async_resend(self, msg):
         """Resend after a NAK message.
 
         TODO: Avoid resending the same message 10 times.
         """
+        await asyncio.sleep(0.5)
         self.write(bytes(msg)[:-1])
 
     async def _write_messages(self):

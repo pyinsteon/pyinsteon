@@ -1,14 +1,14 @@
 """Test the sending and receiving of direct commands using the MockPLM."""
-import json
-import unittest
 from asyncio import sleep
 from binascii import unhexlify
+import json
+import unittest
 
 import aiofiles
 
-import pyinsteon.handlers as commands
 from pyinsteon import pub
 from pyinsteon.address import Address
+import pyinsteon.handlers as commands
 
 # pylint: disable=unused-import
 # flake8: noqa: F401
@@ -27,14 +27,13 @@ from pyinsteon.handlers.start_all_linking import StartAllLinkingCommandHandler
 from pyinsteon.handlers.write_eeprom import WriteEepromHandler
 
 # pylint: enable=unused-import
-from tests import set_log_levels
+from tests import _LOGGER, set_log_levels
 from tests.utils import (
     DataItem,
     async_case,
     async_protocol_manager,
     create_std_ext_msg,
     get_class_or_method,
-    random_address,
     send_data,
 )
 
@@ -75,6 +74,7 @@ class TestDirectCommands(unittest.TestCase):
         """Set up the tests."""
         self._assert_tests = []
         self._current_test = None
+        self._test_result = True
         set_log_levels(
             logger="info",
             logger_pyinsteon="info",
@@ -87,12 +87,14 @@ class TestDirectCommands(unittest.TestCase):
         for assert_test in self._assert_tests:
             if kwargs.get(assert_test) is not None:
                 try:
+                    self._test_result = True
                     if assert_test == "address":
                         self._assert_tests[assert_test] = Address(
                             self._assert_tests[assert_test]
                         )
                     assert kwargs.get(assert_test) == self._assert_tests[assert_test]
-                except AssertionError:
+                except AssertionError as ex:
+                    self._test_result = False
                     raise AssertionError(
                         "Failed test '{}' with argument '{}' value {} vs expected value {}".format(
                             self._current_test,
@@ -100,7 +102,7 @@ class TestDirectCommands(unittest.TestCase):
                             kwargs.get(assert_test),
                             self._assert_tests[assert_test],
                         )
-                    )
+                    ) from ex
 
     @async_case
     async def test_modem_command(self):
@@ -112,7 +114,9 @@ class TestDirectCommands(unittest.TestCase):
 
             for test_info in tests:
                 self._current_test = test_info
+                _LOGGER.info("Starting test: %s", test_info)
                 test_command = tests[test_info]
+                self._test_result = True
                 command = test_command.get("command")
                 cmd_class = command.get("class")
                 params = command.get("params")
@@ -136,17 +140,20 @@ class TestDirectCommands(unittest.TestCase):
                         "Failed test {} with error: {}".format(
                             self._current_test, str(ex)
                         )
-                    )
+                    ) from ex
                 if test_response:
                     try:
                         assert int(response) == test_response
-                    except AssertionError:
+                    except AssertionError as ex:
                         raise AssertionError(
                             "Failed test: {} command response: {}".format(
                                 self._current_test, response
                             )
-                        )
+                        ) from ex
                 await sleep(0.1)
+                assert self._test_result
+                _LOGGER.info("Finished test: %s", test_info)
+                _LOGGER.info("")
 
 
 if __name__ == "__main__":

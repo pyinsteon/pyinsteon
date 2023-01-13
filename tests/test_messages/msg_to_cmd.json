@@ -456,16 +456,6 @@
         "ack": "",
         "topic": "{}.extended_read_write_aldb.direct"
     },
-    "EXTENDED_READ_WRITE_ALDB_DIRECT_NAK-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "2F",
-        "cmd2": "",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.extended_read_write_aldb_direct_nak.direct"
-    },
     "EXTENDED_TRIGGER_ALL_LINK-DIRECT": {
         "address": {},
         "target": "040506",

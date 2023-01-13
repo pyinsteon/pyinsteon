@@ -3,14 +3,15 @@
 import asyncio
 
 from pyinsteon import async_close, async_connect
-from pyinsteon.managers.scene_manager import (async_trigger_scene_off,
-                                              async_trigger_scene_on,
-                                              identify_scenes)
+from pyinsteon.managers.scene_manager import (
+    async_trigger_scene_off,
+    async_trigger_scene_on,
+)
 from samples import _LOGGER, PATH, get_hub_config, set_log_levels
 
 # DEVICE = '/dev/ttyS5'
 DEVICE = "COM5"
-USERNAME, PASSWORD, HOST = get_hub_config()
+USERNAME, PASSWORD, HOST, PORT = get_hub_config()
 
 
 def state_changed(name, address, value, group):
@@ -21,10 +22,11 @@ def state_changed(name, address, value, group):
 async def do_run():
     """Connect to the PLM and load the ALDB."""
     # devices = await async_connect(device=DEVICE)
-    devices = await async_connect(host=HOST, username=USERNAME, password=PASSWORD)
+    devices = await async_connect(
+        host=HOST, username=USERNAME, password=PASSWORD, port=PORT
+    )
     await devices.async_load(workdir=PATH, id_devices=0)
     # modem = devices.modem '', '13.37.42'
-    identify_scenes()
     device1 = devices["2C.38.32"]
     device1.groups[1].subscribe(state_changed)
     device2 = devices["13.37.42"]

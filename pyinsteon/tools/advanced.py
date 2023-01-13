@@ -653,9 +653,9 @@ class AdvancedTools(ToolsAldb):
                 aldb_dict = json.loads(json_file)
             except json.decoder.JSONDecodeError:
                 log_stdout("Loading ALDB file failed")
-        except FileNotFoundError:
+        except FileNotFoundError as ex:
             log_stdout("ALDB file not found")
-            raise ValueError
+            raise ValueError from ex
         return aldb_dict
 
     async def _parse_record(self, log_stdout, ask_values, **kwargs):
@@ -714,9 +714,9 @@ class AdvancedTools(ToolsAldb):
                 data3, name, ask_values, log_stdout, default=0
             )
 
-        except ValueError:
+        except ValueError as ex:
             log_stdout(f"Invalid value for {name}")
-            raise ValueError
+            raise ValueError from ex
 
         return {
             "is_in_use": True,

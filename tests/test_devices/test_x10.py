@@ -9,8 +9,9 @@ from pyinsteon.constants import (
     X10Commands,
     X10CommandType,
 )
-from pyinsteon.device_types import X10Dimmable, X10OnOff, X10OnOffSensor
+from pyinsteon.device_types.x10 import X10Dimmable, X10OnOff, X10OnOffSensor
 from pyinsteon.topics import X10_RECEIVED, X10_SEND
+
 from tests import set_log_levels
 from tests.utils import TopicItem, async_case, send_topics
 

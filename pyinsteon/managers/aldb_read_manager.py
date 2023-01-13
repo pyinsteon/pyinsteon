@@ -52,7 +52,7 @@ class ALDBReadManager:
         self._peek_manager = get_peek_poke_manager(self._aldb.address)
         self._peek_manager.subscribe(self._receive_peek)
 
-    async def async_read(self, mem_addr: int = 0x00, num_recs: int = 0):
+    async def async_read(self, mem_addr: int = 0x00, num_recs: int = 0, force=False):
         """Return an iterator of All-Link Database records."""
         _LOGGER.debug(
             "%s: Read memory %04x and %d records",
@@ -76,16 +76,16 @@ class ALDBReadManager:
                         _LOGGER.info("Yielding record %s", record)
                         yield record
                 else:
-                    record = await read_one_method(mem_addr)
+                    record = await self._read_one(mem_addr, force)
                     if record is not None:
                         _LOGGER.info("Yielding record %s", record)
                         yield record
         except asyncio.TimeoutError:
             pass
 
-    async def _read_one(self, mem_addr):
+    async def _read_one(self, mem_addr, force=False):
         """Read one record."""
-        if self._aldb[mem_addr]:
+        if self._aldb[mem_addr] and not force:
             return None
 
         retries = RETRIES_ONE_MAX
