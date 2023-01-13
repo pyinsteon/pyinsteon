@@ -1,15 +1,17 @@
 """Test device commands outbound."""
-import json
-import unittest
 from asyncio import sleep
 from binascii import unhexlify
+import json
+from os import path
+import unittest
 
 import aiofiles
 
 import pyinsteon
-import pyinsteon.device_types as device_types
 from pyinsteon.address import Address
 from pyinsteon.data_types.user_data import create_from_dict
+import pyinsteon.device_types.ipdb as device_types
+
 from tests import _LOGGER, set_log_levels
 from tests.utils import (
     TopicItem,
@@ -54,7 +56,6 @@ def convert_response(response, address):
 
 async def import_commands():
     """Import and parse the commands to test."""
-    from os import path
 
     curr_path = path.dirname(path.abspath(__file__))
     command_file = path.join(curr_path, FILE)
@@ -64,17 +65,17 @@ async def import_commands():
     return json.loads(json_file)
 
 
-def test_results(device, results):
+def _test_results(device, results):
     """Test the results of a command."""
     for result in results:
         group = result.get("group")
         if group:
             value = convert_to_int(result.get("value"))
             assert device.groups[group].value == value
-        property = result.get("property")
-        if property:
-            value = convert_to_int(property.get("value"))
-            name = property.get("name")
+        prop = result.get("property")
+        if prop:
+            value = convert_to_int(prop.get("value"))
+            name = prop.get("name")
             assert device.properties[name].value == value
         config = result.get("config")
         if config:
@@ -142,7 +143,7 @@ class TestDeviceCommands(unittest.TestCase):
                 send_topics([topic_item])
             result = await method(**params)
             assert int(result) == 1
-            test_results(device, config.get("result"))
+            _test_results(device, config.get("result"))
 
         # pylint: disable=broad-except
         except Exception as ex:

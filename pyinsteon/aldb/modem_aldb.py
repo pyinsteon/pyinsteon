@@ -1,14 +1,13 @@
 """All-Link database for an Insteon Modem."""
 import logging
 
-from pyinsteon.address import Address
-
 from .. import pub
+from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion, ReadWriteMode
 from ..managers.aldb_im_read_manager import ImReadManager
 from ..managers.aldb_im_write_manager import ImWriteManager
 from ..topics import ALL_LINK_RECORD_RESPONSE
-from . import ALDBBase
+from .aldb_base import ALDBBase
 
 _LOGGER = logging.getLogger(__name__)
 MAX_RETRIES = 3

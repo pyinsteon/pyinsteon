@@ -1,25 +1,21 @@
 """Utilities used to test tools functions."""
 import asyncio
+from io import StringIO
 import os
 import sys
-from io import StringIO
 from unittest import TestCase
-
-try:
-    from unittest.mock import AsyncMock, MagicMock
-except ImportError:
-    from unittest.mock import MagicMock
-    from .asyncmock_patch import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 from pyinsteon.address import Address
-from pyinsteon.device_types import (
-    PLM,
-    ClimateControl_Thermostat,
+from pyinsteon.device_types.climate_control import ClimateControl_Thermostat
+from pyinsteon.device_types.dimmable_lighting_control import (
     DimmableLightingControl,
     DimmableLightingControl_KeypadLinc_8,
-    SensorsActuators_IOLink,
 )
+from pyinsteon.device_types.plm import PLM
+from pyinsteon.device_types.sensors_actuators import SensorsActuators_IOLink
 from pyinsteon.tools.tools_base import _LOGGING, LOG_FILE_NAME
+
 from tests.utils import random_address
 
 

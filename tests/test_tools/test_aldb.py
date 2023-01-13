@@ -1,25 +1,15 @@
 """Test the ALDB commands."""
 import random
-import sys
-from unittest import skipIf
-
-try:
-    from unittest.mock import AsyncMock, patch
-except ImportError:
-    from unittest.mock import patch
-    from .asyncmock_patch import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pyinsteon
 from pyinsteon.constants import ALDBStatus, DeviceCategory
-from pyinsteon.device_types import (
-    ClimateControl_Thermostat,
-    DimmableLightingControl,
-    SensorsActuators_IOLink,
-    SwitchedLightingControl,
-)
+from pyinsteon.device_types.climate_control import ClimateControl_Thermostat
+from pyinsteon.device_types.dimmable_lighting_control import DimmableLightingControl
+from pyinsteon.device_types.sensors_actuators import SensorsActuators_IOLink
+from pyinsteon.device_types.switched_lighting_control import SwitchedLightingControl
 from pyinsteon.tools.aldb import ToolsAldb
 from pyinsteon.utils import seconds_to_ramp_rate
-from tests.utils import async_case, random_address
 
 from .tools_utils import (
     MockAldb,
@@ -34,6 +24,8 @@ from .tools_utils import (
     remove_log_file,
 )
 
+from tests.utils import async_case, random_address
+
 devices = MockDevices()
 bad_address = get_bad_address(devices)
 good_address = get_good_address(devices)
@@ -43,7 +35,6 @@ good_device = devices[good_address]
 class TestToolsAldbMenu(ToolsTestBase):
     """Test the tools main menu."""
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_add_default_links(self):
         """Test the add_default_links command of the tools function."""
@@ -101,7 +92,6 @@ class TestToolsAldbMenu(ToolsTestBase):
                 await cmd_mgr.async_cmdloop("")
                 assert good_device.async_add_default_links.call_count == 3
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_add_device_to_scene(self):
         """Test the add_device_to_scene command of the tools function."""
@@ -116,19 +106,19 @@ class TestToolsAldbMenu(ToolsTestBase):
         devices[device_05.address] = device_05
         devices[device_07.address] = device_07
 
-        mock_add_device_to_scene = AsyncMock()
+        mock_async_link_devices = AsyncMock()
         async with self.test_lock:
             with patch.object(pyinsteon.tools.aldb, "devices", devices), patch.object(
                 pyinsteon.tools.tools_base, "devices", devices
             ), patch.object(
                 pyinsteon.tools.aldb,
-                "async_add_device_to_scene",
-                mock_add_device_to_scene,
+                "async_link_devices",
+                mock_async_link_devices,
             ):
                 # Add default links with input mode and default values for data1, data2, data3
                 for device in [device_01, device_02, device_05, device_07]:
                     scene = random.randint(0, 255)
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    cmd_mgr, _, _ = self.setup_cmd_tool(
                         ToolsAldb,
                         [
                             "add_device_to_scene",
@@ -140,39 +130,39 @@ class TestToolsAldbMenu(ToolsTestBase):
                             "exit",
                         ],
                     )
-                    mock_add_device_to_scene.call_count = 0
+                    mock_async_link_devices.call_count = 0
                     await cmd_mgr.async_cmdloop("")
-                    assert mock_add_device_to_scene.call_count == 1
+                    assert mock_async_link_devices.call_count == 1
                     if device.cat == DeviceCategory.DIMMABLE_LIGHTING_CONTROL:
-                        mock_add_device_to_scene.assert_called_with(
-                            device, scene, 255, 28, 1
+                        mock_async_link_devices.assert_called_with(
+                            devices.modem, device, scene, 255, 28, 1
                         )
                     else:
-                        mock_add_device_to_scene.assert_called_with(
-                            device, scene, 255, 0, 1
+                        mock_async_link_devices.assert_called_with(
+                            devices.modem, device, scene, 255, 0, 1
                         )
 
                 # Add default links with command line and background mode and default values for data1, data2, data3
                 for device in [device_01, device_02, device_05, device_07]:
                     for command in ["add_device_to_scene", "add_device_to_scene -b"]:
                         scene = random.randint(0, 255)
-                        cmd_mgr, _, stdout = self.setup_cmd_tool(
+                        cmd_mgr, _, _ = self.setup_cmd_tool(
                             ToolsAldb,
                             [
                                 f"{command} {str(device.address)} {scene}",
                                 "exit",
                             ],
                         )
-                        mock_add_device_to_scene.call_count = 0
+                        mock_async_link_devices.call_count = 0
                         await cmd_mgr.async_cmdloop("")
-                        assert mock_add_device_to_scene.call_count == 1
+                        assert mock_async_link_devices.call_count == 1
                         if device.cat == DeviceCategory.DIMMABLE_LIGHTING_CONTROL:
-                            mock_add_device_to_scene.assert_called_with(
-                                device, scene, 255, 28, 1
+                            mock_async_link_devices.assert_called_with(
+                                devices.modem, device, scene, 255, 28, 1
                             )
                         else:
-                            mock_add_device_to_scene.assert_called_with(
-                                device, scene, 255, 0, 1
+                            mock_async_link_devices.assert_called_with(
+                                devices.modem, device, scene, 255, 0, 1
                             )
 
                 # Add default links with input mode with inputs for data1, data2, data3
@@ -188,7 +178,7 @@ class TestToolsAldbMenu(ToolsTestBase):
                     else:
                         data2 = random.randint(0, 255)
                     data3 = random.randint(0, 255)
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    cmd_mgr, _, _ = self.setup_cmd_tool(
                         ToolsAldb,
                         [
                             "add_device_to_scene",
@@ -200,16 +190,21 @@ class TestToolsAldbMenu(ToolsTestBase):
                             "exit",
                         ],
                     )
-                    mock_add_device_to_scene.call_count = 0
+                    mock_async_link_devices.call_count = 0
                     await cmd_mgr.async_cmdloop("")
-                    assert mock_add_device_to_scene.call_count == 1
+                    assert mock_async_link_devices.call_count == 1
                     if device.cat == DeviceCategory.DIMMABLE_LIGHTING_CONTROL:
-                        mock_add_device_to_scene.assert_called_with(
-                            device, scene, data1, seconds_to_ramp_rate(data2), data3
+                        mock_async_link_devices.assert_called_with(
+                            devices.modem,
+                            device,
+                            scene,
+                            data1,
+                            seconds_to_ramp_rate(data2),
+                            data3,
                         )
                     else:
-                        mock_add_device_to_scene.assert_called_with(
-                            device, scene, data1, data2, data3
+                        mock_async_link_devices.assert_called_with(
+                            devices.modem, device, scene, data1, data2, data3
                         )
 
                 # Add default links with command line and background mode with inputs for data1, data2, data3
@@ -226,23 +221,28 @@ class TestToolsAldbMenu(ToolsTestBase):
                         else:
                             data2 = random.randint(0, 255)
                         data3 = random.randint(0, 255)
-                        cmd_mgr, _, stdout = self.setup_cmd_tool(
+                        cmd_mgr, _, _ = self.setup_cmd_tool(
                             ToolsAldb,
                             [
                                 f"{command} {device.address} {scene} {data1}  {data2} {data3}",
                                 "exit",
                             ],
                         )
-                        mock_add_device_to_scene.call_count = 0
+                        mock_async_link_devices.call_count = 0
                         await cmd_mgr.async_cmdloop("")
-                        assert mock_add_device_to_scene.call_count == 1
+                        assert mock_async_link_devices.call_count == 1
                         if device.cat == DeviceCategory.DIMMABLE_LIGHTING_CONTROL:
-                            mock_add_device_to_scene.assert_called_with(
-                                device, scene, data1, seconds_to_ramp_rate(data2), data3
+                            mock_async_link_devices.assert_called_with(
+                                devices.modem,
+                                device,
+                                scene,
+                                data1,
+                                seconds_to_ramp_rate(data2),
+                                data3,
                             )
                         else:
-                            mock_add_device_to_scene.assert_called_with(
-                                device, scene, data1, data2, data3
+                            mock_async_link_devices.assert_called_with(
+                                devices.modem, device, scene, data1, data2, data3
                             )
 
                 # Add default links with background mode with bad data for data1, data2, data3
@@ -255,16 +255,16 @@ class TestToolsAldbMenu(ToolsTestBase):
                     data5 = [255, 3000, 255]
                     data6 = [255, 255, 300]
                     for data in [data1, data2, data3, data4, data5, data6]:
-                        cmd_mgr, _, stdout = self.setup_cmd_tool(
+                        cmd_mgr, _, _ = self.setup_cmd_tool(
                             ToolsAldb,
                             [
                                 f"add_device_to_scene -b {device.address} {scene} {data[0]}  {data[1]} {data[2]}",
                                 "exit",
                             ],
                         )
-                        mock_add_device_to_scene.call_count = 0
+                        mock_async_link_devices.call_count = 0
                         await cmd_mgr.async_cmdloop("")
-                        assert mock_add_device_to_scene.call_count == 0
+                        assert mock_async_link_devices.call_count == 0
 
                 # Add device to scene with no address
                 cmd_mgr, _, _ = self.setup_cmd_tool(
@@ -275,9 +275,9 @@ class TestToolsAldbMenu(ToolsTestBase):
                         "exit",
                     ],
                 )
-                mock_add_device_to_scene.call_count = 0
+                mock_async_link_devices.call_count = 0
                 await cmd_mgr.async_cmdloop("")
-                assert mock_add_device_to_scene.call_count == 0
+                assert mock_async_link_devices.call_count == 0
 
                 # Add device to scene in background mode with bad address
                 cmd_mgr, _, _ = self.setup_cmd_tool(
@@ -287,9 +287,9 @@ class TestToolsAldbMenu(ToolsTestBase):
                         "exit",
                     ],
                 )
-                mock_add_device_to_scene.call_count = 0
+                mock_async_link_devices.call_count = 0
                 await cmd_mgr.async_cmdloop("")
-                assert mock_add_device_to_scene.call_count == 0
+                assert mock_async_link_devices.call_count == 0
 
                 # Add device to scene in background mode with invalid address
                 cmd_mgr, _, _ = self.setup_cmd_tool(
@@ -299,9 +299,9 @@ class TestToolsAldbMenu(ToolsTestBase):
                         "exit",
                     ],
                 )
-                mock_add_device_to_scene.call_count = 0
+                mock_async_link_devices.call_count = 0
                 await cmd_mgr.async_cmdloop("")
-                assert mock_add_device_to_scene.call_count == 0
+                assert mock_async_link_devices.call_count == 0
 
                 # Add device to scene in background mode with invalid scene
                 cmd_mgr, _, _ = self.setup_cmd_tool(
@@ -311,11 +311,10 @@ class TestToolsAldbMenu(ToolsTestBase):
                         "exit",
                     ],
                 )
-                mock_add_device_to_scene.call_count = 0
+                mock_async_link_devices.call_count = 0
                 await cmd_mgr.async_cmdloop("")
-                assert mock_add_device_to_scene.call_count == 0
+                assert mock_async_link_devices.call_count == 0
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_print_aldb(self):
         """Test the print_aldb command of the tools function."""
@@ -364,7 +363,6 @@ class TestToolsAldbMenu(ToolsTestBase):
                     buffer = log_file_lines(curr_dir)
                     assert buffer[0].startswith("No device found with address")
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_load_aldb(self):
         """Test the load_aldb command of the tools function."""
@@ -511,8 +509,6 @@ class TestToolsAldbMenu(ToolsTestBase):
                 assert devices.modem.aldb.async_load.call_count == 1
                 devices.modem.aldb.async_load.assert_called_with()
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_print_aldb_load_status(self):
         """Test the print_aldb_load_status command of the tools function."""

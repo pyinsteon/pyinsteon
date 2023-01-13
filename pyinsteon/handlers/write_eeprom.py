@@ -2,12 +2,11 @@
 # pylint: disable=no-self-use
 import logging
 
-from pyinsteon.address import Address
-
+from . import ack_handler, nak_handler
+from ..address import Address
 from ..constants import ResponseStatus
 from ..data_types.all_link_record_flags import AllLinkRecordFlags
 from ..topics import WRITE_EEPROM
-from . import ack_handler, nak_handler
 from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)

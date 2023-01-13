@@ -1,6 +1,6 @@
 """Collection of topics mapped to commands (cmd1, cmd2)."""
-import logging
 from collections import namedtuple
+import logging
 from typing import Tuple
 
 from .topics import (
@@ -19,7 +19,6 @@ from .topics import (
     EXTENDED_GET_SET,
     EXTENDED_GET_SET_2,
     EXTENDED_READ_WRITE_ALDB,
-    EXTENDED_READ_WRITE_ALDB_DIRECT_NAK,
     EXTENDED_RECEIVED,
     EXTENDED_TRIGGER_ALL_LINK,
     FX_USERNAME,
@@ -654,22 +653,22 @@ commands.add(
 commands.add(
     topic=EXTENDED_READ_WRITE_ALDB,
     cmd1=0x2F,
-    cmd2=0x00,
+    cmd2=None,
     ud_allowed=True,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 # Conflicts with OFF_AT_RAMP_RATE but only used when an ALDB read ack has already been received
-commands.add(
-    topic=EXTENDED_READ_WRITE_ALDB_DIRECT_NAK,
-    cmd1=0x2F,
-    cmd2=None,
-    ud_allowed=False,
-    ud_required=False,
-    userdata=None,
-    use_group=False,
-)
+# commands.add(
+#     topic=EXTENDED_READ_WRITE_ALDB_DIRECT_NAK,
+#     cmd1=0x2F,
+#     cmd2=None,
+#     ud_allowed=False,
+#     ud_required=False,
+#     userdata=None,
+#     use_group=False,
+# )
 commands.add(
     topic=EXTENDED_TRIGGER_ALL_LINK,
     cmd1=0x30,

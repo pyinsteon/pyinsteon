@@ -32,3 +32,9 @@ class SetOperatingFlagsCommand(DirectCommandHandlerBase):
     def _update_subscribers_on_nak(self, cmd1, cmd2, target, user_data, hops_left):
         """Update subscribers on DIIRECT NAK received."""
         self._call_subscribers(response=cmd2)
+
+    def _update_subscribers_on_direct_nak(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
+        """Update subscribers on DIIRECT NAK received."""
+        self._call_subscribers(response=cmd2)

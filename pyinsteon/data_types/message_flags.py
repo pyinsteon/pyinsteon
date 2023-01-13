@@ -136,8 +136,10 @@ class MessageFlags:
         else:
             try:
                 self._extended = bool(val)
-            except TypeError:
-                raise ValueError("extended property must be True, False or None.")
+            except TypeError as ex:
+                raise ValueError(
+                    "extended property must be True, False or None."
+                ) from ex
 
     @property
     def is_broadcast(self) -> bool:

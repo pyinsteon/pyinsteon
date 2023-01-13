@@ -2,7 +2,7 @@
 
 from .. import devices
 from ..constants import ALDBStatus, DeviceCategory
-from ..managers.scene_manager import async_add_device_to_scene
+from ..managers.link_manager import async_link_devices
 from ..utils import seconds_to_ramp_rate
 from .tools_base import ToolsBase
 
@@ -261,7 +261,7 @@ class ToolsAldb(ToolsBase):
             log_stdout(f"Invalid value for {name}")
             return
 
-        await async_add_device_to_scene(device, scene, data1, data2, data3)
+        await async_link_devices(devices.modem, device, scene, data1, data2, data3)
 
     # pylint: disable=no-self-use
     def do_print_aldb_load_status(self, log_stdout=None, background=False):
@@ -279,6 +279,7 @@ class ToolsAldb(ToolsBase):
 
     async def menu_advanced(self):
         """Enter advanced ALDB menu."""
+        # pylint: disable=import-outside-toplevel
         from .advanced import AdvancedTools
 
         if not isinstance(self, AdvancedTools):
