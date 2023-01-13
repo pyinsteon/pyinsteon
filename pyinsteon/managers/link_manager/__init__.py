@@ -95,8 +95,8 @@ async def async_unlink_devices(device1, device2, group: Union(int, None) = None)
     """
     try:
         addr1 = device1.address
-    except AttributeError:
-        raise TypeError("device1 must be a Device")
+    except AttributeError as ex:
+        raise TypeError("device1 must be a Device") from ex
 
     device2_is_device = True
     try:
@@ -105,8 +105,8 @@ async def async_unlink_devices(device1, device2, group: Union(int, None) = None)
         try:
             addr2 = Address(device2)
             device2_is_device = False
-        except TypeError:
-            raise TypeError("device2 must be a Device or an Address")
+        except TypeError as ex:
+            raise TypeError("device2 must be a Device or an Address") from ex
 
     failed_1 = 0
     failed_2 = 0

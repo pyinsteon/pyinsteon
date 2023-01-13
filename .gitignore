@@ -3,6 +3,7 @@ pyinsteon/topics/command_topics.csv
 pyinsteon/topics/csv_to_yaml.py
 samples/*.json
 insteon_devices*.json
+insteon_scenes*.json
 *_aldb.json
 secrets.yaml
 

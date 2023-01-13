@@ -24,9 +24,7 @@ def _log_error(status):
         _LOGGER.error("Restart the Hub and try again")
     else:
         _LOGGER.error("An unknown error has occured")
-        _LOGGER.error(
-            "Check the configuration and restart the Hub and " "the application"
-        )
+        _LOGGER.error("Check the configuration and restart the Hub and the application")
 
 
 class HttpReaderWriter:
@@ -77,7 +75,7 @@ class HttpReaderWriter:
         except (asyncio.TimeoutError, ClientError) as ex:
             await session.close()
             _LOGGER.error("Client error: (%s) %s", type(ex), str(ex))
-            raise HubConnectionException(str(ex))
+            raise HubConnectionException(str(ex)) from ex
         except asyncio.CancelledError as cancel_error:
             _LOGGER.info("Stop connection to Hub (loop stopped)")
             raise cancel_error

@@ -1,21 +1,19 @@
 """Test the commands menu of tools."""
 import random
-import sys
 
-from unittest import skipIf
-try:
-    from unittest.mock import patch, AsyncMock
-except ImportError:
-    from unittest.mock import patch
-    from .asyncmock_patch import AsyncMock
+from unittest.mock import patch, AsyncMock
+
 import pyinsteon
-from pyinsteon.device_types import (
-    UnknownDevice,
+from pyinsteon.device_types.unknown_device import UnknownDevice
+from pyinsteon.device_types.dimmable_lighting_control import (
     DimmableLightingControl_LampLinc,
-    SwitchedLightingControl_SwitchLinc,
-    SensorsActuators_IOLink,
-    ClimateControl_Thermostat,
 )
+from pyinsteon.device_types.switched_lighting_control import (
+    SwitchedLightingControl_SwitchLinc,
+)
+from pyinsteon.device_types.sensors_actuators import SensorsActuators_IOLink
+from pyinsteon.device_types.climate_control import ClimateControl_Thermostat
+
 from pyinsteon.tools.commands import ToolsCommands
 from tests.utils import async_case, random_address
 from .tools_utils import (
@@ -50,7 +48,6 @@ devices[device_unknown.address] = device_unknown
 class TestToolsCommandsMenu(ToolsTestBase):
     """Test the tools commands menu"""
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_on_off(self):
         """Test the on and off commands of the tools function."""
@@ -132,7 +129,9 @@ class TestToolsCommandsMenu(ToolsTestBase):
                     remove_log_file(curr_dir)
                     await cmd_mgr.async_cmdloop("")
                     buffer = log_file_lines(curr_dir)
-                    assert buffer[0].startswith("Missing arguments required to run in background")
+                    assert buffer[0].startswith(
+                        "Missing arguments required to run in background"
+                    )
                     assert device_01.async_on.call_count == 0
                     assert device_01.async_off.call_count == 0
 
@@ -191,7 +190,6 @@ class TestToolsCommandsMenu(ToolsTestBase):
                     assert device_01.async_on.call_count == 0
                     assert device_01.async_off.call_count == 0
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_scene_on_off(self):
         """Test the scene_on and scene_off commands of the tools function."""
@@ -253,7 +251,6 @@ class TestToolsCommandsMenu(ToolsTestBase):
                             assert mock_trigger_scene_off.call_count == 1
                             mock_trigger_scene_off.assert_called_with(scene)
 
-
                     # Test on command with input mode with no scene number
                     cmd_mgr, _, stdout = self.setup_cmd_tool(
                         ToolsCommands,
@@ -288,7 +285,9 @@ class TestToolsCommandsMenu(ToolsTestBase):
                     remove_log_file(curr_dir)
                     await cmd_mgr.async_cmdloop("")
                     buffer = log_file_lines(curr_dir)
-                    assert buffer[0].startswith("Missing arguments required to run in background")
+                    assert buffer[0].startswith(
+                        "Missing arguments required to run in background"
+                    )
                     assert device_01.async_on.call_count == 0
                     assert device_01.async_off.call_count == 0
 
@@ -330,7 +329,6 @@ class TestToolsCommandsMenu(ToolsTestBase):
                     assert device_01.async_on.call_count == 0
                     assert device_01.async_off.call_count == 0
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_help_commands_menu(self):
         """Test the help command of the commands tools function."""
@@ -338,109 +336,115 @@ class TestToolsCommandsMenu(ToolsTestBase):
             with patch.object(
                 pyinsteon.tools.commands, "devices", devices
             ), patch.object(pyinsteon.tools.tools_base, "devices", devices):
-                    # Test help command with no parameters
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        ToolsCommands,
-                        [
-                            "help",
-                            "exit",
-                        ],
-                    )
-                    stdout.buffer = []
-                    await cmd_mgr.async_cmdloop("")
-                    buffer = clean_buffer(stdout.buffer)
-                    assert buffer[1] == 'Documented commands (type help <topic>):\n'
-                    assert len(buffer) == 8
+                # Test help command with no parameters
+                cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    ToolsCommands,
+                    [
+                        "help",
+                        "exit",
+                    ],
+                )
+                stdout.buffer = []
+                await cmd_mgr.async_cmdloop("")
+                buffer = clean_buffer(stdout.buffer)
+                assert buffer[1] == "Documented commands (type help <topic>):\n"
+                assert len(buffer) == 8
 
-                    # Test help on the cmd command
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        ToolsCommands,
-                        [
-                            "help cmd",
-                            "exit",
-                        ],
-                    )
-                    stdout.buffer = []
-                    await cmd_mgr.async_cmdloop("")
-                    buffer = clean_buffer(stdout.buffer)
-                    assert buffer[1].startswith("Run a general device command.")
-                    assert len(buffer) == 3
+                # Test help on the cmd command
+                cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    ToolsCommands,
+                    [
+                        "help cmd",
+                        "exit",
+                    ],
+                )
+                stdout.buffer = []
+                await cmd_mgr.async_cmdloop("")
+                buffer = clean_buffer(stdout.buffer)
+                assert buffer[1].startswith("Run a general device command.")
+                assert len(buffer) == 3
 
-                    # Test help command with a device address
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        ToolsCommands,
-                        [
-                            f"help cmd {device_01.address}",
-                            "exit",
-                        ],
-                    )
-                    stdout.buffer = []
-                    await cmd_mgr.async_cmdloop("")
-                    buffer = clean_buffer(stdout.buffer)
-                    assert buffer[1].startswith("Available commands for device")
+                # Test help command with a device address
+                cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    ToolsCommands,
+                    [
+                        f"help cmd {device_01.address}",
+                        "exit",
+                    ],
+                )
+                stdout.buffer = []
+                await cmd_mgr.async_cmdloop("")
+                buffer = clean_buffer(stdout.buffer)
+                assert buffer[1].startswith("Available commands for device")
 
-                    # Test help command with a device address and a method
-                    method = "async_on"
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        ToolsCommands,
-                        [
-                            f"help cmd {device_01.address} {method}",
-                            "exit",
-                        ],
-                    )
-                    stdout.buffer = []
-                    await cmd_mgr.async_cmdloop("")
-                    buffer = clean_buffer(stdout.buffer)
-                    assert buffer[-1].startswith(f"Device {device_01.address} {method} method arguments:")
+                # Test help command with a device address and a method
+                method = "async_on"
+                cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    ToolsCommands,
+                    [
+                        f"help cmd {device_01.address} {method}",
+                        "exit",
+                    ],
+                )
+                stdout.buffer = []
+                await cmd_mgr.async_cmdloop("")
+                buffer = clean_buffer(stdout.buffer)
+                assert buffer[-1].startswith(
+                    f"Device {device_01.address} {method} method arguments:"
+                )
 
-                    # Test help command with a invalid device address
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        ToolsCommands,
-                        [
-                            f"help cmd {get_bad_address(devices)}",
-                            "exit",
-                        ],
-                    )
-                    stdout.buffer = []
-                    await cmd_mgr.async_cmdloop("")
-                    buffer = clean_buffer(stdout.buffer)
-                    assert buffer[1].startswith("No device found with address")
-                    assert buffer[2].startswith("Invalid device address")
+                # Test help command with a invalid device address
+                cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    ToolsCommands,
+                    [
+                        f"help cmd {get_bad_address(devices)}",
+                        "exit",
+                    ],
+                )
+                stdout.buffer = []
+                await cmd_mgr.async_cmdloop("")
+                buffer = clean_buffer(stdout.buffer)
+                assert buffer[1].startswith("No device found with address")
+                assert buffer[2].startswith("Invalid device address")
 
-                    # Test help command with a invalid device address
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        ToolsCommands,
-                        [
-                            "help cmd not.an.address",
-                            "exit",
-                        ],
-                    )
-                    stdout.buffer = []
-                    await cmd_mgr.async_cmdloop("")
-                    buffer = clean_buffer(stdout.buffer)
-                    assert buffer[1].startswith("Invalid device address")
+                # Test help command with a invalid device address
+                cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    ToolsCommands,
+                    [
+                        "help cmd not.an.address",
+                        "exit",
+                    ],
+                )
+                stdout.buffer = []
+                await cmd_mgr.async_cmdloop("")
+                buffer = clean_buffer(stdout.buffer)
+                assert buffer[1].startswith("Invalid device address")
 
-                    # Test help command with a device address and a bad method
-                    method = "not_a_method"
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        ToolsCommands,
-                        [
-                            f"help cmd {device_01.address} {method}",
-                            "exit",
-                        ],
-                    )
-                    stdout.buffer = []
-                    await cmd_mgr.async_cmdloop("")
-                    buffer = clean_buffer(stdout.buffer)
-                    assert buffer[-1] == f"Method {method} not found for device {device_01.address}.\n"
+                # Test help command with a device address and a bad method
+                method = "not_a_method"
+                cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    ToolsCommands,
+                    [
+                        f"help cmd {device_01.address} {method}",
+                        "exit",
+                    ],
+                )
+                stdout.buffer = []
+                await cmd_mgr.async_cmdloop("")
+                buffer = clean_buffer(stdout.buffer)
+                assert (
+                    buffer[-1]
+                    == f"Method {method} not found for device {device_01.address}.\n"
+                )
 
-    @skipIf(sys.version_info[0:2] < (3, 8), reason="AsyncMock does not exist for 3.7")
     @async_case
     async def test_cmd(self):
         """Test the cmd command of the commands tools function."""
         mock_method = AsyncMock()
 
-        async def mock_async_on(on_level: int = 0xFF, group: int = 0, fast: bool = False):
+        async def mock_async_on(
+            on_level: int = 0xFF, group: int = 0, fast: bool = False
+        ):
             """Mock the async_on command."""
             nonlocal mock_method
             await mock_method(on_level=on_level, group=group, fast=fast)
@@ -457,118 +461,117 @@ class TestToolsCommandsMenu(ToolsTestBase):
             with patch.object(
                 pyinsteon.tools.commands, "devices", devices
             ), patch.object(pyinsteon.tools.tools_base, "devices", devices):
-                    # Test help command with default arguments
-                    cmd_mgr, _, _ = self.setup_cmd_tool(
-                        ToolsCommands,
-                        [
-                            "cmd",
-                            str(device_01.address),
-                            "async_on",
-                            "",
-                            "exit",
-                        ],
-                    )
-                    mock_method.call_count = 0
-                    await cmd_mgr.async_cmdloop("")
-                    assert mock_method.call_count == 1
-                    mock_method.assert_called_with(on_level=255, group=0, fast=False)
+                # Test help command with default arguments
+                cmd_mgr, _, _ = self.setup_cmd_tool(
+                    ToolsCommands,
+                    [
+                        "cmd",
+                        str(device_01.address),
+                        "async_on",
+                        "",
+                        "exit",
+                    ],
+                )
+                mock_method.call_count = 0
+                await cmd_mgr.async_cmdloop("")
+                assert mock_method.call_count == 1
+                mock_method.assert_called_with(on_level=255, group=0, fast=False)
 
-                    # Test help command with modified on_level argument
-                    on_level = random.randint(0, 255)
-                    cmd_mgr, _, _ = self.setup_cmd_tool(
-                        ToolsCommands,
-                        [
-                            "cmd",
-                            str(device_01.address),
-                            "async_on",
-                            "on_level",
-                            str(on_level),
-                            "",
-                            "exit",
-                        ],
-                    )
-                    mock_method.call_count = 0
-                    await cmd_mgr.async_cmdloop("")
-                    assert mock_method.call_count == 1
-                    mock_method.assert_called_with(on_level=on_level, group=0, fast=False)
+                # Test help command with modified on_level argument
+                on_level = random.randint(0, 255)
+                cmd_mgr, _, _ = self.setup_cmd_tool(
+                    ToolsCommands,
+                    [
+                        "cmd",
+                        str(device_01.address),
+                        "async_on",
+                        "on_level",
+                        str(on_level),
+                        "",
+                        "exit",
+                    ],
+                )
+                mock_method.call_count = 0
+                await cmd_mgr.async_cmdloop("")
+                assert mock_method.call_count == 1
+                mock_method.assert_called_with(on_level=on_level, group=0, fast=False)
 
-                    # Test help command with modified fast argument
-                    cmd_mgr, _, _ = self.setup_cmd_tool(
-                        ToolsCommands,
-                        [
-                            "cmd",
-                            str(device_01.address),
-                            "async_on",
-                            "fast",
-                            "y",
-                            "",
-                            "exit",
-                        ],
-                    )
-                    mock_method.call_count = 0
-                    await cmd_mgr.async_cmdloop("")
-                    assert mock_method.call_count == 1
-                    mock_method.assert_called_with(on_level=255, group=0, fast=True)
+                # Test help command with modified fast argument
+                cmd_mgr, _, _ = self.setup_cmd_tool(
+                    ToolsCommands,
+                    [
+                        "cmd",
+                        str(device_01.address),
+                        "async_on",
+                        "fast",
+                        "y",
+                        "",
+                        "exit",
+                    ],
+                )
+                mock_method.call_count = 0
+                await cmd_mgr.async_cmdloop("")
+                assert mock_method.call_count == 1
+                mock_method.assert_called_with(on_level=255, group=0, fast=True)
 
-                    # Test help command with no address
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        ToolsCommands,
-                        [
-                            "cmd",
-                            "",
-                            "exit",
-                        ],
-                    )
-                    stdout.buffer = []
-                    await cmd_mgr.async_cmdloop("")
-                    buffer = clean_buffer(stdout.buffer)
-                    assert buffer[1] == 'Address is required\n'
+                # Test help command with no address
+                cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    ToolsCommands,
+                    [
+                        "cmd",
+                        "",
+                        "exit",
+                    ],
+                )
+                stdout.buffer = []
+                await cmd_mgr.async_cmdloop("")
+                buffer = clean_buffer(stdout.buffer)
+                assert buffer[1] == "Address is required\n"
 
-                    # Test help command with a bad address
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        ToolsCommands,
-                        [
-                            "cmd not.an.address",
-                            "",
-                            "exit",
-                        ],
-                    )
-                    stdout.buffer = []
-                    await cmd_mgr.async_cmdloop("")
-                    buffer = clean_buffer(stdout.buffer)
-                    assert buffer[1] == 'Address is required\n'
+                # Test help command with a bad address
+                cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    ToolsCommands,
+                    [
+                        "cmd not.an.address",
+                        "",
+                        "exit",
+                    ],
+                )
+                stdout.buffer = []
+                await cmd_mgr.async_cmdloop("")
+                buffer = clean_buffer(stdout.buffer)
+                assert buffer[1] == "Address is required\n"
 
+                # Test help command with a bad method
+                cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    ToolsCommands,
+                    [
+                        f"cmd {device_01.address} not_a_method",
+                        "",
+                        "exit",
+                    ],
+                )
+                stdout.buffer = []
+                await cmd_mgr.async_cmdloop("")
+                buffer = clean_buffer(stdout.buffer)
+                assert buffer[1] == "Invalid Command value\n"
+                assert buffer[2] == "A device command is required\n"
 
-                    # Test help command with a bad method
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        ToolsCommands,
-                        [
-                            f"cmd {device_01.address} not_a_method",
-                            "",
-                            "exit",
-                        ],
-                    )
-                    stdout.buffer = []
-                    await cmd_mgr.async_cmdloop("")
-                    buffer = clean_buffer(stdout.buffer)
-                    assert buffer[1] == 'Invalid Command value\n'
-                    assert buffer[2] == 'A device command is required\n'
-
-                    # Test cmd command with missing required argumetn
-                    cmd_mgr, _, stdout = self.setup_cmd_tool(
-                        ToolsCommands,
-                        [
-                            "cmd",
-                            str(device_01.address),
-                            "async_off",
-                            "",
-                            "exit",
-                        ],
-                    )
-                    mock_method.call_count = 0
-                    stdout.buffer = []
-                    await cmd_mgr.async_cmdloop("")
-                    buffer = clean_buffer(stdout.buffer)
-                    assert mock_method.call_count == 0
-                    assert buffer[1].startswith("Command arguments")
-                    assert buffer[2].startswith("Missing value for required argument")
+                # Test cmd command with missing required argumetn
+                cmd_mgr, _, stdout = self.setup_cmd_tool(
+                    ToolsCommands,
+                    [
+                        "cmd",
+                        str(device_01.address),
+                        "async_off",
+                        "",
+                        "exit",
+                    ],
+                )
+                mock_method.call_count = 0
+                stdout.buffer = []
+                await cmd_mgr.async_cmdloop("")
+                buffer = clean_buffer(stdout.buffer)
+                assert mock_method.call_count == 0
+                assert buffer[1].startswith("Command arguments")
+                assert buffer[2].startswith("Missing value for required argument")

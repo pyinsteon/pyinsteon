@@ -32,10 +32,10 @@ class Temperature(GroupBase):
         """Set the temperature value."""
         try:
             self._value = self._type(value) if value is not None else None
-        except TypeError:
+        except TypeError as ex:
             raise TypeError(
                 f"Error setting value of State {self._name}: Must be of type {self._type.__name__}"
-            )
+            ) from ex
         else:
             self._call_subscribers(
                 name=self._name,
@@ -105,10 +105,10 @@ class SystemMode(GroupBase):
             if value > 0x0F:
                 value = value >> 4
             self._value = self._type(value) if value is not None else None
-        except TypeError:
+        except TypeError as ex:
             raise TypeError(
                 f"Error setting value of State {self._name}: Must be of type {self._type.__name__}"
-            )
+            ) from ex
         else:
             self._call_subscribers(
                 name=self._name,
@@ -148,10 +148,10 @@ class FanMode(GroupBase):
             if value > 0x0F:
                 value = value & 0x0F
             self._value = self._type(value) if value is not None else None
-        except TypeError:
+        except TypeError as ex:
             raise TypeError(
                 f"Error setting value of State {self._name}: Must be of type {self._type.__name__}"
-            )
+            ) from ex
         else:
             self._call_subscribers(
                 name=self._name,
