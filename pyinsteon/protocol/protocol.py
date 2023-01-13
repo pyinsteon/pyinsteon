@@ -1,8 +1,8 @@
 """Serial protocol to perform async I/O with the Insteon Modem."""
 
 import asyncio
-import logging
 from enum import Enum
+import logging
 from queue import SimpleQueue
 from typing import Union
 
@@ -218,7 +218,7 @@ class Protocol(asyncio.Protocol):
         try:
             for (topic, kwargs) in convert_to_topic(msg):
                 if _is_nak(msg) and not _has_listeners(topic):
-                    self._resend(msg)
+                    await self._async_resend(msg)
                 else:
                     publish_topic(topic, **kwargs)
         except ValueError:
@@ -237,11 +237,12 @@ class Protocol(asyncio.Protocol):
         """
         self._message_queue.put_nowait((priority, msg))
 
-    def _resend(self, msg):
+    async def _async_resend(self, msg):
         """Resend after a NAK message.
 
         TODO: Avoid resending the same message 10 times.
         """
+        await asyncio.sleep(0.5)
         self.write(bytes(msg)[:-1])
 
     async def _write_messages(self):
