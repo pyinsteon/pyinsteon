@@ -212,29 +212,6 @@ class ALDBReadManager:
                 return
         _LOGGER.debug("_read_all completed")
 
-    async def _read_all_peek(self):
-        """Read all ALDB records using peek commands."""
-        if self._aldb.is_loaded:
-            return
-
-        # Read all records did not work so we try to read one at a time
-        last_record = 0
-        next_record = self._next_missing_record()
-        while next_record is not None:
-            record = await self._read_one_peek(next_record)
-            if record is not None:
-                yield record
-            await asyncio.sleep(0.05)  # let the ALDB catch up to changes
-            last_record = next_record
-            next_record = self._next_missing_record()
-
-            # If the next record equals the last record and we believe we successfully
-            # read the last record, an error occured so we should just stop
-            if next_record == last_record:
-                _LOGGER.info("Returning on error")
-                return
-        _LOGGER.info("Next record is NONE")
-
     def _receive_direct_ack_nak(self, response):
         """Receive the response from the direct NAK.
 
