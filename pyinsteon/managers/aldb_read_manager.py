@@ -15,7 +15,7 @@ from ..managers.peek_poke_manager import get_peek_poke_manager
 RETRIES_ALL_MAX = 5
 RETRIES_ONE_MAX = 20
 RETRIES_WRITE_MAX = 5
-TIMER = 5
+TIMER = 10
 TIMER_INCREMENT = 3
 TIMER_20_MIN = 60 * 20
 _LOGGER = logging.getLogger(__name__)
@@ -72,20 +72,24 @@ class ALDBReadManager:
         try:
             async with async_timeout.timeout(TIMER_20_MIN):
                 if _is_multiple_records(mem_addr, num_recs):
-                    async for record in read_all_method():
-                        _LOGGER.info("Yielding record %s", record)
+                    async for record in self._read_all():
+                        _LOGGER.debug("Read manager returning: %s", str(record))
                         yield record
+                        await asyncio.sleep(0.05)
                 else:
                     record = await self._read_one(mem_addr, force)
                     if record is not None:
-                        _LOGGER.info("Yielding record %s", record)
+                        _LOGGER.debug("Read manager returning: %s", str(record))
                         yield record
+                        await asyncio.sleep(0.05)
         except asyncio.TimeoutError:
             pass
+        _LOGGER.debug("Read manager completed")
 
     async def _read_one(self, mem_addr, force=False):
         """Read one record."""
         if self._aldb[mem_addr] and not force:
+            _LOGGER.debug("_read_one completed")
             return None
 
         retries = RETRIES_ONE_MAX
@@ -97,10 +101,13 @@ class ALDBReadManager:
                 async with async_timeout.timeout(timeout):
                     record = await self._record_queue.get()
                     if record is not None and record.mem_addr == mem_addr:
+                        _LOGGER.debug("_read_one returning record: %s", str(record))
                         return record
+                    _LOGGER.debug("_read_one not returning record: %s", str(record))
             except asyncio.TimeoutError:
                 retries -= 1
                 await asyncio.sleep(0.1)
+        _LOGGER.debug("_read_one completed")
         return None
 
     async def _read_one_peek(self, mem_addr):
@@ -170,13 +177,20 @@ class ALDBReadManager:
                     async with async_timeout.timeout(timeout):
                         record = await self._record_queue.get()
                         if record is None:
+                            _LOGGER.debug("_read_all completed")
                             return
+                        _LOGGER.debug("_read_all returning record: %s", str(record))
                         yield record
+                        await asyncio.sleep(0.1)
+                    if self._aldb.is_loaded:
+                        _LOGGER.debug("_read_all completed")
+                        return
             except asyncio.TimeoutError:
                 retries -= 1
+            await asyncio.sleep(0.5)
             if self._aldb.is_loaded:
+                _LOGGER.debug("_read_all completed")
                 return
-            await asyncio.sleep(0.1)
 
         # Read all records did not work so we try to read one at a time
         last_record = 0
@@ -184,7 +198,9 @@ class ALDBReadManager:
         while next_record is not None:
             record = await self._read_one(next_record)
             if record is not None:
+                _LOGGER.debug("_read_all returning record: %s", str(record))
                 yield record
+                await asyncio.sleep(0.1)
 
             last_record = next_record
             next_record = self._next_missing_record()
@@ -192,7 +208,9 @@ class ALDBReadManager:
             # If the next record equals the last record and we believe we successfully
             # read the last record, an error occured so we should just stop
             if next_record == last_record:
+                _LOGGER.debug("_read_all completed")
                 return
+        _LOGGER.debug("_read_all completed")
 
     async def _read_all_peek(self):
         """Read all ALDB records using peek commands."""
@@ -261,6 +279,7 @@ class ALDBReadManager:
             bit5=bit5,
             bit4=bit4,
         )
+        _LOGGER.debug("Putting record in queue: %s", str(record))
         self._record_queue.put_nowait(record)
 
     async def _receive_peek(self, mem_addr, value):

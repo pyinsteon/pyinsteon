@@ -48,7 +48,6 @@ class ALDBBase(ABC):
         self._read_manager = None
         self._write_manager = write_manager(self)
         self._dirty_records = {}
-        self._hwm_record = None
         subscribe_topic(self.update_version, f"{repr(self._address)}.{ALDB_VERSION}")
 
     def __len__(self):
@@ -298,7 +297,7 @@ class ALDBBase(ABC):
             try:
                 rec = self._dirty_records.pop(dirty_addr)
             except KeyError:
-                pass
+                continue
             rec_to_write = rec.copy()
             if rec.mem_addr == 0x0000:
                 rec_to_write.mem_addr = self._next_record_mem_addr(
@@ -318,13 +317,7 @@ class ALDBBase(ABC):
                 async for test_rec in self._read_manager.async_read(
                     rec_to_write.mem_addr, 1, force=True
                 ):
-                    if (
-                        test_rec == rec_to_write
-                        and test_rec.data1 == rec_to_write.data1
-                        and test_rec.data2 == rec_to_write.data2
-                        and test_rec.data3 == rec_to_write.data3
-                        and test_rec.is_in_use == rec_to_write.is_in_use
-                    ):
+                    if rec_to_write.is_exact_match(test_rec):
                         result = ResponseStatus.SUCCESS
 
             if result == ResponseStatus.SUCCESS:
@@ -464,19 +457,19 @@ class ALDBBase(ABC):
         """Test if the ALDB is fully loaded."""
         has_first = False
         has_last = False
-        has_all = False
-        last_addr = 0x0000
+        has_all = True
+        prev_addr = 0x0000
         for mem_addr in sorted(self._records, reverse=True):
             if mem_addr == self._mem_addr:
                 has_first = True
             if self._records[mem_addr].is_high_water_mark:
                 has_last = True
-            if last_addr != 0x0000:
-                has_all = (last_addr - mem_addr) == 8
+            if prev_addr != 0x0000 and has_all:
+                has_all = (prev_addr - mem_addr) == 8
             if len(self._records) == 1 and has_last and has_first:
                 # Empty ALDB; yes it is possible with some devices like motion
                 has_all = True
-            last_addr = mem_addr
+            prev_addr = mem_addr
         _LOGGER.debug("Has First is %s", has_first)
         _LOGGER.debug("Has Last is %s", has_last)
         _LOGGER.debug("Has All is %s", has_all)
@@ -528,54 +521,35 @@ class ALDBBase(ABC):
         If the record has existing dirty record - Current record wins
         """
 
-        # Two ways to have a matching record for both current and dirty records
-        # 1. mem_addr matches
-        # 2. records are equal with `==` condition
-        # Assume if mem_addr matches, the user knows what they are doing
-
-        dirty_rec: ALDBRecord = self._dirty_records.get(mod_rec.mem_addr)
-        if dirty_rec:
-            dirty_rec_mem_addr = dirty_rec.mem_addr
-        else:
-            dirty_rec_mem_addr = None
-            for mem_addr, rec in self._dirty_records.items():
-                if rec == mod_rec:
-                    dirty_rec = rec
-                    dirty_rec_mem_addr = mem_addr
-                    break
-
-        curr_rec: ALDBRecord = self._records.get(mod_rec.mem_addr)
-        if not curr_rec:
-            for mem_addr, rec in self._records.items():
-                if rec == mod_rec and rec.is_in_use:
-                    curr_rec = rec
-                    break
-
-        fully_eq = False
-        if (
-            curr_rec
-            and curr_rec == mod_rec
-            and curr_rec.is_in_use == mod_rec.is_in_use
-            and curr_rec.data1 == mod_rec.data1
-            and curr_rec.data2 == mod_rec.data2
-        ):
-            fully_eq = True
-
-        mem_addr = None
-        if dirty_rec_mem_addr:
-            self._dirty_records.pop(dirty_rec_mem_addr)
-
-        if fully_eq:
-            # No reason to do anything
+        if mod_rec.mem_addr != 0x0000:
+            # Record has a memory address. Assume the user knows what they are doing.
+            self._dirty_records[mod_rec.mem_addr] = mod_rec
             return
 
-        if curr_rec:
-            mod_rec.mem_addr = curr_rec.mem_addr
-            mem_addr = curr_rec.mem_addr
+        for mem_addr in list(self._dirty_records):
+            # If there is a functionally same record in the dirty records remove it
+            rec = self._dirty_records[mem_addr]
+            if rec.mem_addr == 0x0000 and rec == mod_rec:
+                self._dirty_records.popitem(mem_addr)
 
-        else:
+        data3 = mod_rec.data3 if mod_rec.is_responder else None
+        for rec in self.find(
+            group=mod_rec.group,
+            target=mod_rec.target,
+            data3=data3,
+            is_controller=mod_rec.is_controller,
+            in_use=True,
+        ):
+            if rec.is_exact_match(mod_rec):
+                # No reason to do anything
+                return
+            # Found a functionally same record (i.e. rec == mod_rec)
+            mod_rec.mem_addr = rec.mem_addr
+
+        if mod_rec.mem_addr == 0x0000:
             # This is a new record
             mem_addr = self._next_new_mem_addr()
-            mod_rec.mem_addr = 0x0000
+        else:
+            mem_addr = mod_rec.mem_addr
 
         self._dirty_records[mem_addr] = mod_rec
