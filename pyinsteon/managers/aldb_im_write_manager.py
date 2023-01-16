@@ -132,14 +132,9 @@ class ImWriteManager:
 
         return response
 
-    async def _find_matching_record(self, record):
+    async def _find_matching_record(self, record: ALDBRecord):
         """Find a matching record in the ALDB."""
         async for rec in self._aldb.async_find_records(record.target, record.group):
-            if (
-                rec.is_controller == record.is_controller
-                and rec.data1 == record.data1
-                and rec.data2 == record.data2
-                and rec.data3 == record.data3
-            ):
+            if record.is_exact_match(rec):
                 return rec
         return None
