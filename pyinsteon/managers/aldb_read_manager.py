@@ -89,8 +89,7 @@ class ALDBReadManager:
                     if record is not None and record.mem_addr == mem_addr:
                         _LOGGER.debug("_read_one returning record: %s", str(record))
                         return record
-                    else:
-                        _LOGGER.debug("_read_one not returning record: %s", str(record))
+                    _LOGGER.debug("_read_one not returning record: %s", str(record))
             except asyncio.TimeoutError:
                 retries -= 1
                 await asyncio.sleep(0.1)
