@@ -1,4 +1,4 @@
 """Run the interactive tools."""
-from pyinsteon.tools import InsteonCmd
+from .tools import InsteonCmd
 
 InsteonCmd.start()

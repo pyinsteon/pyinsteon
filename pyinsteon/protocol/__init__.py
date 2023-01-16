@@ -1,14 +1,14 @@
 """Protocol classes to interface with serial, socket and http devices."""
 import asyncio
-import logging
 from functools import partial
+import logging
 
-from pyinsteon.constants import ResponseStatus
-
+from ..constants import ResponseStatus
 from ..handlers.get_im_info import GetImInfoHandler
 from ..managers.device_id_manager import DeviceId
 from ..managers.utils import create_device
 from .http_transport import async_connect_http
+from .mock.mock_transport import async_connect_mock
 from .protocol import Protocol
 from .serial_transport import async_connect_serial, async_connect_socket
 
@@ -16,7 +16,13 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_modem_connect(
-    device=None, host=None, port=None, username=None, password=None, hub_version=2
+    device=None,
+    host=None,
+    port=None,
+    username=None,
+    password=None,
+    hub_version=2,
+    mock=False,
 ):
     """Connect to the Insteon Modem.
 
@@ -56,23 +62,25 @@ async def async_modem_connect(
 
     if device:
         connect_method = partial(async_connect_serial, **{"device": device})
-        protocol = Protocol(connect_method=connect_method)
+
+    elif mock:
+        connect_method = partial(async_connect_mock, **{"host": host, "port": port})
 
     elif hub_version == 2:
         connect_method = partial(
             async_connect_http,
             **{"host": host, "username": username, "password": password, "port": port},
         )
-        protocol = Protocol(connect_method=connect_method)
 
     else:
         connect_method = partial(async_connect_socket, **{"host": host, "port": port})
-        protocol = Protocol(connect_method=connect_method)
+
+    protocol = Protocol(connect_method=connect_method)
 
     try:
         await protocol.async_connect(retry=False)
-    except ConnectionError:
-        raise ConnectionError("Modem did not respond connection request")
+    except ConnectionError as ex:
+        raise ConnectionError("Modem did not respond connection request") from ex
 
     get_im_info = GetImInfoHandler()
     get_im_info.subscribe(set_im_info)

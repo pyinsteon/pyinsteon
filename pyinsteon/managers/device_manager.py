@@ -4,10 +4,8 @@ import logging
 
 import async_timeout
 
-from pyinsteon.constants import AllLinkMode
-
 from ..address import Address
-from ..constants import DeviceAction
+from ..constants import AllLinkMode, DeviceAction
 from ..device_types.device_base import Device
 from ..device_types.modem_base import ModemBase
 from ..device_types.x10_base import X10DeviceBase
@@ -16,7 +14,6 @@ from ..subscriber_base import SubscriberBase
 from ..topics import DEVICE_LIST_CHANGED
 from ..x10_address import X10Address
 from .device_id_manager import DeviceId, DeviceIdManager
-from .device_link_manager import DeviceLinkManager
 from .link_manager import (
     async_cancel_linking_mode,
     async_enter_linking_mode,
@@ -41,7 +38,6 @@ class DeviceManager(SubscriberBase):
         self._id_manager = DeviceIdManager()
         self._id_manager.subscribe(self._async_device_identified)
         self._loading_saved_lock = asyncio.Lock()
-        self._link_manager = DeviceLinkManager(self)
 
         self._delay_device_inspection = False
         self._to_be_inspected = []

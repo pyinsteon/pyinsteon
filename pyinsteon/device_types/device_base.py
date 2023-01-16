@@ -1,11 +1,11 @@
 """Base device object."""
 
-import logging
 from abc import ABC
 from datetime import datetime
+import logging
 
 from ..address import Address
-from ..aldb import ALDB
+from ..aldb.aldb import ALDB
 from ..config.operating_flag import OperatingFlag
 from ..constants import DeviceCategory, EngineVersion, PropertyType, ResponseStatus
 from ..default_link import DefaultLink

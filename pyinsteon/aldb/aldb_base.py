@@ -1,21 +1,14 @@
 """Base class for the All-Link Database."""
 
-import logging
 from abc import ABC, abstractmethod
+import logging
 from typing import List, Tuple
 
 from ..address import Address
 from ..constants import ALDBStatus, ALDBVersion, ResponseStatus
 from ..managers.aldb_write_manager import ALDBWriteException, ALDBWriteManager
-from ..topics import (
-    ALDB_STATUS_CHANGED,
-    ALDB_VERSION,
-    DEVICE_LINK_CONTROLLER_CREATED,
-    DEVICE_LINK_CONTROLLER_REMOVED,
-    DEVICE_LINK_RESPONDER_CREATED,
-    DEVICE_LINK_RESPONDER_REMOVED,
-)
-from ..utils import publish_topic, subscribe_topic
+from ..topics import ALDB_LINK_CHANGED, ALDB_STATUS_CHANGED, ALDB_VERSION
+from ..utils import publish_topic, subscribe_topic, unsubscribe_topic
 from .aldb_record import ALDBRecord, new_aldb_record_from_existing
 
 _LOGGER = logging.getLogger(__name__)
@@ -54,7 +47,6 @@ class ALDBBase(ABC):
         self._read_manager = None
         self._write_manager = write_manager(self)
         self._dirty_records = {}
-        self._hwm_record = None
         subscribe_topic(self.update_version, f"{repr(self._address)}.{ALDB_VERSION}")
 
     def __len__(self):
@@ -85,6 +77,11 @@ class ALDBBase(ABC):
         """Human representation of a device from the ALDB."""
         attrs = vars(self)
         return ", ".join(f"{k}: {repr(v)}" for k, v in attrs.items())
+
+    def items(self):
+        """Return the memory address an record key value pair."""
+        for mem_addr, rec in self._records.items():
+            yield mem_addr, rec
 
     @property
     def address(self) -> Address:
@@ -168,14 +165,15 @@ class ALDBBase(ABC):
 
     def subscribe_record_changed(self, listener):
         """Subscribe to notification of ALDB record changes."""
-        subscribe_topic(
-            listener, f"{DEVICE_LINK_CONTROLLER_CREATED}.{self._address.id}"
-        )
-        subscribe_topic(
-            listener, f"{DEVICE_LINK_CONTROLLER_REMOVED}.{self._address.id}"
-        )
-        subscribe_topic(listener, f"{DEVICE_LINK_RESPONDER_CREATED}.{self._address.id}")
-        subscribe_topic(listener, f"{DEVICE_LINK_RESPONDER_REMOVED}.{self._address.id}")
+        subscribe_topic(listener, f"{self._address.id}.{ALDB_LINK_CHANGED}")
+
+    def unsubscribe_status_changed(self, listener):
+        """Unsubscribe to notification of ALDB load status changes."""
+        unsubscribe_topic(listener, f"{self._address.id}.{ALDB_STATUS_CHANGED}")
+
+    def unsubscribe_record_changed(self, listener):
+        """Unsubscribe to notification of ALDB record changes."""
+        unsubscribe_topic(listener, f"{self._address.id}.{ALDB_LINK_CHANGED}")
 
     @abstractmethod
     async def async_load(self, *args, **kwargs):
@@ -226,21 +224,7 @@ class ALDBBase(ABC):
             bit5=bit5,
             bit4=bit4,
         )
-
-        for curr_rec in self.find(
-            target=new_rec.target,
-            is_controller=new_rec.is_controller,
-            group=new_rec.group,
-        ):
-            new_rec.mem_addr = curr_rec.mem_addr
-            break
-
-        if new_rec.mem_addr == 0x0000:
-            mem_addr = self._next_new_mem_addr()
-        else:
-            mem_addr = new_rec.mem_addr
-
-        self._dirty_records[mem_addr] = new_rec
+        self._add_dirty_record(new_rec)
 
     def remove(self, mem_addr: int):
         """Remove an All-Link record."""
@@ -249,7 +233,7 @@ class ALDBBase(ABC):
             raise IndexError("Memory location not found.")
 
         new_rec = new_aldb_record_from_existing(rec, in_use=False)
-        self._dirty_records[mem_addr] = new_rec
+        self._add_dirty_record(new_rec)
 
     def modify(
         self,
@@ -283,7 +267,7 @@ class ALDBBase(ABC):
             bit5=bit5,
             bit4=bit4,
         )
-        self._dirty_records[mem_addr] = new_rec
+        self._add_dirty_record(new_rec)
 
     async def async_write(self, force=False) -> Tuple[int, int]:
         """Write the dirty records to the device."""
@@ -295,19 +279,21 @@ class ALDBBase(ABC):
             return 0, len(self._dirty_records)
         success = 0
         failed = {}
+        # make sure to update existing records before adding new ones
         dirty_addrs = sorted(self._dirty_records, reverse=True)
         next_new_dirty = 0
         for dirty_addr in dirty_addrs:
             try:
                 rec = self._dirty_records.pop(dirty_addr)
             except KeyError:
-                pass
+                continue
             rec_to_write = rec.copy()
-            if rec.mem_addr == 0x000:
+            if rec.mem_addr == 0x0000:
                 rec_to_write.mem_addr = self._next_record_mem_addr(
                     target=rec.target,
                     group=rec.group,
                     is_controller=rec.is_controller,
+                    data3=rec.data3,
                     force=force,
                 )
             result = False
@@ -315,6 +301,13 @@ class ALDBBase(ABC):
                 result = await self._write_manager.async_write(rec_to_write, force)
             except ALDBWriteException:
                 result = ResponseStatus.FAILURE
+
+            if result == ResponseStatus.UNCLEAR and self._read_manager:
+                async for test_rec in self._read_manager.async_read(
+                    rec_to_write.mem_addr, 1, force=True
+                ):
+                    if rec_to_write.is_exact_match(test_rec):
+                        result = ResponseStatus.SUCCESS
 
             if result == ResponseStatus.SUCCESS:
                 curr_rec = self._records.get(rec_to_write.mem_addr)
@@ -341,6 +334,7 @@ class ALDBBase(ABC):
         self,
         group: int = None,
         target: Address = None,
+        data3: int = None,
         is_controller: bool = None,
         in_use: bool = None,
     ) -> List[ALDBRecord]:
@@ -353,14 +347,19 @@ class ALDBBase(ABC):
         ):
             raise ValueError("Must have at least one criteria")
 
+        test_rec = ALDBRecord(
+            memory=None,
+            controller=is_controller,
+            group=group,
+            target=target,
+            data1=None,
+            data2=None,
+            data3=data3,
+            in_use=in_use,
+        )
         for _, rec in self._records.items():
-            group_match = group is None or rec.group == group
-            target_match = target is None or rec.target == target
-            is_controller_match = (
-                is_controller is None or rec.is_controller == is_controller
-            )
             in_use_match = in_use is None or rec.is_in_use == in_use
-            if group_match and target_match and is_controller_match and in_use_match:
+            if rec == test_rec and in_use_match:
                 yield rec
 
     def set_load_status(self):
@@ -381,27 +380,9 @@ class ALDBBase(ABC):
             publish_topic(f"{self._address.id}.{ALDB_STATUS_CHANGED}")
 
     def _notify_change(self, record, force_delete=False):
-        target = record.target
-        group = record.group
-        is_in_use = True if force_delete else record.is_in_use
-        if record.is_controller and is_in_use:
-            topic = f"{DEVICE_LINK_CONTROLLER_CREATED}.{self._address.id}"
-            controller = self._address
-            responder = target
-        elif record.is_controller and not is_in_use:
-            topic = f"{DEVICE_LINK_CONTROLLER_REMOVED}.{self._address.id}"
-            controller = self._address
-            responder = target
-        elif not record.is_controller and is_in_use:
-            topic = f"{DEVICE_LINK_RESPONDER_CREATED}.{self._address.id}"
-            controller = target
-            responder = self._address
-        else:
-            topic = f"{DEVICE_LINK_RESPONDER_REMOVED}.{self._address.id}"
-            controller = target
-            responder = self._address
-
-        publish_topic(topic, controller=controller, responder=responder, group=group)
+        deleted = True if force_delete else not record.is_in_use
+        topic = f"{self._address.id}.{ALDB_LINK_CHANGED}"
+        publish_topic(topic, record=record, sender=self.address, deleted=deleted)
 
     def _next_new_mem_addr(self):
         """Return the next temporary memory address to use for a new record.
@@ -415,7 +396,12 @@ class ALDBBase(ABC):
         return min(min(self._dirty_records), 0) - 1
 
     def _next_record_mem_addr(
-        self, target: Address, group: int, is_controller: bool, force: bool = False
+        self,
+        target: Address,
+        group: int,
+        is_controller: bool,
+        data3: int,
+        force: bool = False,
     ):
         """Assign a memory address to a record.
 
@@ -435,7 +421,10 @@ class ALDBBase(ABC):
             raise ALDBWriteException("Cannot calculate the next record to write to.")
 
         for existing_record in self.find(
-            target=target, group=group, is_controller=is_controller
+            target=target,
+            group=group,
+            is_controller=is_controller,
+            data3=data3,
         ):
             return existing_record.mem_addr
 
@@ -457,19 +446,19 @@ class ALDBBase(ABC):
         """Test if the ALDB is fully loaded."""
         has_first = False
         has_last = False
-        has_all = False
-        last_addr = 0x0000
+        has_all = True
+        prev_addr = 0x0000
         for mem_addr in sorted(self._records, reverse=True):
             if mem_addr == self._mem_addr:
                 has_first = True
             if self._records[mem_addr].is_high_water_mark:
                 has_last = True
-            if last_addr != 0x0000:
-                has_all = (last_addr - mem_addr) == 8
+            if prev_addr != 0x0000 and has_all:
+                has_all = (prev_addr - mem_addr) == 8
             if len(self._records) == 1 and has_last and has_first:
                 # Empty ALDB; yes it is possible with some devices like motion
                 has_all = True
-            last_addr = mem_addr
+            prev_addr = mem_addr
         _LOGGER.debug("Has First is %s", has_first)
         _LOGGER.debug("Has Last is %s", has_last)
         _LOGGER.debug("Has All is %s", has_all)
@@ -511,3 +500,45 @@ class ALDBBase(ABC):
             self._records.pop(mem_addr)
 
         return True
+
+    def _add_dirty_record(self, mod_rec: ALDBRecord):
+        """Add a record to dirty records.
+
+        If the record is FULLY equal to the existing record - Do nothing
+        If the record is equal to the existing record with mods - Add with same mem_addr
+        If the record is new - Add with new mem_addr
+        If the record has existing dirty record - Current record wins
+        """
+
+        if mod_rec.mem_addr != 0x0000:
+            # Record has a memory address. Assume the user knows what they are doing.
+            self._dirty_records[mod_rec.mem_addr] = mod_rec
+            return
+
+        for mem_addr in list(self._dirty_records):
+            # If there is a functionally same record in the dirty records remove it
+            rec = self._dirty_records[mem_addr]
+            if rec.mem_addr == 0x0000 and rec == mod_rec:
+                self._dirty_records.popitem(mem_addr)
+
+        data3 = mod_rec.data3 if mod_rec.is_responder else None
+        for rec in self.find(
+            group=mod_rec.group,
+            target=mod_rec.target,
+            data3=data3,
+            is_controller=mod_rec.is_controller,
+            in_use=True,
+        ):
+            if rec.is_exact_match(mod_rec):
+                # No reason to do anything
+                return
+            # Found a functionally same record (i.e. rec == mod_rec)
+            mod_rec.mem_addr = rec.mem_addr
+
+        if mod_rec.mem_addr == 0x0000:
+            # This is a new record
+            mem_addr = self._next_new_mem_addr()
+        else:
+            mem_addr = mod_rec.mem_addr
+
+        self._dirty_records[mem_addr] = mod_rec

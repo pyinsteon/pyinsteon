@@ -3,4 +3,4 @@ pyserial-asyncio>=0.5
 aiohttp
 pypubsub
 aiofiles
-pyyaml
+voluptuous

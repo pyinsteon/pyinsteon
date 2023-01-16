@@ -12,6 +12,7 @@ from ..managers.link_manager import async_cancel_linking_mode, async_unlink_devi
 from .aldb import ToolsAldb
 from .commands import ToolsCommands
 from .config import ToolsConfig
+from .scenes import ToolsScenes
 from .tools_base import DEFAULT_HUB_PORT, ToolsBase
 
 DEFAULT_HUB_VERSION = 2
@@ -75,6 +76,10 @@ class InsteonCmd(ToolsBase):
                 self.port = None
             if password is None:
                 password = await self._get_connection_params(password)
+        elif device_or_host == "mock":
+            self.host = "127.0.0.1"
+            self.port = 8080
+            self.mock = True
         else:
             self.device = device_or_host
 
@@ -90,6 +95,7 @@ class InsteonCmd(ToolsBase):
                 username=self.username,
                 password=password,
                 hub_version=self.hub_version,
+                mock=self.mock,
             )
             connected_to = self.device if self.device else self.host
             self._log_stdout(f"Connected to {connected_to}")
@@ -186,6 +192,10 @@ class InsteonCmd(ToolsBase):
     async def menu_commands(self):
         """Execute device commands."""
         await self._call_next_menu(ToolsCommands, "commands")
+
+    async def menu_scenes(self):
+        """Manage scenes."""
+        await self._call_next_menu(ToolsScenes, "scenes")
 
     async def do_add_device(self, address_or_multiple=None):
         """Link a device to the modem.

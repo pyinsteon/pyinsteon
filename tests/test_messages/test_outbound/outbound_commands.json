@@ -167,7 +167,7 @@
     "POKE_ONE_BYTE": {
         "topic": "poke_one_byte",
         "args": {
-            "byte_to_write": "0xbb"
+            "value": "0xbb"
         },
         "result": "0262aaaaaa0029bb"
     },
@@ -188,7 +188,7 @@
     "POKE_ONE_BYTE_INTERNAL": {
         "topic": "poke_one_byte_internal",
         "args": {
-            "byte_to_write": "0xbe"
+            "value": "0xbe"
         },
         "result": "0262aaaaaa002Dbe"
     },

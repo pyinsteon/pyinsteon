@@ -1,12 +1,12 @@
 """Mock message handling via Chain of Command pattern."""
-import asyncio
 from abc import ABCMeta
+import asyncio
 
 import async_timeout
 
+from . import ack_handler
 from ..constants import ResponseStatus
 from ..utils import build_topic, publish_topic
-from . import ack_handler
 from .inbound_base import InboundHandlerBase
 
 MSG_TIME = 4  # seconds to send each message in queue, used for timeout below
@@ -14,9 +14,10 @@ MSG_TIME = 4  # seconds to send each message in queue, used for timeout below
 
 def _calc_timeout():
     """Calculate the time to wait for a message to be sent."""
+    # pylint: disable=import-outside-toplevel
     from .. import devices
 
-    if devices and devices.modem:
+    if devices and devices.modem and devices.modem.protocol:
         return devices.modem.protocol.message_queue.qsize() * MSG_TIME + MSG_TIME
     return MSG_TIME
 

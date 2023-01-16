@@ -1,11 +1,11 @@
 """Utility methods."""
 import asyncio
-import logging
-import traceback
+from collections.abc import Iterable
 from enum import Enum, IntEnum
 from functools import partial, wraps
 from inspect import isawaitable, iscoroutinefunction
-from typing import Iterable
+import logging
+import traceback
 
 from . import pub
 from .address import Address
@@ -332,11 +332,6 @@ def publish_topic(topic, logger=None, **kwargs):
 async_listeners = {}
 
 
-def add_async_listener(listener, async_listener):
-    """Add an listener to the async_listeners list."""
-    async_listeners[listener] = async_listener
-
-
 def get_async_listener(listener):
     """Get the async version of a listener."""
 
@@ -351,7 +346,7 @@ def get_async_listener(listener):
     if async_listener:
         return async_listener
     async_listener = setup_async_listener(listener)
-    add_async_listener(listener, async_listener)
+    async_listeners[listener] = async_listener
     return async_listener
 
 
@@ -365,16 +360,18 @@ def subscribe_topic(listener, topic_name, logger=None):
 
     topic_mgr = pub.getDefaultTopicMgr()
     topic = topic_mgr.getOrCreateTopic(topic_name)
-    if pub.isSubscribed(listener, topicName=topic.name):
+    if topic.hasListener(listener):
         return
     if logger is None:
         logger = logging.getLogger(__name__)
     try:
         if iscoroutinefunction(listener) or isawaitable(listener):
             async_listener = get_async_listener(listener)
-            pub.subscribe(async_listener, topic.name)
+            if topic.hasListener(async_listener):
+                return
+            topic.subscribe(async_listener)
         else:
-            pub.subscribe(listener, topic.name)
+            topic.subscribe(listener)
     except pub.ListenerMismatchError as exc:
         logger.error("ListenerMismatchError")
         logger.error("args: %s", exc.args)
@@ -387,8 +384,7 @@ def subscribe_topic(listener, topic_name, logger=None):
 
 def unsubscribe_topic(listener, topic_name):
     """Unsubscribe a listener to a topic and log errors."""
-    if listener in async_listeners:
-        remove_async_listener(listener)
+    listener = async_listeners.get(listener, listener)
     topic_mgr = pub.getDefaultTopicMgr()
     topic = topic_mgr.getOrCreateTopic(topic_name)
     if pub.isSubscribed(listener, topicName=topic.name):

@@ -2,9 +2,9 @@
 
 import logging
 
+from . import async_link_devices
 from ...constants import ResponseStatus
 from ...utils import multiple_status
-from . import async_link_devices
 
 TIMEOUT = 3
 _LOGGER = logging.getLogger(__name__)
@@ -12,6 +12,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_add_default_links(device):
     """Establish default links between the modem and device."""
+    # pylint: disable=import-outside-toplevel
     from ... import devices
 
     if not device.aldb.is_loaded:

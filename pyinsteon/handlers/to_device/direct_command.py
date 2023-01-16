@@ -1,12 +1,12 @@
 """Handle an outbound direct message to a device."""
 
-import asyncio
 from abc import ABCMeta
+import asyncio
 
 import async_timeout
 
-from ...constants import MessageFlagType, ResponseStatus
 from .. import ack_handler, direct_ack_handler, direct_nak_handler
+from ...constants import MessageFlagType, ResponseStatus
 from ..outbound_base import OutboundHandlerBase
 
 TIMEOUT = 3  # Wait time for device response
@@ -56,9 +56,17 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
     async def async_handle_direct_nak(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the message ACK."""
         await asyncio.sleep(0.05)
+        if cmd2 == 0xFC:
+            response = ResponseStatus.UNCLEAR
+        else:
+            response = ResponseStatus.FAILURE
         if self._response_lock.locked():
-            await self._direct_response.put(ResponseStatus.UNCLEAR)
-            self._update_subscribers_on_nak(cmd1, cmd2, target, user_data, hops_left)
+            await self._direct_response.put(response)
+            await asyncio.sleep(0.05)
+            self._update_subscribers_on_direct_nak(
+                cmd1, cmd2, target, user_data, hops_left
+            )
+            await asyncio.sleep(0.05)
 
     @direct_ack_handler
     async def async_handle_direct_ack(self, cmd1, cmd2, target, user_data, hops_left):
@@ -75,3 +83,8 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
 
     def _update_subscribers_on_nak(self, cmd1, cmd2, target, user_data, hops_left):
         """Update subscribers on NAK received."""
+
+    def _update_subscribers_on_direct_nak(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
+        """Update subscribers on DIRECT NAK received."""

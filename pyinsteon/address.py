@@ -23,8 +23,8 @@ def _normalize(addr):
             if len(addr_clean) != 6:
                 raise ValueError(f"Improper address value: {addr}")
             normalize = binascii.unhexlify(addr_clean.lower())
-        except binascii.Error:
-            raise ValueError(f"Improper address value: {addr}")
+        except binascii.Error as ex:
+            raise ValueError(f"Improper address value: {addr}") from ex
     return normalize
 
 

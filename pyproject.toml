@@ -1,3 +1,226 @@
+[build-system]
+requires = ["setuptools~=62.3", "wheel~=0.37.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name        = "pyinsteon"
+version     = "1.3.0"
+license     = {text = "MIT License"}
+description = "Open-source Insteon home automation module running on Python 3."
+readme      = "README.rst"
+authors     = [
+    {name = "The pyinsteon authors", email = "pyinsteon@harrisnj.net"}
+]
+keywords    = ["home", "automation", "insteon", "python", "python3"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Insteon",
+]
+requires-python = ">=3.8.0"
+dependencies    = [
+        "pyserial",
+        "pyserial-asyncio>=0.5",
+        "aiohttp",
+        "pypubsub",
+        "aiofiles",
+        "voluptuous",
+]
+
+[project.urls]
+"Source Code" = "https://github.com/pyinsteon/pyinsteon"
+"Bug Reports" = "https://github.com/pyinsteon/pyinsteon/issues"
+
+[project.scripts]
+insteon_tools = "pyinsteon.tools:tools"
+
+[tool.setuptools]
+platforms = ["any"]
+zip-safe  = false
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["pyinsteon*"]
+
 [tool.black]
-target-version = ["py39", "py310"]
-exclude = '(/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|_build|buck-out|build|dist|tests|samples)/|.*ipdb)'
+target-version = ["py38", "py39", "py310"]
+extend-exclude = "/generated/"
+
+[tool.isort]
+# https://github.com/PyCQA/isort/wiki/isort-Settings
+profile = "black"
+# will group `import x` and `from x import` of the same module.
+force_sort_within_sections = true
+known_first_party = [
+    "pyinsteon",
+    "tests",
+]
+forced_separate = [
+    "tests",
+]
+combine_as_imports = true
+
+[tool.pylint.MAIN]
+py-version = "3.10"
+ignore = [
+    "tests",
+]
+# Use a conservative default here; 2 should speed up most setups and not hurt
+# any too bad. Override on command line as appropriate.
+jobs = 2
+init-hook = """\
+    from pathlib import Path; \
+    import sys; \
+
+    from pylint.config import find_default_config_files; \
+
+    sys.path.append( \
+        str(Path(next(find_default_config_files())).parent.joinpath('pylint/plugins'))
+    ) \
+    """
+load-plugins = [
+    "pylint.extensions.code_style",
+    "pylint.extensions.typing",
+]
+persistent = false
+extension-pkg-allow-list = [
+]
+fail-on = [
+    "I",
+]
+
+[tool.pylint.BASIC]
+class-const-naming-style = "any"
+good-names = [
+    "id",
+    "ex",
+    "on",
+    "off",
+    "AccessControl_Morningstar",
+    "ClimateControl_Thermostat",
+    "ClimateControl_WirelessThermostat",
+    "DimmableLightingControl_DinRail",
+    "DimmableLightingControl_FanLinc",
+    "DimmableLightingControl_InLineLinc",
+    "DimmableLightingControl_KeypadLinc",
+    "DimmableLightingControl_KeypadLinc_6",
+    "DimmableLightingControl_KeypadLinc_8",
+    "DimmableLightingControl_LampLinc",
+    "DimmableLightingControl_OutletLinc",
+    "DimmableLightingControl_SwitchLinc",
+    "DimmableLightingControl_ToggleLinc",
+    "EnergyManagement_LoadController",
+    "GeneralController_ControlLinc",
+    "GeneralController_MiniRemoteBase",
+    "GeneralController_MiniRemote_4",
+    "GeneralController_MiniRemote_8",
+    "GeneralController_MiniRemote_Switch",
+    "GeneralController_RemoteLinc",
+    "SecurityHealthSafety_DoorSensor",
+    "SecurityHealthSafety_LeakSensor",
+    "SecurityHealthSafety_MotionSensor",
+    "SecurityHealthSafety_OpenCloseSensor",
+    "SecurityHealthSafety_Smokebridge",
+    "SensorsActuators_IOLink",
+    "SwitchedLightingControl_ApplianceLinc",
+    "SwitchedLightingControl_DinRail",
+    "SwitchedLightingControl_InLineLinc",
+    "SwitchedLightingControl_KeypadLinc",
+    "SwitchedLightingControl_KeypadLinc_6",
+    "SwitchedLightingControl_KeypadLinc_8",
+    "SwitchedLightingControl_Micro",
+    "SwitchedLightingControl_OnOffOutlet",
+    "SwitchedLightingControl_OutletLinc",
+    "SwitchedLightingControl_SwitchLinc",
+    "SwitchedLightingControl_ToggleLinc",
+]
+
+[tool.pylint."MESSAGES CONTROL"]
+# Reasons disabled:
+# format - handled by black
+# locally-disabled - it spams too much
+# duplicate-code - unavoidable
+# cyclic-import - doesn't test if both import on load
+# abstract-class-little-used - prevents from setting right foundation
+# unused-argument - generic callbacks and setup methods create a lot of warnings
+# too-many-* - are not enforced for the sake of readability
+# too-few-* - same as too-many-*
+# abstract-method - with intro of async there are always methods missing
+# inconsistent-return-statements - doesn't handle raise
+# too-many-ancestors - it's too strict.
+# wrong-import-order - isort guards this
+# consider-using-f-string - str.format sometimes more readable
+# ---
+# Enable once current issues are fixed:
+# consider-using-namedtuple-or-dataclass (Pylint CodeStyle extension)
+# consider-using-assignment-expr (Pylint CodeStyle extension)
+disable = [
+    "format",
+    "abstract-method",
+    "cyclic-import",
+    "duplicate-code",
+    "inconsistent-return-statements",
+    "locally-disabled",
+    "not-context-manager",
+    "too-few-public-methods",
+    "too-many-ancestors",
+    "too-many-arguments",
+    "too-many-branches",
+    "too-many-instance-attributes",
+    "too-many-lines",
+    "too-many-locals",
+    "too-many-public-methods",
+    "too-many-return-statements",
+    "too-many-statements",
+    "too-many-boolean-expressions",
+    "unused-argument",
+    "wrong-import-order",
+    "consider-using-f-string",
+    "consider-using-namedtuple-or-dataclass",
+    "consider-using-assignment-expr",
+]
+enable = [
+    #"useless-suppression",  # temporarily every now and then to clean them up
+    "use-symbolic-message-instead",
+]
+
+[tool.pylint.REPORTS]
+score = false
+
+[tool.pylint.TYPECHECK]
+ignored-classes = [
+    "_CountingAttr",  # for attrs
+]
+mixin-class-rgx = ".*[Mm]ix[Ii]n"
+
+[tool.pylint.FORMAT]
+expected-line-ending-format = "LF"
+
+[tool.pylint.EXCEPTIONS]
+overgeneral-exceptions = [
+    "BaseException",
+    "Exception",
+]
+
+[tool.pylint.TYPING]
+runtime-typing = false
+
+[tool.pylint.CODE_STYLE]
+max-line-length-suggestions = 72
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+norecursedirs = [
+    ".git",
+    "testing_config",
+]
+log_format = "%(asctime)s.%(msecs)03d %(levelname)-8s %(threadName)s %(name)s:%(filename)s:%(lineno)s %(message)s"
+log_date_format = "%Y-%m-%d %H:%M:%S"

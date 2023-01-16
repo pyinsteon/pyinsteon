@@ -1,9 +1,14 @@
 """Utilities for tests."""
 import logging
 import os
+import shutil
 import sys
+from unittest.mock import patch
 
+import pyinsteon
 from pyinsteon import pub
+from pyinsteon.device_types.hub import Hub
+from pyinsteon.managers.device_manager import DeviceManager
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_PYINSTEON = logging.getLogger("pyinsteon")
@@ -53,6 +58,20 @@ def set_log_levels(
     else:
         _setup_logger(_LOGGER_TOPICS, "fatal")
         pub.unsubscribe(_log_all_topics, pub.ALL_TOPICS)
+
+
+async def load_devices(devices_mgr: DeviceManager):
+    """Load the device fixture into the devices list."""
+    with patch.object(pyinsteon, "devices", devices_mgr):
+        if not devices_mgr.modem:
+            modem = Hub("111111", 0x03, 51, 165, "Instoen modem")
+            devices_mgr.modem = modem
+        test_dir_path = os.path.dirname(__file__)
+        fixture_file = os.path.join(test_dir_path, "devices_fixture.json")
+        output_file = os.path.join(test_dir_path, "insteon_devices.json")
+        shutil.copy(fixture_file, output_file)
+        await devices_mgr.async_load(test_dir_path, 0, 0)
+        os.remove(output_file)
 
 
 def _setup_logger(logger, level):

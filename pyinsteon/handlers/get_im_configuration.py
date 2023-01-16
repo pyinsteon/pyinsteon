@@ -1,10 +1,9 @@
 """Modem command to get the IM configuration."""
 import logging
 
-from pyinsteon.constants import ResponseStatus
-
-from ..topics import GET_IM_CONFIGURATION
 from . import ack_handler
+from ..constants import ResponseStatus
+from ..topics import GET_IM_CONFIGURATION
 from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)

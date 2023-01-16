@@ -107,7 +107,6 @@ class GeneralController_MiniRemoteBase(BatteryDeviceBase, VariableControllerBase
         self._add_operating_flag(GROUPED_ON, 0, 6, 0x0E, 0x0F)
 
 
-# TODO setup ability to swich from toggle to button groups
 class GeneralController_MiniRemote_Switch(GeneralController_MiniRemoteBase):
     """RemoteLinc 2440 device with a single button."""
 

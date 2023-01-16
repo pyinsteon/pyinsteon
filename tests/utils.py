@@ -340,3 +340,7 @@ class MockSerial:
     def fileno(self):
         """Return a fileno."""
         return 1
+
+
+def create_insteon_devices():
+    """Load the device fixture into the device list."""

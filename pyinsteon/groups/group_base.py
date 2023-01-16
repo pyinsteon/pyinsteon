@@ -46,11 +46,10 @@ class GroupBase(SubscriberBase):
             if self._value == value:
                 return
             self._value = value
-        except TypeError:
+        except TypeError as ex:
             raise TypeError(
-                f"Error setting value of State {self._name}: "
-                f"Must be of type {self._type.__name__}"
-            )
+                f"Error setting value of State {self._name}: Must be of type {self._type.__name__}"
+            ) from ex
         else:
             self._call_subscribers(
                 name=self._name,
