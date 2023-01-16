@@ -235,6 +235,20 @@ class ALDBRecord:
             bit4=self._bit4,
         )
 
+    def is_exact_match(self, rec, test_in_use=True):
+        """Return True if the input record exactly matches this record."""
+        try:
+            if (
+                self == rec
+                and (self.is_in_use == rec.is_in_use or not test_in_use)
+                and self.data1 == rec.data1
+                and self.data2 == rec.data2
+            ):
+                return True
+        except AttributeError:
+            return False
+        return False
+
 
 def new_aldb_record_from_existing(rec: ALDBRecord, **kwargs):
     """Create a new ALDB record from an existing record."""

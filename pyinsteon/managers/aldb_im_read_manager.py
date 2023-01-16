@@ -20,23 +20,6 @@ _LOGGER = logging.getLogger(__name__)
 TIMEOUT = 2
 
 
-def _compare_records(record1: ALDBRecord, record2: ALDBRecord):
-    """Compare two ALDB records."""
-
-    try:
-        return (
-            record1.is_controller == record2.is_controller
-            and record1.is_in_use == record2.is_in_use
-            and record1.group == record2.group
-            and record1.target == record2.target
-            and record1.data1 == record2.data1
-            and record1.data2 == record2.data2
-            and record1.data3 == record2.data3
-        )
-    except AttributeError:
-        return False
-
-
 class ImReadManager:
     """Insteon Modem ALDB Read Manager."""
 
@@ -173,7 +156,7 @@ class ImReadManager:
             if first_record is None and eeprom_record.is_high_water_mark:
                 return eeprom_record.mem_addr  # ALDB is empty
 
-            if _compare_records(first_record, eeprom_record):
+            if first_record.is_exact_match(eeprom_record):
                 return eeprom_record.mem_addr
 
             return 0
