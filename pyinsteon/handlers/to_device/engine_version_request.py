@@ -21,5 +21,7 @@ class EngineVersionRequest(DirectCommandHandlerBase):
         try:
             version = EngineVersion(cmd2)
         except ValueError:
-            version = EngineVersion.UNKNOWN
+            # If Insteon creates a new Insteon Engine Version we want to record it as Other, not Unknown
+            # Unknown is reserved for a device which has not had an engine version discovery performed
+            version = EngineVersion.OTHER
         self._call_subscribers(engine_version=version)

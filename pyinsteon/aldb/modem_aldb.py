@@ -3,7 +3,7 @@ import logging
 
 from .. import pub
 from ..address import Address
-from ..constants import ALDBStatus, ALDBVersion, ReadWriteMode
+from ..constants import ALDBStatus, EngineVersion, ReadWriteMode
 from ..managers.aldb_im_read_manager import ImReadManager
 from ..managers.aldb_im_write_manager import ImWriteManager
 from ..topics import ALL_LINK_RECORD_RESPONSE
@@ -23,7 +23,7 @@ class ModemALDB(ALDBBase):
     modem.aldb.load: Triggers the loading of the ALDB.
     """
 
-    def __init__(self, address, version=ALDBVersion.V2, mem_addr=0x1FFF):
+    def __init__(self, address, version=EngineVersion.UNKNOWN, mem_addr=0x1FFF):
         """Init the ModemALDB."""
 
         super().__init__(address, version, mem_addr, write_manager=ImWriteManager)

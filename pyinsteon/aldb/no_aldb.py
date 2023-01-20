@@ -1,12 +1,12 @@
 """All-Link Database for devices with no All-Link Database."""
 from ..address import Address
-from ..constants import ALDBStatus, ALDBVersion
+from ..constants import ALDBStatus, EngineVersion
 
 
 class NoALDB:
     """All-Link Database for devices with no All-Link Database."""
 
-    def __init__(self, address, version=ALDBVersion.V2, mem_addr=0x0FFF):
+    def __init__(self, address, version=EngineVersion.I2, mem_addr=0x0FFF):
         """Do nothing."""
         self._address = address
 
@@ -76,9 +76,9 @@ class NoALDB:
         return self._address
 
     @property
-    def version(self) -> ALDBVersion:
+    def version(self) -> EngineVersion:
         """Return the ALDB version."""
-        return ALDBVersion.NULL
+        return EngineVersion.UNKNOWN
 
     @property
     def first_mem_addr(self):
