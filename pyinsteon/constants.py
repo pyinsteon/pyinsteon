@@ -116,30 +116,27 @@ class ALDBStatus(HexIntEnum):
     DIRTY = 5
 
 
-class ALDBVersion(Enum):
-    """All-Link Database version."""
-
-    NULL = 0
-    V1 = 1
-    V2 = 2
-    V2CS = 20
-
-
 class ReadWriteMode(HexIntEnum):
     """Modem read mode."""
 
     UNKNOWN = 0x00
     STANDARD = 0x01
     EEPROM = 0x02
+    PEEK_POKE = 0x03
 
 
 class EngineVersion(HexIntEnum):
-    """Insteon Engine Version."""
+    """Insteon Engine Version.
+
+    - Unknown is used when the Insteon Engine Version has not be successfully queried
+    - Other is used when the Insteon Engine Version query comes back with a number different than expected
+    """
 
     I1 = 0x00
     I2 = 0x01
     I2CS = 0x02
-    UNKNOWN = 0x03
+    OTHER = 0xFE
+    UNKNOWN = 0xFF
 
 
 class X10CommandType(HexIntEnum):
