@@ -4,7 +4,7 @@ import random
 import unittest
 
 from pyinsteon.managers.peek_poke_manager import PeekPokeManager
-from pyinsteon.topics import PEEK_ONE_BYTE, POKE_ONE_BYTE, SET_ADDRESS_MSB
+from pyinsteon.topics import PEEK, POKE, SET_ADDRESS_MSB
 
 from .. import set_log_levels
 from ..utils import TopicItem, async_case, cmd_kwargs, random_address, send_topics
@@ -35,8 +35,8 @@ class TestPeekPokeManager(unittest.TestCase):
 
         set_msb_ack_topic = f"ack.{addr.id}.{SET_ADDRESS_MSB}.direct"
         set_msb_dir_ack_topic = f"{addr.id}.{SET_ADDRESS_MSB}.direct_ack"
-        peek_ack_topic = f"ack.{addr.id}.{PEEK_ONE_BYTE}.direct"
-        peek_dir_ack_topic = f"{addr.id}.{PEEK_ONE_BYTE}.direct_ack"
+        peek_ack_topic = f"ack.{addr.id}.{PEEK}.direct"
+        peek_dir_ack_topic = f"{addr.id}.{PEEK}.direct_ack"
 
         set_msb_ack_item = TopicItem(
             set_msb_ack_topic,
@@ -89,10 +89,10 @@ class TestPeekPokeManager(unittest.TestCase):
 
         set_msb_ack_topic = f"ack.{addr.id}.{SET_ADDRESS_MSB}.direct"
         set_msb_dir_ack_topic = f"{addr.id}.{SET_ADDRESS_MSB}.direct_ack"
-        peek_ack_topic = f"ack.{addr.id}.{PEEK_ONE_BYTE}.direct"
-        peek_dir_ack_topic = f"{addr.id}.{PEEK_ONE_BYTE}.direct_ack"
-        poke_ack_topic = f"ack.{addr.id}.{POKE_ONE_BYTE}.direct"
-        poke_dir_ack_topic = f"{addr.id}.{POKE_ONE_BYTE}.direct_ack"
+        peek_ack_topic = f"ack.{addr.id}.{PEEK}.direct"
+        peek_dir_ack_topic = f"{addr.id}.{PEEK}.direct_ack"
+        poke_ack_topic = f"ack.{addr.id}.{POKE}.direct"
+        poke_dir_ack_topic = f"{addr.id}.{POKE}.direct_ack"
 
         set_msb_ack_item = TopicItem(
             set_msb_ack_topic,

@@ -329,7 +329,7 @@
         "ack": "",
         "topic": "{}.set_address_msb.direct"
     },
-    "POKE_ONE_BYTE-DIRECT": {
+    "POKE-DIRECT": {
         "address": {},
         "target": "040506",
         "flags": "00",
@@ -337,9 +337,9 @@
         "cmd2": "",
         "user_data": "",
         "ack": "",
-        "topic": "{}.poke_one_byte.direct"
+        "topic": "{}.poke.direct"
     },
-    "PEEK_ONE_BYTE-DIRECT": {
+    "PEEK-DIRECT": {
         "address": {},
         "target": "040506",
         "flags": "00",
@@ -347,9 +347,9 @@
         "cmd2": "",
         "user_data": "",
         "ack": "",
-        "topic": "{}.peek_one_byte.direct"
+        "topic": "{}.peek.direct"
     },
-    "PEEK_ONE_BYTE_INTERNAL-DIRECT": {
+    "PEEK_INTERNAL-DIRECT": {
         "address": {},
         "target": "040506",
         "flags": "00",
@@ -357,9 +357,9 @@
         "cmd2": "",
         "user_data": "",
         "ack": "",
-        "topic": "{}.peek_one_byte_internal.direct"
+        "topic": "{}.peek_internal.direct"
     },
-    "POKE_ONE_BYTE_INTERNAL-DIRECT": {
+    "POKE_INTERNAL-DIRECT": {
         "address": {},
         "target": "040506",
         "flags": "00",
@@ -367,7 +367,7 @@
         "cmd2": "",
         "user_data": "",
         "ack": "",
-        "topic": "{}.poke_one_byte_internal.direct"
+        "topic": "{}.poke_internal.direct"
     },
     "ON_AT_RAMP_RATE-DIRECT": {
         "address": {},
