@@ -1,8 +1,8 @@
 """Handle sending a read request for ALDB records."""
 
+from .. import ack_handler
 from ...address import Address
 from ...topics import EXTENDED_GET_SET
-from .. import ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 
@@ -10,7 +10,7 @@ class ThermostatGetSetPointCommand(DirectCommandHandlerBase):
     """Handle sending a read request for ALDB records."""
 
     def __init__(self, address: Address):
-        """Init the ReadALDBCommandHandler."""
+        """Init the ThermostatGetSetPointCommand."""
         super().__init__(topic=EXTENDED_GET_SET, address=address)
 
     # pylint: disable=arguments-differ

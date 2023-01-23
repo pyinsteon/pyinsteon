@@ -1,9 +1,9 @@
 """Handle sending a read request for ALDB records."""
 import logging
 
+from .. import ack_handler
 from ...address import Address
 from ...topics import EXTENDED_GET_SET
-from .. import ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
     """Handle sending a read request for ALDB records."""
 
     def __init__(self, address: Address):
-        """Init the ReadALDBCommandHandler."""
+        """Init the ExtendedGetCommand."""
         super().__init__(topic=EXTENDED_GET_SET, address=address)
         self._data1 = None
         self._data2 = 0x00
