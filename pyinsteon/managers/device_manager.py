@@ -143,7 +143,7 @@ class DeviceManager(SubscriberBase):
         """Inspect the properties of the devices who's inspection was delayed ealier."""
         while self._to_be_inspected:
             device = self._to_be_inspected.pop()
-            await self.async_setup_device(device)
+            await device.async_read_config()
 
     def set_id(self, address: Address, cat: int, subcat: int, firmware: int):
         """Add a device override to identify the device information.
@@ -301,7 +301,7 @@ class DeviceManager(SubscriberBase):
 
         for mem_addr in self._modem.aldb:
             rec = self._modem.aldb[mem_addr]
-            if rec.target != Address("000000"):
+            if rec.is_in_use and rec.target != Address("000000"):
                 self._id_manager.append(rec.target)
 
         if id_devices:
@@ -312,23 +312,6 @@ class DeviceManager(SubscriberBase):
         """Save devices to a device information file."""
         saved_devices_manager = SavedDeviceManager(workdir, self.modem)
         await saved_devices_manager.async_save(self._devices)
-
-    # Move this to a Device method rather than a device_manager method
-    # pylint: disable=no-self-use
-    async def async_setup_device(self, device: Device):
-        """Set up device.
-
-        This includes:
-            Loading the All-Link Database
-            Reading the Operatig Flags
-            Reading the Extended Properties
-            Setting up the default links
-        """
-        await device.async_get_engine_version()
-        await device.aldb.async_load(refresh=True)
-        await device.async_read_op_flags()
-        await device.async_read_ext_properties()
-        await device.async_add_default_links()
 
     async def _async_device_identified(
         self, device_id: DeviceId, link_mode: AllLinkMode
@@ -366,7 +349,7 @@ class DeviceManager(SubscriberBase):
                 if self._delay_device_inspection:
                     self._to_be_inspected.append(device)
                 else:
-                    await self.async_setup_device(device)
+                    await device.async_read_config()
             _LOGGER.debug("Device %s added", str(device.address))
             _DEVICE_LOGGERS.append(
                 logging.getLogger(f"pyinsteon.{device_id.address.id}")
