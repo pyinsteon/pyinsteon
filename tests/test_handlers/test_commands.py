@@ -108,10 +108,15 @@ class TestDirectCommands(unittest.TestCase):
         if not topic.name.startswith("handler"):
             return
         self._call_count += 1
+        self._assert_result = not self._assert_tests
         for assert_test in self._assert_tests:
             try:
+                assert_test_received = kwargs.get(assert_test)
+                assert_test_expected = self._assert_tests[assert_test]
+                if isinstance(assert_test_received, bytearray):
+                    assert_test_expected = bytearray(assert_test_expected)
+                assert assert_test_received == assert_test_expected
                 self._assert_result = True
-                assert kwargs.get(assert_test) == self._assert_tests[assert_test]
             except AssertionError as ex:
                 self._assert_result = False
                 raise AssertionError(

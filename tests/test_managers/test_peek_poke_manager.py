@@ -23,9 +23,9 @@ class TestPeekPokeManager(unittest.TestCase):
         orig_value = random.randint(0, 255)
         response_recieved = False
 
-        def get_peek_value(value):
+        def get_peek_value(mem_addr, value):
             nonlocal response_recieved
-            assert value == orig_value
+            assert value == bytearray([orig_value])
             response_recieved = True
 
         addr = random_address()
@@ -68,15 +68,9 @@ class TestPeekPokeManager(unittest.TestCase):
         """Test the poke command."""
         orig_value = random.randint(0, 255)
         new_value = random.randint(0, 255)
-        peek_response_recieved = False
         poke_response_recieved = False
 
-        def get_peek_value(value):
-            nonlocal peek_response_recieved
-            assert value == orig_value
-            peek_response_recieved = True
-
-        def get_poke_value(value):
+        def get_poke_value(mem_addr, value):
             nonlocal poke_response_recieved
             assert value == new_value
             poke_response_recieved = True
@@ -84,7 +78,6 @@ class TestPeekPokeManager(unittest.TestCase):
         addr = random_address()
         mem_addr = 0x0FFF
         mgr = PeekPokeManager(addr)
-        mgr.subscribe_peek(get_peek_value)
         mgr.subscribe_poke(get_poke_value)
 
         set_msb_ack_topic = f"ack.{addr.id}.{SET_ADDRESS_MSB}.direct"
@@ -127,9 +120,8 @@ class TestPeekPokeManager(unittest.TestCase):
                 poke_dir_ack_item,
             ]
         )
-        result = await mgr.async_peek(mem_addr=mem_addr)
+        result = await mgr.async_poke(mem_addr=mem_addr, value=new_value)
         await asyncio.sleep(3)
         assert result == 0x01
-        await asyncio.sleep(0.1)
-        assert peek_response_recieved
+        await asyncio.sleep(0.5)
         assert poke_response_recieved
