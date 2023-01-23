@@ -1,6 +1,6 @@
 """All-Link Database for devices with no All-Link Database."""
 from ..address import Address
-from ..constants import ALDBStatus, EngineVersion
+from ..constants import ALDBStatus, EngineVersion, ReadWriteMode
 
 
 class NoALDB:
@@ -40,6 +40,15 @@ class NoALDB:
     def status(self) -> ALDBStatus:
         """Return loaded status."""
         return ALDBStatus.LOADED
+
+    @property
+    def read_write_mode(self) -> ReadWriteMode:
+        """Emit the modem read mode."""
+        return ReadWriteMode.STANDARD
+
+    @read_write_mode.setter
+    def read_write_mode(self, value: ReadWriteMode):
+        """Set the modem read mode."""
 
     # pylint: disable=arguments-differ, no-self-use
     async def async_load(
