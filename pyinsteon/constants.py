@@ -295,10 +295,14 @@ class ResponseStatus(HexIntEnum):
 
     FAILURE = 0
     SUCCESS = 1
-    UNCLEAR = 2
-    DEVICE_UNRESPONSIVE = 4
-    UNSENT = 8
-    RUN_ON_WAKE = 0x10
+    DEVICE_UNRESPONSIVE = 3
+    UNSENT = 4
+    RUN_ON_WAKE = 5
+    DIRECT_NAK_ALDB = 0xFF
+    DIRECT_NAK_NO_LOAD = 0xFE
+    DIRECT_NAK_CHECK_SUM = 0xFD
+    DIRECT_NAK_PRE_NAK = 0xFC
+    DIRECT_NAK_INVALID_COMMAND = 0xFB
 
 
 class LinkStatus(Enum):

@@ -243,10 +243,26 @@ class DeviceIdManager(SubscriberBase):
         retries = (
             24 * 60 * 1.5
         )  # 1.5 days. If a devices does not respond in this time it is dead
-        while retries and response != ResponseStatus.SUCCESS:
-            device_id = self._device_ids.get(address)
-            if device_id is not None and device_id.cat is not None:
-                return
-            await asyncio.sleep(retry_wait)
-            response = await cmd.async_send()
-            retries -= 1
+        try:
+            while retries and response != ResponseStatus.SUCCESS:
+                device_id = self._device_ids.get(address)
+                if device_id is not None and device_id.cat is not None:
+                    return
+                await asyncio.sleep(retry_wait)
+                response = await cmd.async_send()
+                if response in [
+                    ResponseStatus.DIRECT_NAK_ALDB,
+                    ResponseStatus.DIRECT_NAK_CHECK_SUM,
+                    ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
+                    ResponseStatus.DIRECT_NAK_NO_LOAD,
+                ]:
+                    _LOGGER.warning(
+                        "Device %s rejected an ID request with error: %s (%r)",
+                        str(address),
+                        response,
+                        response,
+                    )
+                    return
+                retries -= 1
+        except asyncio.CancelledError:
+            return
