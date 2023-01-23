@@ -313,7 +313,7 @@ class ALDBBase(ABC):
             except ALDBWriteException:
                 result = ResponseStatus.FAILURE
 
-            if result == ResponseStatus.UNCLEAR and self._read_manager:
+            if result == ResponseStatus.DIRECT_NAK_PRE_NAK and self._read_manager:
                 async for test_rec in self._read_manager.async_read(
                     rec_to_write.mem_addr, 1, force=True
                 ):

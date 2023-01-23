@@ -56,9 +56,9 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
     async def async_handle_direct_nak(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the message ACK."""
         await asyncio.sleep(0.05)
-        if cmd2 == 0xFC:
-            response = ResponseStatus.UNCLEAR
-        else:
+        try:
+            response = ResponseStatus(cmd2)
+        except ValueError:
             response = ResponseStatus.FAILURE
         if self._response_lock.locked():
             await self._direct_response.put(response)

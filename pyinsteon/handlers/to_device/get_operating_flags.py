@@ -9,7 +9,7 @@ class GetOperatingFlagsCommand(DirectCommandHandlerBase):
     """Handle sending a read request for ALDB records."""
 
     def __init__(self, address: Address):
-        """Init the ReadALDBCommandHandler."""
+        """Init the GetOperatingFlagsCommand."""
         super().__init__(topic=GET_OPERATING_FLAGS, address=address)
         self._group = None
 
@@ -21,17 +21,5 @@ class GetOperatingFlagsCommand(DirectCommandHandlerBase):
 
     def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
         """Update subscribers."""
-        self._call_subscribers(group=self._group, flags=cmd2, response=0)
-        self._group = None
-
-    def _update_subscribers_on_nak(self, cmd1, cmd2, target, user_data, hops_left):
-        """Update subscribers on NAK received."""
-        self._call_subscribers(group=self._group, flags=None, response=cmd2)
-        self._group = None
-
-    def _update_subscribers_on_direct_nak(
-        self, cmd1, cmd2, target, user_data, hops_left
-    ):
-        """Update subscribers on DIRECT NAK received."""
-        self._call_subscribers(group=self._group, flags=None, response=cmd2)
+        self._call_subscribers(group=self._group, flags=cmd2)
         self._group = None

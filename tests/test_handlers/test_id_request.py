@@ -138,11 +138,11 @@ class TestIdRequest(unittest.TestCase):
 
         send_topics(topics_fail)
         result = await id_handler.async_send()
-        assert result == ResponseStatus.FAILURE
+        assert result == ResponseStatus.DIRECT_NAK_ALDB
 
         send_topics(topics_unclear)
         result = await id_handler.async_send()
-        assert result == ResponseStatus.UNCLEAR
+        assert result == ResponseStatus.DIRECT_NAK_PRE_NAK
 
         all_link_handler = None
         id_handler = None

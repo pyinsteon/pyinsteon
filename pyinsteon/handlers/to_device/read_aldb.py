@@ -2,7 +2,7 @@
 import logging
 
 from ...address import Address
-from ...topics import EXTENDED_READ_WRITE_ALDB  # , EXTENDED_READ_WRITE_ALDB_DIRECT_NAK
+from ...topics import EXTENDED_READ_WRITE_ALDB
 from .direct_command import DirectCommandHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
