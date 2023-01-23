@@ -48,11 +48,11 @@ from .topics import (
     ON,
     ON_AT_RAMP_RATE,
     ON_FAST,
-    PEEK_ONE_BYTE,
-    PEEK_ONE_BYTE_INTERNAL,
+    PEEK,
+    PEEK_INTERNAL,
     PING,
-    POKE_ONE_BYTE,
-    POKE_ONE_BYTE_INTERNAL,
+    POKE,
+    POKE_INTERNAL,
     POOL_CONTROL,
     POOL_DEVICE_OFF,
     POOL_DEVICE_ON,
@@ -548,7 +548,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    topic=POKE_ONE_BYTE,
+    topic=POKE,
     cmd1=0x29,
     cmd2=None,
     ud_allowed=False,
@@ -557,16 +557,16 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    topic=PEEK_ONE_BYTE,
+    topic=PEEK,
     cmd1=0x2B,
     cmd2=None,
-    ud_allowed=False,
+    ud_allowed=True,
     ud_required=False,
     userdata=None,
     use_group=False,
 )
 commands.add(
-    topic=PEEK_ONE_BYTE_INTERNAL,
+    topic=PEEK_INTERNAL,
     cmd1=0x2C,
     cmd2=None,
     ud_allowed=False,
@@ -575,7 +575,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    topic=POKE_ONE_BYTE_INTERNAL,
+    topic=POKE_INTERNAL,
     cmd1=0x2D,
     cmd2=None,
     ud_allowed=False,
@@ -659,16 +659,6 @@ commands.add(
     userdata=None,
     use_group=False,
 )
-# Conflicts with OFF_AT_RAMP_RATE but only used when an ALDB read ack has already been received
-# commands.add(
-#     topic=EXTENDED_READ_WRITE_ALDB_DIRECT_NAK,
-#     cmd1=0x2F,
-#     cmd2=None,
-#     ud_allowed=False,
-#     ud_required=False,
-#     userdata=None,
-#     use_group=False,
-# )
 commands.add(
     topic=EXTENDED_TRIGGER_ALL_LINK,
     cmd1=0x30,
