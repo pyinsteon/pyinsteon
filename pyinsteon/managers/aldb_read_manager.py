@@ -4,9 +4,13 @@ import logging
 
 import async_timeout
 
+from ..address import Address
 from ..aldb.aldb_record import ALDBRecord
+from ..constants import ReadWriteMode, ResponseStatus
+from ..data_types.all_link_record_flags import AllLinkRecordFlags
 from ..handlers.from_device.receive_aldb_record import ReceiveALDBRecordHandler
 from ..handlers.to_device.read_aldb import ReadALDBCommandHandler
+from ..managers.peek_poke_manager import get_peek_poke_manager
 
 RETRIES_ALL_MAX = 5
 RETRIES_ONE_MAX = 20
@@ -41,9 +45,11 @@ class ALDBReadManager:
         self._last_mem_addr = 0x0000
         self._read_handler = ReadALDBCommandHandler(self._aldb.address)
         self._record_handler = ReceiveALDBRecordHandler(self._aldb.address)
-        self._read_handler.subscribe(self._receive_direct_ack_nak)
         self._record_handler.subscribe(self._receive_record)
         self._timer_lock = asyncio.Lock()
+        self._peek_bytes_received = asyncio.Queue()
+        self._peek_manager = get_peek_poke_manager(self._aldb.address)
+        self._peek_manager.subscribe(self._receive_peek)
 
     async def async_read(self, mem_addr: int = 0x00, num_recs: int = 0, force=False):
         """Return an iterator of All-Link Database records."""
@@ -55,15 +61,22 @@ class ALDBReadManager:
         )
         self._clear_read_queue()
 
+        if self._aldb.read_write_mode == ReadWriteMode.STANDARD:
+            read_all_method = self._read_all
+            read_one_method = self._read_one
+        else:
+            read_all_method = self._read_all_peek
+            read_one_method = self._read_one_peek
+
         try:
             async with async_timeout.timeout(TIMER_20_MIN):
                 if _is_multiple_records(mem_addr, num_recs):
-                    async for record in self._read_all():
+                    async for record in read_all_method():
                         _LOGGER.debug("Read manager returning: %s", str(record))
                         yield record
                         await asyncio.sleep(0.05)
                 else:
-                    record = await self._read_one(mem_addr, force)
+                    record = await read_one_method(mem_addr, force)
                     if record is not None:
                         _LOGGER.debug("Read manager returning: %s", str(record))
                         yield record
@@ -80,8 +93,22 @@ class ALDBReadManager:
 
         retries = RETRIES_ONE_MAX
         while retries:
-            await self._read_handler.async_send(mem_addr=mem_addr, num_recs=1)
-
+            response = await self._read_handler.async_send(
+                mem_addr=mem_addr, num_recs=1
+            )
+            if response in [
+                ResponseStatus.DIRECT_NAK_ALDB,
+                ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
+                ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
+                ResponseStatus.DIRECT_NAK_CHECK_SUM,
+            ]:
+                # When Checksum direct NAK, should we change the checksum method?
+                _LOGGER.error(
+                    "Device refused the ALDB Read command with error: %s (%r)",
+                    response,
+                    response,
+                )
+                return None
             timeout = TIMER + (RETRIES_ONE_MAX - retries) * TIMER_INCREMENT
             try:
                 async with async_timeout.timeout(timeout):
@@ -96,6 +123,60 @@ class ALDBReadManager:
         _LOGGER.debug("_read_one completed")
         return None
 
+    async def _read_one_peek(self, mem_addr, force=False):
+        """Read one record using peek commands."""
+
+        async def async_peek(mem_addr):
+            retries_byte = 3
+            timeout = 2
+            while retries_byte:
+                while not self._peek_bytes_received.empty():
+                    await self._peek_bytes_received.get()
+                result = await self._peek_manager.async_peek(mem_addr, extended=True)
+                if result == ResponseStatus.SUCCESS:
+                    try:
+                        async with async_timeout.timeout(timeout):
+                            return await self._peek_bytes_received.get()
+                    except asyncio.TimeoutError:
+                        pass
+                retries_byte -= 1
+                await asyncio.sleep(0.1)
+            return None
+
+        if self._aldb[mem_addr]:
+            return None
+
+        retries = RETRIES_ONE_MAX
+        while retries:
+            record = bytearray()
+            curr_byte = 0
+            while curr_byte < 8:
+                value = await async_peek(mem_addr=mem_addr - curr_byte)
+                if value is None:
+                    break
+                record.append(value)
+                curr_byte = len(record)
+            if len(record) >= 8:
+                flags = AllLinkRecordFlags(record[7])
+                aldb_record = ALDBRecord(
+                    memory=mem_addr,
+                    controller=flags.is_controller,
+                    group=record[6],
+                    target=Address(bytearray([record[5], record[4], record[3]])),
+                    data1=record[2],
+                    data2=record[1],
+                    data3=record[0],
+                    in_use=flags.is_in_use,
+                    high_water_mark=flags.is_hwm,
+                    bit4=flags.is_bit_4_set,
+                    bit5=flags.is_bit_5_set,
+                )
+                _LOGGER.info(str(aldb_record))
+                return aldb_record
+            retries -= 1
+        _LOGGER.debug("Read ONE return on error - incomplete reads")
+        return None
+
     async def _read_all(self):
         """Read all records."""
         if self._aldb.is_loaded:
@@ -103,8 +184,20 @@ class ALDBReadManager:
 
         retries = RETRIES_ALL_MAX
         while retries:
-            await self._read_handler.async_send(mem_addr=0, num_recs=0)
-
+            response = await self._read_handler.async_send(mem_addr=0, num_recs=0)
+            if response in [
+                ResponseStatus.DIRECT_NAK_ALDB,
+                ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
+                ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
+                ResponseStatus.DIRECT_NAK_CHECK_SUM,
+            ]:
+                # When Checksum direct NAK, should we change the checksum method?
+                _LOGGER.error(
+                    "Device refused the ALDB Read command with error: %s (%r)",
+                    response,
+                    response,
+                )
+                return
             timeout = TIMER + (RETRIES_ALL_MAX - retries) * TIMER_INCREMENT
             try:
                 while True:
@@ -145,6 +238,29 @@ class ALDBReadManager:
                 _LOGGER.debug("_read_all completed")
                 return
         _LOGGER.debug("_read_all completed")
+
+    async def _read_all_peek(self):
+        """Read all ALDB records using peek commands."""
+        if self._aldb.is_loaded:
+            return
+
+        # Read all records did not work so we try to read one at a time
+        last_record = 0
+        next_record = self._next_missing_record()
+        while next_record is not None:
+            record = await self._read_one_peek(next_record)
+            if record is not None:
+                yield record
+            await asyncio.sleep(0.05)  # let the ALDB catch up to changes
+            last_record = next_record
+            next_record = self._next_missing_record()
+
+            # If the next record equals the last record and we believe we successfully
+            # read the last record, an error occured so we should just stop
+            if next_record == last_record:
+                _LOGGER.info("Returning on error")
+                return
+        _LOGGER.info("Next record is NONE")
 
     def _receive_direct_ack_nak(self, response):
         """Receive the response from the direct NAK.
@@ -192,6 +308,10 @@ class ALDBReadManager:
         )
         _LOGGER.debug("Putting record in queue: %s", str(record))
         self._record_queue.put_nowait(record)
+
+    async def _receive_peek(self, mem_addr, value):
+        """Receive one byte from a peek command."""
+        await self._peek_bytes_received.put(value)
 
     def _next_missing_record(self):
         if not self._has_first_record():
