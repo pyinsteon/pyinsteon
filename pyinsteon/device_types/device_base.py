@@ -194,17 +194,21 @@ class Device(ABC):
         """Get all configuration settings.
 
         This includes:
+        - Engine Version
         - Operating flags
         - Extended properties
         - All-Link Database records.
         """
+        result_engine = await self.async_get_engine_version()
         result_op_flags = await self.async_read_op_flags()
         result_ext_prop = await self.async_read_ext_properties()
         if read_aldb:
             result_aldb = await self._aldb.async_load()
         else:
             result_aldb = ResponseStatus.SUCCESS
-        return multiple_status(result_ext_prop, result_op_flags, result_aldb)
+        return multiple_status(
+            result_engine, result_ext_prop, result_op_flags, result_aldb
+        )
 
     async def async_write_config(self):
         """Write the device configuration to the physical device."""
