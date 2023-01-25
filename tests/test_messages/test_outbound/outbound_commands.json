@@ -174,7 +174,8 @@
     "PEEK": {
         "topic": "peek",
         "args": {
-            "lsb": "0xbc"
+            "lsb": "0xbc",
+            "extended": false
         },
         "result": "0262aaaaaa002Bbc"
     },
