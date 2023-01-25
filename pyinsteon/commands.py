@@ -197,12 +197,15 @@ class Commands:
         """Return if a topic requires a group number."""
         return self._use_group.get(topic)
 
-    def get_topics(self, cmd1, cmd2, userdata=None, send=False) -> str:
+    def get_topics(self, cmd1, cmd2, flags, userdata=None, send=False) -> str:
         """Generate a topic from a cmd1, cmd2 and extended flag."""
         found = False
         for topic in self._commands_topic_map.get(cmd1, {}):
             command = self._topics[topic]
             if _check_match(command, cmd1, cmd2, userdata):
+                found = True
+                yield topic
+            elif flags.is_direct_nak and _check_match(command, cmd1, None, userdata):
                 found = True
                 yield topic
         if not found:

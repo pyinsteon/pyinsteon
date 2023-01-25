@@ -103,7 +103,7 @@ def _create_rcv_std_ext_msg(topic, address, flags, cmd1, cmd2, target, user_data
 
 def standard_received(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
     """Create a topic from a STANDARD_RECEIVED message."""
-    for topic in commands.get_topics(msg.cmd1, msg.cmd2, None):
+    for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags, None):
         yield _create_rcv_std_ext_msg(
             topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, None
         )
@@ -111,7 +111,7 @@ def standard_received(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
 
 def extended_received(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
     """Create a topic from a EXTENDED_RECEIVED message."""
-    for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.user_data):
+    for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags, msg.user_data):
         yield _create_rcv_std_ext_msg(
             topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, msg.user_data
         )
@@ -240,7 +240,7 @@ def send_standard_or_extended_message(msg: Inbound) -> Tuple[str, Dict[str, Any]
 
     found_topic = False
     user_data = None if not hasattr(msg, "user_data") else msg.user_data
-    for topic in commands.get_topics(msg.cmd1, msg.cmd2, user_data):
+    for topic in commands.get_topics(msg.cmd1, msg.cmd2, msg.flags, user_data):
         found_topic = True
         yield _create_send_std_ext(
             topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, user_data, msg.ack

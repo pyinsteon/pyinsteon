@@ -146,12 +146,11 @@ class DeviceIdManager(SubscriberBase):
 
         received_queue = asyncio.Queue()
 
-        def device_id_received(device_id, link_mode):
+        async def async_device_id_received(device_id, link_mode):
             """Receive notification a device has been identified."""
-            nonlocal received_queue
-            received_queue.put_nowait(device_id)
+            await received_queue.put(device_id)
 
-        self.subscribe(device_id_received)
+        self.subscribe(async_device_id_received)
 
         id_handler = IdRequestCommand(address)
         id_response_handler = AssignToAllLinkGroupCommand(address)
@@ -164,19 +163,34 @@ class DeviceIdManager(SubscriberBase):
         self.append(address, refresh)
 
         retries = MAX_RETRIES
-        while retries:
-            response = await id_handler.async_send()
-            if response == ResponseStatus.SUCCESS:
-                try:
-                    async with async_timeout.timeout(RETRY_PAUSE):
-                        device_id = await received_queue.get()
-                except asyncio.TimeoutError:
-                    pass
+        try:
+            while retries:
+                response = await id_handler.async_send()
+                if response == ResponseStatus.SUCCESS:
+                    try:
+                        async with async_timeout.timeout(RETRY_PAUSE):
+                            device_id = await received_queue.get()
+                    except asyncio.TimeoutError:
+                        pass
+                elif response in [
+                    ResponseStatus.DIRECT_NAK_ALDB,
+                    ResponseStatus.DIRECT_NAK_CHECK_SUM,
+                    ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
+                ]:
+                    _LOGGER.warning(
+                        "Device %s refused the Device ID request with error: %s (%r)",
+                        str(address),
+                        str(response),
+                        response,
+                    )
+                    return None
 
-            retries -= 1
-            await asyncio.sleep(RETRY_PAUSE)
-        id_response_handler.unsubscribe(self._id_response)
-        id_response_handler_alt.unsubscribe(self._id_response)
+                retries -= 1
+                await asyncio.sleep(RETRY_PAUSE)
+
+        finally:
+            id_response_handler.unsubscribe(self._id_response)
+            id_response_handler_alt.unsubscribe(self._id_response)
 
         return device_id
 
@@ -200,8 +214,13 @@ class DeviceIdManager(SubscriberBase):
                 break
             await asyncio.sleep(0.5)
             device_id = await self.async_id_device(address=address)
-            if device_id is None or device_id.cat is None:
+            if device_id and device_id.cat is None:
                 subscribe_topic(self._device_awake, address.id)
+            elif device_id is None:
+                unsubscribe_topic(self._device_awake, address.id)
+                if address in self._ping_tasks:
+                    self._ping_tasks[address].cancel()
+                break
 
     def _device_awake(self, topic=pub.AUTO_TOPIC, **kwargs):
         """Identify an unknown device.
