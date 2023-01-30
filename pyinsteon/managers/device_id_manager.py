@@ -169,7 +169,7 @@ class DeviceIdManager(SubscriberBase):
                 if response == ResponseStatus.SUCCESS:
                     try:
                         async with async_timeout.timeout(RETRY_PAUSE):
-                            device_id = await received_queue.get()
+                            return await received_queue.get()
                     except asyncio.TimeoutError:
                         pass
                 elif response in [
