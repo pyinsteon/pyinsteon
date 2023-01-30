@@ -1,11 +1,10 @@
 """Receive an X10 message."""
 
-from ... import pub
+from .. import inbound_handler
 from ...constants import X10Commands, X10CommandType
 from ...topics import X10_RECEIVED
-from ...utils import byte_to_command, byte_to_unitcode, parse_x10
+from ...utils import byte_to_command, byte_to_unitcode, parse_x10, publish_topic
 from ...x10_address import create
-from .. import inbound_handler
 from ..inbound_base import InboundHandlerBase
 
 
@@ -42,6 +41,6 @@ class X10Received(InboundHandlerBase):
             address = create(housecode, self._last_unitcode)
             topic = f"{address.id}.{str(cmd).lower()}"
         if topic:
-            pub.sendMessage(topic)
+            publish_topic(topic=topic)
             self._last_housecode = None
             self._last_unitcode = None
