@@ -371,10 +371,9 @@ def poke(address: Address, value: int, topic=pub.AUTO_TOPIC):
 
 
 @topic_to_command_handler(register_list=COMMAND_REGISTER, topic=PEEK)
-def peek(address: Address, lsb: int, extended: bool, topic=pub.AUTO_TOPIC):
+def peek(address: Address, lsb: int, topic=pub.AUTO_TOPIC):
     """Create a PEEK command."""
-    user_data = UserData() if extended else None
-    _create_direct_message(topic=topic, address=address, cmd2=lsb, user_data=user_data)
+    _create_direct_message(topic=topic, address=address, cmd2=lsb)
 
 
 @topic_to_command_handler(register_list=COMMAND_REGISTER, topic=PEEK_INTERNAL)

@@ -563,7 +563,7 @@ commands.add(
     topic=PEEK,
     cmd1=0x2B,
     cmd2=None,
-    ud_allowed=True,
+    ud_allowed=False,
     ud_required=False,
     userdata=None,
     use_group=False,

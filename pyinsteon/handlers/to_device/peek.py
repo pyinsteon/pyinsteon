@@ -12,13 +12,12 @@ class PeekCommand(DirectCommandHandlerBase):
         super().__init__(topic=PEEK, address=address)
 
     # pylint: disable=arguments-differ
-    async def async_send(self, lsb: int, extended: bool = False):
+    async def async_send(self, lsb: int):
         """Send the PEEK command async."""
-        return await super().async_send(lsb=lsb, extended=extended)
+        return await super().async_send(lsb=lsb)
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers."""
-        value = bytearray([cmd2])
-        if user_data:
-            value.extend(bytes(user_data))
-        self._call_subscribers(value=value)
+        self._call_subscribers(value=cmd2)
