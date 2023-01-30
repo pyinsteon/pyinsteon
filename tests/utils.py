@@ -313,8 +313,8 @@ class MockSerial:
         self.kwargs = None
         self.call_count = 0
         self.iostream = StringIO()
-        self.serial_for_url_exception: Exception = Exception()
-        self.write_exception: Exception = Exception()
+        self.serial_for_url_exception: Exception = None
+        self.write_exception: Exception = None
         self.msg = None
 
     def serial_for_url(self, *args, **kwargs):
@@ -322,6 +322,7 @@ class MockSerial:
         self.call_count += 1
         self.kwargs = kwargs
         if self.serial_for_url_exception:
+            # pylint: disable=raising-bad-type
             raise self.serial_for_url_exception
         return self
 
@@ -332,6 +333,7 @@ class MockSerial:
     def write(self, data):
         """Mock the write method."""
         if self.write_exception:
+            # pylint: disable=raising-bad-type
             raise self.write_exception
         self.msg = data
 
