@@ -25,7 +25,7 @@ class TestPeekPokeManager(unittest.TestCase):
 
         def get_peek_value(mem_addr, value):
             nonlocal response_recieved
-            assert value == bytearray([orig_value])
+            assert value == orig_value
             response_recieved = True
 
         addr = random_address()
@@ -49,7 +49,7 @@ class TestPeekPokeManager(unittest.TestCase):
             0.1,
         )
         peek_ack_item = TopicItem(
-            peek_ack_topic, cmd_kwargs(0x2B, orig_value, None), 0.1
+            peek_ack_topic, cmd_kwargs(0x2B, orig_value, None), 0.3
         )
         peek_dir_ack_item = TopicItem(
             peek_dir_ack_topic, cmd_kwargs(0x2B, orig_value, None, "00.00.00"), 0.1
@@ -98,13 +98,13 @@ class TestPeekPokeManager(unittest.TestCase):
             0.1,
         )
         peek_ack_item = TopicItem(
-            peek_ack_topic, cmd_kwargs(0x2B, orig_value, None), 0.1
+            peek_ack_topic, cmd_kwargs(0x2B, orig_value, None), 0.3
         )
         peek_dir_ack_item = TopicItem(
             peek_dir_ack_topic, cmd_kwargs(0x2B, orig_value, None, "00.00.00"), 0.1
         )
         poke_ack_item = TopicItem(
-            poke_ack_topic, cmd_kwargs(0x29, new_value, None), 0.1
+            poke_ack_topic, cmd_kwargs(0x29, new_value, None), 0.6
         )
         poke_dir_ack_item = TopicItem(
             poke_dir_ack_topic, cmd_kwargs(0x29, new_value, None, "00.00.00"), 0.1
@@ -121,7 +121,6 @@ class TestPeekPokeManager(unittest.TestCase):
             ]
         )
         result = await mgr.async_poke(mem_addr=mem_addr, value=new_value)
-        await asyncio.sleep(3)
+        await asyncio.sleep(0.1)
         assert result == 0x01
-        await asyncio.sleep(0.5)
         assert poke_response_recieved

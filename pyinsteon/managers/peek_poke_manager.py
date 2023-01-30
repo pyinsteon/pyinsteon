@@ -45,10 +45,11 @@ class PeekPokeManager(SubscriberBase):
 
     async def async_peek(self, mem_addr: int, extended: bool = False):
         """Peek a value at a memory address."""
-        result = await self._async_peek(mem_addr=mem_addr, extended=extended)
+        result = await self._async_peek(mem_addr=mem_addr)
         if result == ResponseStatus.SUCCESS:
             value = await self._peek_value_queue.get()
             publish_topic(topic=self._peek_topic, mem_addr=mem_addr, value=value)
+            await asyncio.sleep(0.05)
         return result
 
     async def async_poke(self, mem_addr: int, value: int):
@@ -64,6 +65,7 @@ class PeekPokeManager(SubscriberBase):
             result = await self._poke_cmd.async_send(value=value)
             if result == ResponseStatus.SUCCESS:
                 publish_topic(topic=self._poke_topic, mem_addr=mem_addr, value=value)
+                await asyncio.sleep(0.05)
         return result
 
     def subscribe_peek(self, listener: callable, force_strong_ref: bool = False):
@@ -82,15 +84,16 @@ class PeekPokeManager(SubscriberBase):
             listener=listener, topic_name=f"{self._address.id}.manager.{POKE}"
         )
 
-    async def _async_peek(self, mem_addr: int, extended: bool = False):
+    async def _async_peek(self, mem_addr: int):
         """Execute the peek command."""
         mem_hi = mem_addr >> 8
         mem_lo = mem_addr & 0xFF
-        result = await self._set_msb_cmd.async_send(high_byte=mem_hi)
         while not self._peek_value_queue.empty():
             await self._peek_value_queue.get()
+        result = await self._set_msb_cmd.async_send(high_byte=mem_hi)
         if result == ResponseStatus.SUCCESS:
-            result = await self._peek_cmd.async_send(lsb=mem_lo, extended=extended)
+            await asyncio.sleep(0.1)
+            result = await self._peek_cmd.async_send(lsb=mem_lo)
         return result
 
     async def _receive_peek_value(self, value):

@@ -15,7 +15,7 @@ from ..managers.peek_poke_manager import get_peek_poke_manager
 RETRIES_ALL_MAX = 5
 RETRIES_ONE_MAX = 20
 RETRIES_WRITE_MAX = 5
-TIMER = 10
+TIMER = 5
 TIMER_INCREMENT = 3
 TIMER_20_MIN = 60 * 20
 _LOGGER = logging.getLogger(__name__)
@@ -45,11 +45,12 @@ class ALDBReadManager:
         self._last_mem_addr = 0x0000
         self._read_handler = ReadALDBCommandHandler(self._aldb.address)
         self._record_handler = ReceiveALDBRecordHandler(self._aldb.address)
+        self._read_handler.subscribe(self._receive_direct_ack_nak)
         self._record_handler.subscribe(self._receive_record)
         self._timer_lock = asyncio.Lock()
         self._peek_bytes_received = asyncio.Queue()
         self._peek_manager = get_peek_poke_manager(self._aldb.address)
-        self._peek_manager.subscribe(self._receive_peek)
+        self._peek_manager.subscribe_peek(self._receive_peek)
 
     async def async_read(self, mem_addr: int = 0x00, num_recs: int = 0, force=False):
         """Return an iterator of All-Link Database records."""
@@ -132,7 +133,7 @@ class ALDBReadManager:
             while retries_byte:
                 while not self._peek_bytes_received.empty():
                     await self._peek_bytes_received.get()
-                result = await self._peek_manager.async_peek(mem_addr, extended=True)
+                result = await self._peek_manager.async_peek(mem_addr)
                 if result == ResponseStatus.SUCCESS:
                     try:
                         async with async_timeout.timeout(timeout):
@@ -140,7 +141,6 @@ class ALDBReadManager:
                     except asyncio.TimeoutError:
                         pass
                 retries_byte -= 1
-                await asyncio.sleep(0.1)
             return None
 
         if self._aldb[mem_addr]:
@@ -149,14 +149,12 @@ class ALDBReadManager:
         retries = RETRIES_ONE_MAX
         while retries:
             record = bytearray()
-            curr_byte = 0
-            while curr_byte < 8:
+            for curr_byte in range(0, 8):
                 value = await async_peek(mem_addr=mem_addr - curr_byte)
                 if value is None:
                     break
                 record.append(value)
-                curr_byte = len(record)
-            if len(record) >= 8:
+            if len(record) == 8:
                 flags = AllLinkRecordFlags(record[7])
                 aldb_record = ALDBRecord(
                     memory=mem_addr,
@@ -214,7 +212,7 @@ class ALDBReadManager:
                         return
             except asyncio.TimeoutError:
                 retries -= 1
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(0.05)
             if self._aldb.is_loaded:
                 _LOGGER.debug("_read_all completed")
                 return
@@ -227,7 +225,7 @@ class ALDBReadManager:
             if record is not None:
                 _LOGGER.debug("_read_all returning record: %s", str(record))
                 yield record
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(0.06)
 
             last_record = next_record
             next_record = self._next_missing_record()
@@ -245,13 +243,14 @@ class ALDBReadManager:
             return
 
         # Read all records did not work so we try to read one at a time
+        retries = RETRIES_ALL_MAX
         last_record = 0
         next_record = self._next_missing_record()
-        while next_record is not None:
+        while next_record is not None and retries:
             record = await self._read_one_peek(next_record)
             if record is not None:
                 yield record
-            await asyncio.sleep(0.05)  # let the ALDB catch up to changes
+            await asyncio.sleep(0.06)  # let the ALDB catch up to changes
             last_record = next_record
             next_record = self._next_missing_record()
 
@@ -260,6 +259,7 @@ class ALDBReadManager:
             if next_record == last_record:
                 _LOGGER.info("Returning on error")
                 return
+            retries -= 1
         _LOGGER.info("Next record is NONE")
 
     def _receive_direct_ack_nak(self, response):

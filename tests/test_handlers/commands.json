@@ -1047,9 +1047,7 @@
             ],
             "response": 1,
             "assert_tests": {
-                "value": [
-                    18
-                ]
+                "value": 18
             }
         },
         "poke": {
