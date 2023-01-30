@@ -488,7 +488,7 @@ class TestToolsMainMenu(ToolsTestBase):
                     buffer,
                     "\n--------------------------------",
                 )
-                assert buffer[0] == "Address  Group State Name      Value\n"
+                assert buffer[-3] == "Address  Group State Name      Value\n"
                 assert good_device.async_status.call_count == 2
 
                 # Get status of good_address using inline method

@@ -22,15 +22,22 @@ async def async_connect_mock(
     write_queue,
     protocol,
     random_nak=True,
+    always_nak=False,
     auto_ack=True,
     connect=True,
     retries=None,
 ):
     """Mock connection for testing."""
+    # pylint: disable=import-outside-toplevel
     from .mock_transport import MockTransport
 
     transport = MockTransport(
-        protocol, read_queue, write_queue, random_nak=random_nak, auto_ack=auto_ack
+        protocol,
+        read_queue,
+        write_queue,
+        random_nak=random_nak,
+        always_nak=always_nak,
+        auto_ack=auto_ack,
     )
     if connect or not retries:
         protocol.connection_made(transport)
