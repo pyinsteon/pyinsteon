@@ -34,9 +34,11 @@ class ThermostatGetSetPointCommand(DirectCommandHandlerBase):
             or not user_data["d3"] == 0x01
         ):
             return
-        await super().async_handle_ack(cmd1, cmd2, user_data)
+        await super().async_handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers.
 
         Just need to notify listeners that the Set Point Response

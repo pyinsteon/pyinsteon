@@ -200,12 +200,15 @@ def read_eeprom_response(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
 def get_im_info(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
     """Create a topic from an GET_IM_INFO message."""
     topic = build_topic(prefix=msg.ack, topic=GET_IM_INFO)
-    kwargs = {
-        "address": msg.address,
-        "cat": msg.cat,
-        "subcat": msg.subcat,
-        "firmware": msg.firmware,
-    }
+    if len(msg) == 3:
+        kwargs = {}
+    else:
+        kwargs = {
+            "address": msg.address,
+            "cat": msg.cat,
+            "subcat": msg.subcat,
+            "firmware": msg.firmware,
+        }
     yield (topic, kwargs)
 
 
@@ -380,12 +383,15 @@ def rf_sleep(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
 def get_im_configuration(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
     """Create a topic from an get_im_configuration message."""
     topic = build_topic(prefix=msg.ack, topic=GET_IM_CONFIGURATION)
-    kwargs = {
-        "disable_auto_linking": msg.flags.is_auto_link,
-        "monitor_mode": msg.flags.is_monitor_mode,
-        "auto_led": msg.flags.is_auto_led,
-        "deadman": msg.flags.is_disable_deadman,
-    }
+    if len(msg) == 3:
+        kwargs = {}
+    else:
+        kwargs = {
+            "disable_auto_linking": msg.flags.is_auto_link,
+            "monitor_mode": msg.flags.is_monitor_mode,
+            "auto_led": msg.flags.is_auto_led,
+            "deadman": msg.flags.is_disable_deadman,
+        }
     yield (topic, kwargs)
 
 

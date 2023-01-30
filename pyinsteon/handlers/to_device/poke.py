@@ -16,6 +16,8 @@ class PokeCommand(DirectCommandHandlerBase):
         """Send the POKE command async."""
         return await super().async_send(value=value)
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers."""
         self._call_subscribers(value=cmd2)

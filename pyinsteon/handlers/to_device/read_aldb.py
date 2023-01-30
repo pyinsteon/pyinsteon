@@ -22,7 +22,9 @@ class ReadALDBCommandHandler(DirectCommandHandlerBase):
             action=0x00, mem_addr=mem_addr, num_recs=num_recs
         )
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers."""
         self._call_subscribers(response=0)
 

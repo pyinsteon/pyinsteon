@@ -1,9 +1,9 @@
 """Send an X10 command."""
 
+from .. import ack_handler, nak_handler
 from ...constants import ResponseStatus, X10Commands, X10CommandType
 from ...topics import X10_SEND
 from ...x10_address import X10Address
-from .. import ack_handler, nak_handler
 from ..outbound_base import OutboundHandlerBase
 
 
@@ -47,7 +47,7 @@ class X10CommandSend(OutboundHandlerBase):
     @ack_handler
     async def async_handle_ack(self, raw_x10, x10_flag):
         """Handle the X10 message ACK."""
-        await super().async_handle_ack()
+        await self._async_handle_ack()
 
     @nak_handler
     async def async_handle_nak(self, raw_x10, x10_flag):
@@ -60,4 +60,4 @@ class X10CommandSend(OutboundHandlerBase):
         This handler ensures the modem does not try to resend the message constantly.
 
         """
-        await self._message_response.put(ResponseStatus.FAILURE)
+        await self._async_handle_nak()

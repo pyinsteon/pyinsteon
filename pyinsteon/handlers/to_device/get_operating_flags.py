@@ -19,7 +19,9 @@ class GetOperatingFlagsCommand(DirectCommandHandlerBase):
         self._group = flags_requested
         return await super().async_send(flags_requested=self._group, extended=extended)
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers."""
         self._call_subscribers(group=self._group, flags=cmd2)
         self._group = None

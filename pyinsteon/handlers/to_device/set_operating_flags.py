@@ -25,7 +25,9 @@ class SetOperatingFlagsCommand(DirectCommandHandlerBase):
             return await super().async_send(cmd=cmd, extended=True)
         return cmd_response
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers on DIIRECT ack received."""
         self._call_subscribers(response=0)
 

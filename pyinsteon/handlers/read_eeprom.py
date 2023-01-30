@@ -2,9 +2,9 @@
 # pylint: disable=no-self-use
 import logging
 
+from . import ack_handler, nak_handler
 from ..constants import ResponseStatus
 from ..topics import READ_EEPROM
-from . import ack_handler, nak_handler
 from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -25,11 +25,10 @@ class ReadEepromHandler(OutboundHandlerBase):
 
         return await super().async_send(mem_hi=mem_array[0], mem_low=mem_array[1] - 7)
 
-    # pylint: disable=arguments-differ
     @ack_handler
     async def async_handle_ack(self, mem_hi: int, mem_low: int):
         """Send the Read from EEPROM message."""
-        await super().async_handle_ack(mem_hi=mem_hi, mem_low=mem_low)
+        await self._async_handle_ack(mem_hi=mem_hi, mem_low=mem_low)
 
     @nak_handler
     async def async_handle_nak(self, mem_hi: int, mem_low: int):

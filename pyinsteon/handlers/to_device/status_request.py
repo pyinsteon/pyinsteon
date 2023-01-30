@@ -1,10 +1,10 @@
 """Manage outbound ON command to a device."""
 import asyncio
 
+from .. import ack_handler, status_handler
 from ... import pub
 from ...constants import MessageFlagType, ResponseStatus
 from ...topics import STATUS_REQUEST
-from .. import ack_handler, status_handler
 from .direct_command import DirectCommandHandlerBase
 
 
@@ -26,7 +26,7 @@ class StatusRequestCommand(DirectCommandHandlerBase):
     async def async_handle_ack(self, cmd1, cmd2, user_data):
         """Handle the message ACK."""
         if cmd2 == self._status_type:
-            await super().async_handle_ack(cmd1, cmd2, user_data)
+            await super().async_handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
 
     @status_handler
     async def async_handle_direct_ack(self, topic=pub.AUTO_TOPIC, **kwargs):
@@ -36,7 +36,7 @@ class StatusRequestCommand(DirectCommandHandlerBase):
         confirm the message is a status response.
         """
         # Need to make sure the ACK has time to aquire the lock
-        await asyncio.sleep(0.05)
+        await asyncio.sleep(0.06)
         if not self._response_lock.locked():
             return
 

@@ -49,4 +49,4 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
     async def async_handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK."""
         if user_data["d1"] == self._data1 and user_data["d2"] == self._data2:
-            await super().async_handle_ack(cmd1, cmd2, user_data)
+            await super().async_handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)

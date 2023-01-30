@@ -212,14 +212,7 @@ FLD_GET_IM_CONFIG_ACK = [
     MessageField("ack", 1, AckNak),
 ]
 
-FLD_GET_IM_CONFIG_ACK = [
-    MessageField("flags", 1, IMConfigurationFlags),
-    MessageField("spare1", 1, int),
-    MessageField("spare2", 1, int),
-    MessageField("ack", 1, AckNak),
-]
-
-# Get IM Configuration 0x75
+# Read EEPROM 0x75
 FLD_READ_EEPROM = [
     MessageField("mem_hi", 1, int),
     MessageField("mem_low", 1, int),
