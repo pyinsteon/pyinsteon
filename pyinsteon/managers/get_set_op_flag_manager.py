@@ -143,10 +143,8 @@ class GetSetOperatingFlagsManager:
         flag.load(flag.value)
         return ResponseStatus.SUCCESS
 
-    def _update_flags(self, group, flags, response):
+    def _update_flags(self, group, flags):
         """Update each flag."""
-        if response:  # response should be 0
-            return
 
         if not self._groups.get(group):
             return
