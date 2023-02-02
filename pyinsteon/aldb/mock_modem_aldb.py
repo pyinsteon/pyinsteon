@@ -107,8 +107,8 @@ class MockModemALDB(ALDBBase):
             record = await self._read_manager.async_read_record(next_mem_addr)
             next_mem_addr -= 8
 
-    def _calc_load_status(self):
+    def _is_loaded(self):
         """Calculate the AlDB load status."""
         if self._read_write_mode == ReadWriteMode.STANDARD:
             return ALDBStatus.LOADED
-        return super()._calc_load_status()
+        return super()._is_loaded()
