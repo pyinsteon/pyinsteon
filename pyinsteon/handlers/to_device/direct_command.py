@@ -9,7 +9,7 @@ from .. import ack_handler, direct_ack_handler, direct_nak_handler, nak_handler
 from ...constants import MessageFlagType, ResponseStatus
 from ..outbound_base import OutboundHandlerBase
 
-TIMEOUT = 3  # Wait time for device response
+TIMEOUT = 6  # Wait time for device response
 
 
 class DirectCommandHandlerBase(OutboundHandlerBase):
