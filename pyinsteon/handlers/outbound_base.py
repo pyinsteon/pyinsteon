@@ -11,7 +11,7 @@ from .inbound_base import InboundHandlerBase
 
 MSG_TIME = 180  # seconds to send each message in queue, used for timeout below
 NAK_RETRIES = 9
-NAK_RESEND_WAIT = 0.01
+NAK_RESEND_WAIT = 0.2
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -74,7 +74,6 @@ class OutboundHandlerBase(InboundHandlerBase):
             sleep_duration = (
                 NAK_RESEND_WAIT * (NAK_RETRIES - self._nak_retries) + NAK_RESEND_WAIT
             )
-            _LOGGER.info(self)
             await asyncio.sleep(sleep_duration)
             publish_topic(self._send_topic, **self._kwargs)
             self._nak_retries -= 1
