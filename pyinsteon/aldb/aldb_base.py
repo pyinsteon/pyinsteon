@@ -116,7 +116,7 @@ class ALDBBase(ABC):
     def is_loaded(self) -> bool:
         """Test if the ALDB is loaded."""
         if self._status == ALDBStatus.LOADING:
-            loaded = self._calc_load_status()
+            loaded = self._is_loaded()
             if loaded:
                 self._update_status(ALDBStatus.LOADED)
         return self._status == ALDBStatus.LOADED
@@ -376,7 +376,7 @@ class ALDBBase(ABC):
     def set_load_status(self):
         """Review the ALDB records and identify the load status."""
         _LOGGER.debug("Setting the load status")
-        if self._calc_load_status():
+        if self._is_loaded():
             self._update_status(ALDBStatus.LOADED)
         elif self._records:
             self._update_status(ALDBStatus.PARTIAL)
@@ -453,7 +453,7 @@ class ALDBBase(ABC):
             )
         return next_mem_addr
 
-    def _calc_load_status(self):
+    def _is_loaded(self):
         """Test if the ALDB is fully loaded."""
         has_first = False
         has_last = False
