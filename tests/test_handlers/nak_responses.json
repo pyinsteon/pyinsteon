@@ -1,0 +1,146 @@
+{
+    "on.direct": {
+        "command": {
+            "comment": "Could use any direct command.",
+            "class": ".to_device.on_level.OnLevelCommand",
+            "params": {
+                "address": "112233",
+                "group": 1
+            },
+            "send_params": {
+                "on_level": 255
+            }
+        },
+        "nak_count": 10,
+        "response": {}
+    },
+    "cancel_all_linking": {
+        "command": {
+            "class": ".cancel_all_linking.CancelAllLinkingCommandHandler",
+            "params": {},
+            "send_params": {}
+        },
+        "nak_count": 10,
+        "response": {}
+    },
+    "get_first_all_link_record": {
+        "command": {
+            "class": ".get_first_all_link_record.GetFirstAllLinkRecordHandler",
+            "params": {},
+            "send_params": {}
+        },
+        "nak_count": 1,
+        "response": {}
+    },
+    "get_im_configuration": {
+        "command": {
+            "class": ".get_im_configuration.GetImConfigurationHandler",
+            "params": {},
+            "send_params": {}
+        },
+        "nak_count": 10,
+        "response": {}
+    },
+    "get_im_info": {
+        "command": {
+            "class": ".get_im_info.GetImInfoHandler",
+            "params": {},
+            "send_params": {}
+        },
+        "nak_count": 10,
+        "response": {}
+    },
+    "get_next_all_link_record": {
+        "command": {
+            "class": ".get_next_all_link_record.GetNextAllLinkRecordHandler",
+            "params": {},
+            "send_params": {}
+        },
+        "nak_count": 1,
+        "response": {}
+    },
+    "read_eeprom": {
+        "command": {
+            "class": ".read_eeprom.ReadEepromHandler",
+            "params": {},
+            "send_params": {
+                "mem_addr": 1000
+            }
+        },
+        "nak_count": 1,
+        "response": {}
+    },
+    "send_all_link": {
+        "command": {
+            "class": ".send_all_link.SendAllLinkCommandHandler",
+            "params": {},
+            "send_params": {
+                "group": 1,
+                "cmd1": 255,
+                "cmd2": 128
+            }
+        },
+        "nak_count": 10,
+        "response": {}
+    },
+    "set_im_configuration": {
+        "command": {
+            "class": ".set_im_configuration.SetImConfigurationHandler",
+            "params": {},
+            "send_params": {
+                "disable_auto_linking": true,
+                "monitor_mode": false,
+                "auto_led": true,
+                "deadman": false
+            }
+        },
+        "nak_count": 10,
+        "response": {}
+    },
+    "start_all_linking": {
+        "command": {
+            "class": ".start_all_linking.StartAllLinkingCommandHandler",
+            "params": {},
+            "send_params": {
+                "link_mode": 0,
+                "group": 1
+            }
+        },
+        "nak_count": 10,
+        "response": {}
+    },
+    "write_eeprom": {
+        "command": {
+            "class": ".write_eeprom.WriteEepromHandler",
+            "params": {},
+            "send_params": {
+                "mem_addr": 4095,
+                "in_use": true,
+                "high_water_mark": true,
+                "controller": true,
+                "group": 1,
+                "target": "1a2b3c",
+                "data1": 1,
+                "data2": 2,
+                "data3": 3,
+                "bit5": true,
+                "bit4": false
+            }
+        },
+        "nak_count": 1,
+        "response": {}
+    },
+    "x10_send": {
+        "command": {
+            "class": ".to_device.x10_send.X10CommandSend",
+            "params": {
+                "housecode": "a",
+                "unitcode": 1,
+                "x10_cmd": 1
+            },
+            "send_params": {}
+        },
+        "nak_count": 10,
+        "response": {}
+    }
+}

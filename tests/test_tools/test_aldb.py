@@ -325,7 +325,7 @@ class TestToolsAldbMenu(ToolsTestBase):
             ):
                 # Print ALDB with input mode
                 cmd_mgr, _, stdout = self.setup_cmd_tool(
-                    ToolsAldb, ["print_aldb", str(good_address), "exit"]
+                    ToolsAldb, ["print_aldb", str(good_address), "n", "exit"]
                 )
                 stdout.buffer = []
                 await cmd_mgr.async_cmdloop("")
@@ -337,7 +337,7 @@ class TestToolsAldbMenu(ToolsTestBase):
 
                 # Print ALDB with command line mode
                 cmd_mgr, _, stdout = self.setup_cmd_tool(
-                    ToolsAldb, [f"print_aldb {good_address}", "exit"]
+                    ToolsAldb, [f"print_aldb {good_address}", "n", "exit"]
                 )
                 stdout.buffer = []
                 await cmd_mgr.async_cmdloop("")

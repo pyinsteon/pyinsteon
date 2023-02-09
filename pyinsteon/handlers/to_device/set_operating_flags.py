@@ -20,12 +20,14 @@ class SetOperatingFlagsCommand(DirectCommandHandlerBase):
     async def async_send(self, cmd: int, extended=False):
         """Send Get Operating Flags message asyncronously."""
         cmd_response = await super().async_send(cmd=cmd, extended=extended)
-        if cmd_response == ResponseStatus.UNCLEAR and not extended:
+        if cmd_response == ResponseStatus.DIRECT_NAK_PRE_NAK and not extended:
             _LOGGER.debug("Attempting resend with extended message")
             return await super().async_send(cmd=cmd, extended=True)
         return cmd_response
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers on DIIRECT ack received."""
         self._call_subscribers(response=0)
 

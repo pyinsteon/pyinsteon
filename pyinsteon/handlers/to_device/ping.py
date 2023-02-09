@@ -10,6 +10,8 @@ class PingCommand(DirectCommandHandlerBase):
         """Init the PingCommand class."""
         super().__init__(topic=PING, address=address)
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers."""
         self._call_subscribers()

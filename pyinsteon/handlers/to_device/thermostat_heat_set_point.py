@@ -1,8 +1,8 @@
 """Thermostat temperature up command."""
 import asyncio
 
-from ...topics import THERMOSTAT_SET_HEAT_SETPOINT
 from .. import ack_handler
+from ...topics import THERMOSTAT_SET_HEAT_SETPOINT
 from .direct_command import DirectCommandHandlerBase
 
 
@@ -32,13 +32,15 @@ class ThermostatHeatSetPointCommand(DirectCommandHandlerBase):
             self._degrees = cmd2 / 2
             self._zone = None
             self._deadband = None
-        await super().async_handle_ack(cmd1, cmd2, user_data)
+        await super().async_handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
         await asyncio.sleep(0.2)
         self._degrees = None
         self._zone = None
         self._deadband = None
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers."""
         self._call_subscribers(
             degrees=self._degrees, zone=self._zone, deadband=self._deadband

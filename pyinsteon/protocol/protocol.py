@@ -6,7 +6,6 @@ import logging
 from queue import SimpleQueue
 from typing import Union
 
-from .. import pub
 from ..constants import AckNak
 from ..utils import log_error, publish_topic
 from .command_to_msg import register_command_handlers
@@ -34,28 +33,24 @@ def _get_addresses_in_msg(msg):
     return addresses
 
 
-def _is_nak(msg):
-    """Test if a message is a NAK from the modem."""
-    if hasattr(msg, "ack") and msg.ack.value == 0x15:
-        return True
-    return False
-
-
-def _has_listeners(topic):
-    """Test if a topic has listeners.
-
-    Only used if the msg is a NAK. If no NAK specific listeners
-    then resend the message. Otherwise it is assumed the NAK
-    specific listner is resending if necessary.
-    """
-    topic_manager = pub.getDefaultTopicMgr()
-    pub_topic = topic_manager.getTopic(name=topic, okIfNone=True)
-    _LOGGER.debug("MSG Topic: %s", pub_topic)
-    if pub_topic and pub_topic.getListeners():
-        _LOGGER.debug("Has listeners so do not resend.")
-        return True
-    _LOGGER.debug("No listeners so resend")
-    return False
+# pylint: disable=broad-except
+async def _publish_message(msg):
+    """Convert an inbound message to a topic and publish to listeners."""
+    _LOGGER_MSG.debug("RX: %s", repr(msg))
+    if _LOGGER_MSG.level == 0 or _LOGGER_MSG.level > logging.DEBUG:
+        for addr in _get_addresses_in_msg(msg):
+            logger = logging.getLogger(f"pyinsteon.{addr.id}")
+            logger.debug("RX: %s", repr(msg))
+    topic = None
+    kwargs = {}
+    try:
+        for (topic, kwargs) in convert_to_topic(msg):
+            publish_topic(topic, **kwargs)
+    except ValueError:
+        # No topic was found for this message
+        _LOGGER.debug("No topic found for message %r", msg)
+    except Exception as ex:
+        log_error(msg, ex, topic=topic, kwargs=kwargs)
 
 
 class TransportStatus(Enum):
@@ -133,7 +128,7 @@ class Protocol(asyncio.Protocol):
                 last_msg_nak.extend(bytes([0x15]))
                 msg, _ = create(last_msg_nak)
             if msg:
-                asyncio.create_task(self._publish_message(msg))
+                asyncio.create_task(_publish_message(msg))
                 msg = None
 
             if not self._buffer or last_buffer == self._buffer:
@@ -205,28 +200,6 @@ class Protocol(asyncio.Protocol):
             self._writer_task.remove_done_callback(self._start_writer)
         await self._message_queue.put((0, None))
 
-    # pylint: disable=broad-except
-    async def _publish_message(self, msg):
-        """Convert an inbound message to a topic and publish to listeners."""
-        _LOGGER_MSG.debug("RX: %s", repr(msg))
-        if _LOGGER_MSG.level == 0 or _LOGGER_MSG.level > logging.DEBUG:
-            for addr in _get_addresses_in_msg(msg):
-                logger = logging.getLogger(f"pyinsteon.{addr.id}")
-                logger.debug("RX: %s", repr(msg))
-        topic = None
-        kwargs = {}
-        try:
-            for (topic, kwargs) in convert_to_topic(msg):
-                if _is_nak(msg) and not _has_listeners(topic):
-                    await self._async_resend(msg)
-                else:
-                    publish_topic(topic, **kwargs)
-        except ValueError:
-            # No topic was found for this message
-            _LOGGER.debug("No topic found for message %r", msg)
-        except Exception as ex:
-            log_error(msg, ex, topic=topic, kwargs=kwargs)
-
     def write(self, msg, priority=5):
         """Prepare data for writing to the transport.
 
@@ -236,14 +209,6 @@ class Protocol(asyncio.Protocol):
         'Set Light Level'.
         """
         self._message_queue.put_nowait((priority, msg))
-
-    async def _async_resend(self, msg):
-        """Resend after a NAK message.
-
-        TODO: Avoid resending the same message 10 times.
-        """
-        await asyncio.sleep(0.5)
-        self.write(bytes(msg)[:-1])
 
     async def _write_messages(self):
         """Write data to the transport."""

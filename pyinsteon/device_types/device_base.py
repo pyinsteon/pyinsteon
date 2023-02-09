@@ -15,7 +15,8 @@ from ..handlers.to_device.product_data_request import ProductDataRequestCommand
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
 from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
 from ..managers.link_manager.default_links import async_add_default_links
-from ..utils import multiple_status
+from ..topics import ENGINE_VERSION
+from ..utils import multiple_status, publish_topic
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -182,6 +183,9 @@ class Device(ABC):
         if version in [EngineVersion.I2, EngineVersion.I2CS]:
             self._op_flags_manager.extended_write = True
         self._engine_version = version
+        publish_topic(
+            f"{self._address.id}.{ENGINE_VERSION}", version=self._engine_version
+        )
 
     async def async_status(self, group=None):
         """Get the status of the device."""
@@ -190,17 +194,21 @@ class Device(ABC):
         """Get all configuration settings.
 
         This includes:
+        - Engine Version
         - Operating flags
         - Extended properties
         - All-Link Database records.
         """
+        result_engine = await self.async_get_engine_version()
         result_op_flags = await self.async_read_op_flags()
         result_ext_prop = await self.async_read_ext_properties()
         if read_aldb:
             result_aldb = await self._aldb.async_load()
         else:
             result_aldb = ResponseStatus.SUCCESS
-        return multiple_status(result_ext_prop, result_op_flags, result_aldb)
+        return multiple_status(
+            result_engine, result_ext_prop, result_op_flags, result_aldb
+        )
 
     async def async_write_config(self):
         """Write the device configuration to the physical device."""

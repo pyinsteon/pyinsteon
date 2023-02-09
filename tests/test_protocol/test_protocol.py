@@ -1,12 +1,13 @@
 """Test the protocol class."""
 import asyncio
-import unittest
 from binascii import unhexlify
+import unittest
 from unittest.mock import patch
 
 from pyinsteon import pub
 from pyinsteon.address import Address
 from pyinsteon.topics import ON
+
 from tests import set_log_levels
 from tests.utils import (
     DataItem,
@@ -175,10 +176,10 @@ class TestProtocol(unittest.TestCase):
                     await asyncio.sleep(0.1)
                     try:
                         assert self.topic == test["topic"]
-                    except AssertionError:
+                    except AssertionError as ex:
                         raise AssertionError(
                             f"Failed with data {test['data']}: Topic: {self.topic}  Expected: {test['topic']}"
-                        )
+                        ) from ex
 
                 # Test when the modem only responds with a NAK rather than the original message.
                 nak_topic = "nak.0a0b0c.1.on.direct"
@@ -189,12 +190,6 @@ class TestProtocol(unittest.TestCase):
                 protocol.data_received(unhexlify("15"))
                 await asyncio.sleep(0.1)
                 assert self.topic == nak_topic
-
-                # Test that a NAK is resent rather than published as a topic.
-                self.topic = None
-                protocol.data_received(unhexlify("02620d0e0f09110b15"))
-                await asyncio.sleep(0.1)
-                assert self.topic is None
 
     @async_case
     async def test_pause_resume_writer(self):

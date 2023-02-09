@@ -164,29 +164,29 @@
         },
         "result": "0262aaaaaa0028ba"
     },
-    "POKE_ONE_BYTE": {
-        "topic": "poke_one_byte",
+    "POKE": {
+        "topic": "poke",
         "args": {
             "value": "0xbb"
         },
         "result": "0262aaaaaa0029bb"
     },
-    "PEEK_ONE_BYTE": {
-        "topic": "peek_one_byte",
+    "PEEK": {
+        "topic": "peek",
         "args": {
             "lsb": "0xbc"
         },
         "result": "0262aaaaaa002Bbc"
     },
-    "PEEK_ONE_BYTE_INTERNAL": {
-        "topic": "peek_one_byte_internal",
+    "PEEK_INTERNAL": {
+        "topic": "peek_internal",
         "args": {
             "lsb": "0xbd"
         },
         "result": "0262aaaaaa002Cbd"
     },
-    "POKE_ONE_BYTE_INTERNAL": {
-        "topic": "poke_one_byte_internal",
+    "POKE_INTERNAL": {
+        "topic": "poke_internal",
         "args": {
             "value": "0xbe"
         },

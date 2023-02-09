@@ -1,13 +1,13 @@
 """Insteon inbound message data structure defintion."""
-import logging
 from binascii import hexlify
+import logging
 from typing import Tuple
 
-from ...constants import MessageId
-from ...data_types.message_flags import MessageFlags
 from . import MessageBase
+from ...constants import AckNak, MessageId
+from ...data_types.message_flags import MessageFlags
 from .message_definition import MessageDefinition
-from .message_definitions import FLD_EXT_SEND_ACK, INBOUND_MSG_DEF
+from .message_definitions import FLD_EXT_SEND_ACK, INBOUND_MSG_DEF, MessageField
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -88,7 +88,15 @@ def create(raw_data: bytearray) -> Tuple[Inbound, bytearray]:
         data_bytes = trim_data(bytearray(data_bytes[truncate:]))
         _LOGGER.debug("Returning: %s", data_bytes.hex())
         return None, bytearray(data_bytes)
-    msg_def = INBOUND_MSG_DEF.get(msg_id)
+    if (
+        msg_id in [MessageId.GET_IM_CONFIGURATION, MessageId.GET_IM_INFO]
+        and len(data_bytes) >= 3
+        and data_bytes[2] == 0x15
+    ):
+        msg_def = MessageDefinition(msg_id, [MessageField("ack", 1, AckNak)])
+    else:
+        msg_def = INBOUND_MSG_DEF.get(msg_id)
+
     if msg_def is not None:
         if len(data_bytes) < len(msg_def):
             _LOGGER.debug("Full message not received")
@@ -101,4 +109,5 @@ def create(raw_data: bytearray) -> Tuple[Inbound, bytearray]:
             msg, remaining_data = _create_message(msg_def, data_bytes)
         _LOGGER.debug("Returning: %s", remaining_data.hex())
         return msg, bytearray(remaining_data)
+
     return None, trim_data(data_bytes[1:])

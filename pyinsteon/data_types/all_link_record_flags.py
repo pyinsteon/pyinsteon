@@ -97,6 +97,16 @@ class AllLinkRecordFlags:
         return self._mode
 
     @property
+    def is_controller(self):
+        """Return if the record flag is a controller."""
+        return self._mode == AllLinkMode.CONTROLLER
+
+    @property
+    def is_responder(self):
+        """Return if the record flag is a responder."""
+        return self._mode == AllLinkMode.RESPONDER
+
+    @property
     def is_hwm(self):
         """Return if the record is the high water mark."""
         return self._hwm

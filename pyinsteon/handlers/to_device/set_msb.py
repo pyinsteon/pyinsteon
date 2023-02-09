@@ -15,6 +15,8 @@ class SetMsbCommand(DirectCommandHandlerBase):
         """Send the ON command async."""
         return await super().async_send(high_byte=high_byte)
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers."""
         self._call_subscribers(high_byte=cmd2)

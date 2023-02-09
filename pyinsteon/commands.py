@@ -48,11 +48,11 @@ from .topics import (
     ON,
     ON_AT_RAMP_RATE,
     ON_FAST,
-    PEEK_ONE_BYTE,
-    PEEK_ONE_BYTE_INTERNAL,
+    PEEK,
+    PEEK_INTERNAL,
     PING,
-    POKE_ONE_BYTE,
-    POKE_ONE_BYTE_INTERNAL,
+    POKE,
+    POKE_INTERNAL,
     POOL_CONTROL,
     POOL_DEVICE_OFF,
     POOL_DEVICE_ON,
@@ -197,12 +197,15 @@ class Commands:
         """Return if a topic requires a group number."""
         return self._use_group.get(topic)
 
-    def get_topics(self, cmd1, cmd2, userdata=None, send=False) -> str:
+    def get_topics(self, cmd1, cmd2, flags, userdata=None, send=False) -> str:
         """Generate a topic from a cmd1, cmd2 and extended flag."""
         found = False
         for topic in self._commands_topic_map.get(cmd1, {}):
             command = self._topics[topic]
             if _check_match(command, cmd1, cmd2, userdata):
+                found = True
+                yield topic
+            elif flags.is_direct_nak and _check_match(command, cmd1, None, userdata):
                 found = True
                 yield topic
         if not found:
@@ -548,7 +551,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    topic=POKE_ONE_BYTE,
+    topic=POKE,
     cmd1=0x29,
     cmd2=None,
     ud_allowed=False,
@@ -557,7 +560,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    topic=PEEK_ONE_BYTE,
+    topic=PEEK,
     cmd1=0x2B,
     cmd2=None,
     ud_allowed=False,
@@ -566,7 +569,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    topic=PEEK_ONE_BYTE_INTERNAL,
+    topic=PEEK_INTERNAL,
     cmd1=0x2C,
     cmd2=None,
     ud_allowed=False,
@@ -575,7 +578,7 @@ commands.add(
     use_group=False,
 )
 commands.add(
-    topic=POKE_ONE_BYTE_INTERNAL,
+    topic=POKE_INTERNAL,
     cmd1=0x2D,
     cmd2=None,
     ud_allowed=False,
@@ -659,16 +662,6 @@ commands.add(
     userdata=None,
     use_group=False,
 )
-# Conflicts with OFF_AT_RAMP_RATE but only used when an ALDB read ack has already been received
-# commands.add(
-#     topic=EXTENDED_READ_WRITE_ALDB_DIRECT_NAK,
-#     cmd1=0x2F,
-#     cmd2=None,
-#     ud_allowed=False,
-#     ud_required=False,
-#     userdata=None,
-#     use_group=False,
-# )
 commands.add(
     topic=EXTENDED_TRIGGER_ALL_LINK,
     cmd1=0x30,

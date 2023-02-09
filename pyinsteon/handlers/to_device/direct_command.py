@@ -5,11 +5,11 @@ import asyncio
 
 import async_timeout
 
-from .. import ack_handler, direct_ack_handler, direct_nak_handler
+from .. import ack_handler, direct_ack_handler, direct_nak_handler, nak_handler
 from ...constants import MessageFlagType, ResponseStatus
 from ..outbound_base import OutboundHandlerBase
 
-TIMEOUT = 3  # Wait time for device response
+TIMEOUT = 6  # Wait time for device response
 
 
 class DirectCommandHandlerBase(OutboundHandlerBase):
@@ -39,11 +39,10 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
                 pass
         return ResponseStatus.FAILURE
 
-    # pylint: disable=arguments-differ
     @ack_handler
     async def async_handle_ack(self, cmd1, cmd2, user_data):
         """Handle Direct Command ACK message."""
-        await super().async_handle_ack()
+        await self._async_handle_ack()
         try:
             async with async_timeout.timeout(TIMEOUT):
                 async with self._response_lock:
@@ -52,13 +51,18 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
         except asyncio.TimeoutError:
             await self._message_response.put(ResponseStatus.DEVICE_UNRESPONSIVE)
 
+    @nak_handler
+    async def async_handle_nak(self, cmd1, cmd2, user_data):
+        """Handle the NAK response from the modem."""
+        await self._async_handle_nak()
+
     @direct_nak_handler
     async def async_handle_direct_nak(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the message ACK."""
         await asyncio.sleep(0.05)
-        if cmd2 == 0xFC:
-            response = ResponseStatus.UNCLEAR
-        else:
+        try:
+            response = ResponseStatus(cmd2)
+        except ValueError:
             response = ResponseStatus.FAILURE
         if self._response_lock.locked():
             await self._direct_response.put(response)
@@ -75,10 +79,14 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
         await asyncio.sleep(0.05)
         if self._response_lock.locked():
             await self._direct_response.put(ResponseStatus.SUCCESS)
-            self._update_subscribers_on_ack(cmd1, cmd2, target, user_data, hops_left)
+            self._update_subscribers_on_direct_ack(
+                cmd1, cmd2, target, user_data, hops_left
+            )
             await asyncio.sleep(0.05)
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers."""
 
     def _update_subscribers_on_nak(self, cmd1, cmd2, target, user_data, hops_left):

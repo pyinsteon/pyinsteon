@@ -1,9 +1,9 @@
 """Handle sending a read request for ALDB records."""
 import logging
 
+from .. import ack_handler
 from ...address import Address
 from ...topics import EXTENDED_GET_SET
-from .. import ack_handler
 from .direct_command import DirectCommandHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
     """Handle sending a read request for ALDB records."""
 
     def __init__(self, address: Address, data1=None, data2=None):
-        """Init the ReadALDBCommandHandler."""
+        """Init the ExtendedSetCommand."""
         if data2 in [0, 1]:
             _LOGGER.error("Extended Set sent with bad action number: %d", data1)
             raise (ValueError("Error creating extended set command"))
@@ -49,4 +49,4 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
     async def async_handle_ack(self, cmd1, cmd2, user_data):
         """Handle the ACK."""
         if user_data["d1"] == self._data1 and user_data["d2"] == self._data2:
-            await super().async_handle_ack(cmd1, cmd2, user_data)
+            await super().async_handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)

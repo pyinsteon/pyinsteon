@@ -14,8 +14,9 @@ from pyinsteon.managers.x10_manager import (
     async_x10_all_units_off,
 )
 from pyinsteon.x10_address import create
+
 from tests import set_log_levels
-from tests.utils import async_case
+from tests.utils import TopicItem, async_case, send_topics
 
 
 class TestX10AllLightsOnOffManager(unittest.TestCase):
@@ -97,6 +98,8 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
 
         topic = "send.x10_send"
         pub.subscribe(check_x10_call, topic)
+        ack = TopicItem("ack.x10_send", {"raw_x10": 0x61, "x10_flag": 0x80}, 0.5)
+        send_topics([ack])
         await async_x10_all_lights_on(housecode="a")
         await asyncio.sleep(0.05)
         assert call_received
@@ -116,6 +119,8 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
 
         topic = "send.x10_send"
         pub.subscribe(check_x10_call, topic)
+        ack = TopicItem("ack.x10_send", {"raw_x10": 0x66, "x10_flag": 0x80}, 0.5)
+        send_topics([ack])
         await async_x10_all_lights_off(housecode="a")
         await asyncio.sleep(0.05)
         assert call_received
@@ -135,6 +140,8 @@ class TestX10AllLightsOnOffManager(unittest.TestCase):
 
         topic = "send.x10_send"
         pub.subscribe(check_x10_call, topic)
+        ack = TopicItem("ack.x10_send", {"raw_x10": 0x60, "x10_flag": 0x80}, 0.5)
+        send_topics([ack])
         await async_x10_all_units_off(housecode="a")
         await asyncio.sleep(0.05)
         assert call_received
