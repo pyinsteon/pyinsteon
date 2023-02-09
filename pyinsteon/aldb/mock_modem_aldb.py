@@ -3,7 +3,7 @@ import logging
 from typing import List
 
 from ..address import Address
-from ..constants import ALDBStatus, ALDBVersion, ReadWriteMode
+from ..constants import ALDBStatus, EngineVersion, ReadWriteMode
 from ..managers.aldb_im_write_manager import ImWriteManager
 from .aldb_base import ALDBBase
 from .aldb_record import ALDBRecord
@@ -22,7 +22,7 @@ class MockModemALDB(ALDBBase):
     modem.aldb.load: Triggers the loading of the ALDB.
     """
 
-    def __init__(self, address, version=ALDBVersion.V2, mem_addr=0x1FFF):
+    def __init__(self, address, version=EngineVersion.I2, mem_addr=0x1FFF):
         """Init the ModemALDB."""
 
         super().__init__(address, version, mem_addr, write_manager=ImWriteManager)
@@ -107,8 +107,8 @@ class MockModemALDB(ALDBBase):
             record = await self._read_manager.async_read_record(next_mem_addr)
             next_mem_addr -= 8
 
-    def _calc_load_status(self):
+    def _is_loaded(self):
         """Calculate the AlDB load status."""
         if self._read_write_mode == ReadWriteMode.STANDARD:
             return ALDBStatus.LOADED
-        return super()._calc_load_status()
+        return super()._is_loaded()

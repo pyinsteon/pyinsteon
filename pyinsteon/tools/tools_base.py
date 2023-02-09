@@ -934,11 +934,15 @@ class ToolsBase(Cmd):
             except ValueError:
                 address = None
 
-    def _print_aldb_out(self, addresses, log_stdout):
+    def _print_aldb_out(self, addresses, unused, log_stdout):
         """Print the ALDB to the log."""
         for address in addresses:
             device = devices[address]
-            records = [device.aldb[mem_addr] for mem_addr in device.aldb]
+            records = [
+                device.aldb[mem_addr]
+                for mem_addr in device.aldb
+                if (unused or device.aldb[mem_addr].is_in_use)
+            ]
             self._print_aldb_output(log_stdout, device, records)
 
     def _print_aldb_output(self, log_stdout, device="", records=1, **kwargs):

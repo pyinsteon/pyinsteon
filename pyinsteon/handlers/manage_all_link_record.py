@@ -1,10 +1,10 @@
 """Command handler for message ID 0x6f Manage All-Link Record."""
 
+from . import ack_handler, nak_handler
 from ..address import Address
 from ..constants import ManageAllLinkRecordAction, ResponseStatus
 from ..data_types.all_link_record_flags import AllLinkRecordFlags
 from ..topics import MANAGE_ALL_LINK_RECORD
-from . import ack_handler, nak_handler
 from .outbound_base import OutboundHandlerBase
 
 
@@ -51,7 +51,7 @@ class ManageAllLinkRecordCommand(OutboundHandlerBase):
     @ack_handler
     async def async_handle_ack(self, action, flags, group, target, data1, data2, data3):
         """Handle ACK response."""
-        await super().async_handle_ack()
+        await self._async_handle_ack()
 
     @nak_handler
     async def async_handle_nak(self, action, flags, group, target, data1, data2, data3):

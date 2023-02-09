@@ -12,7 +12,7 @@ class WriteALDBCommandHandler(DirectCommandHandlerBase):
     """Handle sending a read request for ALDB records."""
 
     def __init__(self, address: Address):
-        """Init the ReadALDBCommandHandler."""
+        """Init the WriteALDBCommandHandler."""
         super().__init__(topic=EXTENDED_READ_WRITE_ALDB, address=address)
 
     # pylint: disable=arguments-differ

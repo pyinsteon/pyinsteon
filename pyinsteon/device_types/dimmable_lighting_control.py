@@ -323,8 +323,8 @@ class DimmableLightingControl_FanLinc(DimmableLightingControl):
         fan_status = await self.async_fan_status()
         if light_status == fan_status == ResponseStatus.SUCCESS:
             return ResponseStatus.SUCCESS
-        if ResponseStatus.UNCLEAR in (light_status, fan_status):
-            return ResponseStatus.UNCLEAR
+        if ResponseStatus.DIRECT_NAK_PRE_NAK in (light_status, fan_status):
+            return ResponseStatus.DIRECT_NAK_PRE_NAK
         return ResponseStatus.FAILURE
 
     async def async_light_status(self):
@@ -417,7 +417,7 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         if result == ResponseStatus.SUCCESS:
             event = ON_FAST_EVENT if fast else ON_EVENT
             self._update_leds(group=group, value=on_level, event=event)
-        elif result == ResponseStatus.UNCLEAR:
+        elif result == ResponseStatus.DIRECT_NAK_PRE_NAK:
             await self.async_status()
         return result
 
@@ -431,7 +431,7 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         if result == ResponseStatus.SUCCESS:
             event = OFF_FAST_EVENT if fast else OFF_EVENT
             self._update_leds(group=group, value=0, event=event)
-        elif result == ResponseStatus.UNCLEAR:
+        elif result == ResponseStatus.DIRECT_NAK_PRE_NAK:
             await self.async_status()
         return result
 

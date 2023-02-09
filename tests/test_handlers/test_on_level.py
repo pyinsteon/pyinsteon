@@ -160,11 +160,11 @@ class TestOnLevel(unittest.TestCase):
 
         send_topics(topics_fail)
         response = await self.handler3.async_send(on_level=cmd2)
-        assert response == ResponseStatus.FAILURE
+        assert response == ResponseStatus.DIRECT_NAK_ALDB
 
         send_topics(topics_unclear)
         response = await self.handler3.async_send(on_level=cmd2)
-        assert response == ResponseStatus.UNCLEAR
+        assert response == ResponseStatus.DIRECT_NAK_PRE_NAK
 
 
 if __name__ == "__main__":

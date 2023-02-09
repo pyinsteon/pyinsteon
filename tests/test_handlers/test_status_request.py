@@ -3,6 +3,7 @@ import asyncio
 import unittest
 
 from pyinsteon.handlers.to_device.status_request import StatusRequestCommand
+
 from tests import set_log_levels
 from tests.utils import TopicItem, async_case, random_address, send_topics
 
@@ -25,6 +26,7 @@ class TestStatusRequest(unittest.TestCase):
             logger_messages="info",
             logger_topics=True,
         )
+        self.status_command = None
 
     def set_status(self, db_version, status):
         """Handle callback to on_level direct_ack."""

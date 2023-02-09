@@ -12,10 +12,11 @@ except ImportError:
 from functools import partial, wraps
 from random import randint
 
-import pyinsteon.protocol.protocol
 from pyinsteon import pub
 from pyinsteon.address import Address
 from pyinsteon.protocol.messages.inbound import create
+import pyinsteon.protocol.protocol
+
 from tests import _LOGGER_MESSAGES, async_connect_mock
 
 
@@ -83,6 +84,7 @@ def send_data(data_items, queue):
 
 def create_std_ext_msg(address, flags, cmd1, cmd2, user_data=None, target=None, ack=0):
     """Create a standard or extended message."""
+    # pylint: disable=import-outside-toplevel
     from pyinsteon.data_types.user_data import UserData
 
     address = Address(address)
@@ -200,6 +202,7 @@ async def async_create_protocol(
     read_queue=None,
     write_queue=None,
     random_nak=False,
+    always_nak=False,
     auto_ack=True,
     connect=True,
     retry=True,
@@ -223,6 +226,7 @@ async def async_create_protocol(
             read_queue=read_queue,
             write_queue=write_queue,
             random_nak=random_nak,
+            always_nak=always_nak,
             auto_ack=auto_ack,
             connect=connect,
             retries=retries,
@@ -309,8 +313,8 @@ class MockSerial:
         self.kwargs = None
         self.call_count = 0
         self.iostream = StringIO()
-        self.serial_for_url_exception = None
-        self.write_exception = None
+        self.serial_for_url_exception: Exception = None
+        self.write_exception: Exception = None
         self.msg = None
 
     def serial_for_url(self, *args, **kwargs):
@@ -318,6 +322,7 @@ class MockSerial:
         self.call_count += 1
         self.kwargs = kwargs
         if self.serial_for_url_exception:
+            # pylint: disable=raising-bad-type
             raise self.serial_for_url_exception
         return self
 
@@ -328,6 +333,7 @@ class MockSerial:
     def write(self, data):
         """Mock the write method."""
         if self.write_exception:
+            # pylint: disable=raising-bad-type
             raise self.write_exception
         self.msg = data
 

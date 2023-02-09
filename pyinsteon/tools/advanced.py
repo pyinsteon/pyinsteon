@@ -509,13 +509,14 @@ class AdvancedTools(ToolsAldb):
         if not confirm:
             return
 
-        device.aldb.load_saved_records(ALDBStatus.LOADED, aldb_recs)
-        last_rec = None
-        for mem in device.aldb:
-            rec = device.aldb[mem]
-            device.aldb[mem] = rec
-            last_rec = rec
-        if last_rec and not last_rec.is_high_water_mark:
+        for mem_addr in device.aldb:
+            device.aldb.remove(mem_addr=mem_addr)
+
+        for rec in aldb_array:
+            device.aldb[rec.mem_addr] = rec
+
+        last_rec = aldb_array[-1]
+        if not last_rec.is_high_water_mark:
             mem = last_rec.mem_addr - 8
             new_rec = ALDBRecord(mem, False, 0, "00.00.00", 0, 0, 0, False, True, 0, 0)
             device.aldb[mem] = new_rec

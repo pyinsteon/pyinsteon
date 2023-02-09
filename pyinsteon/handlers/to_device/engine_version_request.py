@@ -16,10 +16,14 @@ class EngineVersionRequest(DirectCommandHandlerBase):
         """Send the OFF command async."""
         return await super().async_send()
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Handle the OFF response direct ACK."""
         try:
             version = EngineVersion(cmd2)
         except ValueError:
-            version = EngineVersion.UNKNOWN
+            # If Insteon creates a new Insteon Engine Version we want to record it as Other, not Unknown
+            # Unknown is reserved for a device which has not had an engine version discovery performed
+            version = EngineVersion.OTHER
         self._call_subscribers(engine_version=version)

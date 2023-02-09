@@ -9,7 +9,7 @@ class ExtendedGet2Command(DirectCommandHandlerBase):
     """Handle sending a read request for ALDB records."""
 
     def __init__(self, address: Address):
-        """Init the ReadALDBCommandHandler."""
+        """Init the ExtendedGet2Command."""
         super().__init__(topic=EXTENDED_GET_SET_2, address=address)
         self._data1 = 0x00
 

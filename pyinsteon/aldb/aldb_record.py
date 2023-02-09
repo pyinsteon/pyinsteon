@@ -68,26 +68,6 @@ class ALDBRecord:
         }
         return str(rec)
 
-    def __dict___(self):
-        """Return a dictionary object of the ALDB Record."""
-
-        return {
-            "d1": 0x00,
-            "d2": 0x00,
-            "d3": self.memhi,
-            "d4": self.memlo,
-            "d5": 0x00,
-            "d6": self.control_flags,
-            "d7": self.group,
-            "d8": self.target.low,
-            "d9": self.target.middle,
-            "d10": self.target.high,
-            "d11": self.data1,
-            "d12": self.data2,
-            "d13": self.data3,
-            "d14": 0x00,
-        }
-
     def __eq__(self, other: object) -> bool:
         """Test if two records are equal.
 
@@ -121,6 +101,28 @@ class ALDBRecord:
                 )
             )
         )
+
+    def __iter__(self):
+        """Return a dictionary object of the ALDB Record."""
+
+        return_dict = {
+            "d1": 0x00,
+            "d2": 0x00,
+            "d3": self.memhi,
+            "d4": self.memlo,
+            "d5": 0x00,
+            "d6": self.control_flags,
+            "d7": self.group,
+            "d8": self.target.high,
+            "d9": self.target.middle,
+            "d10": self.target.low,
+            "d11": self.data1,
+            "d12": self.data2,
+            "d13": self.data3,
+            "d14": 0x00,
+        }
+        for key, value in return_dict.items():
+            yield (key, value)
 
     @property
     def mem_addr(self):

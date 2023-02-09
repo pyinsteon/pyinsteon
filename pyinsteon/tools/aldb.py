@@ -76,13 +76,16 @@ class ToolsAldb(ToolsBase):
             ):
                 await devices[device_address].aldb.async_load(refresh=True)
 
-    async def do_print_aldb(self, address, log_stdout=None, background=False):
+    async def do_print_aldb(
+        self, address, unused=None, log_stdout=None, background=False
+    ):
         """Print the records in an All-Link Database.
 
         Usage:
-            print_aldb  [--background | -b] address | all
+            print_aldb  [--background | -b] address | all unused
 
         address: Insteon address of a device or `all` for all devices
+        unused (optional): y | n
         """
         try:
             addresses = await self._ensure_address(
@@ -100,7 +103,13 @@ class ToolsAldb(ToolsBase):
             log_stdout("Invalid device address or device not found")
             return
 
-        self._print_aldb_out(addresses, log_stdout)
+        try:
+            unused = await self._ensure_bool(
+                unused, "Show Unused", not background, log_stdout, default=False
+            )
+        except ValueError:
+            unused = False
+        self._print_aldb_out(addresses, unused, log_stdout)
 
     async def do_add_default_links(self, address, log_stdout=None, background=False):
         """Add default links between a device and the modem.

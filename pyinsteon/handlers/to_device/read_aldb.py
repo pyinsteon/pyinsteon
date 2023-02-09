@@ -2,7 +2,7 @@
 import logging
 
 from ...address import Address
-from ...topics import EXTENDED_READ_WRITE_ALDB  # , EXTENDED_READ_WRITE_ALDB_DIRECT_NAK
+from ...topics import EXTENDED_READ_WRITE_ALDB
 from .direct_command import DirectCommandHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -22,7 +22,9 @@ class ReadALDBCommandHandler(DirectCommandHandlerBase):
             action=0x00, mem_addr=mem_addr, num_recs=num_recs
         )
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers."""
         self._call_subscribers(response=0)
 
