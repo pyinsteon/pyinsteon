@@ -388,7 +388,9 @@ class ALDBBase(ABC):
         new_status = ALDBStatus(int(status))
         if new_status != self._status:
             self._status = new_status
-            publish_topic(f"{self._address.id}.{ALDB_STATUS_CHANGED}")
+            publish_topic(
+                f"{self._address.id}.{ALDB_STATUS_CHANGED}", status=self._status
+            )
 
     def _notify_change(self, record, force_delete=False):
         deleted = True if force_delete else not record.is_in_use

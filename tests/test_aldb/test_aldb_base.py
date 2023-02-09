@@ -503,7 +503,7 @@ class TestAldbBase(TestCase):
         """Test subscribing to status change."""
         status_changed = False
 
-        def handle_status_changed():
+        def handle_status_changed(status):
             """Handle status changed."""
             nonlocal status_changed
             status_changed = True
