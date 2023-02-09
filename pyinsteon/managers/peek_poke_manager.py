@@ -113,12 +113,12 @@ class PeekPokeManager(SubscriberBase):
 
     async def _receive_peek_value(self, value):
         """Place the last peek value in the queue."""
-        _LOGGER.warning("Received peek value: %d (0x%02x)", value, value)
+        _LOGGER.debug("Received peek value: %d (0x%02x)", value, value)
         await self._peek_value_queue.put(value)
         await asyncio.sleep(0.05)
 
     async def _receive_poke_value(self, value):
         """Place the last poke value in the queue."""
-        _LOGGER.warning("Received poke value: %d (0x%02x)", value, value)
+        _LOGGER.debug("Received poke value: %d (0x%02x)", value, value)
         await self._poke_value_queue.put(value)
         await asyncio.sleep(0.05)
