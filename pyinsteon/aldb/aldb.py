@@ -41,14 +41,20 @@ class ALDB(ALDBBase):
             for rec in unused:
                 self._records.pop(rec.mem_addr)
 
+        if self._read_write_mode == ReadWriteMode.UNKNOWN:
+            mode = ReadWriteMode.STANDARD
+        else:
+            mode = self._read_write_mode
         try:
             async for rec in self._read_manager.async_read(
                 mem_addr=mem_addr,
                 num_recs=num_recs,
-                read_write_mode=self._read_write_mode,
+                read_write_mode=mode,
             ):
                 self._add_record(rec)
                 await asyncio.sleep(0.1)
+                if self._read_write_mode == ReadWriteMode.UNKNOWN:
+                    self._read_write_mode = mode
                 if self._is_loaded():
                     break
         finally:
