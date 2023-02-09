@@ -1,8 +1,7 @@
 """Modem command to get the IM configuration."""
 import logging
 
-from . import ack_handler
-from ..constants import ResponseStatus
+from . import ack_handler, nak_handler
 from ..topics import GET_IM_CONFIGURATION
 from .outbound_base import OutboundHandlerBase
 
@@ -16,16 +15,20 @@ class GetImConfigurationHandler(OutboundHandlerBase):
         """Init the GetImConfigurationHandler class."""
         super().__init__(topic=GET_IM_CONFIGURATION)
 
-    # pylint: disable=arguments-differ
     @ack_handler
     async def async_handle_ack(
         self, disable_auto_linking, monitor_mode, auto_led, deadman
     ):
-        """Receive the ACK message and return True."""
-        await self._message_response.put(ResponseStatus.SUCCESS)
+        """Handle the ACK message from the modem."""
+        await self._async_handle_ack()
         self._call_subscribers(
             disable_auto_linking=disable_auto_linking,
             monitor_mode=monitor_mode,
             auto_led=auto_led,
             deadman=deadman,
         )
+
+    @nak_handler
+    async def async_handle_nak(self):
+        """Handle the NAK response from the modem."""
+        await self._async_handle_nak()

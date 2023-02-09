@@ -420,7 +420,7 @@
                     "target": "445566"
                 }
             ],
-            "response": 0,
+            "response": 254,
             "assert_tests": {
                 "response": 254
             }
@@ -476,7 +476,7 @@
                     "target": "445566"
                 }
             ],
-            "response": 0,
+            "response": 254,
             "assert_tests": {}
         },
         "status_request": {
@@ -521,7 +521,7 @@
                     "target": "445566"
                 }
             ],
-            "response": 4,
+            "response": 3,
             "assert_tests": {}
         },
         "write_aldb": {
@@ -600,7 +600,7 @@
             ],
             "response": 1,
             "assert_tests": {
-                "engine_version": 3
+                "engine_version": 254
             }
         },
         "ping": {

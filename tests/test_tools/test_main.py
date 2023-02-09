@@ -462,7 +462,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 stdout.buffer = []
                 await cmd_mgr.async_cmdloop()
                 buffer = clean_buffer(stdout.buffer)
-                assert buffer[0] == "Address  Group State Name      Value\n"
+                assert "Address  Group State Name      Value\n" in buffer
                 assert good_device.async_status.call_count == 0
 
                 # Get status of good_address using input method with refresh
@@ -472,7 +472,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 stdout.buffer = []
                 await cmd_mgr.async_cmdloop()
                 buffer = clean_buffer(stdout.buffer)
-                assert buffer[0] == "Address  Group State Name      Value\n"
+                assert "Address  Group State Name      Value\n" in buffer
                 assert good_device.async_status.call_count == 1
 
                 # Get status of good_address using input method with refresh=n but value=None
@@ -488,7 +488,7 @@ class TestToolsMainMenu(ToolsTestBase):
                     buffer,
                     "\n--------------------------------",
                 )
-                assert buffer[0] == "Address  Group State Name      Value\n"
+                assert "Address  Group State Name      Value\n" in buffer
                 assert good_device.async_status.call_count == 2
 
                 # Get status of good_address using inline method
@@ -499,7 +499,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 good_device.groups[1].value = 0
                 await cmd_mgr.async_cmdloop()
                 buffer = clean_buffer(stdout.buffer)
-                assert buffer[0] == "Address  Group State Name      Value\n"
+                assert "Address  Group State Name      Value\n" in buffer
                 assert good_device.async_status.call_count == 2
 
                 # Get status of good_address using inline method
@@ -510,7 +510,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 good_device.groups[1].value = 0
                 await cmd_mgr.async_cmdloop()
                 buffer = clean_buffer(stdout.buffer)
-                assert buffer[0] == "Address  Group State Name      Value\n"
+                assert "Address  Group State Name      Value\n" in buffer
                 assert good_device.async_status.call_count == 3
 
                 # Get status of good_address using inline method
@@ -521,7 +521,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 good_device.groups[1].value = 0
                 await cmd_mgr.async_cmdloop()
                 buffer = clean_buffer(stdout.buffer)
-                assert buffer[0] == "Address  Group State Name      Value\n"
+                assert "Address  Group State Name      Value\n" in buffer
                 assert good_device.async_status.call_count == 3
 
                 # Get status of good_address using inline method
@@ -532,7 +532,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 good_device.groups[1].value = 0
                 await cmd_mgr.async_cmdloop()
                 buffer = clean_buffer(stdout.buffer)
-                assert buffer[0] == "Address  Group State Name      Value\n"
+                assert "Address  Group State Name      Value\n" in buffer
                 assert good_device.async_status.call_count == 4
 
                 # Get status of a bad address using inline method

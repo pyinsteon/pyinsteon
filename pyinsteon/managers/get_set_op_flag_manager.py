@@ -1,10 +1,10 @@
 """Manage getting an operating flag."""
 import asyncio
-import logging
 from collections import namedtuple
+import logging
 
 from ..address import Address
-from ..constants import ResponseStatus
+from ..constants import EngineVersion, ResponseStatus
 from ..handlers.to_device.get_operating_flags import GetOperatingFlagsCommand
 from ..handlers.to_device.set_operating_flags import SetOperatingFlagsCommand
 from ..utils import multiple_status
@@ -17,7 +17,7 @@ MAX_RETRIES = 5
 class GetSetOperatingFlagsManager:
     """Manager to get operating flags."""
 
-    def __init__(self, address: Address, op_flags):
+    def __init__(self, address: Address, op_flags, engine_version=EngineVersion.I2):
         """Init the GetOperatingFlagsManager class."""
         self._address = Address(address)
         self._op_flags = op_flags
@@ -29,8 +29,6 @@ class GetSetOperatingFlagsManager:
         self._send_lock = asyncio.Lock()
         self._extended_write = False
         self._extended_read = False
-        self._set_command.subscribe(self._check_write_response)
-        self._get_command.subscribe(self._check_read_response)
 
     @property
     def extended_write(self):
@@ -92,6 +90,14 @@ class GetSetOperatingFlagsManager:
             result = await self._get_command.async_send(
                 group, extended=self._extended_read
             )
+            if result == ResponseStatus.DIRECT_NAK_CHECK_SUM:
+                self._extended_read = True
+                retries = -1
+            elif result in [
+                ResponseStatus.DIRECT_NAK_ALDB,
+                ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
+            ]:
+                return result
             await asyncio.sleep(0.01)
             retries += 1
         return result
@@ -118,40 +124,27 @@ class GetSetOperatingFlagsManager:
                 result = await self._set_command.async_send(
                     cmd=cmd, extended=self._extended_write
                 )
+                if result == ResponseStatus.DIRECT_NAK_CHECK_SUM:
+                    self._extended_read = True
+                    retries = -1
+                elif result in [
+                    ResponseStatus.DIRECT_NAK_ALDB,
+                    ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
+                ]:
+                    return result
                 await asyncio.sleep(0.01)
                 retries += 1
 
             if result == ResponseStatus.SUCCESS:
                 flag.load(flag.new_value)
             return result
+
         # Reset the read only flag to original value
         flag.load(flag.value)
         return ResponseStatus.SUCCESS
 
-    def _check_write_response(self, response):
-        """Confirm if the write command requires Standard or Extended messages.
-
-        This is called when the command is responded to with a Direct NAK. The code in cmd2
-        is returned in response.
-        """
-        _LOGGER.debug("Received set command response: %s", response)
-        if (response | 0xF0) == 0xFD:
-            self._extended_write = True
-
-    def _check_read_response(self, group, flags, response):
-        """Confirm if the write command requires Standard or Extended messages.
-
-        This is called when the command is responded to with a Direct NAK. The code in cmd2
-        is returned in response.
-        """
-        _LOGGER.debug("Received set command response: %s", response)
-        if (response | 0xF0) == 0xFD:
-            self._extended_read = True
-
-    def _update_flags(self, group, flags, response):
+    def _update_flags(self, group, flags):
         """Update each flag."""
-        if response:  # response should be 0
-            return
 
         if not self._groups.get(group):
             return

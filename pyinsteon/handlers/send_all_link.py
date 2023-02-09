@@ -1,6 +1,6 @@
 """Send a Start All-Linking command."""
+from . import ack_handler, nak_handler
 from ..topics import SEND_ALL_LINK_COMMAND
-from . import ack_handler
 from .outbound_base import OutboundHandlerBase
 
 
@@ -19,4 +19,9 @@ class SendAllLinkCommandHandler(OutboundHandlerBase):
     @ack_handler
     async def async_handle_ack(self, group, cmd1, cmd2):
         """Handle the ACK response."""
-        await super().async_handle_ack()
+        await self._async_handle_ack()
+
+    @nak_handler
+    async def async_handle_nak(self, group, cmd1, cmd2):
+        """Handle the NAK response."""
+        await self._async_handle_nak()

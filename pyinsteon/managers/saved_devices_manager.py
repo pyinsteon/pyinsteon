@@ -43,16 +43,21 @@ def _dict_to_device(device_dict):
     cat = device_dict.get("cat")
     subcat = device_dict.get("subcat")
     firmware = device_dict.get("firmware")
-    engine_version = device_dict.get("engine_version", 3)
+    engine_version = device_dict.get("engine_version", 0xFF)
+    # EngineVersion.UNKNOWN was 0x03, no is 0xFF
+    if engine_version == 0x03:
+        engine_version = 0xFF
     operating_flags = device_dict.get("operating_flags", {})
     properties = device_dict.get("properties", {})
     first_mem_addr = device_dict.get("first_mem_addr")
     device_id = DeviceId(address, cat, subcat, firmware)
+    read_write_mode = device_dict.get("read_write_mode", 0)
     device = create_device(device_id)
     if device:
         device.engine_version = engine_version
         aldb_records = dict_to_aldb_record(aldb)
         device.aldb.load_saved_records(aldb_status, aldb_records, first_mem_addr)
+        device.aldb.read_write_mode = read_write_mode
         for flag in operating_flags:
             value = operating_flags[flag]
             if device.operating_flags.get(flag):
@@ -90,9 +95,9 @@ def _device_to_dict(device_list):
                 "aldb": aldb,
                 "operating_flags": operating_flags,
                 "properties": properties,
+                "read_write_mode": device.aldb.read_write_mode,
             }
             try:
-                device_info["read_write_mode"] = device.aldb.read_write_mode
                 device_info["disable_auto_linking"] = device.aldb.disable_auto_linking
                 device_info["monitor_mode"] = device.aldb.monitor_mode
                 device_info["auto_led"] = device.aldb.auto_led

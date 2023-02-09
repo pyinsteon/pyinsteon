@@ -38,7 +38,9 @@ class ThermostatModeCommand(DirectCommandHandlerBase):
             raise ValueError("Invalid thermostat mode")
         return await super().async_send(thermostat_mode=send_mode)
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers."""
         thermostat_mode = THERMOSTAT_MODE_MAP.get(cmd2)
         if thermostat_mode is None:

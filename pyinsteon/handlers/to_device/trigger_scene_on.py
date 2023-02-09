@@ -1,6 +1,6 @@
 """KeypadLinc command handler to trigger a button scene."""
-from ...topics import EXTENDED_TRIGGER_ALL_LINK
 from .. import ack_handler
+from ...topics import EXTENDED_TRIGGER_ALL_LINK
 from ..to_device.direct_command import DirectCommandHandlerBase
 
 
@@ -28,7 +28,9 @@ class TriggerSceneOnCommandHandler(DirectCommandHandlerBase):
             return
         return await super().async_handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers."""
         self._call_subscribers(on_level=self._on_level)
         self._on_level = None

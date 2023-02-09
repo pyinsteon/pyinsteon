@@ -5,9 +5,9 @@ import logging
 from typing import List, Tuple
 
 from ..address import Address
-from ..constants import ALDBStatus, ALDBVersion, ResponseStatus
+from ..constants import ALDBStatus, EngineVersion, ReadWriteMode, ResponseStatus
 from ..managers.aldb_write_manager import ALDBWriteException, ALDBWriteManager
-from ..topics import ALDB_LINK_CHANGED, ALDB_STATUS_CHANGED, ALDB_VERSION
+from ..topics import ALDB_LINK_CHANGED, ALDB_STATUS_CHANGED, ENGINE_VERSION
 from ..utils import publish_topic, subscribe_topic, unsubscribe_topic
 from .aldb_record import ALDBRecord, new_aldb_record_from_existing
 
@@ -33,11 +33,12 @@ class ALDBBase(ABC):
     def __init__(
         self,
         address,
-        version=ALDBVersion.V2,
+        version=EngineVersion.UNKNOWN,
         mem_addr=0x0FFF,
         write_manager=ALDBWriteManager,
     ):
         """Instantiate the ALL-Link Database object."""
+        self._read_write_mode = ReadWriteMode.STANDARD
         self._records = {}
         self._status = ALDBStatus.EMPTY
         self._version = version
@@ -47,7 +48,7 @@ class ALDBBase(ABC):
         self._read_manager = None
         self._write_manager = write_manager(self)
         self._dirty_records = {}
-        subscribe_topic(self.update_version, f"{repr(self._address)}.{ALDB_VERSION}")
+        subscribe_topic(self.update_version, f"{repr(self._address)}.{ENGINE_VERSION}")
 
     def __len__(self):
         """Return the number of devices in the ALDB."""
@@ -94,8 +95,8 @@ class ALDBBase(ABC):
         return self._status
 
     @property
-    def version(self) -> ALDBVersion:
-        """Return the ALDB version."""
+    def version(self) -> EngineVersion:
+        """Return the device engine version."""
         return self._version
 
     @property
@@ -115,7 +116,7 @@ class ALDBBase(ABC):
     def is_loaded(self) -> bool:
         """Test if the ALDB is loaded."""
         if self._status == ALDBStatus.LOADING:
-            loaded = self._calc_load_status()
+            loaded = self._is_loaded()
             if loaded:
                 self._update_status(ALDBStatus.LOADED)
         return self._status == ALDBStatus.LOADED
@@ -124,6 +125,16 @@ class ALDBBase(ABC):
     def pending_changes(self):
         """Return pending changes."""
         return self._dirty_records
+
+    @property
+    def read_write_mode(self) -> ReadWriteMode:
+        """Emit the modem read mode."""
+        return self._read_write_mode
+
+    @read_write_mode.setter
+    def read_write_mode(self, value: ReadWriteMode):
+        """Set the modem read mode."""
+        self._read_write_mode = ReadWriteMode(value)
 
     def clear(self):
         """Clear all records from the ALDB.
@@ -155,9 +166,9 @@ class ALDBBase(ABC):
             if rec.is_controller and rec.group == group:
                 yield rec.target
 
-    def update_version(self, version: ALDBVersion):
+    def update_version(self, version: EngineVersion):
         """Update the ALDB version number."""
-        self._version = ALDBVersion(version)
+        self._version = EngineVersion(version)
 
     def subscribe_status_changed(self, listener):
         """Subscribe to notification of ALDB load status changes."""
@@ -302,7 +313,7 @@ class ALDBBase(ABC):
             except ALDBWriteException:
                 result = ResponseStatus.FAILURE
 
-            if result == ResponseStatus.UNCLEAR and self._read_manager:
+            if result == ResponseStatus.DIRECT_NAK_PRE_NAK and self._read_manager:
                 async for test_rec in self._read_manager.async_read(
                     rec_to_write.mem_addr, 1, force=True
                 ):
@@ -365,7 +376,7 @@ class ALDBBase(ABC):
     def set_load_status(self):
         """Review the ALDB records and identify the load status."""
         _LOGGER.debug("Setting the load status")
-        if self._calc_load_status():
+        if self._is_loaded():
             self._update_status(ALDBStatus.LOADED)
         elif self._records:
             self._update_status(ALDBStatus.PARTIAL)
@@ -377,7 +388,9 @@ class ALDBBase(ABC):
         new_status = ALDBStatus(int(status))
         if new_status != self._status:
             self._status = new_status
-            publish_topic(f"{self._address.id}.{ALDB_STATUS_CHANGED}")
+            publish_topic(
+                f"{self._address.id}.{ALDB_STATUS_CHANGED}", status=self._status
+            )
 
     def _notify_change(self, record, force_delete=False):
         deleted = True if force_delete else not record.is_in_use
@@ -442,7 +455,7 @@ class ALDBBase(ABC):
             )
         return next_mem_addr
 
-    def _calc_load_status(self):
+    def _is_loaded(self):
         """Test if the ALDB is fully loaded."""
         has_first = False
         has_last = False

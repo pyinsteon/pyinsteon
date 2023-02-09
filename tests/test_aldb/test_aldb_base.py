@@ -5,9 +5,9 @@ from unittest import TestCase
 
 from pyinsteon.aldb.aldb import ALDB
 from pyinsteon.aldb.aldb_record import ALDBRecord
-from pyinsteon.constants import ALDBStatus, ALDBVersion, ResponseStatus
+from pyinsteon.constants import ALDBStatus, EngineVersion, ResponseStatus
 from pyinsteon.managers.aldb_write_manager import ALDBWriteException
-from pyinsteon.topics import ALDB_VERSION
+from pyinsteon.topics import ENGINE_VERSION
 from pyinsteon.utils import publish_topic
 
 from .. import set_log_levels
@@ -82,10 +82,10 @@ class TestAldbBase(TestCase):
     async def test_basic_properties(self):
         """Test the basic properties."""
         address = random_address()
-        aldb = ALDB(address, version=ALDBVersion.V2CS, mem_addr=0x0AAA)
+        aldb = ALDB(address, version=EngineVersion.I2CS, mem_addr=0x0AAA)
         assert aldb.address == address
         assert aldb.status == ALDBStatus.EMPTY
-        assert aldb.version == ALDBVersion.V2CS
+        assert aldb.version == EngineVersion.I2CS
         assert aldb.first_mem_addr == 0x0AAA
         assert aldb.high_water_mark_mem_addr is None
         assert not aldb.is_loaded
@@ -123,12 +123,12 @@ class TestAldbBase(TestCase):
     async def test_update_version(self):
         """Test updating the ALDB version."""
         address = random_address()
-        aldb = ALDB(address, version=ALDBVersion.V2CS)
-        assert aldb.version == ALDBVersion.V2CS
-        aldb.update_version(ALDBVersion.V2)
-        assert aldb.version == ALDBVersion.V2
-        publish_topic(f"{repr(address)}.{ALDB_VERSION}", version=1)
-        assert aldb.version == ALDBVersion.V1
+        aldb = ALDB(address, version=EngineVersion.I2CS)
+        assert aldb.version == EngineVersion.I2CS
+        aldb.update_version(EngineVersion.I2)
+        assert aldb.version == EngineVersion.I2
+        publish_topic(f"{repr(address)}.{ENGINE_VERSION}", version=0)
+        assert aldb.version == EngineVersion.I1
 
     @async_case
     async def test_clear_pending(self):
@@ -503,7 +503,7 @@ class TestAldbBase(TestCase):
         """Test subscribing to status change."""
         status_changed = False
 
-        def handle_status_changed():
+        def handle_status_changed(status):
             """Handle status changed."""
             nonlocal status_changed
             status_changed = True

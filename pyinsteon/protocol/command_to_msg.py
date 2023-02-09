@@ -57,11 +57,11 @@ from ..topics import (
     ON,
     ON_AT_RAMP_RATE,
     ON_FAST,
-    PEEK_ONE_BYTE,
-    PEEK_ONE_BYTE_INTERNAL,
+    PEEK,
+    PEEK_INTERNAL,
     PING,
-    POKE_ONE_BYTE,
-    POKE_ONE_BYTE_INTERNAL,
+    POKE,
+    POKE_INTERNAL,
     POOL_CONTROL,
     POOL_DEVICE_OFF,
     POOL_DEVICE_ON,
@@ -364,27 +364,27 @@ def set_address_msb(address: Address, high_byte: int, topic=pub.AUTO_TOPIC):
     _create_direct_message(topic=topic, address=address, cmd2=high_byte)
 
 
-@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=POKE_ONE_BYTE)
-def poke_one_byte(address: Address, value: int, topic=pub.AUTO_TOPIC):
-    """Create a POKE_ONE_BYTE command."""
+@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=POKE)
+def poke(address: Address, value: int, topic=pub.AUTO_TOPIC):
+    """Create a POKE command."""
     _create_direct_message(topic=topic, address=address, cmd2=value)
 
 
-@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=PEEK_ONE_BYTE)
-def peek_one_byte(address: Address, lsb: int, topic=pub.AUTO_TOPIC):
-    """Create a PEEK_ONE_BYTE command."""
+@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=PEEK)
+def peek(address: Address, lsb: int, topic=pub.AUTO_TOPIC):
+    """Create a PEEK command."""
     _create_direct_message(topic=topic, address=address, cmd2=lsb)
 
 
-@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=PEEK_ONE_BYTE_INTERNAL)
-def peek_one_byte_internal(address: Address, lsb: int, topic=pub.AUTO_TOPIC):
-    """Create a PEEK_ONE_BYTE_INTERNAL command."""
+@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=PEEK_INTERNAL)
+def peek_internal(address: Address, lsb: int, topic=pub.AUTO_TOPIC):
+    """Create a PEEK_INTERNAL command."""
     _create_direct_message(topic=topic, address=address, cmd2=lsb)
 
 
-@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=POKE_ONE_BYTE_INTERNAL)
-def poke_one_byte_internal(address: Address, value: int, topic=pub.AUTO_TOPIC):
-    """Create a POKE_ONE_BYTE_INTERNAL command."""
+@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=POKE_INTERNAL)
+def poke_internal(address: Address, value: int, topic=pub.AUTO_TOPIC):
+    """Create a POKE_INTERNAL command."""
     _create_direct_message(topic=topic, address=address, cmd2=value)
 
 

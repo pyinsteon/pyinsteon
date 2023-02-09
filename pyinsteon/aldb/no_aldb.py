@@ -1,12 +1,12 @@
 """All-Link Database for devices with no All-Link Database."""
 from ..address import Address
-from ..constants import ALDBStatus, ALDBVersion
+from ..constants import ALDBStatus, EngineVersion, ReadWriteMode
 
 
 class NoALDB:
     """All-Link Database for devices with no All-Link Database."""
 
-    def __init__(self, address, version=ALDBVersion.V2, mem_addr=0x0FFF):
+    def __init__(self, address, version=EngineVersion.I2, mem_addr=0x0FFF):
         """Do nothing."""
         self._address = address
 
@@ -40,6 +40,15 @@ class NoALDB:
     def status(self) -> ALDBStatus:
         """Return loaded status."""
         return ALDBStatus.LOADED
+
+    @property
+    def read_write_mode(self) -> ReadWriteMode:
+        """Emit the modem read mode."""
+        return ReadWriteMode.STANDARD
+
+    @read_write_mode.setter
+    def read_write_mode(self, value: ReadWriteMode):
+        """Set the modem read mode."""
 
     # pylint: disable=arguments-differ, no-self-use
     async def async_load(
@@ -76,9 +85,9 @@ class NoALDB:
         return self._address
 
     @property
-    def version(self) -> ALDBVersion:
+    def version(self) -> EngineVersion:
         """Return the ALDB version."""
-        return ALDBVersion.NULL
+        return EngineVersion.UNKNOWN
 
     @property
     def first_mem_addr(self):

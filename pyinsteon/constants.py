@@ -116,30 +116,27 @@ class ALDBStatus(HexIntEnum):
     DIRTY = 5
 
 
-class ALDBVersion(Enum):
-    """All-Link Database version."""
-
-    NULL = 0
-    V1 = 1
-    V2 = 2
-    V2CS = 20
-
-
 class ReadWriteMode(HexIntEnum):
     """Modem read mode."""
 
     UNKNOWN = 0x00
     STANDARD = 0x01
     EEPROM = 0x02
+    PEEK_POKE = 0x03
 
 
 class EngineVersion(HexIntEnum):
-    """Insteon Engine Version."""
+    """Insteon Engine Version.
+
+    - Unknown is used when the Insteon Engine Version has not be successfully queried
+    - Other is used when the Insteon Engine Version query comes back with a number different than expected
+    """
 
     I1 = 0x00
     I2 = 0x01
     I2CS = 0x02
-    UNKNOWN = 0x03
+    OTHER = 0xFE
+    UNKNOWN = 0xFF
 
 
 class X10CommandType(HexIntEnum):
@@ -298,10 +295,14 @@ class ResponseStatus(HexIntEnum):
 
     FAILURE = 0
     SUCCESS = 1
-    UNCLEAR = 2
-    DEVICE_UNRESPONSIVE = 4
-    UNSENT = 8
-    RUN_ON_WAKE = 0x10
+    DEVICE_UNRESPONSIVE = 3
+    UNSENT = 4
+    RUN_ON_WAKE = 5
+    DIRECT_NAK_ALDB = 0xFF
+    DIRECT_NAK_NO_LOAD = 0xFE
+    DIRECT_NAK_CHECK_SUM = 0xFD
+    DIRECT_NAK_PRE_NAK = 0xFC
+    DIRECT_NAK_INVALID_COMMAND = 0xFB
 
 
 class LinkStatus(Enum):

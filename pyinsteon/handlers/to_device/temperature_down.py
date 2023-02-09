@@ -1,6 +1,6 @@
 """Thermostat temperature up command."""
-from ...topics import THERMOSTAT_TEMPERATURE_DOWN
 from .. import ack_handler
+from ...topics import THERMOSTAT_TEMPERATURE_DOWN
 from .direct_command import DirectCommandHandlerBase
 
 
@@ -27,9 +27,11 @@ class TemperatureDownCommand(DirectCommandHandlerBase):
         else:
             self._zone = None
             self._degrees = cmd2 * 0.5
-        return await super().async_handle_ack(cmd1, cmd2, user_data)
+        return await super().async_handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
 
-    def _update_subscribers_on_ack(self, cmd1, cmd2, target, user_data, hops_left):
+    def _update_subscribers_on_direct_ack(
+        self, cmd1, cmd2, target, user_data, hops_left
+    ):
         """Update subscribers."""
         self._call_subscribers(degrees=self._degrees, zone=self._zone)
         self._zone = None
