@@ -1,8 +1,8 @@
 """Utilities for the tools commands."""
 import asyncio
+from asyncio.events import BaseDefaultEventLoopPolicy
 import os
 import sys
-from asyncio.events import BaseDefaultEventLoopPolicy
 
 _DEFAULT_LIMIT = 2**16  # 64kb
 
@@ -56,7 +56,6 @@ def _win32_stdio(loop):
             """Init the Win32StdinReader class."""
             self.stdin = sys.stdin.buffer
 
-        # pylint: disable=no-self-use
         async def readline(self):
             """Read a line."""
             # a single call to sys.stdin.readline() is thread-safe

@@ -44,7 +44,7 @@ async def _publish_message(msg):
     topic = None
     kwargs = {}
     try:
-        for (topic, kwargs) in convert_to_topic(msg):
+        for topic, kwargs in convert_to_topic(msg):
             publish_topic(topic, **kwargs)
     except ValueError:
         # No topic was found for this message

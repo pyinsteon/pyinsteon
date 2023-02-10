@@ -36,13 +36,12 @@ class Temperature(GroupBase):
             raise TypeError(
                 f"Error setting value of State {self._name}: Must be of type {self._type.__name__}"
             ) from ex
-        else:
-            self._call_subscribers(
-                name=self._name,
-                address=self._address.id,
-                value=self._value,
-                group=self._group,
-            )
+        self._call_subscribers(
+            name=self._name,
+            address=self._address.id,
+            value=self._value,
+            group=self._group,
+        )
 
 
 class Humidity(GroupBase):
@@ -109,13 +108,12 @@ class SystemMode(GroupBase):
             raise TypeError(
                 f"Error setting value of State {self._name}: Must be of type {self._type.__name__}"
             ) from ex
-        else:
-            self._call_subscribers(
-                name=self._name,
-                address=self._address.id,
-                value=self._value,
-                group=self._group,
-            )
+        self._call_subscribers(
+            name=self._name,
+            address=self._address.id,
+            value=self._value,
+            group=self._group,
+        )
 
 
 class FanMode(GroupBase):
@@ -152,10 +150,9 @@ class FanMode(GroupBase):
             raise TypeError(
                 f"Error setting value of State {self._name}: Must be of type {self._type.__name__}"
             ) from ex
-        else:
-            self._call_subscribers(
-                name=self._name,
-                address=self._address.id,
-                value=self._value,
-                group=self._group,
-            )
+        self._call_subscribers(
+            name=self._name,
+            address=self._address.id,
+            value=self._value,
+            group=self._group,
+        )

@@ -272,7 +272,6 @@ class ToolsAldb(ToolsBase):
 
         await async_link_devices(devices.modem, device, scene, data1, data2, data3)
 
-    # pylint: disable=no-self-use
     def do_print_aldb_load_status(self, log_stdout=None, background=False):
         """Print the All-Link databbase load status for all devices.
 

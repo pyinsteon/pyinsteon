@@ -50,7 +50,7 @@ class NoALDB:
     def read_write_mode(self, value: ReadWriteMode):
         """Set the modem read mode."""
 
-    # pylint: disable=arguments-differ, no-self-use
+    # pylint: disable=arguments-differ
     async def async_load(
         self,
         mem_addr: int = 0x00,
@@ -60,7 +60,6 @@ class NoALDB:
         """Load the All-Link Database."""
         return ALDBStatus.LOADED
 
-    # pylint: disable=no-self-use
     async def async_write(self):
         """Write modified records to the device."""
         return 0, 0
@@ -99,12 +98,10 @@ class NoALDB:
         """Return the High Water Mark record memory address."""
         return None
 
-    # pylint: disable=no-self-use
     def get(self, mem_addr, default=None):
         """Get the record at address 'mem_addr'."""
         return None
 
-    # pylint: disable=no-self-use
     def get_responders(self, group):
         """Return all responders to this device for a group."""
         return None

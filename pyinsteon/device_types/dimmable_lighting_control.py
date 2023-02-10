@@ -131,7 +131,6 @@ class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
     """SwichLinc based dimmable lights."""
 
     def _register_op_flags_and_props(self):
-
         super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
@@ -158,7 +157,6 @@ class DimmableLightingControl_ToggleLinc(DimmableLightingControl):
     """SwichLinc based dimmable lights."""
 
     def _register_op_flags_and_props(self):
-
         super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
         self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)

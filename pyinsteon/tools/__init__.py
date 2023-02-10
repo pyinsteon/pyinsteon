@@ -1,9 +1,8 @@
 """Command line tools to interact with the Insteon devices."""
 import asyncio
-import os
-from binascii import Error as BinasciiError
-from binascii import unhexlify
+from binascii import Error as BinasciiError, unhexlify
 from functools import partial
+import os
 
 from .. import async_close, async_connect, devices
 from ..address import Address
@@ -102,7 +101,6 @@ class InsteonCmd(ToolsBase):
         except ConnectionError:
             self._log_stdout("Connection failed. Please review connection information.")
 
-    # pylint: disable=no-self-use
     async def do_disconnect(self):
         """Close the connection to the modem.
 

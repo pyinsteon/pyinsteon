@@ -136,8 +136,7 @@ class ALDBRecord:
             mem = int(value)
         except ValueError as ex:
             raise ValueError("Memory address must be an integer.") from ex
-        else:
-            self._memory_location = mem
+        self._memory_location = mem
 
     @property
     def memhi(self):

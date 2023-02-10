@@ -65,6 +65,7 @@ Product = collections.namedtuple(
 
 X10Product = collections.namedtuple("X10Product", "feature deviceclass")
 
+
 # flake8: noqa
 class IPDB:
     """Embodies the INSTEON Product Database static data and access methods."""

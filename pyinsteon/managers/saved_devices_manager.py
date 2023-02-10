@@ -158,7 +158,7 @@ def _convert_old_device_dict(old_devices):
     return new_devices
 
 
-def _convert_old_aldb_status(old_status):
+def _convert_old_aldb_status(old_status) -> int:
     """Convert insteonplm ALDB load status to new ALDB load status.
 
     Old status values:
@@ -175,12 +175,13 @@ def _convert_old_aldb_status(old_status):
         FAILED = 3
         PARTIAL = 4
     """
-    if old_status in [0, 3, 4]:
-        return old_status
     if old_status == 1:
-        return 2
-    if old_status == 2:
-        return 1
+        status = 2
+    elif old_status == 2:
+        status = 1
+    else:
+        status = old_status
+    return status
 
 
 def _convert_old_aldb(old_aldb):
@@ -285,7 +286,6 @@ class SavedDeviceManager:
         return saved_devices
 
     async def _write_saved_devices(self, device_list):
-
         _LOGGER.debug("Writing %d devices to save file", len(device_list))
         device_file = path.join(self._workdir, DEVICE_INFO_FILE)
         try:
