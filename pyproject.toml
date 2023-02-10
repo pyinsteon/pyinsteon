@@ -161,16 +161,11 @@ good-names = [
 # consider-using-namedtuple-or-dataclass (Pylint CodeStyle extension)
 # consider-using-assignment-expr (Pylint CodeStyle extension)
 disable = [
-    "format",
-    "abstract-method",
-    "cyclic-import",
-    "duplicate-code",
-    "inconsistent-return-statements",
-    "locally-disabled",
-    "not-context-manager",
-    "too-few-public-methods",
-    "too-many-ancestors",
     "too-many-arguments",
+    "unused-argument",
+    "abstract-method",
+    "consider-using-assignment-expr",
+    "too-few-public-methods",
     "too-many-branches",
     "too-many-instance-attributes",
     "too-many-lines",
@@ -178,12 +173,9 @@ disable = [
     "too-many-public-methods",
     "too-many-return-statements",
     "too-many-statements",
-    "too-many-boolean-expressions",
-    "unused-argument",
-    "wrong-import-order",
-    "consider-using-f-string",
-    "consider-using-namedtuple-or-dataclass",
-    "consider-using-assignment-expr",
+    "line-too-long",
+    "deprecated-typing-alias",
+    "consider-alternative-union-syntax",
 ]
 enable = [
     #"useless-suppression",  # temporarily every now and then to clean them up
@@ -204,8 +196,8 @@ expected-line-ending-format = "LF"
 
 [tool.pylint.EXCEPTIONS]
 overgeneral-exceptions = [
-    "BaseException",
-    "Exception",
+    "builtins.BaseException",
+    "builtins.Exception",
 ]
 
 [tool.pylint.TYPING]

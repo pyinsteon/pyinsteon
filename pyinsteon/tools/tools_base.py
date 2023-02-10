@@ -241,7 +241,6 @@ class ToolsBase(Cmd):
             return await func(*args, **kwargs)
         return func(*args, **kwargs)
 
-    # pylint: disable=no-self-use
     def emptyline(self):
         """Change default empty line to do nothing."""
         return
@@ -339,7 +338,6 @@ class ToolsBase(Cmd):
         self.print_topics(menu_header, menus, 15, 80)
         self.stdout.write("\n")
 
-    # pylint: disable=no-self-use
     def do_list_devices(self, log_stdout=None, background=False):
         """List all devices.
 
@@ -1192,7 +1190,7 @@ class ToolsBase(Cmd):
         args = []
         kwargs = {}
         background = False
-        for item in ["--background", "-b"]:
+        for item in ("--background", "-b"):
             try:
                 all_args.remove(item)
                 background = True

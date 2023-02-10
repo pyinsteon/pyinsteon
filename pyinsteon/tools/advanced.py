@@ -178,7 +178,6 @@ class AdvancedTools(ToolsAldb):
                 f"An issue occured writing to the database of device {device.address}"
             )
 
-    # pylint: disable=no-self-use
     def do_find_broken_links(self, log_stdout=None, background=False):
         """Find broken links between devices.
 
@@ -271,7 +270,7 @@ class AdvancedTools(ToolsAldb):
             if mem_addr is None:
                 log_stdout("Record ID is required")
                 return
-        except (ValueError):
+        except ValueError:
             log_stdout("Invalid record ID")
             return
 

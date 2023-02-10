@@ -406,7 +406,7 @@ class ALDBBase(ABC):
         """
         if not self._dirty_records:
             return -1
-        return min(min(self._dirty_records), 0) - 1
+        return min(list(self._dirty_records) + [0]) - 1
 
     def _next_record_mem_addr(
         self,

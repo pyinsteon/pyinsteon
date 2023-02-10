@@ -61,11 +61,10 @@ async def async_connect(
         )
     except ConnectionError as err:
         raise ConnectionError from err
-    else:
-        devices.modem = modem
-        devices.id_manager.start()
-        await devices.modem.async_get_configuration()
-        return devices
+    devices.modem = modem
+    devices.id_manager.start()
+    await devices.modem.async_get_configuration()
+    return devices
 
 
 async def async_close():

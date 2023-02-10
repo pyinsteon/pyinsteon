@@ -2,6 +2,10 @@
 from . import pub
 
 
+class GeneralException(Exception):
+    """General exception handler."""
+
+
 class ListenerExceptionHandler(pub.IListenerExcHandler):
     """Handle exceptions from listeners of pubsub topics."""
 
@@ -10,4 +14,4 @@ class ListenerExceptionHandler(pub.IListenerExcHandler):
 
         This forces the pub.ExcHandlerError to be raised.
         """
-        raise Exception
+        raise GeneralException

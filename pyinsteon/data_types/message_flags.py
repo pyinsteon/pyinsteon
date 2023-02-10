@@ -189,7 +189,6 @@ class MessageFlags:
         """Test if the message is an extended message type."""
         return self._extended == 1
 
-    # pylint: disable=no-self-use
     def _normalize(self, flags) -> bytes:
         """Take any format of flags and turn it into a hex string."""
         norm = None

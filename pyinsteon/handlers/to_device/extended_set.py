@@ -16,7 +16,7 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
         """Init the ExtendedSetCommand."""
         if data2 in [0, 1]:
             _LOGGER.error("Extended Set sent with bad action number: %d", data1)
-            raise (ValueError("Error creating extended set command"))
+            raise ValueError("Error creating extended set command")
         super().__init__(topic=EXTENDED_GET_SET, address=address, group=0)
         self._data1 = data1
         self._data2 = data2

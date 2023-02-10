@@ -82,8 +82,7 @@ class HttpReaderWriter:
         except GeneratorExit as generator_exit:
             _LOGGER.info("Stop connection to Hub (GeneratorExit)")
             raise generator_exit
-        else:
-            return await self._parse_buffer(html)
+        return await self._parse_buffer(html)
 
     async def async_write(self, url):
         """Write data to the transport asyncronously."""
