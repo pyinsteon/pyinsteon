@@ -1,8 +1,8 @@
 """Insteon message and command handlers."""
 import asyncio
-import logging
 from functools import partial, wraps
 from inspect import isawaitable, iscoroutinefunction
+import logging
 
 from ..address import Address
 from ..constants import MessageFlagType
@@ -144,6 +144,6 @@ def all_link_cleanup_nak_handler(func):
     """Register the all_link_cleanup NAK response handler."""
     reg_func = partial(
         _register_handler,
-        presets={"message_type": MessageFlagType.ALL_LINK_CLEANUP_ACK},
+        presets={"message_type": MessageFlagType.ALL_LINK_CLEANUP_NAK},
     )
     return _setup_handler(reg_func, func)
