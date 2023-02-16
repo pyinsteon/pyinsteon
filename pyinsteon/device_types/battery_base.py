@@ -1,9 +1,9 @@
 """Base device object."""
 
 import asyncio
-import logging
 from functools import partial
 from inspect import getfullargspec
+import logging
 
 from ..aldb.aldb_battery import ALDBBattery
 from ..constants import ResponseStatus
@@ -165,8 +165,6 @@ class BatteryDeviceBase:
                 command, retries = await asyncio.wait_for(
                     self._commands_queue.get(), TIMEOUT
                 )
-                _LOGGER.debug("got a command to run YAY")
-                _LOGGER.debug(str(command))
                 if command is None:
                     return
                 result = await command()
