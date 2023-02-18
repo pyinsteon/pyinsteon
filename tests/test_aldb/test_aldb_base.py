@@ -141,6 +141,21 @@ class TestAldbBase(TestCase):
         assert not aldb.pending_changes
 
     @async_case
+    async def test_load_saved_records_partial(self):
+        """Test the load_saved_records method."""
+        address = random_address()
+        aldb = ALDB(address)
+        self.setup_aldb(aldb, records, ALDBStatus.LOADED)
+        assert aldb.status == ALDBStatus.LOADED
+        assert len(aldb) == 3
+
+        temp_recs = records.copy()
+        temp_recs.pop(0x0FFF)
+
+        self.setup_aldb(aldb, temp_recs, ALDBStatus.LOADED, first_mem_addr=0x0AAA)
+        assert aldb.first_mem_addr == 0x0AAA
+
+    @async_case
     async def test_load_saved_records(self):
         """Test the load_saved_records method."""
         address = random_address()
@@ -150,7 +165,7 @@ class TestAldbBase(TestCase):
         assert len(aldb) == 3
 
         self.setup_aldb(aldb, records, ALDBStatus.LOADED, first_mem_addr=0x0AAA)
-        assert aldb.first_mem_addr == 0x0AAA
+        assert aldb.first_mem_addr == 0x0FFF
 
     @async_case
     async def test_set_load_status(self):
@@ -158,8 +173,6 @@ class TestAldbBase(TestCase):
         address = random_address()
         aldb = ALDB(address)
         self.setup_aldb(aldb, records, ALDBStatus.PARTIAL)
-        assert aldb.status == ALDBStatus.PARTIAL
-        aldb.set_load_status()
         assert aldb.status == ALDBStatus.LOADED
 
         no_hwm = {0x0FFF: records[0x0FFF], 0x0FF7: records[0x0FF7]}
