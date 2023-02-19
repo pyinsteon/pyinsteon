@@ -195,16 +195,21 @@ class ALDBBase(ABC):
         self, status: ALDBStatus, records: List[ALDBRecord], first_mem_addr: int = None
     ):
         """Load All-Link records from a dictionary of saved records."""
-        self._update_status(status)
         self.clear()
         for mem_addr in records:
             record = records[mem_addr]
             self._records[mem_addr] = record
             self._notify_change(record)
-        if self.is_loaded and self._records:
+
+        if self._is_loaded() and self._records:
             self._mem_addr = max(self._records)
+            self._update_status(ALDBStatus.LOADED)
+            return
+
         if first_mem_addr is not None:
             self._mem_addr = first_mem_addr
+
+        self._update_status(status)
 
     def add(
         self,
@@ -532,7 +537,7 @@ class ALDBBase(ABC):
             # If there is a functionally same record in the dirty records remove it
             rec = self._dirty_records[mem_addr]
             if rec.mem_addr == 0x0000 and rec == mod_rec:
-                self._dirty_records.popitem(mem_addr)
+                self._dirty_records.pop(mem_addr)
 
         data3 = mod_rec.data3 if mod_rec.is_responder else None
         for rec in self.find(
