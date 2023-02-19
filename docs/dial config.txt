@@ -1,0 +1,60 @@
+Set LED level
+2023-02-16 17:52:24.504 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x62, address: 6012e0, flags: 0x1f, cmd1: 0x2e, cmd2: 0x00, user_data: 01.07.ff.00.00.00.00.00.00.00.00.00.00.cb, ack: 0x06
+2023-02-16 17:52:24.504 DEBUG (MainThread) [pyinsteon.topics] Topic: ack.6012e0.extended_get_set.direct data: {'cmd1': 46, 'cmd2': 0, 'user_data': 01.07.ff.00.00.00.00.00.00.00.00.00.00.cb}
+2023-02-16 17:52:24.506 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x2f, cmd1: 0x2e, cmd2: 0x00
+2023-02-16 17:52:24.509 DEBUG (MainThread) [pyinsteon.topics] Topic: 6012e0.extended_get_set.direct_ack data: {'cmd1': 46, 'cmd2': 0, 'target': 5849eb, 'user_data': None, 'hops_left': 3}
+
+
+Set ON level
+2023-02-16 17:54:11.286 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x62, address: 6012e0, flags: 0x1f, cmd1: 0x2e, cmd2: 0x00, user_data: 01.06.7f.00.00.00.00.00.00.00.00.00.00.4c, ack: 0x06
+2023-02-16 17:54:11.287 DEBUG (MainThread) [pyinsteon.topics] Topic: ack.6012e0.extended_get_set.direct data: {'cmd1': 46, 'cmd2': 0, 'user_data': 01.06.7f.00.00.00.00.00.00.00.00.00.00.4c}
+2023-02-16 17:54:11.289 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x2f, cmd1: 0x2e, cmd2: 0x00
+2023-02-16 17:54:11.293 DEBUG (MainThread) [pyinsteon.topics] Topic: 6012e0.extended_get_set.direct_ack data: {'cmd1': 46, 'cmd2': 0, 'target': 5849eb, 'user_data': None, 'hops_left': 3}
+
+Set RAMP RATE
+2023-02-16 17:55:22.397 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x62, address: 6012e0, flags: 0x1f, cmd1: 0x2e, cmd2: 0x00, user_data: 01.05.1b.00.00.00.00.00.00.00.00.00.00.b1, ack: 0x06
+2023-02-16 17:55:22.397 DEBUG (MainThread) [pyinsteon.topics] Topic: ack.6012e0.extended_get_set.direct data: {'cmd1': 46, 'cmd2': 0, 'user_data': 01.05.1b.00.00.00.00.00.00.00.00.00.00.b1}
+2023-02-16 17:55:22.400 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x2f, cmd1: 0x2e, cmd2: 0x00
+2023-02-16 17:55:22.404 DEBUG (MainThread) [pyinsteon.topics] Topic: 6012e0.extended_get_set.direct_ack data: {'cmd1': 46, 'cmd2': 0, 'target': 5849eb, 'user_data': None, 'hops_left': 3}
+
+Beep on button press ON
+2023-02-16 17:56:28.612 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x62, address: 6012e0, flags: 0x1f, cmd1: 0x20, cmd2: 0x0a, user_data: 00.00.00.00.00.00.00.00.00.00.00.00.00.d6, ack: 0x06
+2023-02-16 17:56:28.613 DEBUG (MainThread) [pyinsteon.topics] Topic: ack.6012e0.set_operating_flags.direct data: {'cmd1': 32, 'cmd2': 10, 'user_data': 00.00.00.00.00.00.00.00.00.00.00.00.00.d6}
+2023-02-16 17:56:28.614 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x2f, cmd1: 0x20, cmd2: 0x0a
+2023-02-16 17:56:28.615 DEBUG (MainThread) [pyinsteon.topics] Topic: 6012e0.set_operating_flags.direct_ack data: {'cmd1': 32, 'cmd2': 10, 'target': 5849eb, 'user_data': None, 'hops_left': 3}
+2023-02-16 17:56:28.674 DEBUG (MainThread) [pyinsteon.topics] Topic: handler.6012e0.set_operating_flags.direct data: {'response': 0}
+
+Beep on button press OFF
+2023-02-16 17:58:49.301 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x62, address: 6012e0, flags: 0x1f, cmd1: 0x20, cmd2: 0x0b, user_data: 00.00.00.00.00.00.00.00.00.00.00.00.00.d5, ack: 0x06
+2023-02-16 17:58:49.301 DEBUG (MainThread) [pyinsteon.topics] Topic: ack.6012e0.set_operating_flags.direct data: {'cmd1': 32, 'cmd2': 11, 'user_data': 00.00.00.00.00.00.00.00.00.00.00.00.00.d5}
+2023-02-16 17:58:49.304 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x2f, cmd1: 0x20, cmd2: 0x0b
+2023-02-16 17:58:49.304 DEBUG (MainThread) [pyinsteon.topics] Topic: 6012e0.set_operating_flags.direct_ack data: {'cmd1': 32, 'cmd2': 11, 'target': 5849eb, 'user_data': None, 'hops_left': 3}
+2023-02-16 17:58:49.364 DEBUG (MainThread) [pyinsteon.topics] Topic: handler.6012e0.set_operating_flags.direct data: {'response': 0}
+
+Program lock ON
+2023-02-16 17:57:16.937 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x62, address: 6012e0, flags: 0x1f, cmd1: 0x20, cmd2: 0x00, user_data: 00.00.00.00.00.00.00.00.00.00.00.00.00.e0, ack: 0x06
+2023-02-16 17:57:16.938 DEBUG (MainThread) [pyinsteon.topics] Topic: ack.6012e0.set_operating_flags.direct data: {'cmd1': 32, 'cmd2': 0, 'user_data': 00.00.00.00.00.00.00.00.00.00.00.00.00.e0}
+2023-02-16 17:57:16.940 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x2f, cmd1: 0x20, cmd2: 0x00
+2023-02-16 17:57:16.940 DEBUG (MainThread) [pyinsteon.topics] Topic: 6012e0.set_operating_flags.direct_ack data: {'cmd1': 32, 'cmd2': 0, 'target': 5849eb, 'user_data': None, 'hops_left': 3}
+2023-02-16 17:57:16.999 DEBUG (MainThread) [pyinsteon.topics] Topic: handler.6012e0.set_operating_flags.direct data: {'response': 0}
+
+Program lock OFF
+2023-02-16 17:58:17.353 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x62, address: 6012e0, flags: 0x1f, cmd1: 0x20, cmd2: 0x01, user_data: 00.00.00.00.00.00.00.00.00.00.00.00.00.df, ack: 0x06
+2023-02-16 17:58:17.354 DEBUG (MainThread) [pyinsteon.topics] Topic: ack.6012e0.set_operating_flags.direct data: {'cmd1': 32, 'cmd2': 1, 'user_data': 00.00.00.00.00.00.00.00.00.00.00.00.00.df}
+2023-02-16 17:58:17.355 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x2f, cmd1: 0x20, cmd2: 0x01
+2023-02-16 17:58:17.355 DEBUG (MainThread) [pyinsteon.topics] Topic: 6012e0.set_operating_flags.direct_ack data: {'cmd1': 32, 'cmd2': 1, 'target': 5849eb, 'user_data': None, 'hops_left': 3}
+2023-02-16 17:58:17.414 DEBUG (MainThread) [pyinsteon.topics] Topic: handler.6012e0.set_operating_flags.direct data: {'response': 0}
+
+Blink on Insteon traffic ON
+2023-02-16 17:59:09.913 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x62, address: 6012e0, flags: 0x1f, cmd1: 0x20, cmd2: 0x02, user_data: 00.00.00.00.00.00.00.00.00.00.00.00.00.de, ack: 0x06
+2023-02-16 17:59:09.913 DEBUG (MainThread) [pyinsteon.topics] Topic: ack.6012e0.set_operating_flags.direct data: {'cmd1': 32, 'cmd2': 2, 'user_data': 00.00.00.00.00.00.00.00.00.00.00.00.00.de}
+2023-02-16 17:59:09.915 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x2f, cmd1: 0x20, cmd2: 0x02
+2023-02-16 17:59:09.915 DEBUG (MainThread) [pyinsteon.topics] Topic: 6012e0.set_operating_flags.direct_ack data: {'cmd1': 32, 'cmd2': 2, 'target': 5849eb, 'user_data': None, 'hops_left': 3}
+2023-02-16 17:59:09.975 DEBUG (MainThread) [pyinsteon.topics] Topic: handler.6012e0.set_operating_flags.direct data: {'response': 0}
+
+Blink on Insteon traffic OFF
+2023-02-16 18:00:33.417 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x62, address: 6012e0, flags: 0x1f, cmd1: 0x20, cmd2: 0x03, user_data: 00.00.00.00.00.00.00.00.00.00.00.00.00.dd, ack: 0x06
+2023-02-16 18:00:33.417 DEBUG (MainThread) [pyinsteon.topics] Topic: ack.6012e0.set_operating_flags.direct data: {'cmd1': 32, 'cmd2': 3, 'user_data': 00.00.00.00.00.00.00.00.00.00.00.00.00.dd}
+2023-02-16 18:00:33.419 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x2f, cmd1: 0x20, cmd2: 0x03
+2023-02-16 18:00:33.419 DEBUG (MainThread) [pyinsteon.topics] Topic: 6012e0.set_operating_flags.direct_ack data: {'cmd1': 32, 'cmd2': 3, 'target': 5849eb, 'user_data': None, 'hops_left': 3}
+2023-02-16 18:00:33.478 DEBUG (MainThread) [pyinsteon.topics] Topic: handler.6012e0.set_operating_flags.direct data: {'response': 0}
