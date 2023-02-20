@@ -43,18 +43,27 @@ class ALDBWriteManager:
 
         if self._aldb.read_write_mode == ReadWriteMode.PEEK_POKE:
             return await self._poke_record(record)
-        return await self._write_handler.async_send(
-            mem_addr=record.mem_addr,
-            controller=record.is_controller,
-            group=record.group,
-            target=record.target,
-            data1=record.data1,
-            data2=record.data2,
-            data3=record.data3,
-            in_use=record.is_in_use,
-            bit5=record.is_bit5_set,
-            bit4=record.is_bit4_set,
-        )
+        return await self._write_standard(record=record)
+
+    async def _write_standard(self, record: ALDBRecord):
+        """Write a record using standard method."""
+        result = ResponseStatus.UNSENT
+        retries = 5
+        while result != ResponseStatus.SUCCESS and retries:
+            result = await self._write_handler.async_send(
+                mem_addr=record.mem_addr,
+                controller=record.is_controller,
+                group=record.group,
+                target=record.target,
+                data1=record.data1,
+                data2=record.data2,
+                data3=record.data3,
+                in_use=record.is_in_use,
+                bit5=record.is_bit5_set,
+                bit4=record.is_bit4_set,
+            )
+            retries -= 1
+        return result
 
     async def _poke_record(self, record: ALDBRecord):
         """Write the record using poke commands."""
