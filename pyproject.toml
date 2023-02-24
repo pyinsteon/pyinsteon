@@ -125,6 +125,7 @@ good-names = [
     "SecurityHealthSafety_DoorSensor",
     "SecurityHealthSafety_LeakSensor",
     "SecurityHealthSafety_MotionSensor",
+    "SecurityHealthSafety_MotionSensorII",
     "SecurityHealthSafety_OpenCloseSensor",
     "SecurityHealthSafety_Smokebridge",
     "SensorsActuators_IOLink",
