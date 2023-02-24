@@ -55,30 +55,50 @@ from ..events import (
     WetDryEvent,
 )
 from ..groups import (
+    ALT_COLD_OFF,
+    ALT_HEARTBEAT,
+    ALT_HOT_OFF,
+    ALT_LIGHT_OFF,
+    ALT_MOTION_DISABLED,
+    ALT_MOTION_OFF,
     CO_SENSOR,
+    COLD,
     DOOR_SENSOR,
     HEARTBEAT,
+    HOT,
     LEAK_SENSOR_DRY,
     LEAK_SENSOR_WET,
+    LIGHT_CHANGED,
     LIGHT_SENSOR,
     LOW_BATTERY,
+    MOTION_DISABLED,
+    MOTION_OFF,
     MOTION_SENSOR,
     NEW_SENSOR,
     SENSOR_MALFUNCTION,
+    SENSOR_MOVED,
     SMOKE_SENSOR,
+    TAMPER,
+    TEMP_CHANGED,
     TEST_SENSOR,
+    VERY_COLD,
+    VERY_HOT,
 )
 from ..groups.on_off import Heartbeat, LowBattery, OnOff
 from ..groups.wet_dry import Dry, Wet
 from ..handlers.from_device.on_level import OnLevelInbound
+from ..handlers.to_device.status_request import StatusRequestCommand
 from ..managers.heartbeat_manager import HeartbeatManager
 from ..managers.low_batter_manager import LowBatteryManager
 from ..managers.on_level_manager import OnLevelManager
 from ..managers.wet_dry_manager import WetDryManager
 from .battery_base import BatteryDeviceBase
 from .device_base import Device
+from .device_commands import STATUS_COMMAND
 from .on_off_controller_base import OnOffControllerBase
 from .open_close_controller_base import NormallyOpenControllerBase
+
+ON_LVL_MGR = "on_level_manager"
 
 
 class SecurityHealthSafety(Device):
@@ -226,9 +246,11 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the SecurityHealthSafety_DoorSensor class."""
-        buttons = {1: MOTION_SENSOR}
-        self._light_manager = OnLevelManager(address, self.LIGHT_GROUP)
-        self._low_battery_manager = LowBatteryManager(address, self.LOW_BATTERY_GROUP)
+        buttons = {
+            self.MOTION_GROUP: MOTION_SENSOR,
+            self.LIGHT_GROUP: LIGHT_SENSOR,
+            self.LOW_BATTERY_GROUP: LOW_BATTERY,
+        }
         super().__init__(
             address=address,
             cat=cat,
@@ -241,15 +263,14 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
             off_event_name=MOTION_TIMEOUT_EVENT,
         )
 
-    def _register_groups(self):
-        """Register groups for the Door Sensor."""
-        super()._register_groups()
-        # This list state may be reversed where 0x11 means no light and 0x13 means light
-        self._groups[self.LIGHT_GROUP] = OnOff(
-            LIGHT_SENSOR, self._address, self.LIGHT_GROUP
+    def _register_handlers_and_managers(self):
+        """Register the handlers and managers."""
+        super()._register_handlers_and_managers()
+        self._managers[self.LIGHT_GROUP] = OnLevelManager(
+            self._address, self.LIGHT_GROUP
         )
-        self._groups[self.LOW_BATTERY_GROUP] = LowBattery(
-            LOW_BATTERY, self._address, self.LOW_BATTERY_GROUP
+        self._managers[self.LOW_BATTERY_GROUP] = LowBatteryManager(
+            self._address, self.LOW_BATTERY_GROUP
         )
 
     def _register_events(self):
@@ -269,18 +290,20 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-        self._light_manager.subscribe(self._groups[self.LIGHT_GROUP].set_value)
-        self._low_battery_manager.subscribe(
+        self._managers[self.LIGHT_GROUP].subscribe(
+            self._groups[self.LIGHT_GROUP].set_value
+        )
+        self._managers[self.LOW_BATTERY_GROUP].subscribe(
             self._groups[self.LOW_BATTERY_GROUP].set_value
         )
 
-        self._light_manager.subscribe_on(
+        self._managers[self.LIGHT_GROUP].subscribe_on(
             self._events[self.LIGHT_GROUP][LIGHT_DETECTED_EVENT].trigger
         )
-        self._light_manager.subscribe_off(
+        self._managers[self.LIGHT_GROUP].subscribe_off(
             self._events[self.LIGHT_GROUP][DARK_DETECTED_EVENT].trigger
         )
-        self._low_battery_manager.subscribe_low_battery_event(
+        self._managers[self.LOW_BATTERY_GROUP].subscribe_low_battery_event(
             self._events[self.LOW_BATTERY_GROUP][LOW_BATTERY_EVENT].trigger
         )
 
@@ -332,6 +355,157 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
         )
         self._default_links.append(link_light)
         self._default_links.append(link_battery)
+
+
+class SecurityHealthSafety_MotionSensorII(SecurityHealthSafety_MotionSensor):
+    """Motion Sensor II."""
+
+    HEARTBEAT_GROUP = 0x04
+    ALT_MOTION_OFF_GROUP = 0x05
+    ALT_LIGHT_OFF_GROUP = 0x06
+    HOT_GROUP = 0x07
+    COLD_GROUP = 0x08
+    ALT_HOT_OFF_GROUP = 0x09
+    ALT_COLD_OFF_GROUP = 0x0A
+    ALT_HEARTBEAT_GROUP = 0x0B
+    MOTION_OFF_GROUP = 0x0C  # If device X is on Motion is disabled
+    MOTION_DISABLED_GROUP = 0x0D
+    ALT_MOTION_DISABLED_GROUP = 0x0E  # NO idea what this does
+    SENSOR_MOVED_GROUP = 0x0F
+    TAMPER_GROUP = 0x10
+    VERY_HOT_GROUP = 0x12
+    VERY_COLD_GROUP = 0x13
+    TEMP_CHANGED_GROUP = 0xEE
+    LIGHT_CHANGED_GROUP = 0xEF
+
+    def _register_groups(self):
+        """Register the device groups."""
+        super()._register_groups()
+        self._groups[self.HEARTBEAT_GROUP] = OnOff(
+            HEARTBEAT, self._address, self.HEARTBEAT_GROUP
+        )
+        self._groups[self.HOT_GROUP] = OnOff(HOT, self._address, self.HOT_GROUP)
+        self._groups[self.COLD_GROUP] = OnOff(COLD, self._address, self.COLD_GROUP)
+        self._groups[self.MOTION_DISABLED_GROUP] = OnOff(
+            MOTION_DISABLED, self._address, self.MOTION_DISABLED_GROUP
+        )
+        self._groups[self.TAMPER_GROUP] = OnOff(
+            TAMPER, self._address, self.TAMPER_GROUP
+        )
+        self._groups[self.VERY_HOT_GROUP] = OnOff(
+            VERY_HOT, self._address, self.VERY_HOT_GROUP
+        )
+        self._groups[self.VERY_COLD_GROUP] = OnOff(
+            VERY_COLD, self._address, self.VERY_COLD_GROUP
+        )
+
+        # Should these be stateful groups or just events
+        self._groups[self.ALT_MOTION_OFF_GROUP] = OnOff(
+            ALT_MOTION_OFF, self._address, self.ALT_MOTION_OFF_GROUP
+        )
+        self._groups[self.ALT_LIGHT_OFF_GROUP] = OnOff(
+            ALT_LIGHT_OFF, self._address, self.ALT_LIGHT_OFF_GROUP
+        )
+        self._groups[self.ALT_HOT_OFF_GROUP] = OnOff(
+            ALT_HOT_OFF, self._address, self.ALT_HOT_OFF_GROUP
+        )
+        self._groups[self.ALT_COLD_OFF_GROUP] = OnOff(
+            ALT_COLD_OFF, self._address, self.ALT_COLD_OFF_GROUP
+        )
+        self._groups[self.ALT_HEARTBEAT_GROUP] = OnOff(
+            ALT_HEARTBEAT, self._address, self.ALT_HEARTBEAT_GROUP
+        )
+        self._groups[self.MOTION_OFF_GROUP] = OnOff(
+            MOTION_OFF, self._address, self.MOTION_OFF_GROUP
+        )
+        self._groups[self.ALT_MOTION_DISABLED_GROUP] = OnOff(
+            ALT_MOTION_DISABLED, self._address, self.ALT_MOTION_DISABLED_GROUP
+        )
+        self._groups[self.SENSOR_MOVED_GROUP] = OnOff(
+            SENSOR_MOVED, self._address, self.SENSOR_MOVED_GROUP
+        )
+        self._groups[self.TEMP_CHANGED_GROUP] = OnOff(
+            TEMP_CHANGED, self._address, self.TEMP_CHANGED_GROUP
+        )
+        self._groups[self.LIGHT_CHANGED_GROUP] = OnOff(
+            LIGHT_CHANGED, self._address, self.LIGHT_CHANGED_GROUP
+        )
+
+    def _register_default_links(self):
+        """Register default links for the device."""
+        link = DefaultLink(
+            is_controller=True,
+            group=0,
+            dev_data1=0,
+            dev_data2=0,
+            dev_data3=0,
+            modem_data1=0,
+            modem_data2=0,
+            modem_data3=0,
+        )
+        self._default_links.append(link)
+        # super()._register_default_links()
+        # Some sensors only support 30 links (confirm)
+        # for group in [
+        #     self.HEARTBEAT_GROUP,
+        #     self.ALT_MOTION_OFF_GROUP,
+        #     self.ALT_LIGHT_OFF_GROUP,
+        #     self.HOT_GROUP,
+        #     self.COLD_GROUP,
+        #     self.ALT_HOT_OFF_GROUP,
+        #     self.ALT_COLD_OFF_GROUP,
+        #     self.ALT_HEARTBEAT_GROUP,
+        #     self.MOTION_OFF_GROUP,
+        #     self.MOTION_DISABLED_GROUP,
+        #     self.ALT_MOTION_DISABLED_GROUP,
+        #     self.SENSOR_MOVED_GROUP,
+        #     self.TAMPER_GROUP,
+        #     self.VERY_HOT_GROUP,
+        #     self.VERY_COLD_GROUP,
+        #     self.TEMP_CHANGED_GROUP,
+        #     self.LIGHT_CHANGED_GROUP,
+        # ]:
+        #     link = DefaultLink(
+        #         is_controller=True,
+        #         group=group,
+        #         dev_data1=255,
+        #         dev_data2=0,
+        #         dev_data3=group,
+        #         modem_data1=0,
+        #         modem_data2=0,
+        #         modem_data3=0,
+        #     )
+        #     self._default_links.append(link)
+
+    def _register_handlers_and_managers(self):
+        super()._register_handlers_and_managers()
+
+        for group in (1, 2, 3):
+            self._handlers[f"{STATUS_COMMAND}_{group}"] = StatusRequestCommand(
+                self._address, group
+            )
+        for group in (
+            self.HEARTBEAT_GROUP,
+            self.ALT_MOTION_OFF_GROUP,
+            self.ALT_LIGHT_OFF_GROUP,
+            self.HOT_GROUP,
+            self.COLD_GROUP,
+            self.ALT_HOT_OFF_GROUP,
+            self.ALT_COLD_OFF_GROUP,
+            self.ALT_HEARTBEAT_GROUP,
+            self.MOTION_OFF_GROUP,
+            self.MOTION_DISABLED_GROUP,
+            self.ALT_MOTION_DISABLED_GROUP,
+            self.SENSOR_MOVED_GROUP,
+            self.TAMPER_GROUP,
+            self.VERY_HOT_GROUP,
+            self.VERY_COLD_GROUP,
+            self.TEMP_CHANGED_GROUP,
+            self.LIGHT_CHANGED_GROUP,
+        ):
+            if self._managers.get(group) is None:
+                self._managers[group] = {}
+            self._managers[group][ON_LVL_MGR] = OnLevelManager(self._address, group)
 
 
 class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):

@@ -23,20 +23,36 @@ class OnOffControllerBase(Device):
         description="",
         model="",
         buttons=None,
-        on_event_name=ON_EVENT,
-        off_event_name=OFF_EVENT,
-        on_fast_event_name=None,
-        off_fast_event_name=None,
+        on_event_names=None,
+        off_event_names=None,
+        on_fast_event_names=None,
+        off_fast_event_names=None,
     ):
         """Init the OnOffControllerBase class."""
 
-        self._buttons = {1: ON_OFF_SWITCH} if buttons is None else buttons
-        self._on_event_name = on_event_name
-        self._off_event_name = off_event_name
-        self._on_fast_event_name = on_fast_event_name
-        self._off_fast_event_name = off_fast_event_name
-
         super().__init__(address, cat, subcat, firmware, description, model)
+
+        self._buttons = {1: ON_OFF_SWITCH} if buttons is None else buttons
+
+        if on_event_names is None:
+            self._on_event_names = {1: ON_EVENT}
+        else:
+            self._on_event_names = on_event_names
+
+        if off_event_names is None:
+            self._off_event_names = {1: OFF_EVENT}
+        else:
+            self._off_event_names = off_event_names
+
+        if on_fast_event_names is None:
+            self._on_fast_event_names = {}
+        else:
+            self._on_fast_event_names = on_fast_event_names
+
+        if off_fast_event_names is None:
+            self._off_fast_event_names = {}
+        else:
+            self._off_fast_event_names = off_fast_event_names
 
     def status(self, group=None):
         """Request the status of the device."""
@@ -76,34 +92,25 @@ class OnOffControllerBase(Device):
     def _register_groups(self):
         super()._register_groups()
         for group in self._buttons:
-            if self._buttons[group] is not None:
-                name = self._buttons[group]
+            if name := self._buttons.get(group):
                 self._groups[group] = OnOff(name, self._address, group)
 
     def _register_events(self):
         super()._register_events()
-        for group in self._buttons:
-            self._events[group] = {}
+        for group in self._on_event_names:
+            self._events[group] = self._events.get(group, {})
             button = self._buttons[group]
-            if self._on_event_name:
-                self._events[group][self._on_event_name] = Event(
-                    self._on_event_name, self._address, group, button
-                )
+            if name := self._on_event_names.get(group):
+                self._events[group][name] = Event(name, self._address, group, button)
 
-            if self._off_event_name:
-                self._events[group][self._off_event_name] = Event(
-                    self._off_event_name, self._address, group, button
-                )
+            if name := self._off_event_names.get(group):
+                self._events[group][name] = Event(name, self._address, group, button)
 
-            if self._on_fast_event_name:
-                self._events[group][self._on_fast_event_name] = Event(
-                    self._on_fast_event_name, self._address, group, button
-                )
+            if name := self._on_fast_event_names.get(group):
+                self._events[group][name] = Event(name, self._address, group, button)
 
-            if self._off_fast_event_name:
-                self._events[group][self._off_fast_event_name] = Event(
-                    self._off_fast_event_name, self._address, group, button
-                )
+            if name := self._off_fast_event_names.get(group):
+                self._events[group][name] = Event(name, self._address, group, button)
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
@@ -113,20 +120,20 @@ class OnOffControllerBase(Device):
                 self._managers[group][ON_LEVEL_MANAGER].subscribe(
                     self._groups[group].set_value
                 )
-            if self._on_event_name:
-                event = self._events[group][self._on_event_name]
+            if name := self._on_event_names.get(group):
+                event = self._events[group][name]
                 self._managers[group][ON_LEVEL_MANAGER].subscribe_on(event.trigger)
 
-            if self._off_event_name:
-                event = self._events[group][self._off_event_name]
+            if name := self._off_event_names.get(group):
+                event = self._events[group][name]
                 self._managers[group][ON_LEVEL_MANAGER].subscribe_off(event.trigger)
 
-            if self._on_fast_event_name:
-                event = self._events[group][self._on_fast_event_name]
+            if name := self._on_fast_event_names.get(group):
+                event = self._events[group][name]
                 self._managers[group][ON_LEVEL_MANAGER].subscribe_on_fast(event.trigger)
 
-            if self._off_fast_event_name:
-                event = self._events[group][self._off_fast_event_name]
+            if name := self._off_fast_event_names.get(group):
+                event = self._events[group][name]
                 self._managers[group][ON_LEVEL_MANAGER].subscribe_off_fast(
                     event.trigger
                 )

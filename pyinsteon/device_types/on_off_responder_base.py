@@ -94,18 +94,18 @@ class OnOffResponderBase(OnOffControllerBase):
                     self._groups[group].set_value
                 )
 
-            if self._on_event_name:
-                event = self._events[group][self._on_event_name]
+            if name := self._on_event_names.get(group):
+                event = self._events[group][name]
                 self._handlers[group][ON_COMMAND].subscribe(event.trigger)
 
-            if self._off_event_name:
-                event = self._events[group][self._off_event_name]
+            if name := self._off_event_names.get(group):
+                event = self._events[group][name]
                 self._handlers[group][OFF_COMMAND].subscribe(event.trigger)
 
-            if self._on_fast_event_name:
-                event = self._events[group][self._on_fast_event_name]
+            if name := self._on_fast_event_names.get(group):
+                event = self._events[group][name]
                 self._handlers[group][ON_FAST_COMMAND].subscribe(event.trigger)
 
-            if self._off_fast_event_name:
-                event = self._events[group][self._off_fast_event_name]
+            if name := self._off_fast_event_names.get(group):
+                event = self._events[group][name]
                 self._handlers[group][OFF_FAST_COMMAND].subscribe(event.trigger)
