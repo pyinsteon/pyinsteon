@@ -32,7 +32,6 @@ class Device(ABC):
         firmware=0x00,
         description="",
         model="",
-        buttons=None,
     ):
         """Init the Device class."""
         self._address = Address(address)

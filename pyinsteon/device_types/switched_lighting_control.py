@@ -30,11 +30,10 @@ from ..config import (
 from ..config.radio_button import RadioButtonGroupsProperty
 from ..config.toggle_button import ToggleButtonProperty
 from ..constants import PropertyType, ResponseStatus, ToggleMode
-from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
+from ..events import OFF_EVENT, ON_EVENT
 from ..groups import (
     ON_OFF_OUTLET_BOTTOM,
     ON_OFF_OUTLET_TOP,
-    ON_OFF_SWITCH,
     ON_OFF_SWITCH_A,
     ON_OFF_SWITCH_B,
     ON_OFF_SWITCH_C,
@@ -53,40 +52,11 @@ from .device_commands import GET_LEDS_COMMAND, SET_LEDS_COMMAND, STATUS_COMMAND
 from .on_off_controller_base import ON_LEVEL_MANAGER
 from .on_off_responder_base import OnOffResponderBase
 
+Byte = int
+
 
 class SwitchedLightingControl(OnOffResponderBase):
     """Switched Lighting Control device."""
-
-    def __init__(
-        self,
-        address,
-        cat,
-        subcat,
-        firmware=0x00,
-        description="",
-        model="",
-        buttons=None,
-        state_name=ON_OFF_SWITCH,
-        on_event_name=ON_EVENT,
-        off_event_name=OFF_EVENT,
-        on_fast_event_name=ON_FAST_EVENT,
-        off_fast_event_name=OFF_FAST_EVENT,
-    ):
-        """Init the OnOffResponderBase class."""
-        buttons = {1: ON_OFF_SWITCH} if buttons is None else buttons
-        super().__init__(
-            address,
-            cat,
-            subcat,
-            firmware,
-            description,
-            model,
-            buttons,
-            on_event_name,
-            off_event_name,
-            on_fast_event_name,
-            off_fast_event_name,
-        )
 
 
 class SwitchedLightingControl_ApplianceLinc(SwitchedLightingControl):
@@ -184,21 +154,6 @@ class SwitchedLightingControl_DinRail(SwitchedLightingControl):
 class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
     """KeypadLinc base class."""
 
-    def __init__(
-        self,
-        address,
-        cat,
-        subcat,
-        firmware=0x00,
-        description="",
-        model="",
-        buttons=None,
-    ):
-        """Init the SwitchedLightingControl_KeypadLinc class."""
-        super().__init__(
-            address, cat, subcat, firmware, description, model, buttons=buttons
-        )
-
     async def async_on(self, group: int = 0):
         """Turn on the button LED."""
         if group in [0, 1]:
@@ -246,7 +201,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
             raise IndexError("At least two buttons required.")
 
         for button in buttons:
-            if button not in self._buttons.keys():
+            if button not in self._responders:
                 raise ValueError(f"Button {button} not in button list.")
             button_str = f"_{button}" if button != 1 else ""
             on_mask = self._properties[f"{ON_MASK}{button_str}"]
@@ -284,7 +239,9 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
 
         """
         other_buttons = [
-            button for button in self._buttons if button not in buttons and button != 1
+            button
+            for button in self._responders
+            if button not in buttons and button != 1
         ]
         addl_buttons = []
         for other_button in other_buttons:
@@ -339,7 +296,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
                 1: Non-Toggle ON only
                 2: Non-Toggle OFF only
         """
-        if button not in self._buttons.keys():
+        if button not in self._responders:
             raise ValueError(f"Button {button} not in button list.")
 
         try:
@@ -387,21 +344,20 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
 
     def _register_groups(self):
         super()._register_groups()
-        for button in self._buttons:
-            name = self._buttons[button]
+        for button, name in self._responders.items():
             self._groups[button] = OnOff(name=name, address=self._address, group=button)
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
         self._handlers[GET_LEDS_COMMAND].subscribe(self._led_status)
-        for group in self._buttons:
+        for group in self._responders:
             if self._groups.get(group) is not None:
                 led_method = partial(self._led_follow_check, group=group)
                 self._managers[group][ON_LEVEL_MANAGER].subscribe(led_method)
 
     def _led_follow_check(self, group, on_level):
         """Check the other LEDs to confirm if they follow the effected LED."""
-        for button in self._buttons:
+        for button in self._responders:
             if button == group:
                 continue
             button_str = f"_{button}" if button != 1 else ""
@@ -465,7 +421,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         self._add_property(
             TRIGGER_GROUP_MASK, 0x0E, 0x0C, prop_type=PropertyType.ADVANCED
         )
-        for button in self._buttons:
+        for button in self._responders:
             button_str = f"_{button}" if button != 1 else ""
             self._add_property(
                 f"{ON_MASK}{button_str}", 3, 2, button, prop_type=PropertyType.ADVANCED
@@ -497,7 +453,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         for group in self._groups:
             if group == 1:
                 continue
-            button = self._buttons[group]
+            button = self._responders[group]
             name = f"{TOGGLE_BUTTON}_{button[-1]}"
             self._config[name] = ToggleButtonProperty(
                 self._address,
@@ -513,13 +469,14 @@ class SwitchedLightingControl_KeypadLinc_6(SwitchedLightingControl_KeypadLinc):
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the SwitchedLightingControl_KeypadLinc_6 class."""
-        buttons = {
+        responders = {
             1: ON_OFF_SWITCH_MAIN,
             3: ON_OFF_SWITCH_A,
             4: ON_OFF_SWITCH_B,
             5: ON_OFF_SWITCH_C,
             6: ON_OFF_SWITCH_D,
         }
+
         super().__init__(
             address=address,
             cat=cat,
@@ -527,7 +484,7 @@ class SwitchedLightingControl_KeypadLinc_6(SwitchedLightingControl_KeypadLinc):
             firmware=firmware,
             description=description,
             model=model,
-            buttons=buttons,
+            responders=responders,
         )
 
 
@@ -536,7 +493,7 @@ class SwitchedLightingControl_KeypadLinc_8(SwitchedLightingControl_KeypadLinc):
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the SwitchedLightingControl_KeypadLinc_8 class."""
-        buttons = {
+        responders = {
             1: ON_OFF_SWITCH_MAIN,
             2: ON_OFF_SWITCH_B,
             3: ON_OFF_SWITCH_C,
@@ -553,7 +510,7 @@ class SwitchedLightingControl_KeypadLinc_8(SwitchedLightingControl_KeypadLinc):
             firmware=firmware,
             description=description,
             model=model,
-            buttons=buttons,
+            responders=responders,
         )
 
 
@@ -568,23 +525,16 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the SwitchedLightingControl_KeypadLinc class."""
-        buttons = {1: ON_OFF_OUTLET_TOP, 2: ON_OFF_OUTLET_BOTTOM}
+        responders = {1: ON_OFF_OUTLET_TOP, 2: ON_OFF_OUTLET_BOTTOM}
         super().__init__(
-            address, cat, subcat, firmware, description, model, buttons=buttons
+            address, cat, subcat, firmware, description, model, responders=responders
         )
-
-    def status(self, group=None):
-        """Request the status of the device."""
-        if group is None:
-            self._handlers[STATUS_COMMAND].send()
-        if group in [1, 2]:
-            self._handlers[group][STATUS_COMMAND].send()
 
     async def async_status(self, group=None):
         """Request the status of the device."""
         if group is None:
             return await self._handlers[STATUS_COMMAND].async_send()
-        if group in [1, 2]:
+        if group in (1, 2):
             return await self._handlers[group][STATUS_COMMAND].async_send()
 
     def _register_handlers_and_managers(self):

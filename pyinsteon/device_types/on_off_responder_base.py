@@ -1,5 +1,8 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
-from ..events import OFF_EVENT, ON_EVENT
+from typing import Dict, Union
+
+from ..address import Address
+from ..constants import DeviceCategory
 from ..groups import ON_OFF_SWITCH
 from ..handlers.to_device.off import OffCommand
 from ..handlers.to_device.off_fast import OffFastCommand
@@ -8,26 +11,35 @@ from ..handlers.to_device.on_level import OnLevelCommand
 from .device_commands import OFF_COMMAND, OFF_FAST_COMMAND, ON_COMMAND, ON_FAST_COMMAND
 from .on_off_controller_base import OnOffControllerBase
 
+Byte = int
+
 
 class OnOffResponderBase(OnOffControllerBase):
     """Switched Lighting Control device."""
 
     def __init__(
         self,
-        address,
-        cat,
-        subcat,
-        firmware=0x00,
-        description="",
-        model="",
-        buttons=None,
-        on_event_name=ON_EVENT,
-        off_event_name=OFF_EVENT,
-        on_fast_event_name=None,
-        off_fast_event_name=None,
+        address: Address,
+        cat: DeviceCategory,
+        subcat: Byte,
+        firmware: Byte = 0x00,
+        description: str = "",
+        model: str = "",
+        responders: Union[Dict[int, str], None] = None,
+        controllers: Union[Dict[int, str], None] = None,
+        on_event_names: Union[Dict[int, str], None] = None,
+        off_event_names: Union[Dict[int, str], None] = None,
+        on_fast_event_names: Union[Dict[int, str], None] = None,
+        off_fast_event_names: Union[Dict[int, str], None] = None,
     ):
         """Init the OnOffResponderBase class."""
-        buttons = {1: ON_OFF_SWITCH} if buttons is None else buttons
+
+        self._responders = {1: ON_OFF_SWITCH} if not responders else responders
+        all_controllers = self._responders.copy()
+        if controllers:
+            all_controllers.update(controllers)
+        if responders:
+            responders.update(responders)
         super().__init__(
             address,
             cat,
@@ -35,11 +47,11 @@ class OnOffResponderBase(OnOffControllerBase):
             firmware,
             description,
             model,
-            buttons,
-            on_event_name,
-            off_event_name,
-            on_fast_event_name,
-            off_fast_event_name,
+            all_controllers,
+            on_event_names,
+            off_event_names,
+            on_fast_event_names,
+            off_fast_event_names,
         )
 
     def on(self, group: int = 0):
@@ -64,22 +76,18 @@ class OnOffResponderBase(OnOffControllerBase):
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
-        for group in self._buttons:
-            if self._buttons[group] is not None:
-                if self._handlers.get(group) is None:
-                    self._handlers[group] = {}
-                self._handlers[group][ON_COMMAND] = OnLevelCommand(self._address, group)
-                self._handlers[group][OFF_COMMAND] = OffCommand(self._address, group)
-                self._handlers[group][ON_FAST_COMMAND] = OnFastCommand(
-                    self._address, group
-                )
-                self._handlers[group][OFF_FAST_COMMAND] = OffFastCommand(
-                    self._address, group
-                )
+        for group in self._responders:
+            self._handlers[group] = self._handlers.get(group, {})
+            self._handlers[group][ON_COMMAND] = OnLevelCommand(self._address, group)
+            self._handlers[group][OFF_COMMAND] = OffCommand(self._address, group)
+            self._handlers[group][ON_FAST_COMMAND] = OnFastCommand(self._address, group)
+            self._handlers[group][OFF_FAST_COMMAND] = OffFastCommand(
+                self._address, group
+            )
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-        for group in self._buttons:
+        for group in self._responders:
             if self._groups.get(group):
                 self._handlers[group][ON_COMMAND].subscribe(
                     self._groups[group].set_value

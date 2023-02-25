@@ -54,7 +54,6 @@ class SensorsActuators_IOLink(Device):
         firmware=0x00,
         description="",
         model="",
-        buttons=None,
     ):
         """Init the SensorsActuators_IOLink class."""
         super().__init__(
@@ -64,7 +63,6 @@ class SensorsActuators_IOLink(Device):
             firmware=firmware,
             description=description,
             model=model,
-            buttons=buttons,
         )
         self._op_flags_manager.extended_write = True
 
