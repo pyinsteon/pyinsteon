@@ -536,7 +536,7 @@ class ALDBBase(ABC):
         for mem_addr in list(self._dirty_records):
             # If there is a functionally same record in the dirty records remove it
             rec = self._dirty_records[mem_addr]
-            if rec.mem_addr == 0x0000 and rec == mod_rec:
+            if rec == mod_rec:
                 self._dirty_records.pop(mem_addr)
 
         data3 = mod_rec.data3 if mod_rec.is_responder else None
