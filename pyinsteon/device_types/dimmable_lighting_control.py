@@ -1,4 +1,5 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
+import asyncio
 from collections.abc import Iterable
 from functools import partial
 
@@ -404,14 +405,16 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         super().__init__(
             address, cat, subcat, firmware, description, model, buttons=buttons
         )
+        self._on_off_lock = asyncio.Lock()
 
     async def async_on(self, on_level: int = 0xFF, group: int = 0, fast: bool = False):
         """Turn on the button LED."""
         if group in [0, 1]:
             result = await super().async_on(on_level=on_level, group=group, fast=fast)
         else:
-            kwargs = self._change_led_status(led=group, is_on=True)
-            result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+            async with self._on_off_lock:
+                kwargs = self._change_led_status(led=group, is_on=True)
+                result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
         if result == ResponseStatus.SUCCESS:
             event = ON_FAST_EVENT if fast else ON_EVENT
             self._update_leds(group=group, value=on_level, event=event)
@@ -424,8 +427,9 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         if group in [0, 1]:
             result = await super().async_off(group=group, fast=fast)
         else:
-            kwargs = self._change_led_status(led=group, is_on=False)
-            result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+            async with self._on_off_lock:
+                kwargs = self._change_led_status(led=group, is_on=False)
+                result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
         if result == ResponseStatus.SUCCESS:
             event = OFF_FAST_EVENT if fast else OFF_EVENT
             self._update_leds(group=group, value=0, event=event)

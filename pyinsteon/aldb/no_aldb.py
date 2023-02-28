@@ -31,6 +31,10 @@ class NoALDB:
         attrs = vars(self)
         return ", ".join(f"{k}: {repr(v)}" for k, v in attrs.items())
 
+    def items(self):
+        """Return the ALDB items."""
+        return {}
+
     @property
     def is_loaded(self) -> bool:
         """Return loaded always."""
@@ -115,3 +119,15 @@ class NoALDB:
     def find(self, *args, **kwargs):
         """Return no records."""
         return []
+
+    def subscribe_status_changed(self, listener):
+        """Subscribe to notification of ALDB load status changes."""
+
+    def subscribe_record_changed(self, listener):
+        """Subscribe to notification of ALDB record changes."""
+
+    def unsubscribe_status_changed(self, listener):
+        """Unsubscribe to notification of ALDB load status changes."""
+
+    def unsubscribe_record_changed(self, listener):
+        """Unsubscribe to notification of ALDB record changes."""

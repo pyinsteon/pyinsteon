@@ -122,7 +122,7 @@ class BatteryDeviceBase:
         return await self._keep_awake_cmd.async_send(data3=awake_time, priority=1)
 
     async def _ping_device(self):
-        """Ping the device every 20 seconds to see if it is awake."""
+        """Ping the device every 60 seconds to see if it is awake."""
         if self._commands_queue.empty():
             return
         while True:
@@ -130,7 +130,7 @@ class BatteryDeviceBase:
             if result == ResponseStatus.SUCCESS:
                 self._ping_task = None
                 return
-            await asyncio.sleep(20)
+            await asyncio.sleep(60)
 
     def _device_awake(self, **kwargs):
         """Execute the commands that were requested while sleeping."""

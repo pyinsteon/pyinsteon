@@ -1,4 +1,5 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
+import asyncio
 from functools import partial
 from typing import Iterable
 
@@ -198,14 +199,16 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         super().__init__(
             address, cat, subcat, firmware, description, model, buttons=buttons
         )
+        self._on_off_lock = asyncio.Lock()
 
     async def async_on(self, group: int = 0):
         """Turn on the button LED."""
         if group in [0, 1]:
             result = await super().async_on(group=group)
         else:
-            kwargs = self._change_led_status(led=group, is_on=True)
-            result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+            async with self._on_off_lock:
+                kwargs = self._change_led_status(led=group, is_on=True)
+                result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
         if result == ResponseStatus.SUCCESS:
             self._update_leds(group=group, value=0xFF, event=ON_EVENT)
         elif result == ResponseStatus.DIRECT_NAK_PRE_NAK:
@@ -217,8 +220,9 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         if group in [0, 1]:
             result = await super().async_off(group=group)
         else:
-            kwargs = self._change_led_status(led=group, is_on=False)
-            result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
+            async with self._on_off_lock:
+                kwargs = self._change_led_status(led=group, is_on=False)
+                result = await self._handlers[SET_LEDS_COMMAND].async_send(**kwargs)
         if result == ResponseStatus.SUCCESS:
             self._update_leds(group=group, value=0, event=OFF_EVENT)
         elif result == ResponseStatus.DIRECT_NAK_PRE_NAK:

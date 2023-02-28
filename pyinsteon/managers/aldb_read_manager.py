@@ -182,8 +182,11 @@ class ALDBReadManager:
     async def _read_all(self):
         """Read all records."""
         retries = RETRIES_ALL_MAX
+        mem_addr = 0
         while retries and self._continue:
-            response = await self._read_handler.async_send(mem_addr=0, num_recs=0)
+            response = await self._read_handler.async_send(
+                mem_addr=mem_addr, num_recs=0
+            )
             if response in [
                 ResponseStatus.DIRECT_NAK_ALDB,
                 ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
@@ -199,11 +202,15 @@ class ALDBReadManager:
             try:
                 while self._continue:
                     async with async_timeout.timeout(TIMER_RECORD):
-                        record = await self._record_queue.get()
+                        record: ALDBRecord = await self._record_queue.get()
                         if record is None:
                             _LOGGER.debug("_read_all completed")
                             return
                         _LOGGER.debug("_read_all returning record: %s", str(record))
+                        if record.is_high_water_mark:
+                            mem_addr = 0
+                        else:
+                            mem_addr = record.mem_addr
                         yield record
                         await asyncio.sleep(0.05)
             except asyncio.TimeoutError:
