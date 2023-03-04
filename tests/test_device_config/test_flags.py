@@ -5,6 +5,7 @@ import unittest
 from pyinsteon.config.extended_property import ExtendedProperty
 from pyinsteon.config.operating_flag import OperatingFlag
 from pyinsteon.constants import PropertyType
+
 from tests.utils import randint, random_address
 
 
@@ -20,7 +21,7 @@ class TestFlags(unittest.TestCase):
             assert not flag.is_loaded
             for orig in [True, False]:
                 mod = not orig
-                flag.load(orig)
+                flag.set_value(orig)
                 assert flag.is_loaded
 
                 assert flag.value == orig
@@ -44,7 +45,7 @@ class TestFlags(unittest.TestCase):
             mod = randint(101, 255)
 
             assert not flag.is_loaded
-            flag.load(orig)
+            flag.set_value(orig)
             assert flag.is_loaded
 
             assert flag.value == orig
@@ -70,7 +71,7 @@ class TestFlags(unittest.TestCase):
             assert not flag.is_loaded
             for orig in [True, False]:
                 reverse = not orig
-                flag.load(orig)
+                flag.set_value(orig)
                 assert flag.is_loaded
 
                 assert flag.value == reverse
@@ -94,7 +95,7 @@ class TestFlags(unittest.TestCase):
             mod = randint(101, 255)
 
             assert not flag.is_loaded
-            flag.load(orig)
+            flag.set_value(orig)
             assert flag.is_loaded
 
             assert flag.value == orig
@@ -126,7 +127,7 @@ class TestFlags(unittest.TestCase):
             mod = randint(101, 255)
 
             assert not flag.is_loaded
-            flag.load(orig)
+            flag.set_value(orig)
             assert flag.is_loaded
 
             assert flag.value == orig
@@ -181,7 +182,7 @@ class TestFlags(unittest.TestCase):
 
         value = random.randint(0, 255)
         assert not prop.is_loaded
-        prop.load(value)
+        prop.set_value(value)
         assert prop.is_loaded
         assert prop.value == value
         assert not prop.is_dirty
@@ -193,7 +194,7 @@ class TestFlags(unittest.TestCase):
         assert prop.is_dirty
 
         value2 = random.randint(0, 255)
-        prop.load(value2)
+        prop.set_value(value2)
         assert prop.is_loaded
         assert prop.value == value2
         assert not prop.is_dirty

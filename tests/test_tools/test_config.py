@@ -76,14 +76,14 @@ class TestToolsConfigMenu(ToolsTestBase):
                         "exit",
                     ],
                 )
-                device_01.properties[ON_LEVEL].load(0)
+                device_01.properties[ON_LEVEL].set_value(0)
                 await cmd_mgr.async_cmdloop("")
                 assert device_01.properties[ON_LEVEL].new_value == on_level
 
                 # Set operating flag value with input mode
                 led_off = bool(random.randint(0, 1))
                 led_off_char = "y" if led_off else "n"
-                device_01.operating_flags[LED_OFF].load(not led_off)
+                device_01.operating_flags[LED_OFF].set_value(not led_off)
                 cmd_mgr, _, _ = self.setup_cmd_tool(
                     ToolsConfig,
                     [
@@ -106,14 +106,14 @@ class TestToolsConfigMenu(ToolsTestBase):
                         "exit",
                     ],
                 )
-                device_01.properties[ON_LEVEL].load(0)
+                device_01.properties[ON_LEVEL].set_value(0)
                 await cmd_mgr.async_cmdloop("")
                 assert device_01.properties[ON_LEVEL].new_value == on_level
 
                 # Set operating flag value with command line mode
                 led_off = bool(random.randint(0, 1))
                 led_off_char = "y" if led_off else "n"
-                device_01.operating_flags[LED_OFF].load(not led_off)
+                device_01.operating_flags[LED_OFF].set_value(not led_off)
                 cmd_mgr, _, _ = self.setup_cmd_tool(
                     ToolsConfig,
                     [
@@ -428,9 +428,9 @@ class TestToolsConfigMenu(ToolsTestBase):
                     ],
                 )
                 remove_log_file(curr_dir)
-                device_01.operating_flags[LED_OFF].load(False)
+                device_01.operating_flags[LED_OFF].set_value(False)
                 device_01.operating_flags[LED_OFF].new_value = True
-                device_01.properties[ON_LEVEL].load(255)
+                device_01.properties[ON_LEVEL].set_value(255)
                 device_01.properties[ON_LEVEL].new_value = 100
                 await cmd_mgr.async_cmdloop("")
                 buffer = log_file_lines(curr_dir)

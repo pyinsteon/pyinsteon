@@ -93,7 +93,7 @@ class DeviceFlagBase(SubscriberBase):
         """Return the property type (Standard, Advanced or Derived)."""
         return self._prop_type
 
-    def load(self, value):
+    def set_value(self, value):
         """Load the flag from the device value.
 
         Only use this method to update the value of the flag from the value

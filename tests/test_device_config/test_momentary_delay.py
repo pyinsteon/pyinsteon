@@ -28,8 +28,8 @@ class TestMomentaryDelayProperty(TestCase):
 
         delay_value = randint(0, 255)
         prescaler_value = randint(0, 255)
-        delay_prop.load(delay_value)
-        prescaler_prop.load(prescaler_value)
+        delay_prop.set_value(delay_value)
+        prescaler_prop.set_value(prescaler_value)
         seconds = delay_value * max(1, prescaler_value) / 10
 
         assert test_prop.value == seconds
@@ -47,8 +47,8 @@ class TestMomentaryDelayProperty(TestCase):
         test_prop = MomentaryDelayProperty(
             address, "test_prop", delay_prop, prescaler_prop
         )
-        delay_prop.load(0)
-        prescaler_prop.load(0)
+        delay_prop.set_value(0)
+        prescaler_prop.set_value(0)
         assert test_prop.new_value is None
 
         # Test small number delays (< 255).  Result should be exact
@@ -77,8 +77,8 @@ class TestMomentaryDelayProperty(TestCase):
         new_seconds = new_delay_value / 10
 
         # Set delay in seconds to seconds
-        delay_prop.load(delay_value)
-        prescaler_prop.load(prescaler_value)
+        delay_prop.set_value(delay_value)
+        prescaler_prop.set_value(prescaler_value)
         assert test_prop.value == seconds
 
         # Set new_value to new_seconds
@@ -113,9 +113,9 @@ class TestMomentaryDelayProperty(TestCase):
             address, "test_prop", delay_prop, prescaler_prop
         )
         assert not test_prop.is_loaded
-        delay_prop.load(0)
+        delay_prop.set_value(0)
         assert not test_prop.is_loaded
-        prescaler_prop.load(0)
+        prescaler_prop.set_value(0)
         assert test_prop.is_loaded
 
     def test_is_dirty(self):
@@ -132,9 +132,9 @@ class TestMomentaryDelayProperty(TestCase):
             address, "test_prop", delay_prop, prescaler_prop
         )
         assert not test_prop.is_dirty
-        delay_prop.load(0)
+        delay_prop.set_value(0)
         assert not test_prop.is_dirty
-        prescaler_prop.load(0)
+        prescaler_prop.set_value(0)
         assert not test_prop.is_dirty
 
         delay_prop.new_value = randint(1, 255)

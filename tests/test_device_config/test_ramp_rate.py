@@ -22,7 +22,7 @@ class TestRampRateProperty(TestCase):
 
         assert ramp_rate_prop.value is None
         test_prop.value is None
-        ramp_rate_prop.load(RampRate.MIN_4)
+        ramp_rate_prop.set_value(RampRate.MIN_4)
         assert test_prop.value == ramp_rate_to_seconds(RampRate.MIN_4)
 
     def test_new_value(self):
@@ -62,7 +62,7 @@ class TestRampRateProperty(TestCase):
 
         # Test putting new_value to current value
         seconds = ramp_rate_to_seconds(RampRate.SEC_0_3)
-        ramp_rate_prop.load(RampRate.SEC_0_3)
+        ramp_rate_prop.set_value(RampRate.SEC_0_3)
         assert test_prop.value == seconds
         seconds2 = seconds + 2
         ramp_rate2 = seconds_to_ramp_rate(seconds2)
@@ -84,7 +84,7 @@ class TestRampRateProperty(TestCase):
 
         assert not ramp_rate_prop.is_dirty
         assert not test_prop.is_dirty
-        ramp_rate_prop.load(0)
+        ramp_rate_prop.set_value(0)
         assert not ramp_rate_prop.is_dirty
         assert not test_prop.is_dirty
         ramp_rate_prop.new_value = RampRate.MIN_1
@@ -112,6 +112,6 @@ class TestRampRateProperty(TestCase):
         assert not ramp_rate_prop.is_loaded
         assert not test_prop.is_loaded
 
-        ramp_rate_prop.load(RampRate.MIN_1)
+        ramp_rate_prop.set_value(RampRate.MIN_1)
         assert ramp_rate_prop.is_loaded
         assert test_prop.is_loaded

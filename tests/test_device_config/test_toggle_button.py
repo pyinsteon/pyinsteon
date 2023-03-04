@@ -39,8 +39,8 @@ class TestToggleButtonProperty(TestCase):
             assert test_prop.value is None
 
             for toggle_mode, test_values in test_toggle_mode_to_prop.items():
-                non_toggle_prop.load(set_bit(0, button - 1, test_values[0]))
-                on_only_prop.load(set_bit(0, button - 1, test_values[1]))
+                non_toggle_prop.set_value(set_bit(0, button - 1, test_values[0]))
+                on_only_prop.set_value(set_bit(0, button - 1, test_values[1]))
                 assert test_prop.value == toggle_mode
 
     def test_new_value(self):
@@ -64,8 +64,8 @@ class TestToggleButtonProperty(TestCase):
 
             # Test the new_value is calculated correctly from the underlying properties
             for toggle_mode, test_values in test_toggle_mode_to_prop.items():
-                non_toggle_prop.load(set_bit(0, button - 1, not test_values[0]))
-                on_only_prop.load(set_bit(0, button - 1, not test_values[1]))
+                non_toggle_prop.set_value(set_bit(0, button - 1, not test_values[0]))
+                on_only_prop.set_value(set_bit(0, button - 1, not test_values[1]))
                 assert test_prop.new_value is None
                 non_toggle_prop.new_value = set_bit(0, button - 1, test_values[0])
                 on_only_prop.new_value = set_bit(0, button - 1, test_values[1])
@@ -73,8 +73,8 @@ class TestToggleButtonProperty(TestCase):
 
             # Test the underlying properties are set correctly
             for toggle_mode, test_values in test_toggle_mode_to_prop.items():
-                non_toggle_prop.load(set_bit(0, button - 1, not test_values[0]))
-                on_only_prop.load(set_bit(0, button - 1, not test_values[1]))
+                non_toggle_prop.set_value(set_bit(0, button - 1, not test_values[0]))
+                on_only_prop.set_value(set_bit(0, button - 1, not test_values[1]))
                 assert test_prop.new_value is None
                 test_prop.new_value = toggle_mode
                 assert non_toggle_prop.new_value == set_bit(

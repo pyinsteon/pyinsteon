@@ -5,6 +5,7 @@ import unittest
 from pyinsteon.config.extended_property import ExtendedProperty
 from pyinsteon.config.op_flag_property import OpFlagProperty
 from pyinsteon.utils import bit_is_set
+
 from tests.utils import random_address
 
 
@@ -32,7 +33,7 @@ class TestOpsFlagsProperty(unittest.TestCase):
 
         ex_prop_value = random.randint(0, 255)
         ex_prop_new_value = random.randint(0, 255)
-        ex_prop.load(ex_prop_value)
+        ex_prop.set_value(ex_prop_value)
 
         for bit, flag in op_flags.items():
             is_set = bit_is_set(ex_prop_value, bit)
@@ -49,7 +50,7 @@ class TestOpsFlagsProperty(unittest.TestCase):
             if flag.is_dirty:
                 assert flag.value != flag.new_value
 
-        ex_prop.load(0)
+        ex_prop.set_value(0)
         for bit, flag in op_flags.items():
             flag.new_value = True
             assert flag.is_dirty

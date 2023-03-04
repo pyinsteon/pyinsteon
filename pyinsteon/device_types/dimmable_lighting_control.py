@@ -472,8 +472,8 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
             on_mask = self._properties[f"{ON_MASK}{button_str}"]
             off_mask = self._properties[f"{OFF_MASK}{button_str}"]
             if not on_mask.is_loaded or not off_mask.is_loaded:
-                on_mask.load(0)
-                off_mask.load(0)
+                on_mask.set_value(0)
+                off_mask.set_value(0)
             on_mask_new_value = 0
             off_mask_new_value = 0
             for bit in range(0, 8):
@@ -571,8 +571,8 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         toggle_mask = self.properties[NON_TOGGLE_MASK]
         on_off_mask = self.properties[NON_TOGGLE_ON_OFF_MASK]
         if not toggle_mask.is_loaded or not on_off_mask.is_loaded:
-            toggle_mask.load(0)
-            on_off_mask.load(0)
+            toggle_mask.set_value(0)
+            on_off_mask.set_value(0)
 
         if toggle_mask.new_value is None:
             toggle_mask_test = toggle_mask.value
