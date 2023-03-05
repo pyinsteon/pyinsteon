@@ -100,7 +100,7 @@ class SwitchedLightingControl_ApplianceLinc(SwitchedLightingControl):
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
 
 
-class SwitchedLightingControl_SwitchLinc(SwitchedLightingControl):
+class SwitchedLightingControl_SwitchLincBase(SwitchedLightingControl):
     """SwichLinc based dimmable lights."""
 
     def _register_op_flags_and_props(self):
@@ -112,28 +112,48 @@ class SwitchedLightingControl_SwitchLinc(SwitchedLightingControl):
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
 
-        self._add_property(LED_DIMMING, 3, 3)
         self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
         self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
 
 
-class SwitchedLightingControl_ToggleLinc(SwitchedLightingControl):
-    """ToggleLinc based on/off lights."""
+class SwitchedLightingControl_SwitchLinc01(SwitchedLightingControl_SwitchLincBase):
+    """SwichLinc based dimmable lights.
+
+    Uses command 0x2E 0x00 0x00 0x03 for LED dimming.
+    """
 
     def _register_op_flags_and_props(self):
         super()._register_op_flags_and_props()
-        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
-        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
-        self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
-        self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
-
-        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
-        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(LED_DIMMING, 3, 3)
 
 
-class SwitchedLightingControl_InLineLinc(SwitchedLightingControl_SwitchLinc):
-    """InLineLinc based dimmable lights."""
+class SwitchedLightingControl_SwitchLinc02(SwitchedLightingControl_SwitchLincBase):
+    """SwichLinc based dimmable lights.
+
+    Uses command 0x2E 0x00 0x00 0x07 for LED dimming.
+    """
+
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
+        self._add_property(LED_DIMMING, 9, 7)
+
+
+class SwitchedLightingControl_ToggleLinc(SwitchedLightingControl_SwitchLinc01):
+    """ToggleLinc based on/off lights."""
+
+
+class SwitchedLightingControl_InLineLinc01(SwitchedLightingControl_SwitchLinc01):
+    """InLineLinc based dimmable lights..
+
+    Uses command 0x2E 0x00 0x00 0x03 for LED dimming.
+    """
+
+
+class SwitchedLightingControl_InLineLinc02(SwitchedLightingControl_SwitchLinc02):
+    """InLineLinc based dimmable lights..
+
+    Uses command 0x2E 0x00 0x00 0x07 for LED dimming.
+    """
 
 
 class SwitchedLightingControl_OutletLinc(SwitchedLightingControl):
@@ -177,9 +197,9 @@ class SwitchedLightingControl_DinRail(SwitchedLightingControl):
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
 
-        self._add_property(LED_DIMMING, 3, 3)
         self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
         self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(LED_DIMMING, 9, 7)
 
 
 class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
