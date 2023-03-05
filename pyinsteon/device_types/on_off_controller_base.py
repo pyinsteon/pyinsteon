@@ -111,22 +111,34 @@ class OnOffControllerBase(Device):
         super()._register_events()
         for group, name in self._on_event_names.items():
             self._events[group] = self._events.get(group, {})
-            button = self._controllers[group]
+            if group in self._controllers:
+                button = self._controllers[group]
+            else:
+                button = None
             self._events[group][name] = Event(name, self._address, group, button)
 
         for group, name in self._off_event_names.items():
             self._events[group] = self._events.get(group, {})
-            button = self._controllers[group]
+            if group in self._controllers:
+                button = self._controllers[group]
+            else:
+                button = None
             self._events[group][name] = Event(name, self._address, group, button)
 
         for group, name in self._on_fast_event_names.items():
             self._events[group] = self._events.get(group, {})
-            button = self._controllers[group]
+            if group in self._controllers:
+                button = self._controllers[group]
+            else:
+                button = None
             self._events[group][name] = Event(name, self._address, group, button)
 
         for group, name in self._off_fast_event_names.items():
             self._events[group] = self._events.get(group, {})
-            button = self._controllers[group]
+            if group in self._controllers:
+                button = self._controllers[group]
+            else:
+                button = None
             self._events[group][name] = Event(name, self._address, group, button)
 
     def _subscribe_to_handelers_and_managers(self):

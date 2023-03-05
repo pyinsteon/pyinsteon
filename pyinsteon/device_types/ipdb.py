@@ -35,6 +35,7 @@ from .security_health_safety import (
     SecurityHealthSafety_DoorSensor,
     SecurityHealthSafety_LeakSensor,
     SecurityHealthSafety_MotionSensor,
+    SecurityHealthSafety_MotionSensorII,
     SecurityHealthSafety_OpenCloseSensor,
     SecurityHealthSafety_Smokebridge,
 )
@@ -1340,7 +1341,7 @@ class IPDB:
             None,
             "Motion Sensor II",
             "2844-222",
-            SecurityHealthSafety_MotionSensor,
+            SecurityHealthSafety_MotionSensorII,
         ),
         Product(0xFF, 0x00, None, "Unrecognized INSTEON Device", "", UnknownDevice),
         Product(0xFF, 0x01, None, "Unknown Device", "", UnknownDevice),

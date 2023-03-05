@@ -317,9 +317,10 @@ class Device(ABC):
         bit=None,
         is_reversed=False,
         prop_type=PropertyType.STANDARD,
+        update_field=3,
     ):
         self._properties[name] = self._ext_property_manager.create(
-            name, group, data_field, bit, set_cmd, is_reversed, prop_type
+            name, group, data_field, bit, set_cmd, is_reversed, prop_type, update_field
         )
 
     def _remove_operating_flag(self, name, group=None):

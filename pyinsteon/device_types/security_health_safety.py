@@ -4,24 +4,72 @@ from ..config import (
     BATTERY_LEVEL,
     BATTERY_LOW_LEVEL,
     CLEANUP_REPORT_ON,
+    COLD_HISTERESIS,
+    COLD_ONLY,
+    COLD_THRESHOLD,
+    DARK_CANCEL_PIR_OFF,
     DATABASE_DELTA,
+    DAY_MODE_ONLY,
+    DAY_THRESHOLD,
+    DISABLE_ALT_HEARTBEAT_GROUP,
+    DISABLE_COLD,
+    DISABLE_DARK,
+    DISABLE_HEARTBEAT,
+    DISABLE_HOT,
+    DISABLE_LIGHT,
+    DISABLE_LIGHT_REPORT,
+    DISABLE_REPORT_TEMP_CHANGE,
+    ENABLE_CLEANUP_REPORT,
+    ENABLE_LOW_BATTERY_GROUP,
+    ENABLE_MOVED,
+    ENABLE_TAMPER,
     HARDWARE_LED_OFF,
     HARDWARE_LIGHT_SENSITIVITY,
     HARDWARE_NIGHT_MODE,
     HARDWARE_SEND_ON_ONLY,
     HARDWARE_TIMEOUT,
+    HARVEST_MODE_ENABLED,
     HEARBEAT_INTERVAL,
     HEART_BEAT_ON,
+    HOT_HISTERESIS,
+    HOT_ONLY,
+    HOT_THRESHOLD,
     IGNORE_JUMPER_ON,
+    KEY_BEEP_ON,
+    LAST_RECORDED_BATTERY_LEVEL,
+    LAST_RECORDED_LIGHT_LEVEL,
+    LAST_RECORDED_TEMPERATURE,
     LED_BLINK_ON_TX_ON,
     LED_BRIGHTNESS,
     LED_OFF,
     LED_ON,
+    LIGHT_HARVEST_CONSTANT,
+    LIGHT_HYSTERESIS,
+    LIGHT_LEVEL,
+    LIGHT_POLL_INTERVAL,
     LIGHT_SENSITIVITY,
     LINK_TO_FF_GROUP,
+    LOW_BATTERY_THRESHOLD,
+    MOTION_DISABLED,
     MOTION_TIMEOUT,
     MULTI_SEND_ON,
     NIGHT_MODE_ONLY,
+    NIGHT_THRESHOLD,
+    OFF_BUTTON_TIMEOUT,
+    ON_ONLY_COLD,
+    ON_ONLY_DARK,
+    ON_ONLY_HOT,
+    ON_ONLY_LIGHT,
+    ONLY_IF_COLD_DARK,
+    ONLY_IF_COLD_LIGHT,
+    ONLY_IF_DAY_COLD,
+    ONLY_IF_DAY_HOT,
+    ONLY_IF_HOT_DARK,
+    ONLY_IF_HOT_LIGHT,
+    ONLY_IF_NIGHT_COLD,
+    ONLY_IF_NIGHT_HOT,
+    PIR_DISABLED_TWO_GROUPS,
+    PIR_MODE_OCC_III,
     PROGRAM_LOCK_ON,
     REPEAT_CLOSED_ON,
     REPEAT_OPEN_ON,
@@ -29,7 +77,17 @@ from ..config import (
     SENSOR_STATUS,
     SOFTWARE_SUPPORT_ON,
     STAY_AWAKE_ON,
+    TAMPER_2_GROUPS,
+    TARGET_HARVEST,
+    TEMPERATURE,
+    TEMPERATURE_OFFSET,
+    TWO_GROUPS_COLD,
+    TWO_GROUPS_DARK,
+    TWO_GROUPS_HOT,
+    TWO_GROUPS_LIGHT,
     TWO_GROUPS_ON,
+    VERY_COLD_THRESHOLD,
+    VERY_HOT_THRESHOLD,
 )
 from ..default_link import DefaultLink
 from ..events import (
@@ -93,6 +151,7 @@ from ..groups import (
     VERY_COLD_SENSOR,
     VERY_HOT_SENSOR,
 )
+from ..groups.on_level import OnLevel
 from ..groups.on_off import Heartbeat, LowBattery, OnOff
 from ..groups.wet_dry import Dry, Wet
 from ..handlers.from_device.on_level import OnLevelInbound
@@ -395,8 +454,10 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
     LIGHT_CHANGED_GROUP = 0xEF
 
     TEMP_GROUP = 0xFF
-    DAY_GROUP = 0xFE
-    NIGHT_GROUP = 0xFD
+    # DAY_GROUP = 0xFE
+    # NIGHT_GROUP = 0xFD
+    LIGHT_LEVEL_GROUP = 0xFC
+    BATTERY_LEVEL_GROUP = 0xFB
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the SecurityHealthSafety_MotionSensorII class."""
@@ -491,6 +552,26 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
             group=self.HEARTBEAT_GROUP,
             default=False,
         )
+        self._groups[self.TEMP_GROUP] = OnLevel(
+            TEMPERATURE, self._address, self.TEMP_GROUP
+        )
+        self._groups[self.LIGHT_LEVEL_GROUP] = OnLevel(
+            LIGHT_LEVEL, self._address, self.LIGHT_LEVEL_GROUP
+        )
+        self._groups[self.BATTERY_LEVEL_GROUP] = OnLevel(
+            BATTERY_LEVEL, self._address, self.BATTERY_LEVEL_GROUP
+        )
+
+    def _register_events(self):
+        super()._register_events()
+        self._events[self.LOW_BATTERY_GROUP] = {}
+        self._events[self.LOW_BATTERY_GROUP][LOW_BATTERY_EVENT] = LowBatteryEvent(
+            LOW_BATTERY_EVENT, self._address, self.LOW_BATTERY_GROUP
+        )
+        self._events[self.HEARTBEAT_GROUP] = {}
+        self._events[self.HEARTBEAT_GROUP][HEARTBEAT_EVENT] = HeartbeatEvent(
+            HEARTBEAT_EVENT, self._address, self.HEARTBEAT_GROUP
+        )
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
@@ -508,6 +589,394 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
         self._handlers[f"{STATUS_COMMAND}_1"].subscribe(self._handle_status_1)
         self._handlers[f"{STATUS_COMMAND}_2"].subscribe(self._handle_status_2)
         self._handlers[f"{STATUS_COMMAND}_3"].subscribe(self._handle_status_3)
+
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
+        # Default = 0x45  (00101101)
+        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 7, 0, 1)
+        self._add_operating_flag(LED_OFF, 0, 5, 2, 3)
+        self._add_operating_flag(KEY_BEEP_ON, 0, 2, 4, 5)
+        self._add_operating_flag(ENABLE_LOW_BATTERY_GROUP, 0, 4, 6, 7)
+        self._add_operating_flag(DISABLE_HEARTBEAT, 0, 6, 8, 9)
+        self._add_operating_flag(DISABLE_ALT_HEARTBEAT_GROUP, 0, 2, 0x0A, 0x0B)
+        self._add_operating_flag(ENABLE_CLEANUP_REPORT, 0, 1, 0x16, 0x17)
+
+        # Group 1 properties
+        self._register_pir_flag_properties()
+        self._add_property(name=MOTION_TIMEOUT, data_field=5, set_cmd=0x06, group=1)
+        self._add_property(
+            name=COLD_THRESHOLD, data_field=6, set_cmd=0x07, group=1, update_field=3
+        )
+        self._register_cold_flags()
+        self._add_property(
+            name=COLD_HISTERESIS, data_field=8, set_cmd=0x07, update_field=5
+        )
+        self._add_property(
+            name=HOT_THRESHOLD, data_field=6, set_cmd=0x07, group=1, update_field=6
+        )
+        self._register_hot_flags()
+        self._add_property(
+            name=HOT_HISTERESIS, data_field=8, set_cmd=0x07, update_field=8
+        )
+        self._add_property(
+            name=LOW_BATTERY_THRESHOLD,
+            data_field=12,
+            set_cmd=0x09,
+            group=1,
+            update_field=3,
+        )
+        self._add_property(
+            name=HEARBEAT_INTERVAL, data_field=13, set_cmd=0x09, group=1, update_field=4
+        )
+
+        # Group 2 properties
+        self._add_property(
+            name=NIGHT_THRESHOLD, data_field=3, set_cmd=0x08, group=2, update_field=3
+        )
+        self._add_property(
+            name=DAY_THRESHOLD, data_field=4, set_cmd=0x08, group=2, update_field=4
+        )
+        self._register_light_flags()
+        self._register_dark_flags()
+        self._add_property(
+            name=f"{LIGHT_POLL_INTERVAL}_low",
+            data_field=7,
+            set_cmd=0x08,
+            group=2,
+            update_field=7,
+        )
+        self._add_property(
+            name=f"{LIGHT_POLL_INTERVAL}_high",
+            data_field=8,
+            set_cmd=0x08,
+            group=2,
+            update_field=8,
+        )
+        self._add_property(
+            name=LIGHT_HYSTERESIS,
+            data_field=9,
+            set_cmd=0x08,
+            group=2,
+            update_field=9,
+        )
+        self._add_property(
+            name=LIGHT_HARVEST_CONSTANT,
+            data_field=10,
+            set_cmd=0x08,
+            group=2,
+            update_field=10,
+        )
+        self._add_property(
+            name=OFF_BUTTON_TIMEOUT,
+            data_field=11,
+            set_cmd=0x08,
+            group=2,
+            update_field=11,
+        )
+
+        # Group 3 properties
+        self._add_property(
+            name=LAST_RECORDED_BATTERY_LEVEL, data_field=3, set_cmd=None, group=3
+        )
+        self._add_property(
+            name=LAST_RECORDED_LIGHT_LEVEL, data_field=3, set_cmd=None, group=3
+        )
+        self._add_property(
+            name=LAST_RECORDED_TEMPERATURE, data_field=3, set_cmd=None, group=3
+        )
+        self._add_property(name=BATTERY_LEVEL, data_field=3, set_cmd=None, group=3)
+        self._add_property(name=LIGHT_LEVEL, data_field=3, set_cmd=None, group=3)
+        self._add_property(name=TEMPERATURE, data_field=3, set_cmd=None, group=3)
+        self._add_property(name=TEMPERATURE_OFFSET, data_field=3, set_cmd=None, group=3)
+
+        # Group 4 properties
+        self._add_property(
+            name=VERY_HOT_THRESHOLD,
+            data_field=10,
+            group=4,
+            set_cmd=0x07,
+            update_field=9,
+        )
+        self._add_property(
+            name=VERY_COLD_THRESHOLD,
+            data_field=10,
+            group=4,
+            set_cmd=0x07,
+            update_field=10,
+        )
+
+    def _register_pir_flag_properties(self):
+        """Set up the PIR Flag properties.
+
+        Group 1, Data 3: PIR Flags
+          0 Night Only
+          1 Day Only
+          2 Hot Only
+          3 Cold Only
+          4 Two groups
+          5 On Only
+          6 Harvest Mode Enabled
+          7 Motion Disabled
+        """
+        self._add_property(
+            name=NIGHT_MODE_ONLY, data_field=3, set_cmd=0x06, group=1, bit=0
+        )
+        self._add_property(
+            name=DAY_MODE_ONLY, data_field=3, set_cmd=0x06, group=1, bit=1
+        )
+        self._add_property(name=HOT_ONLY, data_field=3, set_cmd=0x06, group=1, bit=2)
+        self._add_property(name=COLD_ONLY, data_field=3, set_cmd=0x06, group=1, bit=3)
+        self._add_property(
+            name=TWO_GROUPS_ON, data_field=3, set_cmd=0x06, group=1, bit=4
+        )
+        self._add_property(
+            name=SEND_ON_ONLY, data_field=3, set_cmd=0x06, group=1, bit=5
+        )
+        self._add_property(
+            name=HARVEST_MODE_ENABLED, data_field=3, set_cmd=0x06, group=1, bit=6
+        )
+        self._add_property(
+            name=MOTION_DISABLED, data_field=3, set_cmd=0x06, group=1, bit=7
+        )
+        self._add_property(name=LED_BRIGHTNESS, data_field=3, set_cmd=0x02)
+
+    def _register_cold_flags(self):
+        """Register the Cold flag properties."""
+        # Bit 7: 1 = Disable Cold
+        # Bit 6: 1 = Tamper 2 Groups
+        # Bit 5: 1 = On Only
+        # Bit 4: 1 = Two Groups
+        # Bit 3: 1 = Enable Moved
+        # Bit 2: 1 = Enable Tamper
+        # Bit 1: 1 = Only if Day
+        # Bit 0: 1 = Only if Night
+        # group = 1
+        # data_field = 7
+        # set command = 7
+        # update_field = 4
+        self._add_property(
+            name=DISABLE_COLD, data_field=7, set_cmd=7, group=1, bit=7, update_field=4
+        )
+        self._add_property(
+            name=TAMPER_2_GROUPS,
+            data_field=7,
+            set_cmd=7,
+            group=1,
+            bit=6,
+            update_field=4,
+        )
+        self._add_property(
+            name=ON_ONLY_COLD, data_field=7, set_cmd=7, group=1, bit=5, update_field=4
+        )
+        self._add_property(
+            name=TWO_GROUPS_COLD,
+            data_field=7,
+            set_cmd=7,
+            group=1,
+            bit=4,
+            update_field=4,
+        )
+        self._add_property(
+            name=ENABLE_MOVED, data_field=7, set_cmd=7, group=1, bit=3, update_field=4
+        )
+        self._add_property(
+            name=ENABLE_TAMPER, data_field=7, set_cmd=7, group=1, bit=2, update_field=4
+        )
+        self._add_property(
+            name=ONLY_IF_DAY_COLD,
+            data_field=7,
+            set_cmd=7,
+            group=1,
+            bit=1,
+            update_field=4,
+        )
+        self._add_property(
+            name=ONLY_IF_NIGHT_COLD,
+            data_field=7,
+            set_cmd=7,
+            group=1,
+            bit=0,
+            update_field=4,
+        )
+
+    def _register_hot_flags(self):
+        """Register the Hot flag properties."""
+        # Bit 7: 1 = Disable Hot
+        # Bit 6: 1 = Disable Report Temp Change
+        # Bit 5: 1 = On Only
+        # Bit 4: 1 = Two Groups
+        # Bit 3: N/A
+        # Bit 2: N/A
+        # Bit 1: 1 = Only if Day
+        # Bit 0: 1 = Only if Night
+        # group = 1
+        # data_field = 10
+        # set command = 0x07
+        # update_field = 7
+        self._add_property(
+            name=DISABLE_HOT, data_field=10, set_cmd=7, group=1, bit=7, update_field=7
+        )
+        self._add_property(
+            name=DISABLE_REPORT_TEMP_CHANGE,
+            data_field=10,
+            set_cmd=7,
+            group=1,
+            bit=6,
+            update_field=7,
+        )
+        self._add_property(
+            name=ON_ONLY_HOT, data_field=10, set_cmd=7, group=1, bit=5, update_field=7
+        )
+        self._add_property(
+            name=TWO_GROUPS_HOT,
+            data_field=10,
+            set_cmd=7,
+            group=1,
+            bit=4,
+            update_field=7,
+        )
+
+        self._add_property(
+            name=ONLY_IF_DAY_HOT,
+            data_field=10,
+            set_cmd=7,
+            group=1,
+            bit=1,
+            update_field=7,
+        )
+        self._add_property(
+            name=ONLY_IF_NIGHT_HOT,
+            data_field=10,
+            set_cmd=7,
+            group=1,
+            bit=0,
+            update_field=7,
+        )
+
+    def _register_light_flags(self):
+        """Register the Light flag properties."""
+        # Bit 7: 1 = Disable Light
+        # Bit 6: 1 = Disable Light Report
+        # Bit 5: 1 = On Only
+        # Bit 4: 1 = Two Groups
+        # Bit 3: 1 = Only if Cold
+        # Bit 2: 1 = Only if Hot
+        # Bit 1: 1 = Target Harvest
+        # Bit 0: N/A
+        # group 2
+        # data field 5
+        # set cmd 8
+        # update field 5
+        self._add_property(
+            name=DISABLE_LIGHT, data_field=5, set_cmd=8, group=2, bit=7, update_field=5
+        )
+        self._add_property(
+            name=DISABLE_LIGHT_REPORT,
+            data_field=5,
+            set_cmd=8,
+            group=2,
+            bit=6,
+            update_field=5,
+        )
+        self._add_property(
+            name=ON_ONLY_LIGHT, data_field=5, set_cmd=8, group=2, bit=5, update_field=5
+        )
+        self._add_property(
+            name=TWO_GROUPS_LIGHT,
+            data_field=5,
+            set_cmd=8,
+            group=2,
+            bit=4,
+            update_field=5,
+        )
+        self._add_property(
+            name=ONLY_IF_COLD_LIGHT,
+            data_field=5,
+            set_cmd=8,
+            group=2,
+            bit=3,
+            update_field=5,
+        )
+        self._add_property(
+            name=ONLY_IF_HOT_LIGHT,
+            data_field=5,
+            set_cmd=8,
+            group=2,
+            bit=2,
+            update_field=5,
+        )
+        self._add_property(
+            name=TARGET_HARVEST, data_field=5, set_cmd=8, group=2, bit=1, update_field=5
+        )
+
+    def _register_dark_flags(self):
+        """Register the Dark flag properties."""
+        # Bit 7: 1 = Disable Dark
+        # Bit 6: 1 = PIR Disabled Two Groups
+        # Bit 5: 1 = On Only
+        # Bit 4: 1 = Two Groups
+        # Bit 3: 1 = Only if Cold
+        # Bit 2: 1 = Only if Hot
+        # Bit 1: 1 = Dark Cancel PIR Off
+        # Bit 0: 1 = PIR Mode: OCC III
+        # group 2
+        # data field 6
+        # set cmd 8
+        # update field 6
+        self._add_property(
+            name=DISABLE_DARK, data_field=6, set_cmd=8, group=2, bit=7, update_field=6
+        )
+        self._add_property(
+            name=PIR_DISABLED_TWO_GROUPS,
+            data_field=6,
+            set_cmd=8,
+            group=2,
+            bit=6,
+            update_field=6,
+        )
+        self._add_property(
+            name=ON_ONLY_DARK, data_field=6, set_cmd=8, group=2, bit=5, update_field=6
+        )
+        self._add_property(
+            name=TWO_GROUPS_DARK,
+            data_field=6,
+            set_cmd=8,
+            group=2,
+            bit=4,
+            update_field=6,
+        )
+        self._add_property(
+            name=ONLY_IF_COLD_DARK,
+            data_field=6,
+            set_cmd=8,
+            group=2,
+            bit=3,
+            update_field=6,
+        )
+        self._add_property(
+            name=ONLY_IF_HOT_DARK,
+            data_field=6,
+            set_cmd=8,
+            group=2,
+            bit=2,
+            update_field=6,
+        )
+        self._add_property(
+            name=DARK_CANCEL_PIR_OFF,
+            data_field=6,
+            set_cmd=8,
+            group=2,
+            bit=1,
+            update_field=6,
+        )
+        self._add_property(
+            name=PIR_MODE_OCC_III,
+            data_field=6,
+            set_cmd=8,
+            group=2,
+            bit=0,
+            update_field=6,
+        )
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
@@ -541,13 +1010,16 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
         self._groups[self.MOTION_GROUP].set_value(motion)
 
     def _handle_status_1(self, db_version, status):
-        pass
+        self._groups[self.TEMP_GROUP].set_value(status)
+        self._properties[TEMPERATURE].set_value(status)
 
     def _handle_status_2(self, db_version, status):
-        pass
+        self._groups[self.LIGHT_LEVEL_GROUP].set_value(status)
+        self._properties[LIGHT_LEVEL].set_value(status)
 
     def _handle_status_3(self, db_version, status):
-        pass
+        self._groups[self.BATTERY_LEVEL_GROUP].set_value(status)
+        self._properties[BATTERY_LEVEL].set_value(status)
 
 
 class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
