@@ -13,7 +13,7 @@ from pyinsteon.device_types.dimmable_lighting_control import (
 from pyinsteon.device_types.sensors_actuators import SensorsActuators_IOLink
 from pyinsteon.device_types.switched_lighting_control import (
     SwitchedLightingControl,
-    SwitchedLightingControl_SwitchLinc,
+    SwitchedLightingControl_SwitchLinc02,
 )
 from pyinsteon.tools.config import ToolsConfig
 
@@ -39,7 +39,7 @@ device_01_kpl = create_device(
     DimmableLightingControl_KeypadLinc_6, random_address(), 0x01, 0x02
 )
 device_02 = create_device(
-    SwitchedLightingControl_SwitchLinc, random_address(), 0x02, 0x02
+    SwitchedLightingControl_SwitchLinc02, random_address(), 0x02, 0x02
 )
 device_02_no_config = create_device(
     SwitchedLightingControl, random_address(), 0x02, 0x05

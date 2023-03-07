@@ -9,7 +9,7 @@ from pyinsteon.device_types.dimmable_lighting_control import (
     DimmableLightingControl_LampLinc,
 )
 from pyinsteon.device_types.switched_lighting_control import (
-    SwitchedLightingControl_SwitchLinc,
+    SwitchedLightingControl_SwitchLinc02,
 )
 from pyinsteon.device_types.sensors_actuators import SensorsActuators_IOLink
 from pyinsteon.device_types.climate_control import ClimateControl_Thermostat
@@ -34,7 +34,7 @@ device_01 = create_device(
 )
 device_unknown = create_device(UnknownDevice, random_address(), 0x00, 0x00)
 device_02 = create_device(
-    SwitchedLightingControl_SwitchLinc, random_address(), 0x02, 0x02
+    SwitchedLightingControl_SwitchLinc02, random_address(), 0x02, 0x02
 )
 device_05 = create_device(ClimateControl_Thermostat, random_address(), 0x05, 0x04)
 device_07 = create_device(SensorsActuators_IOLink, random_address(), 0x07, 0x03)
