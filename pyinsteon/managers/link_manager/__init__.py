@@ -1,45 +1,117 @@
 """Manage links beteween devices."""
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Union
 
+import async_timeout
+
 from ...address import Address
-from ...constants import AllLinkMode, LinkStatus, ResponseStatus
+from ...constants import AllLinkMode, EngineVersion, LinkStatus, ResponseStatus
 from ...handlers.cancel_all_linking import CancelAllLinkingCommandHandler
 from ...handlers.start_all_linking import StartAllLinkingCommandHandler
+from ...handlers.to_device.engine_version_request import EngineVersionRequest
 from ...handlers.to_device.enter_linking_mode import EnterLinkingModeCommand
 from ...handlers.to_device.enter_unlinking_mode import EnterUnlinkingModeCommand
 
 TIMEOUT = 3
 _LOGGER = logging.getLogger(__name__)
+_engine_version_queue = asyncio.Queue()
+
+
+async def _handle_engine_version(engine_version):
+    """Handle the engine version response."""
+    await _engine_version_queue.put(engine_version)
+
+
+async def _get_engine_version(address):
+    """Get the engine version of the device."""
+
+    while not _engine_version_queue.empty():
+        _engine_version_queue.get_nowait()
+
+    address = Address(address)
+    cmd = EngineVersionRequest(address=address)
+    cmd.subscribe(_handle_engine_version)
+    retries = 3
+    response = None
+    while (
+        response
+        not in [
+            ResponseStatus.SUCCESS,
+            ResponseStatus.DIRECT_NAK_ALDB,
+            ResponseStatus.DIRECT_NAK_PRE_NAK,
+        ]
+        and retries
+    ):
+        response = await cmd.async_send()
+        retries -= 1
+    if response == ResponseStatus.SUCCESS:
+        try:
+            async with async_timeout.timeout(2):
+                return await _engine_version_queue.get()
+        except asyncio.TimeoutError:
+            pass
+    elif response in [
+        ResponseStatus.DIRECT_NAK_ALDB,
+        ResponseStatus.DIRECT_NAK_PRE_NAK,
+    ]:
+        return EngineVersion.I2CS
+    return EngineVersion.UNKNOWN
 
 
 async def async_enter_linking_mode(
     link_mode: AllLinkMode, group: int, address: Address = None
 ):
     """Put the Insteon Modem into linking mode."""
-    link_cmd = StartAllLinkingCommandHandler()
-    response = await link_cmd.async_send(link_mode=link_mode, group=group)
-    _LOGGER.debug("Enter linking mode response: %s", str(response))
 
     if address is not None:
-        link_cmd = EnterLinkingModeCommand(address)
-        await link_cmd.async_send(group=group)
-    return response
+        address = Address(address)
+        engine_version = await _get_engine_version(address)
+
+    link_cmd = StartAllLinkingCommandHandler()
+    response_modem = await link_cmd.async_send(link_mode=link_mode, group=group)
+    _LOGGER.debug("Enter linking mode modem response: %s", str(response_modem))
+
+    response_device = None
+    if address is not None:
+        extended = engine_version == EngineVersion.I2CS
+        device_link_cmd = EnterLinkingModeCommand(address)
+        response_device = await device_link_cmd.async_send(
+            group=group, extended=extended
+        )
+        if response_device != ResponseStatus.SUCCESS:
+            response_device = await device_link_cmd.async_send(
+                group=group, extended=not extended
+            )
+        _LOGGER.debug("Enter linking mode device response: %s", str(response_device))
+    return response_modem, response_device
 
 
 async def async_enter_unlinking_mode(group: int, address: Address = None):
     """Put the Insteon Modem into unlinking mode."""
-    link_cmd = StartAllLinkingCommandHandler()
-    link_mode = AllLinkMode.DELETE
-    response = await link_cmd.async_send(link_mode=link_mode, group=group)
-
     if address is not None:
-        link_cmd = EnterUnlinkingModeCommand(address)
-        await link_cmd.async_send(group=group)
+        address = Address(address)
+        engine_version = await _get_engine_version(address)
+    modem_link_cmd = StartAllLinkingCommandHandler()
+    link_mode = AllLinkMode.DELETE
+    response_modem = await modem_link_cmd.async_send(link_mode=link_mode, group=group)
 
-    return response
+    _LOGGER.debug("Enter linking mode modem response: %s", str(response_modem))
+
+    response_device = None
+    if address is not None:
+        extended = engine_version == EngineVersion.I2CS
+        device_link_cmd = EnterUnlinkingModeCommand(address)
+        await device_link_cmd.async_send(group=group, extended=extended)
+        if response_device != ResponseStatus.SUCCESS:
+            response_device = await device_link_cmd.async_send(
+                group=group, extended=not extended
+            )
+        _LOGGER.debug("Enter linking mode device response: %s", str(response_device))
+
+    return response_modem, response_device
 
 
 async def async_link_devices(
