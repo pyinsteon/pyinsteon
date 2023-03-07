@@ -67,6 +67,7 @@ class SensorsActuators_IOLink(Device):
             buttons=buttons,
         )
         self._op_flags_manager.extended_write = True
+        self._status_lock = asyncio.Lock()
 
     @property
     def relay_mode(self) -> RelayMode:
@@ -161,12 +162,15 @@ class SensorsActuators_IOLink(Device):
 
     async def async_relay_status(self):
         """Get the status of the relay switch."""
-        response = None
-        retries = 3
-        while response != ResponseStatus.SUCCESS and retries:
-            response = await self._handlers[RELAY_GROUP][STATUS_REQUEST].async_send()
-            retries -= 1
-        return response
+        async with self._status_lock:
+            response = None
+            retries = 3
+            while response != ResponseStatus.SUCCESS and retries:
+                response = await self._handlers[RELAY_GROUP][
+                    STATUS_REQUEST
+                ].async_send()
+                retries -= 1
+            return response
 
     def sensor_status(self):
         """Get the status of the sensor."""
@@ -174,12 +178,15 @@ class SensorsActuators_IOLink(Device):
 
     async def async_sensor_status(self):
         """Get the status of the sensor."""
-        response = None
-        retries = 3
-        while response != ResponseStatus.SUCCESS and retries:
-            response = await self._handlers[SENSOR_GROUP][STATUS_REQUEST].async_send()
-            retries -= 1
-        return response
+        async with self._status_lock:
+            response = None
+            retries = 3
+            while response != ResponseStatus.SUCCESS and retries:
+                response = await self._handlers[SENSOR_GROUP][
+                    STATUS_REQUEST
+                ].async_send()
+                retries -= 1
+            return response
 
     def _register_op_flags_and_props(self):
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
@@ -262,6 +269,8 @@ class SensorsActuators_IOLink(Device):
         )
 
     def _register_events(self):
+        self._events[ON_EVENT] = Event(ON_EVENT, self._address, 0)
+        self._events[OFF_EVENT] = Event(OFF_EVENT, self._address, 0)
         self._events[RELAY_GROUP] = {}
         self._events[RELAY_GROUP][ON_EVENT] = Event(
             ON_EVENT, self._address, RELAY_GROUP
@@ -347,6 +356,10 @@ class SensorsActuators_IOLink(Device):
 
     async def _async_on_off_received(self, on_level):
         """Process an on or off broadcast command."""
+        if on_level:
+            self._events[ON_EVENT].trigger(on_level=255)
+        else:
+            self._events[OFF_EVENT].trigger(on_level=0)
         orig_sensor = self._groups[SENSOR_GROUP].value
         orig_relay = self._groups[RELAY_GROUP].value
 
