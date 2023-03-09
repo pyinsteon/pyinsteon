@@ -61,6 +61,8 @@ DATABASE_DELTA = "database_delta"
 CELSIUS = "celsius"
 TIME_24_HOUR_FORMAT = "time_24_hour_format"
 SOFTWARE_LOCK_ON = "SOFTWARE_LOCK_ON"
+NIGHT_MODE_ON = "night_mode_on"
+BUTTONS_DISABLED = "buttons_disabled"
 
 # Extended Properties
 RAMP_RATE = "ramp_rate"
