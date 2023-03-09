@@ -1,4 +1,5 @@
 """Security, Heath and Safety device types."""
+from ..address import Address
 from ..config import (
     AMBIENT_LIGHT_INTENSITY,
     BATTERY_LEVEL,
@@ -86,6 +87,7 @@ from ..config import (
     TWO_GROUPS_HOT,
     TWO_GROUPS_LIGHT,
     TWO_GROUPS_ON,
+    USB_POWERED,
     VERY_COLD_THRESHOLD,
     VERY_HOT_THRESHOLD,
 )
@@ -382,7 +384,9 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
     def _register_op_flags_and_props(self):
         super()._register_op_flags_and_props()
         self._add_property(name=LED_BRIGHTNESS, data_field=3, set_cmd=0x02)
-        self._add_property(name=MOTION_TIMEOUT, data_field=4, set_cmd=0x03)
+        self._add_property(
+            name=MOTION_TIMEOUT, data_field=4, set_cmd=0x03, default=0x03
+        )
         self._add_property(name=LIGHT_SENSITIVITY, data_field=5, set_cmd=0x04)
 
         self._add_property(name=SEND_ON_ONLY, data_field=6, set_cmd=0x05, bit=1)
@@ -453,11 +457,12 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
     TEMP_CHANGED_GROUP = 0xEE
     LIGHT_CHANGED_GROUP = 0xEF
 
-    TEMP_GROUP = 0xFF
+    TEMPERATURE_GROUP = 0xFF
     # DAY_GROUP = 0xFE
     # NIGHT_GROUP = 0xFD
     LIGHT_LEVEL_GROUP = 0xFC
     BATTERY_LEVEL_GROUP = 0xFB
+    USB_GROUP = 0xFA
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the SecurityHealthSafety_MotionSensorII class."""
@@ -552,14 +557,17 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
             group=self.HEARTBEAT_GROUP,
             default=False,
         )
-        self._groups[self.TEMP_GROUP] = OnLevel(
-            TEMPERATURE, self._address, self.TEMP_GROUP
+        self._groups[self.TEMPERATURE_GROUP] = OnLevel(
+            TEMPERATURE, self._address, self.TEMPERATURE_GROUP
         )
         self._groups[self.LIGHT_LEVEL_GROUP] = OnLevel(
             LIGHT_LEVEL, self._address, self.LIGHT_LEVEL_GROUP
         )
         self._groups[self.BATTERY_LEVEL_GROUP] = OnLevel(
             BATTERY_LEVEL, self._address, self.BATTERY_LEVEL_GROUP
+        )
+        self._groups[self.USB_GROUP] = OnOff(
+            USB_POWERED, self._address, self.USB_GROUP, False
         )
 
     def _register_events(self):
@@ -586,9 +594,6 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
         self._managers[HEARTBEAT_MGR] = HeartbeatManager(
             self._address, self.HEARTBEAT_GROUP
         )
-        self._handlers[f"{STATUS_COMMAND}_1"].subscribe(self._handle_status_1)
-        self._handlers[f"{STATUS_COMMAND}_2"].subscribe(self._handle_status_2)
-        self._handlers[f"{STATUS_COMMAND}_3"].subscribe(self._handle_status_3)
 
     def _register_op_flags_and_props(self):
         super()._register_op_flags_and_props()
@@ -603,16 +608,31 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
 
         # Group 1 properties
         self._register_pir_flag_properties()
-        self._add_property(name=MOTION_TIMEOUT, data_field=5, set_cmd=0x06, group=1)
         self._add_property(
-            name=COLD_THRESHOLD, data_field=6, set_cmd=0x07, group=1, update_field=3
+            name=MOTION_TIMEOUT, data_field=5, set_cmd=0x06, group=1, default=3
+        )
+        self._add_property(
+            name=COLD_THRESHOLD,
+            data_field=6,
+            set_cmd=0x07,
+            group=1,
+            update_field=3,
+            default=0x7B,
         )
         self._register_cold_flags()
         self._add_property(
-            name=COLD_HISTERESIS, data_field=8, set_cmd=0x07, update_field=5
+            name=COLD_HISTERESIS,
+            data_field=8,
+            set_cmd=0x07,
+            update_field=5,
         )
         self._add_property(
-            name=HOT_THRESHOLD, data_field=6, set_cmd=0x07, group=1, update_field=6
+            name=HOT_THRESHOLD,
+            data_field=6,
+            set_cmd=0x07,
+            group=1,
+            update_field=6,
+            default=0x92,
         )
         self._register_hot_flags()
         self._add_property(
@@ -624,17 +644,33 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
             set_cmd=0x09,
             group=1,
             update_field=3,
+            default=0x85,
         )
         self._add_property(
-            name=HEARBEAT_INTERVAL, data_field=13, set_cmd=0x09, group=1, update_field=4
+            name=HEARBEAT_INTERVAL,
+            data_field=13,
+            set_cmd=0x09,
+            group=1,
+            update_field=4,
+            default=0x3E,
         )
 
         # Group 2 properties
         self._add_property(
-            name=NIGHT_THRESHOLD, data_field=3, set_cmd=0x08, group=2, update_field=3
+            name=NIGHT_THRESHOLD,
+            data_field=3,
+            set_cmd=0x08,
+            group=2,
+            update_field=3,
+            default=0x40,
         )
         self._add_property(
-            name=DAY_THRESHOLD, data_field=4, set_cmd=0x08, group=2, update_field=4
+            name=DAY_THRESHOLD,
+            data_field=4,
+            set_cmd=0x08,
+            group=2,
+            update_field=4,
+            default=0x50,
         )
         self._register_light_flags()
         self._register_dark_flags()
@@ -644,6 +680,7 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
             set_cmd=0x08,
             group=2,
             update_field=7,
+            default=0x3C,
         )
         self._add_property(
             name=f"{LIGHT_POLL_INTERVAL}_high",
@@ -651,6 +688,7 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
             set_cmd=0x08,
             group=2,
             update_field=8,
+            default=0x3C,
         )
         self._add_property(
             name=LIGHT_HYSTERESIS,
@@ -665,6 +703,7 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
             set_cmd=0x08,
             group=2,
             update_field=10,
+            default=0,
         )
         self._add_property(
             name=OFF_BUTTON_TIMEOUT,
@@ -672,6 +711,7 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
             set_cmd=0x08,
             group=2,
             update_field=11,
+            default=0x21,
         )
 
         # Group 3 properties
@@ -696,6 +736,7 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
             group=4,
             set_cmd=0x07,
             update_field=9,
+            default=0xB2,
         )
         self._add_property(
             name=VERY_COLD_THRESHOLD,
@@ -703,6 +744,7 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
             group=4,
             set_cmd=0x07,
             update_field=10,
+            default=0x4C,
         )
 
     def _register_pir_flag_properties(self):
@@ -983,19 +1025,27 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
         self._managers[LOW_BAT_MGR].subscribe_low_battery_event(
             self._groups[self.LOW_BATTERY_GROUP].set_value
         )
-        self._managers[LOW_BAT_MGR].subscribe_low_battery_clear_event(
-            self._events[self.LOW_BATTERY_GROUP][LOW_BATTERY_EVENT].trigger
-        )
         self._managers[HEARTBEAT_MGR].subscribe(
             self._groups[self.HEARTBEAT_GROUP].set_value
         )
         self._managers[HEARTBEAT_MGR].subscribe(
             self._events[self.HEARTBEAT_GROUP][HEARTBEAT_EVENT].trigger
         )
+        self._handlers[f"{STATUS_COMMAND}_1"].subscribe(self._handle_status_1)
+        self._handlers[f"{STATUS_COMMAND}_2"].subscribe(self._handle_status_2)
+        self._handlers[f"{STATUS_COMMAND}_3"].subscribe(self._handle_status_3)
+        self._events[self.HOT_GROUP][NOT_HOT_EVENT].subscribe(self._handle_not_hot)
+        self._events[self.COLD_GROUP][NOT_COLD_EVENT].subscribe(self._handle_not_cold)
+        self._events[self.TEMP_CHANGED_GROUP][TEMP_CHANGED_EVENT].subscribe(
+            self._handle_temp_changed
+        )
+        self._events[self.LIGHT_CHANGED_GROUP][LIGHT_CHANGED_EVENT].subscribe(
+            self._handle_light_changed
+        )
 
     def _handle_status(self, db_version, status):
         motion_disabled = bit_is_set(status, 0)
-        # usb_powered = bit_is_set(status, 1)
+        usb_powered = bit_is_set(status, 1)
         cold = bit_is_set(status, 2)
         hot = bit_is_set(status, 3)
         day = bit_is_set(status, 4)
@@ -1008,10 +1058,12 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
         self._groups[self.HOT_GROUP].set_value(hot)
         self._groups[self.LIGHT_GROUP].set_value(day)
         self._groups[self.MOTION_GROUP].set_value(motion)
+        self._groups[self.USB_GROUP].set_value(usb_powered)
 
     def _handle_status_1(self, db_version, status):
-        self._groups[self.TEMP_GROUP].set_value(status)
+        self._groups[self.TEMPERATURE_GROUP].set_value(status)
         self._properties[TEMPERATURE].set_value(status)
+        self._check_hot_cold_thresholds()
 
     def _handle_status_2(self, db_version, status):
         self._groups[self.LIGHT_LEVEL_GROUP].set_value(status)
@@ -1020,6 +1072,64 @@ class SecurityHealthSafety_MotionSensorII(OnOffControllerBase):
     def _handle_status_3(self, db_version, status):
         self._groups[self.BATTERY_LEVEL_GROUP].set_value(status)
         self._properties[BATTERY_LEVEL].set_value(status)
+
+    def _handle_not_hot(self, name: str, address: Address, group: int, button: str):
+        """Handle the NOT HOT event."""
+        self._groups[self.HOT_GROUP].set_value(0)
+        self._groups[self.VERY_HOT_GROUP].set_value(0)
+
+    def _handle_not_cold(self, name: str, address: Address, group: int, button: str):
+        """Handle the NOT COLD event."""
+        self._groups[self.COLD_GROUP].set_value(0)
+        self._groups[self.VERY_COLD_GROUP].set_value(0)
+
+    async def _handle_temp_changed(
+        self, name: str, address: Address, group: int, button: str
+    ):
+        """Handle the TEMP CHANGED event and get the PIR status too."""
+        await self._handlers[STATUS_COMMAND].async_send()
+        await self._handlers[f"{STATUS_COMMAND}_1"].async_send()
+
+    def _check_hot_cold_thresholds(self):
+        """Check the Hot, Cold, Very Hot and Very Cold groups vs the current temperature."""
+
+        vh_threshold = self._properties[VERY_HOT_THRESHOLD].value
+        self._groups[self.VERY_HOT_GROUP].set_value(
+            self._groups[self.TEMPERATURE_GROUP].value >= vh_threshold
+        )
+
+        vc_threshold = self._properties[VERY_COLD_THRESHOLD].value
+        self._groups[self.VERY_COLD_GROUP].set_value(
+            self._groups[self.TEMPERATURE_GROUP].value <= vc_threshold
+        )
+        h_threshold = self._properties[HOT_THRESHOLD].value
+        self._groups[self.HOT_GROUP].set_value(
+            self._groups[self.TEMPERATURE_GROUP].value >= h_threshold
+        )
+
+        c_threshold = self._properties[COLD_THRESHOLD].value
+        self._groups[self.COLD_GROUP].set_value(
+            self._groups[self.TEMPERATURE_GROUP].value <= c_threshold
+        )
+
+    def _calc_temp(self, value):
+        """Calculate the temperature value from a byte value."""
+        is_usb = self._groups[self.USB_GROUP].value
+        slope, offset = (0.73, 20.53) if is_usb else (0.72, 24.61)
+        return slope * value - offset
+
+    def _calc_byte_from_temp(self, temp):
+        """Calculate the temperature value from a byte value."""
+        is_usb = self._groups[self.USB_GROUP].value
+        slope, offset = (0.73, 20.53) if is_usb else (0.72, 24.61)
+        return (temp + offset) / slope
+
+    async def _handle_light_changed(
+        self, name: str, address: Address, group: int, button: str
+    ):
+        """Handle the LIGHT CHANGED event and get BATTERY LEVEL too."""
+        await self._handlers[f"{STATUS_COMMAND}_2"].async_send()
+        await self._handlers[f"{STATUS_COMMAND}_3"].async_send()
 
 
 class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):

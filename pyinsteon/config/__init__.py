@@ -160,6 +160,7 @@ ONLY_IF_COLD_DARK = "only_if_cold_dark"
 ONLY_IF_HOT_DARK = "only_if_hot_dark"
 DARK_CANCEL_PIR_OFF = "dark_cancel_pir_off"
 PIR_MODE_OCC_III = "pir_mode_occ_iii"
+USB_POWERED = "usb_powered"
 
 # Derived Properties
 MOMENTARY_DELAY = "momentary_delay"
