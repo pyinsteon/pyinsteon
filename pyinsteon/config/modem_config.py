@@ -10,5 +10,10 @@ class ModemConfiguration(DeviceFlagBase):
     def __init__(self, address, name):
         """Init the ModemConfiguration properties."""
         super().__init__(
-            address, "modem_config", name, bool, prop_type=PropertyType.DERIVED
+            address,
+            "modem_config",
+            name,
+            bool,
+            prop_type=PropertyType.DERIVED,
+            default=False,
         )

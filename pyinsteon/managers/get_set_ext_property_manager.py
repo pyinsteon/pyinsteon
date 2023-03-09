@@ -55,6 +55,7 @@ class GetSetExtendedPropertyManager(SubscriberBase):
         is_revsersed=False,
         prop_type=PropertyType.STANDARD,
         update_field=3,
+        default=None,
     ):
         """Subscribe a device property to Get and Set values.
 
@@ -73,7 +74,7 @@ class GetSetExtendedPropertyManager(SubscriberBase):
         self._flags[name] = flag_info
         read_only = set_cmd is None
         self._properties[name] = ExtendedProperty(
-            self._address, name, value_type, is_revsersed, read_only, prop_type
+            self._address, name, value_type, is_revsersed, read_only, prop_type, default
         )
         return self._properties[name]
 

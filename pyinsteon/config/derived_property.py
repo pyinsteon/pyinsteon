@@ -16,6 +16,7 @@ class DerivedProperty(DeviceFlagBase):
         value_type,
         is_reversed=False,
         is_read_only=False,
+        default=None,
     ):
         """Init the DerivedProperty class."""
         super().__init__(
@@ -26,6 +27,7 @@ class DerivedProperty(DeviceFlagBase):
             is_reversed,
             is_read_only,
             prop_type=PropertyType.DERIVED,
+            default=default,
         )
         subscribe_topic(
             self._properties_updated,

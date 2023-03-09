@@ -15,6 +15,7 @@ class OperatingFlag(DeviceFlagBase):
         is_reversed=False,
         is_read_only=False,
         prop_type=PropertyType.STANDARD,
+        default=None,
     ):
         """Init the OperatingFlag class."""
         super().__init__(
@@ -25,4 +26,5 @@ class OperatingFlag(DeviceFlagBase):
             is_reversed,
             is_read_only,
             prop_type,
+            default,
         )

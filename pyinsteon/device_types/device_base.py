@@ -300,11 +300,12 @@ class Device(ABC):
         unset_cmd,
         is_reversed=False,
         prop_type=PropertyType.STANDARD,
+        default=False,
     ):
         read_only = set_cmd is None or unset_cmd is None
         value_type = bool if bit is not None else int
         self._operating_flags[name] = OperatingFlag(
-            self._address, name, value_type, is_reversed, read_only, prop_type
+            self._address, name, value_type, is_reversed, read_only, prop_type, default
         )
         self._op_flags_manager.subscribe(name, group, bit, set_cmd, unset_cmd)
 
@@ -318,9 +319,18 @@ class Device(ABC):
         is_reversed=False,
         prop_type=PropertyType.STANDARD,
         update_field=3,
+        default=None,
     ):
         self._properties[name] = self._ext_property_manager.create(
-            name, group, data_field, bit, set_cmd, is_reversed, prop_type, update_field
+            name,
+            group,
+            data_field,
+            bit,
+            set_cmd,
+            is_reversed,
+            prop_type,
+            update_field,
+            default,
         )
 
     def _remove_operating_flag(self, name, group=None):

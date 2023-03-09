@@ -16,13 +16,14 @@ class DeviceFlagBase(SubscriberBase):
         is_reversed=False,
         is_read_only=False,
         prop_type=PropertyType.STANDARD,
+        default=None,
     ):
         """Init the DeviceFlag class."""
         self._address = Address(address)
         topic = f"{self._address.id}.{topic_prefix}.{name}"
         super().__init__(topic)
         self._name = name
-        self._value = None
+        self._value = default
         self._value_type = value_type
         self._new_value = None
         self._is_loaded = False
