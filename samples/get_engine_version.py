@@ -46,6 +46,7 @@ async def do_run():
         Address("48.88.47"),  # i2CS Outlet
         Address("48.88.48"),  # i2CS Outlet
         Address("45.31.3B"),  # i2CS IOLinc
+        Address("60.1B.37"),  # i3 Dial
     ]
     for addr in addrs:
         addr = Address(addr)
