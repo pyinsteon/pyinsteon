@@ -111,7 +111,11 @@ class ALDBReadManager:
             try:
                 async with async_timeout.timeout(TIMER_RECORD):
                     record = await self._record_queue.get()
-                    if record is not None and record.mem_addr == mem_addr:
+                    if (
+                        record is not None
+                        and record.mem_addr == mem_addr
+                        or mem_addr == 0x0000
+                    ):
                         _LOGGER.debug("_read_one returning record: %s", str(record))
                         return record
                     _LOGGER.debug("_read_one not returning record: %s", str(record))
