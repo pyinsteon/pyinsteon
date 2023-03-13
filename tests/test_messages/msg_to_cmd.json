@@ -401,41 +401,6 @@
         "ack": "",
         "topic": "{}.extended_get_response.direct"
     },
-    "THERMOSTAT_SET_POINT_RESPONSE-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "2E",
-        "cmd2": "00",
-        "user_data": {
-            "d2": "01",
-            "d3": "01"
-        },
-        "ack": "",
-        "topic": "{}.thermostat_set_point_response.direct"
-    },
-    "EXTENDED_GET_SET_2-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "2E",
-        "cmd2": "02",
-        "user_data": "",
-        "ack": "",
-        "topic": "{}.extended_get_set_2.direct"
-    },
-    "THERMOSTAT_STATUS_RESPONSE-DIRECT": {
-        "address": {},
-        "target": "040506",
-        "flags": "00",
-        "cmd1": "2E",
-        "cmd2": "02",
-        "user_data": {
-            "d1": "01"
-        },
-        "ack": "",
-        "topic": "{}.thermostat_status_response.direct"
-    },
     "OFF_AT_RAMP_RATE-DIRECT": {
         "address": {},
         "target": "040506",

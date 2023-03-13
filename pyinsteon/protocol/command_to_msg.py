@@ -31,7 +31,6 @@ from ..topics import (
     ENTER_LINKING_MODE,
     ENTER_UNLINKING_MODE,
     EXTENDED_GET_SET,
-    EXTENDED_GET_SET_2,
     EXTENDED_READ_WRITE_ALDB,
     EXTENDED_TRIGGER_ALL_LINK,
     FX_USERNAME,
@@ -402,6 +401,7 @@ def on_at_ramp_rate(
 @topic_to_command_handler(register_list=COMMAND_REGISTER, topic=EXTENDED_GET_SET)
 def extended_get_set(
     address: Address,
+    cmd2=0,
     data1=0,
     data2=0,
     data3=0,
@@ -423,37 +423,12 @@ def extended_get_set(
     data = {}
     items = locals()
     for index in range(1, 15):
-        data[f"d{index}"] = items[f"data{index}"]
+        item = items[f"data{index}"]
+        data[f"d{index}"] = item if item is not None else 0
     user_data = UserData(data)
-    _create_direct_message(topic=topic, address=address, user_data=user_data, crc=crc)
-
-
-@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=EXTENDED_GET_SET_2)
-def extended_get_set_2(
-    address: Address,
-    data1=0,
-    data2=0,
-    data3=0,
-    data4=0,
-    data5=0,
-    data6=0,
-    data7=0,
-    data8=0,
-    data9=0,
-    data10=0,
-    data11=0,
-    data12=0,
-    data13=0,
-    data14=0,
-    topic=pub.AUTO_TOPIC,
-):
-    """Create a EXTENDED_GET_SET_2 command."""
-    data = {}
-    items = locals()
-    for index in range(1, 15):
-        data[f"d{index}"] = items[f"data{index}"]
-    user_data = UserData(data)
-    _create_direct_message(topic=topic, address=address, user_data=user_data, crc=True)
+    _create_direct_message(
+        topic=topic, address=address, cmd2=cmd2, user_data=user_data, crc=crc
+    )
 
 
 @topic_to_command_handler(register_list=COMMAND_REGISTER, topic=OFF_AT_RAMP_RATE)
