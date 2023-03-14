@@ -481,7 +481,7 @@ class IPDB:
             DimmableLightingControl_SwitchLinc02,
         ),
         Product(
-            0x01, 0x29, 0x000089, "Wall Keypad Dimmer", "4703", DimmableLightingControl
+            0x01, 0x29, 0x000089, "Wall Keypad Dimmer", "4703", DimmableLightingControl_KeypadLinc_6
         ),  # KPL
         Product(
             0x01,
@@ -522,7 +522,7 @@ class IPDB:
             None,
             "KeypadLinc Schedule Timer with Dimmer",
             "2484DST6",
-            DimmableLightingControl,
+            DimmableLightingControl_KeypadLinc_6,
         ),  # KPL
         Product(
             0x01,
