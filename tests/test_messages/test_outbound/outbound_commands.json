@@ -203,16 +203,10 @@
     "EXTENDED_GET_SET": {
         "topic": "extended_get_set",
         "args": {
+            "cmd2": "0x00",
             "data1": "0x01"
         },
         "result": "0262aaaaaa102E00010000"
-    },
-    "EXTENDED_GET_SET_2": {
-        "topic": "extended_get_set_2",
-        "args": {
-            "data1": "0x02"
-        },
-        "result": "0262aaaaaa102E02020000"
     },
     "OFF_AT_RAMP_RATE": {
         "topic": "off_at_ramp_rate",

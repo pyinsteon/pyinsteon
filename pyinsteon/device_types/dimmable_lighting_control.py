@@ -153,7 +153,7 @@ class DimmableLightingControl_SwitchLincBase(DimmableLightingControl):
         )
 
 
-class DimmableLightingControl_SwitchLinc01(DimmableLightingControl):
+class DimmableLightingControl_SwitchLinc01(DimmableLightingControl_SwitchLincBase):
     """SwichLinc based dimmable lights.
 
     Uses command 0x2E 0x00 0x00 0x03 for LED dimming.
@@ -169,7 +169,7 @@ class DimmableLightingControl_SwitchLinc01(DimmableLightingControl):
             self._add_property(LED_DIMMING, 3, 3)
 
 
-class DimmableLightingControl_SwitchLinc02(DimmableLightingControl):
+class DimmableLightingControl_SwitchLinc02(DimmableLightingControl_SwitchLincBase):
     """SwichLinc based dimmable lights.
 
     Uses command 0x2E 0x00 0x00 0x07 for LED dimming.

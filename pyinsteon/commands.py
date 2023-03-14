@@ -17,7 +17,6 @@ from .topics import (
     ENTER_UNLINKING_MODE,
     EXTENDED_GET_RESPONSE,
     EXTENDED_GET_SET,
-    EXTENDED_GET_SET_2,
     EXTENDED_READ_WRITE_ALDB,
     EXTENDED_RECEIVED,
     EXTENDED_TRIGGER_ALL_LINK,
@@ -92,8 +91,6 @@ from .topics import (
     THERMOSTAT_MODE_STATUS,
     THERMOSTAT_SET_COOL_SETPOINT,
     THERMOSTAT_SET_HEAT_SETPOINT,
-    THERMOSTAT_SET_POINT_RESPONSE,
-    THERMOSTAT_STATUS_RESPONSE,
     THERMOSTAT_TEMPERATURE_DOWN,
     THERMOSTAT_TEMPERATURE_STATUS,
     THERMOSTAT_TEMPERATURE_UP,
@@ -598,7 +595,7 @@ commands.add(
 commands.add(
     topic=EXTENDED_GET_SET,
     cmd1=0x2E,
-    cmd2=0x00,
+    cmd2=None,
     ud_allowed=True,
     ud_required=False,
     userdata=None,
@@ -607,39 +604,10 @@ commands.add(
 commands.add(
     topic=EXTENDED_GET_RESPONSE,
     cmd1=0x2E,
-    cmd2=0x00,
+    cmd2=None,
     ud_allowed=True,
     ud_required=True,
-    userdata={"d2": 0x01},
-    use_group=False,
-)
-# This is not consistant with the 2441TH dev guide
-# It is consistand with 2441ZTH dev guide howerver
-commands.add(
-    topic=THERMOSTAT_SET_POINT_RESPONSE,
-    cmd1=0x2E,
-    cmd2=0x00,
-    ud_allowed=True,
-    ud_required=True,
-    userdata={"d2": 0x01, "d3": 0x01},
-    use_group=False,
-)
-commands.add(
-    topic=EXTENDED_GET_SET_2,
-    cmd1=0x2E,
-    cmd2=0x02,
-    ud_allowed=True,
-    ud_required=False,
     userdata=None,
-    use_group=False,
-)
-commands.add(
-    topic=THERMOSTAT_STATUS_RESPONSE,
-    cmd1=0x2E,
-    cmd2=0x02,
-    ud_allowed=True,
-    ud_required=True,
-    userdata={"d1": 0x01},
     use_group=False,
 )
 # cmd2 ne 0x00 => no confict w/ read aldb

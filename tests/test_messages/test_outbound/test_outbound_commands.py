@@ -1,7 +1,8 @@
 """Test outbound SD and ED messages."""
 import asyncio
-import json
 from binascii import hexlify, unhexlify
+import json
+from os import path
 from unittest import TestCase
 
 import aiofiles
@@ -21,7 +22,6 @@ FILE = "outbound_commands.json"
 
 async def import_commands():
     """Import and parse the commands to test."""
-    from os import path
 
     curr_path = path.dirname(path.abspath(__file__))
     command_file = path.join(curr_path, FILE)
@@ -61,10 +61,10 @@ class TestOuboundCommands(TestCase):
             main_topic = test_cases[test_case]["topic"]
             topic = f"send.{main_topic}.direct"
             args = test_cases[test_case]["args"]
-            for k, v in args.items():
-                if str(v).startswith("0x"):
-                    v = int.from_bytes(unhexlify(v[2:]), "big")
-                    args[k] = v
+            for key, value in args.items():
+                if str(value).startswith("0x"):
+                    value = int.from_bytes(unhexlify(value[2:]), "big")
+                    args[key] = value
             args["address"] = address
             result = str(test_cases[test_case]["result"])
             result = result.replace("aaaaaa", address.id)
@@ -75,7 +75,7 @@ class TestOuboundCommands(TestCase):
             test_msg = msg_str[: len(result)]
             try:
                 assert test_msg.lower() == result.lower()
-            except AssertionError:
+            except AssertionError as exception:
                 raise AssertionError(
                     f"Error in {test_case}: Result: {msg_str.lower()} ({test_msg.lower()})  Expected: {result.lower()}"
-                )
+                ) from exception
