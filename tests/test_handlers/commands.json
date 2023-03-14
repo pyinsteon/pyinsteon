@@ -197,41 +197,6 @@
             "response": 1,
             "assert_tests": {}
         },
-        "extended_set_2": {
-            "command": {
-                "class": ".extended_set_2.ExtendedSet2Command",
-                "params": {
-                    "address": "112233",
-                    "data1": 3,
-                    "data2": 4
-                },
-                "send_params": {
-                    "data3": 3,
-                    "data4": 4,
-                    "data5": 5,
-                    "data6": 6,
-                    "data7": 7,
-                    "data8": 8,
-                    "data9": 9,
-                    "data10": 10,
-                    "data11": 11,
-                    "data12": 12,
-                    "data13": 13,
-                    "data14": 14
-                }
-            },
-            "messages": [
-                {
-                    "address": "112233",
-                    "flags": 32,
-                    "cmd1": 46,
-                    "cmd2": 2,
-                    "target": "445566"
-                }
-            ],
-            "response": 1,
-            "assert_tests": {}
-        },
         "get_operating_flags": {
             "command": {
                 "class": ".get_operating_flags.GetOperatingFlagsCommand",
@@ -907,27 +872,6 @@
                 "zone": 2,
                 "deadband": 3
             }
-        },
-        "thermostat_get_set_point": {
-            "command": {
-                "class": ".thermostat_get_set_point.ThermostatGetSetPointCommand",
-                "params": {
-                    "address": "112233"
-                },
-                "send_params": {}
-            },
-            "messages": [
-                {
-                    "address": "112233",
-                    "flags": 32,
-                    "cmd1": 46,
-                    "cmd2": 0,
-                    "user_data": {},
-                    "target": "445566"
-                }
-            ],
-            "response": 1,
-            "assert_tests": {}
         },
         "thermostat_mode": {
             "command": {

@@ -35,9 +35,6 @@ from pyinsteon.handlers.to_device.temperature_up import TemperatureUpCommand
 from pyinsteon.handlers.to_device.thermostat_cool_set_point import (
     ThermostatCoolSetPointCommand,
 )
-from pyinsteon.handlers.to_device.thermostat_get_set_point import (
-    ThermostatGetSetPointCommand,
-)
 from pyinsteon.handlers.to_device.thermostat_heat_set_point import (
     ThermostatHeatSetPointCommand,
 )
@@ -120,12 +117,7 @@ class TestDirectCommands(unittest.TestCase):
             except AssertionError as ex:
                 self._assert_result = False
                 raise AssertionError(
-                    "Failed test '{}' with argument '{}' value {} vs expected value {}".format(
-                        self._current_test,
-                        assert_test,
-                        kwargs.get(assert_test),
-                        self._assert_tests[assert_test],
-                    )
+                    f"Failed test '{self._current_test}' with argument '{assert_test}' value {kwargs.get(assert_test)} vs expected value {self._assert_tests[assert_test]}"
                 ) from ex
 
     @async_case
@@ -169,9 +161,7 @@ class TestDirectCommands(unittest.TestCase):
                     response = await cmd.async_send(**send_params)
                 except Exception as ex:
                     raise Exception(
-                        "Failed test {} with error: {}".format(
-                            self._current_test, str(ex)
-                        )
+                        "Failed test {self._current_test} with error: {str(ex)}"
                     ) from ex
                 await sleep(0.1)
                 try:
@@ -182,9 +172,7 @@ class TestDirectCommands(unittest.TestCase):
                         assert self._call_count == call_count
                 except AssertionError as ex:
                     raise AssertionError(
-                        "Failed test: {} command response: {}  call count {}".format(
-                            self._current_test, response, self._call_count
-                        )
+                        "Failed test: {self._current_test} command response: {response}  call count {self._call_count}"
                     ) from ex
                 await sleep(0.5)
                 assert self._assert_result
