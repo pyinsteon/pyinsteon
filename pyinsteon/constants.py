@@ -152,6 +152,7 @@ class PropertyType(HexIntEnum):
     STANDARD = 0x00
     ADVANCED = 0x01
     DERIVED = 0x02
+    HIDDEN = 0x03
 
 
 class ThermostatMode(HexIntEnum):
