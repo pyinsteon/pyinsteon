@@ -25,6 +25,7 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
     # pylint: disable=arguments-differ
     async def async_send(
         self,
+        data2=None,
         data3=0,
         data4=0,
         data5=0,
@@ -40,7 +41,8 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
         priority=5,
     ):
         """Send Get Operating Flags message asyncronously."""
-        kwargs = {"data1": self._data1, "data2": self._data2}
+        data2 = data2 if data2 is not None else self._data2
+        kwargs = {"data1": self._data1, "data2": data2}
         loc = locals()
         for item in range(3, 15):
             kwargs[f"data{item}"] = int(loc[f"data{item}"])
@@ -51,7 +53,7 @@ class ExtendedSetCommand(DirectCommandHandlerBase):
         """Handle the ACK."""
         if (
             cmd2 == self._cmd2
-            and user_data["d1"] == self._data1
-            and user_data["d2"] == self._data2
+            and (self._data1 is None or user_data["d1"] == self._data1)
+            and (self._data2 is None or user_data["d2"] == self._data2)
         ):
             await super().async_handle_ack(cmd1=cmd1, cmd2=cmd2, user_data=user_data)
