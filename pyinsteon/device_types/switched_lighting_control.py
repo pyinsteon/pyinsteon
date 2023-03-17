@@ -652,6 +652,7 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
         self._groups[self.BOTTOM_GROUP].value = 1 if (status & 0x02) else 0
 
 
+# pylint: disable=too-many-ancestors
 class SwitchedLightingControl_I3Outlet(I3Base, SwitchedLightingControl_OnOffOutlet):
     """I3 Outlet device."""
 

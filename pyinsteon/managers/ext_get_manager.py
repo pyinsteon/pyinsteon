@@ -46,7 +46,7 @@ class ExtenededGetManager(SubscriberBase):
         )
 
         response_group = str(cmd2)
-        for data in [data1_read, data2_read, data3_read]:
+        for data in (data1_read, data2_read, data3_read):
             response_group = f"{response_group}.{data if data is not None else '_'}"
         super().__init__(
             f"{self._address.id}.extended_read_manager.{response_group}.response"

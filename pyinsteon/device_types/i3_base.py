@@ -343,6 +343,7 @@ class I3Base:
         )
 
 
+# pylint: disable=super-with-arguments
 class I3VariableResponderBase(I3Base, VariableResponderBase):
     """I3 variable responder base class."""
 
@@ -360,6 +361,7 @@ class I3VariableResponderBase(I3Base, VariableResponderBase):
         )
 
 
+# pylint: disable=super-with-arguments
 class I3OnOffResponderBase(I3Base, OnOffResponderBase):
     """I3 on/off responder base class."""
 
