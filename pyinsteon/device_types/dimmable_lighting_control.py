@@ -845,3 +845,10 @@ class DimmableLightingControl_Dial(I3VariableResponderBase):
     async def _async_on_manual_change(self):
         """Respond to a manual change of the device."""
         await self.async_status()
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
+        )
