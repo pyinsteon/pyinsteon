@@ -110,7 +110,9 @@ class ClimateControl_Thermostat(Device):
     async def async_set_humidity_high_set_point(self, humidity):
         """Set the humidity high set point."""
         humidity = min(humidity, 99)
-        cmd_status = await self._handlers["humidity_high_command"].async_send(humidity)
+        cmd_status = await self._handlers["humidity_high_command"].async_send(
+            data3=humidity
+        )
         if cmd_status == ResponseStatus.SUCCESS:
             self._groups[GRP_HUMID_HI_SP].value = humidity
         return cmd_status
@@ -118,7 +120,9 @@ class ClimateControl_Thermostat(Device):
     async def async_set_humidity_low_set_point(self, humidity):
         """Set the humidity low set point."""
         humidity = max(humidity, 1)
-        cmd_status = await self._handlers["humidity_low_command"].async_send(humidity)
+        cmd_status = await self._handlers["humidity_low_command"].async_send(
+            data3=humidity
+        )
         if cmd_status == ResponseStatus.SUCCESS:
             self._groups[GRP_HUMID_LO_SP].value = humidity
         return cmd_status
@@ -129,7 +133,7 @@ class ClimateControl_Thermostat(Device):
 
     async def async_set_master(self, master):
         """Set the thermostat master mode."""
-        return await self._handlers["set_master"].async_send(master)
+        return await self._handlers["set_master"].async_send(data3=master)
 
     async def async_set_notify_changes(self):
         """Set the thermostat to notify of changes."""
