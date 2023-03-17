@@ -1018,5 +1018,28 @@
             "assert_tests": {
                 "value": 55
             }
+        },
+        "night_mode_on": {
+            "command": {
+                "class": ".night_mode_on.NightModeOnCommand",
+                "params": {
+                    "address": "112233"
+                },
+                "send_params": {}
+            },
+            "messages": [
+                {
+                    "address": "112233",
+                    "flags": 32,
+                    "cmd1": 59,
+                    "cmd2": 0,
+                    "user_data": {},
+                    "target": "445566"
+                }
+            ],
+            "response": 1,
+            "assert_tests": {
+                "night_mode": true
+            }
         }
     }
