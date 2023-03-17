@@ -78,6 +78,11 @@ class DeviceFlagBase(SubscriberBase):
         """Return the read only flag."""
         return self._read_only
 
+    @is_read_only.setter
+    def is_read_only(self, value: bool) -> None:
+        """Set the read only flag of the property."""
+        self._read_only = bool(value)
+
     @property
     def is_loaded(self):
         """Return if the Operating flag has been loaded."""
@@ -90,8 +95,13 @@ class DeviceFlagBase(SubscriberBase):
 
     @property
     def property_type(self):
-        """Return the property type (Standard, Advanced or Derived)."""
+        """Return the property type (Standard, Advanced, Derived or Hidden)."""
         return self._prop_type
+
+    @property_type.setter
+    def property_type(self, value: PropertyType):
+        """Set the propoerty type for this property."""
+        self._prop_type = PropertyType(value)
 
     def load(self, value):
         """Load the flag from the device value.

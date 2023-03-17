@@ -9,6 +9,7 @@ from .climate_control import (
 )
 from .dimmable_lighting_control import (
     DimmableLightingControl,
+    DimmableLightingControl_Dial,
     DimmableLightingControl_DinRail,
     DimmableLightingControl_FanLinc,
     DimmableLightingControl_InLineLinc01,
@@ -43,6 +44,7 @@ from .security_health_safety import (
 from .sensors_actuators import SensorsActuators, SensorsActuators_IOLink
 from .switched_lighting_control import (
     SwitchedLightingControl,
+    SwitchedLightingControl_I3Outlet,
     SwitchedLightingControl_ApplianceLinc,
     SwitchedLightingControl_DinRail,
     SwitchedLightingControl_InLineLinc01,
@@ -481,7 +483,12 @@ class IPDB:
             DimmableLightingControl_SwitchLinc02,
         ),
         Product(
-            0x01, 0x29, 0x000089, "Wall Keypad Dimmer", "4703", DimmableLightingControl_KeypadLinc_6
+            0x01,
+            0x29,
+            0x000089,
+            "Wall Keypad Dimmer",
+            "4703",
+            DimmableLightingControl_KeypadLinc_6,
         ),  # KPL
         Product(
             0x01,
@@ -651,6 +658,8 @@ class IPDB:
         Product(
             0x01, 0x4F, None, "LED PAR38 Bulb", "2672-522", DimmableLightingControl
         ),
+        Product(0x01, 0x57, None, "i3 Paddle", "PS01", DimmableLightingControl_Dial),
+        Product(0x01, 0x58, None, "i3 Dial", "DS01", DimmableLightingControl_Dial),
         Product(
             0x02,
             None,
@@ -1010,6 +1019,14 @@ class IPDB:
             "On/Off Outlet",
             "2663-222",
             SwitchedLightingControl_OnOffOutlet,
+        ),
+        Product(
+            0x02,
+            0x3F,
+            None,
+            "I3 Outlet",
+            "WR01",
+            SwitchedLightingControl_I3Outlet,
         ),
         Product(0x03, None, None, "Generic Network Bridge Controller", "", PLM),
         Product(0x03, 0x01, None, "PowerLinc Serial", "2414S", PLM),

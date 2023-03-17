@@ -4,13 +4,17 @@ from functools import partial
 from typing import Iterable
 
 from ..config import (
+    BLUE_LED_OFF,
     DUAL_LINE_ON,
+    GREEN_LED_OFF,
     KEY_BEEP_ON,
     LED_BLINK_ON_ERROR_OFF,
     LED_BLINK_ON_ERROR_ON,
     LED_BLINK_ON_TX_ON,
     LED_DIMMING,
     LED_OFF,
+    LOAD_SENSE_2_ON,
+    LOAD_SENSE_ON,
     MOMENTARY_LINE_ON,
     NON_TOGGLE_MASK,
     NON_TOGGLE_ON_OFF_MASK,
@@ -19,6 +23,7 @@ from ..config import (
     POWERLINE_DISABLE_ON,
     PROGRAM_LOCK_ON,
     RADIO_BUTTON_GROUPS,
+    RED_LED_OFF,
     RESUME_DIM_ON,
     REVERSED_ON,
     RF_DISABLE_ON,
@@ -51,6 +56,7 @@ from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..utils import bit_is_set, multiple_status, set_bit
 from .device_commands import GET_LEDS_COMMAND, SET_LEDS_COMMAND, STATUS_COMMAND
+from .i3_base import I3Base
 from .on_off_controller_base import ON_LEVEL_MANAGER
 from .on_off_responder_base import OnOffResponderBase
 
@@ -644,3 +650,25 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
         """Set the status of the top and bottom outlets."""
         self._groups[self.TOP_GROUP].value = 1 if (status & 0x01) else 0
         self._groups[self.BOTTOM_GROUP].value = 1 if (status & 0x02) else 0
+
+
+# pylint: disable=too-many-ancestors
+class SwitchedLightingControl_I3Outlet(I3Base, SwitchedLightingControl_OnOffOutlet):
+    """I3 Outlet device."""
+
+    def _register_op_flags_and_props(self):
+        self._add_operating_flag(
+            LOAD_SENSE_ON, 0, 2, 4, 5, prop_type=PropertyType.ADVANCED
+        )
+        self._add_operating_flag(
+            LOAD_SENSE_2_ON, 0, 3, 6, 7, prop_type=PropertyType.ADVANCED
+        )
+        self._register_default_op_flags_and_props(
+            dimmable=False,
+            ops_flags_1={2: LOAD_SENSE_ON, 3: LOAD_SENSE_2_ON},
+            ops_flags_2={},
+            ops_flags_3={},
+        )
+        self._operating_flags[RED_LED_OFF].property_type = PropertyType.HIDDEN
+        self._operating_flags[GREEN_LED_OFF].property_type = PropertyType.HIDDEN
+        self._operating_flags[BLUE_LED_OFF].property_type = PropertyType.HIDDEN
