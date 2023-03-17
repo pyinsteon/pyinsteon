@@ -115,6 +115,7 @@ def _default_ext_props(dimmable=True) -> List[ExtProp]:
 
 
 # pylint: disable=no-member
+# pylint: disable=super-with-arguments
 class I3Base:
     """I3 device type base class."""
 
