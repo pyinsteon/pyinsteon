@@ -45,6 +45,18 @@ class ALDB(ALDBBase):
             mode = ReadWriteMode.STANDARD
         else:
             mode = self._read_write_mode
+
+        if self._mem_addr not in self._records:
+            # Query the first record
+            try:
+                async for rec in self._read_manager.async_read(
+                    mem_addr=0, num_recs=1, read_write_mode=mode
+                ):
+                    self._mem_addr = rec.mem_addr
+                    self._add_record(rec)
+            finally:
+                await self._read_manager.async_stop()
+
         try:
             async for rec in self._read_manager.async_read(
                 mem_addr=mem_addr,
