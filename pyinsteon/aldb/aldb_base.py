@@ -320,7 +320,7 @@ class ALDBBase(ABC):
 
             if result == ResponseStatus.DIRECT_NAK_PRE_NAK and self._read_manager:
                 async for test_rec in self._read_manager.async_read(
-                    rec_to_write.mem_addr, 1, force=True
+                    rec_to_write.mem_addr, 1
                 ):
                     if rec_to_write.is_exact_match(test_rec):
                         result = ResponseStatus.SUCCESS
