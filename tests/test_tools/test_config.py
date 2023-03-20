@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 import pyinsteon
 from pyinsteon.config import LED_OFF, ON_LEVEL
-from pyinsteon.constants import RelayMode, ResponseStatus, ToggleMode
+from pyinsteon.constants import PropertyType, RelayMode, ResponseStatus, ToggleMode
 from pyinsteon.device_types.climate_control import ClimateControl_Thermostat
 from pyinsteon.device_types.dimmable_lighting_control import (
     DimmableLightingControl_KeypadLinc_6,
@@ -13,7 +13,7 @@ from pyinsteon.device_types.dimmable_lighting_control import (
 from pyinsteon.device_types.sensors_actuators import SensorsActuators_IOLink
 from pyinsteon.device_types.switched_lighting_control import (
     SwitchedLightingControl,
-    SwitchedLightingControl_SwitchLinc,
+    SwitchedLightingControl_SwitchLinc02,
 )
 from pyinsteon.tools.config import ToolsConfig
 
@@ -39,7 +39,7 @@ device_01_kpl = create_device(
     DimmableLightingControl_KeypadLinc_6, random_address(), 0x01, 0x02
 )
 device_02 = create_device(
-    SwitchedLightingControl_SwitchLinc, random_address(), 0x02, 0x02
+    SwitchedLightingControl_SwitchLinc02, random_address(), 0x02, 0x02
 )
 device_02_no_config = create_device(
     SwitchedLightingControl, random_address(), 0x02, 0x05
@@ -435,16 +435,32 @@ class TestToolsConfigMenu(ToolsTestBase):
                 await cmd_mgr.async_cmdloop("")
                 buffer = log_file_lines(curr_dir)
                 assert buffer[3] == "Operating Flag                  Value\n"
-                assert (
-                    len(buffer)
-                    == len(device_01.operating_flags) + len(device_01.properties) + 9
-                )
+                std_flags_1 = [
+                    prop
+                    for _, prop in device_01.operating_flags.items()
+                    if prop.property_type == PropertyType.STANDARD
+                ]
+                std_props_1 = [
+                    prop
+                    for _, prop in device_01.properties.items()
+                    if prop.property_type == PropertyType.STANDARD
+                ]
+                assert len(buffer) == len(std_flags_1) + len(std_props_1) + 9
                 for line in buffer:
                     if line.startswith(ON_LEVEL):
                         assert line[len(ON_LEVEL)] == "*"
                     if line.startswith(LED_OFF):
                         assert line[len(LED_OFF)] == "*"
-
+                std_flags_2 = [
+                    prop
+                    for _, prop in device_02.operating_flags.items()
+                    if prop.property_type == PropertyType.STANDARD
+                ]
+                std_props_2 = [
+                    prop
+                    for _, prop in device_02.properties.items()
+                    if prop.property_type == PropertyType.STANDARD
+                ]
                 # Print config with command line and background mode
                 for command in ["print_config", "print_config -b"]:
                     cmd_mgr, _, _ = self.setup_cmd_tool(
@@ -455,16 +471,12 @@ class TestToolsConfigMenu(ToolsTestBase):
                             "exit",
                         ],
                     )
+
                     remove_log_file(curr_dir)
                     await cmd_mgr.async_cmdloop("")
                     buffer = log_file_lines(curr_dir)
                     assert buffer[2] == "Operating Flag                  Value\n"
-                    assert (
-                        len(buffer)
-                        == len(device_01.operating_flags)
-                        + len(device_01.properties)
-                        + 7
-                    )
+                    assert len(buffer) == len(std_flags_2) + len(std_props_2) + 8
 
                 # Print config with command line mode with invalid address
                 cmd_mgr, _, _ = self.setup_cmd_tool(

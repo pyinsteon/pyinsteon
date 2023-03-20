@@ -70,6 +70,7 @@ from .device_commands import (
     STATUS_COMMAND,
     STATUS_COMMAND_FAN,
 )
+from .i3_base import I3VariableResponderBase
 from .variable_controller_base import ON_LEVEL_MANAGER
 from .variable_responder_base import VariableResponderBase
 
@@ -128,7 +129,7 @@ class DimmableLightingControl_LampLinc(DimmableLightingControl):
         )
 
 
-class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
+class DimmableLightingControl_SwitchLincBase(DimmableLightingControl):
     """SwichLinc based dimmable lights."""
 
     def _register_op_flags_and_props(self):
@@ -140,7 +141,6 @@ class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
 
-        self._add_property(LED_DIMMING, 3, 3)
         self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
         self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
         self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
@@ -154,34 +154,49 @@ class DimmableLightingControl_SwitchLinc(DimmableLightingControl):
         )
 
 
-class DimmableLightingControl_ToggleLinc(DimmableLightingControl):
-    """SwichLinc based dimmable lights."""
+class DimmableLightingControl_SwitchLinc01(DimmableLightingControl_SwitchLincBase):
+    """SwichLinc based dimmable lights.
+
+    Uses command 0x2E 0x00 0x00 0x03 for LED dimming.
+    """
 
     def _register_op_flags_and_props(self):
         super()._register_op_flags_and_props()
-        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
-        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
-        self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
-        self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
-
-        if self._firmware >= 0x3A:
-            self._add_property(LED_DIMMING, 2, 3)
-        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
-        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
-        self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
-        self._add_property(ON_LEVEL, 8, 6)
-
-    def _register_config(self):
-        """Register configuration items."""
-        super()._register_config()
-        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
-            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
-        )
+        if (self._subcat == 0x04 and self._firmware >= 0x30) or (
+            self._subcat == 0x19 and self._firmware >= 0x41
+        ):
+            self._add_property(LED_DIMMING, 9, 7)
+        else:
+            self._add_property(LED_DIMMING, 3, 3)
 
 
-class DimmableLightingControl_InLineLinc(DimmableLightingControl_SwitchLinc):
-    """InLineLinc based dimmable lights."""
+class DimmableLightingControl_SwitchLinc02(DimmableLightingControl_SwitchLincBase):
+    """SwichLinc based dimmable lights.
+
+    Uses command 0x2E 0x00 0x00 0x07 for LED dimming.
+    """
+
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
+        self._add_property(LED_DIMMING, 9, 7)
+
+
+class DimmableLightingControl_ToggleLinc(DimmableLightingControl_SwitchLinc01):
+    """SwichLinc based dimmable lights."""
+
+
+class DimmableLightingControl_InLineLinc01(DimmableLightingControl_SwitchLinc01):
+    """InLineLinc based dimmable lights.
+
+    Uses command 0x2E 0x00 0x00 0x03 for LED dimming.
+    """
+
+
+class DimmableLightingControl_InLineLinc02(DimmableLightingControl_SwitchLinc02):
+    """InLineLinc based dimmable lights.
+
+    Uses command 0x2E 0x00 0x00 0x07 for LED dimming.
+    """
 
 
 class DimmableLightingControl_OutletLinc(DimmableLightingControl):
@@ -220,11 +235,11 @@ class DimmableLightingControl_DinRail(DimmableLightingControl):
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
 
-        self._add_property(LED_DIMMING, 3, 3)
         self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
         self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
         self._add_property(RAMP_RATE, 7, 5, prop_type=PropertyType.ADVANCED)
         self._add_property(ON_LEVEL, 8, 6)
+        self._add_property(LED_DIMMING, 9, 7)
 
     def _register_config(self):
         """Register configuration items."""
@@ -798,4 +813,42 @@ class DimmableLightingControl_KeypadLinc_8(DimmableLightingControl_KeypadLinc):
             description=description,
             model=model,
             buttons=buttons,
+        )
+
+
+class DimmableLightingControl_Dial(I3VariableResponderBase):
+    """Dimmable i3 Dial."""
+
+    def _register_handlers_and_managers(self):
+        """Register command handlers and managers."""
+        super()._register_handlers_and_managers()
+        self._handlers[STATUS_COMMAND] = StatusRequestCommand(
+            self._address, status_type=2
+        )
+        for group, group_prop in self._groups.items():
+            if isinstance(group_prop, OnLevel):
+                self._handlers[group]["manual_change"] = ManualChangeInbound(
+                    self._address, group
+                )
+        self._register_default_ext_prop_read_managers()
+        self._register_default_ext_prop_write_managers()
+
+    def _subscribe_to_handelers_and_managers(self):
+        """Subscribe methods to handlers and managers."""
+        super()._subscribe_to_handelers_and_managers()
+        for group, group_prop in self._groups.items():
+            if isinstance(group_prop, OnLevel):
+                self._handlers[group]["manual_change"].subscribe(
+                    self._async_on_manual_change
+                )
+
+    async def _async_on_manual_change(self):
+        """Respond to a manual change of the device."""
+        await self.async_status()
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
         )

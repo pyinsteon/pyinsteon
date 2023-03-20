@@ -44,15 +44,8 @@ from ..handlers.from_device.thermostat_heat_set_point import (
 )
 from ..handlers.from_device.thermostat_humidity import ThermostatHumidityHandler
 from ..handlers.from_device.thermostat_mode import ThermostatModeHandler
-from ..handlers.from_device.thermostat_set_point_response import (
-    ThermostatSetPointResponseHandler,
-)
-from ..handlers.from_device.thermostat_status_response import (
-    ThermostatStatusResponseHandler,
-)
 from ..handlers.from_device.thermostat_temperature import ThermostatTemperatureHandler
 from ..handlers.to_device.extended_set import ExtendedSetCommand
-from ..handlers.to_device.extended_set_2 import ExtendedSet2Command
 from ..handlers.to_device.thermostat_cool_set_point import ThermostatCoolSetPointCommand
 from ..handlers.to_device.thermostat_heat_set_point import ThermostatHeatSetPointCommand
 from ..handlers.to_device.thermostat_mode import ThermostatModeCommand
@@ -117,7 +110,9 @@ class ClimateControl_Thermostat(Device):
     async def async_set_humidity_high_set_point(self, humidity):
         """Set the humidity high set point."""
         humidity = min(humidity, 99)
-        cmd_status = await self._handlers["humidity_high_command"].async_send(humidity)
+        cmd_status = await self._handlers["humidity_high_command"].async_send(
+            data3=humidity
+        )
         if cmd_status == ResponseStatus.SUCCESS:
             self._groups[GRP_HUMID_HI_SP].value = humidity
         return cmd_status
@@ -125,7 +120,9 @@ class ClimateControl_Thermostat(Device):
     async def async_set_humidity_low_set_point(self, humidity):
         """Set the humidity low set point."""
         humidity = max(humidity, 1)
-        cmd_status = await self._handlers["humidity_low_command"].async_send(humidity)
+        cmd_status = await self._handlers["humidity_low_command"].async_send(
+            data3=humidity
+        )
         if cmd_status == ResponseStatus.SUCCESS:
             self._groups[GRP_HUMID_LO_SP].value = humidity
         return cmd_status
@@ -136,7 +133,7 @@ class ClimateControl_Thermostat(Device):
 
     async def async_set_master(self, master):
         """Set the thermostat master mode."""
-        return await self._handlers["set_master"].async_send(master)
+        return await self._handlers["set_master"].async_send(data3=master)
 
     async def async_set_notify_changes(self):
         """Set the thermostat to notify of changes."""
@@ -146,7 +143,9 @@ class ClimateControl_Thermostat(Device):
         """Set the thermostat day of the week and time."""
         curr_time = datetime.now()
         day = 0 if curr_time.weekday() == 6 else curr_time.weekday() + 1
-        set_time_command = ExtendedSet2Command(self._address, 0x02, day)
+        set_time_command = ExtendedSetCommand(
+            self._address, cmd2=0x02, data1=0x02, data2=day
+        )
         return await set_time_command.async_send(
             data3=curr_time.hour, data4=curr_time.minute, data5=curr_time.second
         )
@@ -239,12 +238,6 @@ class ClimateControl_Thermostat(Device):
         )
 
         self._managers[STATUS_COMMAND] = GetThermostatStatus(self._address)
-        self._handlers["status_response"] = ThermostatStatusResponseHandler(
-            self._address
-        )
-        self._handlers["set_point_response"] = ThermostatSetPointResponseHandler(
-            self._address
-        )
         self._handlers["cool_set_point_handler"] = ThermostatCoolSetPointHandler(
             self._address
         )
@@ -289,8 +282,8 @@ class ClimateControl_Thermostat(Device):
             self._groups[GRP_HUMID_LO_ON].set_value
         )
 
-        self._handlers["status_response"].subscribe(self._status_received)
-        self._handlers["set_point_response"].subscribe(self._set_point_received)
+        self._managers[STATUS_COMMAND].subscribe_status(self._status_received)
+        self._managers[STATUS_COMMAND].subscribe_set_point(self._set_point_received)
         self._handlers["cool_set_point_handler"].subscribe(
             self._groups[GRP_COOL_SP].set_value
         )
@@ -394,7 +387,6 @@ class ClimateControl_Thermostat(Device):
 
     def _set_point_received(
         self,
-        stage_1_on_minutes,
         humidity_high,
         humidity_low,
         firmwire,

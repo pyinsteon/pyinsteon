@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name        = "pyinsteon"
-version     = "1.3.5"
+version     = "1.4.0"
 license     = {text = "MIT License"}
 description = "Open-source Insteon home automation module running on Python 3."
 readme      = "DESCRIPTION.rst"
@@ -105,15 +105,19 @@ good-names = [
     "AccessControl_Morningstar",
     "ClimateControl_Thermostat",
     "ClimateControl_WirelessThermostat",
+    "DimmableLightingControl_Dial",
     "DimmableLightingControl_DinRail",
     "DimmableLightingControl_FanLinc",
-    "DimmableLightingControl_InLineLinc",
+    "DimmableLightingControl_InLineLinc01",
+    "DimmableLightingControl_InLineLinc02",
     "DimmableLightingControl_KeypadLinc",
     "DimmableLightingControl_KeypadLinc_6",
     "DimmableLightingControl_KeypadLinc_8",
     "DimmableLightingControl_LampLinc",
     "DimmableLightingControl_OutletLinc",
-    "DimmableLightingControl_SwitchLinc",
+    "DimmableLightingControl_SwitchLincBase",
+    "DimmableLightingControl_SwitchLinc01",
+    "DimmableLightingControl_SwitchLinc02",
     "DimmableLightingControl_ToggleLinc",
     "EnergyManagement_LoadController",
     "GeneralController_ControlLinc",
@@ -130,14 +134,18 @@ good-names = [
     "SensorsActuators_IOLink",
     "SwitchedLightingControl_ApplianceLinc",
     "SwitchedLightingControl_DinRail",
-    "SwitchedLightingControl_InLineLinc",
+    "SwitchedLightingControl_I3Outlet",
+    "SwitchedLightingControl_InLineLinc01",
+    "SwitchedLightingControl_InLineLinc02",
     "SwitchedLightingControl_KeypadLinc",
     "SwitchedLightingControl_KeypadLinc_6",
     "SwitchedLightingControl_KeypadLinc_8",
     "SwitchedLightingControl_Micro",
     "SwitchedLightingControl_OnOffOutlet",
     "SwitchedLightingControl_OutletLinc",
-    "SwitchedLightingControl_SwitchLinc",
+    "SwitchedLightingControl_SwitchLincBase",
+    "SwitchedLightingControl_SwitchLinc01",
+    "SwitchedLightingControl_SwitchLinc02",
     "SwitchedLightingControl_ToggleLinc",
 ]
 

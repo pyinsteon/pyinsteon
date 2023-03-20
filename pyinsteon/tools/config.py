@@ -1,8 +1,19 @@
 """Command line interface for Operation Flag and Extended Properites Management."""
 
 from .. import devices
-from ..constants import RelayMode, ResponseStatus
+from ..config.device_flag import DeviceFlagBase
+from ..constants import PropertyType, RelayMode, ResponseStatus
 from .tools_base import ToolsBase
+
+
+def _show_flag(flag: DeviceFlagBase, advanced: bool, hidden: bool):
+    if flag.property_type == PropertyType.STANDARD:
+        return True
+    if flag.property_type == PropertyType.ADVANCED and advanced:
+        return True
+    if flag.property_type == PropertyType.HIDDEN and hidden:
+        return True
+    return False
 
 
 class ToolsConfig(ToolsBase):
@@ -43,11 +54,16 @@ class ToolsConfig(ToolsBase):
                 else:
                     log_stdout("Extended properties read error")
 
-    async def do_print_config(self, address, log_stdout=None, background=False):
+    async def do_print_config(
+        self, address, advanced="n", hidden="n", log_stdout=None, background=False
+    ):
         """Write the operating flags and extended properties to a device.
 
         Usage:
-            read_ops_flags <ADDRESS>|all
+            read_ops_flags <ADDRESS>|all  <advanced> <hidden>
+
+            advanced: y|n default 'n'
+            hidden: y|n default 'n'
         """
         try:
             addresses = await self._ensure_address(
@@ -65,6 +81,13 @@ class ToolsConfig(ToolsBase):
             log_stdout("Invalid device address or device not found")
             return
 
+        advanced = await self._ensure_bool(
+            advanced, "Advanced", ask_value=True, log_stdout=log_stdout
+        )
+        hidden = await self._ensure_bool(
+            hidden, "Advanced", ask_value=True, log_stdout=log_stdout
+        )
+
         for device_address in addresses:
             device = devices[device_address]
             if device and not device == devices.modem:
@@ -74,27 +97,29 @@ class ToolsConfig(ToolsBase):
                 log_stdout("------------------------------  -----")
                 for name in device.operating_flags:
                     op_flag = device.operating_flags[name]
-                    if op_flag.is_dirty:
-                        name_out = f"{name}*"
-                    else:
-                        name_out = name
-                    log_stdout(f"{name_out:30s}  {bool(op_flag.value)}")
+                    if _show_flag(op_flag, advanced, hidden):
+                        if op_flag.is_dirty:
+                            name_out = f"{name}*"
+                        else:
+                            name_out = name
+                        log_stdout(f"{name_out:30s}  {bool(op_flag.value)}")
                 log_stdout("")
                 log_stdout("Property                        Value")
                 log_stdout("------------------------------  ----------")
                 for name in device.properties:
                     prop = device.properties[name]
-                    if prop.is_dirty:
-                        name_out = f"{name}*"
-                    else:
-                        name_out = name
-                    if isinstance(prop.value, bool):
-                        log_stdout(f"{name_out:30s}  {prop.value}")
-                    else:
-                        prop_value = prop.value if prop.value is not None else 0
-                        log_stdout(
-                            f"{name_out:30s}  0x{prop_value:02x} ({prop_value:d})"
-                        )
+                    if _show_flag(prop, advanced, hidden):
+                        if prop.is_dirty:
+                            name_out = f"{name}*"
+                        else:
+                            name_out = name
+                        if isinstance(prop.value, bool):
+                            log_stdout(f"{name_out:30s}  {prop.value}")
+                        else:
+                            prop_value = prop.value if prop.value is not None else 0
+                            log_stdout(
+                                f"{name_out:30s}  0x{prop_value:02x} ({prop_value:d})"
+                            )
                 log_stdout("")
 
     async def do_set_config_value(

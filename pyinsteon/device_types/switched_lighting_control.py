@@ -4,13 +4,17 @@ from functools import partial
 from typing import Iterable
 
 from ..config import (
+    BLUE_LED_OFF,
     DUAL_LINE_ON,
+    GREEN_LED_OFF,
     KEY_BEEP_ON,
     LED_BLINK_ON_ERROR_OFF,
     LED_BLINK_ON_ERROR_ON,
     LED_BLINK_ON_TX_ON,
     LED_DIMMING,
     LED_OFF,
+    LOAD_SENSE_2_ON,
+    LOAD_SENSE_ON,
     MOMENTARY_LINE_ON,
     NON_TOGGLE_MASK,
     NON_TOGGLE_ON_OFF_MASK,
@@ -19,6 +23,7 @@ from ..config import (
     POWERLINE_DISABLE_ON,
     PROGRAM_LOCK_ON,
     RADIO_BUTTON_GROUPS,
+    RED_LED_OFF,
     RESUME_DIM_ON,
     REVERSED_ON,
     RF_DISABLE_ON,
@@ -51,6 +56,7 @@ from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..utils import bit_is_set, multiple_status, set_bit
 from .device_commands import GET_LEDS_COMMAND, SET_LEDS_COMMAND, STATUS_COMMAND
+from .i3_base import I3Base
 from .on_off_controller_base import ON_LEVEL_MANAGER
 from .on_off_responder_base import OnOffResponderBase
 
@@ -100,7 +106,7 @@ class SwitchedLightingControl_ApplianceLinc(SwitchedLightingControl):
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
 
 
-class SwitchedLightingControl_SwitchLinc(SwitchedLightingControl):
+class SwitchedLightingControl_SwitchLincBase(SwitchedLightingControl):
     """SwichLinc based dimmable lights."""
 
     def _register_op_flags_and_props(self):
@@ -112,28 +118,48 @@ class SwitchedLightingControl_SwitchLinc(SwitchedLightingControl):
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
         self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
 
-        self._add_property(LED_DIMMING, 3, 3)
         self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
         self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
 
 
-class SwitchedLightingControl_ToggleLinc(SwitchedLightingControl):
-    """ToggleLinc based on/off lights."""
+class SwitchedLightingControl_SwitchLinc01(SwitchedLightingControl_SwitchLincBase):
+    """SwichLinc based dimmable lights.
+
+    Uses command 0x2E 0x00 0x00 0x03 for LED dimming.
+    """
 
     def _register_op_flags_and_props(self):
         super()._register_op_flags_and_props()
-        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
-        self._add_operating_flag(LED_BLINK_ON_TX_ON, 0, 1, 2, 3)
-        self._add_operating_flag(RESUME_DIM_ON, 0, 2, 4, 5)
-        self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
-        self._add_operating_flag(LED_BLINK_ON_ERROR_ON, 5, 2, 0x14, 0x15)
-
-        self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
-        self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(LED_DIMMING, 3, 3)
 
 
-class SwitchedLightingControl_InLineLinc(SwitchedLightingControl_SwitchLinc):
-    """InLineLinc based dimmable lights."""
+class SwitchedLightingControl_SwitchLinc02(SwitchedLightingControl_SwitchLincBase):
+    """SwichLinc based dimmable lights.
+
+    Uses command 0x2E 0x00 0x00 0x07 for LED dimming.
+    """
+
+    def _register_op_flags_and_props(self):
+        super()._register_op_flags_and_props()
+        self._add_property(LED_DIMMING, 9, 7)
+
+
+class SwitchedLightingControl_ToggleLinc(SwitchedLightingControl_SwitchLinc01):
+    """ToggleLinc based on/off lights."""
+
+
+class SwitchedLightingControl_InLineLinc01(SwitchedLightingControl_SwitchLinc01):
+    """InLineLinc based dimmable lights..
+
+    Uses command 0x2E 0x00 0x00 0x03 for LED dimming.
+    """
+
+
+class SwitchedLightingControl_InLineLinc02(SwitchedLightingControl_SwitchLinc02):
+    """InLineLinc based dimmable lights..
+
+    Uses command 0x2E 0x00 0x00 0x07 for LED dimming.
+    """
 
 
 class SwitchedLightingControl_OutletLinc(SwitchedLightingControl):
@@ -177,9 +203,9 @@ class SwitchedLightingControl_DinRail(SwitchedLightingControl):
         self._add_operating_flag(LED_OFF, 0, 4, 8, 9)
         self._add_operating_flag(KEY_BEEP_ON, 0, 5, 0x0A, 0x0B)
 
-        self._add_property(LED_DIMMING, 3, 3)
         self._add_property(X10_HOUSE, 5, None, prop_type=PropertyType.ADVANCED)
         self._add_property(X10_UNIT, 6, None, prop_type=PropertyType.ADVANCED)
+        self._add_property(LED_DIMMING, 9, 7)
 
 
 class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
@@ -624,3 +650,25 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
         """Set the status of the top and bottom outlets."""
         self._groups[self.TOP_GROUP].value = 1 if (status & 0x01) else 0
         self._groups[self.BOTTOM_GROUP].value = 1 if (status & 0x02) else 0
+
+
+# pylint: disable=too-many-ancestors
+class SwitchedLightingControl_I3Outlet(I3Base, SwitchedLightingControl_OnOffOutlet):
+    """I3 Outlet device."""
+
+    def _register_op_flags_and_props(self):
+        self._add_operating_flag(
+            LOAD_SENSE_ON, 0, 2, 4, 5, prop_type=PropertyType.ADVANCED
+        )
+        self._add_operating_flag(
+            LOAD_SENSE_2_ON, 0, 3, 6, 7, prop_type=PropertyType.ADVANCED
+        )
+        self._register_default_op_flags_and_props(
+            dimmable=False,
+            ops_flags_1={2: LOAD_SENSE_ON, 3: LOAD_SENSE_2_ON},
+            ops_flags_2={},
+            ops_flags_3={},
+        )
+        self._operating_flags[RED_LED_OFF].property_type = PropertyType.HIDDEN
+        self._operating_flags[GREEN_LED_OFF].property_type = PropertyType.HIDDEN
+        self._operating_flags[BLUE_LED_OFF].property_type = PropertyType.HIDDEN

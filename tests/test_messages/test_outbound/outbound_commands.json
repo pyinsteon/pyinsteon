@@ -4,36 +4,36 @@
         "args": {
             "group": 1
         },
-        "result": "0262aaaaaa000101"
+        "result": "0262aaaaaa0f0101"
     },
     "DELETE_FROM_ALL_LINK_GROUP": {
         "topic": "delete_from_all_link_group",
         "args": {
             "group": 3
         },
-        "result": "0262aaaaaa000203"
+        "result": "0262aaaaaa0f0203"
     },
     "PRODUCT_DATA_REQUEST": {
         "topic": "product_data_request",
         "args": {},
-        "result": "0262aaaaaa000300"
+        "result": "0262aaaaaa0f0300"
     },
     "FX_USERNAME": {
         "topic": "fx_username",
         "args": {},
-        "result": "0262aaaaaa000301"
+        "result": "0262aaaaaa0f0301"
     },
     "DEVICE_TEXT_STRING_REQUEST": {
         "topic": "device_text_string_request",
         "args": {},
-        "result": "0262aaaaaa000302"
+        "result": "0262aaaaaa0f0302"
     },
     "SET_DEVICE_TEXT_STRING": {
         "topic": "set_device_text_string",
         "args": {
             "value": "Hello"
         },
-        "result": "0262aaaaaa10030348656c6c6f0000"
+        "result": "0262aaaaaa1f030348656c6c6f0000"
     },
     "SET_ALL_LINK_COMMAND_ALIAS": {
         "topic": "set_all_link_command_alias",
@@ -42,12 +42,12 @@
             "alias": "0x3344",
             "extended": false
         },
-        "result": "0262aaaaaa100304153344000000"
+        "result": "0262aaaaaa1f0304153344000000"
     },
     "SET_ALL_LINK": {
         "topic": "set_all_link",
         "args": {},
-        "result": "0262aaaaaa100305000000"
+        "result": "0262aaaaaa1f0305000000"
     },
     "ENTER_LINKING_MODE": {
         "topic": "enter_linking_mode",
@@ -55,7 +55,7 @@
             "group": 4,
             "extended": false
         },
-        "result": "0262aaaaaa000904"
+        "result": "0262aaaaaa0f0904"
     },
     "ENTER_UNLINKING_MODE": {
         "topic": "enter_unlinking_mode",
@@ -63,22 +63,22 @@
             "group": 5,
             "extended": false
         },
-        "result": "0262aaaaaa000A05"
+        "result": "0262aaaaaa0f0A05"
     },
     "GET_INSTEON_ENGINE_VERSION": {
         "topic": "get_insteon_engine_version",
         "args": {},
-        "result": "0262aaaaaa000D00"
+        "result": "0262aaaaaa0f0D00"
     },
     "PING": {
         "topic": "ping",
         "args": {},
-        "result": "0262aaaaaa000F00"
+        "result": "0262aaaaaa0f0F00"
     },
     "ID_REQUEST": {
         "topic": "id_request",
         "args": {},
-        "result": "0262aaaaaa001000"
+        "result": "0262aaaaaa0f1000"
     },
     "ON": {
         "topic": "on",
@@ -86,7 +86,7 @@
             "on_level": "0xab",
             "group": 0
         },
-        "result": "0262aaaaaa0011ab"
+        "result": "0262aaaaaa0f11ab"
     },
     "ON_FAST": {
         "topic": "on_fast",
@@ -94,38 +94,38 @@
             "on_level": "0xac",
             "group": 0
         },
-        "result": "0262aaaaaa0012ac"
+        "result": "0262aaaaaa0f12ac"
     },
     "OFF": {
         "topic": "off",
         "args": {
             "group": 0
         },
-        "result": "0262aaaaaa001300"
+        "result": "0262aaaaaa0f1300"
     },
     "OFF_FAST": {
         "topic": "off_fast",
         "args": {
             "group": 0
         },
-        "result": "0262aaaaaa001400"
+        "result": "0262aaaaaa0f1400"
     },
     "BRIGHTEN_ONE_STEP": {
         "topic": "brighten_one_step",
         "args": {},
-        "result": "0262aaaaaa001500"
+        "result": "0262aaaaaa0f1500"
     },
     "DIM_ONE_STEP": {
         "topic": "dim_one_step",
         "args": {},
-        "result": "0262aaaaaa001600"
+        "result": "0262aaaaaa0f1600"
     },
     "STATUS_REQUEST": {
         "topic": "status_request",
         "args": {
             "status_type": 3
         },
-        "result": "0262aaaaaa001903"
+        "result": "0262aaaaaa0f1903"
     },
     "GET_OPERATING_FLAGS": {
         "topic": "get_operating_flags",
@@ -133,7 +133,7 @@
             "flags_requested": 1,
             "extended": true
         },
-        "result": "0262aaaaaa101F01000000"
+        "result": "0262aaaaaa1f1F01000000"
     },
     "SET_OPERATING_FLAGS": {
         "topic": "set_operating_flags",
@@ -141,56 +141,56 @@
             "cmd": "0x04",
             "extended": true
         },
-        "result": "0262aaaaaa102004000000"
+        "result": "0262aaaaaa1f2004000000"
     },
     "INSTANT_CHANGE": {
         "topic": "instant_change",
         "args": {
             "on_level": "0xad"
         },
-        "result": "0262aaaaaa0021ad"
+        "result": "0262aaaaaa0f21ad"
     },
     "SET_STATUS": {
         "topic": "set_status",
         "args": {
             "on_level": "0xae"
         },
-        "result": "0262aaaaaa0027ae"
+        "result": "0262aaaaaa0f27ae"
     },
     "SET_ADDRESS_MSB": {
         "topic": "set_address_msb",
         "args": {
             "high_byte": "0xba"
         },
-        "result": "0262aaaaaa0028ba"
+        "result": "0262aaaaaa0f28ba"
     },
     "POKE": {
         "topic": "poke",
         "args": {
             "value": "0xbb"
         },
-        "result": "0262aaaaaa0029bb"
+        "result": "0262aaaaaa0f29bb"
     },
     "PEEK": {
         "topic": "peek",
         "args": {
             "lsb": "0xbc"
         },
-        "result": "0262aaaaaa002Bbc"
+        "result": "0262aaaaaa0f2Bbc"
     },
     "PEEK_INTERNAL": {
         "topic": "peek_internal",
         "args": {
             "lsb": "0xbd"
         },
-        "result": "0262aaaaaa002Cbd"
+        "result": "0262aaaaaa0f2Cbd"
     },
     "POKE_INTERNAL": {
         "topic": "poke_internal",
         "args": {
             "value": "0xbe"
         },
-        "result": "0262aaaaaa002Dbe"
+        "result": "0262aaaaaa0f2Dbe"
     },
     "ON_AT_RAMP_RATE": {
         "topic": "on_at_ramp_rate",
@@ -198,28 +198,22 @@
             "on_level": "0x04",
             "ramp_rate": "0x05"
         },
-        "result": "0262aaaaaa002E14"
+        "result": "0262aaaaaa0f2E14"
     },
     "EXTENDED_GET_SET": {
         "topic": "extended_get_set",
         "args": {
+            "cmd2": "0x00",
             "data1": "0x01"
         },
-        "result": "0262aaaaaa102E00010000"
-    },
-    "EXTENDED_GET_SET_2": {
-        "topic": "extended_get_set_2",
-        "args": {
-            "data1": "0x02"
-        },
-        "result": "0262aaaaaa102E02020000"
+        "result": "0262aaaaaa1f2E00010000"
     },
     "OFF_AT_RAMP_RATE": {
         "topic": "off_at_ramp_rate",
         "args": {
             "ramp_rate": "0x05"
         },
-        "result": "0262aaaaaa002F04"
+        "result": "0262aaaaaa0f2F04"
     },
     "EXTENDED_TRIGGER_ALL_LINK": {
         "topic": "extended_trigger_all_link",
@@ -228,12 +222,12 @@
             "on_level": "0xca",
             "fast": true
         },
-        "result": "0262aaaaaa1030000301ca11000100"
+        "result": "0262aaaaaa1f30000301ca11000100"
     },
     "BEEP": {
         "topic": "beep",
         "args": {},
-        "result": "0262aaaaaa0030"
+        "result": "0262aaaaaa0f30"
     },
     "SET_SPRINKLER_PROGRAM": {
         "topic": "set_sprinkler_program",
@@ -244,94 +238,94 @@
                 2
             ]
         },
-        "result": "0262aaaaaa104001010200"
+        "result": "0262aaaaaa1f4001010200"
     },
     "SPRINKLER_VALVE_ON": {
         "topic": "sprinkler_valve_on",
         "args": {
             "valve": 2
         },
-        "result": "0262aaaaaa004002"
+        "result": "0262aaaaaa0f4002"
     },
     "SPRINKLER_VALVE_OFF": {
         "topic": "sprinkler_valve_off",
         "args": {
             "valve": 8
         },
-        "result": "0262aaaaaa004108"
+        "result": "0262aaaaaa0f4108"
     },
     "SPRINKLER_PROGRAM_ON": {
         "topic": "sprinkler_program_on",
         "args": {
             "program": 3
         },
-        "result": "0262aaaaaa004203"
+        "result": "0262aaaaaa0f4203"
     },
     "SPRINKLER_PROGRAM_OFF": {
         "topic": "sprinkler_program_off",
         "args": {
             "program": 4
         },
-        "result": "0262aaaaaa004304"
+        "result": "0262aaaaaa0f4304"
     },
     "SPRINKLER_CONTROL": {
         "topic": "sprinkler_control",
         "args": {
             "command": 5
         },
-        "result": "0262aaaaaa004405"
+        "result": "0262aaaaaa0f4405"
     },
     "SPRINKLER_GET_PROGRAM_REQUEST": {
         "topic": "sprinkler_get_program_request",
         "args": {
             "program": 6
         },
-        "result": "0262aaaaaa004506"
+        "result": "0262aaaaaa0f4506"
     },
     "IO_OUTPUT_ON": {
         "topic": "io_output_on",
         "args": {
             "output": 7
         },
-        "result": "0262aaaaaa004507"
+        "result": "0262aaaaaa0f4507"
     },
     "IO_OUTPUT_OFF": {
         "topic": "io_output_off",
         "args": {
             "output": 8
         },
-        "result": "0262aaaaaa004608"
+        "result": "0262aaaaaa0f4608"
     },
     "IO_ALARM_DATA_REQUEST": {
         "topic": "io_alarm_data_request",
         "args": {},
-        "result": "0262aaaaaa004700"
+        "result": "0262aaaaaa0f4700"
     },
     "IO_WRITE_OUTPUT_PORT": {
         "topic": "io_write_output_port",
         "args": {
             "value": 9
         },
-        "result": "0262aaaaaa004809"
+        "result": "0262aaaaaa0f4809"
     },
     "IO_READ_INPUT_PORT": {
         "topic": "io_read_input_port",
         "args": {},
-        "result": "0262aaaaaa004900"
+        "result": "0262aaaaaa0f4900"
     },
     "IO_GET_SENSOR_VALUE": {
         "topic": "io_get_sensor_value",
         "args": {
             "sensor": 1
         },
-        "result": "0262aaaaaa004A01"
+        "result": "0262aaaaaa0f4A01"
     },
     "IO_SET_SENSOR_1_NOMINAL_VALUE": {
         "topic": "io_set_sensor_1_nominal_value",
         "args": {
             "value": 2
         },
-        "result": "0262aaaaaa004B02"
+        "result": "0262aaaaaa0f4B02"
     },
     "IO_SET_SENSOR_NOMINAL_VALUE": {
         "topic": "io_set_sensor_nominal_value",
@@ -339,7 +333,7 @@
             "sensor": 3,
             "value": 5
         },
-        "result": "0262aaaaaa104B03050000"
+        "result": "0262aaaaaa1f4B03050000"
     },
     "IO_GET_SENSOR_ALARM_DELTA": {
         "topic": "io_get_sensor_alarm_delta",
@@ -347,33 +341,33 @@
             "sensor": 4,
             "delta": -3
         },
-        "result": "0262aaaaaa004Cb4"
+        "result": "0262aaaaaa0f4Cb4"
     },
     "IO_WRITE_CONFIGURATION_PORT": {
         "topic": "io_write_configuration_port",
         "args": {
             "port_flags": "0xab"
         },
-        "result": "0262aaaaaa004Dab"
+        "result": "0262aaaaaa0f4Dab"
     },
     "IO_READ_CONFIGURATION_PORT": {
         "topic": "io_read_configuration_port",
         "args": {},
-        "result": "0262aaaaaa004E00"
+        "result": "0262aaaaaa0f4E00"
     },
     "IO_MODULE_CONTROL": {
         "topic": "io_module_control",
         "args": {
             "command": 0
         },
-        "result": "0262aaaaaa004F00"
+        "result": "0262aaaaaa0f4F00"
     },
     "POOL_DEVICE_ON": {
         "topic": "pool_device_on",
         "args": {
             "device_num": 1
         },
-        "result": "0262aaaaaa005001"
+        "result": "0262aaaaaa0f5001"
     },
     "POOL_SET_DEVICE_TEMPERATURE": {
         "topic": "pool_set_device_temperature",
@@ -381,7 +375,7 @@
             "device_num": 2,
             "degrees": "0x0a"
         },
-        "result": "0262aaaaaa105000020a"
+        "result": "0262aaaaaa1f5000020a"
     },
     "POOL_SET_DEVICE_HYSTERESIS": {
         "topic": "pool_set_device_hysteresis",
@@ -389,63 +383,63 @@
             "device_num": 3,
             "hysteresis": "0x0b"
         },
-        "result": "0262aaaaaa105001030b"
+        "result": "0262aaaaaa1f5001030b"
     },
     "POOL_DEVICE_OFF": {
         "topic": "pool_device_off",
         "args": {
             "device_num": 4
         },
-        "result": "0262aaaaaa005104"
+        "result": "0262aaaaaa0f5104"
     },
     "POOL_TEMPERATURE_UP": {
         "topic": "pool_temperature_up",
         "args": {
             "degrees": 5
         },
-        "result": "0262aaaaaa00520a"
+        "result": "0262aaaaaa0f520a"
     },
     "POOL_TEMPERATURE_DOWN": {
         "topic": "pool_temperature_down",
         "args": {
             "degrees": 6
         },
-        "result": "0262aaaaaa00530c"
+        "result": "0262aaaaaa0f530c"
     },
     "POOL_CONTROL": {
         "topic": "pool_control",
         "args": {
             "command": 1
         },
-        "result": "0262aaaaaa005401"
+        "result": "0262aaaaaa0f5401"
     },
     "DOOR_CONTROL": {
         "topic": "door_control",
         "args": {
             "command": 2
         },
-        "result": "0262aaaaaa005802"
+        "result": "0262aaaaaa0f5802"
     },
     "DOOR_STATUS_REPORT": {
         "topic": "door_status_report",
         "args": {
             "command": 3
         },
-        "result": "0262aaaaaa005903"
+        "result": "0262aaaaaa0f5903"
     },
     "WINDOW_COVERING_CONTROL": {
         "topic": "window_covering_control",
         "args": {
             "command": 4
         },
-        "result": "0262aaaaaa006004"
+        "result": "0262aaaaaa0f6004"
     },
     "WINDOW_COVERING_POSITION": {
         "topic": "window_covering_position",
         "args": {
             "position": 5
         },
-        "result": "0262aaaaaa006105"
+        "result": "0262aaaaaa0f6105"
     },
     "THERMOSTAT_TEMPERATURE_UP": {
         "topic": "thermostat_temperature_up",
@@ -453,7 +447,7 @@
             "degrees": 5,
             "zone": 0
         },
-        "result": "0262aaaaaa10680a"
+        "result": "0262aaaaaa1f680a"
     },
     "THERMOSTAT_TEMPERATURE_DOWN": {
         "topic": "thermostat_temperature_down",
@@ -461,7 +455,7 @@
             "degrees": 7,
             "zone": 1
         },
-        "result": "0262aaaaaa1069010e00"
+        "result": "0262aaaaaa1f69010e00"
     },
     "THERMOSTAT_GET_ZONE_INFORMATION": {
         "topic": "thermostat_get_zone_information",
@@ -469,14 +463,14 @@
             "zone": 1,
             "info": 2
         },
-        "result": "0262aaaaaa006A41"
+        "result": "0262aaaaaa0f6A41"
     },
     "THERMOSTAT_CONTROL": {
         "topic": "thermostat_control",
         "args": {
             "thermostat_mode": 3
         },
-        "result": "0262aaaaaa106B03"
+        "result": "0262aaaaaa1f6B03"
     },
     "THERMOSTAT_SET_COOL_SETPOINT": {
         "topic": "thermostat_set_cool_setpoint",
@@ -485,7 +479,7 @@
             "zone": 0,
             "deadband": 0
         },
-        "result": "0262aaaaaa106C0a"
+        "result": "0262aaaaaa1f6C0a"
     },
     "THERMOSTAT_SET_HEAT_SETPOINT": {
         "topic": "thermostat_set_heat_setpoint",
@@ -494,7 +488,7 @@
             "zone": 1,
             "deadband": 2
         },
-        "result": "0262aaaaaa106D010c04"
+        "result": "0262aaaaaa1f6D010c04"
     },
     "ENTER_LINKING_MODE-2": {
         "topic": "enter_linking_mode",
@@ -502,7 +496,7 @@
             "group": 4,
             "extended": true
         },
-        "result": "0262aaaaaa1009040000"
+        "result": "0262aaaaaa1f09040000"
     },
     "ENTER_UNLINKING_MODE-2": {
         "topic": "enter_unlinking_mode",
@@ -510,7 +504,7 @@
             "group": 5,
             "extended": true
         },
-        "result": "0262aaaaaa100A050000"
+        "result": "0262aaaaaa1f0A050000"
     },
     "ON_FAST-2": {
         "topic": "on_fast",
@@ -518,13 +512,13 @@
             "on_level": "0xac",
             "group": 3
         },
-        "result": "0262aaaaaa1012ac0300"
+        "result": "0262aaaaaa1f12ac0300"
     },
     "OFF_FAST-2": {
         "topic": "off_fast",
         "args": {
             "group": 2
         },
-        "result": "0262aaaaaa1014000200"
+        "result": "0262aaaaaa1f14000200"
     }
 }

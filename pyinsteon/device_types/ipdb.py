@@ -9,14 +9,17 @@ from .climate_control import (
 )
 from .dimmable_lighting_control import (
     DimmableLightingControl,
+    DimmableLightingControl_Dial,
     DimmableLightingControl_DinRail,
     DimmableLightingControl_FanLinc,
-    DimmableLightingControl_InLineLinc,
+    DimmableLightingControl_InLineLinc01,
+    DimmableLightingControl_InLineLinc02,
     DimmableLightingControl_KeypadLinc_6,
     DimmableLightingControl_KeypadLinc_8,
     DimmableLightingControl_LampLinc,
     DimmableLightingControl_OutletLinc,
-    DimmableLightingControl_SwitchLinc,
+    DimmableLightingControl_SwitchLinc01,
+    DimmableLightingControl_SwitchLinc02,
     DimmableLightingControl_ToggleLinc,
 )
 from .energy_management import EnergyManagement_LoadController
@@ -41,14 +44,17 @@ from .security_health_safety import (
 from .sensors_actuators import SensorsActuators, SensorsActuators_IOLink
 from .switched_lighting_control import (
     SwitchedLightingControl,
+    SwitchedLightingControl_I3Outlet,
     SwitchedLightingControl_ApplianceLinc,
     SwitchedLightingControl_DinRail,
-    SwitchedLightingControl_InLineLinc,
+    SwitchedLightingControl_InLineLinc01,
+    SwitchedLightingControl_InLineLinc02,
     SwitchedLightingControl_KeypadLinc_6,
     SwitchedLightingControl_KeypadLinc_8,
     SwitchedLightingControl_OnOffOutlet,
     SwitchedLightingControl_OutletLinc,
-    SwitchedLightingControl_SwitchLinc,
+    SwitchedLightingControl_SwitchLinc01,
+    SwitchedLightingControl_SwitchLinc02,
     SwitchedLightingControl_ToggleLinc,
 )
 from .unknown_device import UnknownDevice
@@ -209,7 +215,7 @@ class IPDB:
             None,
             "SwitchLinc Dimmer",
             "2476D",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc01,
         ),
         Product(
             0x01,
@@ -217,7 +223,7 @@ class IPDB:
             None,
             "In-LineLinc Dimmer",
             "2475D",
-            DimmableLightingControl_InLineLinc,
+            DimmableLightingControl_InLineLinc01,
         ),
         Product(
             0x01,
@@ -225,7 +231,7 @@ class IPDB:
             None,
             "ICON Dimmer Switch",
             "2876D",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc01,
         ),
         Product(
             0x01,
@@ -233,7 +239,7 @@ class IPDB:
             None,
             "SwitchLinc Dimmer",
             "2476DH",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc01,
         ),
         Product(
             0x01,
@@ -275,8 +281,8 @@ class IPDB:
             0x0A,
             None,
             "ICON In-Wall Controller",
-            "",
-            DimmableLightingControl_InLineLinc,
+            "2886D",
+            DimmableLightingControl_KeypadLinc_6,
         ),
         Product(
             0x01,
@@ -284,7 +290,7 @@ class IPDB:
             None,
             "Dimmer Module",
             "2632-422",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(
             0x01,
@@ -311,7 +317,7 @@ class IPDB:
             None,
             "Dimmer Module",
             "2632-432",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(
             0x01,
@@ -319,7 +325,7 @@ class IPDB:
             None,
             "Dimmer Module",
             "2632-442",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(
             0x01,
@@ -327,7 +333,7 @@ class IPDB:
             None,
             "Dimmer Module",
             "2632-522",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(
             0x01,
@@ -351,7 +357,7 @@ class IPDB:
             None,
             "ICON SwitchLinc Dimmer In-line Companion",
             "2474D",
-            DimmableLightingControl_InLineLinc,
+            DimmableLightingControl_InLineLinc01,
         ),
         Product(
             0x01,
@@ -359,7 +365,7 @@ class IPDB:
             None,
             "SwitchLinc Dimmer",
             "2476D",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc01,
         ),
         Product(
             0x01,
@@ -367,7 +373,7 @@ class IPDB:
             None,
             "In-LineLinc Dimmer",
             "2475D",
-            DimmableLightingControl_InLineLinc,
+            DimmableLightingControl_InLineLinc01,
         ),
         Product(
             0x01,
@@ -399,7 +405,7 @@ class IPDB:
             None,
             "SwitchLinc Dimmer",
             "2476DH",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(
             0x01,
@@ -407,7 +413,7 @@ class IPDB:
             None,
             "ICON Dimmer Switch",
             "2876D",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(
             0x01,
@@ -423,7 +429,7 @@ class IPDB:
             None,
             "SwitchLinc Dimmer",
             "2477D",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(
             0x01,
@@ -431,7 +437,7 @@ class IPDB:
             0x00006B,
             "SwitchLinc Dimmer",
             "2477D",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(
             0x01,
@@ -458,7 +464,7 @@ class IPDB:
             None,
             "SwitchLinc 2-Wire Dimmer",
             "2474DWH",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(
             0x01,
@@ -466,7 +472,7 @@ class IPDB:
             None,
             "INSTEON Ballast Dimmer",
             "2475DA2",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(
             0x01,
@@ -474,10 +480,15 @@ class IPDB:
             0x000087,
             "Wall Dimmer",
             "4701",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(
-            0x01, 0x29, 0x000089, "Wall Keypad Dimmer", "4703", DimmableLightingControl
+            0x01,
+            0x29,
+            0x000089,
+            "Wall Keypad Dimmer",
+            "4703",
+            DimmableLightingControl_KeypadLinc_6,
         ),  # KPL
         Product(
             0x01,
@@ -493,7 +504,7 @@ class IPDB:
             0x000091,
             "Wall Dimmer - 1000W",
             "4711",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(
             0x01,
@@ -501,7 +512,7 @@ class IPDB:
             0x000092,
             "In-Line Dimmer",
             "4712",
-            DimmableLightingControl_InLineLinc,
+            DimmableLightingControl_InLineLinc01,
         ),
         Product(
             0x01,
@@ -509,7 +520,7 @@ class IPDB:
             0x00009E,
             "SwitchLinc Dimmer",
             "2477DH",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(0x01, 0x2E, None, "FanLinc", "2475F", DimmableLightingControl_FanLinc),
         Product(
@@ -518,7 +529,7 @@ class IPDB:
             None,
             "KeypadLinc Schedule Timer with Dimmer",
             "2484DST6",
-            DimmableLightingControl,
+            DimmableLightingControl_KeypadLinc_6,
         ),  # KPL
         Product(
             0x01,
@@ -526,7 +537,7 @@ class IPDB:
             None,
             "SwitchLinc Dimmer",
             "2476D",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(
             0x01,
@@ -534,7 +545,7 @@ class IPDB:
             None,
             "SwitchLinc Dimmer",
             "2478D",
-            DimmableLightingControl_SwitchLinc,
+            DimmableLightingControl_SwitchLinc02,
         ),
         Product(
             0x01,
@@ -542,7 +553,7 @@ class IPDB:
             None,
             "In-LineLinc Dimmer",
             "2475DA1",
-            DimmableLightingControl_InLineLinc,
+            DimmableLightingControl_InLineLinc02,
         ),
         Product(
             0x01,
@@ -580,7 +591,7 @@ class IPDB:
             None,
             "Ballast Dimmer",
             "2446-422",
-            DimmableLightingControl_InLineLinc,
+            DimmableLightingControl_InLineLinc02,
         ),
         Product(
             0x01,
@@ -588,7 +599,7 @@ class IPDB:
             None,
             "Ballast Dimmer",
             "2446-522",
-            DimmableLightingControl_InLineLinc,
+            DimmableLightingControl_InLineLinc02,
         ),
         Product(
             0x01,
@@ -596,10 +607,15 @@ class IPDB:
             None,
             "Fixture Dimmer",
             "2447-422",
-            DimmableLightingControl_InLineLinc,
+            DimmableLightingControl_InLineLinc02,
         ),
         Product(
-            0x01, 0x40, None, "Fixture Dimmer", "2447-522", DimmableLightingControl
+            0x01,
+            0x40,
+            None,
+            "Fixture Dimmer",
+            "2447-522",
+            DimmableLightingControl_InLineLinc02,
         ),
         Product(
             0x01,
@@ -642,6 +658,8 @@ class IPDB:
         Product(
             0x01, 0x4F, None, "LED PAR38 Bulb", "2672-522", DimmableLightingControl
         ),
+        Product(0x01, 0x57, None, "i3 Paddle", "PS01", DimmableLightingControl_Dial),
+        Product(0x01, 0x58, None, "i3 Dial", "DS01", DimmableLightingControl_Dial),
         Product(
             0x02,
             None,
@@ -689,7 +707,7 @@ class IPDB:
             None,
             "SwitchLinc Relay",
             "2476S",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc01,
         ),
         Product(
             0x02,
@@ -697,7 +715,7 @@ class IPDB:
             None,
             "ICON On/Off Switch",
             "2876S",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc01,
         ),
         Product(
             0x02,
@@ -721,7 +739,7 @@ class IPDB:
             None,
             "SwitchLinc Relay Countdown Timer",
             "2476ST",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc01,
         ),
         Product(
             0x02,
@@ -737,7 +755,7 @@ class IPDB:
             0x00001B,
             "In-LineLinc Relay",
             "2475S",
-            SwitchedLightingControl_InLineLinc,
+            SwitchedLightingControl_InLineLinc01,
         ),
         Product(0x02, 0x11, None, "EZSwitch30", "", SwitchedLightingControl),
         Product(
@@ -746,7 +764,7 @@ class IPDB:
             0x00003E,
             "ICON In-LineLinc Relay",
             "2474S",
-            SwitchedLightingControl_InLineLinc,
+            SwitchedLightingControl_InLineLinc01,
         ),
         Product(
             0x02,
@@ -762,7 +780,7 @@ class IPDB:
             None,
             "In-LineLinc Relay with Sense",
             "2475S2",
-            SwitchedLightingControl_InLineLinc,
+            SwitchedLightingControl_InLineLinc01,
         ),
         Product(
             0x02,
@@ -770,7 +788,7 @@ class IPDB:
             None,
             "SwitchLinc Relay with Sense",
             "2476S",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc01,
         ),
         Product(
             0x02,
@@ -778,7 +796,7 @@ class IPDB:
             None,
             "ICON On/Off Switch",
             "2876S",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc01,
         ),
         Product(
             0x02,
@@ -794,7 +812,7 @@ class IPDB:
             0x000060,
             "SwitchLinc 220V Relay",
             "2494S220",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc01,
         ),
         Product(
             0x02,
@@ -802,7 +820,7 @@ class IPDB:
             None,
             "SwitchLinc 220V Relay",
             "2494S220",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc01,
         ),
         Product(
             0x02,
@@ -818,7 +836,7 @@ class IPDB:
             None,
             "SwitchLinc Relay",
             "2476S",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc01,
         ),
         Product(
             0x02,
@@ -834,7 +852,7 @@ class IPDB:
             None,
             "In-LineLinc On/Off",
             "2475SDB",
-            SwitchedLightingControl_InLineLinc,
+            SwitchedLightingControl_InLineLinc01,
         ),
         Product(
             0x02, 0x20, 0x00008A, "Wall Keypad Switch", "4704", SwitchedLightingControl
@@ -853,7 +871,7 @@ class IPDB:
             0x000093,
             "In-Line Switch",
             "4713",
-            SwitchedLightingControl_InLineLinc,
+            SwitchedLightingControl_InLineLinc01,
         ),
         Product(
             0x02,
@@ -861,7 +879,7 @@ class IPDB:
             0x000088,
             "Wall Switch",
             "4702",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc01,
         ),
         Product(
             0x02,
@@ -893,7 +911,7 @@ class IPDB:
             None,
             "SwitchLinc Relay Countdown Timer",
             "2476ST",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc01,
         ),
         Product(
             0x02,
@@ -901,7 +919,7 @@ class IPDB:
             None,
             "SwitchLinc Relay (Dual-Band)",
             "2477S",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc02,
         ),
         Product(
             0x02,
@@ -909,7 +927,7 @@ class IPDB:
             None,
             "In-LineLinc On/Off",
             "2475SDB-50",
-            SwitchedLightingControl_InLineLinc,
+            SwitchedLightingControl_InLineLinc02,
         ),
         Product(
             0x02,
@@ -925,7 +943,7 @@ class IPDB:
             None,
             "On/Off Module",
             "2633-422",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc02,
         ),
         Product(
             0x02,
@@ -942,7 +960,7 @@ class IPDB:
             None,
             "On/Off Module",
             "2633-432",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc02,
         ),
         Product(0x02, 0x31, None, "Micro On/Off", "2443-422", SwitchedLightingControl),
         Product(0x02, 0x32, None, "Micro On/Off", "2443-522", SwitchedLightingControl),
@@ -968,7 +986,7 @@ class IPDB:
             None,
             "On/Off Module",
             "2633-442",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc02,
         ),
         Product(
             0x02,
@@ -976,7 +994,7 @@ class IPDB:
             None,
             "On/Off Module",
             "2633-522",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc02,
         ),
         Product(
             0x02,
@@ -984,7 +1002,7 @@ class IPDB:
             None,
             "On/Off Module",
             "2635-222",
-            SwitchedLightingControl_SwitchLinc,
+            SwitchedLightingControl_SwitchLinc02,
         ),
         Product(
             0x02,
@@ -1001,6 +1019,14 @@ class IPDB:
             "On/Off Outlet",
             "2663-222",
             SwitchedLightingControl_OnOffOutlet,
+        ),
+        Product(
+            0x02,
+            0x3F,
+            None,
+            "I3 Outlet",
+            "WR01",
+            SwitchedLightingControl_I3Outlet,
         ),
         Product(0x03, None, None, "Generic Network Bridge Controller", "", PLM),
         Product(0x03, 0x01, None, "PowerLinc Serial", "2414S", PLM),
