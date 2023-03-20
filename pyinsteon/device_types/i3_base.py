@@ -287,31 +287,31 @@ class I3Base:
             data2_resp=0x01,
             data3_resp=None,
         )
-        # group_1 = {
-        #     2: self._properties[OP_FLAG_PROP_1],
-        #     3: self._properties[OP_FLAG_PROP_2],
-        #     4: self._properties[OP_FLAG_PROP_3],
-        #     # 5: self._properties[RAMP_RATE],
-        #     # 6: self._properties[ON_LEVEL],
-        #     # 7: self._properties[LED_BRIGHTNESS],
-        #     8: self._properties[BRIGHTNESS_MAX],
-        #     9: self._properties[BRIGHTNESS_MIN],
-        #     10: self._properties[BRIGHTNESS_START],
-        #     11: self._properties[NIGHT_MODE_MAX_LEVEL],
-        #     12: self._properties[NIGHT_MODE_LED_BRIGHTNESS],
-        #     13: self._properties[NIGHT_MODE_RAMP_RATE],
-        # }
-        # self._managers[READ_MGRS][1] = ExtendedPropertyReadManager(
-        #     address=self._address,
-        #     properties=group_1,
-        #     cmd2=0x01,
-        #     data1_read=0x00,
-        #     data2_read=0x00,
-        #     data3_read=0x00,
-        #     data1_resp=0x01,
-        #     data2_resp=None,
-        #     data3_resp=None,
-        # )
+        group_1 = {
+            # 2: self._properties[OP_FLAG_PROP_1],
+            # 3: self._properties[OP_FLAG_PROP_2],
+            # 4: self._properties[OP_FLAG_PROP_3],
+            # 5: self._properties[RAMP_RATE],
+            # 6: self._properties[ON_LEVEL],
+            # 7: self._properties[LED_BRIGHTNESS],
+            8: self._properties[BRIGHTNESS_MAX],
+            9: self._properties[BRIGHTNESS_MIN],
+            10: self._properties[BRIGHTNESS_START],
+            11: self._properties[NIGHT_MODE_MAX_LEVEL],
+            12: self._properties[NIGHT_MODE_LED_BRIGHTNESS],
+            13: self._properties[NIGHT_MODE_RAMP_RATE],
+        }
+        self._managers[READ_MGRS][1] = ExtendedPropertyReadManager(
+            address=self._address,
+            properties=group_1,
+            cmd2=0x01,
+            data1_read=0x00,
+            data2_read=0x00,
+            data3_read=None,
+            data1_resp=0x04,
+            data2_resp=None,
+            data3_resp=None,
+        )
 
     def _register_default_ext_prop_write_managers(self):
         self._managers[WRITE_MGRS] = self._managers.get(WRITE_MGRS, [])
