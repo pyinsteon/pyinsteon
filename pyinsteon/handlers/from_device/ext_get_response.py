@@ -24,6 +24,14 @@ class ExtendedGetResponseHandler(InboundHandlerBase):
         self._data2 = data2
         self._data3 = data3
 
+        topic = f"handler.{self._address.id}.{EXTENDED_GET_RESPONSE}"
+        for group in [cmd2, data1, data2, data3]:
+            if group is None:
+                topic = f"{topic}.x"
+            else:
+                topic = f"{topic}.{group}"
+        self._subscriber_topic = topic
+
     @inbound_handler
     def handle_response(self, cmd1, cmd2, target, user_data, hops_left):
         """Handle the Extended Get response from a device."""
