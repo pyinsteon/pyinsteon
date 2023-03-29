@@ -80,8 +80,8 @@ def _default_ops_flags(dimmable: bool) -> List[OpsFlagDef]:
         # Group 5
         OpsFlagDef(TEND_ON, 5, 0, None, None, PropertyType.HIDDEN),
         # -- Night mode is set with (cmd1: 0x3B  cmd2: 0xXX) and (cmd2: 0x3C  cmd2: 0xXX)
-        OpsFlagDef(NIGHT_MODE_ON, 5, 1, None, None, PropertyType.HIDDEN),
-        OpsFlagDef(LED_BLINK_ON_ERROR_ON, 5, 2, None, None, PropertyType.ADVANCED),
+        OpsFlagDef(NIGHT_MODE_ON, 5, 1, None, None, PropertyType.STANDARD),
+        OpsFlagDef(LED_BLINK_ON_ERROR_ON, 5, 2, None, None, PropertyType.STANDARD),
         OpsFlagDef(CLEANUP_REPORT_OFF, 5, 3, None, None, PropertyType.HIDDEN),
         OpsFlagDef(DISABLE_BUTTONS, 5, 4, None, None, PropertyType.HIDDEN),
         # -- DETACH_LOAD_ON: future feature set/unset with 0x12, 0x13
@@ -103,15 +103,15 @@ def _default_ext_props(dimmable=True) -> List[ExtProp]:
     """Return a list of default extended properties for i3 devices."""
     show_dim = PropertyType.STANDARD if dimmable else PropertyType.HIDDEN
     return [
-        ExtProp(NIGHT_MODE_LED_BRIGHTNESS, int, False, PropertyType.HIDDEN),
-        ExtProp(NIGHT_MODE_RAMP_RATE, int, False, PropertyType.HIDDEN),
+        ExtProp(NIGHT_MODE_LED_BRIGHTNESS, int, False, PropertyType.STANDARD),
+        ExtProp(NIGHT_MODE_RAMP_RATE, int, False, PropertyType.STANDARD),
         ExtProp(RAMP_RATE, int, False, show_dim),
         ExtProp(ON_LEVEL, int, False, show_dim),
         ExtProp(LED_BRIGHTNESS, int, False, PropertyType.STANDARD),
         ExtProp(BRIGHTNESS_MIN, int, False, show_dim),
         ExtProp(BRIGHTNESS_MAX, int, False, show_dim),
         ExtProp(BRIGHTNESS_START, int, False, show_dim),
-        ExtProp(NIGHT_MODE_MAX_LEVEL, int, False, PropertyType.HIDDEN),
+        ExtProp(NIGHT_MODE_MAX_LEVEL, int, False, PropertyType.STANDARD),
     ]
 
 
