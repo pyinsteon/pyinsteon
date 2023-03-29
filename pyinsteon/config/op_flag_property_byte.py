@@ -2,12 +2,17 @@
 
 For use with `ExtendedPropertyReadManager` and `ExtendedPropertyWriteManager`.
 
+- Receives a list of operating flags and the associated bit.
+- Stores the value of a property byte just like any other property.
+- Updates the associated operating flags with the correct value based on the bit mapping.
+- For bits that do not have an operating flag, the underlying `_value` property will determine the bit value.
+
 """
 from typing import Dict
 
 from ..constants import PropertyType
 from ..utils import bit_is_set, set_bit
-from .derived_property import DerivedProperty
+from .device_flag import DeviceFlagBase
 from .operating_flag import OperatingFlag
 
 
@@ -15,7 +20,7 @@ def _value(prop: OperatingFlag):
     return prop.new_value if prop.is_dirty else prop.value
 
 
-class OpFlagPropertyByte(DerivedProperty):
+class OpFlagPropertyByte(DeviceFlagBase):
     """Operating flag byte for a property read/write process.
 
     For use with `ExtendedPropertyReadManager` and `ExtendedPropertyWriteManager`.
@@ -27,6 +32,7 @@ class OpFlagPropertyByte(DerivedProperty):
         """Init the DerivedProperty class."""
         super().__init__(
             address,
+            "derived_property",
             name,
             int,
             is_reversed=False,
@@ -54,7 +60,7 @@ class OpFlagPropertyByte(DerivedProperty):
     @property
     def value(self):
         """Return the value of the flag."""
-        byte_value = 0x00
+        byte_value = self._value if self._value is not None else 0x00
         for bit, prop in self._flags.items():
             if prop.value is None:
                 return None
@@ -64,7 +70,7 @@ class OpFlagPropertyByte(DerivedProperty):
     @property
     def new_value(self):
         """Return the new value of the flag."""
-        byte_value = 0x00
+        byte_value = self._value
         for bit, prop in self._flags.items():
             if prop.value is None:
                 return None
@@ -92,6 +98,7 @@ class OpFlagPropertyByte(DerivedProperty):
         This method updates the `is_loaded` property and clears the `new value` and
         `is_dirty` properties.
         """
+        super().load(value=value)
         for bit, prop in self._flags.items():
             if value is None:
                 new_val = None
