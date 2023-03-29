@@ -441,6 +441,16 @@
         "ack": "",
         "topic": "{}.beep.direct"
     },
+    "FACTORY_RESET-DIRECT": {
+        "address": {},
+        "target": "040506",
+        "flags": "00",
+        "cmd1": "34",
+        "cmd2": "",
+        "user_data": "",
+        "ack": "",
+        "topic": "{}.factory_reset.direct"
+    },
     "SET_SPRINKLER_PROGRAM-DIRECT": {
         "address": {},
         "target": "040506",

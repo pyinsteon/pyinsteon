@@ -20,6 +20,7 @@ from .topics import (
     EXTENDED_READ_WRITE_ALDB,
     EXTENDED_RECEIVED,
     EXTENDED_TRIGGER_ALL_LINK,
+    FACTORY_RESET,
     FX_USERNAME,
     GET_INSTEON_ENGINE_VERSION,
     GET_OPERATING_FLAGS,
@@ -646,6 +647,15 @@ commands.add(
     cmd1=0x30,
     cmd2=None,
     ud_allowed=False,
+    ud_required=False,
+    userdata=None,
+    use_group=False,
+)
+commands.add(
+    topic=FACTORY_RESET,
+    cmd1=0x34,
+    cmd2=0x00,
+    ud_allowed=True,
     ud_required=False,
     userdata=None,
     use_group=False,

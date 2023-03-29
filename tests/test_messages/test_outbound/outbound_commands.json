@@ -229,6 +229,14 @@
         "args": {},
         "result": "0262aaaaaa0f30"
     },
+    "FACTORY_RESET": {
+        "topic": "factory_reset",
+        "args": {
+            "cat": "0x01",
+            "subcat": "0x02"
+        },
+        "result": "0262aaaaaa1f34000102"
+    },
     "SET_SPRINKLER_PROGRAM": {
         "topic": "set_sprinkler_program",
         "args": {
