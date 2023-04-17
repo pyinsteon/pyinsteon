@@ -830,8 +830,6 @@ class DimmableLightingControl_Dial(I3VariableResponderBase):
                 self._handlers[group]["manual_change"] = ManualChangeInbound(
                     self._address, group
                 )
-        self._register_default_ext_prop_read_managers()
-        self._register_default_ext_prop_write_managers()
 
     def _subscribe_to_handelers_and_managers(self):
         """Subscribe methods to handlers and managers."""

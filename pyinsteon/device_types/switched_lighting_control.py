@@ -30,6 +30,7 @@ from ..config import (
     THREE_WAY_ON,
     TOGGLE_BUTTON,
     TRIGGER_GROUP_MASK,
+    USE_LOCAL_PROFILE,
     X10_HOUSE,
     X10_UNIT,
 )
@@ -663,11 +664,14 @@ class SwitchedLightingControl_I3Outlet(I3Base, SwitchedLightingControl_OnOffOutl
         self._add_operating_flag(
             LOAD_SENSE_2_ON, 0, 3, 6, 7, prop_type=PropertyType.ADVANCED
         )
+        self._add_operating_flag(
+            USE_LOCAL_PROFILE, 7, 7, 0x34, 0x35, prop_type=PropertyType.HIDDEN
+        )
         self._register_default_op_flags_and_props(
             dimmable=False,
             ops_flags_1={2: LOAD_SENSE_ON, 3: LOAD_SENSE_2_ON},
             ops_flags_2={},
-            ops_flags_3={},
+            ops_flags_3={7: USE_LOCAL_PROFILE},
         )
         self._operating_flags[RED_LED_OFF].property_type = PropertyType.HIDDEN
         self._operating_flags[GREEN_LED_OFF].property_type = PropertyType.HIDDEN

@@ -42,6 +42,7 @@ ARG_TYPES = {
     "master": Address,
     "monitor_mode": bool,
     "on_level": bytes,
+    "on": bool,
     "open_level": bytes,
     "relay_mode": RelayMode,
     "seconds": bytes,
