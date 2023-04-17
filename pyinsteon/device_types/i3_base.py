@@ -102,10 +102,11 @@ def _default_ops_flags(dimmable: bool) -> List[OpsFlagDef]:
 def _default_ext_props(dimmable=True) -> List[ExtProp]:
     """Return a list of default extended properties for i3 devices."""
     show_dim = PropertyType.STANDARD if dimmable else PropertyType.HIDDEN
+    show_dim_adv = PropertyType.ADVANCED if dimmable else PropertyType.HIDDEN
     return [
         ExtProp(NIGHT_MODE_LED_BRIGHTNESS, int, False, PropertyType.STANDARD),
         ExtProp(NIGHT_MODE_RAMP_RATE, int, False, PropertyType.STANDARD),
-        ExtProp(RAMP_RATE, int, False, show_dim),
+        ExtProp(RAMP_RATE, int, False, show_dim_adv),
         ExtProp(ON_LEVEL, int, False, show_dim),
         ExtProp(LED_BRIGHTNESS, int, False, PropertyType.STANDARD),
         ExtProp(BRIGHTNESS_MIN, int, False, show_dim),
