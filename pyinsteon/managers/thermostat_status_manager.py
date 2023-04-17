@@ -48,13 +48,13 @@ class GetThermostatStatus:
         self._address = Address(address)
         self._get_status_command = ExtendedGetCommand(self._address, cmd2=0x02)
         self._get_set_point_command = ExtendedGetCommand(
-            address=self._address, cmd2=0x00, data1=0x00, data2=0x00, data3=0x00
+            address=self._address, cmd2=0x00, data1=0x00, data2=0x00, data3=0x01
         )
         self._status_response = ExtendedGetResponseHandler(
-            self._address, cmd2=0x02, data1=None, data2=0x01, data3=None
+            self._address, cmd2=0x02, data1=0x01, data2=None, data3=None
         )
         self._set_point_response = ExtendedGetResponseHandler(
-            self._address, cmd2=0x00, data1=None, data2=0x01, data3=None
+            self._address, cmd2=0x00, data1=0x00, data2=0x01, data3=0x01
         )
         self._response_status = asyncio.Queue()
         self._response_set_point = asyncio.Queue()
