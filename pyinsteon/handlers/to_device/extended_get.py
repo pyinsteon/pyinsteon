@@ -21,11 +21,15 @@ class ExtendedGetCommand(DirectCommandHandlerBase):
         self._data3 = data3
 
     # pylint: disable=arguments-differ
-    async def async_send(self, group=0):
+    async def async_send(self, group=0, crc=False):
         """Send Get Operating Flags message asyncronously."""
         self._data1 = group
         response = await super().async_send(
-            cmd2=self._cmd2, data1=self._data1, data2=self._data2, data3=self._data3
+            cmd2=self._cmd2,
+            data1=self._data1,
+            data2=self._data2,
+            data3=self._data3,
+            crc=crc,
         )
         self._data1 = None
         return response

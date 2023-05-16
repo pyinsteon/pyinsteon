@@ -6,6 +6,7 @@ from .. import pub
 from ..address import Address
 from ..commands import commands
 from ..constants import (
+    DeviceCategory,
     DoorCommand,
     IOModuleControlCommand,
     PoolControlCommand,
@@ -33,6 +34,7 @@ from ..topics import (
     EXTENDED_GET_SET,
     EXTENDED_READ_WRITE_ALDB,
     EXTENDED_TRIGGER_ALL_LINK,
+    FACTORY_RESET,
     FX_USERNAME,
     GET_INSTEON_ENGINE_VERSION,
     GET_OPERATING_FLAGS,
@@ -50,6 +52,8 @@ from ..topics import (
     IO_SET_SENSOR_NOMINAL_VALUE,
     IO_WRITE_CONFIGURATION_PORT,
     IO_WRITE_OUTPUT_PORT,
+    NIGHT_MODE_OFF,
+    NIGHT_MODE_ON,
     OFF,
     OFF_AT_RAMP_RATE,
     OFF_FAST,
@@ -119,7 +123,7 @@ def _create_direct_message(
     extended = user_data is not None
     cmd2 = command.cmd2 if command.cmd2 is not None else cmd2 if cmd2 is not None else 0
     msg_type = topic_to_message_type(topic)
-    flags = MessageFlags.create(msg_type, extended)
+    flags = MessageFlags.create(msg_type, extended, 3, 3)
     if extended:
         if crc:
             user_data.set_crc(command.cmd1, cmd2)
@@ -556,6 +560,32 @@ def extended_trigger_all_link(
 def beep(address: Address, topic=pub.AUTO_TOPIC):
     """Create a BEEP command."""
     _create_direct_message(topic=topic, address=address)
+
+
+@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=FACTORY_RESET)
+def factory_reset(
+    address: Address, cat: DeviceCategory, subcat: int, topic=pub.AUTO_TOPIC
+):
+    """Create a FACTORY RESET command."""
+    user_data = UserData(
+        {
+            "d1": int(cat),
+            "d2": subcat,
+        }
+    )
+    _create_direct_message(topic=topic, address=address, user_data=user_data)
+
+
+@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=NIGHT_MODE_OFF)
+def night_mode_off(address: Address, topic=pub.AUTO_TOPIC):
+    """Create a NIGHT MODE OFF command."""
+    _create_direct_message(topic=topic, address=address, cmd2=0x00)
+
+
+@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=NIGHT_MODE_ON)
+def night_mode_on(address: Address, topic=pub.AUTO_TOPIC):
+    """Create a BEEP command."""
+    _create_direct_message(topic=topic, address=address, cmd2=0x00)
 
 
 @topic_to_command_handler(register_list=COMMAND_REGISTER, topic=SET_SPRINKLER_PROGRAM)

@@ -20,6 +20,7 @@ from .topics import (
     EXTENDED_READ_WRITE_ALDB,
     EXTENDED_RECEIVED,
     EXTENDED_TRIGGER_ALL_LINK,
+    FACTORY_RESET,
     FX_USERNAME,
     GET_INSTEON_ENGINE_VERSION,
     GET_OPERATING_FLAGS,
@@ -41,6 +42,8 @@ from .topics import (
     LEAK_DETECTOR_ANNOUNCE,
     MANUALLY_TURNED_OFF,
     MANUALLY_TURNED_ON,
+    NIGHT_MODE_OFF,
+    NIGHT_MODE_ON,
     OFF,
     OFF_AT_RAMP_RATE,
     OFF_FAST,
@@ -642,6 +645,33 @@ commands.add(
 commands.add(
     topic=BEEP,
     cmd1=0x30,
+    cmd2=None,
+    ud_allowed=False,
+    ud_required=False,
+    userdata=None,
+    use_group=False,
+)
+commands.add(
+    topic=FACTORY_RESET,
+    cmd1=0x34,
+    cmd2=0x00,
+    ud_allowed=True,
+    ud_required=False,
+    userdata=None,
+    use_group=False,
+)
+commands.add(
+    topic=NIGHT_MODE_ON,
+    cmd1=0x3B,
+    cmd2=None,
+    ud_allowed=False,
+    ud_required=False,
+    userdata=None,
+    use_group=False,
+)
+commands.add(
+    topic=NIGHT_MODE_OFF,
+    cmd1=0x3C,
     cmd2=None,
     ud_allowed=False,
     ud_required=False,

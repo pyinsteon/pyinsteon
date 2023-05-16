@@ -1,3 +1,25 @@
+Get Config:
+Extended Get command to cmd2: 0, data1: 0, data2: 0
+2023-03-14 23:11:41.652 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x62, address: 6012e0, flags: 0x1f, cmd1: 0x2e, cmd2: 0x00, user_data: 00.00.00.00.00.00.00.00.00.00.00.00.00.d2, ack: 0x06
+2023-03-14 23:11:41.653 DEBUG (MainThread) [pyinsteon.topics] Topic: ack.6012e0.extended_get_set.direct data: {'cmd1': 46, 'cmd2': 0, 'user_data': 00.00.00.00.00.00.00.00.00.00.00.00.00.d2}
+2023-03-14 23:11:41.659 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x2f, cmd1: 0x2e, cmd2: 0x00
+2023-03-14 23:11:41.666 DEBUG (MainThread) [pyinsteon.topics] Topic: 6012e0.extended_get_set.direct_ack data: {'cmd1': 46, 'cmd2': 0, 'target': 5849eb, 'user_data': None, 'hops_left': 3}
+2023-03-14 23:11:41.674 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x51, address: 6012e0, target: 5849eb, flags: 0x11, cmd1: 0x2e, cmd2: 0x00, user_data: 00.01.00.00.00.00.1c.ff.3f.00.00.00.00.00
+2023-03-14 23:11:41.681 DEBUG (MainThread) [pyinsteon.topics] Topic: 6012e0.extended_get_response.direct data: {'cmd1': 46, 'cmd2': 0, 'target': 5849eb, 'user_data': 00.01.00.00.00.00.1c.ff.3f.00.00.00.00.00, 'hops_left': 0}
+
+Get Operaging Flags cmd2: 0
+2023-03-14 23:11:43.739 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x62, address: 6012e0, flags: 0x05, cmd1: 0x1f, cmd2: 0x00, ack: 0x06
+2023-03-14 23:11:43.740 DEBUG (MainThread) [pyinsteon.topics] Topic: ack.6012e0.get_operating_flags.direct data: {'cmd1': 31, 'cmd2': 0, 'user_data': None}
+2023-03-14 23:11:43.747 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x25, cmd1: 0x1f, cmd2: 0x00
+2023-03-14 23:11:43.748 DEBUG (MainThread) [pyinsteon.topics] Topic: 6012e0.get_operating_flags.direct_ack data: {'cmd1': 31, 'cmd2': 0, 'target': 5849eb, 'user_data': None, 'hops_left': 1}
+
+Get Operaging Flags cmd2: 5
+2023-03-14 23:11:45.890 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x62, address: 6012e0, flags: 0x05, cmd1: 0x1f, cmd2: 0x05, ack: 0x06
+2023-03-14 23:11:45.891 DEBUG (MainThread) [pyinsteon.topics] Topic: ack.6012e0.get_operating_flags.direct data: {'cmd1': 31, 'cmd2': 5, 'user_data': None}
+2023-03-14 23:11:45.894 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x25, cmd1: 0x1f, cmd2: 0x00
+2023-03-14 23:11:45.894 DEBUG (MainThread) [pyinsteon.topics] Topic: 6012e0.get_operating_flags.direct_ack data: {'cmd1': 31, 'cmd2': 0, 'target': 5849eb, 'user_data': None, 'hops_left': 1}
+
+
 Set LED level
 2023-02-16 17:52:24.504 DEBUG (MainThread) [pyinsteon.messages] RX: msg_id: 0x62, address: 6012e0, flags: 0x1f, cmd1: 0x2e, cmd2: 0x00, user_data: 01.07.ff.00.00.00.00.00.00.00.00.00.00.cb, ack: 0x06
 2023-02-16 17:52:24.504 DEBUG (MainThread) [pyinsteon.topics] Topic: ack.6012e0.extended_get_set.direct data: {'cmd1': 46, 'cmd2': 0, 'user_data': 01.07.ff.00.00.00.00.00.00.00.00.00.00.cb}

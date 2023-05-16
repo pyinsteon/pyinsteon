@@ -1,5 +1,6 @@
 """Test the Thermostat status manager."""
 import asyncio
+from random import randint
 from unittest import TestCase
 from unittest.mock import AsyncMock
 
@@ -62,7 +63,7 @@ class TestThermostatStatusManager(TestCase):
         ack_topic = f"ack.{address.id}.{EXTENDED_GET_SET}.direct"
         dir_ack_topic = f"{address.id}.{EXTENDED_GET_SET}.direct_ack"
         response_topic = f"{address.id}.{EXTENDED_GET_RESPONSE}.direct"
-        ud_status_ack = UserData()
+        ud_status_ack = UserData({"d13": 0x92, "d14": 0x96})
         ack_status = TopicItem(
             ack_topic, {"cmd1": 0x2E, "cmd2": 0x02, "user_data": ud_status_ack}, 0.2
         )
@@ -79,18 +80,18 @@ class TestThermostatStatusManager(TestCase):
         )
         user_data_response = UserData(
             {
-                "d1": 0x00,
-                "d2": 0x01,
-                "d3": 0x03,
-                "d4": 0x04,
-                "d5": 0x05,
-                "d6": 0x06,
-                "d7": 0x07,
-                "d8": 0x08,
-                "d9": 0x09,
-                "d10": 0x0A,
-                "d11": 0x0B,
-                "d12": 0x0C,
+                "d1": 0x01,
+                "d2": randint(20, 255),
+                "d3": randint(20, 255),
+                "d4": randint(20, 255),
+                "d5": randint(20, 255),
+                "d6": randint(20, 255),
+                "d7": randint(20, 255),
+                "d8": randint(20, 255),
+                "d9": randint(20, 255),
+                "d10": randint(20, 255),
+                "d11": randint(20, 255),
+                "d12": randint(20, 255),
             }
         )
         status_response = TopicItem(
@@ -105,7 +106,7 @@ class TestThermostatStatusManager(TestCase):
             1,
         )
 
-        ud_setpt_ack = UserData()
+        ud_setpt_ack = UserData({"d3": 0x01, "d13": 0x20, "d14": 0x0F})
         ack_setpt = TopicItem(
             ack_topic, {"cmd1": 0x2E, "cmd2": 0x00, "user_data": ud_setpt_ack}, 0.1
         )
@@ -124,16 +125,16 @@ class TestThermostatStatusManager(TestCase):
             {
                 "d1": 0x00,
                 "d2": 0x01,
-                "d3": 0x00,
-                "d4": 0x04,
-                "d5": 0x05,
-                "d6": 0x06,
-                "d7": 0x07,
-                "d8": 0x08,
-                "d9": 0x09,
-                "d10": 0x0A,
-                "d11": 0x0B,
-                "d12": 0x0C,
+                "d3": 0x01,
+                "d4": randint(20, 255),
+                "d5": randint(20, 255),
+                "d6": randint(20, 255),
+                "d7": randint(20, 255),
+                "d8": randint(20, 255),
+                "d9": randint(20, 255),
+                "d10": randint(20, 255),
+                "d11": randint(20, 255),
+                "d12": randint(20, 255),
             }
         )
         setpt_response = TopicItem(

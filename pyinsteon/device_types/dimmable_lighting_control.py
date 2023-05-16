@@ -70,6 +70,7 @@ from .device_commands import (
     STATUS_COMMAND,
     STATUS_COMMAND_FAN,
 )
+from .i3_base import I3VariableResponderBase
 from .variable_controller_base import ON_LEVEL_MANAGER
 from .variable_responder_base import VariableResponderBase
 
@@ -812,4 +813,40 @@ class DimmableLightingControl_KeypadLinc_8(DimmableLightingControl_KeypadLinc):
             description=description,
             model=model,
             buttons=buttons,
+        )
+
+
+class DimmableLightingControl_Dial(I3VariableResponderBase):
+    """Dimmable i3 Dial."""
+
+    def _register_handlers_and_managers(self):
+        """Register command handlers and managers."""
+        super()._register_handlers_and_managers()
+        self._handlers[STATUS_COMMAND] = StatusRequestCommand(
+            self._address, status_type=2
+        )
+        for group, group_prop in self._groups.items():
+            if isinstance(group_prop, OnLevel):
+                self._handlers[group]["manual_change"] = ManualChangeInbound(
+                    self._address, group
+                )
+
+    def _subscribe_to_handelers_and_managers(self):
+        """Subscribe methods to handlers and managers."""
+        super()._subscribe_to_handelers_and_managers()
+        for group, group_prop in self._groups.items():
+            if isinstance(group_prop, OnLevel):
+                self._handlers[group]["manual_change"].subscribe(
+                    self._async_on_manual_change
+                )
+
+    async def _async_on_manual_change(self):
+        """Respond to a manual change of the device."""
+        await self.async_status()
+
+    def _register_config(self):
+        """Register configuration items."""
+        super()._register_config()
+        self._config[RAMP_RATE_IN_SEC] = RampRateProperty(
+            self._address, RAMP_RATE_IN_SEC, self._properties[RAMP_RATE]
         )

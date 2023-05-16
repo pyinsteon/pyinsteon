@@ -30,7 +30,7 @@ class BatteryDeviceBase:
             address=address,
             cat=cat,
             subcat=subcat,
-            firmware=0x00,
+            firmware=firmware,
             description=description,
             model=model,
             **kwargs,

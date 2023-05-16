@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name        = "pyinsteon"
-version     = "1.3.5"
+version     = "1.4.2"
 license     = {text = "MIT License"}
 description = "Open-source Insteon home automation module running on Python 3."
 readme      = "DESCRIPTION.rst"
@@ -105,6 +105,7 @@ good-names = [
     "AccessControl_Morningstar",
     "ClimateControl_Thermostat",
     "ClimateControl_WirelessThermostat",
+    "DimmableLightingControl_Dial",
     "DimmableLightingControl_DinRail",
     "DimmableLightingControl_FanLinc",
     "DimmableLightingControl_InLineLinc01",
@@ -133,6 +134,7 @@ good-names = [
     "SensorsActuators_IOLink",
     "SwitchedLightingControl_ApplianceLinc",
     "SwitchedLightingControl_DinRail",
+    "SwitchedLightingControl_I3Outlet",
     "SwitchedLightingControl_InLineLinc01",
     "SwitchedLightingControl_InLineLinc02",
     "SwitchedLightingControl_KeypadLinc",
