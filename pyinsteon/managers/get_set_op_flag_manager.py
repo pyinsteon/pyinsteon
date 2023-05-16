@@ -105,10 +105,9 @@ class GetSetOperatingFlagsManager:
     async def async_write(self):
         """Set the operating flags."""
         results = []
-        for name in self._op_flags:
+        for name, flag_info in self._flags.items():
             if self._op_flags[name].is_dirty:
-                flat_info = self._flags[name]
-                result = await self._async_write(flat_info)
+                result = await self._async_write(flag_info)
                 results.append(result)
         return multiple_status(*results)
 

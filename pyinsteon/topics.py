@@ -129,6 +129,7 @@ SET_SPRINKLER_PROGRAM = "set_sprinkler_program"
 SPRINKLER_GET_PROGRAM_RESPONSE = "sprinkler_get_program_response"
 IO_SET_SENSOR_NOMINAL_VALUE = "io_set_sensor_nominal_value"
 IO_ALARM_DATA_RESPONSE = "io_alarm_data_response"
+FACTORY_RESET = "factory_reset"
 
 ALDB_LINK_CHANGED = "aldb.link_changed"
 

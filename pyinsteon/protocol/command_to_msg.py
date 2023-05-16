@@ -6,6 +6,7 @@ from .. import pub
 from ..address import Address
 from ..commands import commands
 from ..constants import (
+    DeviceCategory,
     DoorCommand,
     IOModuleControlCommand,
     PoolControlCommand,
@@ -33,6 +34,7 @@ from ..topics import (
     EXTENDED_GET_SET,
     EXTENDED_READ_WRITE_ALDB,
     EXTENDED_TRIGGER_ALL_LINK,
+    FACTORY_RESET,
     FX_USERNAME,
     GET_INSTEON_ENGINE_VERSION,
     GET_OPERATING_FLAGS,
@@ -558,6 +560,20 @@ def extended_trigger_all_link(
 def beep(address: Address, topic=pub.AUTO_TOPIC):
     """Create a BEEP command."""
     _create_direct_message(topic=topic, address=address)
+
+
+@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=FACTORY_RESET)
+def factory_reset(
+    address: Address, cat: DeviceCategory, subcat: int, topic=pub.AUTO_TOPIC
+):
+    """Create a FACTORY RESET command."""
+    user_data = UserData(
+        {
+            "d1": int(cat),
+            "d2": subcat,
+        }
+    )
+    _create_direct_message(topic=topic, address=address, user_data=user_data)
 
 
 @topic_to_command_handler(register_list=COMMAND_REGISTER, topic=NIGHT_MODE_OFF)
