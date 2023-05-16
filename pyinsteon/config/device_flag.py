@@ -103,7 +103,7 @@ class DeviceFlagBase(SubscriberBase):
         """Set the propoerty type for this property."""
         self._prop_type = PropertyType(value)
 
-    def load(self, value):
+    def set_value(self, value):
         """Load the flag from the device value.
 
         Only use this method to update the value of the flag from the value

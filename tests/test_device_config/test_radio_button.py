@@ -20,8 +20,8 @@ def reset_properties(device, value=0):
     for button in device.groups:
         on_mask_prop = device.properties[on_mask_name(button)]
         off_mask_prop = device.properties[off_mask_name(button)]
-        on_mask_prop.load(value)
-        off_mask_prop.load(value)
+        on_mask_prop.set_value(value)
+        off_mask_prop.set_value(value)
 
 
 class TestRadioButtonGroupsProperty(TestCase):
@@ -80,8 +80,8 @@ class TestRadioButtonGroupsProperty(TestCase):
         # Test clearing all properties
         reset_properties(device)
         for k, v in group1.items():
-            device.properties[on_mask_name(k)].load(v)
-            device.properties[off_mask_name(k)].load(v)
+            device.properties[on_mask_name(k)].set_value(v)
+            device.properties[off_mask_name(k)].set_value(v)
         assert test_prop.value == [[2, 3]]
         assert test_prop.new_value is None
 
@@ -100,8 +100,8 @@ class TestRadioButtonGroupsProperty(TestCase):
         # Test changing one group leaving a second group alone
         reset_properties(device)
         for k, v in group1.items():
-            device.properties[on_mask_name(k)].load(v)
-            device.properties[off_mask_name(k)].load(v)
+            device.properties[on_mask_name(k)].set_value(v)
+            device.properties[off_mask_name(k)].set_value(v)
             assert test_prop.value == [[2, 3]]
         test_prop.new_value = [group1.keys(), group3.keys()]
         for k, v in group1.items():
@@ -131,8 +131,8 @@ class TestRadioButtonGroupsProperty(TestCase):
         reset_properties(device)
         assert not test_prop.is_dirty
         for k, v in group1.items():
-            device.properties[on_mask_name(k)].load(v)
-            device.properties[off_mask_name(k)].load(v)
+            device.properties[on_mask_name(k)].set_value(v)
+            device.properties[off_mask_name(k)].set_value(v)
         assert not test_prop.is_dirty
 
         # Set the underlying properties new_value
@@ -159,7 +159,7 @@ class TestRadioButtonGroupsProperty(TestCase):
             if button == 1:
                 continue
             assert not test_prop.is_loaded
-            device.properties[on_mask_name(button)].load(0)
+            device.properties[on_mask_name(button)].set_value(0)
             assert not test_prop.is_loaded
-            device.properties[off_mask_name(button)].load(0)
+            device.properties[off_mask_name(button)].set_value(0)
         assert test_prop.is_loaded

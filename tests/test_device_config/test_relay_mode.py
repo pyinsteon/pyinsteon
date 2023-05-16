@@ -51,9 +51,9 @@ class TestMomentaryDelayProperty(TestCase):
         )
 
         for test_value in test_prop_to_relay_mode:
-            momentary_mode_on_prop.load(test_value[0])
-            momentary_follow_sense_prop.load(test_value[1])
-            momentary_on_off_trigger_prop.load(test_value[2])
+            momentary_mode_on_prop.set_value(test_value[0])
+            momentary_follow_sense_prop.set_value(test_value[1])
+            momentary_on_off_trigger_prop.set_value(test_value[2])
             assert test_prop.value == test_value[3]
 
     def test_new_value(self):
@@ -80,18 +80,18 @@ class TestMomentaryDelayProperty(TestCase):
 
         for relay_mode, test_value in test_relay_mode_to_prop.items():
             # Make sure the new_value does not eq value otherwise no change is triggered
-            momentary_mode_on_prop.load(not test_value[0])
-            momentary_follow_sense_prop.load(not test_value[1])
-            momentary_on_off_trigger_prop.load(not test_value[2])
+            momentary_mode_on_prop.set_value(not test_value[0])
+            momentary_follow_sense_prop.set_value(not test_value[1])
+            momentary_on_off_trigger_prop.set_value(not test_value[2])
             test_prop.new_value = relay_mode
             assert momentary_mode_on_prop.new_value == test_value[0]
             assert momentary_follow_sense_prop.new_value == test_value[1]
             assert momentary_on_off_trigger_prop.new_value == test_value[2]
 
         # Test resetting relay mode
-        momentary_mode_on_prop.load(False)
-        momentary_follow_sense_prop.load(False)
-        momentary_on_off_trigger_prop.load(False)
+        momentary_mode_on_prop.set_value(False)
+        momentary_follow_sense_prop.set_value(False)
+        momentary_on_off_trigger_prop.set_value(False)
         assert test_prop.value == RelayMode.LATCHING
         test_prop.new_value = RelayMode.MOMENTARY_A
         assert test_prop.new_value == RelayMode.MOMENTARY_A
@@ -130,11 +130,11 @@ class TestMomentaryDelayProperty(TestCase):
             momentary_on_off_trigger_prop,
         )
         assert not test_prop.is_loaded
-        momentary_mode_on_prop.load(False)
+        momentary_mode_on_prop.set_value(False)
         assert not test_prop.is_loaded
-        momentary_follow_sense_prop.load(False)
+        momentary_follow_sense_prop.set_value(False)
         assert not test_prop.is_loaded
-        momentary_on_off_trigger_prop.load(False)
+        momentary_on_off_trigger_prop.set_value(False)
         assert test_prop.is_loaded
 
     def test_is_dirty(self):
@@ -160,11 +160,11 @@ class TestMomentaryDelayProperty(TestCase):
             momentary_on_off_trigger_prop,
         )
         assert not test_prop.is_dirty
-        momentary_mode_on_prop.load(False)
+        momentary_mode_on_prop.set_value(False)
         assert not test_prop.is_dirty
-        momentary_follow_sense_prop.load(False)
+        momentary_follow_sense_prop.set_value(False)
         assert not test_prop.is_dirty
-        momentary_on_off_trigger_prop.load(False)
+        momentary_on_off_trigger_prop.set_value(False)
         assert not test_prop.is_dirty
 
         momentary_mode_on_prop.new_value = True

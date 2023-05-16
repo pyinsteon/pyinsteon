@@ -61,11 +61,11 @@ def _dict_to_device(device_dict):
         for flag in operating_flags:
             value = operating_flags[flag]
             if device.operating_flags.get(flag):
-                device.operating_flags[flag].load(value)
+                device.operating_flags[flag].set_value(value)
         for flag in properties:
             value = properties[flag]
             if device.properties.get(flag):
-                device.properties[flag].load(value)
+                device.properties[flag].set_value(value)
     return device
 
 

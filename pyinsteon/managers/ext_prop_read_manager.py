@@ -38,5 +38,5 @@ class ExtendedPropertyReadManager(ExtenededGetManager):
     async def _response_received(self, group, data):
         """Update properties based on the extended get response."""
         for index, prop in self._props.items():
-            prop.load(data[f"data{index}"])
+            prop.set_value(data[f"data{index}"])
         await self._response_queue.put(ResponseStatus.SUCCESS)
