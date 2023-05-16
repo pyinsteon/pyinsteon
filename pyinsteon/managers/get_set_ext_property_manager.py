@@ -1,7 +1,7 @@
 """Get and Set extended properties for a device."""
 import asyncio
-import logging
 from collections import namedtuple
+import logging
 
 from ..address import Address
 from ..config.extended_property import ExtendedProperty
@@ -155,13 +155,13 @@ class GetSetExtendedPropertyManager(SubscriberBase):
         if isinstance(self._prop_groups[group][field], PropertyInfo):
             flag_info = self._prop_groups[group][field]
             flag = self._properties[flag_info.name]
-            flag.load(value=value)
+            flag.set_value(value=value)
         else:
             for bit in self._prop_groups[group][field]:
                 flag_info = self._prop_groups[group][field][bit]
                 bit_value = bool(value & 1 << flag_info.bit)
                 flag = self._properties[flag_info.name]
-                flag.load(value=bit_value)
+                flag.set_value(value=bit_value)
         self._response_queue.put_nowait(ResponseStatus.SUCCESS)
 
     def _calc_flag_value(self, field):

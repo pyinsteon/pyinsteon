@@ -89,7 +89,7 @@ class OpFlagPropertyByte(DeviceFlagBase):
             new_val = bit_is_set(value, bit)
             prop.new_value = new_val
 
-    def load(self, value):
+    def set_value(self, value):
         """Load the flag from the device value.
 
         Only use this method to update the value of the flag from the value
@@ -98,10 +98,10 @@ class OpFlagPropertyByte(DeviceFlagBase):
         This method updates the `is_loaded` property and clears the `new value` and
         `is_dirty` properties.
         """
-        super().load(value=value)
+        super().set_value(value=value)
         for bit, prop in self._flags.items():
             if value is None:
                 new_val = None
             else:
                 new_val = bit_is_set(value, bit)
-            prop.load(new_val)
+            prop.set_value(new_val)

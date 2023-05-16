@@ -135,11 +135,11 @@ class GetSetOperatingFlagsManager:
                 retries += 1
 
             if result == ResponseStatus.SUCCESS:
-                flag.load(flag.new_value)
+                flag.set_value(flag.new_value)
             return result
 
         # Reset the read only flag to original value
-        flag.load(flag.value)
+        flag.set_value(flag.value)
         return ResponseStatus.SUCCESS
 
     def _update_flags(self, group, flags):
@@ -151,11 +151,11 @@ class GetSetOperatingFlagsManager:
         if isinstance(self._groups[group], OperatingFlagInfo):
             flag_info = self._groups[group]
             flag = self._op_flags[flag_info.name]
-            flag.load(flags)
+            flag.set_value(flags)
             return
 
         for bit in self._groups[group]:
             flag_info = self._groups[group][bit]
             flag = self._op_flags[flag_info.name]
             value = bool(flags & 1 << flag_info.bit)
-            flag.load(value)
+            flag.set_value(value)

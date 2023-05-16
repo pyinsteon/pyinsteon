@@ -18,10 +18,10 @@ def random_bool():
 
 def reset_config(modem, disable_auto_linking, monitor_mode, auto_led, deadman):
     """Reset the modem config to values that are the inverse of the future new_value."""
-    modem.configuration[DISABLE_AUTO_LINKING].load(not disable_auto_linking)
-    modem.configuration[MONITOR_MODE].load(not monitor_mode)
-    modem.configuration[AUTO_LED].load(not auto_led)
-    modem.configuration[DEADMAN].load(not deadman)
+    modem.configuration[DISABLE_AUTO_LINKING].set_value(not disable_auto_linking)
+    modem.configuration[MONITOR_MODE].set_value(not monitor_mode)
+    modem.configuration[AUTO_LED].set_value(not auto_led)
+    modem.configuration[DEADMAN].set_value(not deadman)
 
 
 def set_new_config(modem, disable_auto_linking, monitor_mode, auto_led, deadman):

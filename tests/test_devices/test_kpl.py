@@ -11,6 +11,7 @@ from pyinsteon.device_types.dimmable_lighting_control import (
     DimmableLightingControl_KeypadLinc_8,
 )
 from pyinsteon.utils import bit_is_set
+
 from tests import set_log_levels
 from tests.utils import TopicItem, async_case, cmd_kwargs, random_address, send_topics
 
@@ -70,8 +71,8 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
             button_str = f"_{button}" if button != 1 else ""
             on_mask = device.properties[f"{ON_MASK}{button_str}"]
             off_mask = device.properties[f"{OFF_MASK}{button_str}"]
-            on_mask.load(0)
-            off_mask.load(0)
+            on_mask.set_value(0)
+            off_mask.set_value(0)
 
         device.set_radio_buttons([3, 4, 5, 6])
         device.clear_radio_buttons([4, 5])
@@ -117,8 +118,8 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
             button_str = f"_{button}" if button != 1 else ""
             on_mask = device.properties[f"{ON_MASK}{button_str}"]
             off_mask = device.properties[f"{OFF_MASK}{button_str}"]
-            on_mask.load(preset_masks[button])
-            off_mask.load(preset_masks[button])
+            on_mask.set_value(preset_masks[button])
+            off_mask.set_value(preset_masks[button])
 
         device.clear_radio_buttons([4, 5])
 
@@ -148,8 +149,8 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
             address, 0x01, 0x02, 0x03, "Test", "KPL"
         )
 
-        device.properties[NON_TOGGLE_MASK].load(0)
-        device.properties[NON_TOGGLE_ON_OFF_MASK].load(0)
+        device.properties[NON_TOGGLE_MASK].set_value(0)
+        device.properties[NON_TOGGLE_ON_OFF_MASK].set_value(0)
 
         masks = {
             1: [0, 0],

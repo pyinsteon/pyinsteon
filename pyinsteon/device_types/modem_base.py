@@ -189,10 +189,10 @@ class ModemBase(Device, metaclass=ABCMeta):
         auto_led: bool,
         deadman: bool,
     ):
-        self._config[DISABLE_AUTO_LINKING].load(disable_auto_linking)
-        self._config[MONITOR_MODE].load(monitor_mode)
-        self._config[AUTO_LED].load(auto_led)
-        self._config[DEADMAN].load(deadman)
+        self._config[DISABLE_AUTO_LINKING].set_value(disable_auto_linking)
+        self._config[MONITOR_MODE].set_value(monitor_mode)
+        self._config[AUTO_LED].set_value(auto_led)
+        self._config[DEADMAN].set_value(deadman)
 
     def _register_groups(self):
         """No groups to register for modems."""

@@ -249,7 +249,7 @@ class I3Base:
     def _handle_night_mode(self, night_mode) -> None:
         """Handle the night mode on/off response."""
         if prop := self._operating_flags.get(NIGHT_MODE_ON):
-            prop.load(night_mode)
+            prop.set_value(night_mode)
 
     def _register_default_op_flags_and_props(
         self,

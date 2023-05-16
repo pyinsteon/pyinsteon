@@ -60,4 +60,4 @@ class ExtendedPropertyWriteManager:
         """Load the new value to the property value."""
         for _, prop in self._props.items():
             if prop.is_dirty:
-                prop.load(prop.new_value)
+                prop.set_value(prop.new_value)

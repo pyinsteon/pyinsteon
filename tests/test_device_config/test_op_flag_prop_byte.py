@@ -43,14 +43,14 @@ class TestOpFlagPropertyByte(TestCase):
             value = set_bit(value, 1, False)
             for bit, flag in self.flags.items():
                 bit_value = bit_is_set(value, bit)
-                flag.load(bit_value)
+                flag.set_value(bit_value)
             assert self.prop_byte.value == value
 
     def test_byte_to_flag(self):
         """Test converting a byte to a set of flags."""
         for _ in range(0, 20):
             value = randint(1, 255)
-            self.prop_byte.load(value)
+            self.prop_byte.set_value(value)
             for bit, flag in self.flags.items():
                 assert flag.value == bit_is_set(value, bit)
 
@@ -58,7 +58,7 @@ class TestOpFlagPropertyByte(TestCase):
         """Test setting a new value to a byte value."""
         init_value = randint(1, 255)
         init_bit_1 = bit_is_set(init_value, 1)
-        self.prop_byte.load(init_value)
+        self.prop_byte.set_value(init_value)
         for _ in range(0, 20):
             new_value = randint(1, 255)
             for bit, flag in self.flags.items():
@@ -75,7 +75,7 @@ class TestOpFlagPropertyByte(TestCase):
         # Test that a missing bit loads and is represented in the output
         init_value = randint(1, 255)
         init_value = set_bit(init_value, 1, True)
-        prop_byte.load(init_value)
+        prop_byte.set_value(init_value)
         assert bit_is_set(prop_byte.value, 1)
 
         # Test that a missing bit never changes even if new_value changes it
