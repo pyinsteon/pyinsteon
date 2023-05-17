@@ -44,6 +44,11 @@ def _normalize_identifier(value):
 class DeviceIdManager(SubscriberBase):
     """Manage device identities."""
 
+    arg_spec = {
+        "device_id": "DeviceId - Container for all device identifiers including device category, subcategory and firmware.",
+        "link_mode": "LinkMode - Indicates the direction of the linking (i.e. added, completed)",
+    }
+
     def __init__(self):
         """Init the DeviceIdManager class."""
         super().__init__(subscriber_topic="device_id")

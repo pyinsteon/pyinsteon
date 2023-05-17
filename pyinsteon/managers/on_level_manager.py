@@ -13,6 +13,8 @@ from ..handlers.from_device.on_fast_all_link_cleanup import OnFastAllLinkCleanup
 from ..handlers.from_device.on_level import OnLevelInbound
 from ..handlers.from_device.on_level_all_link_cleanup import OnAllLinkCleanupInbound
 from ..subscriber_base import SubscriberBase
+from ..topics import OFF, OFF_FAST, ON, ON_FAST
+from ..utils import build_topic
 
 TIMEOUT_CLEANUP = timedelta(seconds=25)
 
@@ -36,6 +38,8 @@ class OnLevelManager:
     class Subscriber(SubscriberBase):
         """Internal class to trigger notification of events or state values."""
 
+        arg_spec = {"on_level": "int - On level of the device group (range 0 - 255)."}
+
         def call_subscribers(self, on_level):
             """Call subscribers to this manager for the event type."""
             self._call_subscribers(on_level=on_level)
@@ -49,18 +53,38 @@ class OnLevelManager:
         self._last_event_type = None
 
         # Setup event managers that will manange the subscribers to specific events
-        self._on = self.Subscriber(
-            f"subscriber_{self._address.id}_on_{self._group}_broadcast"
+        on_topic = build_topic(
+            topic=ON,
+            address=self._address,
+            group=self._group,
+            message_type="broadcast",
+            prefix="subscriber",
         )
-        self._off = self.Subscriber(
-            f"subscriber_{self._address.id}_off_{self._group}_broadcast"
+        self._on = self.Subscriber(on_topic)
+        off_topic = build_topic(
+            topic=OFF,
+            address=self._address,
+            group=self._group,
+            message_type="broadcast",
+            prefix="subscriber",
         )
-        self._on_fast = self.Subscriber(
-            f"subscriber_{self._address.id}_on_fast_{self._group}_broadcast"
+        self._off = self.Subscriber(off_topic)
+        on_fast_topic = build_topic(
+            topic=ON_FAST,
+            address=self._address,
+            group=self._group,
+            message_type="broadcast",
+            prefix="subscriber",
         )
-        self._off_fast = self.Subscriber(
-            f"subscriber_{self._address.id}_off_fast_{self._group}_broadcast"
+        self._on_fast = self.Subscriber(on_fast_topic)
+        off_fast_topic = build_topic(
+            topic=OFF_FAST,
+            address=self._address,
+            group=self._group,
+            message_type="broadcast",
+            prefix="subscriber",
         )
+        self._off_fast = self.Subscriber(off_fast_topic)
 
         # Register the handlers to listen to
         self._on_handler = OnLevelInbound(self._address, self._group)

@@ -17,6 +17,10 @@ class LowBatteryManager(SubscriberBase):
     class LowBatterySubscriber(SubscriberBase):
         """Low battery event subscriptions."""
 
+        arg_spec = {
+            "low_battery": "bool - Indicates the low battery warning is on/off (False = off, True = on)"
+        }
+
         def call_subscribers(self, low_battery):
             """Call subscribers of this event."""
             self._call_subscribers(low_battery=low_battery)
@@ -25,7 +29,7 @@ class LowBatteryManager(SubscriberBase):
         """Init the LowBatteryManager class."""
         self._address = Address(address)
         self._group = group
-        subscriber_topic = f"subscriber_{self._address.id}_low_battery"
+        subscriber_topic = f"{self._address.id}.low_battery.subscriber"
         super().__init__(subscriber_topic)
 
         self._on_low_battery = OnLevelInbound(self._address, self._group)

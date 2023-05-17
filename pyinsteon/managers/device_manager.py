@@ -30,6 +30,11 @@ _DEVICE_LOGGERS = []
 class DeviceManager(SubscriberBase):
     """Manages the list of active devices."""
 
+    arg_spec = {
+        "address": "Address - Address of the device added or removed.",
+        "action": "LinkMode - Indicates the direction of the linking (i.e. added, removed)",
+    }
+
     def __init__(self):
         """Init the DeviceManager class."""
         super().__init__(subscriber_topic=DEVICE_LIST_CHANGED)

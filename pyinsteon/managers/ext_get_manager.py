@@ -16,6 +16,11 @@ WAIT_RESPONSE = 5
 class ExtenededGetManager(SubscriberBase):
     """Extended get command manager."""
 
+    arg_spec = {
+        "group": "int - Group number of the message.",
+        "data": "dict[str, int] - Dictionary of the user data values (keys: 'data2' ... 'data14').",
+    }
+
     def __init__(
         self,
         address: Address,

@@ -14,8 +14,16 @@ HB_CHECK_BUFFER = 300  # 5 min or 300 seconds
 class HeartbeatManager(SubscriberBase):
     """Heartbeat manager."""
 
+    arg_spec = {
+        "heartbeat": "bool - Indicates the heartbeat on/off (False = off, True = on)"
+    }
+
     class OnOffHeartbeat(SubscriberBase):
         """On / Off events for subscribers."""
+
+        arg_spec = {
+            "on_level": "int - Indicates the heartbeat on/off (0 = off, 1 = on)"
+        }
 
         def call_subscribers(self, on_level):
             """Call subscribers to the event."""
@@ -26,7 +34,7 @@ class HeartbeatManager(SubscriberBase):
         self._address = Address(address)
         self._group = group
         self._max_duration = max_duration
-        subscriber_topic = f"subscriber_{self._address.id}_heartbeat"
+        subscriber_topic = f"subscriber.{self._address.id}.heartbeat"
         super().__init__(subscriber_topic)
 
         self._on_inbound = OnLevelInbound(self._address, self._group)
