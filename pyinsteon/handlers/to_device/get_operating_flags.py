@@ -8,6 +8,11 @@ from .direct_command import DirectCommandHandlerBase
 class GetOperatingFlagsCommand(DirectCommandHandlerBase):
     """Handle sending a read request for ALDB records."""
 
+    arg_spec = {
+        "group": "int - The opererating flag group number.",
+        "flags": "int - Value of the operating flags.",
+    }
+
     def __init__(self, address: Address):
         """Init the GetOperatingFlagsCommand."""
         super().__init__(topic=GET_OPERATING_FLAGS, address=address)

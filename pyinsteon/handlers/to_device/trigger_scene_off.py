@@ -7,6 +7,8 @@ from ..to_device.direct_command import DirectCommandHandlerBase
 class TriggerSceneOffCommandHandler(DirectCommandHandlerBase):
     """KeypadLinc command handler to trigger a button scene."""
 
+    arg_spec = {"on_level": "int - On level of the scene (255 = on, 0 = off)"}
+
     def __init__(self, address, group):
         """Init the SetLedCommandHandler class."""
         super().__init__(topic=EXTENDED_TRIGGER_ALL_LINK, address=address, group=group)

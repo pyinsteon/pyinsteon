@@ -7,6 +7,8 @@ from .direct_command import DirectCommandHandlerBase
 class PeekCommand(DirectCommandHandlerBase):
     """Peek one byte command."""
 
+    arg_spec = {"value": "int - Value of the memory location read (Range 0 - 255)."}
+
     def __init__(self, address):
         """Init the PeekCommand class."""
         super().__init__(topic=PEEK, address=address)

@@ -6,6 +6,12 @@ from .direct_command import DirectCommandHandlerBase
 class ProductDataRequestCommand(DirectCommandHandlerBase):
     """Manage an outbound ON command to a device."""
 
+    arg_spec = {
+        "product_id": "int - Product ID of the device.",
+        "cat": "DeviceCategory - Category of the device.",
+        "subcat": "int - Subcategory of the device.",
+    }
+
     def __init__(self, address):
         """Init the OnLevelCommand class."""
         super().__init__(topic=PRODUCT_DATA_REQUEST, address=address)

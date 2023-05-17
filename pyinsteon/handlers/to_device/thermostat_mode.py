@@ -25,6 +25,10 @@ THERMOSTAT_MODE_MAP = {
 class ThermostatModeCommand(DirectCommandHandlerBase):
     """Manage an outbound THERMOSTAT_TEMPERATURE_DOWN command to a device."""
 
+    arg_spec = {
+        "thermostat_mode": "ThermostatMode - Thermostat system mode that was set (heat, cool, etc.)"
+    }
+
     def __init__(self, address):
         """Init the TemperatureUpCommand class."""
         super().__init__(topic=THERMOSTAT_CONTROL, address=address)

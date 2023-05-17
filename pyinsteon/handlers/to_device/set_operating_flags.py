@@ -12,6 +12,10 @@ _LOGGER = logging.getLogger(__name__)
 class SetOperatingFlagsCommand(DirectCommandHandlerBase):
     """Handle sending a Set Operating Flags command."""
 
+    arg_spec = {
+        "response": "int - The response status from the device for the Set Operating Flags request."
+    }
+
     def __init__(self, address: Address):
         """Init the SetOperatingFlagsCommand."""
         super().__init__(topic=SET_OPERATING_FLAGS, address=address)

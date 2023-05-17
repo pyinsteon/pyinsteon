@@ -9,6 +9,12 @@ from .direct_command import DirectCommandHandlerBase
 class ThermostatHeatSetPointCommand(DirectCommandHandlerBase):
     """Manage an outbound THERMOSTAT_SET_COOL_SETPOINT command to a device."""
 
+    arg_spec = {
+        "degrees": "float - Value in degrees for the heat set point.",
+        "zone": "int - Zone number of the zone to change.",
+        "deadband": "int - Number of degrees the temperature can fluxuate from the set point.",
+    }
+
     def __init__(self, address):
         """Init the ThermostatHeatSetPointCommand class."""
         super().__init__(topic=THERMOSTAT_SET_HEAT_SETPOINT, address=address)

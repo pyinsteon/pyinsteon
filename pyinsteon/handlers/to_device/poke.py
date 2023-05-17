@@ -7,6 +7,8 @@ from .direct_command import DirectCommandHandlerBase
 class PokeCommand(DirectCommandHandlerBase):
     """Poke one byte command."""
 
+    arg_spec = {"value": "int - Value of the memory location read (Range 0 - 255)."}
+
     def __init__(self, address):
         """Init the PokeCommand class."""
         super().__init__(topic=POKE, address=address)

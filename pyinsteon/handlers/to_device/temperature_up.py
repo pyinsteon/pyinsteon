@@ -7,6 +7,11 @@ from .direct_command import DirectCommandHandlerBase
 class TemperatureUpCommand(DirectCommandHandlerBase):
     """Manage an outbound THERMOSTAT_TEMPERATURE_UP command to a device."""
 
+    arg_spec = {
+        "degrees": "float - Value of degrees to lower the set point.",
+        "zone": "int - Zone number of the zone to change.",
+    }
+
     def __init__(self, address):
         """Init the TemperatureUpCommand class."""
         super().__init__(topic=THERMOSTAT_TEMPERATURE_UP, address=address)

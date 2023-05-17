@@ -6,6 +6,8 @@ from .direct_command import DirectCommandHandlerBase
 class SetMsbCommand(DirectCommandHandlerBase):
     """Set most significant byte for peek/poke commands."""
 
+    arg_spec = {"high_byte": "int - High byte of the memory location to read/write."}
+
     def __init__(self, address):
         """Init the SetMsbCommand class."""
         super().__init__(topic=SET_ADDRESS_MSB, address=address)

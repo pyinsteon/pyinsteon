@@ -7,6 +7,10 @@ from .direct_command import DirectCommandHandlerBase
 class NightModeOnCommand(DirectCommandHandlerBase):
     """Manage an outbound NIGHT_MODE_ON command to a device."""
 
+    arg_spec = {
+        "night_mode": "bool - Indictes if the night mode of the device is on/off."
+    }
+
     def __init__(self, address):
         """Init the NightModeOnCommand class."""
         super().__init__(topic=NIGHT_MODE_ON, address=address)

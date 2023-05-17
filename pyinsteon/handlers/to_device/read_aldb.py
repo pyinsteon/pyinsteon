@@ -11,6 +11,10 @@ _LOGGER = logging.getLogger(__name__)
 class ReadALDBCommandHandler(DirectCommandHandlerBase):
     """Handle sending a read request for ALDB records."""
 
+    arg_spec = {
+        "response": "int - The response status from the device for the Read ALDB request."
+    }
+
     def __init__(self, address: Address):
         """Init the ReadALDBCommandHandler."""
         super().__init__(topic=EXTENDED_READ_WRITE_ALDB, address=address)

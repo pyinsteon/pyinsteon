@@ -11,6 +11,11 @@ from .direct_command import DirectCommandHandlerBase
 class StatusRequestCommand(DirectCommandHandlerBase):
     """Manage an outbound Status command to a device."""
 
+    arg_spec = {
+        "db_version": "int - Database version of the device All-Link database. Updated on each database write.",
+        "status": "int - Status of the device state.",
+    }
+
     def __init__(self, address, status_type: int = 0):
         """Init the OnLevelCommand class."""
         super().__init__(topic=STATUS_REQUEST, address=address, group=None)

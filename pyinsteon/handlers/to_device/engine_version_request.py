@@ -7,6 +7,10 @@ from .direct_command import DirectCommandHandlerBase
 class EngineVersionRequest(DirectCommandHandlerBase):
     """Manage an outbound ON command to a device."""
 
+    arg_spec = {
+        "engine_version": "EngineVersion - Indicates the Insteon engine version of the device."
+    }
+
     def __init__(self, address):
         """Init the OnLevelCommand class."""
         super().__init__(topic=GET_INSTEON_ENGINE_VERSION, address=address)

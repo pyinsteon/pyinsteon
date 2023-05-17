@@ -7,6 +7,8 @@ from .direct_command import DirectCommandHandlerBase
 class OnFastCommand(DirectCommandHandlerBase):
     """Manage an outbound ON command to a device."""
 
+    arg_spec = {"on_level": "int - On level of the device group. (Range 0 - 255)."}
+
     def __init__(self, address, group):
         """Init the OnFastCommand class."""
         super().__init__(topic=ON_FAST, address=address, group=group)
