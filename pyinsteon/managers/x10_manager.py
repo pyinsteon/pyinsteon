@@ -27,6 +27,8 @@ async def async_x10_all_lights_off(housecode: str):
 class X10OnOffManager(SubscriberBase):
     """Manage Inbound X10 On/Off commands."""
 
+    arg_spec = {"on_level": "int - On level of the device group. (Range 0 - 255)."}
+
     def __init__(self, address: X10Address):
         """Init the X10OnOffManager class."""
         topic = f"subscribers.{address.id}.on_off"
@@ -60,6 +62,10 @@ class X10OnOffManager(SubscriberBase):
 class X10DimBrightenManager(SubscriberBase):
     """Manage Inbound X10 On/Off commands."""
 
+    arg_spec = {
+        "on_level": "int - Change of on level of the device group. (-1 = dim, 1 = brighten)."
+    }
+
     def __init__(self, address: X10Address):
         """Init the X10OnOffManager class."""
         topic = f"subscribers.{address.id}.dim_bright"
@@ -80,6 +86,8 @@ class X10DimBrightenManager(SubscriberBase):
 
 class X10AllLightsOnOffManager(SubscriberBase):
     """Manage Inbound X10 On/Off commands."""
+
+    arg_spec = {"on_level": "int - On level of the device group. (Range 0 - 255)."}
 
     def __init__(self, address: X10Address):
         """Init the X10OnOffManager class."""
@@ -115,6 +123,8 @@ class X10AllLightsOnOffManager(SubscriberBase):
 
 class X10AllUnitsOffManager(SubscriberBase):
     """Manage Inbound X10 All Units Off commands."""
+
+    arg_spec = {"on_level": "int - On level of the device group. (Range 0 - 255)."}
 
     def __init__(self, address: X10Address):
         """Init the X10AllUnitsOffManager class."""
