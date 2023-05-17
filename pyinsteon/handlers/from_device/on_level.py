@@ -7,6 +7,8 @@ from .broadcast_command import BroadcastCommandHandlerBase
 class OnLevelInbound(BroadcastCommandHandlerBase):
     """On Level command inbound."""
 
+    arg_spec = {"on_level": "int - On level of the device group. (Range 0 - 255)."}
+
     def __init__(self, address, group):
         """Init the OnLevelInbound class."""
         super().__init__(topic=ON, address=address, group=group)

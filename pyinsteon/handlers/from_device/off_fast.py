@@ -6,6 +6,8 @@ from .broadcast_command import BroadcastCommandHandlerBase
 class OffFastInbound(BroadcastCommandHandlerBase):
     """Off Level command inbound."""
 
+    arg_spec = {"on_level": "int - On level of the device group. (Always 0)."}
+
     def __init__(self, address, group):
         """Init the OffFastInbound class."""
         super().__init__(topic=OFF_FAST, address=address, group=group)

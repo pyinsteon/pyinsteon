@@ -12,6 +12,11 @@ _LOGGER = logging.getLogger(__name__)
 class ExtendedGetResponseHandler(InboundHandlerBase):
     """Off Level command inbound."""
 
+    arg_spec = {
+        "group": "int - Group numebr of the message.",
+        "data": "dict[str, int] - Dictionary of the user data values (keys: 'data2' ... 'data14').",
+    }
+
     def __init__(self, address, cmd2=0x00, data1=None, data2=0x01, data3=None):
         """Init the OffInbound class."""
         super().__init__(

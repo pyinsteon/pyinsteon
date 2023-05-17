@@ -1,9 +1,9 @@
 """Manage inbound ON command from device."""
 import logging
 
+from .. import inbound_handler
 from ...constants import MessageFlagType
 from ...topics import THERMOSTAT_TEMPERATURE_STATUS
-from .. import inbound_handler
 from ..inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -11,6 +11,8 @@ _LOGGER = logging.getLogger(__name__)
 
 class ThermostatTemperatureHandler(InboundHandlerBase):
     """Heat set point command inbound."""
+
+    arg_spec = {"degrees": "float - Thermostat temperature reading (Range 0 - 128)."}
 
     def __init__(self, address):
         """Init the ThermostatTemperatureHandler class."""

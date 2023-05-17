@@ -1,10 +1,10 @@
 """Manage inbound ON command from device."""
 import logging
 
+from .. import inbound_handler
 from ...constants import MessageFlagType
 from ...topics import THERMOSTAT_MODE_STATUS
 from ...utils import calc_thermostat_mode
-from .. import inbound_handler
 from ..inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -12,6 +12,11 @@ _LOGGER = logging.getLogger(__name__)
 
 class ThermostatModeHandler(InboundHandlerBase):
     """Heat set point command inbound."""
+
+    arg_spec = {
+        "system_mode": "ThermostatMode - Current system mode of the thermostat (heat, cool, off, etc.)",
+        "fan_mode": "ThermostatMode - Current fan mode of the thermostat (on, auto, etc.)",
+    }
 
     def __init__(self, address):
         """Init the ThermostatModeHandler class."""

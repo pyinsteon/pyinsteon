@@ -7,6 +7,15 @@ from .broadcast_command import BroadcastCommandHandlerBase
 class DeleteFromAllLinkGroupCommand(BroadcastCommandHandlerBase):
     """Delete From All-Link Group command handler."""
 
+    arg_spec = {
+        "address": "Address - Address of the device.",
+        "cat": "int - Category of the device.",
+        "subcat": "int - Subcategory of the device.",
+        "firmware": "int - Firmware version of the device.",
+        "group": "int - All-Link group number.",
+        "link_mode": "None - All-Link mode (Always None. Only provided for compatibility)",
+    }
+
     def __init__(self, address: Address):
         """Init the DeleteFromAllLinkGroupCommand class."""
         super().__init__(topic=DELETE_FROM_ALL_LINK_GROUP, address=address)
