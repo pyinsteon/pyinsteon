@@ -2,11 +2,11 @@
 
 import logging
 
+from . import inbound_handler
 from ..address import Address
 from ..constants import AllLinkMode
 from ..data_types.all_link_record_flags import AllLinkRecordFlags
 from ..topics import READ_EEPROM_RESPONSE
-from . import inbound_handler
 from .inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -14,6 +14,20 @@ _LOGGER = logging.getLogger(__name__)
 
 class ReadEepromResponseHandler(InboundHandlerBase):
     """Receive a READ EEPROM response for an Insteon Modem."""
+
+    arg_spec = {
+        "mem_addr": "int - Memory address of the ALDB record.",
+        "in_use": "bool - Indicates if the ALDB record is in use.",
+        "high_water_mark": "bool - Indicates if the ALDB record is the high water mark.",
+        "controller": "bool - Indicates if the ALDB record is a controller record (True = controller, False = responder).",
+        "group": "int - Group number of the ALDB record.",
+        "target": "Address - Device address of the target device.",
+        "data1": "int - Data field 1 of the ALDB record.",
+        "data2": "int - Data field 2 of the ALDB record.",
+        "data3": "int - Data field 3 of the ALDB record.",
+        "bit5": "bool - Indicates if bit 5 of the control flag is set.",
+        "bit4": "bool - Indicates if bit 4 of the control flag is set.",
+    }
 
     def __init__(self):
         """Init the AllLinkRecordResponse class."""

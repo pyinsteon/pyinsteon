@@ -2,10 +2,11 @@
 
 import unittest
 
-import pyinsteon.handlers
 from pyinsteon.address import Address
 from pyinsteon.constants import ResponseStatus
+import pyinsteon.handlers
 from pyinsteon.handlers.to_device.on_level import OnLevelCommand
+
 from tests import set_log_levels
 from tests.utils import TopicItem, async_case, send_topics
 
@@ -22,7 +23,7 @@ class TestNoDirectAck(unittest.TestCase):
             logger_topics=False,
         )
 
-    def set_on_level(self, on_level, group):
+    def set_on_level(self, on_level=None, group=None):
         """Handle callback for on_level direct_ack."""
         self._on_level = on_level
         self._group = group

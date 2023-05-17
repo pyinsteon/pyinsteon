@@ -11,6 +11,13 @@ _LOGGER = logging.getLogger(__name__)
 class GetImInfoHandler(OutboundHandlerBase):
     """Handle Get IM Info commands."""
 
+    arg_spec = {
+        "address": "Address - Address of the modem.",
+        "cat": "DeviceCat - Device category of the modem (always 0x03)",
+        "subcat": "int - Device subcategory of the modem.",
+        "firmware": "int - Device firmware version of the modem.",
+    }
+
     def __init__(self):
         """Init the GetNextAldbRecordNak class."""
         super().__init__(topic=GET_IM_INFO)

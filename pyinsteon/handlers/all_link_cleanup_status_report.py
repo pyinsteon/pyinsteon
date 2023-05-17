@@ -1,11 +1,15 @@
 """Handle All-Link Cleanup Status Reports."""
-from ..topics import ALL_LINK_CLEANUP_STATUS_REPORT
 from . import ack_handler, nak_handler
+from ..topics import ALL_LINK_CLEANUP_STATUS_REPORT
 from .inbound_base import InboundHandlerBase
 
 
 class AllLinkCleanupStatusReport(InboundHandlerBase):
     """Handle All-Link Cleanup Status Reports."""
+
+    arg_spec = {
+        "success": "bool - Indicates if the All-Link Cleanup process succeeded or failed."
+    }
 
     def __init__(self):
         """Init AllLinkCleanupStatusReport class."""

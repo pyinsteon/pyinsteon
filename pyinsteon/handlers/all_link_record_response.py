@@ -2,11 +2,11 @@
 
 import logging
 
+from . import inbound_handler
 from ..address import Address
 from ..constants import AllLinkMode
 from ..data_types.all_link_record_flags import AllLinkRecordFlags
 from ..topics import ALL_LINK_RECORD_RESPONSE
-from . import inbound_handler
 from .inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -14,6 +14,19 @@ _LOGGER = logging.getLogger(__name__)
 
 class AllLinkRecordResponseHandler(InboundHandlerBase):
     """Receive an All-Link record for an Insteon Modem."""
+
+    arg_spec = {
+        "in_use": "bool - Indicates if the All-Link record is in use.",
+        "high_water_mark": "bool - Indicates if the All-Link record is the high water mark.",
+        "controller": "bool - Indicates if the All-Link record is a controller record (True=controller, False=responder).",
+        "group": "int - Group number of the All-Link record.",
+        "target": "Address - Address of the target device.",
+        "data1": "int- data1 record value.",
+        "data2": "int- data2 record value.",
+        "data3": "int- data3 record value.",
+        "bit5": "bool - Indicates if the All-Link record control flag bit 5 is set.",
+        "bit4": "bool - Indicates if the All-Link record control flag bit 4 is set.",
+    }
 
     def __init__(self):
         """Init the AllLinkRecordResponse class."""
