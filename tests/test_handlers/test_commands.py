@@ -9,7 +9,7 @@ import aiofiles
 
 import pyinsteon.handlers.to_device as commands
 from pyinsteon import pub
-from pyinsteon.utils import subscribe_topic
+from pyinsteon.utils import subscribe_topic, unsubscribe_topic
 
 # pylint: disable=unused-import
 from pyinsteon.handlers.to_device.enter_linking_mode import EnterLinkingModeCommand
@@ -132,54 +132,58 @@ class TestDirectCommands(unittest.TestCase):
                 send_data(msgs, protocol.read_queue)
 
             tests = await import_commands()
-            subscribe_topic(self.validate_values, pub.ALL_TOPICS)
-            subscribe_topic(listen_for_ack, "ack")
+            try:
+                subscribe_topic(self.validate_values, pub.ALL_TOPICS)
+                subscribe_topic(listen_for_ack, "ack")
 
-            for test_info in tests:
-                address = random_address()
-                self._current_test = test_info
-                _LOGGER.info("Starting test: %s", test_info)
-                test_command = tests[test_info]
-                command = test_command.get("command")
-                cmd_class = command.get("class")
-                params = command.get("params")
-                if params.get("address"):
-                    params["address"] = address
-                send_params = command.get("send_params")
-                test_response = test_command.get("response")
-                obj = get_class_or_method(commands, cmd_class)
-                cmd = obj(**params)
+                for test_info in tests:
+                    address = random_address()
+                    self._current_test = test_info
+                    _LOGGER.info("Starting test: %s", test_info)
+                    test_command = tests[test_info]
+                    command = test_command.get("command")
+                    cmd_class = command.get("class")
+                    params = command.get("params")
+                    if params.get("address"):
+                        params["address"] = address
+                    send_params = command.get("send_params")
+                    test_response = test_command.get("response")
+                    obj = get_class_or_method(commands, cmd_class)
+                    cmd = obj(**params)
 
-                messages = test_command.get("messages")
-                msgs = []
-                for msg_dict in messages:
-                    # msg_dict = messages[message]
-                    msg_dict["address"] = address
-                    msgs.append(create_message(msg_dict))
-                self._assert_tests = test_command.get("assert_tests")
+                    messages = test_command.get("messages")
+                    msgs = []
+                    for msg_dict in messages:
+                        # msg_dict = messages[message]
+                        msg_dict["address"] = address
+                        msgs.append(create_message(msg_dict))
+                    self._assert_tests = test_command.get("assert_tests")
 
-                self._call_count = 0
-                try:
-                    response = await cmd.async_send(**send_params)
-                except Exception as ex:
-                    raise Exception(
-                        "Failed test {self._current_test} with error: {str(ex)}"
-                    ) from ex
-                await sleep(0.1)
-                try:
-                    if test_response is not None:
-                        assert int(response) == test_response
-                    if self._assert_tests:
-                        call_count = test_command.get("call_count", 1)
-                        assert self._call_count == call_count
-                except AssertionError as ex:
-                    raise AssertionError(
-                        "Failed test: {self._current_test} command response: {response}  call count {self._call_count}"
-                    ) from ex
-                await sleep(0.5)
-                assert self._assert_result
-                _LOGGER.info("Completed test: %s", test_info)
-                _LOGGER.info("")
+                    self._call_count = 0
+                    try:
+                        response = await cmd.async_send(**send_params)
+                    except Exception as ex:
+                        raise Exception(
+                            "Failed test {self._current_test} with error: {str(ex)}"
+                        ) from ex
+                    await sleep(0.1)
+                    try:
+                        if test_response is not None:
+                            assert int(response) == test_response
+                        if self._assert_tests:
+                            call_count = test_command.get("call_count", 1)
+                            assert self._call_count == call_count
+                    except AssertionError as ex:
+                        raise AssertionError(
+                            "Failed test: {self._current_test} command response: {response}  call count {self._call_count}"
+                        ) from ex
+                    await sleep(0.5)
+                    assert self._assert_result
+                    _LOGGER.info("Completed test: %s", test_info)
+                    _LOGGER.info("")
+            finally:
+                unsubscribe_topic(self.validate_values, pub.ALL_TOPICS)
+                unsubscribe_topic(listen_for_ack, "ack")
 
 
 if __name__ == "__main__":

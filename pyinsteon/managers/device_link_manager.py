@@ -87,10 +87,11 @@ def _topic_to_addr_group(topic):
     try:
         address = Address(elements[0])
         group = int(elements[1])
+        command = elements[2]
         msg_type = getattr(MessageFlagType, elements[-1].upper())
     except [KeyError, TypeError]:
-        return None, None, None
-    return address, group, msg_type
+        return None, None, None, None
+    return address, group, command, msg_type
 
 
 class DeviceLinkManager:
@@ -105,6 +106,10 @@ class DeviceLinkManager:
         self._devices = devices
         self._work_dir: Union[str, None] = None
         self._devices.subscribe(self._device_added_or_removed)
+        # The _last_command property holds the last command to change a device group
+        # If the last command is the same as the current command, do nothing.
+        # Otherwise we send a status request
+        self._last_command: Dict[Address, Dict[int, str]] = {}
 
     @property
     def links(
@@ -203,11 +208,16 @@ class DeviceLinkManager:
                     self._link_changed(record=record, sender=address, deleted=False)
 
     async def _async_check_responders(self, topic=pub.AUTO_TOPIC, **kwargs) -> None:
-        controller, group, msg_type = _topic_to_addr_group(topic)
+        controller, group, command, msg_type = _topic_to_addr_group(topic)
 
-        if msg_type != MessageFlagType.ALL_LINK_BROADCAST:
+        if msg_type not in (
+            MessageFlagType.ALL_LINK_BROADCAST,
+            MessageFlagType.ALL_LINK_CLEANUP,
+        ):
             return
         if group == 0:
+            return
+        if self._is_duplicate_message(controller, group, command):
             return
         responder_data = self.get_responders(controller, group)
         for addr, data_list in responder_data.items():
@@ -232,4 +242,17 @@ class DeviceLinkManager:
             groups.append(0)
             if group in groups:
                 return True
+        return False
+
+    def _is_duplicate_message(self, controller: Address, group: int, command: str):
+        """Test if this is the duplicate message to notify of a change.
+
+        This method is intended to reduce the number of status request changes to responders.
+        """
+        last_command = self._last_command.get(controller, {}).get(group)
+        if command == last_command:
+            return True
+        controller_commands = self._last_command.get(controller, {})
+        controller_commands[group] = command
+        self._last_command[controller] = controller_commands
         return False
