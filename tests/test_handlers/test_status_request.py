@@ -18,7 +18,7 @@ class TestStatusRequest(unittest.TestCase):
         self._status = None
         self._db_version_1 = None
         self._status_1 = None
-        self.ack_topic = f"ack.{self._address.id}.status_request.direct"
+        self.ack_topic = f"{self._address.id}.ack.status_request.direct"
         self.direct_ack_topic = f"{self._address.id}.any_topic.direct_ack"
         set_log_levels(
             logger="debug",

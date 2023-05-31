@@ -4,6 +4,7 @@ import unittest
 from pyinsteon import pub
 from pyinsteon.constants import ResponseStatus
 from pyinsteon.handlers.send_all_link import SendAllLinkCommandHandler
+
 from tests import set_log_levels
 from tests.utils import TopicItem, async_case, send_topics
 
@@ -13,9 +14,9 @@ class TestSendAllLinkingCommandHandler(unittest.TestCase):
 
     def setUp(self):
         """Set up the test."""
-        self.ack_message = "ack.send_all_link_command"
+        self.ack_message = "modem.ack.send_all_link_command"
         self.received = False
-        pub.subscribe(self.send_listener, "send_all_link_command")
+        pub.subscribe(self.send_listener, "modem.send_all_link_command")
         self._sent = False
         set_log_levels(logger_topics=True)
 
@@ -25,7 +26,7 @@ class TestSendAllLinkingCommandHandler(unittest.TestCase):
         self.handler = SendAllLinkCommandHandler()
         topics = [
             TopicItem(
-                "ack.send_all_link_command",
+                "modem.ack.send_all_link_command",
                 {"group": 0x01, "cmd1": 0x11, "cmd2": 0x00},
                 0.5,
             )

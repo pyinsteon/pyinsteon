@@ -11,7 +11,7 @@
                 "on_level": 255
             }
         },
-        "nak_count": 10,
+        "nak_count": 4,
         "response": {}
     },
     "cancel_all_linking": {
@@ -20,7 +20,7 @@
             "params": {},
             "send_params": {}
         },
-        "nak_count": 10,
+        "nak_count": 4,
         "response": {}
     },
     "get_first_all_link_record": {
@@ -38,7 +38,7 @@
             "params": {},
             "send_params": {}
         },
-        "nak_count": 10,
+        "nak_count": 4,
         "response": {}
     },
     "get_im_info": {
@@ -47,7 +47,7 @@
             "params": {},
             "send_params": {}
         },
-        "nak_count": 10,
+        "nak_count": 4,
         "response": {}
     },
     "get_next_all_link_record": {
@@ -80,7 +80,7 @@
                 "cmd2": 128
             }
         },
-        "nak_count": 10,
+        "nak_count": 4,
         "response": {}
     },
     "set_im_configuration": {
@@ -94,7 +94,7 @@
                 "deadman": false
             }
         },
-        "nak_count": 10,
+        "nak_count": 4,
         "response": {}
     },
     "start_all_linking": {
@@ -106,7 +106,7 @@
                 "group": 1
             }
         },
-        "nak_count": 10,
+        "nak_count": 4,
         "response": {}
     },
     "write_eeprom": {
@@ -140,7 +140,7 @@
             },
             "send_params": {}
         },
-        "nak_count": 10,
+        "nak_count": 4,
         "response": {}
     }
 }

@@ -3,7 +3,7 @@ import logging
 from typing import Any, Dict, Tuple
 
 from ..commands import commands
-from ..constants import MessageFlagType
+from ..constants import MessageFlagType, MessageId
 from ..topics import (
     ALL_LINK_CLEANUP_FAILURE_REPORT,
     ALL_LINK_CLEANUP_STATUS_REPORT,
@@ -45,8 +45,14 @@ _LOGGER = logging.getLogger(__name__)
 
 def convert_to_topic(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
     """Convert a message to a topic defintion."""
-    converter = MSG_CONVERTER[msg.message_id]
-    return converter(msg)
+    if msg.message_id == MessageId.STANDARD_RECEIVED:
+        return standard_received(msg)
+    if msg.message_id == MessageId.EXTENDED_RECEIVED:
+        return extended_received(msg)
+    if msg.message_id in [MessageId.SEND_EXTENDED, MessageId.SEND_STANDARD]:
+        return send_standard_or_extended_message(msg)
+
+    return other_received(msg)
 
 
 def _get_group_from_msg(topic, message_type, target, cmd2, user_data):
@@ -115,6 +121,20 @@ def extended_received(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
         yield _create_rcv_std_ext_msg(
             topic, msg.address, msg.flags, msg.cmd1, msg.cmd2, msg.target, msg.user_data
         )
+
+
+def other_received(msg: Inbound) -> Tuple[str, Dict[str, Any]]:
+    """Convert other messages to a topic definition."""
+    if hasattr(msg, "ack"):
+        topic = build_topic(
+            topic=msg.topic, prefix=msg.ack, modem_topic=msg.modem_topic
+        )
+        kwargs = msg.to_dict()
+        kwargs.pop("ack")
+    else:
+        topic = msg.topic
+        kwargs = msg.to_dict()
+    yield (topic, kwargs)
 
 
 def x10_received(msg: Inbound) -> Tuple[str, Dict[str, Any]]:

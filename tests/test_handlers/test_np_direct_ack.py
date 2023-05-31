@@ -36,7 +36,7 @@ class TestNoDirectAck(unittest.TestCase):
         self.handler.subscribe(self.set_on_level)
         self._on_level = None
         self._group = None
-        self.ack_topic = "ack.{}.{}.on.direct".format(self._address.id, 1)
+        self.ack_topic = "{}.ack.{}.on.direct".format(self._address.id, 1)
         orig_timeout = pyinsteon.handlers.TIMEOUT
         pyinsteon.handlers.TIMEOUT = 0.1
         cmd1 = 0x99

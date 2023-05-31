@@ -4,7 +4,7 @@ from . import ack_handler, nak_handler
 from ..address import Address
 from ..constants import ManageAllLinkRecordAction, ResponseStatus
 from ..data_types.all_link_record_flags import AllLinkRecordFlags
-from ..topics import MANAGE_ALL_LINK_RECORD
+from ..topics import MANAGE_ALL_LINK_RECORD, MODEM
 from .outbound_base import OutboundHandlerBase
 
 
@@ -13,7 +13,7 @@ class ManageAllLinkRecordCommand(OutboundHandlerBase):
 
     def __init__(self):
         """Init the ManageAllLinkRecordCommand class."""
-        super().__init__(topic=MANAGE_ALL_LINK_RECORD)
+        super().__init__(topic=MANAGE_ALL_LINK_RECORD, address=MODEM)
 
     # pylint: disable=arguments-differ
     async def async_send(

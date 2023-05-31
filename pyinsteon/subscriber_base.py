@@ -3,7 +3,6 @@ from abc import ABC
 import logging
 from typing import Callable
 
-from . import pub
 from .utils import publish_topic, subscribe_topic, unsubscribe_topic
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,14 +18,14 @@ class SubscriberBase(ABC):
         """Init the Event class."""
         self._subscriber_topic = subscriber_topic
         self._subscribers = []
-        if self.arg_spec:
-            topic = pub.getDefaultTopicMgr().getOrCreateTopic(self._subscriber_topic)
-            if not topic.hasMDS():
-                if self.required_args is not None:
-                    required_args = self.required_args
-                else:
-                    required_args = list(self.arg_spec)
-                topic.setMsgArgSpec(self.arg_spec, required_args)
+        # if self.arg_spec:
+        #     topic = pub.getDefaultTopicMgr().getOrCreateTopic(self._subscriber_topic)
+        #     if not topic.hasMDS():
+        #         if self.required_args is not None:
+        #             required_args = self.required_args
+        #         else:
+        #             required_args = list(self.arg_spec)
+        #         # topic.setMsgArgSpec(self.arg_spec, required_args)
 
     @property
     def topic(self):

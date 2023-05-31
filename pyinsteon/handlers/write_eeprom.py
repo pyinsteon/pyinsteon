@@ -5,7 +5,7 @@ from . import ack_handler, nak_handler
 from ..address import Address
 from ..constants import ResponseStatus
 from ..data_types.all_link_record_flags import AllLinkRecordFlags
-from ..topics import WRITE_EEPROM
+from ..topics import MODEM, WRITE_EEPROM
 from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ class WriteEepromHandler(OutboundHandlerBase):
 
     def __init__(self):
         """Init the ReadEepromHandler class."""
-        super().__init__(topic=WRITE_EEPROM)
+        super().__init__(topic=WRITE_EEPROM, address=MODEM)
         _LOGGER.debug("Setup WriteEepromHandler")
 
     # pylint: disable=arguments-differ
@@ -57,7 +57,8 @@ class WriteEepromHandler(OutboundHandlerBase):
     @ack_handler
     async def async_handle_ack(
         self,
-        mem_addr: int,
+        mem_hi: int,
+        mem_low: int,
         flags: AllLinkRecordFlags,
         group: int,
         target: Address,
@@ -71,7 +72,8 @@ class WriteEepromHandler(OutboundHandlerBase):
     @nak_handler
     async def async_handle_nak(
         self,
-        mem_addr: int,
+        mem_hi: int,
+        mem_low: int,
         flags: int,
         group: int,
         target: Address,

@@ -1,12 +1,11 @@
 """Test broadcast messages for deduplication."""
+from asyncio import sleep
 from random import randint
 import unittest
 from unittest.mock import patch
-from asyncio import sleep
 
 import pyinsteon
 from pyinsteon import pub
-from pyinsteon.handlers.from_device.broadcast_command import MAX_DUP, MIN_DUP
 from pyinsteon.handlers.from_device.assign_to_all_link_group import (
     AssignToAllLinkGroupCommand,
 )
@@ -14,20 +13,21 @@ from pyinsteon.handlers.from_device.delete_from_all_link_group import (
     DeleteFromAllLinkGroupCommand,
 )
 from pyinsteon.handlers.from_device.manual_change import ManualChangeInbound
-from pyinsteon.handlers.from_device.off_fast import OffFastInbound
 from pyinsteon.handlers.from_device.off import OffInbound
+from pyinsteon.handlers.from_device.off_fast import OffFastInbound
 from pyinsteon.handlers.from_device.on_fast import OnFastInbound
 from pyinsteon.handlers.from_device.on_level import OnLevelInbound
 from pyinsteon.topics import (
     ASSIGN_TO_ALL_LINK_GROUP,
     DELETE_FROM_ALL_LINK_GROUP,
-    STOP_MANUAL_CHANGE,
-    OFF_FAST,
     OFF,
-    ON_FAST,
+    OFF_FAST,
     ON,
+    ON_FAST,
+    STOP_MANUAL_CHANGE,
 )
 from pyinsteon.utils import subscribe_topic
+
 from tests import set_log_levels
 from tests.utils import TopicItem, async_case, cmd_kwargs, random_address, send_topics
 
@@ -62,6 +62,7 @@ def create_topic(topic, address, group, hops, delay):
     return TopicItem(msg_topic, kwargs=kwargs, delay=delay)
 
 
+# pylint: disable=unused-variable
 class TestBroadcastMessageDedup(unittest.TestCase):
     """Test broadcast messages for deduplication.
 
@@ -87,7 +88,7 @@ class TestBroadcastMessageDedup(unittest.TestCase):
 
     async def handle_topics(self, topic=pub.AUTO_TOPIC):
         """Handle the on topic."""
-        if topic.name.startswith("handler"):
+        if "handler" in topic.name:
             self.call_count += 1
 
     @async_case
@@ -106,13 +107,14 @@ class TestBroadcastMessageDedup(unittest.TestCase):
                     handler = command(address)
                 else:
                     handler = command(address, group)
+                assert handler
                 topics = [
                     create_topic(topic, address, group, 3, 0),
                     create_topic(topic, address, group, 2, 0.4),
                 ]
                 self.call_count = 0
                 send_topics(topics)
-                await sleep(.5)
+                await sleep(0.5)
                 assert self.call_count == 1
 
     @async_case
@@ -131,6 +133,7 @@ class TestBroadcastMessageDedup(unittest.TestCase):
                     handler = command(address)
                 else:
                     handler = command(address, group)
+                assert handler
                 self.call_count = 0
                 topics = [
                     create_topic(topic, address, group, 3, 0.0),
@@ -156,6 +159,7 @@ class TestBroadcastMessageDedup(unittest.TestCase):
                     handler = command(address)
                 else:
                     handler = command(address, group)
+                assert handler
                 self.call_count = 0
                 topics = [
                     create_topic(topic, address, group, 3, 0.0),
@@ -181,6 +185,7 @@ class TestBroadcastMessageDedup(unittest.TestCase):
                     handler = command(address)
                 else:
                     handler = command(address, group)
+                assert handler
                 self.call_count = 0
                 topics = [
                     create_topic(topic, address, group, 2, 0.0),
@@ -206,6 +211,7 @@ class TestBroadcastMessageDedup(unittest.TestCase):
                     handler = command(address)
                 else:
                     handler = command(address, group)
+                assert handler
                 self.call_count = 0
                 topics = [
                     create_topic(topic, address, group, 2, 0.0),
@@ -231,6 +237,7 @@ class TestBroadcastMessageDedup(unittest.TestCase):
                     handler = command(address)
                 else:
                     handler = command(address, group)
+                assert handler
                 self.call_count = 0
                 topics = [
                     create_topic(topic, address, group, 2, 0.0),

@@ -1,7 +1,7 @@
 """Handle All-Link Cleanup Status Reports."""
 from . import inbound_handler
 from ..address import Address
-from ..topics import ALL_LINK_CLEANUP_FAILURE_REPORT
+from ..topics import ALL_LINK_CLEANUP_FAILURE_REPORT, MODEM
 from .inbound_base import InboundHandlerBase
 
 
@@ -16,7 +16,7 @@ class AllLinkCleanupFailureReport(InboundHandlerBase):
 
     def __init__(self):
         """Init AllLinkCleanupFailureReport class."""
-        super().__init__(topic=ALL_LINK_CLEANUP_FAILURE_REPORT)
+        super().__init__(topic=ALL_LINK_CLEANUP_FAILURE_REPORT, address=MODEM)
 
     @inbound_handler
     def handle_inbound(self, error: int, group: int, target: Address):

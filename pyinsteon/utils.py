@@ -22,7 +22,7 @@ from .constants import (
     ThermostatMode,
     X10Commands,
 )
-from .topics import STATUS_REQUEST
+from .topics import MODEM, STATUS_REQUEST
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")
@@ -155,16 +155,23 @@ def test_values_eq(val1, val2) -> bool:
 
 def _include_address(prefix, topic, address, message_type):
     """Test if we should include the address in the topic build."""
+
+    if prefix == "send":
+        return False
+
+    if address == MODEM and "x10" in topic:
+        return False
+
     if address is None:
         return False
 
     if isinstance(message_type, str):
         message_type = getattr(MessageFlagType, str(message_type).upper())
 
-    if prefix == "send" and message_type == MessageFlagType.DIRECT:
-        return False
-
     if prefix == "handler" and message_type == MessageFlagType.DIRECT:
+        return True
+
+    if address == MODEM:
         return True
 
     if commands.get(topic) is None:
@@ -192,19 +199,27 @@ def _msg_group(topic, group, message_type):
     return 1
 
 
-def build_topic(topic, prefix=None, address=None, group=None, message_type=None):
+def build_topic(
+    topic, prefix=None, address=None, group=None, message_type=None, modem_topic=True
+):
     """Build a full topic from components."""
-    full_topic = ""
-    if prefix is not None:
-        # Adding the . separator since there must be something after a prefix
-        full_topic = f"{str(prefix).lower()}."
+    if modem_topic and address is None:
+        address = MODEM
 
-    if _include_address(prefix, topic, address, message_type):
+    full_topic = ""
+    include_address = _include_address(prefix, topic, address, message_type)
+
+    if include_address:
         addr = address.id if isinstance(address, Address) else address
         full_topic = f"{full_topic}{addr}."
-        group = _msg_group(topic, group, message_type)
-        if group is not None:
-            full_topic = f"{full_topic}{group}."
+
+    if prefix is not None:
+        # Adding the . separator since there must be something after a prefix
+        full_topic = f"{full_topic}{str(prefix).lower()}."
+
+    group = _msg_group(topic, group, message_type)
+    if group is not None and include_address:
+        full_topic = f"{full_topic}{group}."
 
     full_topic = f"{full_topic}{topic}"
     if message_type is not None:
@@ -360,6 +375,22 @@ def subscribe_topic(listener, topic_name, logger=None):
 
     topic_mgr = pub.getDefaultTopicMgr()
     topic = topic_mgr.getOrCreateTopic(topic_name)
+    # if not topic.hasMDS():
+    #     annotated = {
+    #         name: annotation.__name__
+    #         for name, annotation in listener.__annotations__.items()
+    #     }
+    #     args = signature(listener)
+    #     arg_spec = {}
+    #     for name in args.parameters:
+    #         desc = PARAM_MAP.get(name, annotated.get(name, "Any"))
+    #         arg_spec[name] = desc
+    #     if "kwargs" in arg_spec:
+    #         arg_spec["**kwargs"] = arg_spec["kwargs"]
+    #     required = list(arg_spec)
+    #     # if "topic" in required:
+    #     #    required.remove("topic")
+    #     # topic.setMsgArgSpec(arg_spec, required)
     if topic.hasListener(listener):
         return
     if logger is None:
@@ -380,6 +411,7 @@ def subscribe_topic(listener, topic_name, logger=None):
         logger.error("idStr: %s", exc.idStr)
         for topic_listner in pub.getDefaultTopicMgr().getTopic(topic).getListeners():
             logger.error("Topic listener: %s", topic_listner)
+    pass
 
 
 def unsubscribe_topic(listener, topic_name):

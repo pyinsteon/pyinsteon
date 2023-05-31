@@ -5,7 +5,7 @@ import logging
 from . import inbound_handler
 from ..address import Address
 from ..constants import AllLinkMode
-from ..topics import ALL_LINKING_COMPLETED
+from ..topics import ALL_LINKING_COMPLETED, MODEM
 from .inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ class AllLinkCompletedHandler(InboundHandlerBase):
 
     def __init__(self):
         """Init the AllLinkRecordResponse class."""
-        super().__init__(ALL_LINKING_COMPLETED)
+        super().__init__(ALL_LINKING_COMPLETED, address=MODEM)
 
     @inbound_handler
     def handle_response(

@@ -5,6 +5,7 @@ import unittest
 from pyinsteon.address import Address
 from pyinsteon.managers.device_id_manager import DeviceIdManager
 from pyinsteon.topics import ASSIGN_TO_ALL_LINK_GROUP, ID_REQUEST, OFF
+
 from tests.utils import TopicItem, async_case, cmd_kwargs, send_topics
 
 
@@ -22,7 +23,7 @@ class TestDeviceIdManager(unittest.TestCase):
 
     def _set_topics(self, address):
         off = "{}.{}.broadcast".format(address.id, OFF)
-        ack = "ack.{}.{}.direct".format(address.id, ID_REQUEST)
+        ack = "{}.ack.{}.direct".format(address.id, ID_REQUEST)
         dir_ack = "{}.{}.direct_ack".format(address.id, ID_REQUEST)
         response = "{}.{}.broadcast".format(address.id, ASSIGN_TO_ALL_LINK_GROUP)
         return (off, ack, dir_ack, response)

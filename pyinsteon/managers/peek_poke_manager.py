@@ -11,7 +11,7 @@ from ..handlers.to_device.poke import PokeCommand
 from ..handlers.to_device.set_msb import SetMsbCommand
 from ..subscriber_base import SubscriberBase
 from ..topics import PEEK, POKE
-from ..utils import publish_topic, subscribe_topic
+from ..utils import subscribe_topic
 
 _instances = {}
 _LOGGER = logging.getLogger(__name__)
@@ -27,6 +27,32 @@ def get_peek_poke_manager(address: Address):
     instance = PeekPokeManager(address)
     _instances[address] = instance
     return instance
+
+
+class PeekValueReceived(SubscriberBase):
+    """Class to notify listeners of peek value read."""
+
+    arg_spec = {
+        "mem_addr": "int - Memory address read.",
+        "value": "int - Value of the memory address.",
+    }
+
+    def call_subscribers(self, mem_addr, value):
+        """Notify subscribers of the read results."""
+        return super()._call_subscribers(mem_addr=mem_addr, value=value)
+
+
+class PokeValueWritten(SubscriberBase):
+    """Class to notify listeners of poke value written."""
+
+    arg_spec = {
+        "mem_addr": "int - Memory address read.",
+        "value": "int - New value of the memory address.",
+    }
+
+    def call_subscribers(self, mem_addr, value):
+        """Notify subscribers of the write results."""
+        return super()._call_subscribers(mem_addr=mem_addr, value=value)
 
 
 class PeekPokeManager(SubscriberBase):
@@ -46,13 +72,15 @@ class PeekPokeManager(SubscriberBase):
         self._poke_topic = f"{self._address.id}.manager.{POKE}"
         self._last_msb = None
         self._time_last_msb = datetime.min
+        self._peek_completed = PeekValueReceived(self._peek_topic)
+        self._poke_completed = PokeValueWritten(self._poke_topic)
 
     async def async_peek(self, mem_addr: int, extended: bool = False):
         """Peek a value at a memory address."""
         result = await self._async_peek(mem_addr=mem_addr)
         if result == ResponseStatus.SUCCESS:
             value = await self._peek_value_queue.get()
-            publish_topic(topic=self._peek_topic, mem_addr=mem_addr, value=value)
+            self._peek_completed.call_subscribers(mem_addr=mem_addr, value=value)
             await asyncio.sleep(0.05)
         return result
 
@@ -64,12 +92,12 @@ class PeekPokeManager(SubscriberBase):
         if result == ResponseStatus.SUCCESS:
             orig_value = await self._peek_value_queue.get()
             if orig_value == value:
-                publish_topic(topic=self._poke_topic, mem_addr=mem_addr, value=value)
+                self._poke_completed.call_subscribers(mem_addr=mem_addr, value=value)
                 await asyncio.sleep(0.05)
                 return ResponseStatus.SUCCESS
             result = await self._poke_cmd.async_send(value=value)
             if result == ResponseStatus.SUCCESS:
-                publish_topic(topic=self._poke_topic, mem_addr=mem_addr, value=value)
+                self._poke_completed.call_subscribers(mem_addr=mem_addr, value=value)
                 await asyncio.sleep(0.05)
         return result
 

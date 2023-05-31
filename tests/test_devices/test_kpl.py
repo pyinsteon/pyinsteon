@@ -198,7 +198,7 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
         cmd2 = 0x23
         target = device.address
         user_data = None
-        ack = "ack.{}.1.{}.direct".format(device.address.id, ON)
+        ack = "{}.ack.1.{}.direct".format(device.address.id, ON)
         direct_ack = "{}.{}.direct_ack".format(device.address.id, ON)
         responses = [
             TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), 0.25),
@@ -235,7 +235,7 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
         cmd2 = 0x00
         target = device.address
         user_data = None
-        ack = "ack.{}.1.{}.direct".format(device.address.id, OFF)
+        ack = "{}.ack.1.{}.direct".format(device.address.id, OFF)
         direct_ack = "{}.{}.direct_ack".format(device.address.id, OFF)
         responses = [
             TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), 0.25),
@@ -291,13 +291,13 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
         cmd2_on = random.randint(0, 255)
         target = device.address
         user_data = None
-        ack_status_0 = "ack.{}.{}.direct".format(device.address.id, STATUS_REQUEST)
-        ack_status_1 = "ack.{}.{}.direct".format(device.address.id, STATUS_REQUEST)
+        ack_status_0 = "{}.ack.{}.direct".format(device.address.id, STATUS_REQUEST)
+        ack_status_1 = "{}.ack.{}.direct".format(device.address.id, STATUS_REQUEST)
         direct_ack_status = "{}.{}.direct_ack".format(device.address.id, STATUS_REQUEST)
-        ack_on = "ack.{}.1.{}.direct".format(device.address.id, ON)
+        ack_on = "{}.ack.1.{}.direct".format(device.address.id, ON)
         direct_ack_on = "{}.{}.direct_ack".format(device.address.id, ON)
-        status_1_handler_topic = f"handler.{device.address.id}.1.status_request.direct"
-        status_handler_topic = f"handler.{device.address.id}.2.status_request.direct"
+        status_1_handler_topic = f"{device.address.id}.handler.1.status_request.direct"
+        status_handler_topic = f"{device.address.id}.handler.2.status_request.direct"
         pub.subscribe(receive_status, status_handler_topic)
         pub.subscribe(receive_status_1, status_1_handler_topic)
         responses = [

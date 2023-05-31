@@ -6,7 +6,7 @@ from . import inbound_handler
 from ..address import Address
 from ..constants import AllLinkMode
 from ..data_types.all_link_record_flags import AllLinkRecordFlags
-from ..topics import ALL_LINK_RECORD_RESPONSE
+from ..topics import ALL_LINK_RECORD_RESPONSE, MODEM
 from .inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ class AllLinkRecordResponseHandler(InboundHandlerBase):
 
     def __init__(self):
         """Init the AllLinkRecordResponse class."""
-        super().__init__(ALL_LINK_RECORD_RESPONSE)
+        super().__init__(ALL_LINK_RECORD_RESPONSE, address=MODEM)
         self._has_subscriber = False
 
     def subscribe(self, callback, force_strong_ref=False):

@@ -2,7 +2,8 @@
 import logging
 
 from . import ack_handler, nak_handler
-from ..topics import SET_IM_CONFIGURATION
+from ..data_types.im_config_flags import IMConfigurationFlags
+from ..topics import MODEM, SET_IM_CONFIGURATION
 from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -20,7 +21,7 @@ class SetImConfigurationHandler(OutboundHandlerBase):
 
     def __init__(self):
         """Init the GetImConfigurationHandler class."""
-        super().__init__(topic=SET_IM_CONFIGURATION)
+        super().__init__(topic=SET_IM_CONFIGURATION, address=MODEM)
 
     # pylint: disable=arguments-differ
     async def async_send(
@@ -39,21 +40,17 @@ class SetImConfigurationHandler(OutboundHandlerBase):
         )
 
     @ack_handler
-    async def async_handle_ack(
-        self, disable_auto_linking, monitor_mode, auto_led, deadman
-    ):
+    async def async_handle_ack(self, flags: IMConfigurationFlags):
         """Receive the ACK message and return True."""
         await self._async_handle_ack()
         self._call_subscribers(
-            disable_auto_linking=disable_auto_linking,
-            monitor_mode=monitor_mode,
-            auto_led=auto_led,
-            deadman=deadman,
+            disable_auto_linking=flags.is_auto_link,
+            monitor_mode=flags.is_monitor_mode,
+            auto_led=flags.is_auto_led,
+            deadman=flags.is_disable_deadman,
         )
 
     @nak_handler
-    async def async_handle_nak(
-        self, disable_auto_linking, monitor_mode, auto_led, deadman
-    ):
+    async def async_handle_nak(self, flags: IMConfigurationFlags):
         """Receive the NAK message and return True."""
         await self._async_handle_nak()

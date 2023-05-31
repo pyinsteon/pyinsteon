@@ -51,7 +51,7 @@ class TestLoadController(unittest.TestCase):
         cmd2 = 0xFF
         target = random_address()
         user_data = None
-        ack = "ack.{}.1.{}.direct".format(self.device.address.id, ON)
+        ack = "{}.ack.1.{}.direct".format(self.device.address.id, ON)
         direct_ack = "{}.{}.direct_ack".format(self.device.address.id, ON)
         responses = [
             TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), 0.25),
@@ -72,7 +72,7 @@ class TestLoadController(unittest.TestCase):
         cmd2 = 0x00
         target = random_address()
         user_data = None
-        ack = "ack.{}.1.{}.direct".format(self.device.address.id, OFF)
+        ack = "{}.ack.1.{}.direct".format(self.device.address.id, OFF)
         direct_ack = "{}.{}.direct_ack".format(self.device.address.id, OFF)
         responses = [
             TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), 0.25),
@@ -98,7 +98,7 @@ class TestLoadController(unittest.TestCase):
         cmd2_2_response = 0x00
         target = random_address()
         user_data = None
-        ack = "ack.{}.{}.direct".format(self.device.address.id, STATUS_REQUEST)
+        ack = "{}.ack.{}.direct".format(self.device.address.id, STATUS_REQUEST)
         direct_ack = "{}.{}.direct_ack".format(self.device.address.id, "any_value")
         responses = [
             TopicItem(ack, cmd_kwargs(cmd1, cmd2_1, user_data), 0.25),

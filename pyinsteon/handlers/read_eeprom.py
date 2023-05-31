@@ -3,7 +3,7 @@ import logging
 
 from . import ack_handler, nak_handler
 from ..constants import ResponseStatus
-from ..topics import READ_EEPROM
+from ..topics import MODEM, READ_EEPROM
 from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ class ReadEepromHandler(OutboundHandlerBase):
 
     def __init__(self):
         """Init the ReadEepromHandler class."""
-        super().__init__(topic=READ_EEPROM)
+        super().__init__(topic=READ_EEPROM, address=MODEM)
         _LOGGER.debug("Setup ReadEepromHandler")
 
     # pylint: disable=arguments-differ

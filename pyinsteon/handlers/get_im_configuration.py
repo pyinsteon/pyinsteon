@@ -2,7 +2,8 @@
 import logging
 
 from . import ack_handler, nak_handler
-from ..topics import GET_IM_CONFIGURATION
+from ..data_types.im_config_flags import IMConfigurationFlags
+from ..topics import GET_IM_CONFIGURATION, MODEM
 from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -20,19 +21,19 @@ class GetImConfigurationHandler(OutboundHandlerBase):
 
     def __init__(self):
         """Init the GetImConfigurationHandler class."""
-        super().__init__(topic=GET_IM_CONFIGURATION)
+        super().__init__(topic=GET_IM_CONFIGURATION, address=MODEM)
 
     @ack_handler
     async def async_handle_ack(
-        self, disable_auto_linking, monitor_mode, auto_led, deadman
+        self, flags: IMConfigurationFlags, spare1: int = None, spare2: int = None
     ):
         """Handle the ACK message from the modem."""
         await self._async_handle_ack()
         self._call_subscribers(
-            disable_auto_linking=disable_auto_linking,
-            monitor_mode=monitor_mode,
-            auto_led=auto_led,
-            deadman=deadman,
+            disable_auto_linking=flags.is_auto_link,
+            monitor_mode=flags.is_monitor_mode,
+            auto_led=flags.is_auto_led,
+            deadman=flags.is_disable_deadman,
         )
 
     @nak_handler

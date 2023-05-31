@@ -57,7 +57,7 @@ class TestProtocol(unittest.TestCase):
             ]
 
             self._last_topic = None
-            expected_topic = "ack.{}.1.on.direct".format(address.id)
+            expected_topic = "{}.ack.1.on.direct".format(address.id)
             pub.subscribe(expected_topic_received, expected_topic)
             await topic_lock.acquire()
             send_topics(topics)
@@ -182,7 +182,7 @@ class TestProtocol(unittest.TestCase):
                         ) from ex
 
                 # Test when the modem only responds with a NAK rather than the original message.
-                nak_topic = "nak.0a0b0c.1.on.direct"
+                nak_topic = "0a0b0c.nak.1.on.direct"
                 pub.subscribe(dummy_nak_listener, nak_topic)
                 protocol.write(unhexlify("02620a0b0c09110b"))
                 await asyncio.sleep(0.1)

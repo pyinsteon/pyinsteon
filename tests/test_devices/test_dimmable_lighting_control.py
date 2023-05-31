@@ -6,6 +6,7 @@ from pyinsteon.address import Address
 from pyinsteon.constants import ResponseStatus
 from pyinsteon.device_types.dimmable_lighting_control import DimmableLightingControl
 from pyinsteon.topics import OFF, OFF_FAST, ON, ON_FAST
+
 from tests import set_log_levels
 from tests.utils import TopicItem, async_case, cmd_kwargs, send_topics
 
@@ -41,7 +42,7 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         cmd2 = 0x23
         target = Address("4d5e6f")
         user_data = None
-        ack = "ack.{}.1.{}.direct".format(self.device.address.id, ON)
+        ack = "{}.ack.1.{}.direct".format(self.device.address.id, ON)
         direct_ack = "{}.{}.direct_ack".format(self.device.address.id, ON)
         responses = [
             TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), 0.25),
@@ -62,7 +63,7 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         cmd2 = 0x23
         target = Address("4d5e6f")
         user_data = None
-        ack = "ack.{}.1.{}.direct".format(self.device.address.id, ON_FAST)
+        ack = "{}.ack.1.{}.direct".format(self.device.address.id, ON_FAST)
         direct_ack = "{}.{}.direct_ack".format(self.device.address.id, ON_FAST)
         responses = [
             TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), 0.25),
@@ -83,7 +84,7 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         cmd2 = 0x23
         target = Address("4d5e6f")
         user_data = None
-        ack = "ack.{}.1.{}.direct".format(self.device.address.id, OFF_FAST)
+        ack = "{}.ack.1.{}.direct".format(self.device.address.id, OFF_FAST)
         direct_ack = "{}.{}.direct_ack".format(self.device.address.id, OFF_FAST)
         responses = [
             TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), 0.25),
@@ -104,7 +105,7 @@ class TestDimmableLIghtingControl(unittest.TestCase):
         cmd2 = 0x23
         target = Address("4d5e6f")
         user_data = None
-        ack = "ack.{}.1.{}.direct".format(self.device.address.id, OFF)
+        ack = "{}.ack.1.{}.direct".format(self.device.address.id, OFF)
         direct_ack = "{}.{}.direct_ack".format(self.device.address.id, OFF)
         responses = [
             TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), 0.25),

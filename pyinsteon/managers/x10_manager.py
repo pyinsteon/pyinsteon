@@ -2,7 +2,7 @@
 from ..constants import X10Commands
 from ..handlers.to_device.x10_send import X10CommandSend
 from ..subscriber_base import SubscriberBase
-from ..utils import publish_topic, subscribe_topic
+from ..utils import subscribe_topic
 from ..x10_address import X10Address, create
 
 
@@ -24,6 +24,16 @@ async def async_x10_all_lights_off(housecode: str):
     return await cmd.async_send()
 
 
+class Notifier(SubscriberBase):
+    """Notifier class for device changes."""
+
+    arg_spec = {"on_level": "int - On level of the device group."}
+
+    def call_subscribers(self, on_level):
+        """Notify subscribers of the on value changes."""
+        self._call_subscribers(on_level=on_level)
+
+
 class X10OnOffManager(SubscriberBase):
     """Manage Inbound X10 On/Off commands."""
 
@@ -37,26 +47,26 @@ class X10OnOffManager(SubscriberBase):
         off_topic = f"{address.id}.{str(X10Commands.OFF)}"
         subscribe_topic(self._on_received, on_topic)
         subscribe_topic(self._off_received, off_topic)
-        self._on_subscriber_topic = f"{self._subscriber_topic}_on"
-        self._off_subscriber_topic = f"{self._subscriber_topic}_off"
+        self._on_notifier = Notifier(f"{self._subscriber_topic}_on")
+        self._off_notifier = Notifier(f"{self._subscriber_topic}_off")
 
     def subscribe_on(self, callback: callable):
         """Subscribe to the ON event."""
-        subscribe_topic(callback, self._on_subscriber_topic)
+        self._on_notifier.subscribe(callback)
 
     def subscribe_off(self, callback: callable):
         """Subscribe to the OFF event."""
-        subscribe_topic(callback, self._off_subscriber_topic)
+        self._off_notifier.subscribe(callback)
 
     def _on_received(self):
         """Receive an ON message."""
         self._call_subscribers(on_level=0xFF)
-        publish_topic(self._on_subscriber_topic, on_level=0xFF)
+        self._on_notifier.call_subscribers(on_level=0xFF)
 
     def _off_received(self):
         """Recieve an OFF message."""
         self._call_subscribers(on_level=0x00)
-        publish_topic(self._off_subscriber_topic, on_level=0x00)
+        self._off_notifier.call_subscribers(on_level=0x00)
 
 
 class X10DimBrightenManager(SubscriberBase):
@@ -97,8 +107,10 @@ class X10AllLightsOnOffManager(SubscriberBase):
         off_topic = f"x10{address.housecode.lower()}.{str(X10Commands.ALL_LIGHTS_OFF)}"
         subscribe_topic(self._on_received, on_topic)
         subscribe_topic(self._off_received, off_topic)
-        self._on_subscriber_topic = f"{self._subscriber_topic}_on"
-        self._off_subscriber_topic = f"{self._subscriber_topic}_off"
+        self._on_subscriber_topic = ""
+        self._off_subscriber_topic = ""
+        self._on_notifier = Notifier(f"{self._subscriber_topic}_on")
+        self._off_notifier = Notifier(f"{self._subscriber_topic}_off")
 
     def subscribe_on(self, callback: callable):
         """Subscribe to the on command."""
@@ -113,12 +125,12 @@ class X10AllLightsOnOffManager(SubscriberBase):
     def _on_received(self):
         """Receive an ON message."""
         self._call_subscribers(on_level=0xFF)
-        publish_topic(self._on_subscriber_topic, on_level=0xFF)
+        self._on_notifier.call_subscribers(on_level=0xFF)
 
     def _off_received(self):
         """Recieve an OFF message."""
         self._call_subscribers(on_level=0x00)
-        publish_topic(self._off_subscriber_topic, on_level=0x00)
+        self._off_notifier.call_subscribers(on_level=0x00)
 
 
 class X10AllUnitsOffManager(SubscriberBase):

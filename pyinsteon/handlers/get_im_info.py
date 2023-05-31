@@ -2,7 +2,7 @@
 import logging
 
 from . import ack_handler, nak_handler
-from ..topics import GET_IM_INFO
+from ..topics import GET_IM_INFO, MODEM
 from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ class GetImInfoHandler(OutboundHandlerBase):
 
     def __init__(self):
         """Init the GetNextAldbRecordNak class."""
-        super().__init__(topic=GET_IM_INFO)
+        super().__init__(topic=GET_IM_INFO, address=MODEM)
 
     @ack_handler
     async def async_handle_ack(self, address, cat, subcat, firmware):

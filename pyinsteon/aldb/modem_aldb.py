@@ -6,7 +6,7 @@ from ..address import Address
 from ..constants import ALDBStatus, EngineVersion, ReadWriteMode
 from ..managers.aldb_im_read_manager import ImReadManager
 from ..managers.aldb_im_write_manager import ImWriteManager
-from ..topics import ALL_LINK_RECORD_RESPONSE
+from ..topics import ALL_LINK_RECORD_RESPONSE, MODEM
 from .aldb_base import ALDBBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class ModemALDB(ALDBBase):
         self._read_write_mode = ReadWriteMode.UNKNOWN
         # If we are not the first modem, don't subscribe to
         mgr = pub.getDefaultTopicMgr()
-        topic = mgr.getTopic(ALL_LINK_RECORD_RESPONSE, okIfNone=True)
+        topic = mgr.getTopic(f"{MODEM}.{ALL_LINK_RECORD_RESPONSE}", okIfNone=True)
         if not topic:
             self._read_manager = ImReadManager(self)
 

@@ -4,6 +4,7 @@ from random import randint
 from unittest import TestCase
 
 from pyinsteon.config import AUTO_LED, DEADMAN, DISABLE_AUTO_LINKING, MONITOR_MODE
+from pyinsteon.data_types.im_config_flags import IMConfigurationFlags
 from pyinsteon.device_types.modem_base import ModemBase
 from pyinsteon.topics import GET_IM_CONFIGURATION, SET_IM_CONFIGURATION
 
@@ -42,17 +43,17 @@ class TestModemConfig(TestCase):
         monitor_mode = random_bool()
         auto_led = random_bool()
         deadman = random_bool()
-        topic = f"ack.{GET_IM_CONFIGURATION}"
+        topic = f"modem.ack.{GET_IM_CONFIGURATION}"
 
+        flags = IMConfigurationFlags(0x00)
+        flags.is_auto_link = disable_auto_linking
+        flags.is_monitor_mode = monitor_mode
+        flags.is_auto_led = auto_led
+        flags.is_disable_deadman = deadman
         topic_item = TopicItem(
             topic,
-            {
-                "disable_auto_linking": disable_auto_linking,
-                "monitor_mode": monitor_mode,
-                "auto_led": auto_led,
-                "deadman": deadman,
-            },
-            0,
+            {"flags": flags},
+            0.0,
         )
         modem = ModemBase()
         send_topics([topic_item])
@@ -82,15 +83,15 @@ class TestModemConfig(TestCase):
         monitor_mode = random_bool()
         auto_led = random_bool()
         deadman = random_bool()
-        topic = f"ack.{SET_IM_CONFIGURATION}"
+        topic = f"modem.ack.{SET_IM_CONFIGURATION}"
+        flags = IMConfigurationFlags(0x00)
+        flags.is_auto_link = disable_auto_linking
+        flags.is_monitor_mode = monitor_mode
+        flags.is_auto_led = auto_led
+        flags.is_disable_deadman = deadman
         topic_item = TopicItem(
             topic,
-            {
-                "disable_auto_linking": disable_auto_linking,
-                "monitor_mode": monitor_mode,
-                "auto_led": auto_led,
-                "deadman": deadman,
-            },
+            {"flags": flags},
             0.1,
         )
 
@@ -122,15 +123,15 @@ class TestModemConfig(TestCase):
         monitor_mode = random_bool()
         auto_led = random_bool()
         deadman = random_bool()
-        topic = f"ack.{SET_IM_CONFIGURATION}"
+        topic = f"modem.ack.{SET_IM_CONFIGURATION}"
+        flags = IMConfigurationFlags(0x00)
+        flags.is_auto_link = disable_auto_linking
+        flags.is_monitor_mode = monitor_mode
+        flags.is_auto_led = auto_led
+        flags.is_disable_deadman = deadman
         topic_item = TopicItem(
             topic,
-            {
-                "disable_auto_linking": disable_auto_linking,
-                "monitor_mode": monitor_mode,
-                "auto_led": auto_led,
-                "deadman": deadman,
-            },
+            {"flags": flags},
             0.1,
         )
 

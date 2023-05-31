@@ -4,6 +4,7 @@ from asyncio import sleep
 import json
 from os import path
 import unittest
+from unittest.mock import patch
 
 import aiofiles
 from pubsub import pub
@@ -105,13 +106,14 @@ class TestNakResponses(unittest.TestCase):
             self._nak_count = 0
 
             def listen_for_nak(topic=pub.AUTO_TOPIC):
+                if not "nak." in topic.name:
+                    return
                 if self._current_test in str(topic):
-                    print(topic)
                     self._nak_count += 1
 
             tests = await import_commands()
             subscribe_topic(self.validate_values, pub.ALL_TOPICS)
-            subscribe_topic(listen_for_nak, "nak")
+            subscribe_topic(listen_for_nak, pub.ALL_TOPICS)
 
             for test_info in tests:
                 self._nak_count = 0
@@ -140,7 +142,10 @@ class TestNakResponses(unittest.TestCase):
                 self._assert_tests = test_command.get("response")
                 self._call_count = 0
                 try:
-                    response = await cmd.async_send(**send_params)
+                    with patch(
+                        "pyinsteon.handlers.outbound_base.NAK_RETRIES", 3
+                    ), patch("pyinsteon.handlers.outbound_base.NAK_RESEND_WAIT", 0.05):
+                        response = await cmd.async_send(**send_params)
                 except Exception as ex:
                     raise Exception(
                         "Failed test {} with error: {}".format(

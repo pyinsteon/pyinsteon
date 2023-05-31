@@ -44,7 +44,7 @@ class TestIdRequest(unittest.TestCase):
         self._cat = None
         self._subcat = None
         self._firmware = None
-        ack_topic = "ack.{}.id_request.direct".format(address.id)
+        ack_topic = "{}.ack.id_request.direct".format(address.id)
         direct_ack_topic = "{}.id_request.direct_ack".format(address.id)
         id_response_topic = "{}.{}.broadcast".format(
             address.id, ASSIGN_TO_ALL_LINK_GROUP
@@ -97,7 +97,7 @@ class TestIdRequest(unittest.TestCase):
         self._cat = None
         self._subcat = None
         self._firmware = None
-        ack_topic = "ack.{}.id_request.direct".format(address.id)
+        ack_topic = "{}.ack.id_request.direct".format(address.id)
         direct_nak_topic = "{}.id_request.direct_nak".format(address.id)
         all_link_handler = AssignToAllLinkGroupCommand(address)
         all_link_handler.subscribe(self.set_id)

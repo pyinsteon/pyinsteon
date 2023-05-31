@@ -55,7 +55,7 @@ class TestOnLevel(unittest.TestCase):
         self._on_level_2 = None
         self._on_level_3 = None
 
-        ack_topic = "ack.{}.{}.on.direct".format(self._address.id, 1)
+        ack_topic = "{}.ack.{}.on.direct".format(self._address.id, 1)
         direct_ack_topic = "{}.on.direct_ack".format(self._address.id)
 
         topics = [
@@ -88,7 +88,7 @@ class TestOnLevel(unittest.TestCase):
         self._on_level_2 = None
         self._on_level_3 = None
 
-        ack_topic = "ack.{}.{}.on.direct".format(self._address.id, 2)
+        ack_topic = "{}.ack.{}.on.direct".format(self._address.id, 2)
         direct_ack_topic = "{}.on.direct_ack".format(self._address.id)
 
         topics = [
@@ -122,7 +122,7 @@ class TestOnLevel(unittest.TestCase):
         cmd2_failure = 0xFF
         cmd2_unclear = 0xFC
 
-        ack_topic = "ack.{}.{}.on.direct".format(self._address.id, 3)
+        ack_topic = "{}.ack.{}.on.direct".format(self._address.id, 3)
         direct_nak_topic = "{}.on.direct_nak".format(self._address.id)
 
         topics_fail = [

@@ -6,6 +6,7 @@ from typing import Tuple
 from . import MessageBase
 from ...constants import AckNak, MessageId
 from ...data_types.message_flags import MessageFlags
+from ...topics import GET_IM_CONFIGURATION, GET_IM_INFO, SEND_EXTENDED
 from .message_definition import MessageDefinition
 from .message_definitions import FLD_EXT_SEND_ACK, INBOUND_MSG_DEF, MessageField
 
@@ -64,7 +65,9 @@ def create(raw_data: bytearray) -> Tuple[Inbound, bytearray]:
         flag_byte = 5
         flags = MessageFlags(data_bytes[flag_byte])
         if flags.is_extended:
-            msg_def = MessageDefinition(MessageId.SEND_EXTENDED, FLD_EXT_SEND_ACK)
+            msg_def = MessageDefinition(
+                MessageId.SEND_EXTENDED, SEND_EXTENDED, FLD_EXT_SEND_ACK
+            )
             if len(data_bytes) < len(msg_def):
                 _LOGGER.debug("Full extended message not received")
                 _LOGGER.debug("Returning: %s", data_bytes.hex())
@@ -93,7 +96,8 @@ def create(raw_data: bytearray) -> Tuple[Inbound, bytearray]:
         and len(data_bytes) >= 3
         and data_bytes[2] == 0x15
     ):
-        msg_def = MessageDefinition(msg_id, [MessageField("ack", 1, AckNak)])
+        topic = GET_IM_INFO if msg_id == MessageId.GET_IM_INFO else GET_IM_CONFIGURATION
+        msg_def = MessageDefinition(msg_id, topic, [MessageField("ack", 1, AckNak)])
     else:
         msg_def = INBOUND_MSG_DEF.get(msg_id)
 

@@ -6,7 +6,7 @@ from . import inbound_handler
 from ..address import Address
 from ..constants import AllLinkMode
 from ..data_types.all_link_record_flags import AllLinkRecordFlags
-from ..topics import READ_EEPROM_RESPONSE
+from ..topics import MODEM, READ_EEPROM_RESPONSE
 from .inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -16,7 +16,8 @@ class ReadEepromResponseHandler(InboundHandlerBase):
     """Receive a READ EEPROM response for an Insteon Modem."""
 
     arg_spec = {
-        "mem_addr": "int - Memory address of the ALDB record.",
+        "mem_hi": "int - MSB of the memory address of the ALDB record.",
+        "mem_lo": "int - LSB of the mMemory address of the ALDB record.",
         "in_use": "bool - Indicates if the ALDB record is in use.",
         "high_water_mark": "bool - Indicates if the ALDB record is the high water mark.",
         "controller": "bool - Indicates if the ALDB record is a controller record (True = controller, False = responder).",
@@ -31,7 +32,7 @@ class ReadEepromResponseHandler(InboundHandlerBase):
 
     def __init__(self):
         """Init the AllLinkRecordResponse class."""
-        super().__init__(READ_EEPROM_RESPONSE)
+        super().__init__(topic=READ_EEPROM_RESPONSE, address=MODEM)
         self._has_subscriber = False
 
     def subscribe(self, callback, force_strong_ref=False):
@@ -48,7 +49,8 @@ class ReadEepromResponseHandler(InboundHandlerBase):
     @inbound_handler
     def receive_record(
         self,
-        mem_addr: int,
+        mem_hi: int,
+        mem_low: int,
         flags: AllLinkRecordFlags,
         group: int,
         target: Address,
@@ -58,6 +60,7 @@ class ReadEepromResponseHandler(InboundHandlerBase):
     ):
         """Recieve an all link record."""
         controller = flags.link_mode == AllLinkMode.CONTROLLER
+        mem_addr = (mem_hi << 8) + mem_low + 7
         self._call_subscribers(
             mem_addr=mem_addr,
             in_use=flags.is_in_use,

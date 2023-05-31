@@ -138,6 +138,61 @@ ALDB_STATUS_CHANGED = "aldb_status_changed"
 EXTENDED_PROPERTIES_CHANGED = "extended_properties_changed"
 
 
+DEVICES = "devices"
+MODEM = "modem"
+
 GET_QUEUE_SIZE = "get_queue_size"
 SEND_QUEUE_SIZE = "send_queue_size"
 ADD_DEFAULT_LINKS = "add_default_links"
+
+PARAM_MAP = {
+    "topic": "str - Topic of the message.",
+    "address": "Address - Address of the device.",
+    "group": "int - Group number of the device, scene, etc.",
+    "cmd1": "int - Command 1 field of a standard or extended message.",
+    "cmd2": "int - Command 2 field of a standard or extended message.",
+    "user_data": "UserData - User data field of a standard or extended message.",
+    "target": "Address - Address of the target device",
+    "on_level": "int - On level of the On/Off command set.",
+    "status_type": "int - Status type for a status command.",
+    "flags_requested": "int - Group number of the device flags.",
+    "extended": "bool - Indicates if an extended command must be sent.",
+    "cmd": "int - Command to be sent (cmd2 field)",
+    "high_byte": "int - Most Significant Byte of a memory address to read / write.",
+    "low_byte": "int - Least significant byte of a memory address to read / write.",
+    "value": "int - A value to send in the command.",
+    "ramp_rate": "RampRate - Ramp rate of a dimmable device.",
+    "crc": "bool - Indicates a 2 byte check sum (CRC) in user data bytes 13 and 14 of an extended command.",
+    "action": "int - Action of the All-Link database command (0 = read, 2 = write).",
+    "mem_addr": "int - All-Link database memory address to read / write.",
+    "num_recs": "int - Number of records to read in an All-Link database read command.",
+    "controller": "bool - Indicates of the record is a controller or responder (True = controller, False = responder).",
+    "in_use": "bool - Indicates if the All-Link database record is in use.",
+    "high_water_mark": "bool - Indicates if the All-Link database record is the high water mark.",
+    "bit5": "bool - Indicates if bit 5 of the control flags of an All-Link database record is set.",
+    "bit4": "bool - Indicates if bit 4 of the control flags of an All-Link database record is set.",
+    "fast": "bool - Indicates if the command is an on or off fast command.",
+    "cat": "DeviceCategory - Device category of the device.",
+    "subcat": "int - Subcategory of the device.",
+    "program": "int - Program number of the device to activate or set.",
+    "timers": "int - Timer information.",
+    "position": "int - Position to set the window covering to.",
+    "degrees": "int - Degrees.",
+    "zone": "int - Zone number.",
+    "thermostat_mode": "ThermostatCommand - Mode to set the thermostat to.",
+    "info": "ThermostatZoneInfo - Thermostat zone information request type.",
+    "deadband": "int - Allowable range +/- a set point before a thermostat action (cool/heat) is intiated.",
+    "raw_x10": "int - X10 command byte.",
+    "x10_flag": "int - X10 command flags byte.",
+    "hops_left": "int - Number of hops remaining for message repeating (range 0 - 3).",
+    "auto_led": "bool - Indicates if the modem LED is in auto mode.",
+    "deadman": "bool - Indicates if the modem is in deadman mode.",
+    "disable_auto_linking": "bool - Indicates if the modem has disabled auto linking.",
+    "monitor_mode": "bool - Indicates if the modem is in monitor mode.",
+    "flags": "int - Message flags (range 0 - 255).",
+    "data1": "int - Data field 1 (range 0 - 255).",
+    "data2": "int - Data field 2 (range 0 - 255).",
+    "data3": "int - Data field 3 (range 0 - 255).",
+    "memory": "int - All-Link database memory address.",
+    "device": "Device | Address - Device object or address of device.",
+}

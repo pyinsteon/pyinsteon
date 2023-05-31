@@ -20,7 +20,7 @@ class StatusRequestCommand(DirectCommandHandlerBase):
         """Init the OnLevelCommand class."""
         super().__init__(topic=STATUS_REQUEST, address=address, group=None)
         self._status_type = status_type
-        self._subscriber_topic = f"handler.{self._address.id}.{self._status_type}.{STATUS_REQUEST}.{str(MessageFlagType.DIRECT).lower()}"
+        self._subscriber_topic = f"{self._address.id}.handler.{self._status_type}.{STATUS_REQUEST}.{str(MessageFlagType.DIRECT).lower()}"
 
     # pylint: disable=arguments-differ, useless-super-delegation
     async def async_send(self):

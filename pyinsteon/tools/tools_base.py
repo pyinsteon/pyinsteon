@@ -586,6 +586,16 @@ class ToolsBase(Cmd):
         await self.stdin.readline()
         self._add_filter()
 
+    def do_export_topics(self):
+        """Export all pubsub topics and thier definions."""
+        from pubsub.utils.xmltopicdefnprovider import exportTopicTreeSpecXml
+
+        from .. import pub
+
+        topic_mgr = pub.getDefaultTopicMgr()
+        topic = topic_mgr.getTopic(pub.ALL_TOPICS)
+        exportTopicTreeSpecXml("pyinsteon", topic)
+
     def _print_device_status(self, log_stdout, address):
         """Print device status to log."""
         device = devices[address]

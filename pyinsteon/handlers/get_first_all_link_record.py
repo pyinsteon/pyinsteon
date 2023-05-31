@@ -3,7 +3,7 @@ import logging
 
 from . import ack_handler, nak_handler
 from ..constants import ResponseStatus
-from ..topics import GET_FIRST_ALL_LINK_RECORD
+from ..topics import GET_FIRST_ALL_LINK_RECORD, MODEM
 from .outbound_base import OutboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ class GetFirstAllLinkRecordHandler(OutboundHandlerBase):
 
     def __init__(self):
         """Init the GetNextAldbRecordNak class."""
-        super().__init__(topic=GET_FIRST_ALL_LINK_RECORD)
+        super().__init__(topic=GET_FIRST_ALL_LINK_RECORD, address=MODEM)
         _LOGGER.debug("Setup GetFirstAllLinkRecordHandler")
 
     @ack_handler

@@ -1,4 +1,6 @@
 """Insteon Messages."""
+from typing import Any, Dict
+
 from ...constants import MESSAGE_START_CODE
 from ...utils import vars_to_bytes, vars_to_repr, vars_to_string
 from .message_definition import MessageDefinition
@@ -9,6 +11,8 @@ class MessageBase:
 
     def __init__(self, msg_def: MessageDefinition, **kwargs):
         """Initialize the MessageBase class."""
+        self._topic = msg_def.topic
+        self._modem_topic = msg_def.modem_topic
         self._start_code = MESSAGE_START_CODE
         self._message_id = msg_def.message_id
         self._fields = msg_def.fields
@@ -44,6 +48,16 @@ class MessageBase:
         return vars_to_string(flds)
 
     @property
+    def topic(self):
+        """Return the message topic."""
+        return self._topic
+
+    @property
+    def modem_topic(self):
+        """Return the modem relevance of the topic."""
+        return self._modem_topic
+
+    @property
     def start_code(self):
         """Return message start code 0x02."""
         return self._start_code
@@ -57,3 +71,10 @@ class MessageBase:
     def fields(self):
         """Return the fields contained in the message."""
         return self._fields
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the message to a dictionary."""
+        flds: Dict[str, Any] = {}
+        for field in self._fields:
+            flds[field.name] = getattr(self, field.name)
+        return flds

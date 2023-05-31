@@ -7,8 +7,9 @@ from typing import List, Tuple
 from ..address import Address
 from ..constants import ALDBStatus, EngineVersion, ReadWriteMode, ResponseStatus
 from ..managers.aldb_write_manager import ALDBWriteException, ALDBWriteManager
+from ..subscriber_base import SubscriberBase
 from ..topics import ALDB_LINK_CHANGED, ALDB_STATUS_CHANGED, ENGINE_VERSION
-from ..utils import publish_topic, subscribe_topic, unsubscribe_topic
+from ..utils import subscribe_topic
 from .aldb_record import ALDBRecord, new_aldb_record_from_existing
 
 _LOGGER = logging.getLogger(__name__)
@@ -25,6 +26,30 @@ HWM_RECORD = ALDBRecord(
     bit4=False,
     bit5=False,
 )
+
+
+class ALDBStatusChanged(SubscriberBase):
+    """Notification class for ALDB status changes."""
+
+    arg_spec = {"status": "ALDBStatus - Current status of the All-Link database."}
+
+    def call_subscribers(self, status):
+        """Notify subscribers of the status change."""
+        self._call_subscribers(status=status)
+
+
+class ALDBRecordChanged(SubscriberBase):
+    """Notification class for ALDB status changes."""
+
+    arg_spec = {
+        "record": "ALDBRecord - All-Link record that changed.",
+        "sender": "Address - Address of the device.",
+        "deleted": "bool - Indicates if the record was deleted.",
+    }
+
+    def call_subscribers(self, record, sender, deleted):
+        """Notify subscribers of the record change."""
+        self._call_subscribers(record=record, sender=sender, deleted=deleted)
 
 
 class ALDBBase(ABC):
@@ -48,6 +73,14 @@ class ALDBBase(ABC):
         self._read_manager = None
         self._write_manager = write_manager(self)
         self._dirty_records = {}
+
+        self._status_changed = ALDBStatusChanged(
+            f"{self._address.id}.{ALDB_STATUS_CHANGED}"
+        )
+        self._record_changed = ALDBRecordChanged(
+            f"{self._address.id}.{ALDB_LINK_CHANGED}"
+        )
+
         subscribe_topic(self.update_version, f"{repr(self._address)}.{ENGINE_VERSION}")
 
     def __len__(self):
@@ -172,19 +205,19 @@ class ALDBBase(ABC):
 
     def subscribe_status_changed(self, listener):
         """Subscribe to notification of ALDB load status changes."""
-        subscribe_topic(listener, f"{self._address.id}.{ALDB_STATUS_CHANGED}")
+        self._status_changed.subscribe(listener)
 
     def subscribe_record_changed(self, listener):
         """Subscribe to notification of ALDB record changes."""
-        subscribe_topic(listener, f"{self._address.id}.{ALDB_LINK_CHANGED}")
+        self._record_changed.subscribe(listener)
 
     def unsubscribe_status_changed(self, listener):
         """Unsubscribe to notification of ALDB load status changes."""
-        unsubscribe_topic(listener, f"{self._address.id}.{ALDB_STATUS_CHANGED}")
+        self._status_changed.unsubscribe(listener)
 
     def unsubscribe_record_changed(self, listener):
         """Unsubscribe to notification of ALDB record changes."""
-        unsubscribe_topic(listener, f"{self._address.id}.{ALDB_LINK_CHANGED}")
+        self._record_changed.unsubscribe(listener)
 
     @abstractmethod
     async def async_load(self, *args, **kwargs):
@@ -393,14 +426,13 @@ class ALDBBase(ABC):
         new_status = ALDBStatus(int(status))
         if new_status != self._status:
             self._status = new_status
-            publish_topic(
-                f"{self._address.id}.{ALDB_STATUS_CHANGED}", status=self._status
-            )
+            self._status_changed.call_subscribers(status=self._status)
 
     def _notify_change(self, record, force_delete=False):
         deleted = True if force_delete else not record.is_in_use
-        topic = f"{self._address.id}.{ALDB_LINK_CHANGED}"
-        publish_topic(topic, record=record, sender=self.address, deleted=deleted)
+        self._record_changed.call_subscribers(
+            record=record, sender=self.address, deleted=deleted
+        )
 
     def _next_new_mem_addr(self):
         """Return the next temporary memory address to use for a new record.

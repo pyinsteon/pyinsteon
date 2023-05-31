@@ -34,7 +34,7 @@ class HeartbeatManager(SubscriberBase):
         self._address = Address(address)
         self._group = group
         self._max_duration = max_duration
-        subscriber_topic = f"subscriber.{self._address.id}.heartbeat"
+        subscriber_topic = f"{self._address.id}.subscriber.heartbeat"
         super().__init__(subscriber_topic)
 
         self._on_inbound = OnLevelInbound(self._address, self._group)

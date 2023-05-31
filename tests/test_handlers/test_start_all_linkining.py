@@ -5,6 +5,7 @@ from pyinsteon import pub
 from pyinsteon.constants import AllLinkMode
 from pyinsteon.handlers.start_all_linking import StartAllLinkingCommandHandler
 from pyinsteon.topics import START_ALL_LINKING
+
 from tests.utils import TopicItem, async_case, send_topics
 
 
@@ -13,7 +14,7 @@ class TestSendAllLinkingCommandHandler(unittest.TestCase):
 
     def setUp(self):
         """Set up the test."""
-        self.ack_message = "ack.{}".format(START_ALL_LINKING)
+        self.ack_message = "modem.ack.{}".format(START_ALL_LINKING)
         self._sent = False
 
     @async_case

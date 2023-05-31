@@ -9,7 +9,7 @@ import aiofiles
 
 import pyinsteon.handlers.to_device as commands
 from pyinsteon import pub
-from pyinsteon.utils import subscribe_topic
+from pyinsteon.utils import subscribe_topic, unsubscribe_topic
 
 # pylint: disable=unused-import
 from pyinsteon.handlers.to_device.enter_linking_mode import EnterLinkingModeCommand
@@ -104,7 +104,7 @@ class TestDirectCommands(unittest.TestCase):
 
     async def validate_values(self, topic=pub.AUTO_TOPIC, **kwargs):
         """Validate what should be returned from the handler."""
-        if not topic.name.startswith("handler"):
+        if not "handler" in topic.name:
             return
         self._call_count += 1
         self._assert_result = not self._assert_tests
@@ -133,10 +133,10 @@ class TestDirectCommands(unittest.TestCase):
 
             tests = await import_commands()
             subscribe_topic(self.validate_values, pub.ALL_TOPICS)
-            subscribe_topic(listen_for_ack, "ack")
 
             for test_info in tests:
                 address = random_address()
+                subscribe_topic(listen_for_ack, f"{address.id}.ack")
                 self._current_test = test_info
                 _LOGGER.info("Starting test: %s", test_info)
                 test_command = tests[test_info]
@@ -165,6 +165,9 @@ class TestDirectCommands(unittest.TestCase):
                     raise Exception(
                         "Failed test {self._current_test} with error: {str(ex)}"
                     ) from ex
+                finally:
+                    unsubscribe_topic(listen_for_ack, f"{address.id}.ack")
+
                 await sleep(0.1)
                 try:
                     if test_response is not None:

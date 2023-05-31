@@ -1,6 +1,6 @@
 """Cancel All-Linking."""
 from . import ack_handler, nak_handler
-from ..topics import CANCEL_ALL_LINKING
+from ..topics import CANCEL_ALL_LINKING, MODEM
 from .outbound_base import OutboundHandlerBase
 
 
@@ -10,7 +10,7 @@ class CancelAllLinkingCommandHandler(OutboundHandlerBase):
 
     def __init__(self):
         """Init the CancelAllLinkingCommandHandler class."""
-        super().__init__(topic=CANCEL_ALL_LINKING)
+        super().__init__(topic=CANCEL_ALL_LINKING, address=MODEM)
 
     @ack_handler
     async def async_handle_ack(self):

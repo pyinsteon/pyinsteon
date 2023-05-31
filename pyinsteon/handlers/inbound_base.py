@@ -5,6 +5,7 @@ from abc import ABCMeta
 from ..address import Address
 from ..constants import MessageFlagType
 from ..subscriber_base import SubscriberBase
+from ..topics import MODEM
 from ..utils import build_topic
 
 
@@ -22,7 +23,10 @@ class InboundHandlerBase(SubscriberBase):
         else:
             self._message_type = None
         self._group = int(group) if group is not None else None
-        self._address = Address(address) if address is not None else None
+        if address == MODEM:
+            self._address = MODEM
+        else:
+            self._address = Address(address) if address is not None else None
         subscriber_topic = build_topic(
             prefix="handler",
             topic=topic,

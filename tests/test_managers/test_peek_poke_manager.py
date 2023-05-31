@@ -33,9 +33,9 @@ class TestPeekPokeManager(unittest.TestCase):
         mgr = PeekPokeManager(addr)
         mgr.subscribe_peek(get_peek_value)
 
-        set_msb_ack_topic = f"ack.{addr.id}.{SET_ADDRESS_MSB}.direct"
+        set_msb_ack_topic = f"{addr.id}.ack.{SET_ADDRESS_MSB}.direct"
         set_msb_dir_ack_topic = f"{addr.id}.{SET_ADDRESS_MSB}.direct_ack"
-        peek_ack_topic = f"ack.{addr.id}.{PEEK}.direct"
+        peek_ack_topic = f"{addr.id}.ack.{PEEK}.direct"
         peek_dir_ack_topic = f"{addr.id}.{PEEK}.direct_ack"
 
         set_msb_ack_item = TopicItem(
@@ -80,11 +80,11 @@ class TestPeekPokeManager(unittest.TestCase):
         mgr = PeekPokeManager(addr)
         mgr.subscribe_poke(get_poke_value)
 
-        set_msb_ack_topic = f"ack.{addr.id}.{SET_ADDRESS_MSB}.direct"
+        set_msb_ack_topic = f"{addr.id}.ack.{SET_ADDRESS_MSB}.direct"
         set_msb_dir_ack_topic = f"{addr.id}.{SET_ADDRESS_MSB}.direct_ack"
-        peek_ack_topic = f"ack.{addr.id}.{PEEK}.direct"
+        peek_ack_topic = f"{addr.id}.ack.{PEEK}.direct"
         peek_dir_ack_topic = f"{addr.id}.{PEEK}.direct_ack"
-        poke_ack_topic = f"ack.{addr.id}.{POKE}.direct"
+        poke_ack_topic = f"{addr.id}.ack.{POKE}.direct"
         poke_dir_ack_topic = f"{addr.id}.{POKE}.direct_ack"
 
         set_msb_ack_item = TopicItem(

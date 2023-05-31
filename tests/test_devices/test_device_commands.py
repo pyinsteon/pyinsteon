@@ -99,7 +99,7 @@ class TestDeviceCommands(unittest.TestCase):
         set_log_levels(
             logger="info",
             logger_pyinsteon="info",
-            logger_messages="info",
+            logger_messages="debug",
             logger_topics=True,
         )
 

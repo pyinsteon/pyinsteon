@@ -6,6 +6,7 @@ from unittest import TestCase
 import aiofiles
 
 from pyinsteon.protocol.msg_to_topic import convert_to_topic
+
 from tests import set_log_levels
 from tests.utils import async_case, hex_to_inbound_message
 
@@ -48,7 +49,10 @@ class TestMsgToTopic(TestCase):
             expected_topic = tests[test_info]["topic"]
             msg, _ = hex_to_inbound_message(msg_hex)
             topics = []
-            for topic, _ in convert_to_topic(msg):
+            things = []
+            for thing in convert_to_topic(msg):
+                things.append(thing)
+            for topic, _ in things:
                 topics.extend((topic.split(".")))
             try:
                 assert expected_topic in topics

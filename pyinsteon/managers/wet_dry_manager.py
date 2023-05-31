@@ -25,7 +25,7 @@ class WetDryManager(SubscriberBase):
         self._address = Address(address)
         self._wet_group = wet_group
         self._dry_group = dry_group
-        subscriber_topic = f"subscriber.{self._address.id}.wet_dry"
+        subscriber_topic = f"{self._address.id}.subscriber.wet_dry"
         super().__init__(subscriber_topic)
 
         self._dry_handler = OnLevelInbound(self._address, self._dry_group)

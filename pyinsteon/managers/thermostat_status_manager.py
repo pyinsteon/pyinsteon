@@ -7,14 +7,12 @@ from ..address import Address
 from ..constants import ResponseStatus, ThermostatMode
 from ..handlers.from_device.ext_get_response import ExtendedGetResponseHandler
 from ..handlers.to_device.extended_get import ExtendedGetCommand
+from ..subscriber_base import SubscriberBase
 from ..utils import (
     bit_is_set,
     calc_thermostat_mode,
     calc_thermostat_temp,
     multiple_status,
-    publish_topic,
-    subscribe_topic,
-    unsubscribe_topic,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -40,6 +38,91 @@ def _parse_status_flag(status_flag):
 PropertyInfo = namedtuple("PropertyInfo", "name group data_field bit set_cmd")
 
 
+class StatusNotifier(SubscriberBase):
+    """Notification class for status messages received."""
+
+    arg_spec = {
+        "day": "int - Thermostat current day of the week value.",
+        "hour": "int - Thermostat current hour of the day value.",
+        "minute": "int - Thermostat current minute of the hour value.",
+        "second": "int - Thermostat current second of the minute value.",
+        "system_mode": "SystemMode - Thermostat current system mode (heat, cool, etc.).",
+        "fan_mode": "SystemMode - Thermostat current system mode (auto, always_on, etc.).",
+        "cool_set_point": "int - Thermostat set point in cool mode.",
+        "heat_set_point": "int - Thermostat set point in heat mode.",
+        "humidity": "int - Thermostat current humidity reading.",
+        "temperature": "float - Thermostat current temperature reading.",
+        "cooling": "bool - Indicates if the thermostat temperature is above the cool set point.",
+        "heating": "bool - Indicates if the thermostat temperature is below the heat set point.",
+        "celsius": "bool - Indicates if the thermostat is measuring in celsius (True = celsius, False = fahrenheit).",
+    }
+
+    def call_subscribers(
+        self,
+        day,
+        hour,
+        minute,
+        second,
+        system_mode,
+        fan_mode,
+        cool_set_point,
+        heat_set_point,
+        humidity,
+        temperature,
+        cooling,
+        heating,
+        celsius,
+    ):
+        """Notify subscribers of the status received message."""
+        return super()._call_subscribers(
+            day=day,
+            hour=hour,
+            minute=minute,
+            second=second,
+            system_mode=system_mode,
+            fan_mode=fan_mode,
+            cool_set_point=cool_set_point,
+            heat_set_point=heat_set_point,
+            humidity=humidity,
+            temperature=temperature,
+            cooling=cooling,
+            heating=heating,
+            celsius=celsius,
+        )
+
+
+class SetPointNotifier(SubscriberBase):
+    """Notification class for set point status updates."""
+
+    arg_spec = {
+        "humidity_high": "int - Humidity high set point.",
+        "humidity_low": "int - Humidity low set point.",
+        "firmwire": "int - Thermostat firmware version.",
+        "cool_set_point": "int - Cool set point.",
+        "heat_set_point": "int - Heat set point.",
+        "rf_offset": "int - Temperature offset for callibration.",
+    }
+
+    def call_subscribers(
+        self,
+        humidity_high,
+        humidity_low,
+        firmwire,
+        cool_set_point,
+        heat_set_point,
+        rf_offset,
+    ):
+        """Notify subscribers of set point status updates."""
+        self._call_subscribers(
+            humidity_high=humidity_high,
+            humidity_low=humidity_low,
+            firmwire=firmwire,
+            cool_set_point=cool_set_point,
+            heat_set_point=heat_set_point,
+            rf_offset=rf_offset,
+        )
+
+
 class GetThermostatStatus:
     """Thermostat status manager."""
 
@@ -61,14 +144,15 @@ class GetThermostatStatus:
         self._status_response.subscribe(self._status_received)
         self._set_point_response.subscribe(self._set_point_received)
 
-        self._status_received_topic = (
-            f"{self._address.id}.thermostat_status_manager.status_received"
-        )
-        self._set_point_received_topic = (
-            f"{self._address.id}.thermostat_status_manager.set_point_received"
-        )
+        self._set_point_received_topic = ""
         self._status_listeners = []
         self._set_point_listeners = []
+        self._status_notifier = StatusNotifier(
+            f"{self._address.id}.thermostat_status_manager.status_received"
+        )
+        self._set_point_notifier = SetPointNotifier(
+            f"{self._address.id}.thermostat_status_manager.set_point_received"
+        )
 
     async def async_status(self):
         """Read the device status."""
@@ -78,25 +162,25 @@ class GetThermostatStatus:
 
     def subscribe_status(self, listener, force_strong_ref=False):
         """Subscribe to status updates."""
-        subscribe_topic(listener=listener, topic_name=self._status_received_topic)
+        self._status_notifier.subscribe(listener)
         if force_strong_ref and listener not in self._status_listeners:
             self._status_listeners.append(listener)
 
     def unsubscribe_status(self, listener):
         """Unsubscribe to status updates."""
-        unsubscribe_topic(listener=listener, topic_name=self._status_received_topic)
+        self._status_notifier.unsubscribe(listener)
         if listener in self._status_listeners:
             self._status_listeners.pop(listener)
 
     def subscribe_set_point(self, listener, force_strong_ref=False):
         """Subscribe to set point updates."""
-        subscribe_topic(listener=listener, topic_name=self._set_point_received_topic)
+        self._set_point_notifier.subscribe(listener)
         if force_strong_ref and listener not in self._set_point_listeners:
             self._set_point_listeners.append(listener)
 
     def unsubscribe_set_point(self, listener):
         """Unsubscribe to set point updates."""
-        unsubscribe_topic(listener=listener, topic_name=self._set_point_received_topic)
+        self._set_point_notifier.unsubscribe(listener)
         if listener in self._set_point_listeners:
             self._set_point_listeners.pop(listener)
 
@@ -156,8 +240,7 @@ class GetThermostatStatus:
         temp = calc_thermostat_temp(data["data9"], data["data10"])
         cooling, heating, _, celsius, _ = _parse_status_flag(data["data11"])
         heat_set_point = data["data12"]
-        publish_topic(
-            self._status_received_topic,
+        self._status_notifier.call_subscribers(
             day=day,
             hour=hour,
             minute=minute,
@@ -181,8 +264,7 @@ class GetThermostatStatus:
         cool_set_point = data["data7"]
         heat_set_point = data["data8"]
         rf_offset = data["data9"]
-        publish_topic(
-            topic=self._set_point_received_topic,
+        self._set_point_notifier.call_subscribers(
             humidity_high=humidity_high,
             humidity_low=humidity_low,
             firmwire=firmwire,

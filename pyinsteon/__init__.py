@@ -115,7 +115,7 @@ def _get_device_in_topic(topic: pub.Topic, **kwargs):
 
 def _log_all_topics(topic=pub.AUTO_TOPIC, **kwargs):
     """Log all topics from pyinsteon."""
-    _LOGGER_TOPICS.debug("Topic: %s data: %s", topic.name, kwargs)
+    _LOGGER_TOPICS.error("Topic: %s data: %s", topic.name, kwargs)
     if _LOGGER_TOPICS.level == 0 or _LOGGER_TOPICS.level > logging.DEBUG:
         addresses = _get_device_in_topic(topic, **kwargs)
         for addr in addresses:

@@ -24,9 +24,9 @@ class TestX10Devices(unittest.TestCase):
         """Test X10 Sensor device."""
         set_log_levels(
             logger="info",
-            logger_pyinsteon="info",
-            logger_messages="info",
-            logger_topics=False,
+            logger_pyinsteon="debug",
+            logger_messages="debug",
+            logger_topics=True,
         )
         device = X10OnOffSensor("a", 1)
         hc_uc = (HC_LOOKUP["a"] << 4) + UC_LOOKUP[1]

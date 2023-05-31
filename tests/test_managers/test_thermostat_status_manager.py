@@ -60,7 +60,7 @@ class TestThermostatStatusManager(TestCase):
         command = GetThermostatStatus(address=address)
         command.subscribe_status(_status_received)
         command.subscribe_set_point(_set_point_received)
-        ack_topic = f"ack.{address.id}.{EXTENDED_GET_SET}.direct"
+        ack_topic = f"{address.id}.ack.{EXTENDED_GET_SET}.direct"
         dir_ack_topic = f"{address.id}.{EXTENDED_GET_SET}.direct_ack"
         response_topic = f"{address.id}.{EXTENDED_GET_RESPONSE}.direct"
         ud_status_ack = UserData({"d13": 0x92, "d14": 0x96})

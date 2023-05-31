@@ -133,7 +133,7 @@ def make_command_response_messages(
     """Return a colleciton of ACK and Direct ACK responses to commands."""
 
     address = Address(address)
-    ack = "ack.{}.{}".format(address.id, topic)
+    ack = "{}.ack.{}".format(address.id, topic)
     direct_ack = "{}.{}.direct_ack".format(address.id, topic)
     return [
         TopicItem(ack, cmd_kwargs(cmd1, cmd2, user_data), 0.25),

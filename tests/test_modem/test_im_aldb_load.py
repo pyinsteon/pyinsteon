@@ -20,14 +20,17 @@ from tests.utils import TopicItem, async_case, random_address
 
 SEND_FIRST_TOPIC = "send.{}".format(GET_FIRST_ALL_LINK_RECORD)
 SEND_NEXT_TOPIC = "send.{}".format(GET_NEXT_ALL_LINK_RECORD)
-ACK_FIRST_TOPIC = "ack.{}".format(GET_FIRST_ALL_LINK_RECORD)
-ACK_NEXT_TOPIC = "ack.{}".format(GET_NEXT_ALL_LINK_RECORD)
-NAK_FIRST_TOPIC = "nak.{}".format(GET_FIRST_ALL_LINK_RECORD)
-NAK_NEXT_TOPIC = "nak.{}".format(GET_NEXT_ALL_LINK_RECORD)
+ACK_FIRST_TOPIC = "modem.ack.{}".format(GET_FIRST_ALL_LINK_RECORD)
+ACK_NEXT_TOPIC = "modem.ack.{}".format(GET_NEXT_ALL_LINK_RECORD)
+NAK_FIRST_TOPIC = "modem.nak.{}".format(GET_FIRST_ALL_LINK_RECORD)
+NAK_NEXT_TOPIC = "modem.nak.{}".format(GET_NEXT_ALL_LINK_RECORD)
 
 SEND_READ_EEPROM_TOPIC = "send.{}".format(READ_EEPROM)
-ACK_EEPROM_TOPIC = "ack.{}".format(READ_EEPROM)
-NAK_EEPROM_TOPIC = "nak.{}".format(READ_EEPROM)
+ACK_EEPROM_TOPIC = "modem.ack.{}".format(READ_EEPROM)
+NAK_EEPROM_TOPIC = "modem.nak.{}".format(READ_EEPROM)
+
+EEPROM_RECORD_RESPONSE_TOPIC = f"modem.{READ_EEPROM_RESPONSE}"
+ALDB_RECORD_RESPONSE_TOPIC = f"modem.{ALL_LINK_RECORD_RESPONSE}"
 
 LOCK = asyncio.Lock()
 
@@ -59,7 +62,8 @@ def fill_eeprom_rec(mem_addr, flags, group, target, data1=0, data2=0, data3=0):
 
     flags = AllLinkRecordFlags(flags)
     kwargs = {
-        "mem_addr": mem_addr,
+        "mem_hi": mem_addr >> 8,
+        "mem_low": (mem_addr & 0xFF) - 7,
         "flags": flags,
         # "high_water_mark": flags.is_hwm,
         # "controller": flags.mode == AllLinkMode.CONTROLLER ,
@@ -81,9 +85,9 @@ class TestModemALDBLoad(unittest.TestCase):
         """Set up the test."""
         set_log_levels(
             logger="debug",
-            logger_pyinsteon="info",
-            logger_messages="info",
-            logger_topics=False,
+            logger_pyinsteon="debug",
+            logger_messages="debug",
+            logger_topics=True,
         )
         _LOGGER.debug("Running setUp")
         self.record = 0
@@ -91,42 +95,42 @@ class TestModemALDBLoad(unittest.TestCase):
 
         self.topics_standard = [
             TopicItem(
-                ALL_LINK_RECORD_RESPONSE,
+                ALDB_RECORD_RESPONSE_TOPIC,
                 fill_rec(0x2E, 0x01, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                ALL_LINK_RECORD_RESPONSE,
+                ALDB_RECORD_RESPONSE_TOPIC,
                 fill_rec(0x2E, 0x02, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                ALL_LINK_RECORD_RESPONSE,
+                ALDB_RECORD_RESPONSE_TOPIC,
                 fill_rec(0x2E, 0x03, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                ALL_LINK_RECORD_RESPONSE,
+                ALDB_RECORD_RESPONSE_TOPIC,
                 fill_rec(0x2E, 0x04, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                ALL_LINK_RECORD_RESPONSE,
+                ALDB_RECORD_RESPONSE_TOPIC,
                 fill_rec(0x2E, 0x05, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                ALL_LINK_RECORD_RESPONSE,
+                ALDB_RECORD_RESPONSE_TOPIC,
                 fill_rec(0x2E, 0x06, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                ALL_LINK_RECORD_RESPONSE,
+                ALDB_RECORD_RESPONSE_TOPIC,
                 fill_rec(0x2E, 0x07, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                ALL_LINK_RECORD_RESPONSE,
+                ALDB_RECORD_RESPONSE_TOPIC,
                 fill_rec(0x2E, 0x08, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
@@ -134,47 +138,47 @@ class TestModemALDBLoad(unittest.TestCase):
 
         self.topics_eeprom = [
             TopicItem(
-                READ_EEPROM_RESPONSE,
+                EEPROM_RECORD_RESPONSE_TOPIC,
                 fill_eeprom_rec(0x1FFF, 0x2E, 0x01, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                READ_EEPROM_RESPONSE,
+                EEPROM_RECORD_RESPONSE_TOPIC,
                 fill_eeprom_rec(0x1FF7, 0x2E, 0x02, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                READ_EEPROM_RESPONSE,
+                EEPROM_RECORD_RESPONSE_TOPIC,
                 fill_eeprom_rec(0x1FEF, 0x2E, 0x03, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                READ_EEPROM_RESPONSE,
+                EEPROM_RECORD_RESPONSE_TOPIC,
                 fill_eeprom_rec(0x1FE7, 0x2E, 0x04, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                READ_EEPROM_RESPONSE,
+                EEPROM_RECORD_RESPONSE_TOPIC,
                 fill_eeprom_rec(0x1FDF, 0x2E, 0x05, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                READ_EEPROM_RESPONSE,
+                EEPROM_RECORD_RESPONSE_TOPIC,
                 fill_eeprom_rec(0x1FD7, 0x2E, 0x06, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                READ_EEPROM_RESPONSE,
+                EEPROM_RECORD_RESPONSE_TOPIC,
                 fill_eeprom_rec(0x1FCF, 0x2E, 0x07, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                READ_EEPROM_RESPONSE,
+                EEPROM_RECORD_RESPONSE_TOPIC,
                 fill_eeprom_rec(0x1FC7, 0x2E, 0x08, addr.id, 0x02, 0x03, 0x04),
                 0.2,
             ),
             TopicItem(
-                READ_EEPROM_RESPONSE,
+                EEPROM_RECORD_RESPONSE_TOPIC,
                 fill_eeprom_rec(
                     0x1FBF, 0x00, 0x00, Address("000000"), 0x00, 0x00, 0x00
                 ),
@@ -209,7 +213,7 @@ class TestModemALDBLoad(unittest.TestCase):
         """Test loading an empty modem ALDB."""
         async with LOCK:
             mgr = pub.getDefaultTopicMgr()
-            mgr.delTopic(ALL_LINK_RECORD_RESPONSE)
+            mgr.delTopic(ALDB_RECORD_RESPONSE_TOPIC)
             aldb = ModemALDB(random_address())
             aldb.read_write_mode = ReadWriteMode.STANDARD
             pub.subscribe(send_nak_response, SEND_FIRST_TOPIC)
@@ -227,7 +231,7 @@ class TestModemALDBLoad(unittest.TestCase):
         """Test loading 8 records into the modem ALDB."""
         async with LOCK:
             mgr = pub.getDefaultTopicMgr()
-            mgr.delTopic(ALL_LINK_RECORD_RESPONSE)
+            mgr.delTopic(ALDB_RECORD_RESPONSE_TOPIC)
             pub.subscribe(self.send_standard_response, SEND_FIRST_TOPIC)
             pub.subscribe(self.send_standard_response, SEND_NEXT_TOPIC)
 
@@ -240,6 +244,7 @@ class TestModemALDBLoad(unittest.TestCase):
             assert aldb.is_loaded
             _LOGGER.debug("ALDB Record Count: %d", len(aldb))
             assert len(aldb) == 8
+
             pub.unsubscribe(self.send_standard_response, SEND_FIRST_TOPIC)
             pub.unsubscribe(self.send_standard_response, SEND_NEXT_TOPIC)
 
@@ -248,7 +253,7 @@ class TestModemALDBLoad(unittest.TestCase):
         """Test loading 8 records into the modem ALDB."""
         async with LOCK:
             mgr = pub.getDefaultTopicMgr()
-            mgr.delTopic(ALL_LINK_RECORD_RESPONSE)
+            mgr.delTopic(ALDB_RECORD_RESPONSE_TOPIC)
             pub.subscribe(self.send_eeprom_response, SEND_READ_EEPROM_TOPIC)
 
             aldb = ModemALDB(random_address())

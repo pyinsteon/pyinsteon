@@ -15,10 +15,21 @@ from ..handlers.to_device.product_data_request import ProductDataRequestCommand
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
 from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
 from ..managers.link_manager.default_links import async_add_default_links
+from ..subscriber_base import SubscriberBase
 from ..topics import ENGINE_VERSION
-from ..utils import multiple_status, publish_topic
+from ..utils import multiple_status
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class EngineVersionChanged(SubscriberBase):
+    """Notification class for engine version changes."""
+
+    arg_spec = {"version": "EngineVersion - Current version of the device engine."}
+
+    def call_subscribers(self, version):
+        """Notify subscribers of the engine version change."""
+        return super()._call_subscribers(version=version)
 
 
 class Device(ABC):
@@ -64,6 +75,10 @@ class Device(ABC):
             self._address, self._operating_flags
         )
         self._ext_property_manager = GetSetExtendedPropertyManager(self._address)
+
+        self._engine_version_changed = EngineVersionChanged(
+            f"{self.address.id}.{ENGINE_VERSION}"
+        )
 
         self._register_op_flags_and_props()
         self._register_groups()
@@ -183,9 +198,7 @@ class Device(ABC):
         if version in [EngineVersion.I2, EngineVersion.I2CS]:
             self._op_flags_manager.extended_write = True
         self._engine_version = version
-        publish_topic(
-            f"{self._address.id}.{ENGINE_VERSION}", version=self._engine_version
-        )
+        self._engine_version_changed.call_subscribers(version=self._engine_version)
 
     async def async_status(self, group=None):
         """Get the status of the device."""

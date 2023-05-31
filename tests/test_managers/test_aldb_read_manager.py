@@ -72,7 +72,7 @@ def gen_peek_topic_items(address, record):
     mem_hi = record.mem_addr >> 8
     mem_lo = record.mem_addr & 0xFF
 
-    msb_ack_topic = f"ack.{address.id}.{SET_ADDRESS_MSB}.direct"
+    msb_ack_topic = f"{address.id}.ack.{SET_ADDRESS_MSB}.direct"
     msb_dir_ack_topic = f"{address.id}.{SET_ADDRESS_MSB}.direct_ack"
     rec_bytes = bytearray(
         [
@@ -105,7 +105,7 @@ def gen_peek_topic_items(address, record):
                 0.2,
             )
         )
-        peek_ack_topic = f"ack.{address.id}.{PEEK}.direct"
+        peek_ack_topic = f"{address.id}.ack.{PEEK}.direct"
         topic_items.append(
             TopicItem(
                 peek_ack_topic,
@@ -151,7 +151,7 @@ class TestAldbReadManager(unittest.TestCase):
             {"d1": 0x00, "d2": 0x00, "d3": mem_hi, "d4": mem_lo, "d5": 1}
         )
 
-        ack_topic = f"ack.{address.id}.{EXTENDED_READ_WRITE_ALDB}.direct"
+        ack_topic = f"{address.id}.ack.{EXTENDED_READ_WRITE_ALDB}.direct"
         ack_topic_item = TopicItem(
             ack_topic, {"cmd1": 0x2F, "cmd2": 0, "user_data": user_data}, 0.5
         )
@@ -193,7 +193,7 @@ class TestAldbReadManager(unittest.TestCase):
         mgr = ALDBReadManager(address=address, first_record=0x0FFF)
         user_data = UserData({"d1": 0x00, "d2": 0x00, "d3": 0, "d4": 0, "d5": 0})
 
-        ack_topic = f"ack.{address.id}.{EXTENDED_READ_WRITE_ALDB}.direct"
+        ack_topic = f"{address.id}.ack.{EXTENDED_READ_WRITE_ALDB}.direct"
         ack_topic_item = TopicItem(
             ack_topic, {"cmd1": 0x2F, "cmd2": 0, "user_data": user_data}, 0.5
         )

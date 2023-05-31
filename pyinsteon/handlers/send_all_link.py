@@ -1,6 +1,6 @@
 """Send a Start All-Linking command."""
 from . import ack_handler, nak_handler
-from ..topics import SEND_ALL_LINK_COMMAND
+from ..topics import MODEM, SEND_ALL_LINK_COMMAND
 from .outbound_base import OutboundHandlerBase
 
 
@@ -9,7 +9,7 @@ class SendAllLinkCommandHandler(OutboundHandlerBase):
 
     def __init__(self):
         """Init the StartAllLinking class."""
-        super().__init__(SEND_ALL_LINK_COMMAND)
+        super().__init__(topic=SEND_ALL_LINK_COMMAND, address=MODEM)
 
     # pylint: disable=arguments-differ
     async def async_send(self, group: int, cmd1: int, cmd2: int) -> bool:

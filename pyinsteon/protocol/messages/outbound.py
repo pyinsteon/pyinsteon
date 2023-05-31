@@ -1,6 +1,7 @@
 """Create outbound messages."""
 import logging
 
+from . import MessageBase
 from ... import pub
 from ...address import Address
 from ...constants import (
@@ -41,7 +42,6 @@ from ...topics import (
 )
 from ...utils import subscribe_topic
 from ..topic_converters import topic_to_message_handler, topic_to_message_type
-from . import MessageBase
 from .message_definition import MessageDefinition
 from .message_definitions import FLD_EXT_SEND, FLD_STD_SEND, OUTBOUND_MSG_DEF
 
@@ -155,7 +155,7 @@ def send_standard(
     """Create a SEND_STANDARD outbound message."""
     flags = flags if flags is not None else _create_flags(topic, False)
     kwargs = {"address": address, "flags": flags, "cmd1": cmd1, "cmd2": cmd2}
-    msg_def = MessageDefinition(MessageId.SEND_EXTENDED, FLD_STD_SEND)
+    msg_def = MessageDefinition(MessageId.SEND_EXTENDED, SEND_EXTENDED, FLD_STD_SEND)
     msg = Outbound(msg_def, **kwargs)
     outbound_write_manager.write(msg=msg, priority=priority)
 
@@ -179,7 +179,7 @@ def send_extended(
         "cmd2": cmd2,
         "user_data": user_data,
     }
-    msg_def = MessageDefinition(MessageId.SEND_EXTENDED, FLD_EXT_SEND)
+    msg_def = MessageDefinition(MessageId.SEND_EXTENDED, SEND_EXTENDED, FLD_EXT_SEND)
     msg = Outbound(msg_def, **kwargs)
     outbound_write_manager.write(msg=msg, priority=priority)
 
