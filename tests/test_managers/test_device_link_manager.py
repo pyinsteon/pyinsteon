@@ -40,41 +40,76 @@ def _add_rec_to_aldb(device, record):
     return record.mem_addr
 
 
-# evices = DeviceManager()
-
-
-# @pytest.fixture(autouse=True)
-# def devices_fixture():
-#     """Load the devices fixture."""
-#     with patch.object(pyinsteon, "devices", devices):
-#         yield
+async def _load_devices(lock):
+    """Set up the devices and modem."""
+    async with lock:
+        if not devices.modem or devices.modem.address.id != "111111":
+            pass
+        modem = Hub("111111", 0x03, 51, 165, "Instoen modem")
+        devices.modem = modem
+        await load_devices(devices)
+        await asyncio.sleep(0.3)
+        _reset_devices(list(devices))
+        assert len(link_manager.links) == 2
 
 
 class TestDeviceLinkManager(unittest.TestCase):
     """Test the DeviceLinkManager class."""
+
+    _test_lock = asyncio.Lock()
 
     def setUp(self) -> None:
         """Set up the tests."""
         set_log_levels(logger_topics=True)
 
     @async_case
-    async def test_device_links(self):
+    async def test_device_links_broadcast(self):
         """Test device links."""
-
-        modem = Hub("111111", 0x03, 51, 165, "Instoen modem")
-        devices.modem = modem
-        # link_manager = DeviceLinkManager(devices)
-        await load_devices(devices)
-        await asyncio.sleep(1)
-        _reset_devices(list(devices))
-        assert len(link_manager.links) == 2
+        await _load_devices(self._test_lock)
 
         topic = "1a1a1a.1.on.all_link_broadcast"
         topic_item = TopicItem(topic, cmd_kwargs(0x11, 0xFF, None, "00.00.01"), 0)
+        devices["3c3c3c"].async_status.call_count = 0
         send_topics([topic_item])
-        await asyncio.sleep(2)
+        await asyncio.sleep(0.2)
         assert devices["3c3c3c"].async_status.call_count == 1
 
+    @async_case
+    async def test_device_links_cleanup(self):
+        """Test device links."""
+
+        await _load_devices(self._test_lock)
+
+        topic = "1a1a1a.1.off.all_link_cleanup"
+        topic_item = TopicItem(topic, cmd_kwargs(0x11, 0xFF, None, "11.11.11"), 0)
+        devices["3c3c3c"].async_status.call_count = 0
+        send_topics([topic_item])
+        await asyncio.sleep(0.2)
+        assert devices["3c3c3c"].async_status.call_count == 1
+
+    @async_case
+    async def test_device_links_dedup(self):
+        """Test device links."""
+        await _load_devices(self._test_lock)
+
+        topic_broadcast = "1a1a1a.1.on_fast.all_link_broadcast"
+        topic_broadcast_item = TopicItem(
+            topic_broadcast, cmd_kwargs(0x11, 0xFF, None, "00.00.01"), 0
+        )
+
+        topic_cleanup = "1a1a1a.1.on_fast.all_link_cleanup"
+        topic_cleanup_item = TopicItem(
+            topic_cleanup, cmd_kwargs(0x11, 0xFF, None, "11.11.11"), 0.2
+        )
+        devices["3c3c3c"].async_status.call_count = 0
+        send_topics([topic_broadcast_item, topic_cleanup_item])
+        await asyncio.sleep(1)
+        assert devices["3c3c3c"].async_status.call_count == 1
+
+    @async_case
+    async def test_adding_removing_links(self):
+        """Test adding or removing links."""
+        await _load_devices(self._test_lock)
         controller = devices["1a1a1a"].address
         responder = devices["3c3c3c"].address
         link_data = link_manager.links[controller][1][responder]
