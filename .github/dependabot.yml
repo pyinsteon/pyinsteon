@@ -5,21 +5,21 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: pylint
-    versions:
-    - 2.6.0
-    - 2.6.2
-    - 2.7.0
-    - 2.7.1
-    - 2.7.2
-    - 2.7.3
-    - 2.7.4
-    - 2.8.1
-  - dependency-name: flake8
-    versions:
-    - 3.8.4
-    - 3.9.0
-  - dependency-name: pydocstyle
-    versions:
-    - 5.1.1
+  groups:
+    dev-dependencies:
+      patterns:
+        - "flake8-docstrings"
+        - "flake8"
+        - "flake8-noqa"
+        - "flake8-comprehensions"
+        - "pyflakes"
+        - "pycodestyle"
+        - "pydocstyle"
+        - "pylint"
+        - "isort"
+        - "async_generator"
+        - "black"
+        - "pytest-cov"
+        - "pytest"
+        - "pre-commit"
+
