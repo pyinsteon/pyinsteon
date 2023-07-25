@@ -217,9 +217,12 @@ class DeviceLinkManager:
             return
         if group == 0:
             return
+        _LOGGER.debug("Checking links for controller %s group %s", controller, group)
         if self._is_duplicate_message(controller, group, command):
+            _LOGGER.debug("Duplicate message.")
             return
         responder_data = self.get_responders(controller, group)
+        _LOGGER.debug("Found responders %s", list(responder_data))
         for addr, data_list in responder_data.items():
             device = self._devices[addr]
             if device:
