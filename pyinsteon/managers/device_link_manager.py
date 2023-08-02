@@ -1,7 +1,8 @@
 """Manages links between devices to identify device state of responders."""
 import asyncio
+from datetime import datetime, timedelta
 import logging
-from typing import Dict, Union
+from typing import Dict, Tuple, Union
 
 import voluptuous as vol
 
@@ -13,6 +14,7 @@ from ..topics import ALDB_LINK_CHANGED
 from ..utils import subscribe_topic, unsubscribe_topic
 
 _LOGGER = logging.getLogger(__name__)
+TIMEOUT_DUPLICATE = timedelta(seconds=10)
 ControllerAddress = Address
 ResponderAddress = Address
 Group = int
@@ -109,7 +111,7 @@ class DeviceLinkManager:
         # The _last_command property holds the last command to change a device group
         # If the last command is the same as the current command, do nothing.
         # Otherwise we send a status request
-        self._last_command: Dict[Address, Dict[int, str]] = {}
+        self._last_command: Dict[Address, Dict[int, Tuple[str, datetime]]] = {}
 
     @property
     def links(
@@ -217,12 +219,9 @@ class DeviceLinkManager:
             return
         if group == 0:
             return
-        _LOGGER.debug("Checking links for controller %s group %s", controller, group)
         if self._is_duplicate_message(controller, group, command):
-            _LOGGER.debug("Duplicate message.")
             return
         responder_data = self.get_responders(controller, group)
-        _LOGGER.debug("Found responders %s", list(responder_data))
         for addr, data_list in responder_data.items():
             device = self._devices[addr]
             if device:
@@ -253,9 +252,17 @@ class DeviceLinkManager:
         This method is intended to reduce the number of status request changes to responders.
         """
         last_command = self._last_command.get(controller, {}).get(group)
-        if command == last_command:
+        if not last_command:
+            self._save_last_command(controller, group, command)
+            return False
+        tdelta = datetime.now() - last_command[1]
+        if command == last_command[0] and tdelta < TIMEOUT_DUPLICATE:
             return True
-        controller_commands = self._last_command.get(controller, {})
-        controller_commands[group] = command
-        self._last_command[controller] = controller_commands
+        self._save_last_command(controller, group, command)
         return False
+
+    def _save_last_command(self, controller: Address, group: int, command: str):
+        """Save the date and time of the last command from a controller."""
+        controller_commands = self._last_command.get(controller, {})
+        controller_commands[group] = (command, datetime.now())
+        self._last_command[controller] = controller_commands
