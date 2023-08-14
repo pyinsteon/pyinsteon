@@ -86,7 +86,7 @@ class OpFlagPropertyByte(DeviceFlagBase):
         It sets the `new_value` property and the `is_dirty` property.
         """
         for bit, prop in self._flags.items():
-            new_val = bit_is_set(value, bit)
+            new_val = bit_is_set(value, bit) if value is not None else None
             prop.new_value = new_val
 
     def set_value(self, value):
