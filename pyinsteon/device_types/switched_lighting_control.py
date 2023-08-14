@@ -1,10 +1,11 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
 import asyncio
 from functools import partial
-from typing import Iterable
+from typing import Dict, Iterable
 
 from ..config import (
     BLUE_LED_OFF,
+    DO_NOT_ROTATE_TO_OFF,
     DUAL_LINE_ON,
     GREEN_LED_OFF,
     KEY_BEEP_ON,
@@ -13,9 +14,9 @@ from ..config import (
     LED_BLINK_ON_TX_ON,
     LED_DIMMING,
     LED_OFF,
-    LOAD_SENSE_2_ON,
     LOAD_SENSE_ON,
     MOMENTARY_LINE_ON,
+    NO_CACHE,
     NON_TOGGLE_MASK,
     NON_TOGGLE_ON_OFF_MASK,
     OFF_MASK,
@@ -27,12 +28,14 @@ from ..config import (
     RESUME_DIM_ON,
     REVERSED_ON,
     RF_DISABLE_ON,
+    SKIP_SOME_HOPS,
     THREE_WAY_ON,
     TOGGLE_BUTTON,
     TRIGGER_GROUP_MASK,
     USE_LOCAL_PROFILE,
     X10_HOUSE,
     X10_UNIT,
+    YAKETY_YAK,
 )
 from ..config.radio_button import RadioButtonGroupsProperty
 from ..config.toggle_button import ToggleButtonProperty
@@ -57,7 +60,7 @@ from ..handlers.to_device.set_leds import SetLedsCommandHandler
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..utils import bit_is_set, multiple_status, set_bit
 from .device_commands import GET_LEDS_COMMAND, SET_LEDS_COMMAND, STATUS_COMMAND
-from .i3_base import I3Base
+from .i3_base import I3Base, OpsFlagDef
 from .on_off_controller_base import ON_LEVEL_MANAGER
 from .on_off_responder_base import OnOffResponderBase
 
@@ -653,25 +656,42 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
         self._groups[self.BOTTOM_GROUP].value = 1 if (status & 0x02) else 0
 
 
+LOAD_SENSE_ON_TOP = f"{LOAD_SENSE_ON}_top"
+LOAD_SENSE_ON_BOTTOM = f"{LOAD_SENSE_ON}_bottom"
+
+
 # pylint: disable=too-many-ancestors
 class SwitchedLightingControl_I3Outlet(I3Base, SwitchedLightingControl_OnOffOutlet):
     """I3 Outlet device."""
 
+    _op_flags_data_4: Dict[int, str] = {
+        0: YAKETY_YAK,
+        1: RED_LED_OFF,
+        2: SKIP_SOME_HOPS,
+        3: GREEN_LED_OFF,
+        4: BLUE_LED_OFF,
+        5: NO_CACHE,
+        6: DO_NOT_ROTATE_TO_OFF,
+        7: USE_LOCAL_PROFILE,
+    }  # used for 2E 01 read and write command
+
     def _register_op_flags_and_props(self):
-        self._add_operating_flag(
-            LOAD_SENSE_ON, 0, 2, 4, 5, prop_type=PropertyType.ADVANCED
+        load_sense_on_def = OpsFlagDef(
+            LOAD_SENSE_ON_BOTTOM, 0, 2, 4, 5, prop_type=PropertyType.ADVANCED
         )
-        self._add_operating_flag(
-            LOAD_SENSE_2_ON, 0, 3, 6, 7, prop_type=PropertyType.ADVANCED
+        load_sense_2_on_def = OpsFlagDef(
+            LOAD_SENSE_ON_TOP, 0, 3, 6, 7, prop_type=PropertyType.ADVANCED
         )
-        self._add_operating_flag(
+        use_local_profile_def = OpsFlagDef(
             USE_LOCAL_PROFILE, 7, 7, 0x34, 0x35, prop_type=PropertyType.HIDDEN
         )
         self._register_default_op_flags_and_props(
             dimmable=False,
-            ops_flags_1={2: LOAD_SENSE_ON, 3: LOAD_SENSE_2_ON},
-            ops_flags_2={},
-            ops_flags_3={7: USE_LOCAL_PROFILE},
+            additional_flags=[
+                load_sense_on_def,
+                load_sense_2_on_def,
+                use_local_profile_def,
+            ],
         )
         self._operating_flags[RED_LED_OFF].property_type = PropertyType.HIDDEN
         self._operating_flags[GREEN_LED_OFF].property_type = PropertyType.HIDDEN
