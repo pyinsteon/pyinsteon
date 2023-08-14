@@ -35,3 +35,5 @@ TRIGGER_SCENE_OFF_COMMAND = "trigger_scene_off"
 
 GET_IM_CONFIG_COMMAND = "get_im_config"
 SET_IM_CONFIG_COMMAND = "set_im_config"
+
+MANUAL_CHANGE = "manual_change"
