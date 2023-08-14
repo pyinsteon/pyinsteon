@@ -24,6 +24,8 @@ from .topics import (
     FX_USERNAME,
     GET_INSTEON_ENGINE_VERSION,
     GET_OPERATING_FLAGS,
+    GROUP_OFF,
+    GROUP_ON,
     ID_REQUEST,
     INSTANT_CHANGE,
     IO_ALARM_DATA_REQUEST,
@@ -645,6 +647,24 @@ commands.add(
 commands.add(
     topic=BEEP,
     cmd1=0x30,
+    cmd2=None,
+    ud_allowed=False,
+    ud_required=False,
+    userdata=None,
+    use_group=False,
+)
+commands.add(
+    topic=GROUP_ON,
+    cmd1=0x32,
+    cmd2=None,
+    ud_allowed=False,
+    ud_required=False,
+    userdata=None,
+    use_group=False,
+)
+commands.add(
+    topic=GROUP_OFF,
+    cmd1=0x33,
     cmd2=None,
     ud_allowed=False,
     ud_required=False,

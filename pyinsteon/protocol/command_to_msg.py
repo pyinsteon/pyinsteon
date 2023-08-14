@@ -38,6 +38,8 @@ from ..topics import (
     FX_USERNAME,
     GET_INSTEON_ENGINE_VERSION,
     GET_OPERATING_FLAGS,
+    GROUP_OFF,
+    GROUP_ON,
     ID_REQUEST,
     INSTANT_CHANGE,
     IO_ALARM_DATA_REQUEST,
@@ -560,6 +562,18 @@ def extended_trigger_all_link(
 def beep(address: Address, topic=pub.AUTO_TOPIC):
     """Create a BEEP command."""
     _create_direct_message(topic=topic, address=address)
+
+
+@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=GROUP_ON)
+def group_on(address: Address, group: int, topic=pub.AUTO_TOPIC):
+    """Create a GROUP ON command."""
+    _create_direct_message(topic=topic, address=address, cmd2=group)
+
+
+@topic_to_command_handler(register_list=COMMAND_REGISTER, topic=GROUP_OFF)
+def group_off(address: Address, group: int, topic=pub.AUTO_TOPIC):
+    """Create a GROUP OFF command."""
+    _create_direct_message(topic=topic, address=address, cmd2=group)
 
 
 @topic_to_command_handler(register_list=COMMAND_REGISTER, topic=FACTORY_RESET)
