@@ -108,6 +108,7 @@ good-names = [
     "DimmableLightingControl_Dial",
     "DimmableLightingControl_DinRail",
     "DimmableLightingControl_FanLinc",
+    "DimmableLightingControl_I3_KeypadLinc_4",
     "DimmableLightingControl_InLineLinc01",
     "DimmableLightingControl_InLineLinc02",
     "DimmableLightingControl_KeypadLinc",
