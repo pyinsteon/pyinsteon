@@ -1142,6 +1142,10 @@ class DimmableLightingControl_I3_KeypadLinc_4(I3VariableResponderBase):
         """
         self._register_default_op_flags_and_props(dimmable=True, additional_flags=[])
 
+        self._add_operating_flag(
+            TRIGGER_GROUP_MASK, 8, None, None, None, False, PropertyType.ADVANCED
+        )
+        self._operating_flags[TRIGGER_GROUP_MASK].is_read_only = False
         self._properties[LOAD_BUTTON_NUMBER] = ExtendedProperty(
             address=self._address,
             name=LOAD_BUTTON_NUMBER,
@@ -1183,6 +1187,9 @@ class DimmableLightingControl_I3_KeypadLinc_4(I3VariableResponderBase):
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
         self._handlers[GET_LEDS_COMMAND] = StatusRequestCommand(
             self._address, status_type=1
+        )
+        self._add_ext_prop_write_manager(
+            {3: self._operating_flags[TRIGGER_GROUP_MASK]}, 0x0C, 0x00, 0x00
         )
 
     def _subscribe_to_handelers_and_managers(self):

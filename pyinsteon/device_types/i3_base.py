@@ -40,7 +40,6 @@ from ..config import (
     RF_DISABLE_ON,
     SKIP_SOME_HOPS,
     TEND_ON,
-    TRIGGER_GROUP_MASK,
     UNUSED,
     YAKETY_YAK,
 )
@@ -220,9 +219,6 @@ def default_i3_ext_props(
         props.append(
             ExtPropDef(NON_TOGGLE_ON_OFF_MASK, int, False, PropertyType.ADVANCED, None)
         )
-        props.append(
-            ExtPropDef(TRIGGER_GROUP_MASK, int, False, PropertyType.ADVANCED, None)
-        )
     else:
         props.append(ExtPropDef(RAMP_RATE, int, False, show_dim_adv, None))
         props.append(ExtPropDef(ON_LEVEL, int, False, show_dim, None))
@@ -260,7 +256,6 @@ def properties_2e_00_xx_00_def(
             props[4] = properties[OFF_MASK]
             props[10] = properties[NON_TOGGLE_MASK]
             props[13] = properties[NON_TOGGLE_ON_OFF_MASK]
-            props[14] = properties[TRIGGER_GROUP_MASK]
             writers.append(ExtPropWriteDef(0x00, group, 0x02, {3: properties[ON_MASK]}))
             writers.append(
                 ExtPropWriteDef(0x00, group, 0x03, {3: properties[OFF_MASK]})
@@ -270,11 +265,8 @@ def properties_2e_00_xx_00_def(
             )
             writers.append(
                 ExtPropWriteDef(
-                    0x00, 0x00, 0x0A, {3: properties[NON_TOGGLE_ON_OFF_MASK]}
+                    0x00, 0x00, 0x0B, {3: properties[NON_TOGGLE_ON_OFF_MASK]}
                 )
-            )
-            writers.append(
-                ExtPropWriteDef(0x00, 0x00, 0x0B, {3: properties[TRIGGER_GROUP_MASK]})
             )
         elif group not in [0, 1]:
             props[3] = properties[f"{ON_MASK}_{group}"]
