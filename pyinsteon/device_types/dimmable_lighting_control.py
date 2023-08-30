@@ -1242,8 +1242,7 @@ class DimmableLightingControl_I3_KeypadLinc_4(I3VariableResponderBase):
             if set_off and new_state:
                 return False
             # Else we follow the state as is?????
-            else:
-                return bool(new_state)
+            return bool(new_state)
         return bool(self._groups[button2].value)
 
     def _has_follow_leds(self, button):
@@ -1294,14 +1293,14 @@ class DimmableLightingControl_I3_KeypadLinc_4(I3VariableResponderBase):
             self._groups[group].value = value
         self._events[group][event].trigger(value)
 
-        for name, value in led_kwargs.items():
+        for name, btn_value in led_kwargs.items():
             button = int(name[-1])
             state = self._groups.get(button)
             if state:
-                if button == self.load_button and bool(state.value) != value:
+                if button == self.load_button and bool(state.value) != btn_value:
                     await self.async_status()
                 else:
-                    state.value = value
+                    state.value = btn_value
 
     async def _async_led_follow_check(self, group, on_level):
         """Update LEDs that follow the changed LED."""
@@ -1323,7 +1322,7 @@ class DimmableLightingControl_I3_KeypadLinc_4(I3VariableResponderBase):
             if group == value:
                 relay_mode = self._operating_flags[RELAY_MODE_OFF].value
                 relay_mode = False if relay_mode is None else relay_mode
-                self._groups[group].is_dimmable = not relay_mode
+                state.is_dimmable = not relay_mode
             else:
                 state.is_dimmable = False
         load_value = self._groups[orig_load_button].value
