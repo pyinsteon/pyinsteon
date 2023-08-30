@@ -434,7 +434,7 @@ class TestToolsConfigMenu(ToolsTestBase):
                 device_01.properties[ON_LEVEL].new_value = 100
                 await cmd_mgr.async_cmdloop("")
                 buffer = log_file_lines(curr_dir)
-                assert buffer[3] == "Operating Flag                  Value\n"
+                assert buffer[3] == "Property                        Value\n"
                 std_flags_1 = [
                     prop
                     for _, prop in device_01.operating_flags.items()
@@ -445,7 +445,7 @@ class TestToolsConfigMenu(ToolsTestBase):
                     for _, prop in device_01.properties.items()
                     if prop.property_type == PropertyType.STANDARD
                 ]
-                assert len(buffer) == len(std_flags_1) + len(std_props_1) + 9
+                assert len(buffer) == len(std_flags_1) + len(std_props_1) + 7
                 for line in buffer:
                     if line.startswith(ON_LEVEL):
                         assert line[len(ON_LEVEL)] == "*"
@@ -475,8 +475,8 @@ class TestToolsConfigMenu(ToolsTestBase):
                     remove_log_file(curr_dir)
                     await cmd_mgr.async_cmdloop("")
                     buffer = log_file_lines(curr_dir)
-                    assert buffer[2] == "Operating Flag                  Value\n"
-                    assert len(buffer) == len(std_flags_2) + len(std_props_2) + 8
+                    assert buffer[2] == "Property                        Value\n"
+                    assert len(buffer) == len(std_flags_2) + len(std_props_2) + 6
 
                 # Print config with command line mode with invalid address
                 cmd_mgr, _, _ = self.setup_cmd_tool(

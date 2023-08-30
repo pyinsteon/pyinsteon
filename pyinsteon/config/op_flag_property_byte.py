@@ -70,7 +70,7 @@ class OpFlagPropertyByte(DeviceFlagBase):
     @property
     def new_value(self):
         """Return the new value of the flag."""
-        byte_value = self._value
+        byte_value = self.value
         for bit, prop in self._flags.items():
             if prop.value is None:
                 return None

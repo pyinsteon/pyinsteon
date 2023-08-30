@@ -54,8 +54,15 @@ class TestOpFlagPropertyByte(TestCase):
             for bit, flag in self.flags.items():
                 assert flag.value == bit_is_set(value, bit)
 
+        # if set_value(None) all flags should be set to value = None
+        self.prop_byte.set_value(None)
+        for _, flag in self.flags.items():
+            assert not flag.value
+
     def test_new_value_to_byte(self):
         """Test setting a new value to a byte value."""
+        # If values are not loaded new_value is None
+        assert self.prop_byte.new_value is None
         init_value = randint(1, 255)
         init_bit_1 = bit_is_set(init_value, 1)
         self.prop_byte.set_value(init_value)
@@ -83,3 +90,41 @@ class TestOpFlagPropertyByte(TestCase):
         assert new_value != init_value
         prop_byte.new_value = new_value
         assert bit_is_set(prop_byte.new_value, 1)
+
+    def test_is_dirty(self):
+        """Test the is_dirty property."""
+
+        # Test if any one flag is dirty should result in is_dirty
+        assert not self.prop_byte.is_dirty
+        for _, flag in self.flags.items():
+            flag.new_value = not flag.value
+            assert self.prop_byte.is_dirty
+            flag.new_value = None
+            assert not self.prop_byte.is_dirty
+
+    def test_is_loaded(self):
+        """Test the is_loaded property."""
+        # Test each flag to ensure is_loaded is False
+        for _, flag in self.flags.items():
+            assert not flag.is_loaded
+
+        # Set one flag at a time and ensure is_loaded is still False
+        flag_bit = list(self.flags)
+        for bit in flag_bit:
+            flag = self.flags[bit]
+            assert not flag.is_loaded
+            assert self.prop_byte.value is None
+            flag.set_value(0)
+            assert flag.is_loaded
+            assert self.prop_byte.is_loaded == (bit == flag_bit[-1])
+
+    def test_value(self):
+        """Test the flag value calculation."""
+        # Run test 8 times to be sure it is random
+        for _ in range(0, 8):
+            test_value = 0
+            for bit, flag in self.flags.items():
+                bit_value = randint(0, 1)
+                flag.set_value(bit_value)
+                test_value = set_bit(test_value, bit, bit_value)
+            assert self.prop_byte.value == test_value

@@ -1,14 +1,17 @@
 """Test extended property management."""
 import asyncio
+from random import randint
 import unittest
 
 from pyinsteon.address import Address
 from pyinsteon.commands import EXTENDED_GET_RESPONSE, EXTENDED_GET_SET
+from pyinsteon.constants import ResponseStatus
 from pyinsteon.data_types.user_data import UserData
 from pyinsteon.managers.get_set_ext_property_manager import (
     GetSetExtendedPropertyManager,
 )
 from pyinsteon.utils import build_topic
+
 from tests import set_log_levels
 from tests.utils import TopicItem, async_case, cmd_kwargs, send_topics
 
@@ -37,19 +40,8 @@ class TestExtendedPropertyManager(unittest.TestCase):
         """Set up the test."""
         self._address = Address("010203")
         self._properties = {}
-        set_log_levels(
-            logger="info",
-            logger_pyinsteon="info",
-            logger_messages="info",
-            logger_topics=False,
-        )
-
-    @async_case
-    async def test_data_update(self):
-        """Test data updates."""
-
         self._epm = GetSetExtendedPropertyManager(self._address)
-        self._properties["prop3"] = self._epm.create("prop3", 1, 3, None, None)
+        self._properties["prop3"] = self._epm.create("prop3", 1, 3, None, 0x03)
         self._properties["prop4"] = self._epm.create("prop4", 1, 4, None, None)
         self._properties["prop5"] = self._epm.create("prop5", 1, 5, None, None)
         self._properties["prop6"] = self._epm.create("prop6", 1, 6, None, None)
@@ -60,6 +52,16 @@ class TestExtendedPropertyManager(unittest.TestCase):
         self._properties["prop101"] = self._epm.create("prop101", 1, 10, 1, None)
         self._properties["prop102"] = self._epm.create("prop102", 1, 10, 2, None)
         self._properties["prop103"] = self._epm.create("prop103", 1, 10, 3, None)
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="debug",
+            logger_messages="debug",
+            logger_topics=True,
+        )
+
+    @async_case
+    async def test_data_update(self):
+        """Test data updates."""
 
         user_data = UserData(
             {
@@ -109,6 +111,39 @@ class TestExtendedPropertyManager(unittest.TestCase):
         assert self._properties["prop9"].value == 0x09
         assert self._properties["prop101"].value
         assert not self._properties["prop102"].value
+
+    @async_case
+    async def test_write_prop(self):
+        """Test writing a property."""
+        for _, flag in self._properties.items():
+            if flag.value_type == bool:
+                flag.set_value(randint(0, 1))
+            else:
+                flag.set_value(randint(0, 100))
+
+        test_value = randint(101, 200)
+        self._properties["prop3"].new_value = test_value
+        ack = build_topic(
+            prefix="ack",
+            topic=EXTENDED_GET_SET,
+            address=self._address,
+            message_type="direct",
+        )
+        dir_ack = build_topic(
+            topic=EXTENDED_GET_SET, address=self._address, message_type="direct_ack"
+        )
+        topic_ack = TopicItem(
+            ack,
+            cmd_kwargs(0x2E, 0x00, UserData({"d1": 1, "d2": 0x03, "d3": test_value})),
+            0.5,
+        )
+        topic_dir_ack = TopicItem(
+            dir_ack, cmd_kwargs(0x2E, 0x00, None, target="030405"), 0.1
+        )
+        send_topics([topic_ack, topic_dir_ack])
+        response = await self._epm.async_write()
+        await asyncio.sleep(2)
+        assert response == ResponseStatus.SUCCESS
 
 
 if __name__ == "__main__":
