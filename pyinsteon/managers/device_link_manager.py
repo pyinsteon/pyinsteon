@@ -1,7 +1,6 @@
 """Manages links between devices to identify device state of responders."""
 import asyncio
 from datetime import datetime, timedelta
-import logging
 from typing import Dict, Tuple, Union
 
 import voluptuous as vol
@@ -13,7 +12,6 @@ from ..constants import AllLinkMode, DeviceAction, MessageFlagType
 from ..topics import ALDB_LINK_CHANGED
 from ..utils import subscribe_topic, unsubscribe_topic
 
-_LOGGER = logging.getLogger(__name__)
 TIMEOUT_DUPLICATE = timedelta(seconds=10)
 ControllerAddress = Address
 ResponderAddress = Address
