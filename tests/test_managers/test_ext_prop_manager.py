@@ -40,6 +40,16 @@ class TestExtendedPropertyManager(unittest.TestCase):
         """Set up the test."""
         self._address = Address("010203")
         self._properties = {}
+        self._epm = None
+        set_log_levels(
+            logger="debug",
+            logger_pyinsteon="debug",
+            logger_messages="debug",
+            logger_topics=True,
+        )
+
+    async def setup_properties(self):
+        """Set up the properties."""
         self._epm = GetSetExtendedPropertyManager(self._address)
         self._properties["prop3"] = self._epm.create("prop3", 1, 3, None, 0x03)
         self._properties["prop4"] = self._epm.create("prop4", 1, 4, None, None)
@@ -52,17 +62,11 @@ class TestExtendedPropertyManager(unittest.TestCase):
         self._properties["prop101"] = self._epm.create("prop101", 1, 10, 1, None)
         self._properties["prop102"] = self._epm.create("prop102", 1, 10, 2, None)
         self._properties["prop103"] = self._epm.create("prop103", 1, 10, 3, None)
-        set_log_levels(
-            logger="debug",
-            logger_pyinsteon="debug",
-            logger_messages="debug",
-            logger_topics=True,
-        )
 
     @async_case
     async def test_data_update(self):
         """Test data updates."""
-
+        await self.setup_properties()
         user_data = UserData(
             {
                 "d1": 0x01,
@@ -115,6 +119,7 @@ class TestExtendedPropertyManager(unittest.TestCase):
     @async_case
     async def test_write_prop(self):
         """Test writing a property."""
+        await self.setup_properties()
         for _, flag in self._properties.items():
             if flag.value_type == bool:
                 flag.set_value(randint(0, 1))
