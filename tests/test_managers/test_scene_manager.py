@@ -39,7 +39,7 @@ def _reset_devices(addresses):
         device.aldb.clear = Mock()
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def devices_fixture():
     """Load the devices fixture."""
     patched_devices = DeviceManager()
@@ -69,7 +69,12 @@ class TestDeviceLinkManager(unittest.TestCase):
     @async_case
     async def test_save_load_scenes(self):
         """Test saving and loading scenes."""
+        patched_devices = DeviceManager()
+        with patch.object(pyinsteon, "devices", patched_devices):
+            await self._test_save_load_scenes()
 
+    async def _test_save_load_scenes(self):
+        """Test saving and loading scenes."""
         modem = Hub("111111", 0x03, 51, 165, "Instoen modem")
         devices.modem = modem
         await load_devices(devices)
@@ -91,7 +96,11 @@ class TestDeviceLinkManager(unittest.TestCase):
     @async_case
     async def test_add_scene(self):
         """Test adding a scene."""
+        patched_devices = DeviceManager()
+        with patch.object(pyinsteon, "devices", patched_devices):
+            await self._test_add_scene()
 
+    async def _test_add_scene(self):
         modem = Hub("111111", 0x03, 51, 165, "Instoen modem")
         devices.modem = modem
         await load_devices(devices)
@@ -261,7 +270,12 @@ class TestDeviceLinkManager(unittest.TestCase):
     @async_case
     async def test_delete_scene(self):
         """Test deleting a scene."""
+        patched_devices = DeviceManager()
+        with patch.object(pyinsteon, "devices", patched_devices):
+            await self._test_delete_scene()
 
+    async def _test_delete_scene(self):
+        """Test deleting a scene."""
         modem = Hub("111111", 0x03, 51, 165, "Insteon modem")
         devices.modem = modem
         await load_devices(devices)

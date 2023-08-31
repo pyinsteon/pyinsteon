@@ -2,6 +2,13 @@
 
 from ..constants import ToggleMode
 
+# Used to hide a bit to ensure we set it correctly in a write command
+# when used in an Extended Property. For example, if an extended
+# property write requires a data field but that data field is undefined
+# we can create a UNUSED extended properity that will be used only
+# to rewrite the existing value if any.
+UNUSED = "unused"
+
 # Operating Flags
 PROGRAM_LOCK_ON = "program_lock_on"
 BUTTON_LOCK_ON = "button_lock_on"
@@ -17,6 +24,7 @@ GROUPED_ON = "grouped_on"
 TWO_GROUPS_ON = "two_groups_on"
 RESUME_DIM_ON = "resume_dim_on"
 RF_DISABLE_ON = "rf_disable_on"
+RELAY_AT_FULL_ON = "relay_at_full_on"
 POWERLINE_DISABLE_ON = "powerline_disable_on"
 TEND_ON = "tend_on"
 X10_OFF = "x10_off"
@@ -109,6 +117,7 @@ ON_MASK = "on_mask"
 OFF_MASK = "off_mask"
 NON_TOGGLE_MASK = "non_toggle_mask"
 NON_TOGGLE_ON_OFF_MASK = "non_toggle_on_off_mask"
+GROUP_MASK = "group_mask"
 BACKLIGHT = "backlight"
 CHANGE_DELAY = "change_delay"
 MASTER = "master"
@@ -127,6 +136,7 @@ TEMP_VERY_HOT = "temp_very_hot"
 NIGHT_MODE_MAX_LEVEL = "night_mode_max_level"
 NIGHT_MODE_LED_BRIGHTNESS = "night_mode_led_brightness"
 NIGHT_MODE_RAMP_RATE = "night_mode_ramp_rate"
+LOAD_BUTTON_NUMBER = "load_button_number"
 
 # Derived Properties
 MOMENTARY_DELAY = "momentary_delay"

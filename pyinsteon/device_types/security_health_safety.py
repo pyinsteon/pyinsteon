@@ -156,15 +156,14 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
         """Register operating flags for Door Sensor."""
         super()._register_op_flags_and_props()
 
-        self._add_operating_flag(CLEANUP_REPORT_ON, 0, 1, 16, 17)
-        self._add_operating_flag(TWO_GROUPS_ON, 0, 1, 4, 5)
-        self._add_operating_flag(REPEAT_OPEN_ON, 0, 2, 0x10, 0x11)
+        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
+        self._add_operating_flag(LED_OFF, 0, 1, 2, 3)
+        self._add_operating_flag(LINK_TO_FF_GROUP, 0, 2, 6, 7)
         self._add_operating_flag(REPEAT_CLOSED_ON, 0, 3, 8, 9)
-        self._add_operating_flag(LINK_TO_FF_GROUP, 0, 4, 6, 7)
-        self._add_operating_flag(LED_OFF, 0, 5, 2, 3)
-        self._add_operating_flag(PROGRAM_LOCK_ON, 0, 7, 0, 1)
-
-        self._add_operating_flag(STAY_AWAKE_ON, 0, 6, 18, 19)
+        self._add_operating_flag(REPEAT_OPEN_ON, 0, 4, 0x0A, 0x0B)
+        self._add_operating_flag(TWO_GROUPS_ON, 0, 5, 4, 5)
+        self._add_operating_flag(STAY_AWAKE_ON, 0, 6, 0x18, 0x19)
+        self._add_operating_flag(CLEANUP_REPORT_ON, 0, 7, 0x16, 0x17)
 
         self._add_operating_flag(DATABASE_DELTA, 1, None, None, None)
 

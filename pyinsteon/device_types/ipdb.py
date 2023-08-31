@@ -12,6 +12,7 @@ from .dimmable_lighting_control import (
     DimmableLightingControl_Dial,
     DimmableLightingControl_DinRail,
     DimmableLightingControl_FanLinc,
+    DimmableLightingControl_I3_KeypadLinc_4,
     DimmableLightingControl_InLineLinc01,
     DimmableLightingControl_InLineLinc02,
     DimmableLightingControl_KeypadLinc_6,
@@ -44,9 +45,9 @@ from .security_health_safety import (
 from .sensors_actuators import SensorsActuators, SensorsActuators_IOLink
 from .switched_lighting_control import (
     SwitchedLightingControl,
-    SwitchedLightingControl_I3Outlet,
     SwitchedLightingControl_ApplianceLinc,
     SwitchedLightingControl_DinRail,
+    SwitchedLightingControl_I3Outlet,
     SwitchedLightingControl_InLineLinc01,
     SwitchedLightingControl_InLineLinc02,
     SwitchedLightingControl_KeypadLinc_6,
@@ -660,6 +661,14 @@ class IPDB:
         ),
         Product(0x01, 0x57, None, "i3 Paddle", "PS01", DimmableLightingControl_Dial),
         Product(0x01, 0x58, None, "i3 Dial", "DS01", DimmableLightingControl_Dial),
+        Product(
+            0x01,
+            0x59,
+            None,
+            "i3 Keypad (4 Button)",
+            "KP014",
+            DimmableLightingControl_I3_KeypadLinc_4,
+        ),
         Product(
             0x02,
             None,

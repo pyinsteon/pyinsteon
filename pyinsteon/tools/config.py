@@ -93,8 +93,8 @@ class ToolsConfig(ToolsBase):
             if device and not device == devices.modem:
                 log_stdout("")
                 log_stdout(f"Device: {device_address}")
-                log_stdout("Operating Flag                  Value")
-                log_stdout("------------------------------  -----")
+                log_stdout("Property                        Value")
+                log_stdout("------------------------------  ----------")
                 for name in device.operating_flags:
                     op_flag = device.operating_flags[name]
                     if _show_flag(op_flag, advanced, hidden):
@@ -102,10 +102,16 @@ class ToolsConfig(ToolsBase):
                             name_out = f"{name}*"
                         else:
                             name_out = name
-                        log_stdout(f"{name_out:30s}  {bool(op_flag.value)}")
+                        if op_flag.value_type == bool:
+                            log_stdout(f"{name_out:30s}  {bool(op_flag.value)}")
+                        else:
+                            prop_value = (
+                                op_flag.value if op_flag.value is not None else 0
+                            )
+                            log_stdout(
+                                f"{name_out:30s}  0x{prop_value:02x} ({prop_value})"
+                            )
                 log_stdout("")
-                log_stdout("Property                        Value")
-                log_stdout("------------------------------  ----------")
                 for name in device.properties:
                     prop = device.properties[name]
                     if _show_flag(prop, advanced, hidden):

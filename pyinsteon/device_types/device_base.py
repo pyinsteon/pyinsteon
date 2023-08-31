@@ -3,9 +3,11 @@
 from abc import ABC
 from datetime import datetime
 import logging
+from typing import Dict
 
 from ..address import Address
 from ..aldb.aldb import ALDB
+from ..config.extended_property import ExtendedProperty
 from ..config.operating_flag import OperatingFlag
 from ..constants import DeviceCategory, EngineVersion, PropertyType, ResponseStatus
 from ..default_link import DefaultLink
@@ -56,8 +58,8 @@ class Device(ABC):
 
         self._aldb = ALDB(self._address)
         self._default_links = []
-        self._operating_flags = {}
-        self._properties = {}
+        self._operating_flags: Dict[str, OperatingFlag] = {}
+        self._properties: Dict[str, ExtendedProperty] = {}
         self._config = {}
 
         self._op_flags_manager = GetSetOperatingFlagsManager(
@@ -65,9 +67,9 @@ class Device(ABC):
         )
         self._ext_property_manager = GetSetExtendedPropertyManager(self._address)
 
-        self._register_op_flags_and_props()
         self._register_groups()
         self._register_events()
+        self._register_op_flags_and_props()
         self._register_handlers_and_managers()
         self._subscribe_to_handelers_and_managers()
         self._register_default_links()
@@ -302,6 +304,7 @@ class Device(ABC):
         is_reversed=False,
         prop_type=PropertyType.STANDARD,
     ):
+        self._op_flags_manager.check_duplicate(name, group, bit, set_cmd, unset_cmd)
         read_only = set_cmd is None or unset_cmd is None
         value_type = bool if bit is not None else int
         self._operating_flags[name] = OperatingFlag(
@@ -319,6 +322,7 @@ class Device(ABC):
         is_reversed=False,
         prop_type=PropertyType.STANDARD,
     ):
+        self._ext_property_manager.check_duplicate(group, data_field, bit, set_cmd)
         self._properties[name] = self._ext_property_manager.create(
             name, group, data_field, bit, set_cmd, is_reversed, prop_type
         )

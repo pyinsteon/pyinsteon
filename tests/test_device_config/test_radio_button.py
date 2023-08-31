@@ -156,8 +156,6 @@ class TestRadioButtonGroupsProperty(TestCase):
         test_prop = device.configuration[RADIO_BUTTON_GROUPS]
 
         for button in device.groups:
-            if button == 1:
-                continue
             assert not test_prop.is_loaded
             device.properties[on_mask_name(button)].set_value(0)
             assert not test_prop.is_loaded

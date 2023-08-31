@@ -1,0 +1,56 @@
+2023-07-30 03:23:52,057 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 000001, flags: 0xcf, cmd1: 0x13, cmd2: 0x00
+2023-07-30 03:23:52,057 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 5849eb, flags: 0x40, cmd1: 0x13, cmd2: 0x01
+2023-07-30 03:23:52,058 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 130101, flags: 0xcf, cmd1: 0x06, cmd2: 0x00
+
+2023-07-30 03:23:55,720 [MainThread  ] [DEBUG]  RX: msg_id: 0x62, address: 607db1, flags: 0x05, cmd1: 0x19, cmd2: 0x00, ack: 0x06
+2023-07-30 03:23:55,722 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 5849eb, flags: 0x25, cmd1: 0x09, cmd2: 0xff
+
+2023-07-30 03:23:58,976 [MainThread  ] [DEBUG]  RX: msg_id: 0x62, address: 607db1, flags: 0x05, cmd1: 0x19, cmd2: 0x00, ack: 0x06
+2023-07-30 03:23:58,977 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 5849eb, flags: 0x25, cmd1: 0x09, cmd2: 0xff
+
+2023-07-30 03:24:00,200 [MainThread  ] [DEBUG]  RX: msg_id: 0x62, address: 6012e0, flags: 0x05, cmd1: 0x19, cmd2: 0x00, ack: 0x06
+2023-07-30 03:24:00,202 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x25, cmd1: 0x00, cmd2: 0x00
+
+2023-07-30 03:25:50,555 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 000001, flags: 0xcf, cmd1: 0x11, cmd2: 0x00
+2023-07-30 03:25:50,558 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 5849eb, flags: 0x40, cmd1: 0x11, cmd2: 0x01
+2023-07-30 03:25:50,560 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 110101, flags: 0xcf, cmd1: 0x06, cmd2: 0x00
+
+2023-07-30 03:25:54,211 [MainThread  ] [DEBUG]  RX: msg_id: 0x62, address: 607db1, flags: 0x05, cmd1: 0x19, cmd2: 0x00, ack: 0x06
+2023-07-30 03:25:54,212 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 5849eb, flags: 0x25, cmd1: 0x09, cmd2: 0xff
+
+2023-07-30 03:25:57,231 [MainThread  ] [DEBUG]  RX: msg_id: 0x62, address: 607db1, flags: 0x05, cmd1: 0x19, cmd2: 0x00, ack: 0x06
+2023-07-30 03:25:57,233 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 5849eb, flags: 0x25, cmd1: 0x09, cmd2: 0xff
+
+2023-07-30 03:25:58,450 [MainThread  ] [DEBUG]  RX: msg_id: 0x62, address: 6012e0, flags: 0x05, cmd1: 0x19, cmd2: 0x00, ack: 0x06
+2023-07-30 03:25:58,451 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x25, cmd1: 0x00, cmd2: 0x00
+
+-------------------------------
+Button B Off (Load)
+-------------------------------
+2023-07-30 03:27:20,481 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 000002, flags: 0xcf, cmd1: 0x13, cmd2: 0x00
+2023-07-30 03:27:21,090 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 5849eb, flags: 0x40, cmd1: 0x13, cmd2: 0x02
+2023-07-30 03:27:21,091 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 130102, flags: 0xcf, cmd1: 0x06, cmd2: 0x00
+
+2023-07-30 03:27:24,266 [MainThread  ] [DEBUG]  RX: msg_id: 0x62, address: 607db1, flags: 0x05, cmd1: 0x19, cmd2: 0x00, ack: 0x06
+2023-07-30 03:27:24,267 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 5849eb, flags: 0x25, cmd1: 0x09, cmd2: 0x00
+
+2023-07-30 03:27:27,901 [MainThread  ] [DEBUG]  RX: msg_id: 0x62, address: 607db1, flags: 0x05, cmd1: 0x19, cmd2: 0x00, ack: 0x06
+2023-07-30 03:27:27,902 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 5849eb, flags: 0x25, cmd1: 0x09, cmd2: 0x00
+
+2023-07-30 03:27:28,682 [MainThread  ] [DEBUG]  RX: msg_id: 0x62, address: 6012e0, flags: 0x05, cmd1: 0x19, cmd2: 0x00, ack: 0x06
+2023-07-30 03:27:28,682 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x25, cmd1: 0x00, cmd2: 0x00
+
+-------------------------------
+Button B On (Load)
+-------------------------------
+2023-07-30 03:29:27,734 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 000002, flags: 0xcf, cmd1: 0x11, cmd2: 0x00
+2023-07-30 03:29:28,343 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 5849eb, flags: 0x40, cmd1: 0x11, cmd2: 0x02
+2023-07-30 03:29:28,344 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 110102, flags: 0xcf, cmd1: 0x06, cmd2: 0x00
+2023-07-30 03:29:31,621 [MainThread  ] [DEBUG]  RX: msg_id: 0x62, address: 607db1, flags: 0x05, cmd1: 0x19, cmd2: 0x00, ack: 0x06
+2023-07-30 03:29:31,621 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 5849eb, flags: 0x25, cmd1: 0x09, cmd2: 0xff
+
+2023-07-30 03:29:34,965 [MainThread  ] [DEBUG]  RX: msg_id: 0x62, address: 607db1, flags: 0x05, cmd1: 0x19, cmd2: 0x00, ack: 0x06
+2023-07-30 03:29:34,965 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 607db1, target: 5849eb, flags: 0x25, cmd1: 0x09, cmd2: 0xff
+
+2023-07-30 03:29:36,184 [MainThread  ] [DEBUG]  RX: msg_id: 0x62, address: 6012e0, flags: 0x05, cmd1: 0x19, cmd2: 0x00, ack: 0x06
+2023-07-30 03:29:36,185 [MainThread  ] [DEBUG]  RX: msg_id: 0x50, address: 6012e0, target: 5849eb, flags: 0x25, cmd1: 0x00, cmd2: 0x00

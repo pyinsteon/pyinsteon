@@ -2,6 +2,7 @@
 import asyncio
 from collections import namedtuple
 import logging
+from typing import Dict, Union
 
 from ..address import Address
 from ..config.extended_property import ExtendedProperty
@@ -32,8 +33,10 @@ class GetSetExtendedPropertyManager(SubscriberBase):
         self._get_command = ExtendedGetCommand(address=self._address)
         self._get_response = ExtendedGetResponseHandler(address=self._address)
         self._get_response.subscribe(self._update_all_fields)
-        self._prop_groups = {}
-        self._flags = {}
+        self._prop_groups: Dict[
+            int, Dict[int, Union[int, PropertyInfo], PropertyInfo]
+        ] = {}
+        self._flags: Dict[str, PropertyInfo] = {}
         self._response_queue = asyncio.Queue()
         self._get_cmd_lock = asyncio.Lock()
 
@@ -44,13 +47,13 @@ class GetSetExtendedPropertyManager(SubscriberBase):
 
     def create(
         self,
-        name,
-        group,
-        data_field,
-        bit,
-        set_cmd,
-        is_revsersed=False,
-        prop_type=PropertyType.STANDARD,
+        name: str,
+        group: int,
+        data_field: int,
+        bit: int,
+        set_cmd: int,
+        is_revsersed: bool = False,
+        prop_type: PropertyType = PropertyType.STANDARD,
     ):
         """Subscribe a device property to Get and Set values.
 
@@ -73,15 +76,31 @@ class GetSetExtendedPropertyManager(SubscriberBase):
         )
         return self._properties[name]
 
+    def check_duplicate(
+        self,
+        group: int,
+        data_field: int,
+        bit: int,
+        set_cmd: int,
+    ) -> bool:
+        """Check if an Extended Property is a duplicate."""
+        for _, flag in self._flags.items():
+            if (
+                flag.group == group
+                and flag.data_field == data_field
+                and flag.set_cmd == set_cmd
+            ):
+                if flag.bit and flag.bit == bit:
+                    return True
+                if flag.bit is None:
+                    return True
+        return False
+
     async def async_read(self, group=None):
         """Get the properties for a group."""
-        if self._get_cmd_lock.locked():
-            self._get_cmd_lock.release()
-
-        while not self._response_queue.empty():
-            self._response_queue.get_nowait()
-
         async with self._get_cmd_lock:
+            while not self._response_queue.empty():
+                self._response_queue.get_nowait()
             if group is None:
                 results = []
                 for curr_group in self._prop_groups:

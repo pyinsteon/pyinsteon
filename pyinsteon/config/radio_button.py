@@ -1,8 +1,8 @@
 """KeypadLink radio button property."""
 from itertools import chain
 
-from ..utils import bit_is_set
 from . import OFF_MASK, ON_MASK, get_usable_value
+from ..utils import bit_is_set
 from .derived_property import DerivedProperty
 
 
@@ -74,8 +74,6 @@ def set_radio_buttons(device, radio_button_groups):
 
     clear_buttons = []
     for button in device.groups:
-        if button == 1:
-            continue
         button_in_group = False
         for group in radio_button_groups:
             if button in group:
@@ -141,12 +139,10 @@ class RadioButtonGroupsProperty(DerivedProperty):
         on_mask_status = [
             self._device.properties[on_mask_name(group)].is_dirty
             for group in self._device.groups
-            if group != 1
         ]
         off_mask_status = [
             self._device.properties[off_mask_name(group)].is_dirty
             for group in self._device.groups
-            if group != 1
         ]
         return any(on_mask_status) or any(off_mask_status)
 
@@ -156,11 +152,9 @@ class RadioButtonGroupsProperty(DerivedProperty):
         on_mask_status = [
             self._device.properties[on_mask_name(group)].is_loaded
             for group in self._device.groups
-            if group != 1
         ]
         off_mask_status = [
             self._device.properties[off_mask_name(group)].is_loaded
             for group in self._device.groups
-            if group != 1
         ]
         return all(on_mask_status) and all(off_mask_status)

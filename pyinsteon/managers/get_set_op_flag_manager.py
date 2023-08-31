@@ -2,6 +2,7 @@
 import asyncio
 from collections import namedtuple
 import logging
+from typing import Dict, Union
 
 from ..address import Address
 from ..constants import EngineVersion, ResponseStatus
@@ -21,8 +22,10 @@ class GetSetOperatingFlagsManager:
         """Init the GetOperatingFlagsManager class."""
         self._address = Address(address)
         self._op_flags = op_flags
-        self._groups = {}
-        self._flags = {}
+        self._groups: Dict[
+            int, Union[OperatingFlagInfo, Dict[int, OperatingFlagInfo]]
+        ] = {}
+        self._flags: Dict[str, OperatingFlagInfo] = {}
         self._get_command = GetOperatingFlagsCommand(self._address)
         self._set_command = SetOperatingFlagsCommand(self._address)
         self._get_command.subscribe(self._update_flags)
@@ -57,9 +60,28 @@ class GetSetOperatingFlagsManager:
         if flag_info:
             group = flag_info.group
             bit = flag_info.bit
-            self._remove(name, group, bit)
+            self.remove(name, group, bit)
 
-    def _remove(self, name, group, bit=None):
+    def check_duplicate(self, name, group, bit, set_cmd, unset_cmd):
+        """Check if the Operating Flag is a duplicate."""
+        for _, flag in self._flags.items():
+            if flag.name == name:
+                raise ValueError(f"Adding duplicate operating flag {name}")
+            if flag.group == group and flag.bit == bit:
+                raise ValueError(
+                    f"Adding duplicate operating flag {name} in group {group} and bit {bit}. Existing flag name: {flag.name}"
+                )
+            if set_cmd is not None and flag.set_cmd == set_cmd:
+                raise ValueError(
+                    f"Adding duplicate operating flag {name} wit set command {set_cmd}. Existing flag name: {flag.name}"
+                )
+            if unset_cmd is not None and flag.unset_cmd == unset_cmd:
+                raise ValueError(
+                    f"Adding duplicate operating flag {name} wit umset command {unset_cmd}. Existing flag name: {flag.name}"
+                )
+
+    def remove(self, name, group, bit=None):
+        """Remove a flag."""
         try:
             if bit is not None:
                 self._groups[group].pop(bit)
@@ -139,7 +161,8 @@ class GetSetOperatingFlagsManager:
             return result
 
         # Reset the read only flag to original value
-        flag.set_value(flag.value)
+        if flag.is_read_only:
+            flag.set_value(flag.value)
         return ResponseStatus.SUCCESS
 
     def _update_flags(self, group, flags):

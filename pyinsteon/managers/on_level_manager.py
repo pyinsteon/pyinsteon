@@ -86,28 +86,28 @@ class OnLevelManager:
         self._on_fast_cleanup_handler.subscribe(self._on_fast_cleanup_event)
         self._off_fast_cleanup_handler.subscribe(self._off_fast_cleanup_event)
 
-    def subscribe(self, callback):
+    def subscribe(self, callback, force_strong_ref=False):
         """Subscribe to all events (ON, OFF, ON FAST, OFF FAST)."""
-        self._on.subscribe(callback)
-        self._off.subscribe(callback)
-        self._on_fast.subscribe(callback)
-        self._off_fast.subscribe(callback)
+        self._on.subscribe(callback, force_strong_ref=force_strong_ref)
+        self._off.subscribe(callback, force_strong_ref=force_strong_ref)
+        self._on_fast.subscribe(callback, force_strong_ref=force_strong_ref)
+        self._off_fast.subscribe(callback, force_strong_ref=force_strong_ref)
 
-    def subscribe_on(self, callback):
+    def subscribe_on(self, callback, force_strong_ref=False):
         """Subscribe to ON events."""
-        self._on.subscribe(callback)
+        self._on.subscribe(callback, force_strong_ref=force_strong_ref)
 
-    def subscribe_off(self, callback):
+    def subscribe_off(self, callback, force_strong_ref=False):
         """Subscribe to OFF events."""
-        self._off.subscribe(callback)
+        self._off.subscribe(callback, force_strong_ref=force_strong_ref)
 
-    def subscribe_on_fast(self, callback):
+    def subscribe_on_fast(self, callback, force_strong_ref=False):
         """Subscribe to ON FAST events."""
-        self._on_fast.subscribe(callback)
+        self._on_fast.subscribe(callback, force_strong_ref=force_strong_ref)
 
-    def subscribe_off_fast(self, callback):
+    def subscribe_off_fast(self, callback, force_strong_ref=False):
         """Subscribe to OFF FAST events."""
-        self._off_fast.subscribe(callback)
+        self._off_fast.subscribe(callback, force_strong_ref=force_strong_ref)
 
     def _on_event(self, on_level):
         self._process_on_event(on_level=on_level)
