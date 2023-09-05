@@ -1,3 +1,4 @@
+[flake8]
 exclude = .venv,.git,.tox,docs,venv,bin,lib,deps,build,tests,topics,samples,./pyinsteon/device_types/__init__.py
 doctests = True
 # To work with Black
