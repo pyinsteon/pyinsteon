@@ -16,6 +16,7 @@ class Temperature(GroupBase):
     ):
         """Init the Temperature class."""
         super().__init__(name, address, group, default, value_type=float)
+        self._is_dimmable = True
 
     # pylint: disable=arguments-differ
     def set_value(self, temperature):
