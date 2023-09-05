@@ -22,6 +22,21 @@ class GroupBase(SubscriberBase):
         self._group = group
         self._value = int(default) if default is not None else None
         self._type = value_type
+        self._is_dimmable: bool = False
+
+    @property
+    def is_dimmable(self) -> bool:
+        """Return if the state is dimmable.
+
+        If true, the state can support values 0 - 255.
+        If false, the state only supports values 0 and 255.
+        """
+        return self._is_dimmable
+
+    @is_dimmable.setter
+    def is_dimmable(self, value: bool) -> None:
+        """Set the dimmable property of the state."""
+        self._is_dimmable = bool(value)
 
     @property
     def name(self):
