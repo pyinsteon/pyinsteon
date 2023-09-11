@@ -14,6 +14,7 @@ from ..config import (
     LED_BLINK_ON_TX_ON,
     LED_DIMMING,
     LED_OFF,
+    LOAD_BUTTON,
     LOAD_BUTTON_NUMBER,
     LOAD_SENSE_ON,
     NIGHT_MODE_ON,
@@ -43,6 +44,7 @@ from ..config import (
     YAKETY_YAK,
 )
 from ..config.extended_property import ExtendedProperty
+from ..config.load_button import LoadButtonProperty
 from ..config.radio_button import RadioButtonGroupsProperty
 from ..config.ramp_rate import RampRateProperty
 from ..config.toggle_button import ToggleButtonProperty
@@ -1152,7 +1154,7 @@ class DimmableLightingControl_I3_KeypadLinc_4(I3VariableResponderBase):
             value_type=int,
             is_reversed=False,
             is_read_only=False,
-            prop_type=PropertyType.STANDARD,
+            prop_type=PropertyType.ADVANCED,
         )
         self._properties[LOAD_BUTTON_NUMBER].set_value(1)
         self._add_ext_prop_read_manager({})
@@ -1181,6 +1183,12 @@ class DimmableLightingControl_I3_KeypadLinc_4(I3VariableResponderBase):
                 self.properties[NON_TOGGLE_MASK],
                 self.properties[NON_TOGGLE_ON_OFF_MASK],
             )
+        self._config[LOAD_BUTTON] = LoadButtonProperty(
+            self._address,
+            LOAD_BUTTON,
+            self._properties[LOAD_BUTTON_NUMBER],
+            list(self._groups),
+        )
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()

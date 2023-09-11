@@ -144,6 +144,7 @@ RADIO_BUTTON_GROUPS = "radio_button_groups"
 RAMP_RATE_IN_SEC = "ramp_rate_in_seconds"
 RELAY_MODE = "relay_mode"
 TOGGLE_BUTTON = "toggle_button"
+LOAD_BUTTON = "load_button"
 
 # Modem properties
 MODEM_CONFIG = "modem_config"
