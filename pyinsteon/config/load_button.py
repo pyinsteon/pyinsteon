@@ -41,7 +41,7 @@ class LoadButtonProperty(DerivedProperty):
         Set `new_value` to `None` to retain the current load button value.
         """
 
-        if value is not None or value not in self._allowed_values:
+        if value is not None and value not in self._allowed_values:
             raise ValueError(f"Value must be None or one of {self._allowed_values}")
         self._load_button_prop.new_value = value
 
