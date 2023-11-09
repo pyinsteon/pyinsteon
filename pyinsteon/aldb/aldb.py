@@ -92,7 +92,7 @@ class ALDB(ALDBBase):
             and self._version not in [EngineVersion.I2CS, EngineVersion.OTHER]
         ):
             self._read_write_mode = ReadWriteMode.PEEK_POKE
-            return self.async_load(
+            return await self.async_load(
                 mem_addr=mem_addr, num_recs=num_recs, refresh=refresh
             )
 
