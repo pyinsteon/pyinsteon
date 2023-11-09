@@ -545,22 +545,24 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
             button_str = f"_{other_button}" if other_button != 1 else ""
             on_mask = self._properties[f"{ON_MASK}{button_str}"]
             off_mask = self._properties[f"{OFF_MASK}{button_str}"]
-            if on_mask.is_loaded and off_mask.is_loaded:
-                for button in buttons:
-                    bit = button - 1
-                    on_set = (
-                        bit_is_set(on_mask.new_value, bit)
-                        if on_mask.is_dirty
-                        else bit_is_set(on_mask.value, bit)
-                    )
-                    off_set = (
-                        bit_is_set(off_mask.new_value, bit)
-                        if off_mask.is_dirty
-                        else bit_is_set(off_mask.value, bit)
-                    )
-                    if on_set or off_set and other_button not in addl_buttons:
-                        addl_buttons.append(other_button)
-                        continue
+            if not on_mask.is_loaded or not off_mask.is_loaded:
+                on_mask.set_value(0)
+                off_mask.set_value(0)
+            for button in buttons:
+                bit = button - 1
+                on_set = (
+                    bit_is_set(on_mask.new_value, bit)
+                    if on_mask.is_dirty
+                    else bit_is_set(on_mask.value, bit)
+                )
+                off_set = (
+                    bit_is_set(off_mask.new_value, bit)
+                    if off_mask.is_dirty
+                    else bit_is_set(off_mask.value, bit)
+                )
+                if on_set or off_set and other_button not in addl_buttons:
+                    addl_buttons.append(other_button)
+                    continue
 
         for button in buttons:
             button_str = f"_{button}" if button != 1 else ""
@@ -573,6 +575,9 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
             button_str = f"_{addl_button}" if addl_button != 1 else ""
             on_mask = self._properties[f"{ON_MASK}{button_str}"]
             off_mask = self._properties[f"{OFF_MASK}{button_str}"]
+            if not on_mask.is_loaded or not off_mask.is_loaded:
+                on_mask.set_value(0)
+                off_mask.set_value(0)
             for button in buttons:
                 if on_mask.is_dirty:
                     on_mask.new_value = set_bit(on_mask.new_value, button - 1, False)
@@ -663,6 +668,8 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
             button_str = f"_{button}" if button != 1 else ""
             on_mask = self._properties[f"{ON_MASK}{button_str}"]
             off_mask = self._properties[f"{OFF_MASK}{button_str}"]
+            if not on_mask.is_loaded or not off_mask.is_loaded:
+                continue
             follow = bit_is_set(on_mask.value, group)
             set_off = bit_is_set(off_mask.value, group)
             if follow:
@@ -1047,22 +1054,24 @@ class DimmableLightingControl_I3_KeypadLinc_4(I3VariableResponderBase):
             button_str = f"_{other_button}" if other_button != 1 else ""
             on_mask = self._properties[f"{ON_MASK}{button_str}"]
             off_mask = self._properties[f"{OFF_MASK}{button_str}"]
-            if on_mask.is_loaded and off_mask.is_loaded:
-                for button in buttons:
-                    bit = button - 1
-                    on_set = (
-                        bit_is_set(on_mask.new_value, bit)
-                        if on_mask.is_dirty
-                        else bit_is_set(on_mask.value, bit)
-                    )
-                    off_set = (
-                        bit_is_set(off_mask.new_value, bit)
-                        if off_mask.is_dirty
-                        else bit_is_set(off_mask.value, bit)
-                    )
-                    if on_set or off_set and other_button not in addl_buttons:
-                        addl_buttons.append(other_button)
-                        continue
+            if not on_mask.is_loaded or not off_mask.is_loaded:
+                on_mask.set_value(0)
+                off_mask.set_value(0)
+            for button in buttons:
+                bit = button - 1
+                on_set = (
+                    bit_is_set(on_mask.new_value, bit)
+                    if on_mask.is_dirty
+                    else bit_is_set(on_mask.value, bit)
+                )
+                off_set = (
+                    bit_is_set(off_mask.new_value, bit)
+                    if off_mask.is_dirty
+                    else bit_is_set(off_mask.value, bit)
+                )
+                if on_set or off_set and other_button not in addl_buttons:
+                    addl_buttons.append(other_button)
+                    continue
 
         for button in buttons:
             button_str = f"_{button}" if button != 1 else ""
@@ -1075,6 +1084,9 @@ class DimmableLightingControl_I3_KeypadLinc_4(I3VariableResponderBase):
             button_str = f"_{addl_button}" if addl_button != 1 else ""
             on_mask = self._properties[f"{ON_MASK}{button_str}"]
             off_mask = self._properties[f"{OFF_MASK}{button_str}"]
+            if not on_mask.is_loaded or not off_mask.is_loaded:
+                on_mask.set_value(0)
+                off_mask.set_value(0)
             for button in buttons:
                 if on_mask.is_dirty:
                     on_mask.new_value = set_bit(on_mask.new_value, button - 1, False)
@@ -1243,6 +1255,8 @@ class DimmableLightingControl_I3_KeypadLinc_4(I3VariableResponderBase):
         button2_str = f"_{button2}" if button2 != 1 else ""
         on_mask = self._properties[f"{ON_MASK}{button2_str}"]
         off_mask = self._properties[f"{OFF_MASK}{button2_str}"]
+        if not on_mask.is_loaded or not off_mask.is_loaded:
+            return False
         follow = bit_is_set(on_mask.value, button1 - 1)
         set_off = bit_is_set(off_mask.value, button1 - 1)
         if follow:
@@ -1260,6 +1274,8 @@ class DimmableLightingControl_I3_KeypadLinc_4(I3VariableResponderBase):
                 continue
             button_str = f"_{follow_button}" if follow_button != 1 else ""
             on_mask = self._properties[f"{ON_MASK}{button_str}"]
+            if not on_mask.is_loaded:
+                return False
             follow = bit_is_set(on_mask.value, button - 1)
             if follow:
                 return True

@@ -1,7 +1,7 @@
 """KeypadLink toggle button property."""
+from . import calc_toggle_mode, get_usable_value
 from ..constants import ToggleMode
 from ..utils import bit_is_set, set_bit
-from . import calc_toggle_mode, get_usable_value
 from .derived_property import DerivedProperty
 
 
@@ -20,7 +20,7 @@ class ToggleButtonProperty(DerivedProperty):
     @property
     def value(self):
         """Return the toggle mode of the undlying properties."""
-        if self.is_loaded:
+        if not self.is_loaded:
             return None
         toggle_value = bit_is_set(self._non_toggle_mask_prop.value, self._button_bit)
         toggle_on_value = bit_is_set(
@@ -43,6 +43,9 @@ class ToggleButtonProperty(DerivedProperty):
     @new_value.setter
     def new_value(self, value):
         """Set the new toggle mode value of the button."""
+        if not self.is_loaded:
+            return
+
         if value is None:
             self._non_toggle_mask_prop.new_value = None
             self._non_toggle_on_off_mask_prop.new_value = None
@@ -80,6 +83,6 @@ class ToggleButtonProperty(DerivedProperty):
     def is_loaded(self):
         """Return the load status of the underlying properties."""
         return (
-            not self._non_toggle_mask_prop.is_loaded
-            or not self._non_toggle_on_off_mask_prop.is_loaded
+            self._non_toggle_mask_prop.is_loaded
+            and self._non_toggle_on_off_mask_prop.is_loaded
         )
