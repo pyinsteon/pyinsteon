@@ -276,7 +276,7 @@ class Device(ABC):
             modem_data2=self.subcat,
             modem_data3=self.firmware,
         )
-        link_0 = self._default_links.append(link_0)
+        self._default_links.append(link_0)
 
     def _register_events(self):
         """Add events that are triggered when events are fired from the device."""
