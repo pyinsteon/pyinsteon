@@ -38,6 +38,8 @@ def calc_radio_button_groups(device, device_view=True):
                 on_mask = device.properties[on_mask_name(button)].value
             else:
                 on_mask = get_usable_value(device.properties[on_mask_name(button)])
+            if on_mask is None:
+                on_mask = 0
             if on_mask != 0:
                 rb_group = [button]
                 for bit in list(range(0, button - 1)) + list(range(button, 8)):

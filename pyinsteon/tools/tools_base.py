@@ -176,7 +176,7 @@ class ToolsBase(Cmd):
                 else:
                     line = await self._input(prompt=self.prompt)
                     if not line:
-                        line = "EOF"
+                        line = ""
                 line = self.precmd(line)
                 try:
                     active_task = asyncio.create_task(self.async_onecmd(line))

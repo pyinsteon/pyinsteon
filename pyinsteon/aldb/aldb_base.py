@@ -81,8 +81,8 @@ class ALDBBase(ABC):
 
     def items(self):
         """Return the memory address an record key value pair."""
-        for mem_addr, rec in self._records.items():
-            yield mem_addr, rec
+        for mem_addr in sorted(self._records, reverse=True):
+            yield mem_addr, self._records[mem_addr]
 
     @property
     def address(self) -> Address:
@@ -107,7 +107,7 @@ class ALDBBase(ABC):
     @property
     def high_water_mark_mem_addr(self) -> int:
         """Return the High Water Mark record memory address."""
-        for mem_addr, rec in self._records.items():
+        for mem_addr, rec in self.items():
             if rec.is_high_water_mark:
                 return mem_addr
         return None
@@ -141,7 +141,7 @@ class ALDBBase(ABC):
 
         This does not write to the device.
         """
-        for _, rec in self._records.items():
+        for _, rec in self.items():
             self._notify_change(rec, force_delete=True)
         self._records = {}
         self._dirty_records = {}
@@ -162,7 +162,7 @@ class ALDBBase(ABC):
         a `responder` record that is not in the `controller`
         All-Link Database.
         """
-        for _, rec in self._records.items():
+        for _, rec in self.items():
             if rec.is_controller and rec.group == group:
                 yield rec.target
 
@@ -313,10 +313,15 @@ class ALDBBase(ABC):
                     force=force,
                 )
             result = False
-            try:
-                result = await self._write_manager.async_write(rec_to_write, force)
-            except ALDBWriteException:
-                result = ResponseStatus.FAILURE
+            if self._records.get(rec_to_write.mem_addr) and self._records[
+                rec_to_write.mem_addr
+            ].is_exact_match(rec_to_write):
+                result = ResponseStatus.SUCCESS
+            else:
+                try:
+                    result = await self._write_manager.async_write(rec_to_write, force)
+                except ALDBWriteException:
+                    result = ResponseStatus.FAILURE
 
             if result == ResponseStatus.DIRECT_NAK_PRE_NAK and self._read_manager:
                 async for test_rec in self._read_manager.async_read(
@@ -373,7 +378,7 @@ class ALDBBase(ABC):
             data3=data3,
             in_use=in_use,
         )
-        for _, rec in self._records.items():
+        for _, rec in self.items():
             in_use_match = in_use is None or rec.is_in_use == in_use
             if rec == test_rec and in_use_match:
                 yield rec
@@ -447,7 +452,7 @@ class ALDBBase(ABC):
             return existing_record.mem_addr
 
         next_mem_addr = self._mem_addr
-        for mem_addr, rec in self._records.items():
+        for mem_addr, rec in self.items():
             if not rec.is_in_use or rec.is_high_water_mark:
                 # This should always be the return if the ALDB is loaded
                 return mem_addr
@@ -493,7 +498,7 @@ class ALDBBase(ABC):
         irrelivant.
         """
         curr_hwm_mem_addr = 0x0000
-        for curr_mem_addr, curr_rec in self._records.items():
+        for curr_mem_addr, curr_rec in self.items():
             if curr_rec.is_high_water_mark:
                 curr_hwm_mem_addr = curr_mem_addr
                 break

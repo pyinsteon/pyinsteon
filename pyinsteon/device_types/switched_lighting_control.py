@@ -325,22 +325,24 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
             button_str = f"_{other_button}" if other_button != 1 else ""
             on_mask = self._properties[f"{ON_MASK}{button_str}"]
             off_mask = self._properties[f"{OFF_MASK}{button_str}"]
-            if on_mask.is_loaded and off_mask.is_loaded:
-                for button in buttons:
-                    bit = button - 1
-                    on_set = (
-                        bit_is_set(on_mask.new_value, bit)
-                        if on_mask.is_dirty
-                        else bit_is_set(on_mask.value, bit)
-                    )
-                    off_set = (
-                        bit_is_set(off_mask.new_value, bit)
-                        if off_mask.is_dirty
-                        else bit_is_set(off_mask.value, bit)
-                    )
-                    if on_set or off_set and other_button not in addl_buttons:
-                        addl_buttons.append(other_button)
-                        continue
+            if not on_mask.is_loaded or not off_mask.is_loaded:
+                on_mask.set_value(0)
+                off_mask.set_value(0)
+            for button in buttons:
+                bit = button - 1
+                on_set = (
+                    bit_is_set(on_mask.new_value, bit)
+                    if on_mask.is_dirty
+                    else bit_is_set(on_mask.value, bit)
+                )
+                off_set = (
+                    bit_is_set(off_mask.new_value, bit)
+                    if off_mask.is_dirty
+                    else bit_is_set(off_mask.value, bit)
+                )
+                if on_set or off_set and other_button not in addl_buttons:
+                    addl_buttons.append(other_button)
+                    continue
 
         for button in buttons:
             button_str = f"_{button}" if button != 1 else ""
@@ -441,8 +443,10 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
             button_str = f"_{button}" if button != 1 else ""
             on_mask = self._properties[f"{ON_MASK}{button_str}"]
             off_mask = self._properties[f"{OFF_MASK}{button_str}"]
-            follow = bit_is_set(on_mask, group)
-            set_off = bit_is_set(off_mask, group)
+            if not on_mask.is_loaded or not off_mask.is_loaded:
+                continue
+            follow = bit_is_set(on_mask.value, group)
+            set_off = bit_is_set(off_mask.value, group)
             if follow:
                 if set_off:
                     self._groups[button].value = 0
