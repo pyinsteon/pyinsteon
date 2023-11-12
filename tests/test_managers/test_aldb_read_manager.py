@@ -1,7 +1,9 @@
 """Test the ALDBReadManager."""
-# import asyncio
+import asyncio
 from random import randint
 import unittest
+
+import async_timeout
 
 from pyinsteon.address import Address
 from pyinsteon.aldb.aldb_record import ALDBRecord
@@ -276,3 +278,51 @@ class TestAldbReadManager(unittest.TestCase):
             rec_num += 1
             if rec.is_high_water_mark:
                 await mgr.async_stop()
+
+    @async_case
+    async def test_read_one_peek_direct_nak(self):
+        """Test peek record with direct nak response."""
+
+        address = random_address()
+        target = random_address()
+        mgr = ALDBReadManager(address=address, first_record=0x0FFF)
+
+        record = ALDBRecord(
+            memory=0x0FFF,
+            controller=True,
+            group=0,
+            target=target,
+            data1=1,
+            data2=2,
+            data3=3,
+        )
+        mem_hi = record.mem_addr >> 8
+
+        msb_ack_topic = f"ack.{address.id}.{SET_ADDRESS_MSB}.direct"
+        ack_topic = TopicItem(
+            msb_ack_topic, {"cmd1": 0x28, "cmd2": mem_hi, "user_data": None}, 0.5
+        )
+        msb_dir_nak_topic = f"{address.id}.{SET_ADDRESS_MSB}.direct_nak"
+        nak_response_topic = TopicItem(
+            msb_dir_nak_topic,
+            {
+                "cmd1": 0x28,
+                "cmd2": 0xFF,
+                "target": target.id,
+                "hops_left": 3,
+                "user_data": None,
+            },
+            0.5,
+        )
+        send_topics([ack_topic, nak_response_topic])
+
+        async with async_timeout.timeout(3):
+            try:
+                async for _ in mgr.async_read(
+                    mem_addr=record.mem_addr,
+                    num_recs=1,
+                    read_write_mode=ReadWriteMode.PEEK_POKE,
+                ):
+                    assert False
+            except asyncio.TimeoutError:
+                assert False
