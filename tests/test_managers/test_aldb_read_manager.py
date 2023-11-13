@@ -1,7 +1,9 @@
 """Test the ALDBReadManager."""
-# import asyncio
+import asyncio
 from random import randint
 import unittest
+
+import async_timeout
 
 from pyinsteon.address import Address
 from pyinsteon.aldb.aldb_record import ALDBRecord
@@ -276,3 +278,125 @@ class TestAldbReadManager(unittest.TestCase):
             rec_num += 1
             if rec.is_high_water_mark:
                 await mgr.async_stop()
+
+    @async_case
+    async def test_read_all_standard_direct_nak(self):
+        """Test reading all records using the standard method with a Direct NAK response."""
+        address = random_address()
+        mgr = ALDBReadManager(address=address, first_record=0x0FFF)
+        user_data = UserData({"d1": 0x00, "d2": 0x00, "d3": 0, "d4": 0, "d5": 0})
+
+        ack_topic = f"ack.{address.id}.{EXTENDED_READ_WRITE_ALDB}.direct"
+        ack_topic_item = TopicItem(
+            ack_topic, {"cmd1": 0x2F, "cmd2": 0, "user_data": user_data}, 0.5
+        )
+
+        dir_nak_topic = f"{address.id}.{EXTENDED_READ_WRITE_ALDB}.direct_nak"
+        dir_nak_topic_item = TopicItem(
+            dir_nak_topic,
+            {
+                "cmd1": 0x2F,
+                "cmd2": 0xFD,
+                "target": MODEM_ADDRESS,
+                "user_data": None,
+                "hops_left": 3,
+            },
+            0.5,
+        )
+        topic_items = [ack_topic_item, dir_nak_topic_item]
+
+        send_topics(topic_items)
+        async with async_timeout.timeout(3):
+            try:
+                async for _ in mgr.async_read():
+                    assert False
+            except asyncio.TimeoutError:
+                assert False
+
+    @async_case
+    async def test_read_one_standard_direct_nak(self):
+        """Test reading one record using the standard method with a direct NAK."""
+        address = random_address()
+        mgr = ALDBReadManager(address=address, first_record=0x0FFF)
+        mem_addr = 0x0FFF
+
+        mem_hi = mem_addr >> 8
+        mem_lo = mem_addr & 0xFF
+        user_data = UserData(
+            {"d1": 0x00, "d2": 0x00, "d3": mem_hi, "d4": mem_lo, "d5": 1}
+        )
+
+        ack_topic = f"ack.{address.id}.{EXTENDED_READ_WRITE_ALDB}.direct"
+        ack_topic_item = TopicItem(
+            ack_topic, {"cmd1": 0x2F, "cmd2": 0, "user_data": user_data}, 0.5
+        )
+
+        dir_nak_topic = f"{address.id}.{EXTENDED_READ_WRITE_ALDB}.direct_nak"
+        dir_nak_topic_item = TopicItem(
+            dir_nak_topic,
+            {
+                "cmd1": 0x2F,
+                "cmd2": 0xFB,
+                "target": MODEM_ADDRESS,
+                "user_data": None,
+                "hops_left": 3,
+            },
+            0.5,
+        )
+
+        send_topics([ack_topic_item, dir_nak_topic_item])
+
+        async with async_timeout.timeout(3):
+            try:
+                async for _ in mgr.async_read(mem_addr=mem_addr, num_recs=1):
+                    assert False
+            except asyncio.TimeoutError:
+                assert False
+
+    @async_case
+    async def test_read_one_peek_direct_nak(self):
+        """Test peek record with direct nak response."""
+
+        address = random_address()
+        target = random_address()
+        mgr = ALDBReadManager(address=address, first_record=0x0FFF)
+
+        record = ALDBRecord(
+            memory=0x0FFF,
+            controller=True,
+            group=0,
+            target=target,
+            data1=1,
+            data2=2,
+            data3=3,
+        )
+        mem_hi = record.mem_addr >> 8
+
+        msb_ack_topic = f"ack.{address.id}.{SET_ADDRESS_MSB}.direct"
+        ack_topic = TopicItem(
+            msb_ack_topic, {"cmd1": 0x28, "cmd2": mem_hi, "user_data": None}, 0.5
+        )
+        msb_dir_nak_topic = f"{address.id}.{SET_ADDRESS_MSB}.direct_nak"
+        nak_response_topic = TopicItem(
+            msb_dir_nak_topic,
+            {
+                "cmd1": 0x28,
+                "cmd2": 0xFF,
+                "target": target.id,
+                "hops_left": 3,
+                "user_data": None,
+            },
+            0.5,
+        )
+        send_topics([ack_topic, nak_response_topic])
+
+        async with async_timeout.timeout(3):
+            try:
+                async for _ in mgr.async_read(
+                    mem_addr=record.mem_addr,
+                    num_recs=1,
+                    read_write_mode=ReadWriteMode.PEEK_POKE,
+                ):
+                    assert False
+            except asyncio.TimeoutError:
+                assert False

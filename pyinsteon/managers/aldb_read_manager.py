@@ -98,7 +98,6 @@ class ALDBReadManager:
             if response in [
                 ResponseStatus.DIRECT_NAK_ALDB,
                 ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
-                ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
                 ResponseStatus.DIRECT_NAK_CHECK_SUM,
             ]:
                 # When Checksum direct NAK, should we change the checksum method?
@@ -134,6 +133,8 @@ class ALDBReadManager:
                 value = await self._async_peek(mem_addr=mem_addr - curr_byte)
                 if value is None:
                     break
+                if value == -1:
+                    return None
                 record.append(value)
             if len(record) == 8:
                 flags = AllLinkRecordFlags(record[7])
@@ -179,6 +180,18 @@ class ALDBReadManager:
                             return value
                 except asyncio.TimeoutError:
                     pass
+            elif result in [
+                ResponseStatus.DIRECT_NAK_ALDB,
+                ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
+                ResponseStatus.DIRECT_NAK_CHECK_SUM,
+            ]:
+                # When Checksum direct NAK, should we change the checksum method?
+                _LOGGER.error(
+                    "Device refused the ALDB Read command with error: %s (%r)",
+                    result,
+                    result,
+                )
+                return -1
             retries_byte -= 1
             _LOGGER.debug("Retrying byte at 0x%04X", mem_addr)
         return None

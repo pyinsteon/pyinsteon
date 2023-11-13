@@ -13,7 +13,7 @@ from pyinsteon.managers.device_manager import DeviceManager
 _LOGGER = logging.getLogger(__name__)
 _LOGGER_PYINSTEON = logging.getLogger("pyinsteon")
 _LOGGER_MESSAGES = logging.getLogger("pyinsteon.messages")
-_LOGGER_TOPICS = logging.getLogger("topics")
+_LOGGER_TOPICS = logging.getLogger("pyinsteon.topics")
 PATH = os.path.join(os.getcwd())
 
 
@@ -59,12 +59,7 @@ def set_log_levels(
     _setup_logger(_LOGGER, logger)
     _setup_logger(_LOGGER_PYINSTEON, logger_pyinsteon)
     _setup_logger(_LOGGER_MESSAGES, logger_messages)
-    if logger_topics:
-        _setup_logger(_LOGGER_TOPICS, "info")
-        pub.subscribe(_log_all_topics, pub.ALL_TOPICS)
-    else:
-        _setup_logger(_LOGGER_TOPICS, "fatal")
-        pub.unsubscribe(_log_all_topics, pub.ALL_TOPICS)
+    _LOGGER_TOPICS.setLevel(logging.DEBUG if logger_topics else logging.CRITICAL)
 
 
 async def load_devices(devices_mgr: DeviceManager):
