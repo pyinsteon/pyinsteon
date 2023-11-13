@@ -98,7 +98,6 @@ class ALDBReadManager:
             if response in [
                 ResponseStatus.DIRECT_NAK_ALDB,
                 ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
-                ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
                 ResponseStatus.DIRECT_NAK_CHECK_SUM,
             ]:
                 # When Checksum direct NAK, should we change the checksum method?
@@ -183,7 +182,6 @@ class ALDBReadManager:
                     pass
             elif result in [
                 ResponseStatus.DIRECT_NAK_ALDB,
-                ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
                 ResponseStatus.DIRECT_NAK_INVALID_COMMAND,
                 ResponseStatus.DIRECT_NAK_CHECK_SUM,
             ]:
