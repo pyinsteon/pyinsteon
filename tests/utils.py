@@ -17,7 +17,7 @@ from pyinsteon.address import Address
 from pyinsteon.protocol.messages.inbound import create
 import pyinsteon.protocol.protocol
 
-from tests import _LOGGER_MESSAGES, async_connect_mock
+from tests import _LOGGER_MESSAGES, _LOGGER_TOPICS, async_connect_mock
 
 
 def hex_to_inbound_message(hex_data):
@@ -61,7 +61,7 @@ def send_topics(topic_items):
     async def async_send_topics(topic_items):
         for item in topic_items:
             await asyncio.sleep(item.delay)
-            _LOGGER_MESSAGES.debug("RX: %s  %s", item.topic, item.kwargs)
+            _LOGGER_TOPICS.debug("Topic: %s  %s", item.topic, item.kwargs)
             pub.sendMessage(item.topic, **item.kwargs)
 
     asyncio.ensure_future(async_send_topics(topic_items))
