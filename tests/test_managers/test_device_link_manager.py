@@ -1,15 +1,20 @@
 """Test the device_link_manager class."""
 import asyncio
+from datetime import timedelta
 from random import randint
 import unittest
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock, Mock, patch
 
 from pyinsteon import devices, link_manager
 from pyinsteon.aldb.aldb_record import ALDBRecord
+from pyinsteon.constants import ResponseStatus
 from pyinsteon.device_types.hub import Hub
+from pyinsteon.managers import device_link_manager
 
 from tests import load_devices, set_log_levels
 from tests.utils import TopicItem, async_case, cmd_kwargs, send_topics
+
+test_lock = asyncio.Lock()
 
 
 def _reset_devices(addresses):
@@ -21,6 +26,7 @@ def _reset_devices(addresses):
         device.aldb.async_write = AsyncMock()
         device.aldb.async_write.call_count = 0
         device.aldb.clear = Mock()
+        device.async_status.return_value = ResponseStatus.SUCCESS
 
 
 def _add_rec_to_aldb(device, record):
@@ -56,8 +62,6 @@ async def _load_devices(lock):
 class TestDeviceLinkManager(unittest.TestCase):
     """Test the DeviceLinkManager class."""
 
-    _test_lock = asyncio.Lock()
-
     def setUp(self) -> None:
         """Set up the tests."""
         set_log_levels(logger_topics=True)
@@ -65,7 +69,7 @@ class TestDeviceLinkManager(unittest.TestCase):
     @async_case
     async def test_device_links_broadcast(self):
         """Test device links."""
-        await _load_devices(self._test_lock)
+        await _load_devices(test_lock)
 
         topic = "1a1a1a.1.on.all_link_broadcast"
         topic_item = TopicItem(topic, cmd_kwargs(0x11, 0xFF, None, "00.00.01"), 0)
@@ -76,21 +80,24 @@ class TestDeviceLinkManager(unittest.TestCase):
 
     @async_case
     async def test_device_links_cleanup(self):
-        """Test device links."""
+        """Test device links on cleanup message."""
 
-        await _load_devices(self._test_lock)
+        await _load_devices(test_lock)
 
-        topic = "1a1a1a.1.off.all_link_cleanup"
-        topic_item = TopicItem(topic, cmd_kwargs(0x11, 0xFF, None, "11.11.11"), 0)
-        devices["3c3c3c"].async_status.call_count = 0
-        send_topics([topic_item])
-        await asyncio.sleep(0.2)
-        assert devices["3c3c3c"].async_status.call_count == 1
+        with patch.object(
+            device_link_manager, "TIMEOUT_DUPLICATE", timedelta(milliseconds=1)
+        ):
+            topic = "1a1a1a.1.off.all_link_cleanup"
+            topic_item = TopicItem(topic, cmd_kwargs(0x11, 0xFF, None, "11.11.11"), 0)
+            devices["3c3c3c"].async_status.call_count = 0
+            send_topics([topic_item])
+            await asyncio.sleep(0.2)
+            assert devices["3c3c3c"].async_status.call_count == 1
 
     @async_case
     async def test_device_links_dedup(self):
-        """Test device links."""
-        await _load_devices(self._test_lock)
+        """Test device links deduplication."""
+        await _load_devices(test_lock)
 
         topic_broadcast = "1a1a1a.1.on_fast.all_link_broadcast"
         topic_broadcast_item = TopicItem(
@@ -109,7 +116,7 @@ class TestDeviceLinkManager(unittest.TestCase):
     @async_case
     async def test_adding_removing_links(self):
         """Test adding or removing links."""
-        await _load_devices(self._test_lock)
+        await _load_devices(test_lock)
         controller = devices["1a1a1a"].address
         responder = devices["3c3c3c"].address
         link_data = link_manager.links[controller][1][responder]
@@ -235,3 +242,16 @@ class TestDeviceLinkManager(unittest.TestCase):
         await asyncio.sleep(0.1)
         assert len(link_manager.links) == 3
         assert not link_manager.links.get(controller)
+
+    @async_case
+    async def test_device_links_broadcast_no_response(self):
+        """Test device links retry if no response."""
+        await _load_devices(test_lock)
+
+        topic = "1a1a1a.1.off.all_link_broadcast"
+        topic_item = TopicItem(topic, cmd_kwargs(0x11, 0xFF, None, "00.00.01"), 0)
+        devices["3c3c3c"].async_status.call_count = 0
+        devices["3c3c3c"].async_status.return_value = ResponseStatus.FAILURE
+        send_topics([topic_item])
+        await asyncio.sleep(0.2)
+        assert devices["3c3c3c"].async_status.call_count == 5
