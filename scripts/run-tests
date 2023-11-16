@@ -1,2 +1,2 @@
 #!/bin/sh
-pytest --cov=./pyinsteon --cov-report term-missing -- ./tests
+pytest -o log_cli_level=DEBUG --cov=./pyinsteon --cov-report=term-missing -- ./tests

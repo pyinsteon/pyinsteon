@@ -32,8 +32,17 @@ rec_0ff7 = ALDBRecord(
     data2=5,
     data3=6,
 )
-rec_hwm = ALDBRecord(
+rec_0fef = ALDBRecord(
     0x0FEF,
+    controller=False,
+    group=2,
+    target=modem_address,
+    data1=7,
+    data2=8,
+    data3=9,
+)
+rec_hwm = ALDBRecord(
+    0x0FE7,
     controller=False,
     group=0,
     target="000000",
@@ -43,11 +52,8 @@ rec_hwm = ALDBRecord(
     in_use=False,
     high_water_mark=True,
 )
-records = {
-    0x0FFF: rec_0fff,
-    0x0FF7: rec_0ff7,
-    0x0FEF: rec_hwm,
-}
+# Purposely adding the records out of order to ensure we test the `async_write`` method correctly.
+records = {rec.mem_addr: rec for rec in [rec_0fff, rec_0ff7, rec_hwm, rec_0fef]}
 
 
 class MockALDBWriteManager:
@@ -113,7 +119,7 @@ class TestAldbBase(TestCase):
         self.setup_aldb(aldb, records)
         for mem_addr in aldb:
             assert mem_addr in records
-        assert aldb.high_water_mark_mem_addr == 0x0FEF
+        assert aldb.high_water_mark_mem_addr == 0x0FE7
 
         rec = aldb.get(0x0FFF)
         assert rec
@@ -147,7 +153,7 @@ class TestAldbBase(TestCase):
         aldb = ALDB(address)
         self.setup_aldb(aldb, records, ALDBStatus.LOADED)
         assert aldb.status == ALDBStatus.LOADED
-        assert len(aldb) == 3
+        assert len(aldb) == 4
 
         temp_recs = records.copy()
         temp_recs.pop(0x0FFF)
@@ -162,7 +168,7 @@ class TestAldbBase(TestCase):
         aldb = ALDB(address)
         self.setup_aldb(aldb, records, ALDBStatus.LOADED)
         assert aldb.status == ALDBStatus.LOADED
-        assert len(aldb) == 3
+        assert len(aldb) == 4
 
         self.setup_aldb(aldb, records, ALDBStatus.LOADED, first_mem_addr=0x0AAA)
         assert aldb.first_mem_addr == 0x0FFF
@@ -369,7 +375,7 @@ class TestAldbBase(TestCase):
         aldb = ALDB(random_address())
         self.setup_aldb(aldb, records)
         for rec in aldb.find(target=rec_0ff7.target):
-            assert rec == rec_0ff7
+            assert rec in [rec_0ff7, rec_0fef]
         for rec in aldb.find(group=rec_0ff7.group):
             assert rec == rec_0ff7
         for rec in aldb.find(
@@ -397,13 +403,13 @@ class TestAldbBase(TestCase):
         aldb._write_manager = mock_writer
         self.setup_aldb(aldb, records, ALDBStatus.LOADED)
 
-        aldb.add(group=1, target=random_address())
+        aldb.add(group=3, target=random_address())
         success, failure = await aldb.async_write()
         assert success == 1
         assert failure == 0
-        new_rec = aldb[0x0FEF]
-        hwm_rec = aldb[0x0FE7]
-        assert new_rec.group == 1
+        new_rec = aldb[0x0FE7]
+        hwm_rec = aldb[0x0FDF]
+        assert new_rec.group == 3
         assert hwm_rec
         assert hwm_rec.is_high_water_mark
 
@@ -420,8 +426,8 @@ class TestAldbBase(TestCase):
         assert failure == 0
 
         mod_rec = aldb[0x0FEF]
-        new_rec = aldb[0x0FE7]
-        hwm_rec = aldb[0x0FDF]
+        new_rec = aldb[0x0FDF]
+        hwm_rec = aldb[0x0FD7]
         assert mod_rec.group == 255
         assert new_rec.group == 2
         assert hwm_rec
@@ -571,7 +577,7 @@ class TestAldbBase(TestCase):
         assert call_count == 1
 
         # Remove controller
-        rec = aldb[0x0FEF]
+        rec = aldb[0x0FE7]
         assert rec.target == target  # Make sure we have the right record
         assert rec.is_controller
         aldb.remove(mem_addr=rec.mem_addr)
@@ -593,7 +599,7 @@ class TestAldbBase(TestCase):
         assert call_count == 1
 
         # Remove responder
-        rec = aldb[0x0FEF]
+        rec = aldb[0x0FE7]
         assert rec.target == target  # Make sure we have the right record
         assert not rec.is_controller
         aldb.remove(mem_addr=rec.mem_addr)

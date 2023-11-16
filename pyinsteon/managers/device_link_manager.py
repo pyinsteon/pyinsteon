@@ -8,7 +8,7 @@ import voluptuous as vol
 from .. import pub
 from ..address import Address
 from ..aldb.aldb_record import ALDBRecord
-from ..constants import AllLinkMode, DeviceAction, MessageFlagType
+from ..constants import AllLinkMode, DeviceAction, MessageFlagType, ResponseStatus
 from ..topics import ALDB_LINK_CHANGED
 from ..utils import subscribe_topic, unsubscribe_topic
 
@@ -229,7 +229,11 @@ class DeviceLinkManager:
                     if device.cat in [0x01, 0x02] and data.data3 is not None:
                         device.groups[data.data3].value = data.data1
                 if not device.is_battery:
-                    await device.async_status()
+                    response = ResponseStatus.UNSENT
+                    retries = 5
+                    while retries and response != ResponseStatus.SUCCESS:
+                        response = await device.async_status()
+                        retries -= 1
 
     def _is_standard_modem_link(self, controller, responder, group):
         """Test if a link is a standard modem link."""
