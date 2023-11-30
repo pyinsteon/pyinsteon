@@ -126,21 +126,6 @@ class Device(ABC):
         return self._events
 
     @property
-    def prod_data_in_aldb(self):
-        """Return if the PLM use the ALDB data to setup the device.
-
-        True if Product data (cat, subcat) is stored in the PLM ALDB.
-        False if product data must be acquired via a Device ID message or from
-        a Product Data Request command.
-
-        The method of linking determines if product data in the ALDB,
-        therefore False is the default. The common reason to store product data
-        in the ALDB is for one way devices or battery opperated devices where
-        the ability to send a command request is limited.
-        """
-        return self._product_data_in_aldb
-
-    @property
     def aldb(self):
         """Return the device All-Link Database."""
         return self._aldb

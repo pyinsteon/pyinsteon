@@ -1,7 +1,7 @@
 """X10 device types."""
 
 from ..aldb.no_aldb import NoALDB
-from ..constants import ResponseStatus
+from ..constants import EngineVersion, ResponseStatus
 from ..x10_address import create
 
 
@@ -33,21 +33,6 @@ class X10DeviceBase:
         return self._address
 
     @property
-    def description(self):
-        """Return the INSTEON device description."""
-        return self._description
-
-    @property
-    def model(self):
-        """Return the INSTEON device model number."""
-        return self._model
-
-    @property
-    def id(self):
-        """Return the ID of the device."""
-        return self._address.id
-
-    @property
     def cat(self):
         """Return a fake Insteon device category."""
         return 0xFF
@@ -61,6 +46,31 @@ class X10DeviceBase:
     def firmware(self):
         """Return a fake Insteon device firmware."""
         return 0xFF
+
+    @property
+    def description(self):
+        """Return the INSTEON device description."""
+        return self._description
+
+    @property
+    def model(self):
+        """Return the INSTEON device model number."""
+        return self._model
+
+    @property
+    def product_id(self):
+        """Return a dummy product ID."""
+        return None
+
+    @property
+    def id(self):
+        """Return the ID of the device."""
+        return self._address.id
+
+    @property
+    def events(self):
+        """Return the device events."""
+        return self._events
 
     @property
     def groups(self):
@@ -83,6 +93,11 @@ class X10DeviceBase:
         return {}
 
     @property
+    def configuration(self):
+        """Return a dummy configuration set."""
+        return {}
+
+    @property
     def default_links(self):
         """Return the list of default links."""
         return []
@@ -95,10 +110,11 @@ class X10DeviceBase:
     @property
     def engine_version(self):
         """Return an engine version."""
-        return 0
+        return EngineVersion.UNKNOWN
 
-    def status(self, group=None):
-        """Get the status of the device."""
+    @engine_version.setter
+    def engine_version(self, value: EngineVersion):
+        """Mock setter for the X10 engine version."""
 
     async def async_status(self, group=None):
         """Get the status of the device."""
@@ -106,6 +122,14 @@ class X10DeviceBase:
 
     async def async_read_config(self, read_aldb: bool = True):
         """Get all configuration settings.
+
+        This command does nothing for X10 devices.
+
+        """
+        return ResponseStatus.SUCCESS
+
+    async def async_write_config(self):
+        """Write the configuration settings.
 
         This command does nothing for X10 devices.
 
@@ -134,6 +158,20 @@ class X10DeviceBase:
 
     async def async_add_default_links(self):
         """Add the default links betweent he modem and the device."""
+        return ResponseStatus.SUCCESS
+
+    async def async_get_engine_version(self):
+        """Read the device engine version.
+
+        This command does nothing in X10 devices.
+        """
+        return ResponseStatus.SUCCESS
+
+    async def async_ping(self):
+        """Ping the device.
+
+        This command does nothing in X10 devices.
+        """
         return ResponseStatus.SUCCESS
 
     def _register_handlers_and_managers(self):
