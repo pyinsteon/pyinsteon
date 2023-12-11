@@ -170,7 +170,7 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
         self._add_property(name=BATTERY_LEVEL, data_field=4, set_cmd=None)
         self._add_property(name=SENSOR_STATUS, data_field=5, set_cmd=None)
         self._add_property(name=HEARBEAT_INTERVAL, data_field=6, set_cmd=2)
-        self._add_property(name=BATTERY_LOW_LEVEL, data_field=6, set_cmd=3)
+        self._add_property(name=BATTERY_LOW_LEVEL, data_field=7, set_cmd=3)
 
     def _register_default_links(self):
         super()._register_default_links()
