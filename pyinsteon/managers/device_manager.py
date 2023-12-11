@@ -17,7 +17,6 @@ from .device_id_manager import DeviceId, DeviceIdManager
 from .link_manager import (
     async_cancel_linking_mode,
     async_enter_linking_mode,
-    async_enter_unlinking_mode,
     async_unlink_devices,
 )
 from .utils import create_device, create_x10_device
@@ -42,6 +41,7 @@ class DeviceManager(SubscriberBase):
         self._delay_device_inspection = False
         self._to_be_inspected = []
         self._linked_device = asyncio.Queue()
+        self.items = self._devices.items
 
     def __getitem__(self, address) -> Device:
         """Return a a device from the device address."""
@@ -139,11 +139,17 @@ class DeviceManager(SubscriberBase):
         """Return a list of addresses where the device type is unknown."""
         return self._id_manager.unknown_devices
 
-    async def async_inspect_devices(self):
-        """Inspect the properties of the devices who's inspection was delayed ealier."""
+    async def async_inspect_device(self, device: Device):
+        """Inspect the properties of the devices."""
+        await device.async_read_config()
+        await self.modem.aldb.async_load()
+        await device.async_add_default_links()
+
+    async def _async_ensure_inspect_devices(self):
+        """Insepct the properties of the device who's insepection was delayed earlier."""
         while self._to_be_inspected:
             device = self._to_be_inspected.pop()
-            await device.async_read_config()
+            await self.async_inspect_device(device)
 
     def set_id(self, address: Address, cat: int, subcat: int, firmware: int):
         """Add a device override to identify the device information.
@@ -209,32 +215,57 @@ class DeviceManager(SubscriberBase):
             self._call_subscribers(address=None, action=DeviceAction.COMPLETED)
             if self._delay_device_inspection:
                 self._delay_device_inspection = False
-                asyncio.ensure_future(self.async_inspect_devices())
+                asyncio.ensure_future(self._async_ensure_inspect_devices())
 
-    async def async_remove_device(self, address: Address = None, force: bool = False):
+    async def async_remove_device(
+        self,
+        address: Address = None,
+        force: bool = False,
+        remove_all_refs: bool = False,
+    ):
         """Remove one or more devices.
 
         This method will remove all links in the modem were the device is the target and
         all links in the device where the modem is the target.
 
-        If `force` is `True` this method will not attempt to place the device in unlinking mode.
-        Therefore the device database will not be changed. All modem links to the device will be removed.
-        """
-        if address is not None:
-            address = Address(address)
+        If `force` is `True`, the device database will not be changed. Only modem links to the device will be removed.
 
-        while not self._linked_device.empty():
-            self._linked_device.get_nowait()
+        If `remove_all_refs` is `True`, all references to the device will be removed from all other devices.
+        """
+
+        address = Address(address)
         try:
-            await async_enter_unlinking_mode(group=0, address=address)
-            async with async_timeout.timeout(3 * 60):
-                unlinked_address = await self._linked_device.get()
-                if unlinked_address:
-                    await async_unlink_devices(self.modem, unlinked_address)
-                    return unlinked_address
-                return None
-        finally:
-            await async_cancel_linking_mode()
+            device_to_delete = self._devices.pop(address)
+        except KeyError:
+            force = True
+
+        if remove_all_refs:
+            for _, device in self.items():
+                if device == self.modem or device.address == address:
+                    continue
+                await async_unlink_devices(device, address)
+
+        if not force and device_to_delete:
+            for rec in device_to_delete.aldb.find(
+                target=self.modem.address, in_use=True
+            ):
+                if rec.group == 0:
+                    continue
+                device_to_delete.aldb.modify(mem_addr=rec.mem_addr, in_use=False)
+            await device_to_delete.aldb.async_write()
+
+            for rec in device_to_delete.aldb.find(
+                target=self.modem.address, in_use=True, group=0
+            ):
+                device_to_delete.aldb.modify(mem_addr=rec.mem_addr, in_use=False)
+            await device_to_delete.aldb.async_write()
+
+        for rec in self.modem.aldb.find(target=address, in_use=True):
+            self.modem.aldb.modify(mem_addr=rec.mem_addr, in_use=False)
+
+        # Return just the modem results because that is what really matters
+        result, _ = await self.modem.aldb.async_write()
+        return result
 
     async def async_cancel_all_linking(self):
         """Cancel the All-Link process.
@@ -349,7 +380,7 @@ class DeviceManager(SubscriberBase):
                 if self._delay_device_inspection:
                     self._to_be_inspected.append(device)
                 else:
-                    await device.async_read_config()
+                    await self.async_inspect_device(device)
             _LOGGER.debug("Device %s added", str(device.address))
             _DEVICE_LOGGERS.append(
                 logging.getLogger(f"pyinsteon.{device_id.address.id}")
