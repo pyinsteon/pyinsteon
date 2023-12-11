@@ -240,7 +240,7 @@ class ALDBReadManager:
 
     async def _read_all_peek(self):
         """Read all ALDB records using peek commands."""
-        next_record = self._first_record if self._first_record else self._
+        next_record = self._first_record
         while self._continue:
             record = await self._read_one_peek(next_record)
             if record is None:
