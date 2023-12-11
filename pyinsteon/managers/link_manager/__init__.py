@@ -3,11 +3,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Union
+from typing import TYPE_CHECKING, List, Union
 
 import async_timeout
 
 from ...address import Address
+from ...aldb.aldb_record import ALDBRecord
 from ...constants import AllLinkMode, EngineVersion, LinkStatus, ResponseStatus
 from ...handlers.cancel_all_linking import CancelAllLinkingCommandHandler
 from ...handlers.start_all_linking import StartAllLinkingCommandHandler
@@ -15,17 +16,20 @@ from ...handlers.to_device.engine_version_request import EngineVersionRequest
 from ...handlers.to_device.enter_linking_mode import EnterLinkingModeCommand
 from ...handlers.to_device.enter_unlinking_mode import EnterUnlinkingModeCommand
 
+if TYPE_CHECKING:
+    from ...device_types.device_base import Device
+
 TIMEOUT = 3
 _LOGGER = logging.getLogger(__name__)
 _engine_version_queue = asyncio.Queue()
 
 
-async def _handle_engine_version(engine_version):
+async def _handle_engine_version(engine_version: EngineVersion):
     """Handle the engine version response."""
     await _engine_version_queue.put(engine_version)
 
 
-async def _get_engine_version(address):
+async def _get_engine_version(address: Address):
     """Get the engine version of the device."""
 
     while not _engine_version_queue.empty():
@@ -115,7 +119,7 @@ async def async_enter_unlinking_mode(group: int, address: Address = None):
 
 
 async def async_link_devices(
-    controller, responder, group: int = 0, data1=255, data2=28, data3=1
+    controller: Device, responder: Device, group: int = 0, data1=255, data2=28, data3=1
 ):
     """Link two devices."""
 
@@ -124,27 +128,24 @@ async def async_link_devices(
 
     if not hasattr(controller, "address") or not hasattr(responder, "address"):
         raise TypeError("controller and responder must be devices")
-    if _add_link_to_device(
-        device=controller,
-        target=responder.address,
+    responder.aldb.add(
         group=group,
-        is_controller=True,
-        data1=int(responder.cat),
-        data2=responder.subcat,
-        data3=responder.firmware,
-    ):
-        _, failed_1 = await controller.aldb.async_write()
-
-    if _add_link_to_device(
-        device=responder,
         target=controller.address,
-        group=group,
-        is_controller=False,
+        controller=False,
         data1=data1,
         data2=data2,
         data3=data3,
-    ):
-        _, failed_2 = await responder.aldb.async_write()
+    )
+    controller.aldb.add(
+        group=group,
+        target=responder.address,
+        controller=True,
+        data1=data1,
+        data2=data2,
+        data3=data3,
+    )
+    _, failed_2 = await responder.aldb.async_write()
+    _, failed_1 = await controller.aldb.async_write()
 
     if failed_1 or failed_2:
         return ResponseStatus.FAILURE
@@ -157,7 +158,9 @@ async def async_cancel_linking_mode():
     return await cmd.async_send()
 
 
-async def async_unlink_devices(device1, device2, group: Union(int, None) = None):
+async def async_unlink_devices(
+    device1: Device, device2: Union[Device, Address], group: Union(int, None) = None
+):
     """Unlink two devices.
 
     `device2` can be passed as `Device` or `Address`. When `device2` are passed as `Address`, only the links in `device1` will be removed.
@@ -197,7 +200,7 @@ async def async_unlink_devices(device1, device2, group: Union(int, None) = None)
     return ResponseStatus.SUCCESS
 
 
-def find_broken_links(devices):
+def find_broken_links(devices: List[Device]):
     """Find proken links."""
     broken_link_list = {}
     for addr in devices:
@@ -213,7 +216,7 @@ def find_broken_links(devices):
     return broken_link_list
 
 
-def _test_broken(address, rec, devices):
+def _test_broken(address: Address, rec: ALDBRecord, devices: List[Device]):
     """Test if a corresponding record exists in liked device."""
     device = devices.get(rec.target)
     if not device:
@@ -233,39 +236,3 @@ def _test_broken(address, rec, devices):
     if rec.is_controller:
         return LinkStatus.MISSING_RESPONDER
     return LinkStatus.MISSING_CONTROLLER
-
-
-def _add_link_to_device(device, is_controller, group, target, data1, data2, data3):
-    """Add a link to a device.
-
-    If the link already exists it will not be added.
-    """
-    for rec in device.aldb.find(
-        target=Address(target), group=group, is_controller=is_controller
-    ):
-        try:
-            device.aldb.modify(
-                mem_addr=rec.mem_addr,
-                in_use=True,
-                group=group,
-                controller=is_controller,
-                target=target,
-                data1=data1,
-                data2=data2,
-                data3=data3,
-            )
-            return True
-        except NotImplementedError:
-            return False
-    try:
-        device.aldb.add(
-            group=group,
-            target=target,
-            controller=is_controller,
-            data1=data1,
-            data2=data2,
-            data3=data3,
-        )
-    except NotImplementedError:
-        return False
-    return True
