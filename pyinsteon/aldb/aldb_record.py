@@ -95,7 +95,8 @@ class ALDBRecord:
             and (
                 self.mode == AllLinkMode.CONTROLLER
                 or (
-                    other.data3 is None
+                    (other.group == 0 and self.group == 0)
+                    or other.data3 is None
                     or self.data3 is None
                     or self.data3 == other.data3
                 )
