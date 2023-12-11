@@ -140,7 +140,7 @@ class NoALDB:
 
     def find(self, *args, **kwargs) -> List[ALDBRecord]:
         """Find all records matching the criteria."""
-        for no_recs in []:
+        for no_recs in ():
             yield no_recs
 
     def set_load_status(self):
