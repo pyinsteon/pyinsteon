@@ -64,6 +64,7 @@ class ALDBReadManager:
         if read_write_mode == ReadWriteMode.PEEK_POKE:
             read_all_method = self._read_all_peek
             read_one_method = self._read_one_peek
+            mem_addr = self._first_record if mem_addr == 0 else mem_addr
         else:
             read_all_method = self._read_all
             read_one_method = self._read_one
@@ -126,6 +127,7 @@ class ALDBReadManager:
 
     async def _read_one_peek(self, mem_addr):
         """Read one record using peek commands."""
+        mem_addr = self._first_record if mem_addr == 0 else mem_addr
         retries = RETRIES_ONE_MAX
         while retries:
             record = bytearray()
@@ -160,6 +162,7 @@ class ALDBReadManager:
 
     async def _async_peek(self, mem_addr):
         """Peek one byte."""
+        mem_addr = self._first_record if mem_addr == 0 else mem_addr
         _LOGGER.debug("Peeking memory address: 0x%04X", mem_addr)
         retries_byte = 20
         timeout = 3
@@ -237,7 +240,7 @@ class ALDBReadManager:
 
     async def _read_all_peek(self):
         """Read all ALDB records using peek commands."""
-        next_record = self._first_record
+        next_record = self._first_record if self._first_record else self._
         while self._continue:
             record = await self._read_one_peek(next_record)
             if record is None:
