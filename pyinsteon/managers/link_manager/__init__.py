@@ -69,50 +69,76 @@ async def async_enter_linking_mode(
     link_mode: AllLinkMode, group: int, address: Address = None
 ):
     """Put the Insteon Modem into linking mode."""
-
     if address is not None:
+        # pylint: disable=import-outside-toplevel
+        from ... import devices
+
         address = Address(address)
-        engine_version = await _get_engine_version(address)
+        device = devices[address]
+        if device:
+            engine_version = device.engine_version
+        else:
+            engine_version = await _get_engine_version(address)
 
     link_cmd = StartAllLinkingCommandHandler()
     response_modem = await link_cmd.async_send(link_mode=link_mode, group=group)
     _LOGGER.debug("Enter linking mode modem response: %s", str(response_modem))
 
-    response_device = None
+    response_device = ResponseStatus.UNSENT
     if address is not None:
-        extended = engine_version == EngineVersion.I2CS
+        extended = engine_version in [EngineVersion.I2CS, EngineVersion.UNKNOWN]
         device_link_cmd = EnterLinkingModeCommand(address)
-        response_device = await device_link_cmd.async_send(
-            group=group, extended=extended
-        )
-        if response_device != ResponseStatus.SUCCESS:
+        retries = 3
+        while retries and response_device != ResponseStatus.SUCCESS:
+            response_device = await device_link_cmd.async_send(
+                group=group, extended=extended
+            )
+            retries -= 1
+        retries = 3
+        while retries and response_device != ResponseStatus.SUCCESS:
             response_device = await device_link_cmd.async_send(
                 group=group, extended=not extended
             )
+            retries -= 1
         _LOGGER.debug("Enter linking mode device response: %s", str(response_device))
     return response_modem, response_device
 
 
 async def async_enter_unlinking_mode(group: int, address: Address = None):
     """Put the Insteon Modem into unlinking mode."""
+
     if address is not None:
+        # pylint: disable=import-outside-toplevel
+        from ... import devices
+
         address = Address(address)
-        engine_version = await _get_engine_version(address)
+        device = devices[address]
+        if device:
+            engine_version = device.engine_version
+        else:
+            engine_version = await _get_engine_version(address)
     modem_link_cmd = StartAllLinkingCommandHandler()
     link_mode = AllLinkMode.DELETE
     response_modem = await modem_link_cmd.async_send(link_mode=link_mode, group=group)
 
     _LOGGER.debug("Enter linking mode modem response: %s", str(response_modem))
 
-    response_device = None
+    response_device = ResponseStatus.UNSENT
     if address is not None:
-        extended = engine_version == EngineVersion.I2CS
+        extended = engine_version in [EngineVersion.I2CS, EngineVersion.UNKNOWN]
         device_link_cmd = EnterUnlinkingModeCommand(address)
-        await device_link_cmd.async_send(group=group, extended=extended)
-        if response_device != ResponseStatus.SUCCESS:
+        retries = 3
+        while retries and response_device != ResponseStatus.SUCCESS:
+            response_device = await device_link_cmd.async_send(
+                group=group, extended=extended
+            )
+            retries -= 1
+        retries = 3
+        while retries and response_device != ResponseStatus.SUCCESS:
             response_device = await device_link_cmd.async_send(
                 group=group, extended=not extended
             )
+            retries -= 1
         _LOGGER.debug("Enter linking mode device response: %s", str(response_device))
 
     return response_modem, response_device
