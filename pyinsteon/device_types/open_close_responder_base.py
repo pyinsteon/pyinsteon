@@ -1,16 +1,10 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
+
 from ..handlers.to_device.off import OffCommand
 from ..handlers.to_device.off_fast import OffFastCommand
 from ..handlers.to_device.on_fast import OnFastCommand
 from ..handlers.to_device.on_level import OnLevelCommand
-from ..handlers.to_device.status_request import StatusRequestCommand
-from .device_commands import (
-    OFF_COMMAND,
-    OFF_FAST_COMMAND,
-    ON_COMMAND,
-    ON_FAST_COMMAND,
-    STATUS_COMMAND,
-)
+from .device_commands import OFF_COMMAND, OFF_FAST_COMMAND, ON_COMMAND, ON_FAST_COMMAND
 from .open_close_controller_base import OpenCloseControllerBase
 
 
@@ -77,14 +71,8 @@ class OpenCloseResponderBase(OpenCloseControllerBase):
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
         return await self._handlers[group][command].async_send()
 
-    # pylint: disable=arguments-differ
-    async def async_status(self):
-        """Get the status of the device state."""
-        return await self._handlers[STATUS_COMMAND].async_send()
-
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
-        self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address)
         group = 1
         if self._handlers.get(group) is None:
             self._handlers[group] = {}

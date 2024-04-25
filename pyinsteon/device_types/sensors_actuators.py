@@ -1,4 +1,5 @@
 """Sensor/Actuator devices."""
+
 import asyncio
 
 from ..config import (
@@ -19,7 +20,7 @@ from ..config import (
 )
 from ..config.momentary_delay import MomentaryDelayProperty
 from ..config.relay_mode import RelayModeProperty
-from ..constants import PropertyType, RelayMode, ResponseStatus
+from ..constants import PropertyType, RelayMode
 from ..default_link import DefaultLink
 from ..events import CLOSE_EVENT, OFF_EVENT, ON_EVENT, OPEN_EVENT, Event
 from ..groups import OPEN_CLOSE_SENSOR, RELAY
@@ -27,11 +28,9 @@ from ..groups.on_off import OnOff
 from ..groups.open_close import NormallyClosed
 from ..handlers.to_device.off import OffCommand
 from ..handlers.to_device.on_level import OnLevelCommand
-from ..handlers.to_device.status_request import STATUS_REQUEST, StatusRequestCommand
 from ..managers.on_level_manager import OnLevelManager
-from ..utils import multiple_status
 from .device_base import Device
-from .device_commands import OFF_COMMAND, ON_COMMAND
+from .device_commands import OFF_COMMAND, ON_COMMAND, STATUS_COMMAND
 from .on_off_responder_base import OnOffResponderBase
 
 ON_LEVEL_MANAGER = "on_level_manager"
@@ -139,54 +138,10 @@ class SensorsActuators_IOLink(Device):
         """Turn off the relay."""
         return await self._handlers[RELAY_GROUP][OFF_COMMAND].async_send()
 
-    def status(self, group=None):
-        """Get the status of the relay and/or the sensor."""
-        if group in [1, None]:
-            self.relay_status()
-        if group == [2, None]:
-            self.sensor_status()
-
     async def async_status(self, group=None):
-        """Get the status of the relay and/or the sensor."""
-        response_1 = None
-        response_2 = None
-        if group in [1, None]:
-            response_1 = await self.async_relay_status()
-        if group in [2, None]:
-            response_2 = await self.async_sensor_status()
-        return multiple_status(response_1, response_2)
-
-    def relay_status(self):
-        """Get the status of the relay switch."""
-        self._handlers[RELAY_GROUP][STATUS_REQUEST].send()
-
-    async def async_relay_status(self):
-        """Get the status of the relay switch."""
-        async with self._status_lock:
-            response = None
-            retries = 3
-            while response != ResponseStatus.SUCCESS and retries:
-                response = await self._handlers[RELAY_GROUP][
-                    STATUS_REQUEST
-                ].async_send()
-                retries -= 1
-            return response
-
-    def sensor_status(self):
-        """Get the status of the sensor."""
-        self._handlers[SENSOR_GROUP][STATUS_REQUEST].send()
-
-    async def async_sensor_status(self):
-        """Get the status of the sensor."""
-        async with self._status_lock:
-            response = None
-            retries = 3
-            while response != ResponseStatus.SUCCESS and retries:
-                response = await self._handlers[SENSOR_GROUP][
-                    STATUS_REQUEST
-                ].async_send()
-                retries -= 1
-            return response
+        """Get the device status."""
+        status_type = self._groups[group].status_type if group is not None else None
+        return await self._managers[STATUS_COMMAND].async_status(status_type)
 
     def _register_op_flags_and_props(self):
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
@@ -247,14 +202,8 @@ class SensorsActuators_IOLink(Device):
         self._handlers[RELAY_GROUP][OFF_COMMAND] = OffCommand(
             self._address, RELAY_GROUP
         )
-        self._handlers[RELAY_GROUP][STATUS_REQUEST] = StatusRequestCommand(
-            self._address
-        )
 
         self._handlers[SENSOR_GROUP] = {}
-        self._handlers[SENSOR_GROUP][STATUS_REQUEST] = StatusRequestCommand(
-            self.address, 1
-        )
 
     def _register_groups(self):
         """Register the device groups.
@@ -263,9 +212,11 @@ class SensorsActuators_IOLink(Device):
         both send updates on group 1 for broadcast messages. We create two groups because
         we can keep the status of the relay and the sensor separate.
         """
-        self._groups[RELAY_GROUP] = OnOff(RELAY, self._address, RELAY_GROUP)
+        self._groups[RELAY_GROUP] = OnOff(
+            RELAY, self._address, RELAY_GROUP, status_type=0
+        )
         self._groups[SENSOR_GROUP] = NormallyClosed(
-            OPEN_CLOSE_SENSOR, self._address, SENSOR_GROUP
+            OPEN_CLOSE_SENSOR, self._address, SENSOR_GROUP, status_type=1
         )
 
     def _register_events(self):
@@ -299,18 +250,15 @@ class SensorsActuators_IOLink(Device):
         switch_off_event = self._events[RELAY_GROUP][OFF_EVENT]
         on_cmd = self._handlers[RELAY_GROUP][ON_COMMAND]
         off_cmd = self._handlers[RELAY_GROUP][OFF_COMMAND]
-        switch_status_cmd = self._handlers[RELAY_GROUP][STATUS_REQUEST]
 
         on_cmd.subscribe(self._async_switch_changed)
         off_cmd.subscribe(self._async_switch_changed)
         on_cmd.subscribe(switch_on_event.trigger)
         off_cmd.subscribe(switch_off_event.trigger)
-        switch_status_cmd.subscribe(self._handle_switch_status)
 
         self._managers[ON_LEVEL_MANAGER].subscribe(self._async_on_off_received)
-        self._handlers[SENSOR_GROUP][STATUS_REQUEST].subscribe(
-            self._handle_sensor_status
-        )
+        self._managers[STATUS_COMMAND].add_status_type(0, self._handle_switch_status)
+        self._managers[STATUS_COMMAND].add_status_type(1, self._handle_sensor_status)
 
     def _register_default_links(self):
         link = DefaultLink(
@@ -365,14 +313,14 @@ class SensorsActuators_IOLink(Device):
 
         # Need to get status since we don't know if the on/off message was for the relay
         # or the sensor. Get the sensor first since that is the most likely change.
-        await self.async_sensor_status()
+        await self.async_status(group=1)
         if self._groups[SENSOR_GROUP].value != orig_sensor:
             if self._groups[SENSOR_GROUP].value:
                 self._events[SENSOR_GROUP][OPEN_EVENT].trigger(on_level=255)
             else:
                 self._events[SENSOR_GROUP][CLOSE_EVENT].trigger(on_level=0)
 
-        await self.async_relay_status()
+        await self.async_status(group=0)
         if self._groups[RELAY_GROUP].value != orig_relay:
             if self._groups[RELAY_GROUP].value:
                 self._events[RELAY_GROUP][ON_EVENT].trigger(on_level=255)

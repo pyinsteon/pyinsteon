@@ -11,12 +11,14 @@ from ..config.extended_property import ExtendedProperty
 from ..config.operating_flag import OperatingFlag
 from ..constants import DeviceCategory, EngineVersion, PropertyType, ResponseStatus
 from ..default_link import DefaultLink
+from ..device_types.device_commands import STATUS_COMMAND
 from ..handlers.to_device.engine_version_request import EngineVersionRequest
 from ..handlers.to_device.ping import PingCommand
 from ..handlers.to_device.product_data_request import ProductDataRequestCommand
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
 from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
 from ..managers.link_manager.default_links import async_add_default_links
+from ..managers.status_manager import StatusManager
 from ..topics import ENGINE_VERSION
 from ..utils import multiple_status, publish_topic
 
@@ -176,6 +178,7 @@ class Device(ABC):
 
     async def async_status(self, group=None):
         """Get the status of the device."""
+        return ResponseStatus.SUCCESS
 
     async def async_read_config(self, read_aldb: bool = True):
         """Get all configuration settings.
@@ -243,6 +246,7 @@ class Device(ABC):
         """Add all handlers to the device and register listeners."""
         self._handlers["product_data_cmd"] = ProductDataRequestCommand(self._address)
         self._handlers["engine_version_cmd"] = EngineVersionRequest(self._address)
+        self._managers[STATUS_COMMAND] = StatusManager(self._address)
 
     def _subscribe_to_handelers_and_managers(self):
         """Subscribe groups and events to handlers and managers."""

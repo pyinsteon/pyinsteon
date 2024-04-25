@@ -1,6 +1,5 @@
 """Access control device types."""
 
-
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
 from ..groups import ON_OFF_SWITCH
 from .on_off_responder_base import OnOffResponderBase
@@ -25,7 +24,7 @@ class AccessControl_Morningstar(OnOffResponderBase):
         off_fast_event_name=OFF_FAST_EVENT,
     ):
         """Init the OnOffResponderBase class."""
-        buttons = {1: ON_OFF_SWITCH} if buttons is None else buttons
+        buttons = {1: (ON_OFF_SWITCH, 0)} if buttons is None else buttons
         super().__init__(
             address,
             cat,
