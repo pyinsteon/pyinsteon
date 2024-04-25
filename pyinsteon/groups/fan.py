@@ -1,4 +1,5 @@
 """Fan On Level state."""
+
 from ..address import Address
 from ..constants import FanSpeed, FanSpeedRange
 from .group_base import GroupBase
@@ -8,10 +9,17 @@ class FanOnLevel(GroupBase):
     """On / Off state."""
 
     def __init__(
-        self, name: str, address: Address, group: int = 0, default: FanSpeed = None
+        self,
+        name: str,
+        address: Address,
+        group: int = 0,
+        default: FanSpeed = None,
+        status_type: int = 0,
     ):
         """Init the FanOnLevel class."""
-        super().__init__(name, address, group, default, value_type=FanSpeed)
+        super().__init__(
+            name, address, group, default, value_type=FanSpeed, status_type=status_type
+        )
         self._is_dimmable = True
 
     # pylint: disable=arguments-differ

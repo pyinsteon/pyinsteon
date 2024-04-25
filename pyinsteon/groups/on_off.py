@@ -1,4 +1,5 @@
 """On / Off state."""
+
 from ..address import Address
 from .group_base import GroupBase
 
@@ -7,10 +8,17 @@ class OnOff(GroupBase):
     """On / Off state."""
 
     def __init__(
-        self, name: str, address: Address, group: int = 0, default: int = None
+        self,
+        name: str,
+        address: Address,
+        group: int = 0,
+        default: int = None,
+        status_type: int = 0,
     ):
         """Init the OnLevel class."""
-        super().__init__(name, address, group, default, value_type=int)
+        super().__init__(
+            name, address, group, default, value_type=int, status_type=status_type
+        )
 
     # pylint: disable=arguments-differ
     def set_value(self, on_level):

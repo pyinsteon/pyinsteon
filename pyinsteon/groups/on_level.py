@@ -1,4 +1,5 @@
 """On Leve state."""
+
 import logging
 
 from ..address import Address
@@ -11,10 +12,17 @@ class OnLevel(GroupBase):
     """Variable On Level state."""
 
     def __init__(
-        self, name: str, address: Address, group: int = 0, default: int = None
+        self,
+        name: str,
+        address: Address,
+        group: int = 0,
+        default: int = None,
+        status_type: int = 0,
     ):
         """Init the OnLevel class."""
-        super().__init__(name, address, group, default, value_type=int)
+        super().__init__(
+            name, address, group, default, value_type=int, status_type=status_type
+        )
         self._is_dimmable: bool = True
 
     @property
