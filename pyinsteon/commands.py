@@ -1,4 +1,5 @@
 """Collection of topics mapped to commands (cmd1, cmd2)."""
+
 from collections import namedtuple
 import logging
 from typing import Tuple
@@ -48,9 +49,11 @@ from .topics import (
     NIGHT_MODE_ON,
     OFF,
     OFF_AT_RAMP_RATE,
+    OFF_AT_RAMP_RATE_INBOUND,
     OFF_FAST,
     ON,
     ON_AT_RAMP_RATE,
+    ON_AT_RAMP_RATE_INBOUND,
     ON_FAST,
     PEEK,
     PEEK_INTERNAL,
@@ -199,7 +202,7 @@ class Commands:
         """Return if a topic requires a group number."""
         return self._use_group.get(topic)
 
-    def get_topics(self, cmd1, cmd2, flags, userdata=None, send=False) -> str:
+    def get_topics(self, cmd1, cmd2, flags, userdata=None, send=False):
         """Generate a topic from a cmd1, cmd2 and extended flag."""
         found = False
         for topic in self._commands_topic_map.get(cmd1, {}):
@@ -679,6 +682,24 @@ commands.add(
     ud_required=False,
     userdata=None,
     use_group=False,
+)
+commands.add(
+    topic=ON_AT_RAMP_RATE_INBOUND,
+    cmd1=0x34,
+    cmd2=None,
+    ud_allowed=False,
+    ud_required=False,
+    userdata=None,
+    use_group=True,
+)
+commands.add(
+    topic=OFF_AT_RAMP_RATE_INBOUND,
+    cmd1=0x35,
+    cmd2=None,
+    ud_allowed=False,
+    ud_required=False,
+    userdata=None,
+    use_group=True,
 )
 commands.add(
     topic=NIGHT_MODE_ON,

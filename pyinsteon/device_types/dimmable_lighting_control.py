@@ -1,4 +1,5 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
+
 import asyncio
 from collections.abc import Iterable
 from functools import partial
@@ -842,19 +843,6 @@ class DimmableLightingControl_Dial(I3VariableResponderBase):
         self._handlers[STATUS_COMMAND] = StatusRequestCommand(
             self._address, status_type=2
         )
-
-    def _subscribe_to_handelers_and_managers(self):
-        """Subscribe methods to handlers and managers."""
-        super()._subscribe_to_handelers_and_managers()
-        for group, group_prop in self._groups.items():
-            if isinstance(group_prop, OnLevel):
-                self._handlers[group][MANUAL_CHANGE].subscribe(
-                    self._async_on_manual_change
-                )
-
-    async def _async_on_manual_change(self):
-        """Respond to a manual change of the device."""
-        await self.async_status()
 
     def _register_config(self):
         """Register configuration items."""

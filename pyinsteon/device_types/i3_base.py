@@ -1,4 +1,5 @@
 """I3 device base classes."""
+
 import asyncio
 from collections import namedtuple
 from typing import Dict, List, Tuple, Union
@@ -49,13 +50,15 @@ from ..config.operating_flag import OperatingFlag
 from ..constants import PropertyType, ResponseStatus
 from ..groups.on_level import OnLevel
 from ..handlers.from_device.manual_change import ManualChangeInbound
+from ..handlers.from_device.off_at_ramp_rate import OffAtRampRateInbound
+from ..handlers.from_device.on_at_ramp_rate import OnAtRampRateInbound
 from ..handlers.to_device.factory_reset import FactoryResetCommand
 from ..handlers.to_device.night_mode_off import NightModeOffCommand
 from ..handlers.to_device.night_mode_on import NightModeOnCommand
 from ..managers.ext_prop_read_manager import ExtendedPropertyReadManager
 from ..managers.ext_prop_write_manager import ExtendedPropertyWriteManager
 from ..utils import multiple_status
-from .device_commands import MANUAL_CHANGE
+from .device_commands import MANUAL_CHANGE, OFF_AT_RAMP_RATE, ON_AT_RAMP_RATE
 from .on_off_responder_base import OnOffResponderBase
 from .variable_responder_base import VariableResponderBase
 
@@ -583,6 +586,12 @@ class I3VariableResponderBase(I3Base, VariableResponderBase):
         super()._register_handlers_and_managers()
         for group, group_prop in self._groups.items():
             if isinstance(group_prop, OnLevel):
+                self._handlers[group][ON_AT_RAMP_RATE] = OnAtRampRateInbound(
+                    self._address, group
+                )
+                self._handlers[group][OFF_AT_RAMP_RATE] = OffAtRampRateInbound(
+                    self._address, group
+                )
                 self._handlers[group][MANUAL_CHANGE] = ManualChangeInbound(
                     self._address, group
                 )
@@ -592,6 +601,23 @@ class I3VariableResponderBase(I3Base, VariableResponderBase):
         for group, group_prop in self._groups.items():
             if isinstance(group_prop, OnLevel):
                 self._handlers[group][MANUAL_CHANGE].subscribe(self.async_status)
+                # pylint: disable=cell-var-from-loop
+                self._handlers[group][OFF_AT_RAMP_RATE].subscribe(
+                    lambda on_level, ramp_rate: self._handle_on_off_at_ramp_rate(
+                        group, on_level, ramp_rate
+                    ),
+                    force_strong_ref=True,
+                )
+                self._handlers[group][ON_AT_RAMP_RATE].subscribe(
+                    lambda on_level, ramp_rate: self._handle_on_off_at_ramp_rate(
+                        group, on_level, ramp_rate
+                    ),
+                    force_strong_ref=True,
+                )
+
+    def _handle_on_off_at_ramp_rate(self, group: int, on_level: int, ramp_rate: int):
+        """Handle the on and off at ramp rate inbound broadcast messages."""
+        self._groups[group].set_value(on_level)
 
 
 # pylint: disable=super-with-arguments

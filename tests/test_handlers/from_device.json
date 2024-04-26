@@ -241,6 +241,42 @@
         },
         "assert_tests": {}
     },
+    "on_at_ramp_rate_inbound": {
+        "command": ".on_at_ramp_rate.OnAtRampRateInbound",
+        "params": {
+            "address": "",
+            "group": 1
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x34",
+            "cmd2": "0x58",
+            "target": "000001",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "on_level": 95,
+            "ramp_rate": 17
+        }
+    },
+    "off_at_ramp_rate_inbound": {
+        "command": ".off_at_ramp_rate.OffAtRampRateInbound",
+        "params": {
+            "address": "",
+            "group": 1
+        },
+        "message": {
+            "flags": "0xC0",
+            "cmd1": "0x35",
+            "cmd2": "0x58",
+            "target": "000001",
+            "user_data": {}
+        },
+        "assert_tests": {
+            "on_level": 95,
+            "ramp_rate": 17
+        }
+    },
     "on_fast_with_on_level": {
         "command": ".on_fast.OnFastInbound",
         "params": {
