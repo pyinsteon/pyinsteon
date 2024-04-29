@@ -82,8 +82,8 @@ class StatusManager:
             [status_type] if status_type is not None else self._status_cmds.keys()
         )
         async with self._run_lock:
-            for status_type in status_types:
-                result = await self._async_status(self._status_cmds[status_type])
+            for curr_status_type in status_types:
+                result = await self._async_status(self._status_cmds[curr_status_type])
                 results.append(result)
             self._call_waiting = False
 
