@@ -1,4 +1,5 @@
 """Thermostat status manager."""
+
 import asyncio
 from collections import namedtuple
 import logging
@@ -70,7 +71,7 @@ class GetThermostatStatus:
         self._status_listeners = []
         self._set_point_listeners = []
 
-    async def async_status(self):
+    async def async_status(self, group=None):
         """Read the device status."""
         status1 = await self._status()
         status2 = await self._set_point()

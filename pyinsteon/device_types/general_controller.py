@@ -1,4 +1,5 @@
 """General controller devices (cat: 0x00)."""
+
 from ..aldb.no_aldb import NoALDB
 from ..config import (
     GROUPED_ON,
@@ -8,7 +9,6 @@ from ..config import (
     SEND_ON_ONLY,
     STAY_AWAKE_ON,
 )
-from ..constants import ResponseStatus
 from ..groups import (
     ON_OFF_SWITCH_A,
     ON_OFF_SWITCH_B,
@@ -40,12 +40,12 @@ class GeneralController_ControlLinc(VariableControllerBase):
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the GeneralController_ControlLinc class."""
         buttons = {
-            1: ON_OFF_SWITCH_A,
-            2: ON_OFF_SWITCH_B,
-            3: ON_OFF_SWITCH_C,
-            4: ON_OFF_SWITCH_D,
-            5: ON_OFF_SWITCH_E,
-            6: ON_OFF_SWITCH_F,
+            1: (ON_OFF_SWITCH_A, None),
+            2: (ON_OFF_SWITCH_B, None),
+            3: (ON_OFF_SWITCH_C, None),
+            4: (ON_OFF_SWITCH_D, None),
+            5: (ON_OFF_SWITCH_E, None),
+            6: (ON_OFF_SWITCH_F, None),
         }
         super().__init__(
             address, cat, subcat, firmware, description, model, buttons=buttons
@@ -58,12 +58,12 @@ class GeneralController_RemoteLinc(BatteryDeviceBase, VariableControllerBase):
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the GeneralController_RemoteLinc class."""
         buttons = {
-            1: ON_OFF_SWITCH_A,
-            2: ON_OFF_SWITCH_B,
-            3: ON_OFF_SWITCH_C,
-            4: ON_OFF_SWITCH_D,
-            5: ON_OFF_SWITCH_E,
-            6: ON_OFF_SWITCH_F,
+            1: (ON_OFF_SWITCH_A, None),
+            2: (ON_OFF_SWITCH_B, None),
+            3: (ON_OFF_SWITCH_C, None),
+            4: (ON_OFF_SWITCH_D, None),
+            5: (ON_OFF_SWITCH_E, None),
+            6: (ON_OFF_SWITCH_F, None),
         }
         super().__init__(
             address, cat, subcat, firmware, description, model, buttons=buttons
@@ -93,10 +93,6 @@ class GeneralController_MiniRemoteBase(BatteryDeviceBase, VariableControllerBase
         )
         self._database_delta = 0
 
-    async def async_status(self, group=0):
-        """Return success always."""
-        return ResponseStatus.SUCCESS
-
     def _register_op_flags_and_props(self):
         super()._register_op_flags_and_props()
         self._add_operating_flag(PROGRAM_LOCK_ON, 0, 0, 0, 1)
@@ -112,7 +108,7 @@ class GeneralController_MiniRemote_Switch(GeneralController_MiniRemoteBase):
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the GeneralController_MiniRemote_Switch class."""
-        buttons = {1: ON_OFF_SWITCH_A, 2: ON_OFF_SWITCH_B}
+        buttons = {1: (ON_OFF_SWITCH_A, None), 2: (ON_OFF_SWITCH_B, None)}
         super().__init__(
             address, cat, subcat, firmware, description, model, buttons=buttons
         )
@@ -124,10 +120,10 @@ class GeneralController_MiniRemote_4(GeneralController_MiniRemoteBase):
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the GeneralController_MiniRemote_4 class."""
         buttons = {
-            1: ON_OFF_SWITCH_A,
-            2: ON_OFF_SWITCH_B,
-            3: ON_OFF_SWITCH_C,
-            4: ON_OFF_SWITCH_D,
+            1: (ON_OFF_SWITCH_A, None),
+            2: (ON_OFF_SWITCH_B, None),
+            3: (ON_OFF_SWITCH_C, None),
+            4: (ON_OFF_SWITCH_D, None),
         }
         super().__init__(
             address, cat, subcat, firmware, description, model, buttons=buttons
@@ -140,14 +136,14 @@ class GeneralController_MiniRemote_8(GeneralController_MiniRemoteBase):
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the GeneralController_MiniRemote_8 class."""
         buttons = {
-            1: ON_OFF_SWITCH_B,
-            2: ON_OFF_SWITCH_A,
-            3: ON_OFF_SWITCH_D,
-            4: ON_OFF_SWITCH_C,
-            5: ON_OFF_SWITCH_F,
-            6: ON_OFF_SWITCH_E,
-            7: ON_OFF_SWITCH_H,
-            8: ON_OFF_SWITCH_G,
+            1: (ON_OFF_SWITCH_B, None),
+            2: (ON_OFF_SWITCH_A, None),
+            3: (ON_OFF_SWITCH_D, None),
+            4: (ON_OFF_SWITCH_C, None),
+            5: (ON_OFF_SWITCH_F, None),
+            6: (ON_OFF_SWITCH_E, None),
+            7: (ON_OFF_SWITCH_H, None),
+            8: (ON_OFF_SWITCH_G, None),
         }
         super().__init__(
             address, cat, subcat, firmware, description, model, buttons=buttons

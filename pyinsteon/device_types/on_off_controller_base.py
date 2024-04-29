@@ -1,10 +1,11 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
+
 from ..default_link import DefaultLink
 from ..events import OFF_EVENT, ON_EVENT, Event
 from ..groups import ON_OFF_SWITCH
 from ..groups.on_off import OnOff
-from ..handlers.to_device.status_request import StatusRequestCommand
 from ..managers.on_level_manager import OnLevelManager
+from ..managers.status_manager import StatusManager
 from .device_base import Device
 from .device_commands import STATUS_COMMAND
 
@@ -30,21 +31,13 @@ class OnOffControllerBase(Device):
     ):
         """Init the OnOffControllerBase class."""
 
-        self._buttons = {1: ON_OFF_SWITCH} if buttons is None else buttons
+        self._buttons = {1: (ON_OFF_SWITCH, 0)} if buttons is None else buttons
         self._on_event_name = on_event_name
         self._off_event_name = off_event_name
         self._on_fast_event_name = on_fast_event_name
         self._off_fast_event_name = off_fast_event_name
 
         super().__init__(address, cat, subcat, firmware, description, model)
-
-    def status(self, group=None):
-        """Request the status of the device."""
-        self._handlers[STATUS_COMMAND].send()
-
-    async def async_status(self, group=None):
-        """Request the status of the device."""
-        return await self._handlers[STATUS_COMMAND].async_send()
 
     def _register_default_links(self):
         """Register default links for the device."""
@@ -65,7 +58,7 @@ class OnOffControllerBase(Device):
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
 
-        self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address, 0)
+        self._managers[STATUS_COMMAND] = StatusManager(self._address)
         for group in self._buttons:
             if self._managers.get(group) is None:
                 self._managers[group] = {}
@@ -76,15 +69,17 @@ class OnOffControllerBase(Device):
     def _register_groups(self):
         super()._register_groups()
         for group in self._buttons:
-            if self._buttons[group] is not None:
-                name = self._buttons[group]
-                self._groups[group] = OnOff(name, self._address, group)
+            name = self._buttons[group][0]
+            status_type = self._buttons[group][1]
+            self._groups[group] = OnOff(
+                name=name, address=self._address, group=group, status_type=status_type
+            )
 
     def _register_events(self):
         super()._register_events()
         for group in self._buttons:
             self._events[group] = {}
-            button = self._buttons[group]
+            button = self._buttons[group][0]
             if self._on_event_name:
                 self._events[group][self._on_event_name] = Event(
                     self._on_event_name, self._address, group, button
@@ -107,7 +102,7 @@ class OnOffControllerBase(Device):
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-        self._handlers[STATUS_COMMAND].subscribe(self._handle_status)
+        self._managers[STATUS_COMMAND].add_status_type(0, self._handle_status)
         for group in self._buttons:
             if self._groups.get(group) is not None:
                 self._managers[group][ON_LEVEL_MANAGER].subscribe(

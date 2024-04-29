@@ -1,4 +1,5 @@
 """Security, Heath and Safety device types."""
+
 from ..config import (
     AMBIENT_LIGHT_INTENSITY,
     BATTERY_LEVEL,
@@ -94,7 +95,7 @@ class SecurityHealthSafety_DoorSensor(BatteryDeviceBase, OnOffControllerBase):
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the SecurityHealthSafety_DoorSensor class."""
-        buttons = {1: DOOR_SENSOR}
+        buttons = {1: (DOOR_SENSOR, None)}
         super().__init__(
             address=address,
             cat=cat,
@@ -225,7 +226,7 @@ class SecurityHealthSafety_MotionSensor(BatteryDeviceBase, OnOffControllerBase):
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the SecurityHealthSafety_DoorSensor class."""
-        buttons = {1: MOTION_SENSOR}
+        buttons = {1: (MOTION_SENSOR, None)}
         self._light_manager = OnLevelManager(address, self.LIGHT_GROUP)
         self._low_battery_manager = LowBatteryManager(address, self.LOW_BATTERY_GROUP)
         super().__init__(

@@ -1,10 +1,11 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
+
 from ..default_link import DefaultLink
 from ..events import CLOSE_EVENT, OPEN_EVENT, Event
 from ..groups import OPEN_CLOSE_SENSOR
 from ..groups.open_close import NormallyClosed, NormallyOpen
-from ..handlers.to_device.status_request import StatusRequestCommand
 from ..managers.on_level_manager import OnLevelManager
+from ..managers.status_manager import StatusManager
 from .device_base import Device
 from .device_commands import STATUS_COMMAND
 
@@ -32,14 +33,6 @@ class OpenCloseControllerBase(Device):
         self._normally_open = normally_open
         super().__init__(address, cat, subcat, firmware, description, model)
 
-    def status(self, group=None):
-        """Request the status of the device."""
-        self._handlers[STATUS_COMMAND].send()
-
-    async def async_status(self, group=None):
-        """Request the status of the device."""
-        return await self._handlers[STATUS_COMMAND].async_send()
-
     def _register_default_links(self):
         super()._register_default_links()
         link = DefaultLink(
@@ -56,7 +49,7 @@ class OpenCloseControllerBase(Device):
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
-        self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address, 0)
+        self._managers[STATUS_COMMAND] = StatusManager(self._address)
         self._managers[1] = OnLevelManager(self._address, 1)
 
     def _register_groups(self):
@@ -77,7 +70,7 @@ class OpenCloseControllerBase(Device):
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-        self._handlers[STATUS_COMMAND].subscribe(self._handle_status)
+        self._managers[STATUS_COMMAND].add_status_type(0, self._handle_status)
         self._managers[1].subscribe(self._groups[1].set_value)
         if self._normally_open:
             # Open is OFF and Close is ON
