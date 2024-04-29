@@ -1,4 +1,5 @@
 """Manage outbound ON command to a device."""
+
 import asyncio
 
 from .. import ack_handler, status_handler
@@ -13,9 +14,14 @@ class StatusRequestCommand(DirectCommandHandlerBase):
 
     def __init__(self, address, status_type: int = 0):
         """Init the OnLevelCommand class."""
-        super().__init__(topic=STATUS_REQUEST, address=address, group=None)
         self._status_type = status_type
+        super().__init__(topic=STATUS_REQUEST, address=address, group=None)
         self._subscriber_topic = f"handler.{self._address.id}.{self._status_type}.{STATUS_REQUEST}.{str(MessageFlagType.DIRECT).lower()}"
+
+    @property
+    def status_type(self):
+        """Return the status type."""
+        return self._status_type
 
     # pylint: disable=arguments-differ, useless-super-delegation
     async def async_send(self):

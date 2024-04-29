@@ -1,4 +1,5 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
+
 import asyncio
 from functools import partial
 from typing import Dict, Iterable
@@ -57,9 +58,8 @@ from ..groups import (
 )
 from ..groups.on_off import OnOff
 from ..handlers.to_device.set_leds import SetLedsCommandHandler
-from ..handlers.to_device.status_request import StatusRequestCommand
-from ..utils import bit_is_set, multiple_status, set_bit
-from .device_commands import GET_LEDS_COMMAND, SET_LEDS_COMMAND, STATUS_COMMAND
+from ..utils import bit_is_set, set_bit
+from .device_commands import SET_LEDS_COMMAND, STATUS_COMMAND
 from .i3_base import I3Base, OpsFlagDef
 from .on_off_controller_base import ON_LEVEL_MANAGER
 from .on_off_responder_base import OnOffResponderBase
@@ -84,7 +84,7 @@ class SwitchedLightingControl(OnOffResponderBase):
         off_fast_event_name=OFF_FAST_EVENT,
     ):
         """Init the OnOffResponderBase class."""
-        buttons = {1: ON_OFF_SWITCH} if buttons is None else buttons
+        buttons = {1: (ON_OFF_SWITCH, 0)} if buttons is None else buttons
         super().__init__(
             address,
             cat,
@@ -259,17 +259,6 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
             await self.async_status()
         return result
 
-    async def async_status(self, group=None):
-        """Check the status of the device."""
-        retries = 5
-        status = ResponseStatus.UNSENT
-        while retries and status != ResponseStatus.SUCCESS:
-            status0 = await super().async_status()
-            status1 = await self._handlers[GET_LEDS_COMMAND].async_send()
-            status = multiple_status(status0, status1)
-            retries -= 1
-        return status
-
     def set_radio_buttons(self, buttons: Iterable):
         """Set a group of buttons to act as radio buttons.
 
@@ -413,23 +402,22 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
-        self._handlers[STATUS_COMMAND] = StatusRequestCommand(
-            self._address, status_type=2
-        )
         self._handlers[SET_LEDS_COMMAND] = SetLedsCommandHandler(address=self.address)
-        self._handlers[GET_LEDS_COMMAND] = StatusRequestCommand(
-            self._address, status_type=1
-        )
 
     def _register_groups(self):
         super()._register_groups()
         for button in self._buttons:
-            name = self._buttons[button]
-            self._groups[button] = OnOff(name=name, address=self._address, group=button)
+            name = self._buttons[button][0]
+            status_type = self._buttons[button][1]
+            self._groups[button] = OnOff(
+                name=name, address=self._address, group=button, status_type=status_type
+            )
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-        self._handlers[GET_LEDS_COMMAND].subscribe(self._led_status)
+        self._managers[STATUS_COMMAND].remove_status_type(0)
+        self._managers[STATUS_COMMAND].add_status_type(2, self._handle_status)
+        self._managers[STATUS_COMMAND].add_status_type(1, self._led_status)
         for group in self._buttons:
             if self._groups.get(group) is not None:
                 led_method = partial(self._led_follow_check, group=group)
@@ -552,11 +540,11 @@ class SwitchedLightingControl_KeypadLinc_6(SwitchedLightingControl_KeypadLinc):
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the SwitchedLightingControl_KeypadLinc_6 class."""
         buttons = {
-            1: ON_OFF_SWITCH_MAIN,
-            3: ON_OFF_SWITCH_A,
-            4: ON_OFF_SWITCH_B,
-            5: ON_OFF_SWITCH_C,
-            6: ON_OFF_SWITCH_D,
+            1: (ON_OFF_SWITCH_MAIN, 0),
+            3: (ON_OFF_SWITCH_A, 1),
+            4: (ON_OFF_SWITCH_B, 1),
+            5: (ON_OFF_SWITCH_C, 1),
+            6: (ON_OFF_SWITCH_D, 1),
         }
         super().__init__(
             address=address,
@@ -575,14 +563,14 @@ class SwitchedLightingControl_KeypadLinc_8(SwitchedLightingControl_KeypadLinc):
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the SwitchedLightingControl_KeypadLinc_8 class."""
         buttons = {
-            1: ON_OFF_SWITCH_MAIN,
-            2: ON_OFF_SWITCH_B,
-            3: ON_OFF_SWITCH_C,
-            4: ON_OFF_SWITCH_D,
-            5: ON_OFF_SWITCH_E,
-            6: ON_OFF_SWITCH_F,
-            7: ON_OFF_SWITCH_G,
-            8: ON_OFF_SWITCH_H,
+            1: (ON_OFF_SWITCH_MAIN, 0),
+            2: (ON_OFF_SWITCH_B, 1),
+            3: (ON_OFF_SWITCH_C, 1),
+            4: (ON_OFF_SWITCH_D, 1),
+            5: (ON_OFF_SWITCH_E, 1),
+            6: (ON_OFF_SWITCH_F, 1),
+            7: (ON_OFF_SWITCH_G, 1),
+            8: (ON_OFF_SWITCH_H, 1),
         }
         super().__init__(
             address=address,
@@ -606,53 +594,14 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
 
     def __init__(self, address, cat, subcat, firmware=0x00, description="", model=""):
         """Init the SwitchedLightingControl_KeypadLinc class."""
-        buttons = {1: ON_OFF_OUTLET_TOP, 2: ON_OFF_OUTLET_BOTTOM}
+        buttons = {1: (ON_OFF_OUTLET_TOP, 1), 2: (ON_OFF_OUTLET_BOTTOM, 1)}
         super().__init__(
             address, cat, subcat, firmware, description, model, buttons=buttons
         )
 
-    def status(self, group=None):
-        """Request the status of the device."""
-        if group is None:
-            self._handlers[STATUS_COMMAND].send()
-        if group in [1, 2]:
-            self._handlers[group][STATUS_COMMAND].send()
-
-    async def async_status(self, group=None):
-        """Request the status of the device."""
-        if group is None:
-            return await self._handlers[STATUS_COMMAND].async_send()
-        if group in [1, 2]:
-            return await self._handlers[group][STATUS_COMMAND].async_send()
-
-    def _register_handlers_and_managers(self):
-        super()._register_handlers_and_managers()
-        self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address, 1)
-
-        if self._handlers.get(self.TOP_GROUP) is None:
-            self._handlers[self.TOP_GROUP] = {}
-        self._handlers[self.TOP_GROUP][STATUS_COMMAND] = StatusRequestCommand(
-            self._address, 0
-        )
-
-        if self._handlers.get(self.BOTTOM_GROUP) is None:
-            self._handlers[self.BOTTOM_GROUP] = {}
-        self._handlers[self.BOTTOM_GROUP][STATUS_COMMAND] = self._handlers[
-            STATUS_COMMAND
-        ]
-
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-
-        self._handlers[self.TOP_GROUP][STATUS_COMMAND].subscribe(
-            self._handle_top_status
-        )
-
-        self._handlers[STATUS_COMMAND].subscribe(self._handle_status)
-
-    def _handle_top_status(self, db_version, status):
-        """Set the status of the top outlet."""
-        self._groups[self.TOP_GROUP].value = status
+        self._managers[STATUS_COMMAND].add_status_type(1, self._handle_status)
 
     def _handle_status(self, db_version, status):
         """Set the status of the top and bottom outlets."""

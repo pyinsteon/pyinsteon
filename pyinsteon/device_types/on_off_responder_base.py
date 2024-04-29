@@ -1,11 +1,18 @@
 """Switched Lighting Control devices (CATEGORY 0x02)."""
+
 from ..events import OFF_EVENT, ON_EVENT
 from ..groups import ON_OFF_SWITCH
 from ..handlers.to_device.off import OffCommand
 from ..handlers.to_device.off_fast import OffFastCommand
 from ..handlers.to_device.on_fast import OnFastCommand
 from ..handlers.to_device.on_level import OnLevelCommand
-from .device_commands import OFF_COMMAND, OFF_FAST_COMMAND, ON_COMMAND, ON_FAST_COMMAND
+from .device_commands import (
+    OFF_COMMAND,
+    OFF_FAST_COMMAND,
+    ON_COMMAND,
+    ON_FAST_COMMAND,
+    STATUS_COMMAND,
+)
 from .on_off_controller_base import OnOffControllerBase
 
 
@@ -27,7 +34,7 @@ class OnOffResponderBase(OnOffControllerBase):
         off_fast_event_name=None,
     ):
         """Init the OnOffResponderBase class."""
-        buttons = {1: ON_OFF_SWITCH} if buttons is None else buttons
+        buttons = {1: (ON_OFF_SWITCH, 0)} if buttons is None else buttons
         super().__init__(
             address,
             cat,
@@ -62,20 +69,22 @@ class OnOffResponderBase(OnOffControllerBase):
         group = 1 if not group else group
         return await self._handlers[group][OFF_COMMAND].async_send()
 
+    async def async_status(self, group=None):
+        """Get the device status."""
+        status_type = self._groups[group].status_type if group is not None else None
+        return await self._managers[STATUS_COMMAND].async_status(status_type)
+
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
         for group in self._buttons:
-            if self._buttons[group] is not None:
-                if self._handlers.get(group) is None:
-                    self._handlers[group] = {}
-                self._handlers[group][ON_COMMAND] = OnLevelCommand(self._address, group)
-                self._handlers[group][OFF_COMMAND] = OffCommand(self._address, group)
-                self._handlers[group][ON_FAST_COMMAND] = OnFastCommand(
-                    self._address, group
-                )
-                self._handlers[group][OFF_FAST_COMMAND] = OffFastCommand(
-                    self._address, group
-                )
+            if self._handlers.get(group) is None:
+                self._handlers[group] = {}
+            self._handlers[group][ON_COMMAND] = OnLevelCommand(self._address, group)
+            self._handlers[group][OFF_COMMAND] = OffCommand(self._address, group)
+            self._handlers[group][ON_FAST_COMMAND] = OnFastCommand(self._address, group)
+            self._handlers[group][OFF_FAST_COMMAND] = OffFastCommand(
+                self._address, group
+            )
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()

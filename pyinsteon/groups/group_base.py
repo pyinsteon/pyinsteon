@@ -12,7 +12,13 @@ class GroupBase(SubscriberBase):
     __meta__ = ABC
 
     def __init__(
-        self, name: str, address: Address, group=0, default=None, value_type: type = int
+        self,
+        name: str,
+        address: Address,
+        group=0,
+        default=None,
+        value_type: type = int,
+        status_type: int = 0,
     ):
         """Init the StateBase class."""
         self._address = address
@@ -23,6 +29,7 @@ class GroupBase(SubscriberBase):
         self._value = int(default) if default is not None else None
         self._type = value_type
         self._is_dimmable: bool = False
+        self._status_type = status_type
 
     @property
     def is_dimmable(self) -> bool:
@@ -71,6 +78,11 @@ class GroupBase(SubscriberBase):
             value=self._value,
             group=self._group,
         )
+
+    @property
+    def status_type(self):
+        """Return the status type to get the group state."""
+        return self._status_type
 
     @abstractmethod
     def set_value(self, **kwargs):

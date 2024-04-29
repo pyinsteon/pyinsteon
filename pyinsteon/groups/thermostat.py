@@ -1,4 +1,5 @@
 """Temperature state."""
+
 from ..address import Address
 from ..constants import ThermostatMode
 from .group_base import GroupBase
@@ -13,9 +14,12 @@ class Temperature(GroupBase):
         address: Address,
         group: int = 0,
         default: float = None,
+        status_type: int = 0,
     ):
         """Init the Temperature class."""
-        super().__init__(name, address, group, default, value_type=float)
+        super().__init__(
+            name, address, group, default, value_type=float, status_type=status_type
+        )
         self._is_dimmable = True
 
     # pylint: disable=arguments-differ

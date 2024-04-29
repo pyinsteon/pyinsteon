@@ -1,9 +1,9 @@
 """Dimmable Lighting Control Devices (CATEGORY 0x01)."""
+
 from ..handlers.to_device.off import OffCommand
 from ..handlers.to_device.off_fast import OffFastCommand
 from ..handlers.to_device.on_fast import OnFastCommand
 from ..handlers.to_device.on_level import OnLevelCommand
-from ..handlers.to_device.status_request import StatusRequestCommand
 from .device_commands import (
     OFF_COMMAND,
     OFF_FAST_COMMAND,
@@ -77,13 +77,13 @@ class VariableResponderBase(VariableControllerBase):
         command = OFF_FAST_COMMAND if fast else OFF_COMMAND
         return await self._handlers[group][command].async_send()
 
-    async def async_status(self):
-        """Get the status of the device state."""
-        return await self._handlers[STATUS_COMMAND].async_send()
+    async def async_status(self, group=None):
+        """Get the device status."""
+        status_type = self._groups[group].status_type if group is not None else None
+        return await self._managers[STATUS_COMMAND].async_status(status_type)
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
-        self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address)
         for group in self._buttons:
             if self._handlers.get(group) is None:
                 self._handlers[group] = {}

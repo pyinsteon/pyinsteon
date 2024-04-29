@@ -4,8 +4,8 @@ from ..default_link import DefaultLink
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT, Event
 from ..groups import DIMMABLE_LIGHT
 from ..groups.on_level import OnLevel
-from ..handlers.to_device.status_request import StatusRequestCommand
 from ..managers.on_level_manager import OnLevelManager
+from ..managers.status_manager import StatusManager
 from .device_base import Device
 from .device_commands import STATUS_COMMAND
 
@@ -26,20 +26,8 @@ class VariableControllerBase(Device):
         buttons=None,
     ):
         """Init the VariableControllerBase class."""
-        self._buttons = {1: DIMMABLE_LIGHT} if buttons is None else buttons
+        self._buttons = {1: (DIMMABLE_LIGHT, 0)} if buttons is None else buttons
         super().__init__(address, cat, subcat, firmware, description, model)
-
-    # pylint: disable=arguments-differ
-    async def async_status(self):
-        """Request the status of the device.
-
-        Returns a ResponseStatus value
-            FAILURE: Device did not acknowledge the message
-            SUCCESS: Device acknowledged the message
-            UNCLEAR: Device received the message but did not confirm the action
-
-        """
-        return await self._handlers[STATUS_COMMAND].async_send()
 
     def _register_default_links(self):
         """Register default links.
@@ -64,7 +52,7 @@ class VariableControllerBase(Device):
 
     def _register_handlers_and_managers(self):
         super()._register_handlers_and_managers()
-        self._handlers[STATUS_COMMAND] = StatusRequestCommand(self._address)
+        self._managers[STATUS_COMMAND] = StatusManager(self._address)
         for group in self._buttons:
             if self._managers.get(group) is None:
                 self._managers[group] = {}
@@ -75,8 +63,11 @@ class VariableControllerBase(Device):
     def _register_groups(self):
         super()._register_groups()
         for group in self._buttons:
-            name = self._buttons[group]
-            self._groups[group] = OnLevel(name=name, address=self._address, group=group)
+            name = self._buttons[group][0]
+            status_type = self._buttons[group][1]
+            self._groups[group] = OnLevel(
+                name=name, address=self._address, group=group, status_type=status_type
+            )
 
     def _register_events(self):
         super()._register_events()
@@ -99,7 +90,9 @@ class VariableControllerBase(Device):
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
-        self._handlers[STATUS_COMMAND].subscribe(self._handle_status)
+        self._managers[STATUS_COMMAND].add_status_type(
+            status_type=0, callback_function=self._handle_status
+        )
         for group in self._buttons:
             state = self._groups[group]
             self._managers[group][ON_LEVEL_MANAGER].subscribe(state.set_value)
