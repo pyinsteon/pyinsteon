@@ -185,6 +185,9 @@ disable = [
     "line-too-long",
     "deprecated-typing-alias",
     "consider-alternative-union-syntax",
+    "duplicate-code",
+    "use-yield-from",
+    "cyclic-import",
 ]
 enable = [
     #"useless-suppression",  # temporarily every now and then to clean them up
