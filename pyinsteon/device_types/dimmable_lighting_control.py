@@ -858,7 +858,7 @@ class DimmableLightingControl_I3_KeypadLinc_4(I3VariableResponderBase):
         """Turn on the button LED."""
         group = self.load_button if not group else group
         led_kwargs = {}
-        event = OFF_FAST_EVENT if fast else OFF_EVENT
+        event = ON_FAST_EVENT if fast else ON_EVENT
         result_load = ResponseStatus.SUCCESS
         result_led = ResponseStatus.SUCCESS
         if group != self.load_button:

@@ -1,4 +1,5 @@
 """Utility methods."""
+
 import asyncio
 from collections.abc import Iterable
 from enum import Enum, IntEnum
@@ -312,6 +313,11 @@ def publish_topic(topic, logger=None, **kwargs):
     if logger is None:
         logger = logging.getLogger(__name__)
     try:
+        pub_topic = pub.getDefaultTopicMgr().getTopic(topic, okIfNone=True)
+        if pub_topic:
+            for listener in pub_topic.listeners:
+                if listener.isDead():
+                    pub_topic.unsubscribe(listener)
         pub.sendMessage(topic, **kwargs)
     except pub.ExcHandlerError as exc:
         logger.error("pubsub ExcHandlerError")
