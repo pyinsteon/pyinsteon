@@ -86,7 +86,7 @@
                 "action": "0x20",
                 "controller": true,
                 "group": 5,
-                "target": "0ab0c",
+                "target": "0ab0c0",
                 "data1": 1,
                 "data2": 2,
                 "data3": 3
@@ -113,7 +113,7 @@
                 "action": "0x20",
                 "controller": true,
                 "group": 5,
-                "target": "0ab0c",
+                "target": "0ab0c0",
                 "data1": 1,
                 "data2": 2,
                 "data3": 3

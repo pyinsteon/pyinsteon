@@ -1,18 +1,19 @@
 """Test the sending and receiving of direct commands using the MockPLM."""
-import json
-import unittest
+
 from asyncio import sleep
 from binascii import unhexlify
+import json
+import unittest
 
 import aiofiles
 
-import pyinsteon.handlers.from_device as commands
 from pyinsteon import pub
 from pyinsteon.address import Address
 
 # pylint: disable=unused-import
 # flake8: noqa: F401
 from pyinsteon.handlers.cancel_all_linking import CancelAllLinkingCommandHandler
+import pyinsteon.handlers.from_device as commands
 from pyinsteon.handlers.get_first_all_link_record import GetFirstAllLinkRecordHandler
 from pyinsteon.handlers.get_im_configuration import GetImConfigurationHandler
 from pyinsteon.handlers.get_im_info import GetImInfoHandler
@@ -131,9 +132,8 @@ class TestInbound(unittest.TestCase):
         """Test direct command."""
 
         async with async_protocol_manager(auto_ack=False) as protocol:
-
             tests = await import_commands()
-            subscribe_topic(self.async_validate_values, pub.ALL_TOPICS)
+            subscribe_topic(self.async_validate_values, "handler")
 
             for test_info in tests:
                 self._current_test = test_info

@@ -8,6 +8,7 @@ import unittest
 import aiofiles
 from pubsub import pub
 
+from pyinsteon.address import Address
 from pyinsteon.constants import ResponseStatus
 import pyinsteon.handlers as commands
 
@@ -30,7 +31,7 @@ from pyinsteon.handlers.to_device.x10_send import X10CommandSend
 from pyinsteon.handlers.write_eeprom import WriteEepromHandler
 
 # pylint: enable=unused-import
-from pyinsteon.utils import subscribe_topic
+from pyinsteon.utils import subscribe_topic, unsubscribe_topic
 from pyinsteon.x10_address import create as create_x10_address
 
 from tests import _LOGGER, set_log_levels
@@ -104,14 +105,12 @@ class TestNakResponses(unittest.TestCase):
         async with async_protocol_manager(always_nak=True):
             self._nak_count = 0
 
-            def listen_for_nak(topic=pub.AUTO_TOPIC):
+            def listen_for_nak(topic=pub.AUTO_TOPIC, **kwargs):
                 if self._current_test in str(topic):
                     print(topic)
                     self._nak_count += 1
 
             tests = await import_commands()
-            subscribe_topic(self.validate_values, pub.ALL_TOPICS)
-            subscribe_topic(listen_for_nak, "nak")
 
             for test_info in tests:
                 self._nak_count = 0
@@ -139,6 +138,12 @@ class TestNakResponses(unittest.TestCase):
 
                 self._assert_tests = test_command.get("response")
                 self._call_count = 0
+                if test_command.get("use_address"):
+                    base_topic = f"{Address(params['address']).id}.{params['group']}.{self._current_test}"
+                else:
+                    base_topic = f"{self._current_test}"
+                subscribe_topic(listen_for_nak, f"nak.{base_topic}")
+                subscribe_topic(self.validate_values, f"handler.{base_topic}")
                 try:
                     response = await cmd.async_send(**send_params)
                 except Exception as ex:
@@ -147,6 +152,9 @@ class TestNakResponses(unittest.TestCase):
                             self._current_test, str(ex)
                         )
                     ) from ex
+                finally:
+                    unsubscribe_topic(listen_for_nak, f"nak.{base_topic}")
+                    subscribe_topic(self.validate_values, f"handler.{base_topic}")
                 await sleep(0.1)
                 try:
                     assert response == ResponseStatus.FAILURE
