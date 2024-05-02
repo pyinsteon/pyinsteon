@@ -1,4 +1,5 @@
 """Test the device_link_manager class."""
+
 import asyncio
 import os
 from random import randint
@@ -27,6 +28,7 @@ from tests import load_devices, set_log_levels
 from tests.utils import async_case
 
 PWD = os.path.dirname(__file__)
+TEST_LOCK = asyncio.Lock()
 
 
 def _reset_devices(addresses):
@@ -69,8 +71,7 @@ class TestDeviceLinkManager(unittest.TestCase):
     @async_case
     async def test_save_load_scenes(self):
         """Test saving and loading scenes."""
-        patched_devices = DeviceManager()
-        with patch.object(pyinsteon, "devices", patched_devices):
+        async with TEST_LOCK:
             await self._test_save_load_scenes()
 
     async def _test_save_load_scenes(self):
@@ -96,8 +97,7 @@ class TestDeviceLinkManager(unittest.TestCase):
     @async_case
     async def test_add_scene(self):
         """Test adding a scene."""
-        patched_devices = DeviceManager()
-        with patch.object(pyinsteon, "devices", patched_devices):
+        async with TEST_LOCK:
             await self._test_add_scene()
 
     async def _test_add_scene(self):
@@ -270,8 +270,7 @@ class TestDeviceLinkManager(unittest.TestCase):
     @async_case
     async def test_delete_scene(self):
         """Test deleting a scene."""
-        patched_devices = DeviceManager()
-        with patch.object(pyinsteon, "devices", patched_devices):
+        async with TEST_LOCK:
             await self._test_delete_scene()
 
     async def _test_delete_scene(self):

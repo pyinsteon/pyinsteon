@@ -6,6 +6,7 @@ import logging
 from queue import SimpleQueue
 from typing import Union
 
+from ..address import Address
 from ..constants import AckNak
 from ..utils import log_error, publish_topic
 from .command_to_msg import register_command_handlers
@@ -14,6 +15,7 @@ from .messages.outbound import outbound_write_manager, register_outbound_handler
 from .msg_to_topic import convert_to_topic
 
 _LOGGER = logging.getLogger(__name__)
+_LOGGER_PYINSTEON = logging.getLogger("pyinsteon")
 _LOGGER_MSG = logging.getLogger("pyinsteon.messages")
 MAX_RECONNECT_WAIT_TIME = 300
 
@@ -37,9 +39,11 @@ def _get_addresses_in_msg(msg):
 async def _publish_message(msg):
     """Convert an inbound message to a topic and publish to listeners."""
     _LOGGER_MSG.debug("RX: %s", repr(msg))
-    if _LOGGER_MSG.level == 0 or _LOGGER_MSG.level > logging.DEBUG:
+    if (_LOGGER_MSG.level == 0 or _LOGGER_MSG.level > logging.DEBUG) and (
+        _LOGGER_PYINSTEON.level == 0 or _LOGGER_PYINSTEON.level > logging.DEBUG
+    ):
         for addr in _get_addresses_in_msg(msg):
-            logger = logging.getLogger(f"pyinsteon.{addr.id}")
+            logger = logging.getLogger(f"pyinsteon.{Address(addr).id}")
             logger.debug("RX: %s", repr(msg))
     topic = None
     kwargs = {}
