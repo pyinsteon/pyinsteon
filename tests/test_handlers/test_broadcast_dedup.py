@@ -1,12 +1,12 @@
 """Test broadcast messages for deduplication."""
+
+from asyncio import sleep
 from random import randint
 import unittest
 from unittest.mock import patch
-from asyncio import sleep
 
 import pyinsteon
 from pyinsteon import pub
-from pyinsteon.handlers.from_device.broadcast_command import MAX_DUP, MIN_DUP
 from pyinsteon.handlers.from_device.assign_to_all_link_group import (
     AssignToAllLinkGroupCommand,
 )
@@ -14,20 +14,21 @@ from pyinsteon.handlers.from_device.delete_from_all_link_group import (
     DeleteFromAllLinkGroupCommand,
 )
 from pyinsteon.handlers.from_device.manual_change import ManualChangeInbound
-from pyinsteon.handlers.from_device.off_fast import OffFastInbound
 from pyinsteon.handlers.from_device.off import OffInbound
+from pyinsteon.handlers.from_device.off_fast import OffFastInbound
 from pyinsteon.handlers.from_device.on_fast import OnFastInbound
 from pyinsteon.handlers.from_device.on_level import OnLevelInbound
 from pyinsteon.topics import (
     ASSIGN_TO_ALL_LINK_GROUP,
     DELETE_FROM_ALL_LINK_GROUP,
-    STOP_MANUAL_CHANGE,
-    OFF_FAST,
     OFF,
-    ON_FAST,
+    OFF_FAST,
     ON,
+    ON_FAST,
+    STOP_MANUAL_CHANGE,
 )
-from pyinsteon.utils import subscribe_topic
+from pyinsteon.utils import subscribe_topic, unsubscribe_topic
+
 from tests import set_log_levels
 from tests.utils import TopicItem, async_case, cmd_kwargs, random_address, send_topics
 
@@ -83,12 +84,15 @@ class TestBroadcastMessageDedup(unittest.TestCase):
             logger_messages="info",
             logger_topics=False,
         )
-        subscribe_topic(self.handle_topics, pub.ALL_TOPICS)
+        subscribe_topic(self.handle_topics, "handler")
+
+    def tearDown(self) -> None:
+        """Tear down the test."""
+        unsubscribe_topic(self.handle_topics, "handler")
 
     async def handle_topics(self, topic=pub.AUTO_TOPIC):
         """Handle the on topic."""
-        if topic.name.startswith("handler"):
-            self.call_count += 1
+        self.call_count += 1
 
     @async_case
     async def test_dup(self):
@@ -102,17 +106,18 @@ class TestBroadcastMessageDedup(unittest.TestCase):
             for topic, command in COMMANDS.items():
                 group = randint(1, 9)
                 address = random_address()
+                # pylint: disable=unused-variable
                 if command in NO_GROUP_CMDS:
                     handler = command(address)
                 else:
-                    handler = command(address, group)
+                    handler = command(address, group)  # noqa: F841
                 topics = [
                     create_topic(topic, address, group, 3, 0),
                     create_topic(topic, address, group, 2, 0.4),
                 ]
                 self.call_count = 0
                 send_topics(topics)
-                await sleep(.5)
+                await sleep(0.5)
                 assert self.call_count == 1
 
     @async_case
@@ -130,7 +135,7 @@ class TestBroadcastMessageDedup(unittest.TestCase):
                 if command in NO_GROUP_CMDS:
                     handler = command(address)
                 else:
-                    handler = command(address, group)
+                    handler = command(address, group)  # noqa: F841
                 self.call_count = 0
                 topics = [
                     create_topic(topic, address, group, 3, 0.0),
@@ -152,10 +157,11 @@ class TestBroadcastMessageDedup(unittest.TestCase):
             for topic, command in COMMANDS.items():
                 group = randint(1, 9)
                 address = random_address()
+                # pylint: disable=unused-variable
                 if command in NO_GROUP_CMDS:
                     handler = command(address)
                 else:
-                    handler = command(address, group)
+                    handler = command(address, group)  # noqa: F841
                 self.call_count = 0
                 topics = [
                     create_topic(topic, address, group, 3, 0.0),
@@ -177,10 +183,11 @@ class TestBroadcastMessageDedup(unittest.TestCase):
             for topic, command in COMMANDS.items():
                 group = randint(1, 9)
                 address = random_address()
+                # pylint: disable=unused-variable
                 if command in NO_GROUP_CMDS:
                     handler = command(address)
                 else:
-                    handler = command(address, group)
+                    handler = command(address, group)  # noqa: F841
                 self.call_count = 0
                 topics = [
                     create_topic(topic, address, group, 2, 0.0),
@@ -202,10 +209,11 @@ class TestBroadcastMessageDedup(unittest.TestCase):
             for topic, command in COMMANDS.items():
                 group = randint(1, 9)
                 address = random_address()
+                # pylint: disable=unused-variable
                 if command in NO_GROUP_CMDS:
                     handler = command(address)
                 else:
-                    handler = command(address, group)
+                    handler = command(address, group)  # noqa: F841
                 self.call_count = 0
                 topics = [
                     create_topic(topic, address, group, 2, 0.0),
@@ -227,10 +235,11 @@ class TestBroadcastMessageDedup(unittest.TestCase):
             for topic, command in COMMANDS.items():
                 group = randint(1, 9)
                 address = random_address()
+                # pylint: disable=unused-variable
                 if command in NO_GROUP_CMDS:
                     handler = command(address)
                 else:
-                    handler = command(address, group)
+                    handler = command(address, group)  # noqa: F841
                 self.call_count = 0
                 topics = [
                     create_topic(topic, address, group, 2, 0.0),
