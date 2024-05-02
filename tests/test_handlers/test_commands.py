@@ -133,7 +133,7 @@ class TestDirectCommands(unittest.TestCase):
 
             tests = await import_commands()
             try:
-                subscribe_topic(self.validate_values, pub.ALL_TOPICS)
+                subscribe_topic(self.validate_values, "handler")
                 subscribe_topic(listen_for_ack, "ack")
 
                 for test_info in tests:
@@ -182,7 +182,7 @@ class TestDirectCommands(unittest.TestCase):
                     _LOGGER.info("Completed test: %s", test_info)
                     _LOGGER.info("")
             finally:
-                unsubscribe_topic(self.validate_values, pub.ALL_TOPICS)
+                unsubscribe_topic(self.validate_values, "handler")
                 unsubscribe_topic(listen_for_ack, "ack")
 
 

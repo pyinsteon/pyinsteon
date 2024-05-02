@@ -1,4 +1,5 @@
 """Utilities used to test tools functions."""
+
 import asyncio
 from io import StringIO
 import os
@@ -88,7 +89,7 @@ def log_file_lines(curr_dir):
     """Return the log file as an array."""
     log_file = os.path.join(curr_dir, LOG_FILE_NAME)
     assert os.path.isfile(log_file)
-    with open(log_file) as lfile:
+    with open(log_file, encoding="utf-8") as lfile:
         lines = lfile.readlines()
     return clean_buffer(lines, 48)
 
@@ -181,12 +182,12 @@ class MockDevices:
         device4 = create_device(ClimateControl_Thermostat, random_address(), 0x07, 0x05)
         self._devices[device4.address] = device4
 
-        # Do not set methods to AyncMock if python version < 3.8
-        if sys.version_info[0:2] < (3, 8):
+        # Do not set methods to AyncMock if python version < 3.9
+        if sys.version_info[0:2] < (3, 9):
             return
 
-        for addr in self._devices:
-            self._devices[addr].aldb.async_load = AsyncMock()
+        for _, device in self._devices.items():
+            device.aldb.async_load = AsyncMock()
 
         self.async_save = AsyncMock()
         self.async_load = AsyncMock()

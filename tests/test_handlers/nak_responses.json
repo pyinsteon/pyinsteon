@@ -12,7 +12,8 @@
             }
         },
         "nak_count": 10,
-        "response": {}
+        "response": {},
+        "use_address": true
     },
     "cancel_all_linking": {
         "command": {
@@ -70,7 +71,7 @@
         "nak_count": 1,
         "response": {}
     },
-    "send_all_link": {
+    "send_all_link_command": {
         "command": {
             "class": ".send_all_link.SendAllLinkCommandHandler",
             "params": {},
