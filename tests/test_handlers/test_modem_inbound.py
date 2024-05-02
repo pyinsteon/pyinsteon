@@ -1,4 +1,5 @@
 """Test the sending and receiving of direct commands using the MockPLM."""
+
 from asyncio import sleep
 from binascii import unhexlify
 import json
@@ -113,9 +114,7 @@ class TestModemInbound(unittest.TestCase):
     async def test_modem_inbound(self):
         """Test direct command."""
         async with async_protocol_manager(auto_ack=False) as protocol:
-
             tests = await import_modem_commands()
-            pub.subscribe(self.validate_values, pub.ALL_TOPICS)
 
             for test_info in tests:
                 self._current_test = test_info
@@ -129,10 +128,12 @@ class TestModemInbound(unittest.TestCase):
                 cmd = obj()
                 inbound_data = unhexlify(f"02{inbound_message}")
                 ack_response_item = DataItem(inbound_data, 0)
+                pub.subscribe(self.validate_values, f"handler.{test_info}")
                 send_data([ack_response_item], protocol.read_queue)
                 await sleep(0.2)
                 assert self._test_result
                 _LOGGER.info("Completed Test: %s", test_info)
+                pub.unsubscribe(self.validate_values, f"handler.{test_info}")
                 _LOGGER.info("")
 
 

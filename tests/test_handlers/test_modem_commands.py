@@ -1,7 +1,9 @@
 """Test the sending and receiving of direct commands using the MockPLM."""
+
 from asyncio import sleep
 from binascii import unhexlify
 import json
+from os import path
 import unittest
 
 import aiofiles
@@ -42,7 +44,6 @@ FILE = "modem_commands.json"
 
 async def import_modem_commands():
     """Import and parse the commands to test."""
-    from os import path
 
     curr_path = path.dirname(path.abspath(__file__))
     command_file = path.join(curr_path, FILE)
@@ -82,7 +83,7 @@ class TestDirectCommands(unittest.TestCase):
             logger_topics=True,
         )
 
-    def validate_values(self, topic=pub.ALL_TOPICS, **kwargs):
+    def validate_values(self, topic=pub.AUTO_TOPIC, **kwargs):
         """Validate what should be returned from the handler."""
         for assert_test in self._assert_tests:
             if kwargs.get(assert_test) is not None:
@@ -108,9 +109,7 @@ class TestDirectCommands(unittest.TestCase):
     async def test_modem_command(self):
         """Test direct command."""
         async with async_protocol_manager(auto_ack=False) as protocol:
-
             tests = await import_modem_commands()
-            pub.subscribe(self.validate_values, pub.ALL_TOPICS)
 
             for test_info in tests:
                 self._current_test = test_info
@@ -132,6 +131,8 @@ class TestDirectCommands(unittest.TestCase):
                 obj = get_class_or_method(commands, cmd_class)
                 cmd = obj(**params)
                 ack_nak_response_item = DataItem(ack_nak_data, 0.1)
+
+                pub.subscribe(self.validate_values, f"handler.{test_info}")
                 send_data([ack_nak_response_item], protocol.read_queue)
                 try:
                     response = await cmd.async_send(**send_params)
@@ -150,6 +151,8 @@ class TestDirectCommands(unittest.TestCase):
                                 self._current_test, response
                             )
                         ) from ex
+
+                pub.unsubscribe(self.validate_values, f"handler.{test_info}")
                 await sleep(0.1)
                 assert self._test_result
                 _LOGGER.info("Finished test: %s", test_info)

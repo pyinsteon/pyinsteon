@@ -229,9 +229,14 @@ class Protocol(asyncio.Protocol):
                     if msg is None:
                         return
                     _LOGGER_MSG.debug("TX: %s", repr(msg))
-                    if _LOGGER_MSG.level == 0 or _LOGGER_MSG.level > logging.DEBUG:
+                    if (
+                        _LOGGER_MSG.level == 0 or _LOGGER_MSG.level > logging.DEBUG
+                    ) and (
+                        _LOGGER_PYINSTEON.level == 0
+                        or _LOGGER_PYINSTEON.level > logging.DEBUG
+                    ):
                         for addr in _get_addresses_in_msg(msg):
-                            logger = logging.getLogger(f"pyinsteon.{addr.id}")
+                            logger = logging.getLogger(f"pyinsteon.{Address(addr).id}")
                             logger.debug("TX: %s", repr(msg))
                     while not self._last_message.empty():
                         self._last_message.get()
