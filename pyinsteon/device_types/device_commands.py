@@ -33,3 +33,5 @@ GET_IM_CONFIG_COMMAND = "get_im_config"
 SET_IM_CONFIG_COMMAND = "set_im_config"
 
 MANUAL_CHANGE = "manual_change"
+ON_AT_RAMP_RATE = "on_at_ramp_rate"
+OFF_AT_RAMP_RATE = "off_at_ramp_rate"

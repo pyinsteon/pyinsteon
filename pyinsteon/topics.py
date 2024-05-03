@@ -1,4 +1,5 @@
 """Constants used to ensure topic consistantancy."""
+
 DEVICE_LIST_CHANGED = "device_list_changed"
 
 STANDARD_RECEIVED = "standard_message_received"
@@ -74,9 +75,11 @@ PEEK = "peek"
 PEEK_INTERNAL = "peek_internal"
 POKE_INTERNAL = "poke_internal"
 ON_AT_RAMP_RATE = "on_at_ramp_rate"
+ON_AT_RAMP_RATE_INBOUND = "on_at_ramp_rate_inbound"
 EXTENDED_GET_SET = "extended_get_set"
 EXTENDED_GET_RESPONSE = "extended_get_response"
 OFF_AT_RAMP_RATE = "off_at_ramp_rate"
+OFF_AT_RAMP_RATE_INBOUND = "off_at_ramp_rate_inbound"
 EXTENDED_READ_WRITE_ALDB = "extended_read_write_aldb"
 EXTENDED_TRIGGER_ALL_LINK = "extended_trigger_all_link"
 ALDB_RECORD_RECEIVED = "aldb_record_received"
