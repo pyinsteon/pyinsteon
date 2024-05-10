@@ -74,7 +74,7 @@ class VariableControllerBase(Device):
         for group in self._buttons:
             if self._events.get(group) is None:
                 self._events[group] = {}
-            button = self._buttons[group]
+            button = self._buttons[group][0]
             self._events[group][ON_EVENT] = Event(
                 ON_EVENT, self._address, group, button
             )

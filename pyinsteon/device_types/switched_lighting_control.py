@@ -523,7 +523,7 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         for group in self._groups:
             if group == 1:
                 continue
-            button = self._buttons[group]
+            button = self._buttons[group][0]
             name = f"{TOGGLE_BUTTON}_{button[-1]}"
             self._config[name] = ToggleButtonProperty(
                 self._address,
