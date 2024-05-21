@@ -8,10 +8,10 @@ flake8-comprehensions==3.14.0
 pyflakes==3.2.0
 pycodestyle==2.11.1
 pydocstyle==6.3.0
-pylint==3.1.0
+pylint==3.2.2
 isort==5.13.2
 async_generator
 black==24.4.2
 pytest-cov==5.0.0
-pytest==8.2.0
-pre-commit==3.7.0
+pytest==8.2.1
+pre-commit==3.7.1
