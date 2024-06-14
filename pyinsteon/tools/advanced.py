@@ -10,7 +10,7 @@ from ..constants import ALDBStatus, AllLinkMode, LinkStatus
 from ..managers.link_manager import (
     async_cancel_linking_mode,
     async_enter_linking_mode,
-    find_broken_links,
+    get_broken_links,
 )
 from ..managers.saved_devices_manager import aldb_rec_to_dict, dict_to_aldb_record
 from .aldb import ToolsAldb
@@ -178,18 +178,18 @@ class AdvancedTools(ToolsAldb):
                 f"An issue occured writing to the database of device {device.address}"
             )
 
-    def do_find_broken_links(self, log_stdout=None, background=False):
+    def do_get_broken_links(self, log_stdout=None, background=False):
         """Find broken links between devices.
 
         Useage:
-            find_broken_links [--background | -b]
+            get_broken_links [--background | -b]
         """
-        broken_links = find_broken_links(devices)
+        broken_links = get_broken_links(devices)
         log_stdout("Device   Mem Addr Target    Group Mode Status")
         log_stdout(
             "-------- -------- --------- ----- ---- ----------------------------------------"
         )
-        for address, broken_link in broken_links.items():
+        for address, broken_link, _ in broken_links:
             for mem_addr, rec, status in broken_link:
                 if status == LinkStatus.MISSING_CONTROLLER:
                     status_txt = "Missing controller"
