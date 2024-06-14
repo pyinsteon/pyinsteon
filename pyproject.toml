@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name        = "pyinsteon"
-version     = "1.6.1"
+version     = "1.6.2"
 license     = {text = "MIT License"}
 description = "Open-source Insteon home automation module running on Python 3."
 readme      = "DESCRIPTION.rst"
@@ -187,7 +187,8 @@ disable = [
     "consider-alternative-union-syntax",
     "duplicate-code",  # to be added back after cleanup
     "cyclic-import",
-    "use-yield-from"
+    "use-yield-from",
+    "unknown-option-value"
 ]
 enable = [
     #"useless-suppression",  # temporarily every now and then to clean them up
