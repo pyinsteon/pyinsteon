@@ -227,7 +227,7 @@ async def async_unlink_devices(
     return ResponseStatus.SUCCESS
 
 
-async def async_find_broken_links(
+def get_broken_links(
     devices: dict[Address, Device], work_dir: str = "."
 ) -> list[tuple[Address, ALDBRecord, LinkStatus]]:
     """Return a list of broken links."""
