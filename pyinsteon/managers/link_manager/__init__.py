@@ -1,4 +1,5 @@
 """Manage links beteween devices."""
+
 from __future__ import annotations
 
 import asyncio
@@ -185,7 +186,7 @@ async def async_cancel_linking_mode():
 
 
 async def async_unlink_devices(
-    device1: Device, device2: Union[Device, Address], group: Union(int, None) = None
+    device1: Device, device2: Union[Device, Address], group: Union[int, None] = None
 ):
     """Unlink two devices.
 
@@ -226,19 +227,16 @@ async def async_unlink_devices(
     return ResponseStatus.SUCCESS
 
 
-def find_broken_links(devices: List[Device]):
-    """Find proken links."""
-    broken_link_list = {}
-    for addr in devices:
-        device = devices[addr]
-        for mem_addr in device.aldb:
-            rec = device.aldb[mem_addr]
-            if rec.is_in_use:
-                status = _test_broken(addr, rec, devices)
-                if status != LinkStatus.FOUND:
-                    if not broken_link_list.get(addr):
-                        broken_link_list[addr] = {}
-                    broken_link_list[addr][mem_addr] = (rec, status)
+async def async_find_broken_links(
+    devices: dict[Address, Device], work_dir: str = "."
+) -> list[tuple[Address, ALDBRecord, LinkStatus]]:
+    """Return a list of broken links."""
+    broken_link_list = []
+    for addr, device in devices.items():
+        for rec in device.aldb.find(in_use=True):
+            status = _test_broken(addr, rec, devices)
+            if status != LinkStatus.FOUND:
+                broken_link_list.append((addr, rec, status))
     return broken_link_list
 
 
