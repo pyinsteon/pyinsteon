@@ -222,6 +222,14 @@ class MockDevices:
         """Remove a device from the device list."""
         self._devices.pop(address)
 
+    def items(self):
+        """Return the address and device from device list."""
+        return self._devices.items()
+
+    def values(self):
+        """Return the devices in the device list."""
+        return self._devices.values()
+
     async def async_add_device(self, *args, address=None, multiple=False, **kwargs):
         """Add devices mock up."""
         if not self.devices_to_add:

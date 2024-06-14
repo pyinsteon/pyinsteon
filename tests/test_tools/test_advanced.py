@@ -1108,16 +1108,15 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     assert battery_device.aldb.async_write.call_count == 1
 
     @async_case
-    async def test_find_broken_links(self):
+    async def test_get_broken_links(self):
         """Test the fine broken links command."""
         async with self.test_lock:
             with patch.object(
                 pyinsteon.tools.advanced, "devices", devices
             ), patch.object(pyinsteon.tools.tools_base, "devices", devices):
                 for mode in ["input", "background"]:
-
                     inputs = create_tools_commands(
-                        mode, "find_broken_links", curr_dir=curr_dir
+                        mode, "get_broken_links", curr_dir=curr_dir
                     )
                     cmd_mgr, _, stdout = self.setup_cmd_tool(
                         AdvancedTools,
@@ -1149,7 +1148,6 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                 mock_cancel_linking_mode,
             ):
                 for mode in ["input", "background"]:
-
                     inputs = create_tools_commands(mode, "cancel_linking_mode")
                     cmd_mgr, _, _ = self.setup_cmd_tool(
                         AdvancedTools,

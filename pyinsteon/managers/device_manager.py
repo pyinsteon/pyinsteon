@@ -1,6 +1,8 @@
 """Device manager."""
+
 import asyncio
 import logging
+from typing import ValuesView
 
 import async_timeout
 
@@ -32,7 +34,7 @@ class DeviceManager(SubscriberBase):
     def __init__(self):
         """Init the DeviceManager class."""
         super().__init__(subscriber_topic=DEVICE_LIST_CHANGED)
-        self._devices = {}
+        self._devices: dict[Address, Device] = {}
         self._modem = None
         self._id_manager = DeviceIdManager()
         self._id_manager.subscribe(self._async_device_identified)
@@ -138,6 +140,10 @@ class DeviceManager(SubscriberBase):
     def unknown_devices(self):
         """Return a list of addresses where the device type is unknown."""
         return self._id_manager.unknown_devices
+
+    def values(self) -> ValuesView[Device]:
+        """Return the devices."""
+        return self._devices.values()
 
     async def async_inspect_device(self, device: Device):
         """Inspect the properties of the devices."""
