@@ -601,6 +601,7 @@ class SwitchedLightingControl_OnOffOutlet(SwitchedLightingControl_ApplianceLinc)
 
     def _subscribe_to_handelers_and_managers(self):
         super()._subscribe_to_handelers_and_managers()
+        self._managers[STATUS_COMMAND].remove_status_type(0)
         self._managers[STATUS_COMMAND].add_status_type(1, self._handle_status)
 
     def _handle_status(self, db_version, status):

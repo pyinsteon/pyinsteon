@@ -71,7 +71,9 @@ class OnOffResponderBase(OnOffControllerBase):
 
     async def async_status(self, group=None):
         """Get the device status."""
-        status_type = self._groups[group].status_type if group is not None else None
+        status_type: int | None = None
+        if state_group := self._groups.get(group):
+            status_type = state_group.status_type
         return await self._managers[STATUS_COMMAND].async_status(status_type)
 
     def _register_handlers_and_managers(self):

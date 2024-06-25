@@ -140,7 +140,9 @@ class SensorsActuators_IOLink(Device):
 
     async def async_status(self, group=None):
         """Get the device status."""
-        status_type = self._groups[group].status_type if group is not None else None
+        status_type: int | None = None
+        if state_group := self._groups.get(group):
+            status_type = state_group.status_type
         return await self._managers[STATUS_COMMAND].async_status(status_type)
 
     def _register_op_flags_and_props(self):
@@ -319,6 +321,8 @@ class SensorsActuators_IOLink(Device):
                 self._events[SENSOR_GROUP][OPEN_EVENT].trigger(on_level=255)
             else:
                 self._events[SENSOR_GROUP][CLOSE_EVENT].trigger(on_level=0)
+            # Since we received a change on status type 1, we don't need to check status type 0
+            return
 
         await self.async_status(group=0)
         if self._groups[RELAY_GROUP].value != orig_relay:

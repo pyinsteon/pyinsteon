@@ -19,6 +19,7 @@ class NormallyOpen(GroupBase):
         super().__init__(
             name, address, group, default, value_type=int, status_type=status_type
         )
+        self._is_dimmable = False
 
     # pylint: disable=arguments-differ
     def set_value(self, on_level):
@@ -42,6 +43,8 @@ class NormallyClosed(GroupBase):
         super().__init__(
             name, address, group, default, value_type=int, status_type=status_type
         )
+        self._is_dimmable = False
+        self._is_reversed = True
 
     # pylint: disable=arguments-differ
     def set_value(self, on_level):

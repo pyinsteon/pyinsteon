@@ -28,8 +28,18 @@ class GroupBase(SubscriberBase):
         self._group = group
         self._value = int(default) if default is not None else None
         self._type = value_type
+        self._is_reversed = False
         self._is_dimmable: bool = False
         self._status_type = status_type
+
+    @property
+    def is_reversed(self) -> bool:
+        """Value is reversed from the status.
+
+        If TRUE a status of 255 will result in a value of 0
+        and a status of 0 will result in 0
+        """
+        return self._is_reversed
 
     @property
     def is_dimmable(self) -> bool:

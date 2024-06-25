@@ -93,6 +93,10 @@ class ClimateControl_Thermostat(Device):
         )
         self._aldb = ALDB(self._address, mem_addr=0x1FFF)
 
+    async def async_status(self, group=None):
+        """Get the status of the device."""
+        return await self._managers[STATUS_COMMAND].async_status()
+
     async def async_set_cool_set_point(self, temperature):
         """Set the cool set point."""
         temperature = max(1, min(temperature, 127))
