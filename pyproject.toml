@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name        = "pyinsteon"
-version     = "1.6.2"
+version     = "1.6.3"
 license     = {text = "MIT License"}
 description = "Open-source Insteon home automation module running on Python 3."
 readme      = "DESCRIPTION.rst"
