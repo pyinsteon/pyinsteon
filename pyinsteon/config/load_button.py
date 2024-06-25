@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Union
+
 from ..address import Address
 from .derived_property import DerivedProperty
 from .extended_property import ExtendedProperty
@@ -23,12 +25,12 @@ class LoadButtonProperty(DerivedProperty):
         self._allowed_values = allowed_values
 
     @property
-    def value(self) -> int | None:
+    def value(self) -> Union[int, None]:
         """Return the value of the load button from the underlying property."""
         return self._load_button_prop.value
 
     @property
-    def new_value(self) -> int | None:
+    def new_value(self) -> Union[int, None]:
         """Return the modified value of the property."""
         return self._load_button_prop.new_value
 

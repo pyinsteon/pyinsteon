@@ -26,7 +26,7 @@ from tests.utils import (
 FILE = "status_commands.json"
 
 
-def convert_to_int(value: str | int) -> tuple[int, Union[str, None]]:
+def convert_to_int(value: Union[str, int]) -> tuple[int, Union[str, None]]:
     """Convert a string hex value to int."""
     if isinstance(value, int):
         return value, None
