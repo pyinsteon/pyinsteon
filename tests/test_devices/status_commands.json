@@ -1,0 +1,290 @@
+{
+    "single_group_status": {
+        "device_types": [
+            "DimmableLightingControl",
+            "DimmableLightingControl_DinRail",
+            "DimmableLightingControl_InLineLinc01",
+            "DimmableLightingControl_InLineLinc02",
+            "DimmableLightingControl_SwitchLinc01",
+            "DimmableLightingControl_SwitchLinc02",
+            "SwitchedLightingControl",
+            "SwitchedLightingControl_ApplianceLinc",
+            "SwitchedLightingControl_DinRail",
+            "SwitchedLightingControl_InLineLinc01",
+            "SwitchedLightingControl_InLineLinc02",
+            "SwitchedLightingControl_SwitchLinc01",
+            "SwitchedLightingControl_SwitchLinc02",
+            "AccessControl_Morningstar",
+            "SensorsActuators",
+            "DimmableLightingControl_LampLinc",
+            "DimmableLightingControl_OutletLinc",
+            "SwitchedLightingControl_OutletLinc"
+        ],
+        "groups": [
+            null,
+            1
+        ],
+        "response_topics": [
+            {
+                "type": "direct_ack",
+                "cmd1": "db_version",
+                "cmd2": "status",
+                "target": "{modem_address.id}",
+                "user_data": null,
+                "hops_left": 3
+            }
+        ],
+        "results": [
+            {
+                "group": 1,
+                "value": "status"
+            }
+        ]
+    },
+    "fanlinc_all": {
+        "device_types": [
+            "DimmableLightingControl_FanLinc"
+        ],
+        "groups": [
+            null
+        ],
+        "response_topics": [
+            {
+                "type": "direct_ack",
+                "cmd1": "db_version",
+                "cmd2": "light_status",
+                "target": "{modem_address.id}",
+                "user_data": null,
+                "hops_left": 3
+            },
+            {
+                "type": "direct_ack",
+                "cmd1": "db_version",
+                "cmd2": "fan_status",
+                "target": "{modem_address.id}",
+                "user_data": null,
+                "hops_left": 3
+            }
+        ],
+        "results": [
+            {
+                "group": 1,
+                "value": "light_status"
+            },
+            {
+                "group": 2,
+                "value": "fan_status"
+            }
+        ]
+    },
+    "iolinc_all": {
+        "device_types": [
+            "SensorsActuators_IOLink"
+        ],
+        "groups": [
+            null
+        ],
+        "response_topics": [
+            {
+                "type": "direct_ack",
+                "cmd1": "db_version",
+                "cmd2": "relay_status",
+                "target": "{modem_address.id}",
+                "user_data": null,
+                "hops_left": 3
+            },
+            {
+                "type": "direct_ack",
+                "cmd1": "db_version",
+                "cmd2": "sensor_status",
+                "target": "{modem_address.id}",
+                "user_data": null,
+                "hops_left": 3
+            }
+        ],
+        "results": [
+            {
+                "group": 1,
+                "value": "relay_status"
+            },
+            {
+                "group": 2,
+                "value": "sensor_status"
+            }
+        ]
+    },
+    "outletlinc_all": {
+        "device_types": [
+            "SwitchedLightingControl_OnOffOutlet"
+        ],
+        "groups": [
+            null
+        ],
+        "response_topics": [
+            {
+                "type": "direct_ack",
+                "cmd1": "db_version",
+                "cmd2": "02",
+                "target": "{modem_address.id}",
+                "user_data": null,
+                "hops_left": 3
+            }
+        ],
+        "comment": "cmd2 value of 2 means top group is off and bottom group is on",
+        "results": [
+            {
+                "group": 1,
+                "value": 0
+            },
+            {
+                "group": 2,
+                "value": 255
+            }
+        ]
+    },
+    "loadcontroller_all": {
+        "device_types": [
+            "EnergyManagement_LoadController"
+        ],
+        "groups": [
+            null
+        ],
+        "response_topics": [
+            {
+                "type": "direct_ack",
+                "cmd1": "db_version",
+                "cmd2": "switch_status",
+                "target": "{modem_address.id}",
+                "user_data": null,
+                "hops_left": 3
+            },
+            {
+                "type": "direct_ack",
+                "cmd1": "db_version",
+                "cmd2": "sensor_status",
+                "target": "{modem_address.id}",
+                "user_data": null,
+                "hops_left": 3
+            }
+        ],
+        "comment": "cmd2 value of 2 means top group is off and bottom group is on",
+        "results": [
+            {
+                "group": 1,
+                "value": "switch_status"
+            },
+            {
+                "group": 2,
+                "value": "sensor_status"
+            }
+        ]
+    },
+    "thermostat_all": {
+        "device_types": [
+            "ClimateControl_Thermostat"
+        ],
+        "groups": [
+            null
+        ],
+        "response_topics": [
+            {
+                "type": "direct_ack",
+                "cmd1": "2e",
+                "cmd2": "02",
+                "target": "{modem_address.id}",
+                "user_data": {
+                    "d1": "00",
+                    "d2": "00",
+                    "d3": "00"
+                },
+                "hops_left": 3
+            },
+            {
+                "type": "direct",
+                "cmd1": "2e",
+                "cmd2": "02",
+                "target": "{modem_address.id}",
+                "user_data": {
+                    "d1": "01",
+                    "d2": "day",
+                    "d3": "hour",
+                    "d4": "minute",
+                    "d5": "second",
+                    "d6": 255,
+                    "d7": "cool_set_point",
+                    "d8": "humidity",
+                    "d9": 255,
+                    "d10": 255,
+                    "d11": 255,
+                    "d12": "heat_set_pont"
+                },
+                "hops_left": 3
+            },
+            {
+                "type": "direct_ack",
+                "cmd1": "2e",
+                "cmd2": "00",
+                "target": "{modem_address.id}",
+                "user_data": {
+                    "d1": "00",
+                    "d2": "00",
+                    "d3": "01"
+                },
+                "hops_left": 3
+            },
+            {
+                "type": "direct",
+                "cmd1": "2e",
+                "cmd2": "00",
+                "target": "{modem_address.id}",
+                "user_data": {
+                    "d1": "00",
+                    "d2": "01",
+                    "d3": "01",
+                    "d4": "humidity_high",
+                    "d5": "humidity_low",
+                    "d6": "firmwire",
+                    "d7": "cool_set_point",
+                    "d8": "heat_set_point",
+                    "d9": "rf_offset"
+                },
+                "hops_left": 3
+            }
+        ],
+        "comment": "cmd2 value of 2 means top group is off and bottom group is on",
+        "results": [
+            {
+                "comment": "temperature",
+                "group": 10,
+                "value": 11828
+            },
+            {
+                "group": 11,
+                "value": "humidity"
+            },
+            {
+                "group": 14,
+                "value": "cool_set_point"
+            },
+            {
+                "group": 15,
+                "value": "heat_set_pont"
+            }
+        ]
+    },
+    "skip_not_ready": {
+        "device_types": [
+            "DimmableLightingControl_KeypadLinc_6",
+            "DimmableLightingControl_KeypadLinc_8",
+            "SwitchedLightingControl_KeypadLinc_6",
+            "cooling",
+            "heating",
+            "system_mode",
+            "fan_mode",
+            "cool_set_point",
+            "heat_set_point",
+            "temperature",
+            "humidity"
+        ]
+    }
+}
