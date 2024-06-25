@@ -5,6 +5,7 @@ from binascii import unhexlify
 import json
 from os import path
 from random import randint
+from typing import Union
 import unittest
 
 import aiofiles
@@ -25,7 +26,7 @@ from tests.utils import (
 FILE = "status_commands.json"
 
 
-def convert_to_int(value: str | int) -> tuple[int, str | None]:
+def convert_to_int(value: str | int) -> tuple[int, Union[str, None]]:
     """Convert a string hex value to int."""
     if isinstance(value, int):
         return value, None
