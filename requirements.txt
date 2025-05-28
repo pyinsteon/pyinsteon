@@ -1,6 +1,6 @@
 async_timeout
 pyserial
-pyserial-asyncio>=0.5
+pyserial-asyncio-fast>=0.16
 aiohttp
 pypubsub
 aiofiles
