@@ -1,4 +1,5 @@
 """Window Covering devices."""
+
 from ..config import (
     DUAL_LINE_ON,
     DURATION_HIGH,

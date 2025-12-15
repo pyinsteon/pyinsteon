@@ -1,4 +1,5 @@
 """Python module for controlling Insteon devices."""
+
 import asyncio
 import logging
 

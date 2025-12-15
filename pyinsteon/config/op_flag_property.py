@@ -1,6 +1,7 @@
 """Derived property to hold an operating flag in an device property."""
-from ..utils import bit_is_set, set_bit
+
 from . import get_usable_value
+from ..utils import bit_is_set, set_bit
 from .derived_property import DerivedProperty
 
 

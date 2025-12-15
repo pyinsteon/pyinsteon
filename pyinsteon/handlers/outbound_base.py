@@ -1,4 +1,5 @@
 """Mock message handling via Chain of Command pattern."""
+
 from abc import ABCMeta
 import asyncio
 import logging

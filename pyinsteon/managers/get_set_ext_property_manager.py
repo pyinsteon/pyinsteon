@@ -1,4 +1,5 @@
 """Get and Set extended properties for a device."""
+
 import asyncio
 from collections import namedtuple
 import logging

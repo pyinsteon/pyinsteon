@@ -1,4 +1,5 @@
 """Container for a default link record."""
+
 from collections import namedtuple
 
 DefaultLink = namedtuple(

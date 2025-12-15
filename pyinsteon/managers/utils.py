@@ -1,4 +1,5 @@
 """Utilities for managers."""
+
 from ..device_types.ipdb import IPDB
 from .device_id_manager import DeviceId
 

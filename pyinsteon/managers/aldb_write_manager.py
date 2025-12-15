@@ -1,4 +1,5 @@
 """Manage writes to the All-Link Database."""
+
 import asyncio
 from typing import Tuple
 

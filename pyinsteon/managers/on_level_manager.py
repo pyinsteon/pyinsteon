@@ -1,4 +1,5 @@
 """Manage the inbound messages that trigger a variable state's on level."""
+
 from datetime import datetime, timedelta
 
 from ..address import Address

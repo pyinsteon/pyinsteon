@@ -1,4 +1,5 @@
 """Manage saving and restoring devices from JSON file."""
+
 import json
 import logging
 from os import path

@@ -1,6 +1,7 @@
 """IOLink relay mode property."""
-from ..constants import RelayMode
+
 from . import RELAY_MODE, get_usable_value
+from ..constants import RelayMode
 from .derived_property import DerivedProperty
 
 

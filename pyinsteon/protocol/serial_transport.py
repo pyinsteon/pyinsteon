@@ -1,4 +1,5 @@
 """Wrapper for serial.aio transport."""
+
 import asyncio
 import logging
 

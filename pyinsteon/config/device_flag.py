@@ -1,4 +1,5 @@
 """Operating flag or Extended Property for all device types."""
+
 from ..address import Address
 from ..constants import PropertyType
 from ..subscriber_base import SubscriberBase

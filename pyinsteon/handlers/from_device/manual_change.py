@@ -1,4 +1,5 @@
 """Manage inbound ON command from device."""
+
 from ...topics import STOP_MANUAL_CHANGE
 from .broadcast_command import BroadcastCommandHandlerBase
 

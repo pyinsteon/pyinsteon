@@ -1,4 +1,5 @@
 """Manage X10 functions."""
+
 from ..constants import X10Commands
 from ..handlers.to_device.x10_send import X10CommandSend
 from ..subscriber_base import SubscriberBase

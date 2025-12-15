@@ -1,4 +1,5 @@
 """KeypadLink toggle button property."""
+
 from . import calc_toggle_mode, get_usable_value
 from ..constants import ToggleMode
 from ..utils import bit_is_set, set_bit

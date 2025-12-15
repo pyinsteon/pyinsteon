@@ -1,4 +1,5 @@
 """Get Device Info command handler."""
+
 from ...address import Address
 from ...topics import ENTER_UNLINKING_MODE
 from .direct_command import DirectCommandHandlerBase

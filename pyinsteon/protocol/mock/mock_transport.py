@@ -1,4 +1,5 @@
 """Mock transport for test purposes."""
+
 import asyncio
 from binascii import Error, Incomplete, unhexlify
 import logging

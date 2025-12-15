@@ -1,4 +1,5 @@
 """Manages links between devices to identify device state of responders."""
+
 import asyncio
 from datetime import datetime, timedelta
 from typing import Dict, Tuple, Union

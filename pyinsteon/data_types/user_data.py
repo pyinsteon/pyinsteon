@@ -1,4 +1,5 @@
 """Extended Message User Data Type."""
+
 import binascii
 import logging
 

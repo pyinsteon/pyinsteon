@@ -1,4 +1,5 @@
 """Insteon device address class."""
+
 import logging
 
 from .constants import HC_LOOKUP

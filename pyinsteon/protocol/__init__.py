@@ -1,4 +1,5 @@
 """Protocol classes to interface with serial, socket and http devices."""
+
 import asyncio
 from functools import partial
 import logging
@@ -47,7 +48,6 @@ async def async_modem_connect(
 
     async def async_test_device_id():
         """Test if the device ID is set."""
-        nonlocal device_id
         retries = 10
         while device_id is None and retries:
             await asyncio.sleep(0.1)

@@ -1,4 +1,5 @@
 """X10 devices."""
+
 import asyncio
 
 from ..constants import ResponseStatus, X10Commands
