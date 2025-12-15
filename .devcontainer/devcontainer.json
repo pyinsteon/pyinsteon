@@ -50,6 +50,7 @@
   "postCreateCommand": "./scripts/bootstrap",
   "remoteUser": "vscode",
   "mounts": [
-    "type=bind,source=/dev/insteon,target=/dev/insteon"
+    "type=bind,source=/dev/insteon,target=/dev/insteon",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/frappe/.ssh,type=bind,consistency=cached"
   ]
 }
