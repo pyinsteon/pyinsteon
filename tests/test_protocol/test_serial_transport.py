@@ -38,7 +38,7 @@ class MockSerialTransport(asyncio.Transport):
         if self.poll_read_exception:
             raise self.poll_read_exception
 
-    def _call_connection_lost(self, *args, **kwargs):
+    async def _call_connection_lost(self, *args, **kwargs):
         """Mock the _call_connection_lost method."""
         if self.call_connection_lost_exception:
             raise self.call_connection_lost_exception
@@ -67,7 +67,7 @@ class TestSerialTransport(TestCase):
         if self.poll_read_exception:
             raise self.poll_read_exception
 
-    def _call_connection_lost(self, *args, **kwargs):
+    async def _call_connection_lost(self, *args, **kwargs):
         """Mock the _call_connection_lost method."""
         if self.call_connection_lost_exception:
             raise self.call_connection_lost_exception
@@ -84,10 +84,17 @@ class TestSerialTransport(TestCase):
         self, method, mock_serial, device, port=None
     ):
         """Create a serial transport."""
-        with patch("serial_asyncio.SerialTransport.write", self._write,), patch(
-            "serial_asyncio.SerialTransport._call_connection_lost",
-            self._call_connection_lost,
-        ), patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial):
+        with (
+            patch(
+                "serial_asyncio_fast.SerialTransport.write",
+                self._write,
+            ),
+            patch(
+                "serial_asyncio_fast.SerialTransport._call_connection_lost",
+                self._call_connection_lost,
+            ),
+            patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial),
+        ):
             if port is not None:
                 connect_method = partial(method, host=device, port=port)
             else:
@@ -100,10 +107,17 @@ class TestSerialTransport(TestCase):
     async def test_connect_serial(self):
         """Test connecting to the serial device."""
         mock_serial = MockSerial()
-        with patch("serial_asyncio.SerialTransport.write", self._write,), patch(
-            "serial_asyncio.SerialTransport._call_connection_lost",
-            self._call_connection_lost,
-        ), patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial):
+        with (
+            patch(
+                "serial_asyncio_fast.SerialTransport.write",
+                self._write,
+            ),
+            patch(
+                "serial_asyncio_fast.SerialTransport._call_connection_lost",
+                self._call_connection_lost,
+            ),
+            patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial),
+        ):
             async with async_protocol_manager(
                 connect_method=async_connect_serial, device="some_device"
             ) as protocol:
@@ -114,10 +128,17 @@ class TestSerialTransport(TestCase):
     async def test_connect_socket(self):
         """Test connecting to the socket device."""
         mock_serial = MockSerial()
-        with patch("serial_asyncio.SerialTransport.write", self._write,), patch(
-            "serial_asyncio.SerialTransport._call_connection_lost",
-            self._call_connection_lost,
-        ), patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial):
+        with (
+            patch(
+                "serial_asyncio_fast.SerialTransport.write",
+                self._write,
+            ),
+            patch(
+                "serial_asyncio_fast.SerialTransport._call_connection_lost",
+                self._call_connection_lost,
+            ),
+            patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial),
+        ):
             async with async_protocol_manager(
                 connect_method=async_connect_socket, host="some_device", port=9000
             ) as protocol:
@@ -129,10 +150,17 @@ class TestSerialTransport(TestCase):
         """Test connecting to the serial device."""
         mock_serial = MockSerial()
         mock_serial.serial_for_url_exception = OSError
-        with patch("serial_asyncio.SerialTransport.write", self._write,), patch(
-            "serial_asyncio.SerialTransport._call_connection_lost",
-            self._call_connection_lost,
-        ), patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial):
+        with (
+            patch(
+                "serial_asyncio_fast.SerialTransport.write",
+                self._write,
+            ),
+            patch(
+                "serial_asyncio_fast.SerialTransport._call_connection_lost",
+                self._call_connection_lost,
+            ),
+            patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial),
+        ):
             try:
                 async with async_protocol_manager(
                     connect_method=async_connect_serial,
@@ -148,10 +176,17 @@ class TestSerialTransport(TestCase):
         """Test connecting to the socket device."""
         mock_serial = MockSerial()
         mock_serial.serial_for_url_exception = OSError
-        with patch("serial_asyncio.SerialTransport.write", self._write,), patch(
-            "serial_asyncio.SerialTransport._call_connection_lost",
-            self._call_connection_lost,
-        ), patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial):
+        with (
+            patch(
+                "serial_asyncio_fast.SerialTransport.write",
+                self._write,
+            ),
+            patch(
+                "serial_asyncio_fast.SerialTransport._call_connection_lost",
+                self._call_connection_lost,
+            ),
+            patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial),
+        ):
             try:
                 async with async_protocol_manager(
                     connect_method=async_connect_socket,
@@ -167,10 +202,17 @@ class TestSerialTransport(TestCase):
     async def test_write(self):
         """Test writing to the serial device."""
         mock_serial = MockSerial()
-        with patch("serial_asyncio.SerialTransport.write", self._write,), patch(
-            "serial_asyncio.SerialTransport._call_connection_lost",
-            self._call_connection_lost,
-        ), patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial):
+        with (
+            patch(
+                "serial_asyncio_fast.SerialTransport.write",
+                self._write,
+            ),
+            patch(
+                "serial_asyncio_fast.SerialTransport._call_connection_lost",
+                self._call_connection_lost,
+            ),
+            patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial),
+        ):
             async with async_protocol_manager(
                 connect_method=async_connect_serial, device="some_device"
             ) as protocol:
@@ -183,10 +225,17 @@ class TestSerialTransport(TestCase):
     async def test_write_serial_exception(self):
         """Test connecting to the socket device."""
         mock_serial = MockSerial()
-        with patch("serial_asyncio.SerialTransport.write", self._write,), patch(
-            "serial_asyncio.SerialTransport._call_connection_lost",
-            self._call_connection_lost,
-        ), patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial):
+        with (
+            patch(
+                "serial_asyncio_fast.SerialTransport.write",
+                self._write,
+            ),
+            patch(
+                "serial_asyncio_fast.SerialTransport._call_connection_lost",
+                self._call_connection_lost,
+            ),
+            patch.object(pyinsteon.protocol.serial_transport, "serial", mock_serial),
+        ):
             async with async_protocol_manager(
                 connect_method=async_connect_serial, device="some_device"
             ) as protocol:
