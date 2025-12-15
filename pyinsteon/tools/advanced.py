@@ -192,6 +192,7 @@ class AdvancedTools(ToolsAldb):
         )
         for address, broken_link, _ in broken_links:
             for mem_addr, rec, status in broken_link:
+                status_txt = ""
                 if status == LinkStatus.MISSING_CONTROLLER:
                     status_txt = "Missing controller"
                 elif status == LinkStatus.MISSING_RESPONDER:
