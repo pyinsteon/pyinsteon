@@ -10,13 +10,17 @@
       "VARIANT": "3.12"
     }
   },
-  "runArgs": ["--device=/dev/insteon"],
+  "runArgs": [
+    "--device=/dev/insteon"
+  ],
   // Set *default* container specific settings.json values on container create.
   "customizations": {
     "vscode": {
       "settings": {
         "python.pythonPath": "/usr/local/bin/python",
-        "python.testing.pytestArgs": ["--no-cov"],
+        "python.testing.pytestArgs": [
+          "--no-cov"
+        ],
         "editor.formatOnPaste": false,
         "editor.formatOnSave": true,
         "editor.formatOnType": true,
@@ -44,5 +48,9 @@
     }
   },
   "postCreateCommand": "./scripts/bootstrap",
-  "remoteUser": "vscode"
+  "remoteUser": "vscode",
+  "mounts": [
+    "type=bind,source=/dev/insteon,target=/dev/insteon",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+  ]
 }
