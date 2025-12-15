@@ -1,4 +1,5 @@
 """Manage getting an operating flag."""
+
 import asyncio
 from collections import namedtuple
 import logging

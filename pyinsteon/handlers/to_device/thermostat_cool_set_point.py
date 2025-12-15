@@ -1,4 +1,5 @@
 """Thermostat temperature up command."""
+
 import asyncio
 
 from .. import ack_handler

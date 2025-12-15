@@ -1,4 +1,5 @@
 """Device state definitions."""
+
 DIMMABLE_LIGHT = "dimmable_light"
 DIMMABLE_FAN = "dimmable_fan"
 DIMMABLE_OUTLET = "dimmable_outlet"

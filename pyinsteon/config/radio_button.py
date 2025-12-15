@@ -1,4 +1,5 @@
 """KeypadLink radio button property."""
+
 from itertools import chain
 
 from . import OFF_MASK, ON_MASK, get_usable_value

@@ -11,6 +11,7 @@ Subscribers to Event use the following interface:
 Where name is the name of the event and address is the address of the device
 triggering the event.
 """
+
 from .address import Address
 from .subscriber_base import SubscriberBase
 

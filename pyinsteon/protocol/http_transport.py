@@ -1,7 +1,8 @@
 """HTTP Transport  for asyncio."""
+
 import asyncio
-import logging
 from binascii import Error, Incomplete, unhexlify
+import logging
 
 import aiohttp
 

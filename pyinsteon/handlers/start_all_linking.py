@@ -1,4 +1,5 @@
 """Start All-Linking."""
+
 from . import ack_handler, nak_handler
 from ..constants import AllLinkMode
 from ..topics import START_ALL_LINKING

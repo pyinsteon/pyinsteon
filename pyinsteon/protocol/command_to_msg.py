@@ -1,4 +1,5 @@
 """Create a topic and a direct message."""
+
 import logging
 from math import ceil
 

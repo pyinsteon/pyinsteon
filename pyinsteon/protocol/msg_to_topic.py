@@ -1,4 +1,5 @@
 """Convert a message to a topic and an args, kwargs arguments."""
+
 import logging
 from typing import Any, Dict, Tuple
 

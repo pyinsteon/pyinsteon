@@ -1,4 +1,5 @@
 """Insteon Modem Base Class."""
+
 from abc import ABCMeta
 import asyncio
 from asyncio import Transport

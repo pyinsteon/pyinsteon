@@ -1,4 +1,5 @@
 """Handle sending a read request for ALDB records."""
+
 import logging
 
 from ...address import Address

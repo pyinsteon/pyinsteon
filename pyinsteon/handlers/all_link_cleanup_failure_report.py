@@ -1,7 +1,8 @@
 """Handle All-Link Cleanup Status Reports."""
+
+from . import inbound_handler
 from ..address import Address
 from ..topics import ALL_LINK_CLEANUP_FAILURE_REPORT
-from . import inbound_handler
 from .inbound_base import InboundHandlerBase
 
 

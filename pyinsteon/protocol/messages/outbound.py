@@ -1,6 +1,8 @@
 """Create outbound messages."""
+
 import logging
 
+from . import MessageBase
 from ... import pub
 from ...address import Address
 from ...constants import (
@@ -41,7 +43,6 @@ from ...topics import (
 )
 from ...utils import subscribe_topic
 from ..topic_converters import topic_to_message_handler, topic_to_message_type
-from . import MessageBase
 from .message_definition import MessageDefinition
 from .message_definitions import FLD_EXT_SEND, FLD_STD_SEND, OUTBOUND_MSG_DEF
 

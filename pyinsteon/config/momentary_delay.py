@@ -1,4 +1,5 @@
 """IOLink momentary delay property."""
+
 from . import get_usable_value
 from .derived_property import DerivedProperty
 

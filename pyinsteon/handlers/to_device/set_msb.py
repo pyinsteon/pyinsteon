@@ -1,4 +1,5 @@
 """Set most significant byte for peek/poke commands."""
+
 from ...topics import SET_ADDRESS_MSB
 from .direct_command import DirectCommandHandlerBase
 

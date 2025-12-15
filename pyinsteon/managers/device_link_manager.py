@@ -1,4 +1,5 @@
 """Manages links between devices to identify device state of responders."""
+
 import asyncio
 from datetime import datetime, timedelta
 from typing import Dict, Tuple, Union
@@ -237,6 +238,7 @@ class DeviceLinkManager:
 
     def _is_standard_modem_link(self, controller, responder, group):
         """Test if a link is a standard modem link."""
+        groups = []
         if self._devices.modem and responder == self._devices.modem.address:
             return True
         if self._devices.modem and controller == self._devices.modem.address:

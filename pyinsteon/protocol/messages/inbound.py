@@ -1,4 +1,5 @@
 """Insteon inbound message data structure defintion."""
+
 from binascii import hexlify
 import logging
 from typing import Tuple

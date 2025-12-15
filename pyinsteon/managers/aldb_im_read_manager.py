@@ -1,4 +1,5 @@
 """Insteon Modem ALDB Read Manager."""
+
 import asyncio
 import logging
 

@@ -1,4 +1,5 @@
 """Insteon device address class."""
+
 import binascii
 import logging
 

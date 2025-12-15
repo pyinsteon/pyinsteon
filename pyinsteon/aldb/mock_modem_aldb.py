@@ -1,4 +1,5 @@
 """All-Link database for an Insteon Modem."""
+
 import logging
 from typing import List
 

@@ -1,4 +1,5 @@
 """Mock reader used by the MockTransport class."""
+
 import asyncio
 
 from aiohttp import web

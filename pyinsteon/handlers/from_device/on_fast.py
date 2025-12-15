@@ -1,4 +1,5 @@
 """Manage inbound ON command from device."""
+
 from ...topics import ON_FAST
 from .broadcast_command import BroadcastCommandHandlerBase
 

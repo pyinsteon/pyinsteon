@@ -1,4 +1,5 @@
 """Insteon message and command handlers."""
+
 import asyncio
 from functools import partial, wraps
 from inspect import isawaitable, iscoroutinefunction

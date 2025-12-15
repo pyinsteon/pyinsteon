@@ -1,4 +1,5 @@
 """Manage Insteon Scenes."""
+
 import asyncio
 import json
 import logging

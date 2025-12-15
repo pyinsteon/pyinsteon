@@ -2,6 +2,7 @@
 
 This is used by the stdout log so that it does not echo the command but the command is sent to the file log.
 """
+
 from logging import Filter
 
 

@@ -1,4 +1,5 @@
 """Extended property read manager."""
+
 import asyncio
 
 import async_timeout

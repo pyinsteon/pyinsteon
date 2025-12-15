@@ -1,4 +1,5 @@
 """Assign a device to an all link group."""
+
 from ...address import Address
 from ...topics import DELETE_FROM_ALL_LINK_GROUP
 from .broadcast_command import BroadcastCommandHandlerBase

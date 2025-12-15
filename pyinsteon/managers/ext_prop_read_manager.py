@@ -1,4 +1,5 @@
 """Extended property read manager."""
+
 from typing import Dict
 
 from ..address import Address
