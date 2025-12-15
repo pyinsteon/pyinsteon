@@ -1,4 +1,5 @@
 """I/O Sensor port configutation flags."""
+
 from ..utils import bit_is_set, set_bit
 
 

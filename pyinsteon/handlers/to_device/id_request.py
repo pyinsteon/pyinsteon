@@ -1,4 +1,5 @@
 """Get Device Info command handler."""
+
 from ...address import Address
 from ...topics import ID_REQUEST
 from .direct_command import DirectCommandHandlerBase

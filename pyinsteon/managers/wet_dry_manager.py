@@ -1,4 +1,5 @@
 """Manage wet / dry state of the leak sensor."""
+
 from typing import Callable
 
 from ..address import Address

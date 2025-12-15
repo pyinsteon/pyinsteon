@@ -1,4 +1,5 @@
 """Embodies the INSTEON Product Database static data and access methods."""
+
 import collections
 import logging
 

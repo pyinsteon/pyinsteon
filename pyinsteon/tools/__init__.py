@@ -1,4 +1,5 @@
 """Command line tools to interact with the Insteon devices."""
+
 import asyncio
 from binascii import Error as BinasciiError, unhexlify
 from functools import partial

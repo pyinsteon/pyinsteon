@@ -1,4 +1,5 @@
 """KeypadLinc command handler to trigger a button scene."""
+
 from .. import ack_handler
 from ...topics import EXTENDED_TRIGGER_ALL_LINK
 from ..to_device.direct_command import DirectCommandHandlerBase

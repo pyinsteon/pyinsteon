@@ -1,4 +1,5 @@
 """Manage identifying unknown devices."""
+
 import asyncio
 from binascii import unhexlify
 from collections import namedtuple

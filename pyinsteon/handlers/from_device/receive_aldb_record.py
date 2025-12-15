@@ -1,12 +1,13 @@
 """Handle sending a read request for ALDB records."""
+
 import logging
 
+from .. import inbound_handler
 from ...address import Address
 from ...constants import AllLinkMode
 from ...data_types.all_link_record_flags import AllLinkRecordFlags
 from ...topics import ALDB_RECORD_RECEIVED, EXTENDED_READ_WRITE_ALDB
 from ...utils import build_topic
-from .. import inbound_handler
 from ..inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)

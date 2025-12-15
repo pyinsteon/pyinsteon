@@ -1,4 +1,5 @@
 """Methods to convert to and from topics."""
+
 from ..constants import MessageFlagType
 
 

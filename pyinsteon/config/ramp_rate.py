@@ -1,4 +1,5 @@
 """Dimmable ramp rate property."""
+
 from ..utils import ramp_rate_to_seconds, seconds_to_ramp_rate
 from .derived_property import DerivedProperty
 

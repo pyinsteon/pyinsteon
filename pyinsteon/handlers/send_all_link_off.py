@@ -1,4 +1,5 @@
 """Send a Start All-Linking command."""
+
 from .send_all_link import SendAllLinkCommandHandler
 
 

@@ -1,6 +1,7 @@
 """Handle All-Link Cleanup Status Reports."""
-from ..topics import ALL_LINK_CLEANUP_STATUS_REPORT
+
 from . import ack_handler, nak_handler
+from ..topics import ALL_LINK_CLEANUP_STATUS_REPORT
 from .inbound_base import InboundHandlerBase
 
 

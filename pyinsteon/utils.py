@@ -114,7 +114,7 @@ def vars_to_string(vals: Iterable) -> str:
     output = []
     for fld, val in vals:
         if val is None:
-            pass
+            valstr = ""
         elif isinstance(val, (Enum, IntEnum)):
             valstr = str(val)
         elif isinstance(val, int):
@@ -132,7 +132,7 @@ def vars_to_repr(vals: Iterable) -> str:
     output = []
     for fld, val in vals:
         if val is None:
-            pass
+            valstr = ""
         elif isinstance(val, (Enum, IntEnum)):
             valstr = repr(val)
         elif isinstance(val, int):

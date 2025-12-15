@@ -1,6 +1,7 @@
 """Base class for all subscribable classes."""
-import logging
+
 from abc import ABC
+import logging
 from typing import Callable
 
 from .utils import publish_topic, subscribe_topic, unsubscribe_topic

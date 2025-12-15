@@ -8,6 +8,7 @@ For use with `ExtendedPropertyReadManager` and `ExtendedPropertyWriteManager`.
 - For bits that do not have an operating flag, the underlying `_value` property will determine the bit value.
 
 """
+
 from typing import Dict
 
 from ..constants import PropertyType

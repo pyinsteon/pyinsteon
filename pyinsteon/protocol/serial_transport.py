@@ -1,9 +1,10 @@
 """Wrapper for serial.aio transport."""
+
 import asyncio
 import logging
 
 import serial
-from serial_asyncio import SerialTransport
+from serial_asyncio_fast import SerialTransport
 
 _LOGGER = logging.getLogger(__name__)
 

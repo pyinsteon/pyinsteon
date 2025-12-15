@@ -1,4 +1,5 @@
 """Insteon device address class."""
+
 import logging
 
 from .constants import HC_LOOKUP
@@ -49,7 +50,7 @@ def create(housecode: str, unitcode: int):
             str_error = f"X10 house code invalid: {housecode}"
         else:
             str_error = "X10 house code is not a string"
-            raise ValueError(str_error)
+        raise ValueError(str_error)
 
     # 20, 21 and 22 for All Units Off, All Lights On and All Lights Off
     # 'fake' units
@@ -62,7 +63,7 @@ def create(housecode: str, unitcode: int):
             str_error = f"X10 unit code error: {unitcode}"
         else:
             str_error = "X10 unit code is not an integer 1 - 16"
-            raise ValueError(str_error)
+        raise ValueError(str_error)
 
     addr = X10Address((byte_housecode << 4) + byte_unitcode)
     return addr

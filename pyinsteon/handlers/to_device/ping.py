@@ -1,4 +1,5 @@
 """Manage outbound Png command to a device."""
+
 from ...topics import PING
 from .direct_command import DirectCommandHandlerBase
 

@@ -1,4 +1,5 @@
 """Modem command to get the IM configuration."""
+
 import logging
 
 from . import ack_handler, nak_handler

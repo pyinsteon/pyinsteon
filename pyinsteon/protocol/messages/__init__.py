@@ -1,4 +1,5 @@
 """Insteon Messages."""
+
 from ...constants import MESSAGE_START_CODE
 from ...utils import vars_to_bytes, vars_to_repr, vars_to_string
 from .message_definition import MessageDefinition

@@ -1,9 +1,10 @@
 """Manage inbound ON command from device."""
+
 import logging
 
+from .. import inbound_handler
 from ...constants import MessageFlagType
 from ...topics import THERMOSTAT_HUMIDITY_STATUS
-from .. import inbound_handler
 from ..inbound_base import InboundHandlerBase
 
 _LOGGER = logging.getLogger(__name__)

@@ -1,4 +1,5 @@
 """All-Link database for battery oppertated devices."""
+
 from collections import namedtuple
 import logging
 

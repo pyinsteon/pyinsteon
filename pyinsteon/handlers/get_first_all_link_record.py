@@ -1,4 +1,5 @@
 """Modem command to get next ALDB record."""
+
 import logging
 
 from . import ack_handler, nak_handler
