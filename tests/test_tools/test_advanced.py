@@ -131,7 +131,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         inputs,
                         allow_logging=True,
                     )
-                    mock_enter_linking_mode.call_count = 0
+                    mock_enter_linking_mode.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert mock_enter_linking_mode.call_count == 1
                     mock_enter_linking_mode.assert_called_with(
@@ -147,7 +147,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         inputs,
                         allow_logging=True,
                     )
-                    mock_enter_linking_mode.call_count = 0
+                    mock_enter_linking_mode.reset_mock()
                     stdout.buffer = []
                     remove_log_file(curr_dir)
                     await cmd_mgr.async_cmdloop("")
@@ -170,7 +170,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     cmd_mgr, _, stdout = self.setup_cmd_tool(
                         AdvancedTools, inputs, allow_logging=True
                     )
-                    mock_enter_linking_mode.call_count = 0
+                    mock_enter_linking_mode.reset_mock()
                     stdout.buffer = []
                     remove_log_file(curr_dir)
                     await cmd_mgr.async_cmdloop("")
@@ -199,7 +199,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         AdvancedTools,
                         inputs,
                     )
-                    mock_enter_linking_mode.call_count = 0
+                    mock_enter_linking_mode.reset_mock()
                     stdout.buffer = []
                     remove_log_file(curr_dir)
                     await cmd_mgr.async_cmdloop("")
@@ -228,7 +228,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         AdvancedTools,
                         inputs,
                     )
-                    mock_enter_linking_mode.call_count = 0
+                    mock_enter_linking_mode.reset_mock()
                     stdout.buffer = []
                     remove_log_file(curr_dir)
                     await cmd_mgr.async_cmdloop("")
@@ -275,8 +275,8 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         inputs,
                         allow_logging=True,
                     )
-                    good_device.aldb.remove.call_count = 0
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.remove.reset_mock()
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert good_device.aldb.remove.call_count == 1
                     assert good_device.aldb.async_write.call_count == 1
@@ -291,8 +291,8 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         inputs,
                         allow_logging=True,
                     )
-                    good_device.aldb.remove.call_count = 0
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.remove.reset_mock()
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert good_device.aldb.remove.call_count == 0
                     assert good_device.aldb.async_write.call_count == 0
@@ -306,8 +306,8 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         inputs,
                         allow_logging=True,
                     )
-                    good_device.aldb.remove.call_count = 0
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.remove.reset_mock()
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert good_device.aldb.remove.call_count == 0
                     assert good_device.aldb.async_write.call_count == 0
@@ -321,8 +321,8 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         inputs,
                         allow_logging=True,
                     )
-                    good_device.aldb.remove.call_count = 0
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.remove.reset_mock()
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert good_device.aldb.remove.call_count == 0
                     assert good_device.aldb.async_write.call_count == 0
@@ -336,8 +336,8 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         inputs,
                         allow_logging=True,
                     )
-                    good_device.aldb.remove.call_count = 0
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.remove.reset_mock()
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert good_device.aldb.remove.call_count == 0
                     assert good_device.aldb.async_write.call_count == 0
@@ -349,8 +349,8 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         inputs,
                         allow_logging=True,
                     )
-                    good_device.aldb.remove.call_count = 0
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.remove.reset_mock()
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert good_device.aldb.remove.call_count == 0
                     assert good_device.aldb.async_write.call_count == 0
@@ -364,8 +364,8 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         inputs,
                         allow_logging=True,
                     )
-                    good_device.aldb.remove.call_count = 0
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.remove.reset_mock()
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert good_device.aldb.remove.call_count == 0
                     assert good_device.aldb.async_write.call_count == 0
@@ -383,8 +383,8 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         inputs,
                         allow_logging=True,
                     )
-                    good_device.aldb.remove.call_count = 0
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.remove.reset_mock()
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert good_device.aldb.remove.call_count == 1
                     assert good_device.aldb.async_write.call_count == 1
@@ -402,8 +402,8 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         inputs,
                         allow_logging=True,
                     )
-                    good_device.aldb.remove.call_count = 0
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.remove.reset_mock()
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert good_device.aldb.remove.call_count == 0
                     assert good_device.aldb.async_write.call_count == 0
@@ -422,8 +422,8 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     )
 
                     battery_device.aldb.load_saved_records(ALDBStatus.LOADED, records)
-                    battery_device.aldb.remove.call_count = 0
-                    battery_device.aldb.async_write.call_count = 0
+                    battery_device.aldb.remove.reset_mock()
+                    battery_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert battery_device.aldb.remove.call_count == 1
                     assert battery_device.aldb.async_write.call_count == 1
@@ -884,7 +884,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     )
                     good_device.aldb.load_saved_records(ALDBStatus.LOADED, records)
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert len(good_device.aldb.pending_changes) == 0
                     assert good_device.aldb.async_write.call_count == 0
@@ -904,7 +904,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     )
                     good_device.aldb.load_saved_records(ALDBStatus.LOADED, records)
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert len(good_device.aldb.pending_changes) == 0
 
@@ -923,7 +923,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     )
                     good_device.aldb.load_saved_records(ALDBStatus.LOADED, records)
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert len(good_device.aldb.pending_changes) == 0
 
@@ -942,7 +942,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     )
                     good_device.aldb.load_saved_records(ALDBStatus.LOADED, records)
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert len(good_device.aldb.pending_changes) == 0
                     assert good_device.aldb.async_write.call_count == 0
@@ -969,7 +969,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     )
                     good_device.aldb.load_saved_records(ALDBStatus.LOADED, records)
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert len(good_device.aldb.pending_changes) == 0
                     assert good_device.aldb.async_write.call_count == 0
@@ -996,7 +996,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     )
                     good_device.aldb.load_saved_records(ALDBStatus.LOADED, records)
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert len(good_device.aldb.pending_changes) == 0
                     assert good_device.aldb.async_write.call_count == 0
@@ -1022,7 +1022,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     )
                     good_device.aldb.load_saved_records(ALDBStatus.LOADED, records)
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert len(good_device.aldb.pending_changes) == 0
                     assert good_device.aldb.async_write.call_count == 0
@@ -1048,7 +1048,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     )
                     good_device.aldb.load_saved_records(ALDBStatus.EMPTY, {})
                     good_device.aldb.async_write = AsyncMock(return_value=(0, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop()
                     assert len(good_device.aldb.pending_changes) == 0
                     assert good_device.aldb.async_write.call_count == 0
@@ -1154,7 +1154,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         inputs,
                         allow_logging=True,
                     )
-                    mock_cancel_linking_mode.call_count = 0
+                    mock_cancel_linking_mode.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert mock_cancel_linking_mode.call_count == 1
 
@@ -1356,7 +1356,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     )
                     good_device.aldb.load_saved_records(ALDBStatus.LOADED, records)
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert good_device.aldb.async_write.call_count == 1
 
@@ -1373,7 +1373,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     )
                     good_device.aldb.load_saved_records(ALDBStatus.LOADED, records)
                     good_device.aldb.async_write = AsyncMock(return_value=(0, 1))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert good_device.aldb.async_write.call_count == 1
 
@@ -1389,7 +1389,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         allow_logging=True,
                     )
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert good_device.aldb.async_write.call_count == 0
 
@@ -1405,7 +1405,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         allow_logging=True,
                     )
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert good_device.aldb.async_write.call_count == 0
 
@@ -1421,7 +1421,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         allow_logging=True,
                     )
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert good_device.aldb.async_write.call_count == 0
 
@@ -1437,7 +1437,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         allow_logging=True,
                     )
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert good_device.aldb.async_write.call_count == 0
 
@@ -1453,7 +1453,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         allow_logging=True,
                     )
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert good_device.aldb.async_write.call_count == 0
 
@@ -1473,7 +1473,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         allow_logging=True,
                     )
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert good_device.aldb.async_write.call_count == 0
 
@@ -1493,7 +1493,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                         allow_logging=True,
                     )
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert good_device.aldb.async_write.call_count == 0
 
@@ -1515,7 +1515,7 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     )
                     battery_device.aldb.load_saved_records(ALDBStatus.LOADED, records)
                     battery_device.aldb.async_write = AsyncMock(return_value=(0, 0))
-                    battery_device.aldb.async_write.call_count = 0
+                    battery_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert battery_device.aldb.async_write.call_count == 1
 
@@ -1532,6 +1532,6 @@ class TestToolsAdvancedMenu(ToolsTestBase):
                     )
                     good_device.aldb.load_saved_records(ALDBStatus.PARTIAL, records)
                     good_device.aldb.async_write = AsyncMock(return_value=(1, 0))
-                    good_device.aldb.async_write.call_count = 0
+                    good_device.aldb.async_write.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert good_device.aldb.async_write.call_count == 0

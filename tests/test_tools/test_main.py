@@ -978,7 +978,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 await cmd_mgr.async_cmdloop()
                 assert mock_unlink_devices.call_count == 3
 
-                mock_unlink_devices.call_count = 0
+                mock_unlink_devices.reset_mock()
                 # Remove known device using command line mode
                 cmd_mgr, _, _ = self.setup_cmd_tool(
                     InsteonCmd, [f"remove_device {str(good_address)}", 1, "exit"]
@@ -987,7 +987,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 assert mock_unlink_devices.call_count == 0
                 assert devices.async_remove_device.call_count == 1
 
-                mock_unlink_devices.call_count = 0
+                mock_unlink_devices.reset_mock()
                 # Remove known device using input mode
                 cmd_mgr, _, _ = self.setup_cmd_tool(
                     InsteonCmd, ["remove_device", str(good_address), 1, "exit"]
@@ -996,8 +996,8 @@ class TestToolsMainMenu(ToolsTestBase):
                 assert mock_unlink_devices.call_count == 0
                 assert devices.async_remove_device.call_count == 2
 
-                mock_unlink_devices.call_count = 0
-                # Remove known device using bakcground mode
+                mock_unlink_devices.reset_mock()
+                # Remove known device using background mode
                 cmd_mgr, _, _ = self.setup_cmd_tool(
                     InsteonCmd, [f"remove_device -b {str(good_address)}", 1, "exit"]
                 )
@@ -1005,7 +1005,7 @@ class TestToolsMainMenu(ToolsTestBase):
                 assert mock_unlink_devices.call_count == 0
                 assert devices.async_remove_device.call_count == 3
 
-                mock_unlink_devices.call_count = 0
+                mock_unlink_devices.reset_mock()
                 # Remove known device using command line mode with force
                 cmd_mgr, _, _ = self.setup_cmd_tool(
                     InsteonCmd, [f"remove_device {str(good_address)} f", 1, "exit"]
