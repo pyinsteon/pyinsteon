@@ -22,7 +22,7 @@ class HeartbeatManager(SubscriberBase):
             self._call_subscribers(on_level=on_level)
 
     # The default heartbeat interval is 24 hours, but can vary, so use 30 hours as a default max duration to trigger a missed heartbeat
-    def __init__(self, address, group, max_duration=((24 + 6) * 60)):
+    def __init__(self, address, group, max_duration=(24 + 6) * 60):
         """Init the HeartbeatManager class."""
         self._address = Address(address)
         self._group = group
