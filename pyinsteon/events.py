@@ -95,7 +95,7 @@ class LowBatteryEvent(Event):
     def trigger(self, low_battery):
         """Trigger the event."""
         self._call_subscribers(
-            name=self._name, address=self._address.id, group=self._group, low_battery=low_battery
+            name=self._name, address=self._address.id, group=self._group
         )
 
 
@@ -106,7 +106,7 @@ class HeartbeatEvent(Event):
     def trigger(self, heartbeat):
         """Trigger the event."""
         self._call_subscribers(
-            name=self._name, address=self._address.id, group=self._group, heartbeat=heartbeat
+            name=self._name, address=self._address.id, group=self._group
         )
 
 
@@ -117,5 +117,5 @@ class WetDryEvent(Event):
     def trigger(self, dry):
         """Trigger the event."""
         self._call_subscribers(
-            name=self._name, address=self._address.id, group=self._group, dry=dry
+            name=self._name, address=self._address.id, group=self._group
         )
