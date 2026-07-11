@@ -7,6 +7,7 @@ import logging
 from ..constants import ResponseStatus
 from ..handlers.get_im_info import GetImInfoHandler
 from ..managers.device_id_manager import DeviceId
+from .messages.outbound import MODEM_CONTEXT
 from ..managers.utils import create_device
 from .http_transport import async_connect_http
 from .mock.mock_transport import async_connect_mock
@@ -24,6 +25,7 @@ async def async_modem_connect(
     password=None,
     hub_version=2,
     mock=False,
+    modem_id=None,
 ):
     """Connect to the Insteon Modem.
 
@@ -75,11 +77,13 @@ async def async_modem_connect(
     else:
         connect_method = partial(async_connect_socket, **{"host": host, "port": port})
 
-    protocol = Protocol(connect_method=connect_method)
+    protocol = Protocol(connect_method=connect_method, modem_id=modem_id)
+    context_token = MODEM_CONTEXT.set(protocol.modem_id)
 
     try:
         await protocol.async_connect(retry=False)
     except ConnectionError as ex:
+        MODEM_CONTEXT.reset(context_token)
         raise ConnectionError("Modem did not respond connection request") from ex
 
     get_im_info = GetImInfoHandler()
@@ -93,8 +97,10 @@ async def async_modem_connect(
 
     # Wait for a max of 60 seconds for the modem to respond
     if device_id is None and not await async_test_device_id():
+        MODEM_CONTEXT.reset(context_token)
         raise ConnectionError("Modem did not respond to ID request")
 
+    MODEM_CONTEXT.reset(context_token)
     modem = create_device(device_id)
     modem.protocol = protocol
     modem.transport = transport

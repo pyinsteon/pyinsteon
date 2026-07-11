@@ -33,7 +33,13 @@ class DeviceManager(SubscriberBase):
 
     def __init__(self):
         """Init the DeviceManager class."""
-        super().__init__(subscriber_topic=DEVICE_LIST_CHANGED)
+        # Instance-unique subtopic: multiple DeviceManagers (multi-modem)
+        # must not receive each other's add/remove events. Subscribers to
+        # the parent DEVICE_LIST_CHANGED topic still receive these events
+        # (pypubsub parent-topic semantics), preserving back-compat.
+        super().__init__(
+            subscriber_topic=f"{DEVICE_LIST_CHANGED}.instance_{id(self):x}"
+        )
         self._devices: dict[Address, Device] = {}
         self._modem = None
         self._id_manager = DeviceIdManager()
@@ -298,7 +304,7 @@ class DeviceManager(SubscriberBase):
         """Close the device ID listener."""
         self._id_manager.close()
 
-    async def async_load(self, workdir="", id_devices=1, load_modem_aldb=1):
+    async def async_load(self, workdir="", id_devices=1, load_modem_aldb=1, device_file=None):
         """Load devices from the `insteon_devices.yaml` file and device overrides.
 
         Parameters:
@@ -321,7 +327,9 @@ class DeviceManager(SubscriberBase):
         """
         if workdir:
             async with self._loading_saved_lock:
-                saved_devices_manager = SavedDeviceManager(workdir, self.modem)
+                saved_devices_manager = SavedDeviceManager(
+                    workdir, self.modem, device_file=device_file
+                )
                 devices = await saved_devices_manager.async_load()
                 for address in devices:
                     self[address] = devices[address]
@@ -345,9 +353,11 @@ class DeviceManager(SubscriberBase):
             id_all = id_devices == 2
             await self._id_manager.async_id_devices(refresh=id_all)
 
-    async def async_save(self, workdir):
+    async def async_save(self, workdir, device_file=None):
         """Save devices to a device information file."""
-        saved_devices_manager = SavedDeviceManager(workdir, self.modem)
+        saved_devices_manager = SavedDeviceManager(
+            workdir, self.modem, device_file=device_file
+        )
         await saved_devices_manager.async_save(self._devices)
 
     async def _async_device_identified(
