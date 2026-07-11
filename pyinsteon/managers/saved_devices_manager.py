@@ -228,10 +228,11 @@ def _convert_old_aldb(old_aldb):
 class SavedDeviceManager:
     """Manage saving and restoring devices from JSON."""
 
-    def __init__(self, workdir, modem):
+    def __init__(self, workdir, modem, device_file=None):
         """Init the SavedDeviceManager class."""
         self._workdir = workdir
         self._modem = modem
+        self._device_file_name = device_file if device_file else DEVICE_INFO_FILE
 
     async def async_save(self, device_list: dict):
         """Save all devices to the `insteon_devices.json` file for faster loading."""
@@ -280,7 +281,7 @@ class SavedDeviceManager:
             return saved_devices
 
         try:
-            device_file = os.path.join(self._workdir, DEVICE_INFO_FILE)
+            device_file = os.path.join(self._workdir, self._device_file_name)
             async with aiofiles.open(device_file, "r") as afp:
                 json_file = ""
                 json_file = await afp.read()
@@ -304,7 +305,7 @@ class SavedDeviceManager:
 
     async def _write_saved_devices(self, device_list):
         _LOGGER.debug("Writing %d devices to save file", len(device_list))
-        device_file = os.path.join(self._workdir, DEVICE_INFO_FILE)
+        device_file = os.path.join(self._workdir, self._device_file_name)
         temp_file = f"{device_file}.tmp"
         out_json = json.dumps(device_list, indent=2)
         async with _SAVE_LOCK:

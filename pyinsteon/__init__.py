@@ -7,6 +7,7 @@ from pubsub import pub
 
 from .address import Address
 from .handlers.from_device.x10_received import X10Received
+from .insteon_stack import InsteonStack  # noqa: F401
 from .listener_exception_handler import ListenerExceptionHandler
 from .managers.device_link_manager import DeviceLinkManager
 from .managers.device_manager import DeviceManager
@@ -26,6 +27,13 @@ X10_RECEIVED_HANDLER = X10Received()
 devices = DeviceManager()
 link_manager = DeviceLinkManager(devices)
 subscribe_topic(async_add_default_links, ADD_DEFAULT_LINKS)
+
+# Backward-compatible default stack: the module-level API (async_connect,
+# devices, link_manager) is backed by this stack under modem_id "default".
+# Additional modems are created via pyinsteon.insteon_stack.InsteonStack.
+_default_stack = InsteonStack(
+    modem_id="default", devices=devices, link_manager=link_manager
+)
 
 
 async def async_connect(
@@ -51,7 +59,7 @@ async def async_connect(
 
     """
     try:
-        modem = await async_modem_connect(
+        await _default_stack.async_connect(
             device=device,
             host=host,
             port=port,
@@ -62,9 +70,6 @@ async def async_connect(
         )
     except ConnectionError as err:
         raise ConnectionError from err
-    devices.modem = modem
-    devices.id_manager.start()
-    await devices.modem.async_get_configuration()
     return devices
 
 
