@@ -162,7 +162,12 @@ class InsteonStack:
         outbound_write_manager.assign_address(modem.address, self._modem_id)
         self._sync_ownership()
         self._devices.id_manager.start()
-        await self._devices.modem.async_get_configuration()
+        # Modem-scoped commands (e.g. get_im_configuration) must run under
+        # MODEM_CONTEXT. With multiple registered modems, messages without a
+        # context or destination address are dropped — which hangs second-hub
+        # setup forever waiting for a response that never comes.
+        with self.modem_context():
+            await self._devices.modem.async_get_configuration()
         return self
 
     async def async_close(self):
