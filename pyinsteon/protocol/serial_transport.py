@@ -2,11 +2,14 @@
 
 import asyncio
 import logging
+import os
 
 import serial
 from serial_asyncio_fast import SerialTransport
 
 _LOGGER = logging.getLogger(__name__)
+
+WRITE_WAIT = float(os.getenv("PYINSTEON_WRITE_WAIT", "0.5"))
 
 
 async def async_connect_serial(device, protocol):
@@ -58,7 +61,7 @@ class SerialTransportInsteon(SerialTransport):
     @property
     def write_wait(self):
         """Return the time to wait between writes."""
-        return 0.8
+        return WRITE_WAIT
 
     def write(self, data):
         """Override SerialTransport write method."""

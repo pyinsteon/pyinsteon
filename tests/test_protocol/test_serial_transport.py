@@ -122,7 +122,10 @@ class TestSerialTransport(TestCase):
                 connect_method=async_connect_serial, device="some_device"
             ) as protocol:
                 assert protocol.transport.connected
-                assert protocol.transport.write_wait == 0.8
+                assert (
+                    protocol.transport.write_wait
+                    == pyinsteon.protocol.serial_transport.WRITE_WAIT
+                )
 
     @async_case
     async def test_connect_socket(self):
@@ -143,7 +146,10 @@ class TestSerialTransport(TestCase):
                 connect_method=async_connect_socket, host="some_device", port=9000
             ) as protocol:
                 assert protocol.transport.connected
-                assert protocol.transport.write_wait == 0.8
+                assert (
+                    protocol.transport.write_wait
+                    == pyinsteon.protocol.serial_transport.WRITE_WAIT
+                )
 
     @async_case
     async def test_connect_serial_exception(self):
