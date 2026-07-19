@@ -7,9 +7,11 @@ Insteon devices that either respond to or control the current device.
 import asyncio
 import logging
 
+from ..address import Address
 from ..constants import ALDBStatus, EngineVersion, ReadWriteMode
 from ..managers.aldb_read_manager import ALDBReadManager
 from .aldb_base import ALDBBase
+from .aldb_record import ALDBRecord
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,6 +36,10 @@ class ALDB(ALDBBase):
         """Load the All-Link Database."""
         _LOGGER.debug("Loading the ALDB async")
         self._update_status(ALDBStatus.LOADING)
+        # Drop phantom records above the first record address. Erased 0xFF
+        # cells from i3 devices were saved there by prior versions.
+        for phantom_addr in [addr for addr in self._records if addr > self._mem_addr]:
+            self._records.pop(phantom_addr)
         if refresh:
             self.clear()
         else:
@@ -73,7 +79,7 @@ class ALDB(ALDBBase):
         finally:
             await self._read_manager.async_stop()
 
-        if not self._is_loaded() and num_recs != 0:
+        if not self._is_loaded() and self._records:
             # Loading all records did not work so now we read individual missing records
             next_record = self._calc_next_record()
             while next_record:
@@ -81,11 +87,16 @@ class ALDB(ALDBBase):
                     mem_addr=next_record, num_recs=1
                 ):
                     self._add_record(rec)
+                if self._read_manager.hit_erased:
+                    break
                 prev_record = next_record
                 next_record = self._calc_next_record()
                 if next_record == prev_record:
                     # The ALDB did not return the requested record so stop
                     break
+
+        if not self._is_loaded() and self._read_manager.hit_erased:
+            self._close_erased_aldb()
 
         if (
             not self._records
@@ -101,10 +112,42 @@ class ALDB(ALDBBase):
 
         return self._status
 
+    def _close_erased_aldb(self):
+        """Terminate a database that ends in erased 0xFF cells.
+
+        i3 devices have no 0x00 high water mark record; the database ends at
+        the first erased cell. Synthesize a high water mark there so the
+        database can reach loaded status.
+        """
+        addrs = sorted(self._records, reverse=True)
+        if not addrs or addrs[0] != self._mem_addr:
+            return
+        for first, second in zip(addrs, addrs[1:]):
+            if first - second != 8:
+                return
+        hwm_addr = addrs[-1] - 8
+        _LOGGER.debug("Synthesizing high water mark at 0x%04X", hwm_addr)
+        self._add_record(
+            ALDBRecord(
+                memory=hwm_addr,
+                controller=False,
+                group=0,
+                target=Address("000000"),
+                data1=0,
+                data2=0,
+                data3=0,
+                in_use=False,
+                high_water_mark=True,
+            )
+        )
+
     def _add_record(self, record) -> bool:
         """Add a record to the record set."""
         _LOGGER.debug("Loading record: %s", str(record))
         # Make sure the records make sense
+        if record.mem_addr > self._mem_addr:
+            _LOGGER.debug("Record is above the first record: %s", str(record))
+            return False
         if (
             self.high_water_mark_mem_addr
             and record.mem_addr < self.high_water_mark_mem_addr
@@ -137,12 +180,12 @@ class ALDB(ALDBBase):
         if last_addr == self._mem_addr:
             return last_addr - 8
 
-        for mem_addr in range(self._mem_addr, last_addr, -8):
+        for mem_addr in range(self._mem_addr, last_addr - 8, -8):
             try:
                 rec = self._records[mem_addr]
-                if mem_addr == last_addr and rec.is_high_water_mark:
+                if rec.is_high_water_mark:
                     return None
-            except IndexError:
+            except KeyError:
                 return mem_addr
 
         return last_addr - 8

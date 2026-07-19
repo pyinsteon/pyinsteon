@@ -26,6 +26,19 @@ def _is_multiple_records(mem_addr, num_recs):
     return (mem_addr == 0x00 and num_recs == 0) or num_recs > 1
 
 
+def is_erased_record(record: ALDBRecord) -> bool:
+    """Return True if the record is an erased (0xFF) ALDB cell.
+
+    i3 devices return erased cells as 0xFF bytes rather than the 0x00
+    high water mark older devices use. A 0xFF control flags byte decodes
+    as an in-use controller record that is not the high water mark, so it
+    must be detected explicitly. An in-use record can never target
+    FF.FF.FF, so that combination identifies an erased cell even if other
+    bytes are partially cleared.
+    """
+    return record.is_in_use and record.target == Address("FFFFFF")
+
+
 class ALDBReadManager:
     """ALDB Read Manager."""
 
@@ -35,6 +48,7 @@ class ALDBReadManager:
         self._first_record = first_record
         self._record_queue = asyncio.Queue()
         self._continue = True
+        self._hit_erased = False
 
         self._read_handler = ReadALDBCommandHandler(self._address)
         self._record_handler = ReceiveALDBRecordHandler(self._address)
@@ -46,6 +60,11 @@ class ALDBReadManager:
         subscribe_topic(
             self._aldb_status_changed, f"{self._address.id}.{ALDB_STATUS_CHANGED}"
         )
+
+    @property
+    def hit_erased(self) -> bool:
+        """Return True if the last read encountered an erased (0xFF) cell."""
+        return self._hit_erased
 
     async def async_read(
         self,
@@ -62,6 +81,7 @@ class ALDBReadManager:
         )
         self._clear_read_queue()
         self._continue = True
+        self._hit_erased = False
         if read_write_mode == ReadWriteMode.PEEK_POKE:
             read_all_method = self._read_all_peek
             read_one_method = self._read_one_peek
@@ -112,6 +132,12 @@ class ALDBReadManager:
             try:
                 async with async_timeout.timeout(TIMER_RECORD):
                     record = await self._record_queue.get()
+                    if record is not None and is_erased_record(record):
+                        self._hit_erased = True
+                        _LOGGER.debug(
+                            "_read_one got erased cell 0x%04X", record.mem_addr
+                        )
+                        return None
                     if (
                         record is not None
                         and record.mem_addr == mem_addr
@@ -226,6 +252,16 @@ class ALDBReadManager:
                         record: ALDBRecord = await self._record_queue.get()
                         if record is None:
                             _LOGGER.debug("_read_all completed")
+                            return
+                        if is_erased_record(record):
+                            # i3 devices stream erased 0xFF cells rather than
+                            # terminating at a 0x00 high water mark. Treat the
+                            # first erased cell as end of database.
+                            self._hit_erased = True
+                            _LOGGER.debug(
+                                "_read_all stopping at erased cell 0x%04X",
+                                record.mem_addr,
+                            )
                             return
                         _LOGGER.debug("_read_all returning record: %s", str(record))
                         if record.is_high_water_mark:
