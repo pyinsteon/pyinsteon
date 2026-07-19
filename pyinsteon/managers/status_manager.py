@@ -23,6 +23,7 @@ from typing import Callable, Dict, Union
 
 from ..address import Address
 from ..constants import ResponseStatus
+from .device_health import get_health
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..utils import multiple_status
 
@@ -62,6 +63,12 @@ class StatusManager:
         self, status_type: Union[int, None] = None
     ) -> ResponseStatus:
         """Send the status request."""
+        if not get_health(self._address).can_attempt_maintenance():
+            _LOGGER.debug(
+                "Deferring status request for %s: device unreachable", self._address
+            )
+            return ResponseStatus.FAILURE
+
         if self._call_waiting:
             # No need for this call because an existing call is already scheduled
             _LOGGER.debug("No need to run this status request.")

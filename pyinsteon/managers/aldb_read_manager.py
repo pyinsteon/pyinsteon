@@ -16,7 +16,7 @@ from ..topics import ALDB_STATUS_CHANGED
 from ..utils import subscribe_topic
 
 RETRIES_ALL_MAX = 5
-RETRIES_ONE_MAX = 20
+RETRIES_ONE_MAX = 5
 TIMER_RECORD = 10
 _LOGGER = logging.getLogger(__name__)
 

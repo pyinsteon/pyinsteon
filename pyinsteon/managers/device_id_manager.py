@@ -10,6 +10,7 @@ import async_timeout
 from .. import pub
 from ..address import Address
 from ..constants import DeviceAction, ResponseStatus
+from .device_health import get_health
 from ..handlers.all_link_completed import AllLinkCompletedHandler
 from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
 from ..handlers.from_device.delete_from_all_link_group import (
@@ -144,6 +145,11 @@ class DeviceIdManager(SubscriberBase):
 
     async def async_id_device(self, address: Address, refresh: bool = False):
         """Call ID Request command for all unknown devices."""
+        if not get_health(address).can_attempt_maintenance():
+            _LOGGER.debug(
+                "Deferring device ID request for %s: device unreachable", address
+            )
+            return None
 
         received_queue = asyncio.Queue()
 
