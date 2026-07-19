@@ -132,7 +132,11 @@ class ALDBReadManager:
             try:
                 async with async_timeout.timeout(TIMER_RECORD):
                     record = await self._record_queue.get()
-                    if record is not None and is_erased_record(record):
+                    if (
+                        record is not None
+                        and is_erased_record(record)
+                        and mem_addr in (record.mem_addr, 0x0000)
+                    ):
                         self._hit_erased = True
                         _LOGGER.debug(
                             "_read_one got erased cell 0x%04X", record.mem_addr

@@ -15,6 +15,8 @@ from .aldb_record import ALDBRecord
 
 _LOGGER = logging.getLogger(__name__)
 
+MAX_CONSECUTIVE_ERASED = 8
+
 
 class ALDB(ALDBBase):
     """All-Link Database for a device."""
@@ -79,23 +81,32 @@ class ALDB(ALDBBase):
         finally:
             await self._read_manager.async_stop()
 
+        hit_erased = self._read_manager.hit_erased
         if not self._is_loaded() and self._records:
-            # Loading all records did not work so now we read individual missing records
+            # Loading all records did not work so now we read individual missing
+            # records. i3 devices erase deleted cells back to 0xFF rather than
+            # clearing the in-use flag, so an erased cell mid-database is a
+            # deleted slot. Only a run of consecutive erased cells ends the walk.
+            consecutive_erased = 0
             next_record = self._calc_next_record()
-            while next_record:
+            while next_record and consecutive_erased < MAX_CONSECUTIVE_ERASED:
+                got_record = False
                 async for rec in self._read_manager.async_read(
                     mem_addr=next_record, num_recs=1
                 ):
-                    self._add_record(rec)
-                if self._read_manager.hit_erased:
-                    break
-                prev_record = next_record
-                next_record = self._calc_next_record()
-                if next_record == prev_record:
+                    got_record = self._add_record(rec) or got_record
+                if got_record:
+                    consecutive_erased = 0
+                elif self._read_manager.hit_erased:
+                    hit_erased = True
+                    consecutive_erased += 1
+                    self._add_record(self._deleted_record(next_record))
+                else:
                     # The ALDB did not return the requested record so stop
                     break
+                next_record = self._calc_next_record()
 
-        if not self._is_loaded() and self._read_manager.hit_erased:
+        if not self._is_loaded() and hit_erased:
             self._close_erased_aldb()
 
         if (
@@ -111,6 +122,20 @@ class ALDB(ALDBBase):
         self.set_load_status()
 
         return self._status
+
+    def _deleted_record(self, mem_addr):
+        """Return a record representing an erased (deleted) i3 cell."""
+        return ALDBRecord(
+            memory=mem_addr,
+            controller=False,
+            group=0,
+            target=Address("000000"),
+            data1=0,
+            data2=0,
+            data3=0,
+            in_use=False,
+            high_water_mark=False,
+        )
 
     def _close_erased_aldb(self):
         """Terminate a database that ends in erased 0xFF cells.
