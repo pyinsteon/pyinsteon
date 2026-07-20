@@ -11,6 +11,7 @@ from ..constants import ALDBStatus, ReadWriteMode, ResponseStatus
 from ..data_types.all_link_record_flags import AllLinkRecordFlags
 from ..handlers.from_device.receive_aldb_record import ReceiveALDBRecordHandler
 from ..handlers.to_device.read_aldb import ReadALDBCommandHandler
+from ..managers.device_health import get_health
 from ..managers.peek_poke_manager import get_peek_poke_manager
 from ..topics import ALDB_STATUS_CHANGED
 from ..utils import subscribe_topic
@@ -114,6 +115,11 @@ class ALDBReadManager:
         """Read one record."""
         retries = RETRIES_ONE_MAX
         while retries and self._continue:
+            if not get_health(self._address).can_attempt_maintenance():
+                _LOGGER.debug(
+                    "Aborting ALDB read of %s: device unreachable", self._address
+                )
+                return None
             response = await self._read_handler.async_send(
                 mem_addr=mem_addr, num_recs=1
             )
@@ -195,9 +201,12 @@ class ALDBReadManager:
         """Peek one byte."""
         mem_addr = self._first_record if mem_addr == 0 else mem_addr
         _LOGGER.debug("Peeking memory address: 0x%04X", mem_addr)
-        retries_byte = 20
+        retries_byte = 5
         timeout = 3
         while retries_byte:
+            if not get_health(self._address).can_attempt_maintenance():
+                _LOGGER.debug("Aborting peek of %s: device unreachable", self._address)
+                return None
             while not self._peek_bytes_received.empty():
                 await self._peek_bytes_received.get()
             result = await self._peek_manager.async_peek(mem_addr)
@@ -235,6 +244,11 @@ class ALDBReadManager:
         retries = RETRIES_ALL_MAX
         mem_addr = 0
         while retries and self._continue:
+            if not get_health(self._address).can_attempt_maintenance():
+                _LOGGER.debug(
+                    "Aborting ALDB read of %s: device unreachable", self._address
+                )
+                return
             response = await self._read_handler.async_send(
                 mem_addr=mem_addr, num_recs=0
             )

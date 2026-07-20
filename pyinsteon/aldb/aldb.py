@@ -142,8 +142,12 @@ class ALDB(ALDBBase):
         if (
             not self._records
             and self._read_write_mode == ReadWriteMode.STANDARD
-            and self._version not in [EngineVersion.I2CS, EngineVersion.OTHER]
+            and self._version == EngineVersion.I1
+            and health.can_attempt_maintenance()
         ):
+            # Peek reads are a last resort for confirmed i1 devices only. A
+            # device that is simply not answering must not be walked one
+            # byte at a time.
             self._read_write_mode = ReadWriteMode.PEEK_POKE
             return await self._async_load(
                 mem_addr=mem_addr, num_recs=num_recs, refresh=refresh
