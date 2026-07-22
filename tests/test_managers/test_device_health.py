@@ -57,15 +57,20 @@ class TestDeviceHealth(unittest.TestCase):
             delay = health.next_maintenance - 1000.0
             assert BACKOFF_BASE * 0.75 <= delay <= BACKOFF_BASE * 1.25
 
-    def test_heard_clears_backoff_keeps_failures(self):
-        """An inbound frame clears the timer but keeps failure history."""
+    def test_heard_does_not_clear_backoff(self):
+        """An inbound frame proves liveness but does not clear backoff.
+
+        Devices can ACK every request and never deliver data, so only a
+        completed operation or timer expiry reopens maintenance.
+        """
         health = DeviceHealth()
         for _ in range(FAILURE_BURST + 2):
             health.record_failure()
         assert not health.can_attempt_maintenance()
         health.heard()
-        assert health.can_attempt_maintenance()
+        assert not health.can_attempt_maintenance()
         assert health.consecutive_failures == FAILURE_BURST + 2
+        assert health.last_heard is not None
 
     def test_success_resets_everything(self):
         """A command success resets failures and backoff."""

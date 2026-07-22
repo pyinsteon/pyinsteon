@@ -160,6 +160,8 @@ class ALDBReadManager:
                 retries -= 1
             await asyncio.sleep(0.1)
         _LOGGER.debug("_read_one completed")
+        if self._continue and not self._hit_erased:
+            get_health(self._address).record_failure()
         return None
 
     async def _read_one_peek(self, mem_addr):
@@ -290,6 +292,7 @@ class ALDBReadManager:
                         await asyncio.sleep(0.05)
             except asyncio.TimeoutError:
                 retries -= 1
+                get_health(self._address).record_failure()
 
         _LOGGER.debug("_read_all completed")
 

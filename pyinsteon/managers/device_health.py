@@ -1,10 +1,10 @@
 """Track per-device reachability and gate maintenance traffic.
 
 Interactive commands always send. Maintenance traffic (ALDB loads, device
-ID requests, status polls) backs off after repeated failures so an
-unreachable device cannot monopolize the powerline. Any inbound frame from
-the device clears the backoff; only command outcomes change the failure
-count, so a device we can hear but not reach keeps its failure history.
+ID requests, status polls) backs off after repeated operation failures so
+a dead or data-silent device cannot monopolize the powerline. Transport
+ACKs only prove liveness; completed operations reset the failure count and
+exhausted operations increment it.
 """
 
 import random
@@ -32,9 +32,13 @@ class DeviceHealth:
         return self._next_maintenance
 
     def heard(self):
-        """Record an inbound frame from the device."""
+        """Record an inbound frame from the device.
+
+        Hearing a device proves it is alive but not that operations against
+        it complete; devices can ACK every request and never deliver data.
+        Backoff clears only on operation success or timer expiry.
+        """
         self.last_heard = time.time()
-        self._next_maintenance = 0.0
 
     def record_success(self):
         """Record a successful command round trip."""
