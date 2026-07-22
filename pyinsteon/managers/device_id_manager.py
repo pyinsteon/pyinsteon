@@ -275,6 +275,9 @@ class DeviceIdManager(SubscriberBase):
                 if device_id is not None and device_id.cat is not None:
                     return
                 await asyncio.sleep(retry_wait)
+                if not get_health(address).can_attempt_maintenance():
+                    retries -= 1
+                    continue
                 response = await cmd.async_send()
                 if response in [
                     ResponseStatus.DIRECT_NAK_ALDB,
