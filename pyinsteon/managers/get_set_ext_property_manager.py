@@ -131,7 +131,7 @@ class GetSetExtendedPropertyManager(SubscriberBase):
         result = ResponseStatus.UNSENT
         health = get_health(self._address)
         while retry < RETRIES and result != ResponseStatus.SUCCESS:
-            if not health.can_attempt_maintenance():
+            if not health.can_continue_operation():
                 _LOGGER.debug(
                     "Aborting extended property read of %s: device unreachable",
                     self._address,

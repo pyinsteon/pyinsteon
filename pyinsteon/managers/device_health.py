@@ -59,6 +59,15 @@ class DeviceHealth:
         """Return True if maintenance traffic may be sent now."""
         return time.monotonic() >= self._next_maintenance
 
+    def can_continue_operation(self) -> bool:
+        """Return True if an in-flight operation should keep going.
+
+        A long operation on a lossy but responsive device accumulates some
+        failures legitimately; abort only when the device has failed far
+        beyond the backoff burst.
+        """
+        return self.consecutive_failures < FAILURE_BURST * 4
+
 
 _HEALTH = {}
 

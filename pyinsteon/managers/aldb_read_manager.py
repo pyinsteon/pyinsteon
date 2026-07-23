@@ -115,7 +115,7 @@ class ALDBReadManager:
         """Read one record."""
         retries = RETRIES_ONE_MAX
         while retries and self._continue:
-            if not get_health(self._address).can_attempt_maintenance():
+            if not get_health(self._address).can_continue_operation():
                 _LOGGER.debug(
                     "Aborting ALDB read of %s: device unreachable", self._address
                 )
@@ -206,7 +206,7 @@ class ALDBReadManager:
         retries_byte = 5
         timeout = 3
         while retries_byte:
-            if not get_health(self._address).can_attempt_maintenance():
+            if not get_health(self._address).can_continue_operation():
                 _LOGGER.debug("Aborting peek of %s: device unreachable", self._address)
                 return None
             while not self._peek_bytes_received.empty():
@@ -246,7 +246,7 @@ class ALDBReadManager:
         retries = RETRIES_ALL_MAX
         mem_addr = 0
         while retries and self._continue:
-            if not get_health(self._address).can_attempt_maintenance():
+            if not get_health(self._address).can_continue_operation():
                 _LOGGER.debug(
                     "Aborting ALDB read of %s: device unreachable", self._address
                 )
