@@ -1,4 +1,5 @@
 """Test the functionality of group types."""
+
 from unittest import TestCase
 
 from pyinsteon.groups.fan import FanOnLevel

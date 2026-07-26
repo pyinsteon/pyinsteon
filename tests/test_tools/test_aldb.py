@@ -1,4 +1,5 @@
 """Test the ALDB commands."""
+
 import random
 from unittest.mock import AsyncMock, patch
 

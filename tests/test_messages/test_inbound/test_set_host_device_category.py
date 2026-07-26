@@ -1,4 +1,5 @@
 """Test Set Host Device Category."""
+
 import unittest
 from binascii import unhexlify
 

@@ -1,4 +1,5 @@
 """Test extended property management."""
+
 import asyncio
 from random import randint
 import unittest

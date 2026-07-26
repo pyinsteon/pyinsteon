@@ -1,4 +1,5 @@
 """Test the main menu commands."""
+
 import logging
 import os
 from unittest.mock import AsyncMock, patch

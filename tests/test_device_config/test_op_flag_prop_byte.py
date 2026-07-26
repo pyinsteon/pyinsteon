@@ -1,4 +1,5 @@
 """Test the OpFlagPropertyByte class."""
+
 from random import randint
 from unittest import TestCase
 

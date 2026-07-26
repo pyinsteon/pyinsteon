@@ -1,4 +1,5 @@
 """Test creation of all devices."""
+
 import traceback
 import unittest
 

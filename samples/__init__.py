@@ -1,4 +1,5 @@
 """Sample programs to demonstrate pyinsteon."""
+
 import logging
 import os
 import sys

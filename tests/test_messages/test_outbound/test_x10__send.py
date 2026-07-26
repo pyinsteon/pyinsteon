@@ -1,4 +1,5 @@
 """Text X10 Send message."""
+
 import unittest
 from binascii import unhexlify
 

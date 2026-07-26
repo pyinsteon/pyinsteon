@@ -85,9 +85,9 @@ class SensorsActuators_IOLink(Device):
         def set_relay_mode(momentary_mode_on, momentary_follow_sense, momentary_on_off):
             """Set the values of the underlying properties."""
             self._operating_flags[MOMENTARY_MODE_ON].new_value = momentary_mode_on
-            self._operating_flags[
-                MOMENTARY_FOLLOW_SENSE
-            ].new_value = momentary_follow_sense
+            self._operating_flags[MOMENTARY_FOLLOW_SENSE].new_value = (
+                momentary_follow_sense
+            )
             self._operating_flags[MOMENTARY_ON_OFF_TRIGGER].new_value = momentary_on_off
 
         if relay_mode is None:

@@ -50,9 +50,9 @@ def convert_topic_data(
             if target := response_values.get("target"):
                 response_data_out["target"] = target
             else:
-                response_values["target"] = response_data_out[
-                    "target"
-                ] = random_address()
+                response_values["target"] = response_data_out["target"] = (
+                    random_address()
+                )
             continue
 
         if param == "user_data":

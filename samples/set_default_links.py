@@ -1,4 +1,5 @@
 """Sample program to demonstrate loading a device All-Link Database."""
+
 import asyncio
 
 from pyinsteon import async_close, async_connect, devices

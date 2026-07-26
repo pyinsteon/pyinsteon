@@ -1,4 +1,5 @@
 """Test the connect method."""
+
 import asyncio
 from unittest import TestCase
 from unittest.mock import patch

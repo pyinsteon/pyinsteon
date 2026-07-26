@@ -1,4 +1,5 @@
 """Test the config commands."""
+
 import random
 from unittest.mock import AsyncMock, patch
 

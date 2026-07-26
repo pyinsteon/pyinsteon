@@ -1,4 +1,5 @@
 """Test the device ALDB base class."""
+
 import asyncio
 from random import randint
 from unittest import TestCase
