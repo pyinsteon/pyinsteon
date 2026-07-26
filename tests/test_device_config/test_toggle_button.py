@@ -1,4 +1,5 @@
 """Test the toggle button flag."""
+
 from unittest import TestCase
 
 from pyinsteon.config.extended_property import ExtendedProperty

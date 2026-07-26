@@ -1,4 +1,5 @@
 """Test the protocol class."""
+
 import asyncio
 from binascii import unhexlify
 import unittest

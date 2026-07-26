@@ -1,4 +1,5 @@
 """Test loading the IM ALDB."""
+
 import asyncio
 import unittest
 

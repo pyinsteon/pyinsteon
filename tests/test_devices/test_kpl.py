@@ -1,4 +1,5 @@
 """Test features specific to the KeyPadLinc."""
+
 import logging
 import random
 import unittest

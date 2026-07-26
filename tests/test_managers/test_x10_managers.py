@@ -1,4 +1,5 @@
 """Test X10 all lights on/off manager."""
+
 import asyncio
 import unittest
 

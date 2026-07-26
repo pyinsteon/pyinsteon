@@ -1,4 +1,5 @@
 """Test the advanced Advanced commands."""
+
 import asyncio
 from binascii import unhexlify
 import os

@@ -1,4 +1,5 @@
 """Test Button Event Report."""
+
 import unittest
 from binascii import unhexlify
 

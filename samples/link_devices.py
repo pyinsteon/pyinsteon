@@ -7,13 +7,13 @@ from pyinsteon.managers.link_manager import async_link_devices
 from samples import _LOGGER, PATH, get_hub_config, set_log_levels
 
 # DEVICE = '/dev/ttyS5'
-DEVICE = 'COM5'
+DEVICE = "COM5"
 USERNAME, PASSWORD, HOST = get_hub_config()
 
 
 def state_changed(name, value, group):
     """Capture the state change."""
-    _LOGGER.info('State changed to %s', value)
+    _LOGGER.info("State changed to %s", value)
 
 
 async def do_run():
@@ -23,11 +23,11 @@ async def do_run():
     #                             username=USERNAME,
     #                             password=PASSWORD)
     modem = devices.modem
-    _LOGGER.info('Connected')
-    _LOGGER.info('Modem Address: %s', modem.address)
+    _LOGGER.info("Connected")
+    _LOGGER.info("Modem Address: %s", modem.address)
     await devices.async_load(workdir=PATH, id_devices=0)
-    controller = devices.get('45.31.94')
-    responder = devices.get('13.36.96')
+    controller = devices.get("45.31.94")
+    responder = devices.get("13.36.96")
     link_result = await async_link_devices(controller, responder, 1)
     await asyncio.sleep(10)
     if link_result:
@@ -35,7 +35,12 @@ async def do_run():
     await async_close()
 
 
-if __name__ == '__main__':
-    set_log_levels(logger='debug', logger_pyinsteon='info', logger_messages='debug', logger_topics=True)
+if __name__ == "__main__":
+    set_log_levels(
+        logger="debug",
+        logger_pyinsteon="info",
+        logger_messages="debug",
+        logger_topics=True,
+    )
     loop = asyncio.get_event_loop()
     loop.run_until_complete(do_run())

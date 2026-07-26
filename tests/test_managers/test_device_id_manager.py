@@ -1,4 +1,5 @@
 """Test the device manager."""
+
 import asyncio
 import unittest
 

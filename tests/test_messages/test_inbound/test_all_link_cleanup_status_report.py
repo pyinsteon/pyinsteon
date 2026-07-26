@@ -1,4 +1,5 @@
 """Test All-Link Cleanup Status Report."""
+
 import unittest
 from binascii import unhexlify
 

@@ -1,4 +1,5 @@
 """Test the device_link_manager class."""
+
 import asyncio
 from datetime import timedelta
 from random import randint

@@ -1,4 +1,5 @@
 """Test the peek poke manager."""
+
 import asyncio
 import random
 import unittest

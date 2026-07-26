@@ -1,4 +1,5 @@
 """Test device commands outbound."""
+
 from asyncio import sleep
 from binascii import unhexlify
 import json

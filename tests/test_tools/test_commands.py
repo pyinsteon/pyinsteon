@@ -1,4 +1,5 @@
 """Test the commands menu of tools."""
+
 import random
 
 from unittest.mock import patch, AsyncMock
