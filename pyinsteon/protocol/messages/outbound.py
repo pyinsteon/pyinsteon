@@ -1,5 +1,6 @@
 """Create outbound messages."""
 
+from contextvars import ContextVar
 import logging
 
 from . import MessageBase
@@ -57,28 +58,124 @@ def register_outbound_handlers():
         subscribe_topic(func, topic)
 
 
+MODEM_CONTEXT: ContextVar = ContextVar("insteon_modem_context", default=None)
+DEVICE_MANAGER_CONTEXT: ContextVar = ContextVar(
+    "insteon_device_manager_context", default=None
+)
+
+
 class OutboundWriteManager:
-    """Ourbound write manager."""
+    """Outbound write manager with address-based modem routing.
+
+    Supports multiple simultaneously connected modems. Direct messages
+    (those carrying a destination ``address``) are routed to the modem
+    that owns that address. Ownership is declared via ``assign_address``.
+
+    Backward compatibility: the legacy ``protocol_write`` property remains
+    the default write target. Single-modem deployments that never call
+    ``register_modem`` behave exactly as before.
+
+    Routing policy for ``write``:
+        1. Destination address has an assigned, registered modem -> route
+           to that modem.
+        2. Otherwise, MODEM_CONTEXT contextvar names a registered modem
+           (set by InsteonStack operations for modem-scoped commands such
+           as the connect handshake, all-linking, X10 broadcasts) ->
+           route to it.
+        3. Otherwise, legacy ``protocol_write`` is set -> route there.
+        4. Otherwise, exactly one modem is registered -> route to it.
+        5. Otherwise, multiple modems and unresolvable destination ->
+           log an error and DROP (never broadcast to all modems).
+        6. Nothing registered at all -> raise AttributeError (legacy
+           contract).
+    """
 
     def __init__(self):
         """Init the OutboundWriteManager class."""
         self._protocol_write = None
+        self._modem_writers = {}
+        self._address_owner = {}
 
     @property
     def protocol_write(self):
-        """Return the write method of the protocol."""
+        """Return the default (legacy) write method of the protocol."""
         return self._protocol_write
 
     @protocol_write.setter
     def protocol_write(self, value):
-        """Set the write method of the protocol."""
+        """Set the default (legacy) write method of the protocol."""
         self._protocol_write = value
 
+    def register_modem(self, modem_id, write_fn):
+        """Register a modem's write function under a modem id."""
+        self._modem_writers[modem_id] = write_fn
+
+    def unregister_modem(self, modem_id):
+        """Unregister a modem and release its address assignments."""
+        self._modem_writers.pop(modem_id, None)
+        self._address_owner = {
+            addr: owner
+            for addr, owner in self._address_owner.items()
+            if owner != modem_id
+        }
+
+    def assign_address(self, address, modem_id):
+        """Assign ownership of a device address to a modem."""
+        self._address_owner[self._addr_key(address)] = modem_id
+
+    def unassign_address(self, address):
+        """Remove ownership of a device address."""
+        self._address_owner.pop(self._addr_key(address), None)
+
+    @staticmethod
+    def _addr_key(address):
+        """Normalize an address to its routing key."""
+        from ...address import Address  # pylint: disable=import-outside-toplevel
+
+        return str(Address(address))
+
+    def _resolve(self, msg):
+        """Return the write function for a message per routing policy."""
+        dest = getattr(msg, "address", None)
+        if dest is not None:
+            owner = self._address_owner.get(self._addr_key(dest))
+            if owner is not None:
+                write_fn = self._modem_writers.get(owner)
+                if write_fn is not None:
+                    return write_fn
+                _LOGGER.error(
+                    "Address %s assigned to unregistered modem %s; message dropped",
+                    dest,
+                    owner,
+                )
+                return None
+        context_modem = MODEM_CONTEXT.get()
+        if context_modem is not None:
+            write_fn = self._modem_writers.get(context_modem)
+            if write_fn is not None:
+                return write_fn
+            _LOGGER.error(
+                "Modem context %s is not a registered modem; falling through",
+                context_modem,
+            )
+        if self._protocol_write is not None:
+            return self._protocol_write
+        if len(self._modem_writers) == 1:
+            return next(iter(self._modem_writers.values()))
+        if self._modem_writers:
+            _LOGGER.error(
+                "No modem owns destination %s and no default modem is set; "
+                "message dropped (will not broadcast to all modems)",
+                getattr(msg, "address", "<modem-scoped>"),
+            )
+            return None
+        raise AttributeError
+
     def write(self, msg, priority):
-        """Write to the protocol."""
-        if self._protocol_write is None:
-            raise AttributeError
-        self._protocol_write(msg=msg, priority=priority)
+        """Write to the owning modem's protocol."""
+        write_fn = self._resolve(msg)
+        if write_fn is not None:
+            write_fn(msg=msg, priority=priority)
 
 
 outbound_write_manager = OutboundWriteManager()

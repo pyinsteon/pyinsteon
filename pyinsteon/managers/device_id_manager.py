@@ -47,7 +47,11 @@ class DeviceIdManager(SubscriberBase):
 
     def __init__(self):
         """Init the DeviceIdManager class."""
-        super().__init__(subscriber_topic="device_id")
+        # Instance-unique subtopic: each DeviceManager owns its own
+        # DeviceIdManager; identification events must not propagate to
+        # other managers (multi-modem). Parent-topic subscribers to
+        # "device_id" still receive these events.
+        super().__init__(subscriber_topic=f"device_id.instance_{id(self):x}")
         self._unknown_devices = []
         self._device_ids = {}
 

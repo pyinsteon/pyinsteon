@@ -307,6 +307,16 @@ def calc_thermostat_mode(thermostat_mode_byte, sys_mode_map=None, sys_low=True):
     return sys_mode, fan_mode
 
 
+def modem_topic_prefix(modem_id):
+    """Return the pubsub topic prefix for a modem id.
+
+    Sanitized so any modem id (e.g. an HA config entry id) forms a valid
+    pubsub topic segment.
+    """
+    safe = "".join(ch if ch.isalnum() else "_" for ch in str(modem_id))
+    return f"modem_{safe}"
+
+
 def publish_topic(topic, logger=None, **kwargs):
     """Publish a topic and log errors."""
     # Send log message as caller not utils.

@@ -9,7 +9,22 @@ from typing import Dict, Union
 import aiofiles
 import voluptuous as vol
 
-from .. import devices
+from ..protocol.messages.outbound import DEVICE_MANAGER_CONTEXT
+
+
+def _devices():
+    """Return the DeviceManager for the active modem context.
+
+    Falls back to the module-level default manager, preserving
+    single-modem behavior. Multi-modem callers wrap scene operations
+    in InsteonStack.modem_context().
+    """
+    ctx_mgr = DEVICE_MANAGER_CONTEXT.get()
+    if ctx_mgr is not None:
+        return ctx_mgr
+    from .. import devices  # pylint: disable=import-outside-toplevel
+
+    return devices
 from ..address import Address
 from ..constants import ResponseStatus
 from ..handlers.send_all_link_off import SendAllLinkOffCommandHandler
@@ -47,7 +62,7 @@ async def _get_scene_device_status(group: int):
     """Get the status of the devices in a scene."""
     scene = await async_get_scene(group)
     for addr in scene["devices"]:
-        device = devices[addr]
+        device = _devices()[addr]
         if device:
             await device.async_status()
 
@@ -71,12 +86,12 @@ async def async_get_scenes(work_dir=None):
     scenes: Dict[Group, Dict[str, Union[Dict[ResponderAddress, LinkInfo], str]]] = {}
     if work_dir:
         await async_load_scene_names(work_dir=work_dir)
-    for addr in devices:
-        device = devices[addr]
-        if device == devices.modem:
+    for addr in _devices():
+        device = _devices()[addr]
+        if device == _devices().modem:
             continue
         for rec in device.aldb.find(
-            target=devices.modem.address, is_controller=False, in_use=True
+            target=_devices().modem.address, is_controller=False, in_use=True
         ):
             if rec.group == 0:
                 continue
@@ -91,7 +106,7 @@ async def async_get_scenes(work_dir=None):
             if not scene["devices"].get(device.address):
                 scene["devices"][device.address] = []
             has_controller = False
-            for _ in devices.modem.aldb.find(
+            for _ in _devices().modem.aldb.find(
                 target=device.address, group=rec.group, is_controller=True, in_use=True
             ):
                 has_controller = True
@@ -110,12 +125,12 @@ async def async_get_scene(scene_num: int, work_dir: str = None):
     scene["name"] = _scene_names.get(scene_num, f"Insteon Scene {scene_num}")
     scene["group"] = scene_num
     scene["devices"] = {}
-    for addr in devices:
-        device = devices[addr]
-        if device == devices.modem:
+    for addr in _devices():
+        device = _devices()[addr]
+        if device == _devices().modem:
             continue
         for rec in device.aldb.find(
-            target=devices.modem.address,
+            target=_devices().modem.address,
             is_controller=False,
             in_use=True,
             group=scene_num,
@@ -125,7 +140,7 @@ async def async_get_scene(scene_num: int, work_dir: str = None):
             if not scene["devices"].get(device.address):
                 scene["devices"][device.address] = []
             has_controller = False
-            for _ in devices.modem.aldb.find(
+            for _ in _devices().modem.aldb.find(
                 target=device.address, group=rec.group, is_controller=True, in_use=True
             ):
                 has_controller = True
@@ -177,8 +192,8 @@ async def async_add_device_to_scene(
     delay_write: bool = False,
 ):
     """Add a device to a scene."""
-    device = devices[address]
-    modem = devices.modem
+    device = _devices()[address]
+    modem = _devices().modem
     device.aldb.add(
         group=scene_num,
         target=modem.address,
@@ -207,8 +222,8 @@ async def async_remove_device_from_scene(
 ):
     """Remove a device from a scene."""
 
-    device = devices[address]
-    modem = devices.modem
+    device = _devices()[address]
+    modem = _devices().modem
     for rec in device.aldb.find(
         group=scene_num, target=modem.address, is_controller=False, in_use=True
     ):
@@ -248,10 +263,10 @@ async def async_add_or_update_scene(
 
     # Add the devices from device_info param
     for link in links:
-        device = devices[link["address"]]
+        device = _devices()[link["address"]]
         device.aldb.add(
             group=scene_num,
-            target=devices.modem.address,
+            target=_devices().modem.address,
             controller=False,
             data1=link["data1"],
             data2=link["data2"],
@@ -259,7 +274,7 @@ async def async_add_or_update_scene(
         )
         if device not in updated_devices:
             updated_devices.append(device)
-        devices.modem.aldb.add(
+        _devices().modem.aldb.add(
             group=scene_num,
             target=device.address,
             controller=True,
@@ -300,25 +315,25 @@ def _remove_scene_links(scene_num: int, scene_data):
     if scene_data:
         curr_device_info = scene_data["devices"]
         for addr, info_list in curr_device_info.items():
-            device = devices[addr]
+            device = _devices()[addr]
             for info in info_list:
                 for rec in device.aldb.find(
                     is_controller=False,
                     group=scene_num,
-                    target=devices.modem.address,
+                    target=_devices().modem.address,
                     data3=info.data3,
                     in_use=True,
                 ):
                     device.aldb.remove(rec.mem_addr)
                     if device not in updated_devices:
                         updated_devices.append(device)
-                for modem_rec in devices.modem.aldb.find(
+                for modem_rec in _devices().modem.aldb.find(
                     is_controller=True,
                     target=device.address,
                     group=scene_num,
                     in_use=True,
                 ):
-                    devices.modem.aldb.remove(modem_rec.mem_addr)
+                    _devices().modem.aldb.remove(modem_rec.mem_addr)
     return updated_devices
 
 
@@ -329,7 +344,7 @@ async def _async_write_scene_link_changes(device_list):
         _, failed = await device.aldb.async_write()
         result = ResponseStatus.FAILURE if failed else ResponseStatus.SUCCESS
         results.append(result)
-    _, failed = await devices.modem.aldb.async_write()
+    _, failed = await _devices().modem.aldb.async_write()
     result = ResponseStatus.FAILURE if failed else ResponseStatus.SUCCESS
     results.append(result)
     return multiple_status(*results)

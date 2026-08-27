@@ -8,7 +8,7 @@ from typing import Union
 
 from ..address import Address
 from ..constants import AckNak
-from ..utils import log_error, publish_topic
+from ..utils import log_error, modem_topic_prefix, publish_topic
 from .command_to_msg import register_command_handlers
 from .messages.inbound import create
 from .messages.outbound import outbound_write_manager, register_outbound_handlers
@@ -35,8 +35,39 @@ def _get_addresses_in_msg(msg):
     return addresses
 
 
+def _is_modem_scoped(topic):
+    """Return True if a topic is modem-scoped (not device-address-scoped).
+
+    Device topics begin with a device address (e.g. "1a2b3c.on.direct"),
+    optionally behind an "ack"/"nak"/"handler" prefix. Anything else
+    (connection state, X10, all-link events, IM info/config) is scoped to
+    the modem that produced it and must be distinguishable per modem.
+    """
+    segments = topic.split(".")
+    if segments and segments[0] in ("ack", "nak", "handler"):
+        segments = segments[1:]
+    if not segments:
+        return True
+    try:
+        Address(segments[0])
+    except ValueError:
+        return True
+    return False
+
+
+def publish_modem_topic(modem_id, topic, **kwargs):
+    """Publish a topic in both legacy and modem-namespaced form.
+
+    The unprefixed topic preserves backward compatibility for all
+    existing subscribers. The modem-prefixed duplicate lets multi-modem
+    consumers attribute the event to a specific modem.
+    """
+    publish_topic(f"{modem_topic_prefix(modem_id)}.{topic}", **kwargs)
+    publish_topic(topic, **kwargs)
+
+
 # pylint: disable=broad-except
-async def _publish_message(msg):
+async def _publish_message(msg, modem_id="default"):
     """Convert an inbound message to a topic and publish to listeners."""
     _LOGGER_MSG.debug("RX: %s", repr(msg))
     if (_LOGGER_MSG.level == 0 or _LOGGER_MSG.level > logging.DEBUG) and (
@@ -49,7 +80,10 @@ async def _publish_message(msg):
     kwargs = {}
     try:
         for topic, kwargs in convert_to_topic(msg):
-            publish_topic(topic, **kwargs)
+            if _is_modem_scoped(topic):
+                publish_modem_topic(modem_id, topic, **kwargs)
+            else:
+                publish_topic(topic, **kwargs)
     except ValueError:
         # No topic was found for this message
         _LOGGER.debug("No topic found for message %r", msg)
@@ -69,7 +103,7 @@ class TransportStatus(Enum):
 class Protocol(asyncio.Protocol):
     """Serial protocol to perform async I/O with the PLM."""
 
-    def __init__(self, connect_method, *args, **kwargs):
+    def __init__(self, connect_method, *args, modem_id=None, **kwargs):
         """Init the SerialProtocol class."""
         super().__init__(*args, **kwargs)
         self._transport = None
@@ -80,9 +114,19 @@ class Protocol(asyncio.Protocol):
         self._connect_method = connect_method
         self._writer_task = None
         self._writer_lock = asyncio.Lock()
-        outbound_write_manager.protocol_write = self.write
+        self._modem_id = modem_id if modem_id is not None else "default"
+        outbound_write_manager.register_modem(self._modem_id, self.write)
+        if modem_id is None or modem_id == "default":
+            # Legacy single-modem contract: the default modem is also the
+            # fallback write target for unowned destinations.
+            outbound_write_manager.protocol_write = self.write
         register_outbound_handlers()
         register_command_handlers()
+
+    @property
+    def modem_id(self):
+        """Return the modem id used for outbound routing."""
+        return self._modem_id
 
     @property
     def connected(self) -> bool:
@@ -102,7 +146,7 @@ class Protocol(asyncio.Protocol):
     def connection_made(self, transport):
         """Run when a connection to the transport has been made."""
         self._transport = transport
-        publish_topic("connection.made")
+        publish_modem_topic(self._modem_id, "connection.made")
 
     def data_received(self, data):
         """Receive data from the serial transport."""
@@ -132,7 +176,7 @@ class Protocol(asyncio.Protocol):
                 last_msg_nak.extend(bytes([0x15]))
                 msg, _ = create(last_msg_nak)
             if msg:
-                asyncio.create_task(_publish_message(msg))
+                asyncio.create_task(_publish_message(msg, self._modem_id))
                 msg = None
 
             if not self._buffer or last_buffer == self._buffer:
@@ -161,7 +205,7 @@ class Protocol(asyncio.Protocol):
             _LOGGER.debug("Attempting to connect to modem")
             self._transport = await self._connect_method(protocol=self)
             if self._transport is None and not retry:
-                publish_topic("connection.failed")
+                publish_modem_topic(self._modem_id, "connection.failed")
                 raise ConnectionError("Modem did not respond to connection request")
             await asyncio.sleep(0.1)  # Let the transport finish connecting
             if not self.connected and retry:
