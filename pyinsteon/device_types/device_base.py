@@ -13,9 +13,9 @@ from ..constants import DeviceCategory, EngineVersion, PropertyType, ResponseSta
 from ..default_link import DefaultLink
 from ..device_types.device_commands import STATUS_COMMAND
 from ..handlers.to_device.engine_version_request import EngineVersionRequest
-from ..managers.device_health import get_health
 from ..handlers.to_device.ping import PingCommand
 from ..handlers.to_device.product_data_request import ProductDataRequestCommand
+from ..managers.device_health import get_health
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
 from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
 from ..managers.link_manager.default_links import async_add_default_links

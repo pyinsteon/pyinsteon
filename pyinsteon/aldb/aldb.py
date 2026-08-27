@@ -39,11 +39,12 @@ class ALDB(ALDBBase):
         self, mem_addr: int = 0x00, num_recs: int = 0x00, refresh: bool = False
     ):
         """Load the All-Link Database."""
-        if self._load_lock.locked():
-            # A load is already running; wait for it and share its result.
-            async with self._load_lock:
-                return self._status
+        waited = self._load_lock.locked()
         async with self._load_lock:
+            # A background load that lands behind a finished one is redundant.
+            # A refresh is not; the caller asked for a fresh read.
+            if waited and not refresh and self._status == ALDBStatus.LOADED:
+                return self._status
             return await self._async_load(
                 mem_addr=mem_addr, num_recs=num_recs, refresh=refresh
             )

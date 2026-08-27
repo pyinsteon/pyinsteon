@@ -52,7 +52,7 @@ class DeviceHealth:
         over = self.consecutive_failures - FAILURE_BURST
         if over >= 0:
             delay = min(BACKOFF_MAX, BACKOFF_BASE * 2**over)
-            delay *= 0.75 + random.random() * 0.5
+            delay *= 1 - random.random() * 0.25
             self._next_maintenance = time.monotonic() + delay
 
     def can_attempt_maintenance(self) -> bool:
@@ -64,9 +64,14 @@ class DeviceHealth:
 
         A long operation on a lossy but responsive device accumulates some
         failures legitimately; abort only when the device has failed far
-        beyond the backoff burst.
+        beyond the backoff burst. Once the backoff window has expired one
+        operation is let through regardless, otherwise nothing could ever
+        record the success that resets the count.
         """
-        return self.consecutive_failures < FAILURE_BURST * 4
+        return (
+            self.consecutive_failures < FAILURE_BURST * 4
+            or self.can_attempt_maintenance()
+        )
 
 
 _HEALTH = {}

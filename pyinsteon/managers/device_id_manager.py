@@ -10,7 +10,6 @@ import async_timeout
 from .. import pub
 from ..address import Address
 from ..constants import DeviceAction, ResponseStatus
-from .device_health import get_health
 from ..handlers.all_link_completed import AllLinkCompletedHandler
 from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
 from ..handlers.from_device.delete_from_all_link_group import (
@@ -20,6 +19,7 @@ from ..handlers.to_device.id_request import IdRequestCommand
 from ..handlers.to_device.ping import PingCommand
 from ..subscriber_base import SubscriberBase
 from ..utils import subscribe_topic, unsubscribe_topic
+from .device_health import get_health
 
 _LOGGER = logging.getLogger(__name__)
 MAX_RETRIES = 5

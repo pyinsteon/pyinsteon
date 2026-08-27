@@ -9,12 +9,12 @@ from ..address import Address
 from ..config.extended_property import ExtendedProperty
 from ..constants import PropertyType, ResponseStatus
 from ..handlers.from_device.ext_get_response import ExtendedGetResponseHandler
-from .device_health import get_health
 from ..handlers.to_device.extended_get import ExtendedGetCommand
 from ..handlers.to_device.extended_set import ExtendedSetCommand
 from ..subscriber_base import SubscriberBase
 from ..topics import EXTENDED_PROPERTIES_CHANGED
 from ..utils import multiple_status
+from .device_health import get_health
 
 _LOGGER = logging.getLogger(__name__)
 TIMEOUT = 2

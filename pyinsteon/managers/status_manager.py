@@ -23,9 +23,9 @@ from typing import Callable, Dict, Union
 
 from ..address import Address
 from ..constants import ResponseStatus
-from .device_health import get_health
 from ..handlers.to_device.status_request import StatusRequestCommand
 from ..utils import multiple_status
+from .device_health import get_health
 
 _LOGGER = getLogger(__name__)
 _LOGGER.setLevel(DEBUG)

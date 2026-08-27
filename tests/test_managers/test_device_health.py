@@ -87,6 +87,38 @@ class TestDeviceHealth(unittest.TestCase):
         h2 = get_health("AABBCC")
         assert h1 is h2
 
+    def test_backoff_never_exceeds_the_cap(self):
+        """Jitter is applied inside the cap, never on top of it."""
+        health = DeviceHealth()
+        with patch("pyinsteon.managers.device_health.time") as mock_time, patch(
+            "pyinsteon.managers.device_health.random"
+        ) as mock_random:
+            mock_time.monotonic.return_value = 1000.0
+            mock_time.time.return_value = 1000.0
+            mock_random.random.return_value = 1.0
+            for _ in range(FAILURE_BURST + 20):
+                health.record_failure()
+            assert health.next_maintenance - 1000.0 <= BACKOFF_MAX
+
+    def test_expired_backoff_lets_one_more_operation_through(self):
+        """A device far past the failure bar still gets a probe each window.
+
+        Without this a device that hit the bar could never record a success
+        because every operation aborts before it sends anything.
+        """
+        health = DeviceHealth()
+        with patch("pyinsteon.managers.device_health.time") as mock_time:
+            mock_time.monotonic.return_value = 1000.0
+            mock_time.time.return_value = 1000.0
+            for _ in range(FAILURE_BURST * 4 + 3):
+                health.record_failure()
+            assert not health.can_continue_operation()
+            mock_time.monotonic.return_value = 1000.0 + BACKOFF_MAX * 2
+            assert health.can_attempt_maintenance()
+            assert health.can_continue_operation()
+            health.record_failure()
+            assert not health.can_continue_operation()
+
 
 if __name__ == "__main__":
     unittest.main()
