@@ -6,9 +6,11 @@ Insteon devices that either respond to or control the current device.
 
 import asyncio
 import logging
+import time
 
 from ..constants import ALDBStatus, EngineVersion, ReadWriteMode
 from ..managers.aldb_read_manager import ALDBReadManager
+from ..managers.device_health import get_health
 from .aldb_base import HWM_RECORD, ALDBBase
 from .aldb_record import new_aldb_record_from_existing
 
@@ -30,12 +32,35 @@ class ALDB(ALDBBase):
         super().__init__(address=address, version=version, mem_addr=mem_addr)
         self._top_mem_addr = mem_addr
         self._read_manager = ALDBReadManager(self._address, self._mem_addr)
+        self._load_lock = asyncio.Lock()
 
     # pylint: disable=arguments-differ
     async def async_load(
         self, mem_addr: int = 0x00, num_recs: int = 0x00, refresh: bool = False
     ):
         """Load the All-Link Database."""
+        waited = self._load_lock.locked()
+        async with self._load_lock:
+            # A background load that lands behind a finished one is redundant.
+            # A refresh is not; the caller asked for a fresh read.
+            if waited and not refresh and self._status == ALDBStatus.LOADED:
+                return self._status
+            return await self._async_load(
+                mem_addr=mem_addr, num_recs=num_recs, refresh=refresh
+            )
+
+    async def _async_load(
+        self, mem_addr: int = 0x00, num_recs: int = 0x00, refresh: bool = False
+    ):
+        """Load the All-Link Database without reentrancy protection."""
+        health = get_health(self._address)
+        if not refresh and not health.can_attempt_maintenance():
+            _LOGGER.info(
+                "Deferring ALDB load of %s: device unreachable, next attempt in %ds",
+                self._address,
+                max(0, int(health.next_maintenance - time.monotonic())),
+            )
+            return self._status
         _LOGGER.debug("Loading the ALDB async")
         self._update_status(ALDBStatus.LOADING)
         # Drop phantom records above the first record address. Erased 0xFF
@@ -118,14 +143,20 @@ class ALDB(ALDBBase):
         if (
             not self._records
             and self._read_write_mode == ReadWriteMode.STANDARD
-            and self._version not in [EngineVersion.I2CS, EngineVersion.OTHER]
+            and self._version == EngineVersion.I1
+            and health.can_attempt_maintenance()
         ):
+            # Peek reads are a last resort for confirmed i1 devices only. A
+            # device that is simply not answering must not be walked one
+            # byte at a time.
             self._read_write_mode = ReadWriteMode.PEEK_POKE
-            return await self.async_load(
+            return await self._async_load(
                 mem_addr=mem_addr, num_recs=num_recs, refresh=refresh
             )
 
         self.set_load_status()
+        if self._status == ALDBStatus.LOADED:
+            get_health(self._address).record_success()
 
         return self._status
 

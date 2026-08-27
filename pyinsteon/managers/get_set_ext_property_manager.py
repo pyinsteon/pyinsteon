@@ -14,10 +14,11 @@ from ..handlers.to_device.extended_set import ExtendedSetCommand
 from ..subscriber_base import SubscriberBase
 from ..topics import EXTENDED_PROPERTIES_CHANGED
 from ..utils import multiple_status
+from .device_health import get_health
 
 _LOGGER = logging.getLogger(__name__)
 TIMEOUT = 2
-RETRIES = 20
+RETRIES = 5
 
 PropertyInfo = namedtuple("PropertyInfo", "name group data_field bit set_cmd")
 
@@ -128,10 +129,21 @@ class GetSetExtendedPropertyManager(SubscriberBase):
     async def _async_read(self, group):
         retry = 0
         result = ResponseStatus.UNSENT
+        health = get_health(self._address)
         while retry < RETRIES and result != ResponseStatus.SUCCESS:
+            if not health.can_continue_operation():
+                _LOGGER.debug(
+                    "Aborting extended property read of %s: device unreachable",
+                    self._address,
+                )
+                return ResponseStatus.FAILURE
             await self._get_command.async_send(group=group)
             result = await self._wait_for_get()
             retry += 1
+        if result == ResponseStatus.SUCCESS:
+            health.record_success()
+        else:
+            health.record_failure()
         return result
 
     async def _wait_for_get(self):

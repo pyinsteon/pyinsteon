@@ -7,6 +7,7 @@ import async_timeout
 
 from .. import ack_handler, direct_ack_handler, direct_nak_handler, nak_handler
 from ...constants import MessageFlagType, ResponseStatus
+from ...managers.device_health import get_health
 from ..outbound_base import OutboundHandlerBase
 
 TIMEOUT = 6  # Wait time for device response
@@ -34,9 +35,15 @@ class DirectCommandHandlerBase(OutboundHandlerBase):
         if ack_response == ResponseStatus.SUCCESS:
             try:
                 async with async_timeout.timeout(TIMEOUT + 0.1):
-                    return await self._message_response.get()
+                    response = await self._message_response.get()
+                    # A response proves the device is alive but says nothing
+                    # about whether the operation will complete. Devices can
+                    # ACK every request and still never deliver data, so only
+                    # completed operations reset the failure count.
+                    get_health(self._address).heard()
+                    return response
             except asyncio.TimeoutError:
-                pass
+                get_health(self._address).record_failure()
         return ResponseStatus.FAILURE
 
     @ack_handler

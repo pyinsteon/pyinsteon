@@ -19,6 +19,7 @@ from ..handlers.to_device.id_request import IdRequestCommand
 from ..handlers.to_device.ping import PingCommand
 from ..subscriber_base import SubscriberBase
 from ..utils import subscribe_topic, unsubscribe_topic
+from .device_health import get_health
 
 _LOGGER = logging.getLogger(__name__)
 MAX_RETRIES = 5
@@ -144,6 +145,11 @@ class DeviceIdManager(SubscriberBase):
 
     async def async_id_device(self, address: Address, refresh: bool = False):
         """Call ID Request command for all unknown devices."""
+        if not get_health(address).can_attempt_maintenance():
+            _LOGGER.debug(
+                "Deferring device ID request for %s: device unreachable", address
+            )
+            return None
 
         received_queue = asyncio.Queue()
 
@@ -269,6 +275,9 @@ class DeviceIdManager(SubscriberBase):
                 if device_id is not None and device_id.cat is not None:
                     return
                 await asyncio.sleep(retry_wait)
+                if not get_health(address).can_attempt_maintenance():
+                    retries -= 1
+                    continue
                 response = await cmd.async_send()
                 if response in [
                     ResponseStatus.DIRECT_NAK_ALDB,

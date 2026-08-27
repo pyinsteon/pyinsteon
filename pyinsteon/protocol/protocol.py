@@ -7,7 +7,8 @@ from queue import SimpleQueue
 from typing import Union
 
 from ..address import Address
-from ..constants import AckNak
+from ..constants import AckNak, MessageId
+from ..managers.device_health import get_health
 from ..utils import log_error, publish_topic
 from .command_to_msg import register_command_handlers
 from .messages.inbound import create
@@ -45,6 +46,8 @@ async def _publish_message(msg):
         for addr in _get_addresses_in_msg(msg):
             logger = logging.getLogger(f"pyinsteon.{Address(addr).id}")
             logger.debug("RX: %s", repr(msg))
+    if msg.message_id in (MessageId.STANDARD_RECEIVED, MessageId.EXTENDED_RECEIVED):
+        get_health(msg.address).heard()
     topic = None
     kwargs = {}
     try:
