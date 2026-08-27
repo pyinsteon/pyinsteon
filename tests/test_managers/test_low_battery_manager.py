@@ -24,7 +24,6 @@ class TestLowBatteryManager(unittest.TestCase):
             logger_messages="info",
             logger_topics=False,
         )
-        pyinsteon.managers.low_batter_manager.WAIT_TIME = 0.05
         self._address = random_address()
         self._group = 3
         self._manager = pyinsteon.managers.low_batter_manager.LowBatteryManager(
