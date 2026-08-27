@@ -7,11 +7,10 @@ Insteon devices that either respond to or control the current device.
 import asyncio
 import logging
 
-from ..address import Address
 from ..constants import ALDBStatus, EngineVersion, ReadWriteMode
 from ..managers.aldb_read_manager import ALDBReadManager
-from .aldb_base import ALDBBase
-from .aldb_record import ALDBRecord
+from .aldb_base import HWM_RECORD, ALDBBase
+from .aldb_record import new_aldb_record_from_existing
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -29,6 +28,7 @@ class ALDB(ALDBBase):
     ):
         """Init the ALDB class."""
         super().__init__(address=address, version=version, mem_addr=mem_addr)
+        self._top_mem_addr = mem_addr
         self._read_manager = ALDBReadManager(self._address, self._mem_addr)
 
     # pylint: disable=arguments-differ
@@ -40,6 +40,7 @@ class ALDB(ALDBBase):
         self._update_status(ALDBStatus.LOADING)
         # Drop phantom records above the first record address. Erased 0xFF
         # cells from i3 devices were saved there by prior versions.
+        self._mem_addr = min(self._mem_addr, self._top_mem_addr)
         for phantom_addr in [addr for addr in self._records if addr > self._mem_addr]:
             self._records.pop(phantom_addr)
         if refresh:
@@ -61,8 +62,9 @@ class ALDB(ALDBBase):
                 async for rec in self._read_manager.async_read(
                     mem_addr=0, num_recs=1, read_write_mode=mode
                 ):
-                    self._mem_addr = rec.mem_addr
-                    self._add_record(rec)
+                    if rec.mem_addr <= self._top_mem_addr:
+                        self._mem_addr = rec.mem_addr
+                        self._add_record(rec)
             finally:
                 await self._read_manager.async_stop()
 
@@ -81,15 +83,17 @@ class ALDB(ALDBBase):
         finally:
             await self._read_manager.async_stop()
 
-        hit_erased = self._read_manager.hit_erased
+        ended_in_erased_run = False
         if not self._is_loaded() and self._records:
             # Loading all records did not work so now we read individual missing
             # records. i3 devices erase deleted cells back to 0xFF rather than
             # clearing the in-use flag, so an erased cell mid-database is a
-            # deleted slot. Only a run of consecutive erased cells ends the walk.
+            # deleted slot. A single erased reply proves nothing, a garbled
+            # response looks the same. Only a run of consecutive erased
+            # cells ends the database; a silent cell just ends this attempt.
             consecutive_erased = 0
             next_record = self._calc_next_record()
-            while next_record and consecutive_erased < MAX_CONSECUTIVE_ERASED:
+            while next_record:
                 got_record = False
                 async for rec in self._read_manager.async_read(
                     mem_addr=next_record, num_recs=1
@@ -98,15 +102,17 @@ class ALDB(ALDBBase):
                 if got_record:
                     consecutive_erased = 0
                 elif self._read_manager.hit_erased:
-                    hit_erased = True
                     consecutive_erased += 1
                     self._add_record(self._deleted_record(next_record))
+                    if consecutive_erased >= MAX_CONSECUTIVE_ERASED:
+                        ended_in_erased_run = True
+                        break
                 else:
                     # The ALDB did not return the requested record so stop
                     break
                 next_record = self._calc_next_record()
 
-        if not self._is_loaded() and hit_erased:
+        if ended_in_erased_run and not self._is_loaded():
             self._close_erased_aldb()
 
         if (
@@ -125,16 +131,8 @@ class ALDB(ALDBBase):
 
     def _deleted_record(self, mem_addr):
         """Return a record representing an erased (deleted) i3 cell."""
-        return ALDBRecord(
-            memory=mem_addr,
-            controller=False,
-            group=0,
-            target=Address("000000"),
-            data1=0,
-            data2=0,
-            data3=0,
-            in_use=False,
-            high_water_mark=False,
+        return new_aldb_record_from_existing(
+            HWM_RECORD, mem_addr=mem_addr, high_water_mark=False
         )
 
     def _close_erased_aldb(self):
@@ -152,19 +150,7 @@ class ALDB(ALDBBase):
                 return
         hwm_addr = addrs[-1] - 8
         _LOGGER.debug("Synthesizing high water mark at 0x%04X", hwm_addr)
-        self._add_record(
-            ALDBRecord(
-                memory=hwm_addr,
-                controller=False,
-                group=0,
-                target=Address("000000"),
-                data1=0,
-                data2=0,
-                data3=0,
-                in_use=False,
-                high_water_mark=True,
-            )
-        )
+        self._add_record(new_aldb_record_from_existing(HWM_RECORD, mem_addr=hwm_addr))
 
     def _add_record(self, record) -> bool:
         """Add a record to the record set."""
