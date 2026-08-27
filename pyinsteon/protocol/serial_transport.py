@@ -9,7 +9,18 @@ from serial_asyncio_fast import SerialTransport
 
 _LOGGER = logging.getLogger(__name__)
 
-WRITE_WAIT = float(os.getenv("PYINSTEON_WRITE_WAIT", "0.5"))
+DEFAULT_WRITE_WAIT = 0.5
+
+
+def write_wait_from_env():
+    """Return the pause between modem writes, PYINSTEON_WRITE_WAIT if it parses."""
+    try:
+        return float(os.environ["PYINSTEON_WRITE_WAIT"])
+    except (KeyError, ValueError):
+        return DEFAULT_WRITE_WAIT
+
+
+WRITE_WAIT = write_wait_from_env()
 
 
 async def async_connect_serial(device, protocol):

@@ -1,5 +1,4 @@
 """Test cases for Cancel All Linking."""
-
 import unittest
 from binascii import unhexlify
 
@@ -19,7 +18,7 @@ class TestSendStandard(unittest.TestCase, OutboundBase):
 
     def setUp(self):
         """Set up the TestCancelAllLinking tests."""
-        self.hex = "02620102030a11ff"
+        self.hex = "02620102030011ff"
         self.address = Address("010203")
         self.cmd1 = 0x11
         self.cmd2 = 0xFF

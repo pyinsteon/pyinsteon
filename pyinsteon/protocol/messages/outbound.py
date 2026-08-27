@@ -1,7 +1,6 @@
 """Create outbound messages."""
 
 import logging
-import os
 
 from . import MessageBase
 from ... import pub
@@ -140,17 +139,9 @@ def send_all_link_command(
     _create_outbound_message(group=group, cmd1=cmd1, cmd2=cmd2, topic=topic, priority=3)
 
 
-OUTBOUND_HOPS = min(3, max(0, int(os.getenv("PYINSTEON_HOPS", "2"))))
-
-
 def _create_flags(topic, extended):
     msg_type = topic_to_message_type(topic)
-    return MessageFlags.create(
-        msg_type,
-        extended=extended,
-        hops_left=OUTBOUND_HOPS,
-        max_hops=OUTBOUND_HOPS,
-    )
+    return MessageFlags.create(msg_type, extended=extended)
 
 
 @topic_to_message_handler(register_list=MESSAGE_REGISTER, topic=SEND_STANDARD)

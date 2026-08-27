@@ -2,6 +2,7 @@
 
 import asyncio
 from functools import partial
+import os
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
@@ -10,8 +11,10 @@ import serial
 import pyinsteon
 from pyinsteon.protocol.protocol import Protocol
 from pyinsteon.protocol.serial_transport import (
+    DEFAULT_WRITE_WAIT,
     async_connect_serial,
     async_connect_socket,
+    write_wait_from_env,
 )
 
 from ..utils import MockSerial, async_case, async_protocol_manager
@@ -250,3 +253,13 @@ class TestSerialTransport(TestCase):
                 protocol.connection_lost = MagicMock()
                 protocol.transport.write(data)
                 protocol.connection_lost.call_count == 1
+
+    def test_write_wait_comes_from_the_environment(self):
+        """PYINSTEON_WRITE_WAIT overrides the default pause between writes."""
+        with patch.dict(os.environ, {"PYINSTEON_WRITE_WAIT": "0.65"}):
+            assert write_wait_from_env() == 0.65
+
+    def test_garbage_write_wait_falls_back_to_the_default(self):
+        """A value that is not a number must not break the import."""
+        with patch.dict(os.environ, {"PYINSTEON_WRITE_WAIT": "half a second"}):
+            assert write_wait_from_env() == DEFAULT_WRITE_WAIT
