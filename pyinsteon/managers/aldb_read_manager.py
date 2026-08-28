@@ -135,34 +135,39 @@ class ALDBReadManager:
                     response,
                 )
                 return None
-            try:
-                async with async_timeout.timeout(TIMER_RECORD):
+            record = await self._async_matching_record(mem_addr)
+            if record is not None or self._hit_erased or not self._continue:
+                return record
+            retries -= 1
+            await asyncio.sleep(0.1)
+        _LOGGER.debug("_read_one completed")
+        if self._continue and not self._hit_erased:
+            get_health(self._address).record_failure()
+        return None
+
+    async def _async_matching_record(self, mem_addr):
+        """Return the queued record for mem_addr, discarding any other."""
+        try:
+            async with async_timeout.timeout(TIMER_RECORD):
+                while True:
                     record = await self._record_queue.get()
-                    if (
-                        record is not None
-                        and is_erased_record(record)
-                        and mem_addr in (record.mem_addr, 0x0000)
+                    if record is None:
+                        return None
+                    if is_erased_record(record) and mem_addr in (
+                        record.mem_addr,
+                        0x0000,
                     ):
                         self._hit_erased = True
                         _LOGGER.debug(
                             "_read_one got erased cell 0x%04X", record.mem_addr
                         )
                         return None
-                    if (
-                        record is not None
-                        and record.mem_addr == mem_addr
-                        or mem_addr == 0x0000
-                    ):
+                    if mem_addr in (record.mem_addr, 0x0000):
                         _LOGGER.debug("_read_one returning record: %s", str(record))
                         return record
                     _LOGGER.debug("_read_one not returning record: %s", str(record))
-            except asyncio.TimeoutError:
-                retries -= 1
-            await asyncio.sleep(0.1)
-        _LOGGER.debug("_read_one completed")
-        if self._continue and not self._hit_erased:
-            get_health(self._address).record_failure()
-        return None
+        except asyncio.TimeoutError:
+            return None
 
     async def _read_one_peek(self, mem_addr):
         """Read one record using peek commands."""
