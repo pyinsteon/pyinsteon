@@ -209,6 +209,13 @@ class ALDBBase(ABC):
         if first_mem_addr is not None:
             self._mem_addr = first_mem_addr
 
+        # A saved LOADING is a read that never finished; for a device, a
+        # saved LOADED with no records is one that never happened
+        status = ALDBStatus(int(status))
+        if status == ALDBStatus.LOADING:
+            status = ALDBStatus.PARTIAL if self._records else ALDBStatus.EMPTY
+        elif status == ALDBStatus.LOADED and not self._records:
+            status = ALDBStatus.EMPTY
         self._update_status(status)
 
     def add(

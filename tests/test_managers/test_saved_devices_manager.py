@@ -1,5 +1,6 @@
 """Test saving and restoring devices from the device cache file."""
 
+# pylint: disable=protected-access
 import json
 import os
 import tempfile
@@ -78,6 +79,23 @@ class TestSavedDevicesManager(unittest.TestCase):
             assert len(loaded) == 1
             assert loaded[address].aldb.status == ALDBStatus.LOADED
             assert len(loaded[address].aldb) == 2
+
+    @async_case
+    async def test_loading_status_is_saved_as_partial(self):
+        """A device caught mid-read is saved as partial, not loading."""
+        address = random_address()
+        device = create_device(DeviceId(address, 0x02, 0x0A, 0x44))
+        device.engine_version = EngineVersion.I2
+        device.aldb.load_saved_records(ALDBStatus.LOADED, _records(random_address()))
+        device.aldb._update_status(ALDBStatus.LOADING)
+        with tempfile.TemporaryDirectory() as workdir:
+            mgr = SavedDeviceManager(workdir, _Modem())
+            await mgr.async_save({address: device})
+            with open(
+                os.path.join(workdir, DEVICE_INFO_FILE), encoding="utf-8"
+            ) as afp:
+                saved = json.load(afp)
+            assert saved[0]["aldb_status"] == ALDBStatus.PARTIAL.value
 
     @async_case
     async def test_corrupt_device_file_is_kept_aside(self):

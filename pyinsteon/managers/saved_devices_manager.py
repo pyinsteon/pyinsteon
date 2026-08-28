@@ -11,7 +11,7 @@ import aiofiles.os
 
 from ..address import Address
 from ..aldb.aldb_record import ALDBRecord
-from ..constants import EngineVersion
+from ..constants import ALDBStatus, EngineVersion
 from ..device_types.device_base import Device
 from ..x10_address import X10Address
 from .device_id_manager import DeviceId
@@ -90,13 +90,16 @@ def _device_to_dict(device_list):
             properties = {}
             for flag in device.properties:
                 properties[flag] = device.properties[flag].value
+            aldb_status = device.aldb.status
+            if aldb_status == ALDBStatus.LOADING:
+                aldb_status = ALDBStatus.PARTIAL if aldb else ALDBStatus.EMPTY
             device_info = {
                 "address": device.address.id,
                 "cat": device.cat,
                 "subcat": device.subcat,
                 "firmware": device.firmware,
                 "engine_version": int(device.engine_version),
-                "aldb_status": device.aldb.status.value,
+                "aldb_status": aldb_status.value,
                 "aldb": aldb,
                 "operating_flags": operating_flags,
                 "properties": properties,
