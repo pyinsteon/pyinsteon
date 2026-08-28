@@ -289,7 +289,8 @@ class ALDBBase(ABC):
         """Write the dirty records to the device."""
         if not self.is_loaded and not force:
             _LOGGER.warning(
-                "ALDB must be loaded before it can be written Status: %s",
+                "ALDB of %s must be loaded before it can be written Status: %s",
+                self._address,
                 str(self._status),
             )
             return 0, len(self._dirty_records)
