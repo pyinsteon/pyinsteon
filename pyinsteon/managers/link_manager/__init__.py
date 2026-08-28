@@ -10,6 +10,7 @@ import async_timeout
 
 from ...address import Address
 from ...aldb.aldb_record import ALDBRecord
+from ...aldb.no_aldb import NoALDB
 from ...constants import AllLinkMode, EngineVersion, LinkStatus, ResponseStatus
 from ...handlers.cancel_all_linking import CancelAllLinkingCommandHandler
 from ...handlers.start_all_linking import StartAllLinkingCommandHandler
@@ -246,13 +247,18 @@ def _test_broken(address: Address, rec: ALDBRecord, devices: List[Device]):
     if not device:
         return LinkStatus.MISSING_TARGET
 
+    # A Range Extender or other device with no ALDB cannot hold the other half
+    if isinstance(device.aldb, NoALDB):
+        return LinkStatus.FOUND
+
     if not device.aldb.is_loaded:
         return LinkStatus.TARGET_DB_NOT_LOADED
 
     for mem_addr in device.aldb:
         t_rec = device.aldb[mem_addr]
         if (
-            t_rec.target == address
+            t_rec.is_in_use
+            and t_rec.target == address
             and t_rec.group == rec.group
             and t_rec.is_controller != rec.is_controller
         ):
