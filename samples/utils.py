@@ -1,4 +1,5 @@
 """Utilities for the samples."""
+
 import logging
 import os
 import sys

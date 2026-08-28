@@ -1,4 +1,5 @@
 """Test All-Link Record Response."""
+
 import unittest
 from binascii import unhexlify
 

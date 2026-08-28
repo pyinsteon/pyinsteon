@@ -1,7 +1,6 @@
 """Utilities for the tools commands."""
 
 import asyncio
-from asyncio.events import BaseDefaultEventLoopPolicy
 import os
 import sys
 
@@ -81,21 +80,3 @@ def _win32_stdio(loop):
             return await loop.run_in_executor(None, sys.stdout.writelines, data)
 
     return Win32StdinReader(), Win32StdoutWriter()
-
-
-def set_loop() -> None:
-    """Attempt to use different loop."""
-    if sys.platform == "win32":
-        if hasattr(asyncio, "WindowsProactorEventLoopPolicy"):
-            # pylint: disable=no-member
-            policy = asyncio.WindowsProactorEventLoopPolicy()
-        else:
-
-            class ProactorPolicy(BaseDefaultEventLoopPolicy):
-                """Event loop policy to create proactor loops."""
-
-                _loop_factory = asyncio.ProactorEventLoop
-
-            policy = ProactorPolicy()
-
-        asyncio.set_event_loop_policy(policy)

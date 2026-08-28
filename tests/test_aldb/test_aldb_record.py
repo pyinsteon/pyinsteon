@@ -1,4 +1,5 @@
 """Test the ALDB record data type."""
+
 from random import randint
 from unittest import TestCase
 

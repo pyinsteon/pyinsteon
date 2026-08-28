@@ -1,4 +1,5 @@
 """Test the radio button groups property."""
+
 from unittest import TestCase
 
 from pyinsteon.config import RADIO_BUTTON_GROUPS

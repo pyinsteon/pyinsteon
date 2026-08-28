@@ -1,4 +1,5 @@
 """Mock transport for testing."""
+
 import asyncio
 from random import randint
 

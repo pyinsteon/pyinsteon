@@ -1,4 +1,5 @@
 """Test the device_link_manager class."""
+
 import asyncio
 from datetime import timedelta
 from random import randint
@@ -24,7 +25,7 @@ def _reset_devices(addresses):
         device.async_status = AsyncMock()
         device.aldb.clear_pending()
         device.aldb.async_write = AsyncMock()
-        device.aldb.async_write.call_count = 0
+        device.aldb.async_write.reset_mock()
         device.aldb.clear = Mock()
         device.async_status.return_value = ResponseStatus.SUCCESS
 
@@ -73,7 +74,7 @@ class TestDeviceLinkManager(unittest.TestCase):
 
         topic = "1a1a1a.1.on.all_link_broadcast"
         topic_item = TopicItem(topic, cmd_kwargs(0x11, 0xFF, None, "00.00.01"), 0)
-        devices["3c3c3c"].async_status.call_count = 0
+        devices["3c3c3c"].async_status.reset_mock()
         send_topics([topic_item])
         await asyncio.sleep(0.2)
         assert devices["3c3c3c"].async_status.call_count == 1
@@ -89,7 +90,7 @@ class TestDeviceLinkManager(unittest.TestCase):
         ):
             topic = "1a1a1a.1.off.all_link_cleanup"
             topic_item = TopicItem(topic, cmd_kwargs(0x11, 0xFF, None, "11.11.11"), 0)
-            devices["3c3c3c"].async_status.call_count = 0
+            devices["3c3c3c"].async_status.reset_mock()
             send_topics([topic_item])
             await asyncio.sleep(0.2)
             assert devices["3c3c3c"].async_status.call_count == 1
@@ -108,7 +109,7 @@ class TestDeviceLinkManager(unittest.TestCase):
         topic_cleanup_item = TopicItem(
             topic_cleanup, cmd_kwargs(0x11, 0xFF, None, "11.11.11"), 0.2
         )
-        devices["3c3c3c"].async_status.call_count = 0
+        devices["3c3c3c"].async_status.reset_mock()
         send_topics([topic_broadcast_item, topic_cleanup_item])
         await asyncio.sleep(1)
         assert devices["3c3c3c"].async_status.call_count == 1
@@ -250,7 +251,7 @@ class TestDeviceLinkManager(unittest.TestCase):
 
         topic = "1a1a1a.1.off.all_link_broadcast"
         topic_item = TopicItem(topic, cmd_kwargs(0x11, 0xFF, None, "00.00.01"), 0)
-        devices["3c3c3c"].async_status.call_count = 0
+        devices["3c3c3c"].async_status.reset_mock()
         devices["3c3c3c"].async_status.return_value = ResponseStatus.FAILURE
         send_topics([topic_item])
         await asyncio.sleep(0.2)

@@ -1,4 +1,5 @@
 """Test sending extended message."""
+
 import unittest
 from binascii import unhexlify
 
