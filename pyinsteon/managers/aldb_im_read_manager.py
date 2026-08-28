@@ -19,6 +19,8 @@ from ..topics import ALL_LINK_RECORD_RESPONSE
 
 _LOGGER = logging.getLogger(__name__)
 TIMEOUT = 2
+RETRIES = 3
+RETRY_WAIT = 0.5
 
 
 class ImReadManager:
@@ -37,7 +39,6 @@ class ImReadManager:
             self._receive_record_handler.subscribe(self._receive_record)
             self._receive_eeprom_record_handler = ReadEepromResponseHandler()
             self._receive_eeprom_record_handler.subscribe(self._receive_eeprom_record)
-        self._retries = 0
         self._load_lock = asyncio.Lock()
         self._record_queue = asyncio.Queue()
 
@@ -51,21 +52,6 @@ class ImReadManager:
             return
         async for record in self.async_get_next_all_link_records():
             yield record
-
-    async def async_load_eeprom(self):
-        """Load the Insteon modem ALDB using EEPROM reads."""
-        self._clear_read_queue()
-        next_mem_addr = self._aldb.first_mem_addr
-        record = await self.async_read_record(next_mem_addr)
-        if record:
-            yield record
-        else:
-            return
-        for record in await self.async_read_record(next_mem_addr):
-            yield record
-            if record.is_high_water_mark:
-                return
-            next_mem_addr -= 8
 
     async def async_get_first_all_link_record(self):
         """Get the first All-Link database record."""
@@ -118,19 +104,32 @@ class ImReadManager:
     async def async_read_record(self, mem_addr: int) -> ALDBRecord:
         """Read from EEPROM."""
         self._clear_read_queue()
-        retries = 20
         cmd = ReadEepromHandler()
-        response = None
-        while retries and response != ResponseStatus.SUCCESS:
+        for attempt in range(RETRIES):
             response = await cmd.async_send(mem_addr=mem_addr)
-            retries -= 1
             if response == ResponseStatus.SUCCESS:
-                try:
-                    async with async_timeout.timeout(TIMEOUT):
-                        return await self._record_queue.get()
-                except asyncio.TimeoutError:
-                    return None
-            await asyncio.sleep(0.5)
+                record = await self._async_next_record(mem_addr)
+                if record:
+                    return record
+            if attempt < RETRIES - 1:
+                await asyncio.sleep(RETRY_WAIT)
+        return None
+
+    async def _async_next_record(self, mem_addr: int) -> ALDBRecord:
+        """Return the queued record for mem_addr, discarding any other."""
+        try:
+            async with async_timeout.timeout(TIMEOUT):
+                while True:
+                    record = await self._record_queue.get()
+                    if record.mem_addr == mem_addr:
+                        return record
+                    _LOGGER.debug(
+                        "Modem read of 0x%04x answered with 0x%04x",
+                        mem_addr,
+                        record.mem_addr,
+                    )
+        except asyncio.TimeoutError:
+            return None
 
     async def async_confirm_eeprom_read(self) -> int:
         """Confirm the first memory address is readable with an EEPROM read.
@@ -154,8 +153,12 @@ class ImReadManager:
                 if eeprom_record:
                     break
 
-            if first_record is None and eeprom_record.is_high_water_mark:
-                return eeprom_record.mem_addr  # ALDB is empty
+            if eeprom_record is None:
+                return 0
+
+            if first_record is None:
+                # A high water mark with no first record means the ALDB is empty
+                return eeprom_record.mem_addr if eeprom_record.is_high_water_mark else 0
 
             if first_record.is_exact_match(eeprom_record):
                 return eeprom_record.mem_addr
