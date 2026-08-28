@@ -1,5 +1,6 @@
 """All-Link database for an Insteon Modem."""
 
+import asyncio
 import logging
 
 from .. import pub
@@ -11,7 +12,8 @@ from ..topics import ALL_LINK_RECORD_RESPONSE
 from .aldb_base import ALDBBase
 
 _LOGGER = logging.getLogger(__name__)
-MAX_RETRIES = 3
+MAX_MISSED_RECORDS = 3
+MAX_RECORDS = 512
 
 
 class ModemALDB(ALDBBase):
@@ -30,6 +32,7 @@ class ModemALDB(ALDBBase):
         super().__init__(address, version, mem_addr, write_manager=ImWriteManager)
 
         self._read_write_mode = ReadWriteMode.UNKNOWN
+        self._load_lock = asyncio.Lock()
         # If we are not the first modem, don't subscribe to
         mgr = pub.getDefaultTopicMgr()
         topic = mgr.getTopic(ALL_LINK_RECORD_RESPONSE, okIfNone=True)
@@ -46,12 +49,20 @@ class ModemALDB(ALDBBase):
         """Set the modem read mode."""
         self._read_write_mode = ReadWriteMode(value)
 
-    async def async_load(self, *args, **kwargs):
+    async def async_load(self, *args, refresh: bool = False, **kwargs):
         """Load the All-Link Database."""
 
         if self._read_manager is None:
-            return
+            return None
 
+        waited = self._load_lock.locked()
+        async with self._load_lock:
+            if waited and not refresh and self._status == ALDBStatus.LOADED:
+                return self._status
+            return await self._async_load()
+
+    async def _async_load(self):
+        """Load the All-Link Database without reentrancy protection."""
         self._update_status(ALDBStatus.LOADING)
         # See if we can use EEPROM reads
         if self._read_write_mode == ReadWriteMode.UNKNOWN:
@@ -93,16 +104,46 @@ class ModemALDB(ALDBBase):
     async def _async_load_eeprom(self):
         """Load using EEPROM read method."""
         _LOGGER.debug("Loading from EEPROM")
-        next_mem_addr = self.first_mem_addr
+        previous = self._records
         self._records = {}
-        record = await self._read_manager.async_read_record(next_mem_addr)
-        while record:
-            self._records[record.mem_addr] = record
+        missed = []
+        found_hwm = False
+        mem_addr = self.first_mem_addr
+
+        while (
+            mem_addr > 0
+            and len(missed) < MAX_MISSED_RECORDS
+            and len(self._records) < MAX_RECORDS
+        ):
+            record = await self._read_manager.async_read_record(mem_addr)
+            if record is None:
+                missed.append(mem_addr)
+            else:
+                self._records[mem_addr] = record
+                self._notify_change(record)
+                if record.is_high_water_mark:
+                    found_hwm = True
+                    break
+            mem_addr -= 8
+
+        for mem_addr in list(missed):
+            record = await self._read_manager.async_read_record(mem_addr)
+            if record is None:
+                continue
+            missed.remove(mem_addr)
+            self._records[mem_addr] = record
             self._notify_change(record)
-            if record.is_high_water_mark:
-                return
-            record = await self._read_manager.async_read_record(next_mem_addr)
-            next_mem_addr -= 8
+
+        if found_hwm and not missed:
+            return
+
+        _LOGGER.warning(
+            "Modem %s ALDB is incomplete: %s",
+            self._address,
+            ", ".join(f"0x{addr:04x}" for addr in missed) or "no high water mark found",
+        )
+        if not found_hwm and len(previous) > len(self._records):
+            self._records = previous
 
     def _is_loaded(self):
         """Calculate the AlDB load status."""
