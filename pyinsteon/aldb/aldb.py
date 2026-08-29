@@ -32,7 +32,6 @@ class ALDB(ALDBBase):
         super().__init__(address=address, version=version, mem_addr=mem_addr)
         self._top_mem_addr = mem_addr
         self._read_manager = ALDBReadManager(self._address, self._mem_addr)
-        self._load_lock = asyncio.Lock()
 
     # pylint: disable=arguments-differ
     async def async_load(

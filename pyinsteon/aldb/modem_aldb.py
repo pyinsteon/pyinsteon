@@ -1,6 +1,5 @@
 """All-Link database for an Insteon Modem."""
 
-import asyncio
 import logging
 
 from .. import pub
@@ -31,7 +30,6 @@ class ModemALDB(ALDBBase):
         super().__init__(address, version, mem_addr, write_manager=ImWriteManager)
 
         self._read_write_mode = ReadWriteMode.UNKNOWN
-        self._load_lock = asyncio.Lock()
         # If we are not the first modem, don't subscribe to
         mgr = pub.getDefaultTopicMgr()
         topic = mgr.getTopic(ALL_LINK_RECORD_RESPONSE, okIfNone=True)
