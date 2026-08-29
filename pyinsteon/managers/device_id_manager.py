@@ -9,7 +9,7 @@ import async_timeout
 
 from .. import pub
 from ..address import Address
-from ..constants import DeviceAction, ResponseStatus
+from ..constants import AllLinkMode, DeviceAction, ResponseStatus
 from ..handlers.all_link_completed import AllLinkCompletedHandler
 from ..handlers.from_device.assign_to_all_link_group import AssignToAllLinkGroupCommand
 from ..handlers.from_device.delete_from_all_link_group import (
@@ -203,6 +203,15 @@ class DeviceIdManager(SubscriberBase):
 
     def _id_response(self, address, cat, subcat, firmware, group, link_mode):
         """Receive a device ID response."""
+        known = self._device_ids.get(Address(address))
+        if not cat and not subcat and known is not None and known.cat is not None:
+            _LOGGER.debug(
+                "Device %s reported no identity, keeping %s.%s",
+                address,
+                known.cat,
+                known.subcat,
+            )
+            cat, subcat, firmware = known.cat, known.subcat, known.firmware
         self.set_device_id(
             address=address,
             cat=cat,
@@ -259,6 +268,17 @@ class DeviceIdManager(SubscriberBase):
         self, link_mode, group, target, cat, subcat, firmware
     ):
         """Receive All-Link complete message."""
+        if link_mode == AllLinkMode.RESPONDER:
+            # Dev Guide 0x53: DevCat and SubCat are only valid when the IM is the controller
+            address = Address(target)
+            known = self._device_ids.get(address)
+            if known is None or known.cat is None:
+                self.append(address)
+                self._call_subscribers(
+                    device_id=DeviceId(address, None, None, None), link_mode=link_mode
+                )
+                return
+            cat, subcat, firmware = known.cat, known.subcat, known.firmware
         self._id_response(target, cat, subcat, firmware, group, link_mode)
 
     async def _ping_device(self, address):
