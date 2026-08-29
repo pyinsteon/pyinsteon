@@ -7,7 +7,7 @@ from pyinsteon import pub
 from pyinsteon.address import Address
 from pyinsteon.aldb import modem_aldb
 from pyinsteon.aldb.aldb_record import ALDBRecord
-from pyinsteon.constants import ALDBStatus, ReadWriteMode
+from pyinsteon.constants import ALDBStatus, ReadWriteMode, ResponseStatus
 from pyinsteon.topics import ALL_LINK_RECORD_RESPONSE
 
 from pyinsteon.aldb.modem_aldb import ModemALDB
@@ -64,6 +64,19 @@ class GatedEepromReader(MockEepromReader):
         """Return the record at mem_addr once released."""
         await self.release.wait()
         return await super().async_read_record(mem_addr)
+
+
+class RecordingWriter:
+    """Accept every write and remember it."""
+
+    def __init__(self):
+        """Init the RecordingWriter class."""
+        self.writes = []
+
+    async def async_write(self, record, force=False):
+        """Record the write and report success."""
+        self.writes.append(record)
+        return ResponseStatus.SUCCESS
 
 
 # pypubsub holds weak references to the subscribed handlers
@@ -200,3 +213,26 @@ class TestModemALDB(TestCase):
 
         assert aldb.status == ALDBStatus.LOADED
         assert reader.reads == [0x1FFF, 0x1FF7, 0x1FEF, 0x1FE7]
+
+    @async_case
+    async def test_write_waits_for_a_load_in_progress(self):
+        """Test a write issued during a load runs once the load is done."""
+        reader = GatedEepromReader()
+        aldb = _eeprom_aldb(reader)
+        writer = RecordingWriter()
+        aldb._write_manager = writer
+
+        load = asyncio.ensure_future(aldb.async_load())
+        await asyncio.sleep(0.01)
+        assert aldb.status == ALDBStatus.LOADING
+
+        aldb.add(group=1, target=random_address(), controller=True)
+        write = asyncio.ensure_future(aldb.async_write())
+        await asyncio.sleep(0.01)
+        assert not writer.writes
+
+        reader.release.set()
+        await load
+        assert await write == (1, 0)
+        assert writer.writes[0].mem_addr == 0x1FE7
+        assert not aldb.pending_changes
