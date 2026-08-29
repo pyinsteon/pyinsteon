@@ -117,7 +117,7 @@ class TestModemALDB(TestCase):
         reader = MockEepromReader(fail_once=[0x1FF7])
         aldb = _eeprom_aldb(reader)
 
-        await aldb._async_load()
+        await aldb.async_load()
 
         assert aldb.status == ALDBStatus.LOADED
         assert sorted(aldb) == [0x1FE7, 0x1FEF, 0x1FF7, 0x1FFF]
@@ -129,7 +129,7 @@ class TestModemALDB(TestCase):
         reader = MockEepromReader(fail_always=[0x1FF7])
         aldb = _eeprom_aldb(reader)
 
-        await aldb._async_load()
+        await aldb.async_load()
 
         assert aldb.status == ALDBStatus.PARTIAL
         assert 0x1FF7 not in aldb
@@ -141,7 +141,7 @@ class TestModemALDB(TestCase):
         reader = MockEepromReader()
         aldb = _eeprom_aldb(reader)
 
-        await aldb._async_load()
+        await aldb.async_load()
 
         assert aldb.status == ALDBStatus.LOADED
         assert min(aldb) == 0x1FE7
@@ -156,9 +156,35 @@ class TestModemALDB(TestCase):
         aldb = _eeprom_aldb(reader)
         aldb.load_saved_records(ALDBStatus.LOADED, saved)
 
-        await aldb._async_load()
+        await aldb.async_load()
 
         assert len(aldb) == 4
+
+    @async_case
+    async def test_incomplete_read_keeps_an_equal_sized_saved_set(self):
+        """Test a same size read with no high water mark keeps the saved records."""
+        saved = {
+            addr: ALDBRecord(
+                memory=addr,
+                controller=True,
+                group=7,
+                target=Address("010203"),
+                data1=0,
+                data2=0,
+                data3=0,
+                in_use=True,
+                high_water_mark=False,
+            )
+            for addr in (0x1FFF, 0x1FF7)
+        }
+        reader = MockEepromReader(fail_always=[0x1FEF, 0x1FE7, 0x1FDF])
+        aldb = _eeprom_aldb(reader)
+        aldb.load_saved_records(ALDBStatus.LOADED, saved)
+
+        await aldb.async_load()
+
+        assert len(aldb) == 2
+        assert all(aldb[addr].group == 7 for addr in aldb)
 
     @async_case
     async def test_concurrent_loads_read_once(self):

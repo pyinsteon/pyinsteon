@@ -13,7 +13,6 @@ from .aldb_base import ALDBBase
 
 _LOGGER = logging.getLogger(__name__)
 MAX_MISSED_RECORDS = 3
-MAX_RECORDS = 512
 
 
 class ModemALDB(ALDBBase):
@@ -59,7 +58,16 @@ class ModemALDB(ALDBBase):
         async with self._load_lock:
             if waited and not refresh and self._status == ALDBStatus.LOADED:
                 return self._status
-            return await self._async_load()
+            previous_records = dict(self._records)
+            previous_status = self._status
+            previous_mem_addr = self._mem_addr
+            status = await self._async_load()
+            # A read that dies partway must not replace the last good set
+            if previous_records and status != ALDBStatus.LOADED:
+                self.load_saved_records(
+                    previous_status, previous_records, previous_mem_addr
+                )
+            return self._status
 
     async def _async_load(self):
         """Load the All-Link Database without reentrancy protection."""
@@ -104,17 +112,12 @@ class ModemALDB(ALDBBase):
     async def _async_load_eeprom(self):
         """Load using EEPROM read method."""
         _LOGGER.debug("Loading from EEPROM")
-        previous = self._records
         self._records = {}
         missed = []
         found_hwm = False
         mem_addr = self.first_mem_addr
 
-        while (
-            mem_addr > 0
-            and len(missed) < MAX_MISSED_RECORDS
-            and len(self._records) < MAX_RECORDS
-        ):
+        while mem_addr > 0 and len(missed) < MAX_MISSED_RECORDS:
             record = await self._read_manager.async_read_record(mem_addr)
             if record is None:
                 missed.append(mem_addr)
@@ -142,8 +145,6 @@ class ModemALDB(ALDBBase):
             self._address,
             ", ".join(f"0x{addr:04x}" for addr in missed) or "no high water mark found",
         )
-        if not found_hwm and len(previous) > len(self._records):
-            self._records = previous
 
     def _is_loaded(self):
         """Calculate the AlDB load status."""
