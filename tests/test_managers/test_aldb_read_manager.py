@@ -6,11 +6,14 @@ import unittest
 
 import async_timeout
 
+from unittest.mock import patch
+
 from pyinsteon.address import Address
 from pyinsteon.aldb.aldb_record import ALDBRecord
-from pyinsteon.constants import ReadWriteMode
+from pyinsteon.constants import ReadWriteMode, ResponseStatus
 from pyinsteon.data_types.user_data import UserData
-from pyinsteon.managers.aldb_read_manager import ALDBReadManager
+from pyinsteon.managers import aldb_read_manager
+from pyinsteon.managers.aldb_read_manager import RETRIES_ONE_MAX, ALDBReadManager
 from pyinsteon.topics import EXTENDED_READ_WRITE_ALDB, PEEK, SET_ADDRESS_MSB
 
 from tests import set_log_levels
@@ -401,3 +404,34 @@ class TestAldbReadManager(unittest.TestCase):
                     assert False
             except asyncio.TimeoutError:
                 assert False
+
+    @async_case
+    async def test_read_one_stops_on_records_for_other_addresses(self):
+        """Test a stream of records for other addresses does not retry forever."""
+        address = random_address()
+        mgr = ALDBReadManager(address=address, first_record=0x0FFF)
+        sends = []
+
+        async def _send(mem_addr, num_recs):
+            sends.append(mem_addr)
+            for offset in range(1, 4):
+                mgr._record_queue.put_nowait(
+                    ALDBRecord(
+                        memory=mem_addr - offset * 8,
+                        controller=True,
+                        group=0,
+                        target=random_address(),
+                        data1=0,
+                        data2=0,
+                        data3=0,
+                    )
+                )
+            return ResponseStatus.SUCCESS
+
+        mgr._read_handler.async_send = _send
+        with patch.object(aldb_read_manager, "TIMER_RECORD", 0.1):
+            async with async_timeout.timeout(10):
+                record = await mgr._read_one(0x0FFF)
+
+        assert record is None
+        assert len(sends) == RETRIES_ONE_MAX
