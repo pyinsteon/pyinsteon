@@ -64,9 +64,11 @@ class ModemALDB(ALDBBase):
             status = await self._async_load()
             # A read that dies partway must not replace the last good set
             if previous_records and status != ALDBStatus.LOADED:
+                pending = self._dirty_records
                 self.load_saved_records(
                     previous_status, previous_records, previous_mem_addr
                 )
+                self._dirty_records = pending
             return self._status
 
     async def _async_load(self):
