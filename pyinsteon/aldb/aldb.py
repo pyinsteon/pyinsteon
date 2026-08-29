@@ -44,9 +44,18 @@ class ALDB(ALDBBase):
             # A refresh is not; the caller asked for a fresh read.
             if waited and not refresh and self._status == ALDBStatus.LOADED:
                 return self._status
-            return await self._async_load(
+            previous_records = dict(self._records) if refresh else {}
+            previous_status = self._status
+            previous_mem_addr = self._mem_addr
+            status = await self._async_load(
                 mem_addr=mem_addr, num_recs=num_recs, refresh=refresh
             )
+            # A refresh that dies partway must not replace the last good set
+            if refresh and previous_records and status != ALDBStatus.LOADED:
+                self.load_saved_records(
+                    previous_status, previous_records, previous_mem_addr
+                )
+            return self._status
 
     async def _async_load(
         self, mem_addr: int = 0x00, num_recs: int = 0x00, refresh: bool = False

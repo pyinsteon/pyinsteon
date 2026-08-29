@@ -174,6 +174,21 @@ class TestModemALDB(TestCase):
         assert len(aldb) == 4
 
     @async_case
+    async def test_incomplete_read_keeps_pending_changes(self):
+        """Test a re-read that dies partway keeps changes not yet written."""
+        aldb = _eeprom_aldb(MockEepromReader())
+        await aldb.async_load()
+        assert aldb.status == ALDBStatus.LOADED
+        aldb.add(group=1, target=random_address(), controller=True)
+        assert len(aldb.pending_changes) == 1
+
+        aldb._read_manager = MockEepromReader(fail_always=[0x1FF7])
+        await aldb.async_load(refresh=True)
+
+        assert aldb.status == ALDBStatus.LOADED
+        assert len(aldb.pending_changes) == 1
+
+    @async_case
     async def test_incomplete_read_keeps_an_equal_sized_saved_set(self):
         """Test a same size read with no high water mark keeps the saved records."""
         saved = {

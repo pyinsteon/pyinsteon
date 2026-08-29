@@ -1,15 +1,17 @@
 """Manage saving and restoring devices from JSON file."""
 
+import asyncio
 import json
 import logging
-from os import path
+import os
 from typing import Dict
 
 import aiofiles
+import aiofiles.os
 
 from ..address import Address
 from ..aldb.aldb_record import ALDBRecord
-from ..constants import EngineVersion
+from ..constants import ALDBStatus, EngineVersion
 from ..device_types.device_base import Device
 from ..x10_address import X10Address
 from .device_id_manager import DeviceId
@@ -18,6 +20,8 @@ from .utils import create_device
 DEVICE_INFO_FILE = "insteon_devices.json"
 OLD_DEVICE_INFO_FILE = "insteon_plm_device_info.dat"
 _LOGGER = logging.getLogger(__name__)
+# A new SavedDeviceManager is created per save, so the lock must outlive it.
+_SAVE_LOCK = asyncio.Lock()
 
 
 def aldb_rec_to_dict(rec):
@@ -86,13 +90,16 @@ def _device_to_dict(device_list):
             properties = {}
             for flag in device.properties:
                 properties[flag] = device.properties[flag].value
+            aldb_status = device.aldb.status
+            if aldb_status == ALDBStatus.LOADING:
+                aldb_status = ALDBStatus.PARTIAL if aldb else ALDBStatus.EMPTY
             device_info = {
                 "address": device.address.id,
                 "cat": device.cat,
                 "subcat": device.subcat,
                 "firmware": device.firmware,
                 "engine_version": int(device.engine_version),
-                "aldb_status": device.aldb.status.value,
+                "aldb_status": aldb_status.value,
                 "aldb": aldb,
                 "operating_flags": operating_flags,
                 "properties": properties,
@@ -273,14 +280,23 @@ class SavedDeviceManager:
             return saved_devices
 
         try:
-            device_file = path.join(self._workdir, DEVICE_INFO_FILE)
+            device_file = os.path.join(self._workdir, DEVICE_INFO_FILE)
             async with aiofiles.open(device_file, "r") as afp:
                 json_file = ""
                 json_file = await afp.read()
             try:
                 saved_devices = json.loads(json_file)
             except json.decoder.JSONDecodeError:
-                _LOGGER.debug("Loading saved device file failed")
+                corrupt_file = f"{device_file}.corrupt"
+                _LOGGER.error(
+                    "Saved device file %s is corrupt; moving it to %s",
+                    device_file,
+                    corrupt_file,
+                )
+                try:
+                    await aiofiles.os.replace(device_file, corrupt_file)
+                except OSError as ex:
+                    _LOGGER.error("Cannot move the corrupt device file: %s", ex)
         except FileNotFoundError:
             _LOGGER.debug("Saved device file not found")
             saved_devices = await self._read_old_device_file()
@@ -288,15 +304,21 @@ class SavedDeviceManager:
 
     async def _write_saved_devices(self, device_list):
         _LOGGER.debug("Writing %d devices to save file", len(device_list))
-        device_file = path.join(self._workdir, DEVICE_INFO_FILE)
-        try:
-            async with aiofiles.open(device_file, "w") as afp:
-                out_json = json.dumps(device_list, indent=2)
-                await afp.write(out_json)
-                await afp.flush()
-        except FileNotFoundError as ex:
-            _LOGGER.error("Cannot write to file %s", device_file)
-            _LOGGER.error("Exception: %s", str(ex))
+        device_file = os.path.join(self._workdir, DEVICE_INFO_FILE)
+        temp_file = f"{device_file}.tmp"
+        out_json = json.dumps(device_list, indent=2)
+        async with _SAVE_LOCK:
+            try:
+                async with aiofiles.open(temp_file, "w") as afp:
+                    await afp.write(out_json)
+                    await afp.flush()
+                    await asyncio.get_running_loop().run_in_executor(
+                        None, os.fsync, afp.fileno()
+                    )
+                await aiofiles.os.replace(temp_file, device_file)
+            except OSError as ex:
+                _LOGGER.error("Cannot write to file %s", device_file)
+                _LOGGER.error("Exception: %s", str(ex))
 
     async def _read_old_device_file(self):
         """Load device information from the insteonplm device info file."""
@@ -308,7 +330,7 @@ class SavedDeviceManager:
             return saved_devices
 
         try:
-            device_file = path.join(self._workdir, OLD_DEVICE_INFO_FILE)
+            device_file = os.path.join(self._workdir, OLD_DEVICE_INFO_FILE)
             async with aiofiles.open(device_file, "r") as afp:
                 json_file = ""
                 json_file = await afp.read()
