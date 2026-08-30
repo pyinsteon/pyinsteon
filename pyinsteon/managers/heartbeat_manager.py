@@ -21,7 +21,8 @@ class HeartbeatManager(SubscriberBase):
             """Call subscribers to the event."""
             self._call_subscribers(on_level=on_level)
 
-    def __init__(self, address, group, max_duration=1275):
+    # The default heartbeat interval is 24 hours, but can vary, so use 30 hours as a default max duration to trigger a missed heartbeat
+    def __init__(self, address, group, max_duration=(24 + 6) * 60):
         """Init the HeartbeatManager class."""
         self._address = Address(address)
         self._group = group
@@ -74,8 +75,10 @@ class HeartbeatManager(SubscriberBase):
         """Check if a heartbeat as arrived since max_duration."""
         td_last_heartbeat = datetime.now() - self._last_heartbeat
         if td_last_heartbeat > timedelta(minutes=self._max_duration):
+            # Heartbeat timeout expired, call subscribers with missed heartbeat
             self._call_subscribers(heartbeat=True)
         else:
+            # Heartbeat received within max_duration, call subscribers with received heartbeat
             self._call_subscribers(heartbeat=False)
         self._schedule_next_check()
 
