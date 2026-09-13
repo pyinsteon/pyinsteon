@@ -15,6 +15,7 @@ from ..device_types.device_commands import STATUS_COMMAND
 from ..handlers.to_device.engine_version_request import EngineVersionRequest
 from ..handlers.to_device.ping import PingCommand
 from ..handlers.to_device.product_data_request import ProductDataRequestCommand
+from ..managers.device_health import get_health
 from ..managers.get_set_ext_property_manager import GetSetExtendedPropertyManager
 from ..managers.get_set_op_flag_manager import GetSetOperatingFlagsManager
 from ..managers.link_manager.default_links import async_add_default_links
@@ -208,6 +209,12 @@ class Device(ABC):
 
     async def async_read_op_flags(self, group=None):
         """Read the device operating flags."""
+        if not get_health(self._address).can_attempt_maintenance():
+            _LOGGER.debug(
+                "Deferring operating flags read of %s: device unreachable",
+                self._address,
+            )
+            return ResponseStatus.FAILURE
         return await self._op_flags_manager.async_read(group=group)
 
     async def async_write_op_flags(self):
@@ -216,6 +223,12 @@ class Device(ABC):
 
     async def async_read_ext_properties(self, group=None):
         """Get the device extended properties."""
+        if not get_health(self._address).can_attempt_maintenance():
+            _LOGGER.debug(
+                "Deferring extended properties read of %s: device unreachable",
+                self._address,
+            )
+            return ResponseStatus.FAILURE
         return await self._ext_property_manager.async_read(group=group)
 
     async def async_write_ext_properties(self):

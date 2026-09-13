@@ -1,4 +1,5 @@
 """Test Get IM Info."""
+
 import unittest
 from binascii import unhexlify
 

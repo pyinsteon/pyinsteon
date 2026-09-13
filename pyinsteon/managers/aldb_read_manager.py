@@ -11,12 +11,13 @@ from ..constants import ALDBStatus, ReadWriteMode, ResponseStatus
 from ..data_types.all_link_record_flags import AllLinkRecordFlags
 from ..handlers.from_device.receive_aldb_record import ReceiveALDBRecordHandler
 from ..handlers.to_device.read_aldb import ReadALDBCommandHandler
+from ..managers.device_health import get_health
 from ..managers.peek_poke_manager import get_peek_poke_manager
 from ..topics import ALDB_STATUS_CHANGED
 from ..utils import subscribe_topic
 
 RETRIES_ALL_MAX = 5
-RETRIES_ONE_MAX = 20
+RETRIES_ONE_MAX = 5
 TIMER_RECORD = 10
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,6 +25,19 @@ _LOGGER = logging.getLogger(__name__)
 def _is_multiple_records(mem_addr, num_recs):
     """Return true if we are searching for multiple records."""
     return (mem_addr == 0x00 and num_recs == 0) or num_recs > 1
+
+
+def is_erased_record(record: ALDBRecord) -> bool:
+    """Return True if the record is an erased (0xFF) ALDB cell.
+
+    i3 devices return erased cells as 0xFF bytes rather than the 0x00
+    high water mark older devices use. A 0xFF control flags byte decodes
+    as an in-use controller record that is not the high water mark, so it
+    must be detected explicitly. An in-use record can never target
+    FF.FF.FF, so that combination identifies an erased cell even if other
+    bytes are partially cleared.
+    """
+    return record.is_in_use and record.target == Address("FFFFFF")
 
 
 class ALDBReadManager:
@@ -35,6 +49,7 @@ class ALDBReadManager:
         self._first_record = first_record
         self._record_queue = asyncio.Queue()
         self._continue = True
+        self._hit_erased = False
 
         self._read_handler = ReadALDBCommandHandler(self._address)
         self._record_handler = ReceiveALDBRecordHandler(self._address)
@@ -46,6 +61,11 @@ class ALDBReadManager:
         subscribe_topic(
             self._aldb_status_changed, f"{self._address.id}.{ALDB_STATUS_CHANGED}"
         )
+
+    @property
+    def hit_erased(self) -> bool:
+        """Return True if the last read encountered an erased (0xFF) cell."""
+        return self._hit_erased
 
     async def async_read(
         self,
@@ -62,6 +82,7 @@ class ALDBReadManager:
         )
         self._clear_read_queue()
         self._continue = True
+        self._hit_erased = False
         if read_write_mode == ReadWriteMode.PEEK_POKE:
             read_all_method = self._read_all_peek
             read_one_method = self._read_one_peek
@@ -94,6 +115,11 @@ class ALDBReadManager:
         """Read one record."""
         retries = RETRIES_ONE_MAX
         while retries and self._continue:
+            if not get_health(self._address).can_continue_operation():
+                _LOGGER.debug(
+                    "Aborting ALDB read of %s: device unreachable", self._address
+                )
+                return None
             response = await self._read_handler.async_send(
                 mem_addr=mem_addr, num_recs=1
             )
@@ -109,22 +135,39 @@ class ALDBReadManager:
                     response,
                 )
                 return None
-            try:
-                async with async_timeout.timeout(TIMER_RECORD):
+            record = await self._async_matching_record(mem_addr)
+            if record is not None or self._hit_erased or not self._continue:
+                return record
+            retries -= 1
+            await asyncio.sleep(0.1)
+        _LOGGER.debug("_read_one completed")
+        if self._continue and not self._hit_erased:
+            get_health(self._address).record_failure()
+        return None
+
+    async def _async_matching_record(self, mem_addr):
+        """Return the queued record for mem_addr, discarding any other."""
+        try:
+            async with async_timeout.timeout(TIMER_RECORD):
+                while True:
                     record = await self._record_queue.get()
-                    if (
-                        record is not None
-                        and record.mem_addr == mem_addr
-                        or mem_addr == 0x0000
+                    if record is None:
+                        return None
+                    if is_erased_record(record) and mem_addr in (
+                        record.mem_addr,
+                        0x0000,
                     ):
+                        self._hit_erased = True
+                        _LOGGER.debug(
+                            "_read_one got erased cell 0x%04X", record.mem_addr
+                        )
+                        return None
+                    if mem_addr in (record.mem_addr, 0x0000):
                         _LOGGER.debug("_read_one returning record: %s", str(record))
                         return record
                     _LOGGER.debug("_read_one not returning record: %s", str(record))
-            except asyncio.TimeoutError:
-                retries -= 1
-            await asyncio.sleep(0.1)
-        _LOGGER.debug("_read_one completed")
-        return None
+        except asyncio.TimeoutError:
+            return None
 
     async def _read_one_peek(self, mem_addr):
         """Read one record using peek commands."""
@@ -165,9 +208,12 @@ class ALDBReadManager:
         """Peek one byte."""
         mem_addr = self._first_record if mem_addr == 0 else mem_addr
         _LOGGER.debug("Peeking memory address: 0x%04X", mem_addr)
-        retries_byte = 20
+        retries_byte = 5
         timeout = 3
         while retries_byte:
+            if not get_health(self._address).can_continue_operation():
+                _LOGGER.debug("Aborting peek of %s: device unreachable", self._address)
+                return None
             while not self._peek_bytes_received.empty():
                 await self._peek_bytes_received.get()
             result = await self._peek_manager.async_peek(mem_addr)
@@ -205,6 +251,11 @@ class ALDBReadManager:
         retries = RETRIES_ALL_MAX
         mem_addr = 0
         while retries and self._continue:
+            if not get_health(self._address).can_continue_operation():
+                _LOGGER.debug(
+                    "Aborting ALDB read of %s: device unreachable", self._address
+                )
+                return
             response = await self._read_handler.async_send(
                 mem_addr=mem_addr, num_recs=0
             )
@@ -227,6 +278,16 @@ class ALDBReadManager:
                         if record is None:
                             _LOGGER.debug("_read_all completed")
                             return
+                        if is_erased_record(record):
+                            # i3 devices stream erased 0xFF cells rather than
+                            # terminating at a 0x00 high water mark. Treat the
+                            # first erased cell as end of database.
+                            self._hit_erased = True
+                            _LOGGER.debug(
+                                "_read_all stopping at erased cell 0x%04X",
+                                record.mem_addr,
+                            )
+                            return
                         _LOGGER.debug("_read_all returning record: %s", str(record))
                         if record.is_high_water_mark:
                             mem_addr = 0
@@ -236,6 +297,7 @@ class ALDBReadManager:
                         await asyncio.sleep(0.05)
             except asyncio.TimeoutError:
                 retries -= 1
+                get_health(self._address).record_failure()
 
         _LOGGER.debug("_read_all completed")
 

@@ -1,4 +1,5 @@
 """Test the heartbeat manager."""
+
 import asyncio
 import unittest
 

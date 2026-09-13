@@ -1,4 +1,5 @@
 """Test the Start All Linking command handler."""
+
 import unittest
 
 from pyinsteon import pub

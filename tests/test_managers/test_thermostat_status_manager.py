@@ -1,4 +1,5 @@
 """Test the Thermostat status manager."""
+
 import asyncio
 from random import randint
 from unittest import TestCase

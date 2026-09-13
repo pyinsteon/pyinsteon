@@ -1,4 +1,5 @@
 """Test the ALDB commands."""
+
 import random
 from unittest.mock import AsyncMock, patch
 
@@ -130,7 +131,7 @@ class TestToolsAldbMenu(ToolsTestBase):
                             "exit",
                         ],
                     )
-                    mock_async_link_devices.call_count = 0
+                    mock_async_link_devices.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert mock_async_link_devices.call_count == 1
                     if device.cat == DeviceCategory.DIMMABLE_LIGHTING_CONTROL:
@@ -153,7 +154,7 @@ class TestToolsAldbMenu(ToolsTestBase):
                                 "exit",
                             ],
                         )
-                        mock_async_link_devices.call_count = 0
+                        mock_async_link_devices.reset_mock()
                         await cmd_mgr.async_cmdloop("")
                         assert mock_async_link_devices.call_count == 1
                         if device.cat == DeviceCategory.DIMMABLE_LIGHTING_CONTROL:
@@ -190,7 +191,7 @@ class TestToolsAldbMenu(ToolsTestBase):
                             "exit",
                         ],
                     )
-                    mock_async_link_devices.call_count = 0
+                    mock_async_link_devices.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert mock_async_link_devices.call_count == 1
                     if device.cat == DeviceCategory.DIMMABLE_LIGHTING_CONTROL:
@@ -228,7 +229,7 @@ class TestToolsAldbMenu(ToolsTestBase):
                                 "exit",
                             ],
                         )
-                        mock_async_link_devices.call_count = 0
+                        mock_async_link_devices.reset_mock()
                         await cmd_mgr.async_cmdloop("")
                         assert mock_async_link_devices.call_count == 1
                         if device.cat == DeviceCategory.DIMMABLE_LIGHTING_CONTROL:
@@ -262,7 +263,7 @@ class TestToolsAldbMenu(ToolsTestBase):
                                 "exit",
                             ],
                         )
-                        mock_async_link_devices.call_count = 0
+                        mock_async_link_devices.reset_mock()
                         await cmd_mgr.async_cmdloop("")
                         assert mock_async_link_devices.call_count == 0
 
@@ -275,7 +276,7 @@ class TestToolsAldbMenu(ToolsTestBase):
                         "exit",
                     ],
                 )
-                mock_async_link_devices.call_count = 0
+                mock_async_link_devices.reset_mock()
                 await cmd_mgr.async_cmdloop("")
                 assert mock_async_link_devices.call_count == 0
 
@@ -287,7 +288,7 @@ class TestToolsAldbMenu(ToolsTestBase):
                         "exit",
                     ],
                 )
-                mock_async_link_devices.call_count = 0
+                mock_async_link_devices.reset_mock()
                 await cmd_mgr.async_cmdloop("")
                 assert mock_async_link_devices.call_count == 0
 
@@ -299,7 +300,7 @@ class TestToolsAldbMenu(ToolsTestBase):
                         "exit",
                     ],
                 )
-                mock_async_link_devices.call_count = 0
+                mock_async_link_devices.reset_mock()
                 await cmd_mgr.async_cmdloop("")
                 assert mock_async_link_devices.call_count == 0
 
@@ -311,7 +312,7 @@ class TestToolsAldbMenu(ToolsTestBase):
                         "exit",
                     ],
                 )
-                mock_async_link_devices.call_count = 0
+                mock_async_link_devices.reset_mock()
                 await cmd_mgr.async_cmdloop("")
                 assert mock_async_link_devices.call_count == 0
 
@@ -496,7 +497,7 @@ class TestToolsAldbMenu(ToolsTestBase):
                     cmd_mgr, _, _ = self.setup_cmd_tool(
                         ToolsAldb, [f"{command} {mock_device.address} y", "exit"]
                     )
-                    mock_device.aldb.async_load.call_count = 0
+                    mock_device.aldb.async_load.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     assert mock_device.aldb.async_load.call_count == 1  # no retry
 
@@ -504,7 +505,7 @@ class TestToolsAldbMenu(ToolsTestBase):
                 cmd_mgr, _, _ = self.setup_cmd_tool(
                     ToolsAldb, [f"load_aldb {devices.modem.address}", "exit"]
                 )
-                devices.modem.aldb.async_load.call_count = 0
+                devices.modem.aldb.async_load.reset_mock()
                 await cmd_mgr.async_cmdloop("")
                 assert devices.modem.aldb.async_load.call_count == 1
                 devices.modem.aldb.async_load.assert_called_with()

@@ -1,4 +1,5 @@
 """Test X10 devices."""
+
 import asyncio
 import unittest
 

@@ -19,7 +19,7 @@ from ..address import Address
 from ..constants import RelayMode, ThermostatMode, ToggleMode
 from ..x10_address import X10Address
 from .log_filter import NoStdoutFilter, StdoutFilter, StripPrefixFilter
-from .utils import patch_stdin_stdout, set_loop, stdio
+from .utils import patch_stdin_stdout, stdio
 
 _LOGGING = logging.getLogger(__name__)
 LOG_FILE_NAME = "pyinsteon_tools.log"
@@ -272,7 +272,6 @@ class ToolsBase(Cmd):
         )
         args = parser.parse_args()
 
-        set_loop()
         loop = asyncio.get_event_loop()
 
         intro = [

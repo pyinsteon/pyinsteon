@@ -1,4 +1,5 @@
 """Test the ramp rate in seconds property."""
+
 from unittest import TestCase
 
 from pyinsteon.config.extended_property import ExtendedProperty

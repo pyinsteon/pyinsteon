@@ -1,4 +1,5 @@
 """Test nothing."""
+
 import unittest
 
 

@@ -1,4 +1,5 @@
 """Test the commands menu of tools."""
+
 import random
 
 from unittest.mock import patch, AsyncMock
@@ -221,8 +222,8 @@ class TestToolsCommandsMenu(ToolsTestBase):
                             "exit",
                         ],
                     )
-                    mock_trigger_scene_on.call_count = 0
-                    mock_trigger_scene_off.call_count = 0
+                    mock_trigger_scene_on.reset_mock()
+                    mock_trigger_scene_off.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     if cmd == "scene_on":
                         assert mock_trigger_scene_on.call_count == 1
@@ -241,8 +242,8 @@ class TestToolsCommandsMenu(ToolsTestBase):
                                 "exit",
                             ],
                         )
-                        mock_trigger_scene_on.call_count = 0
-                        mock_trigger_scene_off.call_count = 0
+                        mock_trigger_scene_on.reset_mock()
+                        mock_trigger_scene_off.reset_mock()
                         await cmd_mgr.async_cmdloop("")
                         if cmd == "scene_on":
                             assert mock_trigger_scene_on.call_count == 1
@@ -263,8 +264,8 @@ class TestToolsCommandsMenu(ToolsTestBase):
                     device_01.async_on = AsyncMock()
                     device_01.async_off = AsyncMock()
                     stdout.buffer = []
-                    mock_trigger_scene_on.call_count = 0
-                    mock_trigger_scene_off.call_count = 0
+                    mock_trigger_scene_on.reset_mock()
+                    mock_trigger_scene_off.reset_mock()
                     await cmd_mgr.async_cmdloop("")
                     buffer = clean_buffer(stdout.buffer)
                     assert buffer[2] == "Scene number is required\n"
@@ -472,7 +473,7 @@ class TestToolsCommandsMenu(ToolsTestBase):
                         "exit",
                     ],
                 )
-                mock_method.call_count = 0
+                mock_method.reset_mock()
                 await cmd_mgr.async_cmdloop("")
                 assert mock_method.call_count == 1
                 mock_method.assert_called_with(on_level=255, group=0, fast=False)
@@ -491,7 +492,7 @@ class TestToolsCommandsMenu(ToolsTestBase):
                         "exit",
                     ],
                 )
-                mock_method.call_count = 0
+                mock_method.reset_mock()
                 await cmd_mgr.async_cmdloop("")
                 assert mock_method.call_count == 1
                 mock_method.assert_called_with(on_level=on_level, group=0, fast=False)
@@ -509,7 +510,7 @@ class TestToolsCommandsMenu(ToolsTestBase):
                         "exit",
                     ],
                 )
-                mock_method.call_count = 0
+                mock_method.reset_mock()
                 await cmd_mgr.async_cmdloop("")
                 assert mock_method.call_count == 1
                 mock_method.assert_called_with(on_level=255, group=0, fast=True)
@@ -568,7 +569,7 @@ class TestToolsCommandsMenu(ToolsTestBase):
                         "exit",
                     ],
                 )
-                mock_method.call_count = 0
+                mock_method.reset_mock()
                 stdout.buffer = []
                 await cmd_mgr.async_cmdloop("")
                 buffer = clean_buffer(stdout.buffer)

@@ -1,4 +1,5 @@
 """Test the on/off manager."""
+
 import unittest
 from asyncio import sleep
 

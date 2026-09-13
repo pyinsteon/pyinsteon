@@ -23,7 +23,7 @@ def _reset_devices(addresses):
         device.async_status = AsyncMock()
         device.aldb.clear_pending()
         device.aldb.async_write = AsyncMock()
-        device.aldb.async_write.call_count = 0
+        device.aldb.async_write.reset_mock()
         device.aldb.clear = Mock()
         device.async_status.return_value = ResponseStatus.SUCCESS
 

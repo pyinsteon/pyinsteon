@@ -94,18 +94,16 @@ class ImWriteManager:
         self, record
     ) -> Tuple[ResponseStatus, ALDBRecord]:
         """Write a deleted record."""
-        matching_recs = await self._aldb.async_find_records(
-            target=record.target, group=record.group
-        )
         rec_to_delete = None
-        for rec in matching_recs:
+        async for rec in self._aldb.async_find_records(record.target, record.group):
             if rec.is_controller == record.is_controller:
                 rec_to_delete = rec
                 break
         if rec_to_delete:
-            return self._async_write_record_standard(
-                rec_to_delete, ManageAllLinkRecordAction.DELETE_FIRST
+            return await self._async_write_record_standard(
+                ManageAllLinkRecordAction.DELETE_FIRST, rec_to_delete
             )
+        return ResponseStatus.FAILURE
 
     async def _async_write_record_standard(
         self, action, record

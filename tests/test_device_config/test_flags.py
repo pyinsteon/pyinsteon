@@ -1,4 +1,5 @@
 """Test operating flags and extended flags features."""
+
 import random
 import unittest
 

@@ -1,4 +1,5 @@
 """Test message flags data type."""
+
 import unittest
 
 from pyinsteon.constants import MessageFlagType

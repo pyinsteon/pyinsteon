@@ -1,4 +1,5 @@
 """Test the SendAllLink command handler."""
+
 import unittest
 
 from pyinsteon import pub

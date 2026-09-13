@@ -1,4 +1,5 @@
 """Test the Address class."""
+
 import unittest
 from binascii import unhexlify
 

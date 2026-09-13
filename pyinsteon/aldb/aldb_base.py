@@ -1,6 +1,7 @@
 """Base class for the All-Link Database."""
 
 from abc import ABC, abstractmethod
+import asyncio
 import logging
 from typing import List, Tuple
 
@@ -48,6 +49,7 @@ class ALDBBase(ABC):
         self._read_manager = None
         self._write_manager = write_manager(self)
         self._dirty_records = {}
+        self._load_lock = asyncio.Lock()
         subscribe_topic(self.update_version, f"{repr(self._address)}.{ENGINE_VERSION}")
 
     def __len__(self):
@@ -209,6 +211,13 @@ class ALDBBase(ABC):
         if first_mem_addr is not None:
             self._mem_addr = first_mem_addr
 
+        # A saved LOADING is a read that never finished; for a device, a
+        # saved LOADED with no records is one that never happened
+        status = ALDBStatus(int(status))
+        if status == ALDBStatus.LOADING:
+            status = ALDBStatus.PARTIAL if self._records else ALDBStatus.EMPTY
+        elif status == ALDBStatus.LOADED and not self._records:
+            status = ALDBStatus.EMPTY
         self._update_status(status)
 
     def add(
@@ -287,9 +296,13 @@ class ALDBBase(ABC):
 
     async def async_write(self, force=False) -> Tuple[int, int]:
         """Write the dirty records to the device."""
+        if self._status == ALDBStatus.LOADING:
+            async with self._load_lock:
+                pass
         if not self.is_loaded and not force:
             _LOGGER.warning(
-                "ALDB must be loaded before it can be written Status: %s",
+                "ALDB of %s must be loaded before it can be written Status: %s",
+                self._address,
                 str(self._status),
             )
             return 0, len(self._dirty_records)

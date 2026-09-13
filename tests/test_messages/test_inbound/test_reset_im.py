@@ -1,4 +1,5 @@
 """Test Reset IM."""
+
 import unittest
 from binascii import unhexlify
 

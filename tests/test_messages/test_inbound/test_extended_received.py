@@ -1,4 +1,5 @@
 """Test Extended Received."""
+
 import unittest
 from binascii import unhexlify
 

@@ -1,4 +1,5 @@
 """Test the All-Link Record Flags."""
+
 import unittest
 from binascii import unhexlify
 

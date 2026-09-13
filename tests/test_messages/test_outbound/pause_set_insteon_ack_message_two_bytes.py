@@ -1,4 +1,5 @@
 """Test Pause Set Insteon ACK Message Two Bytes."""
+
 import unittest
 from binascii import unhexlify
 

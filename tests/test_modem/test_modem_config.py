@@ -1,4 +1,5 @@
 """Test the modem configuration getting / setting."""
+
 import asyncio
 from random import randint
 from unittest import TestCase

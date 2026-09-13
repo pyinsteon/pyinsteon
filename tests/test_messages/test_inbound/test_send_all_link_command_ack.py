@@ -1,4 +1,5 @@
 """Test Send All-Link Command ACK."""
+
 import unittest
 from binascii import unhexlify
 

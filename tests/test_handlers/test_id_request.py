@@ -1,4 +1,5 @@
 """Test the on_level command handler."""
+
 import asyncio
 import unittest
 

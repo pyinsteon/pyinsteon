@@ -1,4 +1,5 @@
 """Tesst User Reset Detected."""
+
 import unittest
 from binascii import unhexlify
 

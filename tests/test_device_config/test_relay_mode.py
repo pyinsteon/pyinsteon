@@ -1,4 +1,5 @@
 """Test the momentary delay flag."""
+
 from unittest import TestCase
 
 from pyinsteon.config.extended_property import ExtendedProperty

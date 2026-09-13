@@ -1,4 +1,5 @@
 """Test the momentary delay flag."""
+
 from random import randint
 from unittest import TestCase
 

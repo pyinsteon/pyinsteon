@@ -1,4 +1,5 @@
 """Test RF Sleep."""
+
 import unittest
 from binascii import unhexlify
 

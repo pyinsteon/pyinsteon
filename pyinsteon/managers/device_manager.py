@@ -313,10 +313,8 @@ class DeviceManager(SubscriberBase):
             load_modem_aldb: Indicate if the Modem ALDB should be loaded
                 0: Do not load
                 1: Load if not loaded from save file
-                2: Load
+                2: Always load
             (default=1)
-
-        The Modem ALDB is loaded if `refresh` is True or if the saved file has no devices.
 
         """
         if workdir:
@@ -326,6 +324,7 @@ class DeviceManager(SubscriberBase):
                 for address in devices:
                     self[address] = devices[address]
 
+        force_modem_aldb = load_modem_aldb == 2
         if load_modem_aldb == 0:
             load_modem_aldb = False
         elif load_modem_aldb == 2:
@@ -334,7 +333,7 @@ class DeviceManager(SubscriberBase):
             load_modem_aldb = not self._modem.aldb.is_loaded
 
         if load_modem_aldb:
-            await self._modem.aldb.async_load()
+            await self._modem.aldb.async_load(refresh=force_modem_aldb)
 
         for mem_addr in self._modem.aldb:
             rec = self._modem.aldb[mem_addr]

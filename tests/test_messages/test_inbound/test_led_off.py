@@ -1,4 +1,5 @@
 """Test LED off."""
+
 import unittest
 from binascii import unhexlify
 

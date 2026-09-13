@@ -1,4 +1,5 @@
 """Test cases for Cancel All Linking."""
+
 import unittest
 from binascii import unhexlify
 

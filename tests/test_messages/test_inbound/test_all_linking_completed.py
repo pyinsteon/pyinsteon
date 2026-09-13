@@ -1,4 +1,5 @@
 """Test All-Link Complete."""
+
 import unittest
 from binascii import unhexlify
 

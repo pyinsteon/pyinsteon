@@ -2,11 +2,25 @@
 
 import asyncio
 import logging
+import os
 
 import serial
 from serial_asyncio_fast import SerialTransport
 
 _LOGGER = logging.getLogger(__name__)
+
+DEFAULT_WRITE_WAIT = 0.5
+
+
+def write_wait_from_env():
+    """Return the pause between modem writes, PYINSTEON_WRITE_WAIT if it parses."""
+    try:
+        return float(os.environ["PYINSTEON_WRITE_WAIT"])
+    except (KeyError, ValueError):
+        return DEFAULT_WRITE_WAIT
+
+
+WRITE_WAIT = write_wait_from_env()
 
 
 async def async_connect_serial(device, protocol):
@@ -58,7 +72,7 @@ class SerialTransportInsteon(SerialTransport):
     @property
     def write_wait(self):
         """Return the time to wait between writes."""
-        return 0.8
+        return WRITE_WAIT
 
     def write(self, data):
         """Override SerialTransport write method."""

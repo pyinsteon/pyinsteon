@@ -1,4 +1,5 @@
 """Test X10 address."""
+
 import unittest
 
 from pyinsteon.x10_address import X10Address, create

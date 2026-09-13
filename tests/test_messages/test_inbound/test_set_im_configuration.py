@@ -1,4 +1,5 @@
 """Test Set IM Configuration."""
+
 import unittest
 from binascii import unhexlify
 

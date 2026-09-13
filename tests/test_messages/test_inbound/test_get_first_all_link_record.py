@@ -1,4 +1,5 @@
 """Test Get First All-Link Record."""
+
 import unittest
 from binascii import unhexlify
 

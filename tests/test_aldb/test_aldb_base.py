@@ -1,4 +1,5 @@
 """Test the device ALDB base class."""
+
 import asyncio
 from random import randint
 from unittest import TestCase
@@ -213,6 +214,22 @@ class TestAldbBase(TestCase):
 
         self.setup_aldb(aldb, records, ALDBStatus.LOADING)
         assert aldb.is_loaded
+
+    @async_case
+    async def test_load_saved_records_transient_status(self):
+        """Test that a saved transient status is not replayed verbatim."""
+        address = random_address()
+        aldb = ALDB(address)
+
+        incomplete = {0x0FFF: records[0x0FFF], 0x0FF7: records[0x0FF7]}
+        self.setup_aldb(aldb, incomplete, ALDBStatus.LOADING)
+        assert aldb.status == ALDBStatus.PARTIAL
+
+        self.setup_aldb(aldb, {}, ALDBStatus.LOADING)
+        assert aldb.status == ALDBStatus.EMPTY
+
+        self.setup_aldb(aldb, {}, ALDBStatus.LOADED)
+        assert aldb.status == ALDBStatus.EMPTY
 
     @async_case
     async def test_add(self):

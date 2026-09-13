@@ -1,4 +1,5 @@
 """Test Start All-Linking."""
+
 import unittest
 from binascii import unhexlify
 

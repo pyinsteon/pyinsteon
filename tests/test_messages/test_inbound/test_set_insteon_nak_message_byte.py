@@ -1,4 +1,5 @@
 """Test Set Insteon NAK Message Byte."""
+
 import unittest
 from binascii import unhexlify
 

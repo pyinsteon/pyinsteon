@@ -1,4 +1,5 @@
 """Utilities for testing."""
+
 import asyncio
 from binascii import unhexlify
 from collections import namedtuple
@@ -23,7 +24,7 @@ from tests import _LOGGER_MESSAGES, _LOGGER_TOPICS, async_connect_mock
 def hex_to_inbound_message(hex_data):
     """Create an Inbound message from a hex string."""
     msg_bytes = bytearray(unhexlify(hex_data))
-    (msg, _) = create(msg_bytes)
+    msg, _ = create(msg_bytes)
     return msg, msg_bytes
 
 

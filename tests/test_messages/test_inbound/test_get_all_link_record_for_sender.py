@@ -1,4 +1,5 @@
 """Test Get All-Link Record for Sender."""
+
 import unittest
 from binascii import unhexlify
 

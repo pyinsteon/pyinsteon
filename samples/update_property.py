@@ -1,4 +1,5 @@
 """Monitor all messages to and from the Insteon Modem."""
+
 import asyncio
 
 from pyinsteon import async_close, async_connect, devices

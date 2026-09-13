@@ -20,8 +20,8 @@ class TestTopicFromMsg(unittest.TestCase):
         # cmd2: 29
         self.bytes_data = bytearray(unhexlify(self.hex_data))
 
-        (self.msg, _) = create(self.bytes_data)
-        for (self.topic, self.kwargs) in convert_to_topic(self.msg):
+        self.msg, _ = create(self.bytes_data)
+        for self.topic, self.kwargs in convert_to_topic(self.msg):
             pass
 
     def test_topic(self):

@@ -1,4 +1,5 @@
 """Test an X10 message received."""
+
 import unittest
 
 from pyinsteon import pub
