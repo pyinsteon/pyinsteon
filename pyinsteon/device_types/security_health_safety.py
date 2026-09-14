@@ -399,20 +399,10 @@ class SecurityHealthSafety_LeakSensor(BatteryDeviceBase, Device):
         wet_dry_mgr.subscribe_wet(wet_event.trigger)
 
         hb_mgr.subscribe(hb_event.trigger)
-        hb_mgr.subscribe_on(self._heartbeat_dry)
-        hb_mgr.subscribe_off(self._heartbeat_wet)
+        hb_mgr.subscribe(self._heartbeat_event)
 
-    def _heartbeat_dry(self, on_level):
-        """Receive heartbeat on/off message and create wet/dry status."""
-        self._groups[self.DRY_GROUP].value = True
-        self._groups[self.WET_GROUP].value = False
-        self._events[LEAK_DRY_EVENT].trigger(on_level)
-
-    def _heartbeat_wet(self, on_level):
-        """Receive heartbeat on/off message and create wet/dry status."""
-        self._groups[self.DRY_GROUP].value = False
-        self._groups[self.WET_GROUP].value = True
-        self._events[LEAK_WET_EVENT].trigger(on_level)
+    def _heartbeat_event(self, heartbeat: bool):
+        self._groups[self.HEARTBEAT_GROUP].value = heartbeat
 
     def _register_op_flags_and_props(self):
         # bit 0 = Cleanup Report
