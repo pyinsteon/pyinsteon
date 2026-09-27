@@ -21,6 +21,14 @@ Multi-modem usage:
     barn = InsteonStack("barn")
     await barn.async_connect(host="192.168.1.20", username=..., password=...)
     await barn.async_load(workdir="/config")  # insteon_devices_barn.json
+
+Supported only for isolated domains: each modem on its own powerline,
+out of RF range of the others, with each device linked to only one modem
+(house and a distant outbuilding, for example). Two modems in the same
+RF or powerline environment, or the same device linked to both, is
+unsupported. Both stacks run their own status queries and ALDB reads,
+and a device with controller links to both modems sends cleanup directs
+to both. That doubled traffic has no back-off and degrades the mesh.
 """
 import asyncio
 from contextlib import contextmanager

@@ -39,6 +39,21 @@ your host.
 
     pip install pyinsteon
 
+Multiple modems
+----------------
+
+``InsteonStack`` can run more than one PLM or Hub in one process. That is
+supported only when each modem owns an isolated powerline and RF domain:
+separate buildings, out of RF range, and each device linked to only one
+modem. A house and a barn on different meters, joined only by the IP
+network, is the intended case.
+
+Two modems in the same RF or powerline environment, or the same device
+linked to both, is unsupported. Both stacks run their own status queries
+and ALDB reads, and a device with controller links to both modems sends
+cleanup directs to both. That extra traffic has no back-off and degrades
+the mesh for every device on it.
+
 If you want to grab the the development code, you can also clone this
 git repository and install from local sources:
 
