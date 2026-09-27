@@ -7,7 +7,7 @@ from pubsub import pub
 
 from .address import Address
 from .handlers.from_device.x10_received import X10Received
-from .insteon_stack import InsteonStack  # noqa: F401
+from .insteon_stack import InsteonStack
 from .listener_exception_handler import ListenerExceptionHandler
 from .managers.device_link_manager import DeviceLinkManager
 from .managers.device_manager import DeviceManager
@@ -17,7 +17,6 @@ from .managers.link_manager.default_links import async_add_default_links
 from .managers.x10_manager import async_x10_all_lights_off  # noqa: F401
 from .managers.x10_manager import async_x10_all_lights_on  # noqa: F401
 from .managers.x10_manager import async_x10_all_units_off  # noqa: F401
-from .protocol import async_modem_connect
 from .topics import ADD_DEFAULT_LINKS
 from .utils import subscribe_topic
 

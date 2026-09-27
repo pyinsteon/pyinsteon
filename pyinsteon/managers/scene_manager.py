@@ -9,7 +9,13 @@ from typing import Dict, Union
 import aiofiles
 import voluptuous as vol
 
+from ..address import Address
+from ..constants import ResponseStatus
+from ..handlers.send_all_link_off import SendAllLinkOffCommandHandler
+from ..handlers.send_all_link_on import SendAllLinkOnCommandHandler
 from ..protocol.messages.outbound import DEVICE_MANAGER_CONTEXT
+from ..utils import multiple_status
+from .device_link_manager import LinkInfo
 
 
 def _devices():
@@ -25,12 +31,7 @@ def _devices():
     from .. import devices  # pylint: disable=import-outside-toplevel
 
     return devices
-from ..address import Address
-from ..constants import ResponseStatus
-from ..handlers.send_all_link_off import SendAllLinkOffCommandHandler
-from ..handlers.send_all_link_on import SendAllLinkOnCommandHandler
-from ..utils import multiple_status
-from .device_link_manager import LinkInfo
+
 
 SCENE_FILE = "insteon_scenes.json"
 _LOGGER = logging.getLogger(__name__)

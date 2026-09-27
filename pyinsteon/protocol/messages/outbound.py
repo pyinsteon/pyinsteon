@@ -130,8 +130,6 @@ class OutboundWriteManager:
     @staticmethod
     def _addr_key(address):
         """Normalize an address to its routing key."""
-        from ...address import Address  # pylint: disable=import-outside-toplevel
-
         return str(Address(address))
 
     def _resolve(self, msg):

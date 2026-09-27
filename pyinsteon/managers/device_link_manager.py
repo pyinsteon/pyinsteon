@@ -187,9 +187,16 @@ class DeviceLinkManager:
                 self._async_check_responders, f"{controller.id}.{record.group}"
             )
 
-    async def _device_added_or_removed(self, address: Address, action: DeviceAction):
-        """Track device list changes."""
+    async def _device_added_or_removed(
+        self, address: Union[Address, str], action: DeviceAction
+    ):
+        """Track device list changes.
+
+        DeviceManager publishes ``address.id`` (a string). Older callers
+        may still pass an Address.
+        """
         await asyncio.sleep(0.1)
+        address = Address(address)
         if action == DeviceAction.REMOVED:
             unsubscribe_topic(self._link_changed, f"{address.id}.{ALDB_LINK_CHANGED}")
 

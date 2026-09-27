@@ -304,7 +304,9 @@ class DeviceManager(SubscriberBase):
         """Close the device ID listener."""
         self._id_manager.close()
 
-    async def async_load(self, workdir="", id_devices=1, load_modem_aldb=1, device_file=None):
+    async def async_load(
+        self, workdir="", id_devices=1, load_modem_aldb=1, device_file=None
+    ):
         """Load devices from the `insteon_devices.yaml` file and device overrides.
 
         Parameters:
