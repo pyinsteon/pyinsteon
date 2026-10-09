@@ -13,6 +13,9 @@ from .message_definitions import FLD_EXT_SEND_ACK, INBOUND_MSG_DEF, MessageField
 _LOGGER = logging.getLogger(__name__)
 
 
+HUB_STANDARD_RECEIVED = 0x5C
+
+
 def trim_data(raw_data: bytearray):
     """Trim bad data from the front of a message byte stream."""
     data_bytes = bytes(raw_data)
@@ -81,6 +84,13 @@ def create(raw_data: bytearray) -> Tuple[Inbound, bytearray]:
         _LOGGER.debug("Message less than 2 bytes")
         _LOGGER.debug("Returning: %s", data_bytes.hex())
         return None, bytearray(data_bytes)
+    if data_bytes[1] == HUB_STANDARD_RECEIVED:
+        # The Insteon Hub (2245) reports some standard messages from devices,
+        # including the direct ACK that confirms a command, with id 0x5C. The
+        # frame has the same layout as a standard received message (0x50).
+        data_bytes = (
+            bytes([data_bytes[0], MessageId.STANDARD_RECEIVED]) + data_bytes[2:]
+        )
     try:
         msg_id = MessageId(data_bytes[1])
     except ValueError as err:

@@ -65,6 +65,15 @@ class TestStandardReceived(unittest.TestCase):
         assert len(self.msg) == 11
 
 
+class TestHubStandardReceived(TestStandardReceived):
+    """Test a standard received message reported by the Hub with id 0x5C."""
+
+    def setUp(self):
+        """Test set up."""
+        super().setUp()
+        self.msg, self.msg_bytes = hex_to_inbound_message("025C010203040506070809")
+
+
 if __name__ == "__main__":
     # _INSTEON_LOGGER.setLevel(logging.DEBUG)
     unittest.main()
