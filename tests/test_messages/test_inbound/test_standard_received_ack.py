@@ -4,7 +4,9 @@ import unittest
 from binascii import unhexlify
 
 from pyinsteon.address import Address
+from pyinsteon.constants import MessageId
 from pyinsteon.data_types.message_flags import MessageFlags
+from pyinsteon.protocol.messages.inbound import create
 from tests import set_log_levels
 from tests.utils import hex_to_inbound_message
 
@@ -72,6 +74,30 @@ class TestHubStandardReceived(TestStandardReceived):
         """Test set up."""
         super().setUp()
         self.msg, self.msg_bytes = hex_to_inbound_message("025C010203040506070809")
+
+
+class TestHubStatusRequestEcho(unittest.TestCase):
+    """Test that the Hub's 0x5C echo of a status request is dropped."""
+
+    def test_echo_dropped(self):
+        """Test the echo is dropped and the real reply that follows is read."""
+        echo = bytearray(unhexlify("025C2942AF4B4193231901"))
+        reply = bytearray(unhexlify("02502942AF4B41932117C1"))
+        msg, remaining = create(echo + reply)
+        assert msg is None
+        assert remaining == reply
+        msg, remaining = create(remaining)
+        assert msg.message_id == MessageId.STANDARD_RECEIVED
+        assert msg.cmd1 == 0x17
+        assert msg.cmd2 == 0xC1
+        assert remaining == bytearray()
+
+    def test_partial_frame_waits(self):
+        """Test a partial 0x5C frame is kept until the rest arrives."""
+        partial = bytearray(unhexlify("025C2942AF4B41"))
+        msg, remaining = create(partial)
+        assert msg is None
+        assert remaining == partial
 
 
 if __name__ == "__main__":
