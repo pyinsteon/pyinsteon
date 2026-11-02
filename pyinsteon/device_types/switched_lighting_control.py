@@ -38,7 +38,7 @@ from ..config import (
     X10_UNIT,
     YAKETY_YAK,
 )
-from ..config.radio_button import RadioButtonGroupsProperty
+from ..config.radio_button import RadioButtonGroupsProperty, button_masks
 from ..config.toggle_button import ToggleButtonProperty
 from ..constants import PropertyType, ResponseStatus, ToggleMode
 from ..events import OFF_EVENT, OFF_FAST_EVENT, ON_EVENT, ON_FAST_EVENT
@@ -421,25 +421,32 @@ class SwitchedLightingControl_KeypadLinc(SwitchedLightingControl):
         for group in self._buttons:
             if self._groups.get(group) is not None:
                 led_method = partial(self._led_follow_check, group=group)
-                self._managers[group][ON_LEVEL_MANAGER].subscribe(led_method)
+                # Pubsub only holds weak references, which would drop the partial.
+                self._managers[group][ON_LEVEL_MANAGER].subscribe(
+                    led_method, force_strong_ref=True
+                )
 
     def _led_follow_check(self, group, on_level):
-        """Check the other LEDs to confirm if they follow the effected LED."""
-        for button in self._buttons:
+        """Update the load and buttons that a button press changes.
+
+        The keypad applies the pressed button's on and off masks itself but only
+        reports the pressed button. Turning a button on turns off the buttons in
+        its off mask and turns on the load and buttons in its on mask. Turning it
+        off turns off the load and buttons in its on mask.
+        """
+        masks = button_masks(self, group)
+        if masks is None:
+            return
+        turns_on, turns_off = masks
+        for button, state in self._groups.items():
             if button == group:
                 continue
-            button_str = f"_{button}" if button != 1 else ""
-            on_mask = self._properties[f"{ON_MASK}{button_str}"]
-            off_mask = self._properties[f"{OFF_MASK}{button_str}"]
-            if not on_mask.is_loaded or not off_mask.is_loaded:
-                continue
-            follow = bit_is_set(on_mask.value, group)
-            set_off = bit_is_set(off_mask.value, group)
-            if follow:
-                if set_off:
-                    self._groups[button].value = 0
-                else:
-                    self._groups[button].value = on_level
+            if button == 1 and button in turns_on:
+                state.value = on_level
+            elif on_level and button in turns_off:
+                state.value = 0
+            elif button in turns_on:
+                state.value = on_level
 
     def _change_led_status(self, led, is_on):
         leds = {}

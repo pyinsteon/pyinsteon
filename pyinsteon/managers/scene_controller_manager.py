@@ -13,9 +13,8 @@ from .. import devices
 from ..address import Address
 from ..aldb.no_aldb import NoALDB
 from ..config import ON_LEVEL, RAMP_RATE
-from ..config.radio_button import off_mask_name, on_mask_name
+from ..config.radio_button import button_masks, off_mask_name, on_mask_name
 from ..constants import DeviceCategory, ResponseStatus
-from ..utils import bit_is_set
 
 SCENE_CONTROLLERS_FILE = "insteon_scene_controllers.json"
 # Lighting devices whose buttons respond to scenes (loads or keypad indicators).
@@ -599,10 +598,10 @@ def _keypad_outputs(device, group):
     other buttons in the on mask turn on. These settings are kept in the keypad
     rather than its All-Link Database.
     """
-    masks = _mask_properties(device, group)
-    if masks is None or not all(mask.is_loaded for mask in masks):
+    masks = button_masks(device, group) if device is not None else None
+    if masks is None:
         return {}
-    on_mask, off_mask = (int(mask.value or 0) for mask in masks)
+    turns_on, turns_off = masks
     suffix = "" if group == 1 else f"_{group}"
     on_level = _local_setting(device, f"{ON_LEVEL}{suffix}", DEFAULT_ON_LEVEL)
     ramp_rate = _local_setting(device, f"{RAMP_RATE}{suffix}", DEFAULT_RAMP_RATE)
@@ -610,8 +609,8 @@ def _keypad_outputs(device, group):
     for output in device.groups:
         if output == group:
             continue
-        is_on = bit_is_set(on_mask, output - 1)
-        is_off = bit_is_set(off_mask, output - 1)
+        is_on = output in turns_on
+        is_off = output in turns_off
         if output == 1 and (is_on or is_off):
             level = (on_level if is_on else 0, ramp_rate)
         elif is_off:
