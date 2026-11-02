@@ -10,7 +10,7 @@ from .. import pub
 from ..address import Address
 from ..aldb.aldb_record import ALDBRecord
 from ..constants import AllLinkMode, DeviceAction, MessageFlagType, ResponseStatus
-from ..topics import ALDB_LINK_CHANGED
+from ..topics import ALDB_LINK_CHANGED, OFF, OFF_FAST, ON, ON_FAST
 from ..utils import subscribe_topic, unsubscribe_topic
 
 TIMEOUT_DUPLICATE = timedelta(seconds=10)
@@ -93,6 +93,26 @@ def _topic_to_addr_group(topic):
     except [KeyError, TypeError]:
         return None, None, None, None
     return address, group, command, msg_type
+
+
+def _set_expected_state(device, data: LinkInfo, command: str) -> None:
+    """Set a responder output to the state a controller command sets it to.
+
+    Responders turn on to the link's on-level and turn off on an off command.
+    """
+    if command in (ON, ON_FAST):
+        value = data.data1
+    elif command in (OFF, OFF_FAST):
+        value = 0
+    else:
+        return
+    group = data.data3
+    # Links made with set buttons store 0 on single-output devices.
+    if group == 0 and len(device.groups) == 1:
+        group = next(iter(device.groups))
+    state = device.groups.get(group)
+    if state is not None:
+        state.value = value
 
 
 class DeviceLinkManager:
@@ -224,14 +244,11 @@ class DeviceLinkManager:
         for addr, data_list in responder_data.items():
             device = self._devices[addr]
             if device:
-                # If the device is a category 1 or 2 device we can pre-load the device state with the
-                # ALDB record data1 field value. We will then check the actual status later.
-                for data in data_list:
-                    if device.cat in [0x01, 0x02] and data.data3 is not None:
-                        responder_group = data.data3
-                        if responder_group == 0 and len(device.groups) == 1:
-                            responder_group = next(iter(device.groups))
-                        device.groups[responder_group].value = data.data1
+                # If the device is a category 1 or 2 device we can pre-load the device state
+                # the command sets from the ALDB record. We will then check the actual status later.
+                if device.cat in [0x01, 0x02]:
+                    for data in data_list:
+                        _set_expected_state(device, data, command)
                 if not device.is_battery:
                     response = ResponseStatus.UNSENT
                     retries = 5
