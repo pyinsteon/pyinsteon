@@ -8,9 +8,15 @@ from unittest.mock import AsyncMock, Mock, patch
 
 from pyinsteon import devices, link_manager
 from pyinsteon.aldb.aldb_record import ALDBRecord
-from pyinsteon.constants import ResponseStatus
+from pyinsteon.constants import ALDBStatus, ResponseStatus
+from pyinsteon.device_types.dimmable_lighting_control import (
+    DimmableLightingControl_KeypadLinc_6,
+    DimmableLightingControl_LampLinc,
+)
 from pyinsteon.device_types.hub import Hub
 from pyinsteon.managers import device_link_manager
+from pyinsteon.managers.device_link_manager import DeviceLinkManager
+from pyinsteon.managers.device_manager import DeviceManager
 
 from tests import load_devices, set_log_levels
 from tests.utils import TopicItem, async_case, cmd_kwargs, send_topics
@@ -256,3 +262,94 @@ class TestDeviceLinkManager(unittest.TestCase):
         send_topics([topic_item])
         await asyncio.sleep(0.2)
         assert devices["3c3c3c"].async_status.call_count == 5
+
+
+REMOTE = "333333"
+
+
+def _responder(device, links):
+    """Load a device's responder records to the remote's group 1."""
+    aldb = device.aldb
+    records = {}
+    mem_addr = aldb.first_mem_addr
+    for data1, data3 in links:
+        records[mem_addr] = ALDBRecord(
+            mem_addr,
+            controller=False,
+            group=1,
+            target=REMOTE,
+            data1=data1,
+            data2=28,
+            data3=data3,
+            in_use=True,
+            high_water_mark=False,
+        )
+        mem_addr -= 8
+    records[mem_addr] = ALDBRecord(
+        mem_addr,
+        controller=False,
+        group=0,
+        target="000000",
+        data1=0,
+        data2=0,
+        data3=0,
+        in_use=False,
+        high_water_mark=True,
+    )
+    aldb.load_saved_records(ALDBStatus.LOADED, records)
+
+
+class _Topic:
+    """A received message topic."""
+
+    def __init__(self, name):
+        """Init the _Topic class."""
+        self.name = name
+
+
+class TestResponderStates(unittest.TestCase):
+    """Test the states set on the responders of a controller's commands."""
+
+    @async_case
+    async def test_responder_states_follow_the_command(self):
+        """On commands set the link's on-level and off commands turn responders off."""
+        manager_devices = DeviceManager()
+        manager_devices.modem = Hub("111111", 0x03, 51, 165, "Modem")
+        lamp = DimmableLightingControl_LampLinc("444444", 0x01, 0x01)
+        keypad = DimmableLightingControl_KeypadLinc_6("222222", 0x01, 0x42)
+        # The remote lights keypad button A and turns off buttons C and D. The
+        # lamp's link names an output it does not have.
+        _responder(keypad, [(255, 3), (0, 5), (0, 6)])
+        _responder(lamp, [(200, 1), (200, 2)])
+        for device in (lamp, keypad):
+            manager_devices._devices[device.address] = device
+            device.async_status = AsyncMock(return_value=ResponseStatus.SUCCESS)
+            for state in device.groups.values():
+                state.set_value(0)
+        manager = DeviceLinkManager(manager_devices)
+        keypad.groups[5].set_value(255)
+
+        await manager._async_check_responders(
+            topic=_Topic(f"{REMOTE}.1.on.all_link_broadcast")
+        )
+        assert lamp.groups[1].value == 200
+        assert {group: keypad.groups[group].value for group in (3, 5, 6)} == {
+            3: 255,
+            5: 0,
+            6: 0,
+        }
+        assert lamp.async_status.call_count == keypad.async_status.call_count == 1
+
+        await manager._async_check_responders(
+            topic=_Topic(f"{REMOTE}.1.off.all_link_broadcast")
+        )
+        assert lamp.groups[1].value == 0
+        assert not keypad.groups[3].value
+
+        # Other commands, such as dimming, only request the responders' status.
+        lamp.groups[1].set_value(100)
+        await manager._async_check_responders(
+            topic=_Topic(f"{REMOTE}.1.start_manual_change.all_link_broadcast")
+        )
+        assert lamp.groups[1].value == 100
+        assert lamp.async_status.call_count == 3

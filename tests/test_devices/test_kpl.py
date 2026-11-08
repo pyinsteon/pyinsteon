@@ -1,15 +1,26 @@
 """Test features specific to the KeyPadLinc."""
 
+import asyncio
 import logging
 import random
 import unittest
 
 from pyinsteon import pub
 from pyinsteon.commands import OFF, ON, STATUS_REQUEST
-from pyinsteon.config import NON_TOGGLE_MASK, NON_TOGGLE_ON_OFF_MASK, OFF_MASK, ON_MASK
+from pyinsteon.config import (
+    NON_TOGGLE_MASK,
+    NON_TOGGLE_ON_OFF_MASK,
+    OFF_MASK,
+    ON_LEVEL,
+    ON_MASK,
+)
 from pyinsteon.constants import ResponseStatus
 from pyinsteon.device_types.dimmable_lighting_control import (
+    DimmableLightingControl_KeypadLinc_6,
     DimmableLightingControl_KeypadLinc_8,
+)
+from pyinsteon.device_types.switched_lighting_control import (
+    SwitchedLightingControl_KeypadLinc_6,
 )
 from pyinsteon.utils import bit_is_set
 
@@ -17,6 +28,47 @@ from tests import set_log_levels
 from tests.utils import TopicItem, async_case, cmd_kwargs, random_address, send_topics
 
 _LOGGER = logging.getLogger(__name__)
+
+# 6 button keypad groups: the load, then buttons A, B, C and D.
+LOAD, BUTTON_A, BUTTON_B, BUTTON_C, BUTTON_D = 1, 3, 4, 5, 6
+
+
+def press(device, group, cmd1, on_level):
+    """Publish the broadcast a keypad sends when one of its buttons is pressed."""
+    pub.sendMessage(
+        f"{device.address.id}.{group}.{ON if cmd1 == 0x11 else OFF}.all_link_broadcast",
+        **cmd_kwargs(cmd1, on_level, None, target=f"0000{group:02x}", hops_left=3),
+    )
+
+
+def set_button(device, button, on_buttons, off_buttons, on_level=None):
+    """Set the buttons a button press turns on and off, and its load on-level."""
+    suffix = f"_{button}" if button != 1 else ""
+    device.properties[f"{ON_MASK}{suffix}"].set_value(
+        sum(1 << (other - 1) for other in on_buttons)
+    )
+    device.properties[f"{OFF_MASK}{suffix}"].set_value(
+        sum(1 << (other - 1) for other in off_buttons)
+    )
+    if on_level is not None and f"{ON_LEVEL}{suffix}" in device.properties:
+        device.properties[f"{ON_LEVEL}{suffix}"].set_value(on_level)
+
+
+def radio_buttons_with_load(device_type):
+    """Return a keypad whose buttons A, C and D turn each other off.
+
+    Each sets the load to its own on-level, and button B is independent.
+    """
+    device = device_type(random_address(), 0x01, 0x42, 0x45, "Test", "KPL")
+    set_button(device, LOAD, (), ())
+    set_button(device, BUTTON_A, (LOAD,), (BUTTON_C, BUTTON_D), on_level=0)
+    set_button(device, BUTTON_B, (), ())
+    set_button(device, BUTTON_C, (LOAD,), (BUTTON_A, BUTTON_D), on_level=128)
+    set_button(device, BUTTON_D, (LOAD,), (BUTTON_A, BUTTON_C), on_level=255)
+    for group in device.groups.values():
+        group.set_value(0)
+    device.groups[BUTTON_B].set_value(True)
+    return device
 
 
 class TestKeyPadLinkFeatures(unittest.TestCase):
@@ -349,3 +401,68 @@ class TestKeyPadLinkFeatures(unittest.TestCase):
                 assert state_values.get(button)
             else:
                 assert state_values.get(button) is None
+
+    @async_case
+    async def test_button_press_applies_the_buttons_masks(self):
+        """Pressing a button updates the load and buttons its masks change."""
+        device = radio_buttons_with_load(DimmableLightingControl_KeypadLinc_6)
+        groups = device.groups
+
+        press(device, BUTTON_D, 0x11, 0xFF)
+        await asyncio.sleep(0.1)
+        assert groups[BUTTON_D].value
+        assert groups[LOAD].value == 255
+
+        press(device, BUTTON_A, 0x11, 0xFF)
+        await asyncio.sleep(0.1)
+        assert groups[BUTTON_A].value
+        assert not groups[BUTTON_D].value
+        assert not groups[BUTTON_C].value
+        # Button A sets the load to its on-level of 0.
+        assert groups[LOAD].value == 0
+        # Button B is in neither mask.
+        assert groups[BUTTON_B].value
+
+        press(device, BUTTON_C, 0x11, 0xFF)
+        await asyncio.sleep(0.1)
+        assert not groups[BUTTON_A].value
+        assert groups[BUTTON_C].value
+        assert groups[LOAD].value == 128
+
+        # Turning C off turns off the load it controls, but not D.
+        groups[BUTTON_D].set_value(True)
+        press(device, BUTTON_C, 0x13, 0x00)
+        await asyncio.sleep(0.1)
+        assert not groups[BUTTON_C].value
+        assert groups[LOAD].value == 0
+        assert groups[BUTTON_D].value
+
+    @async_case
+    async def test_switched_keypad_button_press_applies_the_buttons_masks(self):
+        """A switched keypad updates the buttons a button press changes."""
+        device = radio_buttons_with_load(SwitchedLightingControl_KeypadLinc_6)
+        groups = device.groups
+
+        press(device, BUTTON_D, 0x11, 0xFF)
+        await asyncio.sleep(0.1)
+        press(device, BUTTON_A, 0x11, 0xFF)
+        await asyncio.sleep(0.1)
+        assert groups[BUTTON_A].value
+        assert not groups[BUTTON_D].value
+        assert groups[LOAD].value
+        assert groups[BUTTON_B].value
+
+    @async_case
+    async def test_unread_masks_leave_other_buttons_unchanged(self):
+        """Other buttons are unchanged until the pressed button's masks are read."""
+        device = DimmableLightingControl_KeypadLinc_6(
+            random_address(), 0x01, 0x42, 0x45, "Test", "KPL"
+        )
+        for group in device.groups.values():
+            group.set_value(0)
+        device.groups[BUTTON_D].set_value(True)
+
+        press(device, BUTTON_A, 0x11, 0xFF)
+        await asyncio.sleep(0.1)
+        assert device.groups[BUTTON_A].value
+        assert device.groups[BUTTON_D].value
