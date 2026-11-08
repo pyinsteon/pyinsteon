@@ -27,6 +27,26 @@ def off_mask_name(button):
     return f"{OFF_MASK}{button_str}"
 
 
+def button_masks(device, button):
+    """Return the buttons that a keypad button press turns on and turns off.
+
+    A button's on mask lists the buttons that turn on with it, and its off mask
+    lists the buttons it turns off. Returns `None` until both masks are read.
+    """
+    on_mask = device.properties.get(on_mask_name(button))
+    off_mask = device.properties.get(off_mask_name(button))
+    if on_mask is None or off_mask is None:
+        return None
+    if not on_mask.is_loaded or not off_mask.is_loaded:
+        return None
+    others = [other for other in device.groups if other != button]
+    turns_on = {other for other in others if bit_is_set(on_mask.value or 0, other - 1)}
+    turns_off = {
+        other for other in others if bit_is_set(off_mask.value or 0, other - 1)
+    }
+    return turns_on, turns_off
+
+
 def calc_radio_button_groups(device, device_view=True):
     """Calculate the radio button groups based on the on masks.
 

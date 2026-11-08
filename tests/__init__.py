@@ -1,5 +1,6 @@
 """Utilities for tests."""
 
+import gc
 import logging
 import os
 import shutil
@@ -65,6 +66,10 @@ def set_log_levels(
 
 async def load_devices(devices_mgr: DeviceManager):
     """Load the device fixture into the devices list."""
+    # Earlier tests can leave cyclic garbage holding pubsub listeners on the
+    # fixture devices' topics. If it is collected while loading publishes ALDB
+    # changes, pubsub calls a listener that just died and raises.
+    gc.collect()
     with patch.object(pyinsteon, "devices", devices_mgr):
         if not devices_mgr.modem:
             modem = Hub("111111", 0x03, 51, 165, "Instoen modem")
