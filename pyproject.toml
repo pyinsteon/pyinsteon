@@ -103,6 +103,8 @@ good-names = [
     "ex",
     "on",
     "off",
+    "ControllerSchema",
+    "DeviceLinkSchema",
     "AccessControl_Morningstar",
     "ClimateControl_Thermostat",
     "ClimateControl_WirelessThermostat",
@@ -172,6 +174,7 @@ good-names = [
 # consider-using-assignment-expr (Pylint CodeStyle extension)
 disable = [
     "too-many-arguments",
+    "too-many-positional-arguments",
     "unused-argument",
     "abstract-method",
     "consider-using-assignment-expr",
