@@ -33,7 +33,6 @@ SMOKE_DETECTED_EVENT = "smoke_detected_event"
 CO_DETECTED_EVENT = "co_detected_event"
 TEST_DETECTED_EVENT = "test_detected_event"
 NEW_DETECTED_EVENT = "new_detected_event"
-LOW_BATTERY_EVENT = "low_battery_event"
 SENSOR_MALFUNCTION_EVENT = "sensor_malfunction_event"
 ALL_CLEAR_EVENT = "all_clear_event"
 

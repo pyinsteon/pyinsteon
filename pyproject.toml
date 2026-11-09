@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name        = "pyinsteon"
-version     = "1.7.0"
+version     = "1.8.0"
 license     = {text = "MIT License"}
 description = "Open-source Insteon home automation module running on Python 3."
 readme      = "DESCRIPTION.rst"
@@ -103,6 +103,8 @@ good-names = [
     "ex",
     "on",
     "off",
+    "ControllerSchema",
+    "DeviceLinkSchema",
     "AccessControl_Morningstar",
     "ClimateControl_Thermostat",
     "ClimateControl_WirelessThermostat",
@@ -172,6 +174,7 @@ good-names = [
 # consider-using-assignment-expr (Pylint CodeStyle extension)
 disable = [
     "too-many-arguments",
+    "too-many-positional-arguments",
     "unused-argument",
     "abstract-method",
     "consider-using-assignment-expr",

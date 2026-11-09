@@ -46,7 +46,7 @@ from ..config import (
 )
 from ..config.extended_property import ExtendedProperty
 from ..config.load_button import LoadButtonProperty
-from ..config.radio_button import RadioButtonGroupsProperty
+from ..config.radio_button import RadioButtonGroupsProperty, button_masks
 from ..config.ramp_rate import RampRateProperty
 from ..config.toggle_button import ToggleButtonProperty
 from ..constants import FanSpeed, PropertyType, ResponseStatus, ToggleMode
@@ -612,27 +612,42 @@ class DimmableLightingControl_KeypadLinc(DimmableLightingControl):
         super()._subscribe_to_handelers_and_managers()
         self._managers[STATUS_COMMAND].add_status_type(1, self._led_status)
         for group in self._buttons:
-            if group != 1:
-                led_method = partial(self._async_led_follow_check, group=group)
-                self._managers[group][ON_LEVEL_MANAGER].subscribe(led_method)
+            led_method = partial(self._async_led_follow_check, group=group)
+            # Pubsub only holds weak references, which would drop the partial.
+            self._managers[group][ON_LEVEL_MANAGER].subscribe(
+                led_method, force_strong_ref=True
+            )
 
     def _async_led_follow_check(self, group, on_level):
-        """Check the other LEDs to confirm if they follow the effected LED."""
-        for button in self._buttons:
+        """Update the load and buttons that a button press changes.
+
+        The keypad applies the pressed button's on and off masks itself but only
+        reports the pressed button. Turning a button on turns off the buttons in
+        its off mask and turns on the buttons in its on mask; the load turns on to
+        the button's on-level. Turning it off turns off the buttons in its on mask.
+        """
+        masks = button_masks(self, group)
+        if masks is None:
+            return
+        turns_on, turns_off = masks
+        for button, state in self._groups.items():
             if button == group:
                 continue
-            button_str = f"_{button}" if button != 1 else ""
-            on_mask = self._properties[f"{ON_MASK}{button_str}"]
-            off_mask = self._properties[f"{OFF_MASK}{button_str}"]
-            if not on_mask.is_loaded or not off_mask.is_loaded:
-                continue
-            follow = bit_is_set(on_mask.value, group)
-            set_off = bit_is_set(off_mask.value, group)
-            if follow:
-                if set_off:
-                    self._groups[button].value = 0
-                else:
-                    self._groups[button].value = on_level
+            if button == 1 and button in turns_on:
+                state.value = self._button_load_level(group, on_level)
+            elif on_level and button in turns_off:
+                state.value = 0
+            elif button in turns_on:
+                state.value = on_level
+
+    def _button_load_level(self, group, on_level):
+        """Return the load level after a button with the load in its on mask changes."""
+        if not on_level or group == 1:
+            return on_level
+        prop = self._properties.get(f"{ON_LEVEL}_{group}")
+        if prop is None or not prop.is_loaded or prop.value is None:
+            return on_level
+        return prop.value
 
     def _calc_led_status(self, led, is_on):
         leds = {}
