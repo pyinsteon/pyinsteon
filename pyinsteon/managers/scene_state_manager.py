@@ -33,6 +33,7 @@ class InsteonScene:
         self._name = name
         self._trigger = trigger
         self._controllers: list[dict] = []
+        self._unbound_controllers: list[dict] = []
         self._is_on: Optional[bool] = None
         self._has_device_state = False
         self._subscribers: list[Callable[[], None]] = []
@@ -97,11 +98,14 @@ class InsteonScene:
     def update(self, name: str, controllers: list[dict]):
         """Update the scene name and controllers."""
         changed = name != self._name
+        previous_state = self._is_on, self._has_device_state
         self._name = name
         if [dict(controller) for controller in controllers] != self._controllers:
             changed = True
             self._set_controllers(controllers)
-        if changed:
+        else:
+            self._bind_controllers()
+        if changed or previous_state != (self._is_on, self._has_device_state):
             self._call_subscribers()
 
     def close(self):
@@ -109,16 +113,24 @@ class InsteonScene:
         for source, listener in self._sources:
             source.unsubscribe(listener)
         self._sources = []
+        self._unbound_controllers = []
 
     def _set_controllers(self, controllers: list[dict]):
         self.close()
         self._controllers = [dict(controller) for controller in controllers]
         self._has_device_state = False
+        self._unbound_controllers = self._controllers.copy()
+        self._bind_controllers()
+
+    def _bind_controllers(self):
+        controllers = self._unbound_controllers
+        self._unbound_controllers = []
         device_state = None
-        for controller in self._controllers:
+        for controller in controllers:
             device = devices[controller["address"]]
             group = controller["group"]
             if device is None:
+                self._unbound_controllers.append(controller)
                 continue
             for name, event in device.events.get(group, {}).items():
                 if name in _ON_EVENTS + _OFF_EVENTS:
