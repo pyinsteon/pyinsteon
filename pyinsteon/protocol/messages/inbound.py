@@ -13,6 +13,12 @@ from .message_definitions import FLD_EXT_SEND_ACK, INBOUND_MSG_DEF, MessageField
 _LOGGER = logging.getLogger(__name__)
 
 
+HUB_STANDARD_RECEIVED = 0x5C
+HUB_STANDARD_RECEIVED_LEN = 11
+HUB_CMD1_BYTE = 9
+STATUS_REQUEST_CMD1 = 0x19
+
+
 def trim_data(raw_data: bytearray):
     """Trim bad data from the front of a message byte stream."""
     data_bytes = bytes(raw_data)
@@ -81,6 +87,27 @@ def create(raw_data: bytearray) -> Tuple[Inbound, bytearray]:
         _LOGGER.debug("Message less than 2 bytes")
         _LOGGER.debug("Returning: %s", data_bytes.hex())
         return None, bytearray(data_bytes)
+    if data_bytes[1] == HUB_STANDARD_RECEIVED:
+        # The Insteon Hub (2245) reports some standard messages from devices,
+        # including the direct ACK that confirms a command, with id 0x5C. The
+        # frame has the same layout as a standard received message (0x50).
+        if len(data_bytes) < HUB_STANDARD_RECEIVED_LEN:
+            _LOGGER.debug("Full hub message not received")
+            _LOGGER.debug("Returning: %s", data_bytes.hex())
+            return None, bytearray(data_bytes)
+        if data_bytes[HUB_CMD1_BYTE] == STATUS_REQUEST_CMD1:
+            # For a status request the Hub echoes the request (cmd2 is the
+            # requested status type), not the device's reply. Read as a reply
+            # it reports a bogus level / LED state. The real reply follows as
+            # a 0x50 message, so drop the echo.
+            _LOGGER.debug("Dropping hub status request echo")
+            data_bytes = trim_data(
+                bytearray(data_bytes[HUB_STANDARD_RECEIVED_LEN:])
+            )
+            return None, bytearray(data_bytes)
+        data_bytes = (
+            bytes([data_bytes[0], MessageId.STANDARD_RECEIVED]) + data_bytes[2:]
+        )
     try:
         msg_id = MessageId(data_bytes[1])
     except ValueError as err:
