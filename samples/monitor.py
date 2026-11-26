@@ -3,16 +3,18 @@
 import asyncio
 
 from pyinsteon import async_close, async_connect, devices
+from pyinsteon.constants import DeviceAction
 from samples import _LOGGER, PATH, get_hub_config, set_log_levels
 
 # DEVICE = '/dev/ttyS5'
 DEVICE = "COM5"
-USERNAME, PASSWORD, HOST = get_hub_config()
+USERNAME, PASSWORD, HOST, PORT = get_hub_config()
 
 
-def device_added(address):
+def device_added(action, address):
     """Log a device added to the device list."""
-    _LOGGER.info("Device added: %s", address)
+    if action == DeviceAction.ADDED:
+        _LOGGER.info("Device added: %s", address)
 
 
 async def run():
@@ -23,7 +25,7 @@ async def run():
         logger_messages="debug",
         logger_topics=True,
     )
-    await async_connect(host=HOST, username=USERNAME, password=PASSWORD)
+    await async_connect(host=HOST, username=USERNAME, password=PASSWORD, port=PORT)
     devices.subscribe(device_added)
     await devices.async_load(workdir=PATH)
     await devices.async_save(workdir=PATH)
