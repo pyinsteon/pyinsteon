@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 
 from ..address import Address
 from ..handlers.from_device.off import OffInbound
+from ..handlers.from_device.off_fast import OffFastInbound
+from ..handlers.from_device.on_fast import OnFastInbound
 from ..handlers.from_device.on_level import OnLevelInbound
 from ..subscriber_base import SubscriberBase
 
@@ -31,8 +33,12 @@ class HeartbeatManager(SubscriberBase):
 
         self._on_inbound = OnLevelInbound(self._address, self._group)
         self._off_inbound = OffInbound(self._address, self._group)
+        self._on_fast_inbound = OnFastInbound(self._address, self._group)
+        self._off_fast_inbound = OffFastInbound(self._address, self._group)
         self._on_inbound.subscribe(self._on_heartbeat_received)
         self._off_inbound.subscribe(self._off_heartbeat_received)
+        self._on_fast_inbound.subscribe(self._on_heartbeat_received)
+        self._off_fast_inbound.subscribe(self._off_heartbeat_received)
 
         self._on_hb = self.OnOffHeartbeat(f"{subscriber_topic}_on")
         self._off_hb = self.OnOffHeartbeat(f"{subscriber_topic}_off")
