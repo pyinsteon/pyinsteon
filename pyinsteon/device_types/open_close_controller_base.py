@@ -73,19 +73,19 @@ class OpenCloseControllerBase(Device):
         self._managers[STATUS_COMMAND].add_status_type(0, self._handle_status)
         self._managers[1].subscribe(self._groups[1].set_value)
         if self._normally_open:
-            # Open is OFF and Close is ON
-            self._managers[1].subscribe_off(
+            # Open is ON and Close is OFF
+            self._managers[1].subscribe_on(
                 self._events[1][self._open_event_name].trigger
             )
-            self._managers[1].subscribe_on(
+            self._managers[1].subscribe_off(
                 self._events[1][self._close_event_name].trigger
             )
         else:
-            # Close is OFF and Open is ON
-            self._managers[1].subscribe_on(
+            # Close is ON and Open is OFF
+            self._managers[1].subscribe_off(
                 self._events[1][self._open_event_name].trigger
             )
-            self._managers[1].subscribe_off(
+            self._managers[1].subscribe_on(
                 self._events[1][self._close_event_name].trigger
             )
 
